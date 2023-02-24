@@ -68,7 +68,7 @@ class ActorAnalysis(vtkActorBase):
         self._object.GetPointData().SetActiveScalars("TubeRadius")
         self._tubeFilter.SetInputData(self._object)
         self._tubeFilter.SetRadius(0.02)
-        self._tubeFilter.SetNumberOfSides(50)
+        self._tubeFilter.SetNumberOfSides(36)
         self._tubeFilter.SetCapping(True)
         self._tubeFilter.SetVaryRadiusToVaryRadiusByAbsoluteScalar()
         self._tubeFilter.Update()

@@ -35,7 +35,7 @@ class ActorElement(vtkActorBase):
     def filter(self):
         self._tubeFilter.SetInputData(self._object)
         self._tubeFilter.SetRadius(self.size)
-        self._tubeFilter.SetNumberOfSides(50)
+        self._tubeFilter.SetNumberOfSides(36)
         self._tubeFilter.Update()
 
     def map(self):

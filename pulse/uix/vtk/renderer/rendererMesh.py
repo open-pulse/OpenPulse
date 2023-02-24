@@ -352,7 +352,7 @@ class RendererMesh(vtkRendererBase):
 
     def createSectionPolygon(self, element):
 
-        outer_points, inner_points = element.cross_section.get_cross_section_points(element.length)
+        outer_points, inner_points, _ = element.cross_section_points
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
 
@@ -405,30 +405,6 @@ class RendererMesh(vtkRendererBase):
             source.AddInputData(data)
 
             return source
-
-    # def createSectionPolygon(self, element):
-    #     outer_points, inner_points, number_points = self.project.get_preprocess().get_cross_section_points(element.index)
-    #     points = vtk.vtkPoints()
-    #     edges = vtk.vtkCellArray()
-    #     data = vtk.vtkPolyData()
-    #     poly = vtk.vtkPolygon()
-    #     source = vtk.vtkTriangleFilter()
-
-    #     for x, y in outer_points:
-    #         points.InsertNextPoint(x, y, 0)    
-       
-    #     n = int(number_points/2)
-    #     poly.GetPointIds().SetNumberOfIds(n)
-
-    #     for i in range(n):
-    #         poly.GetPointIds().SetId(i,i)
-    #     edges.InsertNextCell(poly)
-        
-    #     data.SetPoints(points)
-    #     data.SetPolys(edges)
-    #     source.AddInputData(data)
-
-    #     return source
 
     def generalSectionTube(self, element, section):
         start = element.first_node.coordinates

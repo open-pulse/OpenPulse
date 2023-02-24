@@ -2190,7 +2190,7 @@ class ProjectFile:
     #         self.confirm_table_file_removal(list_table_names)
 
 
-    def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, remove_non_mapped_bcs=False):
+    def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_indexes):
         if os.path.exists(self._node_acoustic_path):
             config = configparser.ConfigParser()
             config.read(self._node_acoustic_path)
@@ -2205,28 +2205,39 @@ class ProjectFile:
             self.write_data_in_file(self._node_acoustic_path, config)
 
 
-    def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes):
+    def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
         if os.path.exists(self._node_structural_path):
+
+            print(dict_old_to_new_indexes, dict_non_mapped_nodes)
+
             config = configparser.ConfigParser()
+            config_new = configparser.ConfigParser()
             config.read(self._node_structural_path)
-            for node_id in list(config.sections()):
+            sections = list(config.sections())
+            
+            for section in sections:
                 try:
-                    if "-" in node_id:
-                        [_node_id1, _node_id2]  = node_id.split("-")
-                        key_id1 = str(dict_old_to_new_indexes[_node_id1])
-                        key_id2 = str(dict_old_to_new_indexes[_node_id2])
-                        new_key = f"{key_id1}-{key_id2}"
-                        if node_id != new_key:
-                            config[new_key] = config[node_id]
-                            config.remove_section(node_id)
-                    else:
-                        new_key = str(dict_old_to_new_indexes[node_id])
-                        if node_id != new_key:
-                            config[new_key] = config[node_id]
-                            config.remove_section(node_id)                        
+                    if section not in dict_non_mapped_nodes.values():     
+                        if "-" in section:
+                            [_node_id1, _node_id2]  = section.split("-")
+                            key_id1 = str(dict_old_to_new_indexes[_node_id1])
+                            key_id2 = str(dict_old_to_new_indexes[_node_id2])
+                            new_key = f"{key_id1}-{key_id2}"
+                        else:
+                            new_key = str(dict_old_to_new_indexes[section])
+                            # if section != new_key:
+                            #     config2[new_key] = config[section]
+                            #     config.remove_section(section)   
+                        if section != new_key:
+                            config_new[new_key] = config[section]
+                            # config.remove_section(section)
+                        else:
+                            config_new[section] = config[section]                     
+                
                 except Exception as log_error:
-                    config.remove_section(node_id)
-            self.write_data_in_file(self._node_structural_path, config)
+                    config.remove_section(section)
+            
+            self.write_data_in_file(self._node_structural_path, config_new)
 
 
     def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):

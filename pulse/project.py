@@ -121,14 +121,11 @@ class Project:
                         conn_path)
          
     def load_project(self, project_file_path):
-        try:
-            def callback():
-                if self.initial_load_project_actions(project_file_path):
-                    self.load_project_files()
-            LoadingScreen('Loading Project', target=callback)
-            self.preprocessor.get_list_edge_nodes(self.file._element_size)
-        except Exception as log_error:
-            print(str(log_error))
+        def callback():
+            if self.initial_load_project_actions(project_file_path):
+                self.load_project_files()
+        LoadingScreen('Loading Project', target=callback)
+        self.preprocessor.get_list_edge_nodes(self.file._element_size)
 
     def initial_load_project_actions(self, project_file_path):
         try:
@@ -210,9 +207,9 @@ class Project:
         self.load_entity_file()
         self.load_analysis_file()
 
-    def update_node_ids_in_file_after_remesh(self, dict_old_to_new_node_external_indexes):
-        self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_node_external_indexes)
-        self.file.modify_node_ids_in_structural_bc_file(dict_old_to_new_node_external_indexes)
+    def update_node_ids_in_file_after_remesh(self, dict_mapped_indexes, dict_non_mapped_indexes):
+        self.file.modify_node_ids_in_acoustic_bc_file(dict_mapped_indexes, dict_non_mapped_indexes)
+        self.file.modify_node_ids_in_structural_bc_file(dict_mapped_indexes, dict_non_mapped_indexes)
 
     def update_element_ids_in_entity_file_after_remesh(self, dict_group_elements_to_update_entity_file, 
                                                              dict_non_mapped_subgroups_entity_file):

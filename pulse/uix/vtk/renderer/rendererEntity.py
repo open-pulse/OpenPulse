@@ -210,7 +210,7 @@ class RendererEntity(vtkRendererBase):
 
     def createSectionPolygon(self, element):
 
-        outer_points, inner_points = element.cross_section.get_cross_section_points(element.length)
+        outer_points, inner_points, _ = element.cross_section_points
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
 

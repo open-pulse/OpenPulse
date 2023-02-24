@@ -143,12 +143,13 @@ class SetMeshPropertiesInput(QDialog):
             for coord in list(self.dict_non_mapped_bcs.keys()):
                 message += f"{coord};\n"
             message = message[:-2]
-            message += ".\n\nPress the Return button if you want to change the element size and process remapping once, press the"
+            message += ".\n\nPress the Return button if you want to change the element size and process remapping once, press the "
             message += "Remove button to remove unmapped boundary conditions or press Close button to abort the mesh operation."
             read = CallDoubleConfirmationInput(title, message, leftButton_label = 'Remove', rightButton_label = 'Return')
             
             if read._doNotRun:
-                self.process_intermediate_actions(undo_remesh=True, mapping=False) 
+                self.undo_mesh_actions()
+                # self.process_intermediate_actions(undo_remesh=True, mapping=False) 
             elif read._stop:
                 self.process_final_actions()
                 title = "Removal of unmapped boundary conditions"
@@ -160,40 +161,39 @@ class SetMeshPropertiesInput(QDialog):
                 message += ".\n\nPlease, take this information into account henceforward."
                 PrintMessageInput([title, message, window_title_2])
             elif read._continue:
-                self.process_intermediate_actions(undo_remesh=True, mapping=False)
+                self.undo_mesh_actions()
+                # self.process_intermediate_actions(undo_remesh=True, mapping=False)
                 return
         else:
             self.process_final_actions()
         self.project.time_to_load_or_create_project = time() - self.t0
         self.close()
 
-    def process_intermediate_actions(self, undo_remesh=False, mapping=True):
+    def process_intermediate_actions(self):
         self.t0 = time()
-        if undo_remesh:
-            element_size = self.current_element_size
-        else:
-            element_size = self.new_element_size    
-        self.project.file.update_project_attributes(element_size, self.geometry_tolerance)
+        self.project.file.update_project_attributes(self.new_element_size, self.geometry_tolerance)
         self.project.initial_load_project_actions(self.project_ini_file_path)
         if len(self.preprocessor.structural_elements) > 0:
-            if mapping:
-                #
-                data_1 = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)
-                data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
-                data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
-                #
-                [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = data_1
-                [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
-                [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
+            #
+            data_1 = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)
+            data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
+            data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
+            #
+            [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = data_1
+            [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
+            [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
 
-        if undo_remesh:
-            self.project.load_project_files()     
-            self.opv.opvRenderer.plot()
-            self.opv.changePlotToMesh() 
+    def undo_mesh_actions(self):
+        self.t0 = time()
+        self.project.file.update_project_attributes(self.current_element_size, self.geometry_tolerance)
+        self.project.initial_load_project_actions(self.project_ini_file_path)
+        self.project.load_project_files()     
+        self.opv.opvRenderer.plot()
+        self.opv.changePlotToMesh() 
 
     def process_final_actions(self):
         if len(self.dict_old_to_new_node_external_indexes) > 0:
-            self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes)
+            self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs)
         if len(self.dict_group_elements_to_update_entity_file) > 0:
             self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
                                                                         self.dict_non_mapped_subgroups_entity_file)

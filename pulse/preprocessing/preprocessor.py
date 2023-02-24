@@ -545,8 +545,8 @@ class Preprocessor:
                         parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
                     else:
                         parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
-                    element.cross_section_points = get_circular_section_points(parameters, section_label)
-                        
+                    element.cross_section_points = element.cross_section.get_circular_section_points(parameters, section_label)
+
     def get_number_attributes_from_node(self, node, acoustic=False, structural=False):
         
         countA = 0
@@ -571,7 +571,7 @@ class Preprocessor:
                     countS +=1
             return countS
              
-    def get_list_edge_nodes(self, size, tolerance=1e-5):
+    def get_list_edge_nodes(self, size, tolerance=1e-6):
         if self.nodal_coordinates_matrix_external is not None:
             coord_matrix = self.nodal_coordinates_matrix_external
             # self.list_edge_nodes = []
@@ -1118,22 +1118,24 @@ class Preprocessor:
                 element.cross_section = cross_section
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
-
+       
         if update_section_points:
             if cross_section:
                 if isinstance(cross_section, list):
                     for i, element in enumerate(elements):
                         _element = [element]
-                        # _cross_section = cross_section[i]
+                        _cross_section = cross_section[i]
+                        _cross_section_points = _cross_section.get_cross_section_points(number_elements = len(self.structural_elements))
                         for element in slicer(self.structural_elements, _element):
-                            element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
+                            element.cross_section_points = _cross_section_points
                         for element in slicer(self.acoustic_elements, _element):
-                            element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
+                            element.cross_section_points = _cross_section_points
                 else:    
+                    cross_section_points = cross_section.get_cross_section_points(number_elements = len(self.structural_elements))
                     for element in slicer(self.structural_elements, elements):
-                        element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
+                        element.cross_section_points = cross_section_points
                     for element in slicer(self.acoustic_elements, elements):
-                        element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
+                        element.cross_section_points = cross_section_points
 
     def set_cross_section_by_line(self, lines, cross_section):
         """
@@ -2957,11 +2959,14 @@ class Preprocessor:
     def process_nodes_to_update_indexes_after_remesh(self, node):
         """
         This method ...
-        """        
+        """
         str_coord = str(node.coordinates)
         self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
 
     def update_node_ids_after_remesh(self, dict_cache, tolerance=1e-8):
+        """
+        This method ...
+        """
         coord_matrix = self.nodal_coordinates_matrix_external
         list_coordinates = coord_matrix[:,1:].tolist()
         new_external_indexes = coord_matrix[:,0]

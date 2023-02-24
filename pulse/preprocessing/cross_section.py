@@ -187,10 +187,12 @@ class CrossSection:
     
     def __init__(self, **kwargs):
             
-        self.division_number = kwargs.get('division_number', 64)
+        self.division_number = kwargs.get('division_number', 32)
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.poisson_ratio = kwargs.get('poisson_ratio', 0)
-                
+        
+        self.poligon_side_number = 18 # Pipe and Circular beam cross-section plots
+
         # Pipe section parameters
         self.outer_diameter = 0
         self.thickness = 0
@@ -891,15 +893,24 @@ class CrossSection:
      
             return e_y, e_z
     
-    def get_cross_section_points(self, length):
+    def get_cross_section_points(self, number_elements=1e4):
 
         inner_points = []
-        length = round(length, 4)
+        # length = round(length, 4)
 
+        if number_elements <= 1e3:
+            N = 36
+        elif number_elements <= 1e4:
+            N = 18
+        elif number_elements <= 5e4:
+            N = 12
+        elif number_elements <= 1e5:
+            N = 8
+        else:
+            N = 6
+        self.poligon_side_number = N
+        
         if self.section_label == "Pipe section": # Pipe section - It's a pipe section, so ignore for beam plots
-
-            # N = element.cross_section.division_number
-            N = 32 # temporary number of divisions for pipe sections
  
             d_out = self.outer_diameter
             d_in = d_out - 2*self.thickness
@@ -923,9 +934,7 @@ class CrossSection:
 
         elif self.section_label == "Rectangular section": # Beam: Rectangular section
 
-            b, h, b_in, h_in, offset_y, offset_z = self.section_parameters           
-            # Y_out = np.array([(b/2), (b/2), -(b/2), -(b/2), (b/2)]
-            # Z_out = np.array([(h/2), -(h/2), -(h/2), (h/2), (h/2)]
+            b, h, b_in, h_in, offset_y, offset_z = self.section_parameters
             Y_out = np.array([(b/2), (b/2),  (b/2), 0, -(b/2), -(b/2), -(b/2), 0]) + offset_y
             Z_out = np.array([(h/2), 0, -(h/2), -(h/2), -(h/2), 0, (h/2), (h/2)]) + offset_z
             outer_points = list(zip(Y_out, Z_out))
@@ -937,7 +946,6 @@ class CrossSection:
             
         elif self.section_label == "Circular section": # Beam: Circular section
             
-            N = 24# element.cross_section.division_number
             d_out, thickness, offset_y, offset_z = self.section_parameters
             if thickness == 0:
                 d_in = 0
@@ -990,9 +998,7 @@ class CrossSection:
             outer_points = list(zip(Y_out, Z_out))
         
         elif self.section_label == "Expansion joint section" : #
-    
-            N = 32 # temporary number of divisions for pipe sections
-    
+        
             if self.expansion_joint_plot_key == "major":
               r_out = self.outer_radius*1.25 
             
@@ -1019,8 +1025,6 @@ class CrossSection:
 
         elif self.section_label == "Valve section" : #
     
-            N = 32 # temporary number of divisions for pipe sections
-
             d_out = self.outer_diameter_to_plot
             d_in = self.inner_diameter_to_plot
             # d_in = d_out - 2*self.thickness
@@ -1058,54 +1062,56 @@ class CrossSection:
 
         if inner_points == []:
             Y_in, Z_in = 0, 0
-            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label, length])
+            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label])
         else:
-            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label, length])        
+            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label])        
         
         return outer_points, inner_points, max_min
 
-def get_circular_section_points(parameters, section_label):
-    """" This method returns """
-    N = 32 # temporary number of divisions for circular sections
-    
-    if section_label == "Expansion joint section":
+    def get_circular_section_points(self, parameters, section_label):
+        """" 
+        This method returns 
+        """
+        N = self.poligon_side_number
+        
+        if section_label == "Expansion joint section":
 
-        d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
+            d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
 
-        if key == "major":
-            d_out *= 1.25 
-        elif key == "minor":
-            d_out *= 1.1            
+            if key == "major":
+                d_out *= 1.25
+            elif key == "minor":
+                d_out *= 1.1        
+            else:
+                d_out *= 1.4
+
         else:
-            d_out *= 1.4
-            
-    else:
 
-        d_out, d_in, offset_y, offset_z, insulation_thickness = parameters
-    
-    r_out = d_out/2
-    r_in = d_in/2
-    
-    d_theta = 2*np.pi/N
-    theta = -np.arange(0, 2*np.pi, d_theta)
-    sine = np.sin(theta)
-    cossine = np.cos(theta)
-    
-    Y_out = r_out*cossine + offset_y
-    Z_out = r_out*sine + offset_z
-    Y_in = r_in*cossine + offset_y
-    Z_in = r_in*sine + offset_z
+            d_out, d_in, offset_y, offset_z, insulation_thickness = parameters
+        
+        r_out = d_out/2
+        r_in = d_in/2
+        
+        d_theta = 2*np.pi/N
+        theta = -np.arange(0, 2*np.pi, d_theta)
+        sine = np.sin(theta)
+        cossine = np.cos(theta)
+        
+        Y_out = r_out*cossine + offset_y
+        Z_out = r_out*sine + offset_z
+        Y_in = r_in*cossine + offset_y
+        Z_in = r_in*sine + offset_z
 
-    if insulation_thickness != float(0):
-        Y_out = (r_out + insulation_thickness)*cossine + offset_y
-        Z_out = (r_out + insulation_thickness)*sine + offset_z
+        if insulation_thickness != float(0):
+            Y_out = (r_out + insulation_thickness)*cossine + offset_y
+            Z_out = (r_out + insulation_thickness)*sine + offset_z
 
-    outer_points = list(zip(Y_out, Z_out))
-    inner_points = list(zip(Y_in, Z_in))
+        outer_points = list(zip(Y_out, Z_out))
+        inner_points = list(zip(Y_in, Z_in))
 
-    max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), section_label])
-    
-    return outer_points, inner_points, max_min
+        max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), section_label])
+        
+        return outer_points, inner_points, max_min
 
 def get_points_to_plot_section(section_label, section_parameters):   
     
