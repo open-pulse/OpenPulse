@@ -356,31 +356,38 @@ class ProjectFile:
     def update_entity_file(self, entities, dict_map_lines={}):
 
         try:
-            config = configparser.ConfigParser()
+            
             if os.path.exists(self._entity_path):
+
+                config = configparser.ConfigParser()
                 config2 = configparser.ConfigParser()
                 config2.read(self._entity_path)
                 sections = config2.sections()
+
+                # print(dict_map_lines)
+
                 mapped_entities = []
                 for entity_id in entities:
                     if len(dict_map_lines) == 0:
                         config[str(entity_id)] = {}
+                    elif str(entity_id) not in sections:
+                        config[str(entity_id)] = {}
+                    elif entity_id not in dict_map_lines.keys():
+                        config[str(entity_id)] = {} 
                     else:
-                        if entity_id in dict_map_lines.keys():
-                            for section in sections:
-                                if "-" in section:
-                                    prefix = int(section.split("-")[0])
-                                    sufix = int(section.split("-")[1])
-                                    if dict_map_lines[entity_id] == prefix:
-                                        _key = f"{entity_id}-{sufix}"
-                                        config[_key] = config2[section]
-                                else:
-                                    if entity_id not in mapped_entities:
-                                        config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
-                                        mapped_entities.append(entity_id)
-                        else:
-                            config[str(entity_id)] = {}            
-            self.write_data_in_file(self._entity_path, config)
+                        for section in sections:
+                            if "-" in section:
+                                prefix = int(section.split("-")[0])
+                                sufix = int(section.split("-")[1])
+                                if dict_map_lines[entity_id] == prefix:
+                                    _key = f"{entity_id}-{sufix}"
+                                    config[_key] = config2[section]
+                            else:
+                                if entity_id not in mapped_entities:
+                                    config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
+                                    mapped_entities.append(entity_id)
+            
+                self.write_data_in_file(self._entity_path, config)
 
         except Exception as _error:
             print(str(_error))
@@ -2208,7 +2215,7 @@ class ProjectFile:
     def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
         if os.path.exists(self._node_structural_path):
 
-            print(dict_old_to_new_indexes, dict_non_mapped_nodes)
+            # print(dict_old_to_new_indexes, dict_non_mapped_nodes)
 
             config = configparser.ConfigParser()
             config_new = configparser.ConfigParser()

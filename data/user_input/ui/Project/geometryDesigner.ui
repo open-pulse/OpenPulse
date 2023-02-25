@@ -2471,7 +2471,7 @@ the all entities will be removed.</string>
      <widget class="QFrame" name="frame_12">
       <property name="geometry">
        <rect>
-        <x>224</x>
+        <x>48</x>
         <y>250</y>
         <width>323</width>
         <height>153</height>
@@ -2731,7 +2731,7 @@ color: rgb(0, 0, 255);</string>
       <property name="geometry">
        <rect>
         <x>178</x>
-        <y>40</y>
+        <y>38</y>
         <width>419</width>
         <height>175</height>
        </rect>
@@ -3006,6 +3006,131 @@ color: rgb(0, 0, 255);</string>
          </widget>
         </item>
        </layout>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_17">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>250</y>
+        <width>323</width>
+        <height>153</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QFrame" name="frame_18">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>323</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QLabel" name="label_15">
+        <property name="geometry">
+         <rect>
+          <x>22</x>
+          <y>8</y>
+          <width>280</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>280</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>280</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;While updating the project, try to:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_maintain_nodes_attributes">
+       <property name="geometry">
+        <rect>
+         <x>58</x>
+         <y>52</y>
+         <width>240</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>240</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>240</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Maintain the nodes attributes</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_maintain_lines_attributes">
+       <property name="geometry">
+        <rect>
+         <x>58</x>
+         <y>100</y>
+         <width>240</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>240</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>240</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Maintain the lines attributes</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </widget>
     </widget>

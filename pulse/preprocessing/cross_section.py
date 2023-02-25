@@ -893,22 +893,12 @@ class CrossSection:
      
             return e_y, e_z
     
-    def get_cross_section_points(self, number_elements=1e4):
+    def get_cross_section_points(self, number_divisions):
 
         inner_points = []
         # length = round(length, 4)
-
-        if number_elements <= 1e3:
-            N = 36
-        elif number_elements <= 1e4:
-            N = 18
-        elif number_elements <= 5e4:
-            N = 12
-        elif number_elements <= 1e5:
-            N = 8
-        else:
-            N = 6
-        self.poligon_side_number = N
+        self.poligon_side_number = number_divisions
+        N = number_divisions
         
         if self.section_label == "Pipe section": # Pipe section - It's a pipe section, so ignore for beam plots
  

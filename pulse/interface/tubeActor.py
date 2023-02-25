@@ -37,8 +37,12 @@ class TubeActor(vtkActorBase):
     @transparent.setter
     def transparent(self, value):
         if value:
-            self._actor.GetProperty().SetOpacity(0.2)
-            self._actor.GetProperty().SetLighting(False)
+            if self.preprocessor.number_structural_elements > 5e4:
+                self._actor.GetProperty().SetOpacity(0)
+                self._actor.GetProperty().SetLighting(True)
+            else:
+                self._actor.GetProperty().SetOpacity(0.15)
+                self._actor.GetProperty().SetLighting(False)
         else:
             self._actor.GetProperty().SetOpacity(1)
             self._actor.GetProperty().SetLighting(True)
@@ -203,7 +207,7 @@ class TubeActor(vtkActorBase):
             poly.SetNormal(1,0,0)
             poly.SetRadius(r)
             return poly
-                
+
         outer_points, inner_points, _ = element.cross_section_points
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)

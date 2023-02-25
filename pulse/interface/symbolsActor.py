@@ -35,6 +35,7 @@ class SymbolsActorBase(vtkActorBase):
         self.deformed = deformed
         if self.process_scaleFactor():
             self.scaleFactor = 1
+        # print(f"scaleFactor: {self.scaleFactor}")
 
         self._connections = self._createConnections()
         # self._sequence = self._createSequence()
@@ -75,9 +76,22 @@ class SymbolsActorBase(vtkActorBase):
             return True
         else:
             self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
-            if 200*self.project.file._element_size < self.scaleFactor:
-                self.scaleFactor = 200*self.project.file._element_size
+            # print(f"ratio: {self.scaleFactor/(200*self.project.file._element_size)}")
+            if self.scaleFactor/(200*self.project.file._element_size) > 100:
+                self.scaleFactor = 200*200*self.project.file._element_size
                 return False
+            if self.scaleFactor/(200*self.project.file._element_size) > 10:
+                self.scaleFactor = 200*20*self.project.file._element_size
+                return False
+            if self.scaleFactor/(200*self.project.file._element_size) > 1:
+                self.scaleFactor = 200*2*self.project.file._element_size
+                return False
+            if self.scaleFactor/(200*self.project.file._element_size) > 0.1:
+                self.scaleFactor = 200*0.2*self.project.file._element_size
+                return False
+            # if 200*self.project.file._element_size < self.scaleFactor:
+            #     # self.scaleFactor = 200*self.project.file._element_size
+            #     return False
 
     def source(self):
 

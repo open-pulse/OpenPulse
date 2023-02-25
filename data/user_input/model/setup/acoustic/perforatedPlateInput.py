@@ -616,7 +616,7 @@ class PerforatedPlateInput(QDialog):
             if self.tabWidget_dimensionless.currentIndex()==0:
                 if self.check_svalues():
                     return True
-        print("passei aqui!")
+        
         self.dict_inputs['single hole'] = self.flag_single_hole
 
         self.perforated_plate = PerforatedPlate(self.dict_inputs['hole diameter'], 

@@ -125,7 +125,7 @@ class Project:
             if self.initial_load_project_actions(project_file_path):
                 self.load_project_files()
         LoadingScreen('Loading Project', target=callback)
-        self.preprocessor.get_list_edge_nodes(self.file._element_size)
+        self.preprocessor.check_disconnected_lines(self.file._element_size)
 
     def initial_load_project_actions(self, project_file_path):
         try:
@@ -136,7 +136,7 @@ class Project:
                 if os.path.exists(path):
                     self.load_geometry_entities()
                     self.empty_geometry = False
-                    if self.file.get_element_size_from_project_file() != "":
+                    if self.check_mesh_setup():
                         self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
                         self.entities = self.preprocessor.dict_tag_to_entity.values()
                         if not os.path.exists(self.file._entity_path):
@@ -355,6 +355,7 @@ class Project:
                 rmtree(self.file._imported_data_folder_path)
 
     def process_geometry_and_mesh(self, tolerance=1e-6):
+        # t0 = time()
         import_type = self.file.get_import_type()
         if import_type == 0:
             self.preprocessor.generate(self.file.geometry_path, self.file.element_size, tolerance=tolerance)
@@ -362,6 +363,8 @@ class Project:
             self.preprocessor.generate("", self.file.element_size, tolerance=tolerance, gmsh_geometry=True)
         elif import_type == 2:
             self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
+        # dt = time()-t0
+        # print(f"process_geometry_and_mesh: {dt} [s]")
 
     def add_user_preferences_to_file(self, preferences):
         self.file.add_user_preferences_to_file(preferences)

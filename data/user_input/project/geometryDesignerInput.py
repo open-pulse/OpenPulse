@@ -106,7 +106,9 @@ class GeometryDesignerInput(QDialog):
         self.checkBox_auto_fillet_ID = self.findChild(QCheckBox, 'checkBox_auto_fillet_ID')
         self.checkBox_export_geometry = self.findChild(QCheckBox, 'checkBox_export_geometry')
         self.checkBox_process_geometry_and_mesh = self.findChild(QCheckBox, 'checkBox_process_geometry_and_mesh')
-
+        self.checkBox_maintain_nodes_attributes = self.findChild(QCheckBox, "checkBox_maintain_nodes_attributes")
+        self.checkBox_maintain_lines_attributes = self.findChild(QCheckBox, "checkBox_maintain_lines_attributes")
+        
         self.radioButton_open_Cascade = self.findChild(QRadioButton, 'radioButton_open_Cascade')
         self.radioButton_built_in = self.findChild(QRadioButton, 'radioButton_built_in')
         self.radioButton_open_Cascade.setChecked(True)
@@ -164,7 +166,7 @@ class GeometryDesignerInput(QDialog):
         _bool = self.checkBox_process_geometry_and_mesh.isChecked()
         self.lineEdit_element_size.setDisabled(not _bool)
         self.lineEdit_geometry_tolerance.setDisabled(not _bool)
-        if _bool or self.project.file.get_element_size_from_project_file() != "":
+        if _bool or self.project.check_mesh_setup():
             self.pushButton_generate_geometry.setGeometry(QRect(410, 508, 260, 36))
             self.pushButton_generate_geometry.setText("Generate geometry and mesh")
         else:
@@ -349,8 +351,10 @@ class GeometryDesignerInput(QDialog):
 
     def load_geometry_entities_from_file(self):
 
-        self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_edges_coordinates()
+        self.cache_geometry = self.preprocessor.geometry
+        self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_vertex_coordinates()
         entities_data = self.project.file.load_geometry_entities_file()
+        
         self.update_process_geometry_and_mesh_state()
         if entities_data is None:
             return
@@ -579,12 +583,20 @@ class GeometryDesignerInput(QDialog):
             self.lineEdit_fillet_line_id_2.setText("")
             return
 
+        if line_id1_typed == line_id2_typed:
+            title = "Same Line ID inputs" 
+            message = "The typed line IDs should be connected, share a common point and differ. It is necessary "
+            message += "to accomplish this requisite to proceed with the fillet parameters processing."
+            PrintMessageInput([title, message, window_title_2])
+            return
+
         if self.check_inputs(self.lineEdit_fillet_radius, label="fillet radius", only_positive=True):
             fillet_radius = self.value
         else:
             return
 
         list_points = []
+        corner_point = None
         for point_line_1 in self.lines[line_id1_typed]:
             if point_line_1 not in list_points:
                 list_points.append(point_line_1)
@@ -595,6 +607,15 @@ class GeometryDesignerInput(QDialog):
             else:
                 corner_point = point_line_2 
         
+        if corner_point is None:
+            title = "Disconnected line inputs" 
+            message = "The typed Line IDs should be connected and share a common point. It is necessary "
+            message += "to accomplish this requisite to proceed with the fillet parameters processing."
+            PrintMessageInput([title, message, window_title_2])
+            # self.lineEdit_fillet_line_id_1.setText("")
+            # self.lineEdit_fillet_line_id_2.setText("")
+            return
+
         list_points.remove(corner_point)
         set_points = [list_points[0], corner_point, list_points[1]]
         
@@ -680,11 +701,9 @@ class GeometryDesignerInput(QDialog):
         if self.lineEdit_fillet_id.text() != "":
             fillet_id = int(self.lineEdit_fillet_id.text())
             fillet_data = self.fillets[fillet_id]
-            if fillet_id in self.fillets.keys():
-                self.fillets.pop(fillet_id)
-            for point_id in [fillet_data[6], fillet_data[7], fillet_data[8]]:
-                if point_id in self.points.keys():
-                    self.points.pop(point_id)
+            self.fillets.pop(fillet_id)
+            for point_id in fillet_data[6:]:
+                self.points.pop(point_id)
         self.clear_fillet_input_fields()
         self.load_fillets_info()
         self.load_lines_info()
@@ -704,10 +723,10 @@ class GeometryDesignerInput(QDialog):
     def remove_fillet_by_line(self, line_id):
         cache_fillets = self.fillets.copy()
         for fillet_id, fillet_data in cache_fillets.items(): 
-            if line_id in [fillet_data[0], fillet_data[1]]:
+            if line_id in fillet_data[:2]:
                 self.fillets.pop(fillet_id)
-            for point_id in [fillet_data[6], fillet_data[7], fillet_data[8]]:
-                self.points.pop(point_id)
+                for point_id in fillet_data[6:]:
+                    self.points.pop(point_id)
         self.load_fillets_info()
         self.load_points_info()
 
@@ -752,7 +771,7 @@ class GeometryDesignerInput(QDialog):
                     geometry_path = ""
  
                 self.project.set_geometry_entities(entities_data, geometry_path, kernel=kernel)
-                if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.file.get_element_size_from_project_file() != "":
+                if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.check_mesh_setup():
                     if self.process_mesh():
                         return
                     self.complete = True
@@ -774,43 +793,54 @@ class GeometryDesignerInput(QDialog):
 
         self.project.file.update_project_attributes(self.element_size, self.geometry_tolerance)
         self.project.initial_load_project_actions(self.project_ini_path)
-        self.process_lines_mapping_and_final_actions()
+        if self.checkBox_maintain_lines_attributes.isChecked():
+            self.process_lines_mapping()
+        if self.checkBox_maintain_nodes_attributes.isChecked():
+            self.process_nodes_mapping()
+        self.project.load_project_files()
+        self.preprocessor.check_disconnected_lines(self.element_size)
         self.opv.updatePlots()
         self.opv.changePlotToMesh()
         return False
 
+    def process_lines_mapping(self):
+        dict_map_lines = {}
+        self.geometry = self.preprocessor.geometry
+        if self.cache_geometry.lines == self.geometry.lines:
+            for line_id in self.geometry.lines.keys():
+                dict_map_lines[line_id] = line_id
+        else:
+            self.dict_lines_edge_coord = self.preprocessor.get_lines_vertex_coordinates()
+            for cache_line_id, cache_coords in self.cache_dict_lines_to_edge_coord.items():
+                for line_id, new_coords in self.dict_lines_edge_coord.items():
+                    if (np.array(cache_coords) == np.array(new_coords)).all() or (np.array(cache_coords) == np.flip(new_coords, axis=0)).all():
+                        dict_map_lines[line_id] = cache_line_id
+        self.project.file.update_entity_file(self.preprocessor.all_lines, dict_map_lines=dict_map_lines)
+
     def process_nodes_mapping(self):
-        #
+
         data_1 = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)
-        data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
-        # data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
-        #
         [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = data_1
-        [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
-        # [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
 
         if len(self.dict_old_to_new_node_external_indexes) > 0:
-            self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes)
+            self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs)
+
+    def process_elements_mapping(self):
+    
+        data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
+        data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
+        
+        [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
+        [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
+
         if len(self.dict_group_elements_to_update_entity_file) > 0:
             self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
                                                                         self.dict_non_mapped_subgroups_entity_file)
-        # if len(self.dict_group_elements_to_update_element_info_file) > 0:
-        #     self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
-        #                                                                         self.dict_non_mapped_subgroups_info_file,
-        #                                                                         self.dict_list_elements_to_subgroups    )
-
-    def process_lines_mapping_and_final_actions(self):
-        dict_map_lines = {}
-        self.dict_lines_edge_coord = self.preprocessor.get_lines_edges_coordinates()
-        for cache_line_id, cache_coords in self.cache_dict_lines_to_edge_coord.items():
-            for line_id, coords in self.dict_lines_edge_coord.items():
-                if (np.array(cache_coords) == np.array(coords)).all() or (np.array(cache_coords) == np.flip(coords, axis=0)).all():
-                    dict_map_lines[line_id] = cache_line_id
-        self.project.file.update_entity_file(self.preprocessor.all_lines, dict_map_lines=dict_map_lines)
-        self.process_nodes_mapping()
-        self.project.load_project_files()
-        self.preprocessor.get_list_edge_nodes(self.element_size)
-
+        if len(self.dict_group_elements_to_update_element_info_file) > 0:
+            self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
+                                                                                self.dict_non_mapped_subgroups_info_file,
+                                                                                self.dict_list_elements_to_subgroups    )
+ 
     def check_element_size_input_value(self):
         self.element_size = 0.01
         try:
@@ -884,8 +914,14 @@ class GeometryDesignerInput(QDialog):
             return
 
         if read._continue:
+
+            for data in self.fillets.values():
+                for point_id in data[6:]:
+                    self.points.pop(point_id) 
+
             self.fillets = {}
             self.load_fillets_info()
+            self.load_points_info()
 
     def clear_all_entities(self):
 
