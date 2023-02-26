@@ -135,7 +135,6 @@ class Project:
                 path = self.file.get_geometry_path()
                 if os.path.exists(path):
                     self.load_geometry_entities()
-                    self.empty_geometry = False
                     if self.check_mesh_setup():
                         self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
                         self.entities = self.preprocessor.dict_tag_to_entity.values()
@@ -200,6 +199,7 @@ class Project:
                                     "fillets_data" : fillets_data}
 
             self.preprocessor.generate_geometry_gmsh(output_entities_data)
+            self.empty_geometry = False
 
     def load_project_files(self):
         self.load_structural_bc_file()

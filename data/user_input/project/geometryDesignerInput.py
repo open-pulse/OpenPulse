@@ -350,8 +350,10 @@ class GeometryDesignerInput(QDialog):
         self.lineEdit_fillet_radius.setText("")         
 
     def load_geometry_entities_from_file(self):
-
-        self.cache_geometry = self.preprocessor.geometry
+        try:
+            self.cache_geometry = self.preprocessor.geometry
+        except:
+               self.cache_geometry= None
         self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_vertex_coordinates()
         entities_data = self.project.file.load_geometry_entities_file()
         
