@@ -364,8 +364,6 @@ class ProjectFile:
                 config2.read(self._entity_path)
                 sections = config2.sections()
 
-                # print(dict_map_lines)
-
                 mapped_entities = []
                 for entity_id in entities:
                     if len(dict_map_lines) == 0:

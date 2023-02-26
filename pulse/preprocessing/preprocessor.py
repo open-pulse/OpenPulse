@@ -37,7 +37,6 @@ class Preprocessor:
         self.nodes = {}
         self.structural_elements = {}
         self.acoustic_elements = {}
-        self.geometry = Geometry()
         # self.neighbors = {}
         self.elements_connected_to_node = None
         self.dict_tag_to_entity = {}
@@ -2984,7 +2983,7 @@ class Preprocessor:
         str_coord = str(node.coordinates)
         self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
 
-    def update_node_ids_after_remesh(self, dict_cache, tolerance=1e-8):
+    def update_node_ids_after_remesh(self, dict_cache, tolerance=1e-6):
         """
         This method ...
         """
@@ -3300,7 +3299,7 @@ class Preprocessor:
     def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in"):
         try:
             
-            # self.geometry = Geometry()
+            self.geometry = Geometry()
             gmsh.initialize('', False)
             gmsh.model.add("OpenPulse - geometry designer")
 
