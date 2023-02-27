@@ -353,7 +353,11 @@ class GeometryDesignerInput(QDialog):
         try:
             self.cache_geometry = self.preprocessor.geometry
         except:
-               self.cache_geometry= None
+            self.cache_geometry = None
+            self.checkBox_maintain_lines_attributes.setChecked(False)
+            self.checkBox_maintain_nodes_attributes.setChecked(False)
+            self.checkBox_maintain_lines_attributes.setDisabled(True)
+            self.checkBox_maintain_nodes_attributes.setDisabled(True)
         self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_vertex_coordinates()
         entities_data = self.project.file.load_geometry_entities_file()
         

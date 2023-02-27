@@ -34,6 +34,8 @@ class Preprocessor:
         This method reset the class default values.
         """
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        self.number_structural_elements = 0
+        self.number_acosutic_elements = 0
         self.nodes = {}
         self.structural_elements = {}
         self.acoustic_elements = {}
