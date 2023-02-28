@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>293</height>
+    <height>360</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>450</width>
-    <height>293</height>
+    <height>360</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>450</width>
-    <height>293</height>
+    <height>360</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -39,12 +39,12 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../Downloads/load - Copia.png</normaloff>../../../../../../Downloads/load - Copia.png</iconset>
+    <normaloff>../../../../../../../../../Downloads/load - Copia.png</normaloff>../../../../../../../../../Downloads/load - Copia.png</iconset>
   </property>
   <property name="whatsThis">
    <string/>
   </property>
-  <widget class="QFrame" name="frame">
+  <widget class="QFrame" name="frame_title">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -109,19 +109,25 @@
     </property>
    </widget>
   </widget>
-  <widget class="QFrame" name="frame_2">
+  <widget class="QFrame" name="frame_main">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>40</y>
      <width>450</width>
-     <height>253</height>
+     <height>320</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
      <width>450</width>
-     <height>0</height>
+     <height>320</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>450</width>
+     <height>320</height>
     </size>
    </property>
    <property name="frameShape">
@@ -134,21 +140,21 @@
     <property name="geometry">
      <rect>
       <x>8</x>
-      <y>22</y>
+      <y>28</y>
       <width>437</width>
-      <height>220</height>
+      <height>280</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>430</width>
-      <height>220</height>
+      <height>280</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>440</width>
-      <height>220</height>
+      <height>280</height>
      </size>
     </property>
     <property name="font">
@@ -167,227 +173,11 @@
      <attribute name="title">
       <string>Plot</string>
      </attribute>
-     <widget class="QWidget" name="verticalLayoutWidget_4">
-      <property name="geometry">
-       <rect>
-        <x>98</x>
-        <y>12</y>
-        <width>246</width>
-        <height>48</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QRadioButton" name="radioButton_linear_scale">
-         <property name="maximumSize">
-          <size>
-           <width>270</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Linear scale</string>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>30</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="radioButton_log_scale">
-         <property name="maximumSize">
-          <size>
-           <width>270</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Log scale</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="formLayoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>116</x>
-        <y>70</y>
-        <width>193</width>
-        <height>68</height>
-       </rect>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <property name="horizontalSpacing">
-        <number>7</number>
-       </property>
-       <property name="verticalSpacing">
-        <number>6</number>
-       </property>
-       <item row="0" column="0" alignment="Qt::AlignRight">
-        <widget class="QLabel" name="Input_NodeID">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Input Node ID:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" alignment="Qt::AlignHCenter">
-        <widget class="QLineEdit" name="lineEdit_inputNodeID">
-         <property name="minimumSize">
-          <size>
-           <width>70</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>70</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(0, 0, 255);</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" alignment="Qt::AlignRight">
-        <widget class="QLabel" name="Output_NodeID">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Output Node ID:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" alignment="Qt::AlignHCenter">
-        <widget class="QLineEdit" name="lineEdit_outputNodeID">
-         <property name="minimumSize">
-          <size>
-           <width>70</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>70</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(0, 0, 255);</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="pushButton_plot_delta_pressure">
       <property name="geometry">
        <rect>
         <x>72</x>
-        <y>150</y>
+        <y>200</y>
         <width>281</width>
         <height>30</height>
        </rect>
@@ -420,8 +210,8 @@
      <widget class="QPushButton" name="pushButton_flipNodes">
       <property name="geometry">
        <rect>
-        <x>332</x>
-        <y>78</y>
+        <x>322</x>
+        <y>122</y>
         <width>80</width>
         <height>50</height>
        </rect>
@@ -455,6 +245,486 @@
 nodes</string>
       </property>
      </widget>
+     <widget class="QFrame" name="frame_scales">
+      <property name="geometry">
+       <rect>
+        <x>18</x>
+        <y>12</y>
+        <width>400</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>400</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <widget class="QRadioButton" name="radioButton_linear_scale">
+       <property name="geometry">
+        <rect>
+         <x>262</x>
+         <y>8</y>
+         <width>128</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>128</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>128</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Linear scale</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_2</string>
+       </attribute>
+      </widget>
+      <widget class="QRadioButton" name="radioButton_log_scale">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>8</y>
+         <width>100</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Log scale</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_2</string>
+       </attribute>
+      </widget>
+      <widget class="QRadioButton" name="radioButton_dB_scale">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>8</y>
+         <width>100</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>dB scale</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup_2</string>
+       </attribute>
+      </widget>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_outputNodeID">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>154</y>
+        <width>70</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>70</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>70</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 255);</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Input_NodeID">
+      <property name="geometry">
+       <rect>
+        <x>82</x>
+        <y>112</y>
+        <width>140</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>140</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>140</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Input Node ID:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Output_NodeID">
+      <property name="geometry">
+       <rect>
+        <x>82</x>
+        <y>154</y>
+        <width>140</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>140</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>140</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Output Node ID:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_inputNodeID">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>112</y>
+        <width>70</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>70</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>70</width>
+        <height>28</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 255);</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frame_plot_type">
+      <property name="geometry">
+       <rect>
+        <x>18</x>
+        <y>54</y>
+        <width>400</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>400</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <widget class="QRadioButton" name="radioButton_real_part">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>8</y>
+         <width>100</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Real part</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+      <widget class="QRadioButton" name="radioButton_imaginary_part">
+       <property name="geometry">
+        <rect>
+         <x>262</x>
+         <y>8</y>
+         <width>128</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>128</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>128</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Imaginary part</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+      <widget class="QRadioButton" name="radioButton_magnitude">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>8</y>
+         <width>100</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Magnitude</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">buttonGroup</string>
+       </attribute>
+      </widget>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_export_import">
      <attribute name="title">
@@ -464,7 +734,7 @@ nodes</string>
       <property name="geometry">
        <rect>
         <x>4</x>
-        <y>10</y>
+        <y>32</y>
         <width>425</width>
         <height>172</height>
        </rect>
@@ -927,7 +1197,7 @@ nodes</string>
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>8</y>
+      <y>12</y>
       <width>85</width>
       <height>30</height>
      </rect>
@@ -960,11 +1230,11 @@ nodes</string>
      <string>Reset plot</string>
     </property>
    </widget>
-   <widget class="QFrame" name="frame_6">
+   <widget class="QFrame" name="frame_cursor">
     <property name="geometry">
      <rect>
       <x>266</x>
-      <y>8</y>
+      <y>12</y>
       <width>85</width>
       <height>30</height>
      </rect>
@@ -1023,4 +1293,8 @@ nodes</string>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
+ </buttongroups>
 </ui>

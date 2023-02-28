@@ -182,83 +182,83 @@ class MainWindow(QMainWindow):
 
         # Structural Model Setup
         self.setStructuralElementType_action = QAction('&Set Structural Element Type', self)        
-        # self.setStructuralElementType_action.setShortcut('Alt+4')
+        # self.setStructuralElementType_action.setShortcut('')
         self.setStructuralElementType_action.setStatusTip('Set Structural Element Type')
         self.setStructuralElementType_action.triggered.connect(self.getInputWidget().setStructuralElementType)
 
         self.addFlanges_action = QAction('&Add Connecting Flanges', self)
-        # self.addFlanges_action.setShortcut('Ctrl+3')
+        # self.addFlanges_action.setShortcut('')
         self.addFlanges_action.setStatusTip('Add Connecting Flanges')
         self.addFlanges_action.triggered.connect(self.getInputWidget().add_flanges)
 
         self.setDOF_action = QAction('&Set Prescribed DOFs', self)        
-        # self.setDOF_action.setShortcut('Alt+5')
+        # self.setDOF_action.setShortcut('')
         self.setDOF_action.setStatusTip('Set Prescribed DOFs')
         self.setDOF_action.triggered.connect(self.getInputWidget().setDOF)
 
         self.setForce_action = QAction('&Set Nodal Loads', self)        
-        # self.setForce_action.setShortcut('Alt+6')
+        # self.setForce_action.setShortcut('')
         self.setForce_action.setStatusTip('Set Nodal Loads')
         self.setForce_action.triggered.connect(self.getInputWidget().setNodalLoads)
 
         self.setMass_action = QAction('&Add: Mass / Spring / Damper', self)        
-        # self.setMass_action.setShortcut('Alt+7')
+        # self.setMass_action.setShortcut('')
         self.setMass_action.setStatusTip('Add: Mass / Spring / Damper')
         self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
         self.setcappedEnd_action = QAction('&Set Capped End', self)        
-        # self.setcappedEnd_action.setShortcut('Alt+8')
+        # self.setcappedEnd_action.setShortcut('')
         self.setcappedEnd_action.setStatusTip('Set Capped End')
         self.setcappedEnd_action.triggered.connect(self.getInputWidget().setcappedEnd)
 
         self.stressStiffening_action = QAction('&Set Strees Stiffening', self)        
-        # self.stressStiffening_action.setShortcut('Alt+9')
+        # self.stressStiffening_action.setShortcut('')
         self.stressStiffening_action.setStatusTip('Set Strees Stiffening')
         self.stressStiffening_action.triggered.connect(self.getInputWidget().set_stress_stress_stiffening)
 
         self.nodalLinks_action = QAction('&Add Elastic Nodal Links', self)        
-        # self.nodalLinks_action.setShortcut('Alt+9')
+        # self.nodalLinks_action.setShortcut('')
         self.nodalLinks_action.setStatusTip('Add Elastic Nodal Links')
         self.nodalLinks_action.triggered.connect(self.getInputWidget().add_elastic_nodal_links)
 
         # Acoustic Model Setup
         self.setAcousticElementType_action = QAction('&Set Acoustic Element Type', self)        
-        # self.setAcousticElementType_action.setShortcut('Ctrl+Alt+1')
+        # self.setAcousticElementType_action.setShortcut('')
         self.setAcousticElementType_action.setStatusTip('Set Acoustic Element Type')
         self.setAcousticElementType_action.triggered.connect(self.getInputWidget().set_acoustic_element_type)
 
         self.setAcousticPressure_action = QAction('&Set Acoustic Pressure', self)        
-        # self.setAcousticPressure_action.setShortcut('Ctrl+Alt+3')
+        # self.setAcousticPressure_action.setShortcut('')
         self.setAcousticPressure_action.setStatusTip('Set Acoustic Pressure')
         self.setAcousticPressure_action.triggered.connect(self.getInputWidget().setAcousticPressure)
 
         self.setVolumeVelocity_action = QAction('&Set Volume Velocity', self)        
-        # self.setVolumeVelocity_action.setShortcut('Ctrl+Alt+4')
+        # self.setVolumeVelocity_action.setShortcut('')
         self.setVolumeVelocity_action.setStatusTip('Set Volume Velocity')
         self.setVolumeVelocity_action.triggered.connect(self.getInputWidget().setVolumeVelocity)
 
         self.setSpecificImpedance_action = QAction('&Set Specific Impedance', self)        
-        # self.setSpecificImpedance_action.setShortcut('Ctrl+Alt+5')
+        # self.setSpecificImpedance_action.setShortcut('')
         self.setSpecificImpedance_action.setStatusTip('Set Specific Impedance')
         self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setSpecificImpedance)
 
         self.set_radiation_impedance_action = QAction('&Set Radiation Impedance', self)        
-        # self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+6')
+        # self.set_radiation_impedance_action.setShortcut('')
         self.set_radiation_impedance_action.setStatusTip('Set Radiation Impedance')
         self.set_radiation_impedance_action.triggered.connect(self.getInputWidget().set_radiation_impedance)
 
         self.add_perforated_plate_action = QAction('&Add Perforated Plate', self)        
-        # self.add_perforated_plate_action.setShortcut('Ctrl+Alt+7')
+        # self.add_perforated_plate_action.setShortcut('')
         self.add_perforated_plate_action.setStatusTip('Add Perforated Plate')
         self.add_perforated_plate_action.triggered.connect(self.getInputWidget().add_perforated_plate)
 
         self.set_acoustic_element_length_correction_action = QAction('&Set Acoustic Element Length Correction', self)        
-        # self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+8')
+        # self.set_acoustic_element_length_correction_action.setShortcut('')
         self.set_acoustic_element_length_correction_action.setStatusTip('Set Acoustic Element Length Correction')
         self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
 
         self.add_compressor_excitation_action = QAction('&Add Compressor Excitation', self)        
-        # self.add_compressor_excitation_action.setShortcut('Ctrl+Alt+9')
+        # self.add_compressor_excitation_action.setShortcut('')
         self.add_compressor_excitation_action.setStatusTip('Add Compressor Excitation')
         self.add_compressor_excitation_action.triggered.connect(self.getInputWidget().add_compressor_excitation)
 
@@ -291,53 +291,58 @@ class MainWindow(QMainWindow):
  
         # Results Viewer
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
-        self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
+        # self.plotStructuralModeShapes_action.setShortcut('')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
         self.plotStructuralModeShapes_action.triggered.connect(self.getInputWidget().plotStructuralModeShapes)
 
         self.plotDisplacementField_action = QAction('&Plot Displacement Field', self)        
-        self.plotDisplacementField_action.setShortcut('Ctrl+W')
+        # self.plotDisplacementField_action.setShortcut('')
         self.plotDisplacementField_action.setStatusTip('Plot Displacement Field')
         self.plotDisplacementField_action.triggered.connect(self.getInputWidget().plotDisplacementField)
 
         self.plotStructuralFrequencyResponse = QAction('&Plot Structural Frequency Response', self)        
-        self.plotStructuralFrequencyResponse.setShortcut('Ctrl+T')
+        # self.plotStructuralFrequencyResponse.setShortcut('')
         self.plotStructuralFrequencyResponse.setStatusTip('Plot Structural Frequency Response')
         self.plotStructuralFrequencyResponse.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponse)
 
         self.plotReactionsFrequencyResponse = QAction('&Plot Reactions Frequency Response', self)        
-        self.plotReactionsFrequencyResponse.setShortcut('Ctrl+W')
+        # self.plotReactionsFrequencyResponse.setShortcut('')
         self.plotReactionsFrequencyResponse.setStatusTip('Plot Reactions Frequency Response')
         self.plotReactionsFrequencyResponse.triggered.connect(self.getInputWidget().plotReactionsFrequencyResponse)
 
         self.plotSressField_action = QAction('&Plot Stress Field', self)        
-        # self.plotSressField_action.setShortcut('Ctrl+R')
+        # self.plotSressField_action.setShortcut('')
         self.plotSressField_action.setStatusTip('Plot Stress Field')
         self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
 
         self.plotSressFrequencyResponse_action = QAction('&Plot Stress Frequency Response', self)        
-        # self.plotSressFrequencyResponse_action.setShortcut('Ctrl+R')
+        # self.plotSressFrequencyResponse_action.setShortcut('')
         self.plotSressFrequencyResponse_action.setStatusTip('Plot Stress Frequency Response')
         self.plotSressFrequencyResponse_action.triggered.connect(self.getInputWidget().plotStressFrequencyResponse)
 
         self.plotPressureField_action = QAction('&Plot Acoustic Pressure Field', self)        
-        self.plotPressureField_action.setShortcut('Ctrl+E')
+        # self.plotPressureField_action.setShortcut('')
         self.plotPressureField_action.setStatusTip('Plot Acoustic Pressure Field')
         self.plotPressureField_action.triggered.connect(self.getInputWidget().plotAcousticPressureField)
 
         self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
-        self.plotAcousticFrequencyResponse.setShortcut('Ctrl+U')
+        # self.plotAcousticFrequencyResponse.setShortcut('')
         self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
         self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponse)
 
+        self.plotAcousticDeltaPressures = QAction('&Plot Acoustic Delta Pressures', self)        
+        # self.plotAcousticDeltaPressures.setShortcut('')
+        self.plotAcousticDeltaPressures.setStatusTip('Plot Acoustic Delta Pressures')
+        self.plotAcousticDeltaPressures.triggered.connect(self.getInputWidget().plot_TL_NR)
+
         self.plot_TL_NR = QAction('&Plot Transmission Loss or Attenuation', self)        
-        self.plot_TL_NR.setShortcut('Ctrl+V')
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
+        # self.plot_TL_NR.setShortcut('')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
         self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
-        self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
+        self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
 
         self.animationSettings_action = QAction('&Animation Settings', self)
@@ -487,6 +492,7 @@ class MainWindow(QMainWindow):
         #acoustic
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
+        self.resultsViewerMenu.addAction(self.plotAcousticDeltaPressures)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
         #animation
         self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMessageBox, QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton, QSpinBox
+from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QRadioButton, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton, QSpinBox, QFrame
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 import matplotlib.pyplot as plt
+from matplotlib.widgets import RadioButtons
 import numpy as np
 import os
 
@@ -51,10 +52,10 @@ class SnaptoCursor(object):
             self.ax.figure.canvas.draw_idle()
 
 
-class Plot_Delta_Pressures_Input(QDialog):
+class Plot_Acoustic_Delta_Pressures_Input(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plot_TL_NR_Input.ui', self)
+        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticDeltaPressuresInput.ui', self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -67,71 +68,100 @@ class Plot_Delta_Pressures_Input(QDialog):
         self.opv.setInputObject(self)
 
         self.projec = project
+        self.analysisMethod = analysisMethod
+        self.solution = solution
+
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
-
         self.elements = self.preprocessor.acoustic_elements
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
         self.nodes = project.preprocessor.nodes
-        
+        self.frequencies = project.frequencies
+
+        self._reset()
+        self._define_Qt_variables()
+        self._Qt_connections()
+        self.writeNodes(self.opv.getListPickedPoints())
+        self.exec_()
+
+    def _reset(self):
         self.userPath = os.path.expanduser('~')
         self.path = ""
         self.save_path = ""
-        
-        self.analysisMethod = analysisMethod
-        self.frequencies = project.frequencies
-        self.solution = solution
-
         self.mag = False
         self.real = False
         self.imag = False
-        self.flagTL = False
-        self.flagNR = False
         self.input_node_ID = None
         self.output_node_ID = None
         self.imported_data = None
-    
+        self.fig = None
+        self.loaded_data = None
+        self.imported_data = None
+
+    def _define_Qt_variables(self):
+        self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
+        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
+        #
         self.lineEdit_inputNodeID = self.findChild(QLineEdit, 'lineEdit_inputNodeID')   
         self.lineEdit_outputNodeID = self.findChild(QLineEdit, 'lineEdit_outputNodeID')
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
         self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
-
-        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
-        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
-        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
-        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
-        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
-        self.toolButton_ExportResults.clicked.connect(self.ExportResults)
-        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
-        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
-
-        self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
-        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
-
-        self.radioButton_linear_scale = self.findChild(QRadioButton, 'radioButton_TL')
-        self.radioButton_log_scale = self.findChild(QRadioButton, 'radioButton_NR')
-        # self.radioButton_linear_scale.toggled.connect(self.radioButtonEvent_TL_NR)
-        # self.radioButton_log_scale.toggled.connect(self.radioButtonEvent_TL_NR)
-        self.flagTL = self.radioButton_linear_scale.isChecked()
-        self.flagNR = self.radioButton_log_scale.isChecked()
-
-        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.use_cursor = self.checkBox_cursor.isChecked()
-        self.checkBox_cursor.clicked.connect(self.update_cursor)
-
-        self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
-        self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)
         self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
-
-        self.pushButton = self.findChild(QPushButton, 'pushButton')
-        self.pushButton.clicked.connect(self.check)
-
+        #
+        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
+        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
+        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
+        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
+        self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
+        self.pushButton_plot_delta_pressure = self.findChild(QPushButton, 'pushButton_plot_delta_pressure')
         self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
+        #
+        self.radioButton_linear_scale = self.findChild(QRadioButton, 'radioButton_linear_scale')
+        self.radioButton_log_scale = self.findChild(QRadioButton, 'radioButton_log_scale')  
+        self.radioButton_dB_scale = self.findChild(QRadioButton, 'radioButton_dB_scale')
+        self.radioButton_magnitude = self.findChild(QRadioButton, 'radioButton_magnitude')
+        self.radioButton_real_part = self.findChild(QRadioButton, 'radioButton_real_part')
+        self.radioButton_imaginary_part = self.findChild(QRadioButton, 'radioButton_imaginary_part')
+        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
+        #
+        self.frame_scales = self.findChild(QFrame, 'frame_scales')
+        self.frame_plot_type = self.findChild(QFrame, 'frame_plot_type')
+        self.use_cursor = self.checkBox_cursor.isChecked()
+            
+    def _Qt_connections(self):
+        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
+        self.toolButton_ExportResults.clicked.connect(self.ExportResults)
+        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
+        self.checkBox_cursor.clicked.connect(self.update_cursor)
+        self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)
+        self.pushButton_plot_delta_pressure.clicked.connect(self.check)
         self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
 
-        self.writeNodes(self.opv.getListPickedPoints())
-        self.exec_()
+        self.radioButton_linear_scale.clicked.connect(self.radioButtonEvent_update_plots)
+        self.radioButton_log_scale.clicked.connect(self.radioButtonEvent_update_plots)
+        self.radioButton_dB_scale.clicked.connect(self.radioButtonEvent_update_plots)
+        self.radioButton_magnitude.clicked.connect(self.radioButtonEvent_update_plots)
+        self.radioButton_real_part.clicked.connect(self.radioButtonEvent_update_plots)
+        self.radioButton_imaginary_part.clicked.connect(self.radioButtonEvent_update_plots)
+        self.radioButtonEvent_update_plots()
+
+    def radioButtonEvent_update_plots(self):
+        if self.radioButton_dB_scale.isChecked() or self.radioButton_log_scale.isChecked():
+            self.radioButton_magnitude.setChecked(True)
+            self.radioButton_real_part.setDisabled(True)
+            self.radioButton_imaginary_part.setDisabled(True)
+            self.pushButton_flipNodes.setVisible(False)
+        else:
+            self.radioButton_real_part.setDisabled(False)
+            self.radioButton_imaginary_part.setDisabled(False)
+            if self.radioButton_magnitude.isChecked():
+                self.pushButton_flipNodes.setVisible(False)
+            else:
+                self.pushButton_flipNodes.setVisible(True)
+        if self.fig is not None:
+            self.check()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -151,7 +181,9 @@ class Plot_Delta_Pressures_Input(QDialog):
         temp_text_input = self.lineEdit_inputNodeID.text()
         temp_text_output = self.lineEdit_outputNodeID.text()
         self.lineEdit_inputNodeID.setText(temp_text_output)
-        self.lineEdit_outputNodeID.setText(temp_text_input)   
+        self.lineEdit_outputNodeID.setText(temp_text_input)
+        if self.fig is not None:
+            self.check()
 
     def update(self):
         self.writeNodes(self.opv.getListPickedPoints())
@@ -198,25 +230,27 @@ class Plot_Delta_Pressures_Input(QDialog):
         return node_typed[0], True
 
     def reset_imported_data(self):
+        self.fig = None
+        self.loaded_data = None
         self.imported_data = None
         title = "Information"
         message = "The plot data has been reseted."
         PrintMessageInput([title, message, window_title2])
-
-    # def radioButtonEvent_TL_NR(self):
-    #     self.flagTL = self.radioButton_linear_scale.isChecked()
-    #     self.flagNR = self.radioButton_log_scale.isChecked()
 
     def check(self, export=False):
 
         lineEdit_input = self.lineEdit_inputNodeID.text()
         stop, self.input_node_ID = self.before_run.check_input_NodeID(lineEdit_input, single_ID=True)
         if stop:
+            self.fig = None
+            self.lineEdit_inputNodeID.setFocus()
             return True
 
         lineEdit_output = self.lineEdit_outputNodeID.text()
         stop, self.output_node_ID = self.before_run.check_input_NodeID(lineEdit_output, single_ID=True)
         if stop:
+            self.fig = None
+            self.lineEdit_outputNodeID.setFocus()
             return True
 
         if export:
@@ -229,11 +263,25 @@ class Plot_Delta_Pressures_Input(QDialog):
         self.import_name = basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     
+    def get_data_based_on_interface_options(self, data):
+        zero_shift = 1e-10 #this value is summed to delta pressures to avoid zero values in log and dB plots
+        if self.radioButton_linear_scale.isChecked():
+            if self.radioButton_magnitude.isChecked():
+                return np.abs(data)
+            elif self.radioButton_real_part.isChecked():
+                return np.real(data)
+            else:
+                return np.imag(data)          
+        elif self.radioButton_log_scale.isChecked():
+            return np.abs(data+zero_shift)
+        else:
+            return 20*np.log(np.abs((data+zero_shift)/2e-5))
+
     def ImportResults(self):
         try:
             skiprows = int(self.lineEdit_skiprows.text())  
-            self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
-            self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
+            self.loaded_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
+            self.legend_imported = "imported data: " + basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
             title = "Information"
             message = "The results have been imported."
@@ -267,44 +315,16 @@ class Plot_Delta_Pressures_Input(QDialog):
             
         if self.check(export=True):
             return
-        data = self.get_TL_NR()
+        
+        delta_pressures = self.get_Delta_Pressures(export=True)
 
         if self.stop:
             return
 
-        freq = self.frequencies
-
-        check_name_TL = []
-        check_name_NR = []
-        for a in ["NR", "Nr", "nr", "attenuation", "Attenuation", "ATTENUATION"]:
-            if a in self.lineEdit_FileName.text():
-                check_name_TL.append(True)
-            else:
-                check_name_TL.append(False)
-
-        for a in ["TL", "Tl","tl", "tranmission", "loss", "Transmission", "Loss", "TRANSMISSION", "LOSS"]:
-            if a in self.lineEdit_FileName.text():
-                check_name_NR.append(True)
-            else:
-                check_name_NR.append(False)
-
-        if self.flagTL:
-            if True in check_name_TL:
-                title = "File name recheck"
-                message = "Please, it's recommended to check the file name before export the results!"
-                PrintMessageInput([title, message, window_title2])
-                return            
-            header = "Frequency[Hz], TL - Magnitude [dB]"    
-        else:
-            if True in check_name_NR:
-                title = "File name recheck"
-                message = "Please, it's recommended to check the file name before export the results!"
-                PrintMessageInput([title, message, window_title2])
-                return
-            header = "Frequency[Hz], NR - Magnitude [dB]"
-
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
-        data_to_export = np.array([freq, data]).T    
+        freq = self.frequencies
+        header = "Frequency[Hz], Real part [Pa], Imaginary part [Pa]"
+        data_to_export = np.array([freq, np.real(delta_pressures), np.imag(delta_pressures)]).T  
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
             
         title = "Information"
@@ -323,26 +343,25 @@ class Plot_Delta_Pressures_Input(QDialog):
         ind = inner_diameter.index(min(inner_diameter))
         return inner_diameter[ind], density[ind], speed_of_sound[ind]
 
-    def get_Delta_Pressures(self):
+    def get_Delta_Pressures(self, export=False):
         
         self.stop = False
-
-        noise = 1e-10
 
         P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
         P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
 
         delta_pressure = P_input-P_output
-
-        if self.radioButton_linear_scale.isChecked():
+        
+        if export:
             return delta_pressure
-            
-        if self.radioButton_log_scale.isChecked():
-            return 10*np.log(np.abs(delta_pressure))
+        else:
+            return self.get_data_based_on_interface_options(delta_pressure)
 
-        # else:
-        #     self.stop = True
-        #     return None
+    def get_unit(self):
+        if self.radioButton_dB_scale.isChecked():
+            return "dB"
+        else:
+            return "Pa"
 
     def plot(self):
 
@@ -352,6 +371,13 @@ class Plot_Delta_Pressures_Input(QDialog):
 
         frequencies = self.frequencies
         results = self.get_Delta_Pressures()
+
+        if self.loaded_data is not None:
+            imported_delta_pressures = self.loaded_data[:,1] + 1j*self.loaded_data[:,2]
+            imported_delta_pressures = self.get_data_based_on_interface_options(imported_delta_pressures)
+            self.imported_data = [self.loaded_data[:,0], imported_delta_pressures]
+        else:
+            self.imported_data = None
         
         # if self.stop:
         #     title = "Invalid pressure values"
@@ -365,20 +391,29 @@ class Plot_Delta_Pressures_Input(QDialog):
         self.cursor = SnaptoCursor(ax, frequencies, results, self.use_cursor)
         self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
-        unit_label = "dB"
-        legend_label = "Input Node ID: {} || Output Node ID: {}".format(self.input_node_ID, self.output_node_ID)
+        unit_label = self.get_unit()
+        legend_label = f"Input Node ID: {self.input_node_ID} || Output Node ID: {self.output_node_ID}"
 
         if self.imported_data is None:
-            first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
+            if self.radioButton_log_scale.isChecked():
+                first_plot, = plt.semilogy(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
+            else:
+                first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
             _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
-        else:    
-            first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2)
-            second_plot, = plt.plot(self.imported_data[:,0], self.imported_data[:,1], color=[0,0,1], linewidth=2, linestyle="--")
+        else:
+            if self.radioButton_log_scale.isChecked():    
+                first_plot, = plt.semilogy(frequencies, results, color=[1,0,0], linewidth=2)
+                second_plot, = plt.semilogy(self.imported_data[0], self.imported_data[1], color=[0,0,1], linewidth=2, linestyle="--")
+            else:
+                first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2)
+                second_plot, = plt.plot(self.imported_data[0], self.imported_data[1], color=[0,0,1], linewidth=2, linestyle="--")
             _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
-        
+             
         plt.gca().add_artist(_legends)
 
-        ax.set_title("FREQUENCY PLOT OF DELTA PRESSURES", fontsize = 18, fontweight = 'bold')
+        y_label = f"Delta pressures [{unit_label}]"
+        ax.set_title("FREQUENCY PLOT OF ACOUSTIC DELTA PRESSURES", fontsize = 18, fontweight = 'bold')
         ax.set_xlabel("Frequency [Hz]", fontsize = 14, fontweight = 'bold')
-        ax.set_ylabel("Delta pressures", fontsize = 14, fontweight = 'bold')
-        self.fig.show()
+        ax.set_ylabel(y_label, fontsize = 14, fontweight = 'bold')
+        plt.grid()
+        self.fig.show()    

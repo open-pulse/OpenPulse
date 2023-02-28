@@ -50,7 +50,7 @@ from data.user_input.plots.acoustic.plotAcousticModeShapeInput import PlotAcoust
 from data.user_input.plots.acoustic.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
 from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
-from data.user_input.plots.acoustic.plotDeltaPressureInput import Plot_Delta_Pressures_Input
+from data.user_input.plots.acoustic.plotAcousticDeltaPressureInput import Plot_Acoustic_Delta_Pressures_Input
 from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
@@ -375,12 +375,12 @@ class InputUi:
             self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv, 
                                 self.analysis_method_label, solution )
 
-    def plot_Delta_Pressures(self):
+    def plotAcousticDeltaPressures(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  Plot_Delta_Pressures_Input, self.project, self.opv, 
+            self.processInput(  Plot_Acoustic_Delta_Pressures_Input, self.project, self.opv, 
                                 self.analysis_method_label, solution  )
 
     def plot_TL_NR(self):
