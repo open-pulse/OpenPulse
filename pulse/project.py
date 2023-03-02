@@ -24,8 +24,7 @@ window_title = "ERROR"
 class Project:
     def __init__(self):
         self.preprocessor = Preprocessor()
-        self.file = ProjectFile()
-        self.project_folder_path = ""    
+        self.file = ProjectFile()  
         self.reset_info()
 
     def reset_info(self):
@@ -95,7 +94,6 @@ class Project:
                         coord_path, 
                         conn_path   )
         
-        self.project_folder_path = project_folder_path
         self.process_geometry_and_mesh(tolerance=geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
@@ -108,7 +106,6 @@ class Project:
                             import_type, 
                             material_list_path, 
                             fluid_list_path  )
-        self.project_folder_path = project_folder_path
         self.empty_geometry = True
 
     def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
@@ -231,11 +228,11 @@ class Project:
         self.file.create_entity_file(self.preprocessor.all_lines)
 
     def create_folders_structural(self, new_folder_name):
-        """This method creates the 'imported_data' and 'structural' folders 
+        """This method creates the 'imported_data', 'structural' and 'new_folder_name' folders 
             in the project's directory if they do not exist yet.
         """
         if not os.path.exists(self.file._imported_data_folder_path):
-            create_new_folder(self.project_folder_path, "imported_data")
+            create_new_folder(self.file._project_path, "imported_data")
         if not os.path.exists(self.file._structural_imported_data_folder_path):
             create_new_folder(self.file._imported_data_folder_path, "structural")   
         new_path = get_new_path(self.file._structural_imported_data_folder_path, new_folder_name)
@@ -243,11 +240,11 @@ class Project:
             create_new_folder(self.file._structural_imported_data_folder_path, new_folder_name)
 
     def create_folders_acoustic(self, new_folder_name):
-        """ This method creates the 'imported_data' and 'acoustic' folders 
+        """ This method creates the 'imported_data', 'acoustic' and 'new_folder_name' folders 
             in the project's directory if they do not exist yet.
         """
         if not os.path.exists(self.file._imported_data_folder_path):
-            create_new_folder(self.project_folder_path, "imported_data")
+            create_new_folder(self.file._project_path, "imported_data")
         if not os.path.exists(self.file._acoustic_imported_data_folder_path):
             create_new_folder(self.file._imported_data_folder_path, "acoustic")   
         new_path = get_new_path(self.file._acoustic_imported_data_folder_path, new_folder_name)
