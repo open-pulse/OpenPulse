@@ -284,8 +284,18 @@ class CompressorModelInput(QDialog):
             self.lineEdit_suction_node_ID.setText(str(min(list_node_ids[-2:])))
             self.lineEdit_discharge_node_ID.setText(str(max(list_node_ids[-2:])))
         elif len(list_node_ids) == 1:
-            self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
-            self.lineEdit_discharge_node_ID.setText("")
+            self.lineEdit_suction_node_ID.setDisabled(False)
+            self.lineEdit_discharge_node_ID.setDisabled(False)
+             
+            if self.radioButton_connected_at_suction.isChecked():
+                self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
+                self.lineEdit_discharge_node_ID.setText("")
+                self.lineEdit_discharge_node_ID.setDisabled(True)
+            elif self.radioButton_connected_at_discharge.isChecked():
+                self.lineEdit_discharge_node_ID.setText(str(list_node_ids[-1]))
+                self.lineEdit_suction_node_ID.setText("")
+                self.lineEdit_suction_node_ID.setDisabled(True)
+
             self.table_name = None
             self.comboBox_compressors_tables.clear()
             self.comboBox_compressors_tables.setVisible(False)
@@ -343,7 +353,7 @@ class CompressorModelInput(QDialog):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, "ERROR"])  
+                PrintMessageInput([title, message, "ERROR"]) 
 
         self.not_update_event = False
 
@@ -354,6 +364,7 @@ class CompressorModelInput(QDialog):
         f_max = frequencies[-1]
         df = frequencies[1]-frequencies[0]
         N_rev = int((1/df)/(60/rotational_speed))
+        self.N_rev = N_rev
         return f_min, f_max, df, N_rev
 
     def update(self):
@@ -364,11 +375,25 @@ class CompressorModelInput(QDialog):
     def update_compressor_inputs(self, compressor_info):
 
         self.radioButton_connected_at_suction_and_discharge.setDisabled(True)
+        self.connection_at_suction_and_discharge = False
+        node_ID = self.lineEdit_selected_node_ID.text()
+        
         if 'discharge' in self.table_name:
             self.radioButton_connected_at_discharge.setChecked(True)
+            self.connection_at_discharge = True
+            self.connection_at_suction = False
+            self.lineEdit_suction_node_ID.setText("")
+            self.lineEdit_suction_node_ID.setDisabled(True)
+            self.lineEdit_discharge_node_ID.setText(node_ID)
+            
         if 'suction' in self.table_name:
             self.radioButton_connected_at_suction.setChecked(True)
-
+            self.connection_at_discharge = True
+            self.connection_at_suction = True
+            self.lineEdit_discharge_node_ID.setText("")
+            self.lineEdit_discharge_node_ID.setDisabled(True)
+            self.lineEdit_suction_node_ID.setText(node_ID)
+            
         if "bore diameter" in compressor_info.keys():
             self.lineEdit_bore_diameter.setText(str(compressor_info["bore diameter"]))
         if "stroke" in compressor_info.keys():
@@ -411,9 +436,11 @@ class CompressorModelInput(QDialog):
                 self.spinBox_number_of_cylinders.setValue(1)
             elif compressor_info["number of cylinders"] == 2:
                 self.spinBox_number_of_cylinders.setValue(2)
-                if "TDC cranck angle 2" in compressor_info.keys():
-                    if "None" not in compressor_info["TDC crank angle 2"]:
+                if "TDC crank angle 2" in compressor_info.keys():
+                    if isinstance(compressor_info["TDC crank angle 2"], float):
                         self.lineEdit_TDC_crank_angle_2.setText(str(compressor_info["TDC crank angle 2"]))
+                    # if "None" not in compressor_info["TDC crank angle 2"]:
+                    #     self.lineEdit_TDC_crank_angle_2.setText(str(compressor_info["TDC crank angle 2"]))
         if "points per revolution" in compressor_info.keys():
             self.spinBox_number_of_points.setValue(int(compressor_info["points per revolution"]))
 
@@ -443,6 +470,7 @@ class CompressorModelInput(QDialog):
         self.table_name = None
         self.comboBox_compressors_tables.clear()
         self.comboBox_compressors_tables.setVisible(False)
+        self.radioButton_connected_at_suction_and_discharge.setDisabled(False)
 
     def check_nodeID(self, lineEdit, export=False):
         
@@ -459,7 +487,6 @@ class CompressorModelInput(QDialog):
         #    return True
               
     def check_all_nodes(self, check_nodes=True):
-        
         if check_nodes:
             if self.connection_at_suction_and_discharge:
 
@@ -664,6 +691,10 @@ class CompressorModelInput(QDialog):
         self.compressor.number_points = N
         self.compressor.max_frequency = self.update_max_frequency()
 
+        if self.table_name is not None:
+            self.aquisition_parameters_processed = True
+            return
+
         T_rev = 60/self.parameters['rotational speed']
         list_T = [10, 5, 2, 1, 0.5]
         list_df = [0.1, 0.2, 0.5, 1, 2]
@@ -731,11 +762,9 @@ class CompressorModelInput(QDialog):
 
     def check_existing_compressor_parameters_and_edit(self):
         if self.table_name == self.comboBox_compressors_tables.currentText():
-            # first of all, you need to remove the existing table
             self.remove_table()
 
     def process_all_inputs(self):
-        
         if self.check_all_nodes():
             return
         if self.check_all_parameters():
