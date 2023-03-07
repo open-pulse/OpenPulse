@@ -118,10 +118,10 @@ class Project:
                         conn_path)
          
     def load_project(self, project_file_path):
-        def callback():
-            if self.initial_load_project_actions(project_file_path):
-                self.load_project_files()
-        LoadingScreen('Loading Project', target=callback)
+        # def callback():
+        if self.initial_load_project_actions(project_file_path):
+            self.load_project_files()
+        # LoadingScreen('Loading Project', target=callback)
         self.preprocessor.check_disconnected_lines(self.file._element_size)
 
     def initial_load_project_actions(self, project_file_path):

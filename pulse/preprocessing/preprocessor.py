@@ -259,6 +259,7 @@ class Preprocessor:
             CAD file path. '.igs' is the only format file supported.
         """
         gmsh.initialize('', False)
+        gmsh.option.setNumber("General.Terminal",0)
         gmsh.open(path)
 
     def _set_gmsh_options(self, element_size, tolerance=1e-6):
