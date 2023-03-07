@@ -58,11 +58,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer.setInUse(False)
 
     def updatePlots(self):
-        def callback():
-            self.project.preprocessor.add_lids_to_variable_cross_sections()
-            self.opvRenderer.plot()
-            self.opvAnalysisRenderer.plot()        
-        LoadingScreen('Updating Plot', target=callback)
+        # def callback():
+        self.project.preprocessor.add_lids_to_variable_cross_sections()
+        self.opvRenderer.plot()
+        self.opvAnalysisRenderer.plot()
+        # LoadingScreen('Updating Plot', target=callback)
 
     def changePlotToEntities(self):
         self.change_plot_to_mesh = False
