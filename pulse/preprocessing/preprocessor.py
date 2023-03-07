@@ -271,6 +271,10 @@ class Preprocessor:
         float
             Element size.
         """
+        try:
+            gmsh.option.setNumber("General.NumThreads", 4)
+        except:
+            pass
         gmsh.option.setNumber('Mesh.CharacteristicLengthMin', m_to_mm(element_size))
         gmsh.option.setNumber('Mesh.CharacteristicLengthMax', m_to_mm(element_size))
         gmsh.option.setNumber('Mesh.Optimize', 1)
@@ -3304,6 +3308,7 @@ class Preprocessor:
             
             self.geometry = Geometry()
             gmsh.initialize('', False)
+            gmsh.option.setNumber("General.Terminal",0)
             gmsh.model.add("OpenPulse - geometry designer")
 
             points = entities_data["points_data"]

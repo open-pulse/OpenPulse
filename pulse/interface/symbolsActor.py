@@ -75,23 +75,25 @@ class SymbolsActorBase(vtkActorBase):
         if self.project.preprocessor.structure_principal_diagonal is None:
             return True
         else:
-            self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
-            # print(f"ratio: {self.scaleFactor/(200*self.project.file._element_size)}")
-            if self.scaleFactor/(200*self.project.file._element_size) > 100:
-                self.scaleFactor = 200*200*self.project.file._element_size
-                return False
-            if self.scaleFactor/(200*self.project.file._element_size) > 10:
-                self.scaleFactor = 200*20*self.project.file._element_size
-                return False
-            if self.scaleFactor/(200*self.project.file._element_size) > 1:
-                self.scaleFactor = 200*2*self.project.file._element_size
-                return False
-            if self.scaleFactor/(200*self.project.file._element_size) > 0.1:
-                self.scaleFactor = 200*0.2*self.project.file._element_size
-                return False
-            # if 200*self.project.file._element_size < self.scaleFactor:
-            #     # self.scaleFactor = 200*self.project.file._element_size
-            #     return False
+            diagonal = self.project.preprocessor.structure_principal_diagonal
+            if diagonal <= 0.01:
+                self.scaleFactor = 0.01
+            elif diagonal <= 0.1:
+                self.scaleFactor = 0.05
+            elif diagonal <= 1:
+                self.scaleFactor = 0.2
+            elif diagonal <= 2:
+                self.scaleFactor = 0.3
+            elif diagonal <= 10:
+                self.scaleFactor = 1
+            elif diagonal <= 20:
+                self.scaleFactor = 2
+            elif diagonal <= 30:
+                self.scaleFactor = 3.5
+            elif diagonal <= 50:
+                self.scaleFactor = 4.5
+            else:
+                self.scaleFactor = 5
 
     def source(self):
 
