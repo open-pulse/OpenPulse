@@ -259,7 +259,11 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
             pickedElements.clear()
 
         # add or remove selection with control, shift and alt
-        if controlPressed or shiftPressed:
+        if controlPressed:
+            self.__selectedPoints ^= pickedPoints
+            self.__selectedElements ^= pickedElements      
+            self.__selectedEntities ^= pickedEntities
+        elif shiftPressed:
             self.__selectedPoints |= pickedPoints
             self.__selectedElements |= pickedElements      
             self.__selectedEntities |= pickedEntities
