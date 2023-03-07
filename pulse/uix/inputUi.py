@@ -120,11 +120,9 @@ class InputUi:
         mesh_setup = self.project.check_mesh_setup()
         if finalized:
             if self.project.empty_geometry:
-                self.parent.set_enable_menuBar(False)
                 self.parent.menuWidget.tree_widget.modify_geometry_item_access(False)
                 return True
             elif not mesh_setup:
-                self.parent.set_enable_menuBar(False)
                 self.parent.menuWidget.tree_widget.modify_general_settings_items_access(False)
                 return True   
             else:
@@ -134,7 +132,6 @@ class InputUi:
                 return True
         else:
             self.project.none_project_action = True
-            self.parent.set_enable_menuBar(False)
             self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
             return False                 
 

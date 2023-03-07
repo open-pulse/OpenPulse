@@ -16,14 +16,9 @@ window_title = "ERROR"
 class ProjectFile:
     def __init__(self):
         self._reset()
+        self._default_filenames()
         self.reset_frequency_setup()
-        self._entity_file_name = "entity.dat"
-        self._geometry_entities_file_name = "geometry_entities.dat"
-        self._node_structural_file_name = "structural_nodal_info.dat"
-        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
-        self._elements_file_name = "elements_info.dat"
-        self._project_base_name = "project.ini"
-        self._imported_data_folder_name = "imported_data"
+
 
     def _reset(self):
         self._project_name = ""
@@ -51,6 +46,27 @@ class ProjectFile:
         self.f_step = None
         self.non_zero_frequency_info = []
         self.zero_frequency = False
+
+    def _default_filenames(self):
+        self._entity_file_name = "entity.dat"
+        self._material_file_name = "materialList.dat"
+        self._fluid_file_name = "fluidList.dat"
+        self._geometry_entities_file_name = "geometry_entities.dat"
+        self._node_structural_file_name = "structural_nodal_info.dat"
+        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
+        self._elements_file_name = "elements_info.dat"
+        self._project_base_name = "project.ini"
+        self._imported_data_folder_name = "imported_data"
+
+    def get_list_filenames_to_maintain_after_reset(self):
+        files_to_maintain_after_reset = []
+        files_to_maintain_after_reset.append(self._project_base_name)
+        files_to_maintain_after_reset.append(self._material_file_name)
+        files_to_maintain_after_reset.append(self._fluid_file_name)
+        files_to_maintain_after_reset.append(self._geometry_entities_file_name)
+        if os.path.exists(self._geometry_path):
+            files_to_maintain_after_reset.append(os.path.basename(self._geometry_path))
+        return files_to_maintain_after_reset
 
     def new(self, project_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path

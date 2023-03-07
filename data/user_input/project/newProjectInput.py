@@ -41,9 +41,9 @@ class NewProjectInput(QDialog):
         self.project_folder_path = ""
         self.project_file_path = ""
 
-        self.materialListName = "materialList.dat"
-        self.fluidListName = "fluidList.dat"
-        self.projectFileName = "project.ini"
+        self.materialListName = self.project.file._material_file_name
+        self.fluidListName = self.project.file._fluid_file_name
+        self.projectFileName = self.project.file._project_base_name
         self.material_list_path = ""
         self.fluid_list_path = ""
 

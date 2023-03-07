@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
         self._createProjectToolBar()
         self._createAnimationToolBar()
         self._createHideShowToolBar()
+        self.set_enable_menuBar(False)
         self._createStatusBar()
         self.show()
         self.loadRecentProject()

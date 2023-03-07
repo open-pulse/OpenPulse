@@ -224,7 +224,14 @@ class Project:
         self.reset_info()
         self.remove_all_unnecessary_files()
         self.file.reset_project_setup()
-        self.process_geometry_and_mesh()
+        path = self.file.get_geometry_path()
+        if os.path.exists(path):
+            self.load_geometry_entities()
+            if self.check_mesh_setup():
+                self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
+                self.entities = self.preprocessor.dict_tag_to_entity.values()
+        else:
+            self.process_geometry_and_mesh()
         self.file.create_entity_file(self.preprocessor.all_lines)
 
     def create_folders_structural(self, new_folder_name):
@@ -253,9 +260,9 @@ class Project:
 
     def remove_all_unnecessary_files(self):
         list_filenames = os.listdir(self.file._project_path).copy()
-        geometry_filename = os.path.basename(self.file._geometry_path)
+        files_to_maintain = self.file.get_list_filenames_to_maintain_after_reset()
         for filename in list_filenames:
-            if filename not in ["entity.dat", "fluidList.dat", "materialList.dat", "project.ini", geometry_filename]:
+            if filename not in files_to_maintain:
                 file_path = get_new_path(self.file._project_path, filename)
                 if os.path.exists(file_path):
                     if "." in filename:

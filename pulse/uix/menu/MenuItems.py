@@ -384,9 +384,9 @@ class MenuItems(QTreeWidget):
                 self.mainWindow._updateStatusBar()
                 if read is None:
                     self.modify_general_settings_items_access(False)
-                    
                 elif read:
                     self.modify_model_setup_items_access(False)
+                    self.mainWindow.set_enable_menuBar(True)
                     
         elif item == self.item_child_setGeometryFile:
             if not self.item_child_setGeometryFile.isDisabled():
@@ -396,6 +396,7 @@ class MenuItems(QTreeWidget):
             if not self.item_child_setMeshProperties.isDisabled():
                 if self.mainWindow.getInputWidget().set_mesh_properties():
                     self._updateItems()
+                    self.mainWindow.set_enable_menuBar(True)
                     self.mainWindow._updateStatusBar()
 
         elif item == self.item_child_set_material:
