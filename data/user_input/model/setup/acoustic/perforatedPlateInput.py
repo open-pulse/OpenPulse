@@ -918,7 +918,7 @@ class PerforatedPlateInput(QDialog):
 
         legend_label = "Response at element {}".format(self.plot_select_element)
         first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-        _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+        _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
 
         plt.gca().add_artist(_legends)
 

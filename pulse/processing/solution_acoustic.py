@@ -360,9 +360,9 @@ class SolutionAcoustic:
         second_plot_label = f'Target: {perc_criteria}%'
         
         if self.deltaP_errors:
-            _legends = plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label])#, loc='upper right')
         else:
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label])#, loc='upper right')
         plt.gca().add_artist(_legends)
         # plt.grid()
 

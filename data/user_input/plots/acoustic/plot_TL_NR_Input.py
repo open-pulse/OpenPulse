@@ -386,11 +386,11 @@ class Plot_TL_NR_Input(QDialog):
 
         if self.imported_data is None:
             first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
         else:    
             first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2)
             second_plot, = plt.plot(self.imported_data[:,0], self.imported_data[:,1], color=[0,0,1], linewidth=2, linestyle="--")
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
         
         plt.gca().add_artist(_legends)
 

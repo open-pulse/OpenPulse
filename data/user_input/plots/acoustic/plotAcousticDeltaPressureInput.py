@@ -399,7 +399,7 @@ class Plot_Acoustic_Delta_Pressures_Input(QDialog):
                 first_plot, = plt.semilogy(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
             else:
                 first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
         else:
             if self.radioButton_log_scale.isChecked():    
                 first_plot, = plt.semilogy(frequencies, results, color=[1,0,0], linewidth=2)
@@ -407,7 +407,7 @@ class Plot_Acoustic_Delta_Pressures_Input(QDialog):
             else:
                 first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2)
                 second_plot, = plt.plot(self.imported_data[0], self.imported_data[1], color=[0,0,1], linewidth=2, linestyle="--")
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
              
         plt.gca().add_artist(_legends)
 

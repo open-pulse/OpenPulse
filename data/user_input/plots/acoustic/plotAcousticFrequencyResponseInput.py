@@ -291,7 +291,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
             else:
                 first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
 
         else:
 
@@ -317,7 +317,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
                 first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
                 second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
 
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
 
         plt.gca().add_artist(_legends)
 

@@ -368,7 +368,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                     first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
             else: 
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
         else:
             if float(0) in response or float(0) in imported_Yvalues or self.plotReal or self.plotImag:
                 if float(0) in response[1:] or float(0) in imported_Yvalues[1:] or self.plotReal or self.plotImag:
@@ -380,7 +380,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             else:                
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
                 second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
 
         plt.gca().add_artist(_legends)
 

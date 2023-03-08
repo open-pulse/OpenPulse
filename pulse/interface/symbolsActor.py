@@ -89,9 +89,11 @@ class SymbolsActorBase(vtkActorBase):
             elif diagonal <= 20:
                 self.scaleFactor = 2
             elif diagonal <= 30:
-                self.scaleFactor = 3.5
+                self.scaleFactor = 2.5
+            elif diagonal <= 40:
+                self.scaleFactor = 3
             elif diagonal <= 50:
-                self.scaleFactor = 4.5
+                self.scaleFactor = 4
             else:
                 self.scaleFactor = 5
 
