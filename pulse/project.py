@@ -25,9 +25,12 @@ class Project:
     def __init__(self):
         self.preprocessor = Preprocessor()
         self.file = ProjectFile()  
-        self.reset_info()
+        self.reset()
 
-    def reset_info(self):
+    def reset(self, reset_all=False):
+        if reset_all:
+            self.preprocessor.reset_variables()
+            self.file.reset() 
         self.empty_geometry = True
         self.analysis_ID = None
         self.analysis_type_label = ""
@@ -82,7 +85,7 @@ class Project:
         return False
 
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
-        self.reset_info()
+        self.reset(reset_all=True)
         self.file.new(  project_folder_path, 
                         project_name, 
                         element_size, 
@@ -100,7 +103,7 @@ class Project:
         self.empty_geometry = False
 
     def new_empty_project(self, project_folder_path, project_name, import_type, material_list_path, fluid_list_path,):
-        self.reset_info()
+        self.reset(reset_all=True)
         self.file.new_empty(project_folder_path, 
                             project_name, 
                             import_type, 
@@ -126,7 +129,7 @@ class Project:
 
     def initial_load_project_actions(self, project_file_path):
         try:
-            self.reset_info()
+            self.reset()
             self.file.load(project_file_path)
             if self.file._import_type == 1:
                 path = self.file.get_geometry_path()
@@ -221,7 +224,7 @@ class Project:
                                                             dict_list_elements_to_subgroups  )
 
     def reset_project(self):
-        self.reset_info()
+        self.reset()
         self.remove_all_unnecessary_files()
         self.file.reset_project_setup()
         path = self.file.get_geometry_path()

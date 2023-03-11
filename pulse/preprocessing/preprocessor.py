@@ -39,6 +39,8 @@ class Preprocessor:
         self.nodes = {}
         self.structural_elements = {}
         self.acoustic_elements = {}
+        self.transformation_matrices = None
+        self.section_rotations_xyz = None
         # self.neighbors = {}
         self.elements_connected_to_node = None
         self.dict_tag_to_entity = {}
@@ -119,7 +121,7 @@ class Preprocessor:
 
     def generate(self, path, element_size, tolerance=1e-6, gmsh_geometry=False):
         """
-        This method evaluates the Lamé's first parameter `lambda`.
+        This method loads geometry file or data and process the mesh.
 
         Parameters
         ----------
@@ -128,6 +130,12 @@ class Preprocessor:
 
         element_size : float
             Element size to be used to build the preprocessor.
+        
+        tolerance: : float
+            A small float number that represents the geometry tolerance in GMSH.
+
+        gmsh_geometry : bool
+            This variable reaches True value if the geometry is created by user or False if it is imported.
         """
 
         self.reset_variables()
@@ -2918,7 +2926,7 @@ class Preprocessor:
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
             xaxis_rotation_angle[index] = element.xaxis_beam_rotation 
 
-        self.transformation_matrices = transformation_matrix_3x3xN(delta_data[:,0], 
+        self.transformation_matrices = transformation_matrix_3x3xN( delta_data[:,0], 
                                                                     delta_data[:,1], 
                                                                     delta_data[:,2], 
                                                                     gamma = xaxis_rotation_angle)

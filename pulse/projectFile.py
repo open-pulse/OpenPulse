@@ -15,12 +15,9 @@ window_title = "ERROR"
 
 class ProjectFile:
     def __init__(self):
-        self._reset()
-        self._default_filenames()
-        self.reset_frequency_setup()
+        self.reset()
 
-
-    def _reset(self):
+    def reset(self):
         self._project_name = ""
         self._import_type = 0
         self._section = 0
@@ -39,6 +36,8 @@ class ProjectFile:
         self._element_info_path = ""
         self._analysis_path = ""
         self.element_type_is_structural = False
+        self.default_filenames()
+        self.reset_frequency_setup()
 
     def reset_frequency_setup(self):
         self.f_min = None
@@ -47,7 +46,7 @@ class ProjectFile:
         self.non_zero_frequency_info = []
         self.zero_frequency = False
 
-    def _default_filenames(self):
+    def default_filenames(self):
         self._entity_file_name = "entity.dat"
         self._material_file_name = "materialList.dat"
         self._fluid_file_name = "fluidList.dat"

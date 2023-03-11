@@ -202,8 +202,7 @@ class SetMeshPropertiesInput(QDialog):
                                                                                 self.dict_non_mapped_subgroups_info_file,
                                                                                 self.dict_list_elements_to_subgroups    )
         self.project.load_project_files()     
-        self.opv.opvRenderer.plot()
-        self.opv.opvAnalysisRenderer.plot()
+        self.opv.updatePlots()
         self.opv.changePlotToMesh()   
         self.complete = True
 
