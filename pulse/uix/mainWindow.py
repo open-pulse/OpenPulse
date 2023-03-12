@@ -10,9 +10,7 @@ from pulse.uix.config import Config
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 import sys
-from os.path import expanduser, basename, exists, dirname
-from pathlib import Path
-import numpy as np
+import os
 
 from pulse.uix.menu import *
 # from pulse.uix.menu.widgets import *
@@ -753,7 +751,7 @@ class MainWindow(QMainWindow):
 
     def savePNG_call(self):
         project_path = self.project.file._project_path
-        if not exists(project_path):
+        if not os.path.exists(project_path):
             project_path = ""
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":

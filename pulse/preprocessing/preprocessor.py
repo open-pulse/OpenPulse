@@ -18,7 +18,7 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import *# split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles, check_is_there_a_group_of_elements_inside_list_elements
+from pulse.utils import *
 
 window_title_1 = "ERROR"
 
@@ -41,7 +41,6 @@ class Preprocessor:
         self.acoustic_elements = {}
         self.transformation_matrices = None
         self.section_rotations_xyz = None
-        # self.neighbors = {}
         self.elements_connected_to_node = None
         self.dict_tag_to_entity = {}
         self.line_to_elements = {}
@@ -302,26 +301,36 @@ class Preprocessor:
             gmsh.model.mesh.generate(3)
 
             for dim, line_tag in gmsh.model.getEntities(1):
-                
+        
                 newEntity = Entity(line_tag)
 
                 # Element
-                _, element_indexes, connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
-                element_indexes = element_indexes[0]
-                connectivity = split_sequence(connectivity[0], 2)
+                _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
+                
+                line_connect_data = np.zeros((len(line_element_indexes[0]),3))
+                line_connect_data[:,0] = line_element_indexes[0]
+                line_connect_data[:,1:] = line_connectivity[0].reshape(-1,2)
+                newEntity.insertEdge(list(line_connect_data))
 
-                for index, (start, end) in zip(element_indexes, connectivity):
-                    edges = index, start, end
-                    newEntity.insertEdge(edges)
+                # line_connectivity = split_sequence(line_connectivity[0], 2)
+                # for index, (start, end) in zip(line_element_indexes[0], line_connectivity):
+                #     edges = index, start, end
+                #     newEntity.insertEdge(edges)
 
                 # Nodes
-                node_indexes, _coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
-                coordinates = split_sequence(_coordinates, 3)
+                line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
+                
+                line_node_coordinates = (line_node_coordinates/1000).reshape(-1,3)
+                line_node_data = np.zeros((len(line_node_indexes), 4))
+                line_node_data[:,0] = line_node_indexes
+                line_node_data[:,1:] = line_node_coordinates
+                newEntity.insertNode(list(line_node_data))
 
-                for index, (x, y, z) in zip(node_indexes, coordinates):
-                    node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
-                    newEntity.insertNode(node)
-            
+                # line_node_coordinates = split_sequence(line_node_coordinates, 3)
+                # for index, (x, y, z) in zip(line_node_indexes, line_node_coordinates):
+                #     node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
+                #     newEntity.insertNode(node)
+
                 self.all_lines.append(line_tag)
                 self.entities.append(newEntity)
                 self.dict_tag_to_entity[line_tag] = newEntity
@@ -333,10 +342,10 @@ class Preprocessor:
 
             self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
             self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
-        
+            
             self._create_nodes(node_indexes, coords, self.map_nodes)
             self._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
-            self._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
+            self._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)                       
             self.update_number_divisions()
         
         except Exception as log_error:
@@ -942,7 +951,7 @@ class Preprocessor:
             self.dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
         return self.dict_structural_to_acoustic_elements 
 
-    def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-5):
+    def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-6):
         """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
             node_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
             avoids the problem of element size deviations resultant in the mesh generation algorithm.
