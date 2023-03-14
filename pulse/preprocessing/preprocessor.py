@@ -3037,7 +3037,7 @@ class Preprocessor:
 
     def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):
         """
-        This method ...
+        This methods ...
         """
         list_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
 
@@ -3052,9 +3052,9 @@ class Preprocessor:
                 last_node_coordinates = self.nodes[end_node_id].coordinates
                 line_id = self.elements_to_line[first_element_id]
                 key = f"{first_element_id}-{last_element_id}||{line_id}"
-                self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
-                                                                                    list(last_node_coordinates),
-                                                                                    subgroup_elements   ]
+                self.dict_element_info_to_update_indexes_in_entity_file[key] = [list(first_node_coordinates),
+                                                                                list(last_node_coordinates),
+                                                                                subgroup_elements]
 
 
     def reset_list_elements_from_line(self, line_id, dict_map_cross, dict_map_expansion_joint):
@@ -3125,7 +3125,7 @@ class Preprocessor:
                                                                                     output_subgroup ]
 
 
-    def update_element_ids_after_remesh(self, dict_cache, tolerance=1e-8):
+    def update_element_ids_after_remesh(self, dict_cache, tolerance=1e-7):
         """
         This method ...
         """      
@@ -3325,7 +3325,7 @@ class Preprocessor:
             
             self.geometry = Geometry()
             gmsh.initialize('', False)
-            gmsh.option.setNumber("General.Terminal",0)
+            gmsh.option.setNumber("General.Terminal", 0)
             gmsh.model.add("OpenPulse - geometry designer")
 
             points = entities_data["points_data"]

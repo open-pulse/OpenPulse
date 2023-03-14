@@ -35,6 +35,8 @@ class SetMeshPropertiesInput(QDialog):
         self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
         self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()
+        # print(self.cache_dict_nodes)
+        # print(self.cache_dict_update_entity_file)
   
         # self.userPath = os.path.expanduser('~')
         # self.project_directory = os.path.dirname(self.project_file_path)
@@ -171,7 +173,7 @@ class SetMeshPropertiesInput(QDialog):
 
     def process_intermediate_actions(self):
         self.t0 = time()
-        self.project.file.update_project_attributes(self.new_element_size, self.geometry_tolerance)
+        self.project.file.update_project_attributes(element_size=self.new_element_size, geometry_tolerance=self.geometry_tolerance)
         self.project.initial_load_project_actions(self.project_ini_file_path)
         if len(self.preprocessor.structural_elements) > 0:
             #
@@ -185,18 +187,29 @@ class SetMeshPropertiesInput(QDialog):
 
     def undo_mesh_actions(self):
         self.t0 = time()
-        self.project.file.update_project_attributes(self.current_element_size, self.geometry_tolerance)
+        self.project.file.update_project_attributes(element_size=self.current_element_size, geometry_tolerance=self.geometry_tolerance)
         self.project.initial_load_project_actions(self.project_ini_file_path)
         self.project.load_project_files()     
-        self.opv.opvRenderer.plot()
+        self.opv.updatePlots()
         self.opv.changePlotToMesh() 
 
     def process_final_actions(self):
         if len(self.dict_old_to_new_node_external_indexes) > 0:
             self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs)
-        if len(self.dict_group_elements_to_update_entity_file) > 0:
+        
+        if (len(self.dict_group_elements_to_update_entity_file) + len(self.dict_non_mapped_subgroups_entity_file)) > 0:
             self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
                                                                         self.dict_non_mapped_subgroups_entity_file)
+            
+        if len(self.dict_non_mapped_subgroups_entity_file) > 0:
+            title = "Non mapped elements"
+            message = "There are elements that have not been mapped after the meshing process. Therefore, the line "
+            message += "attributes will be reset to prevent errors decurrent of element lack attribution.\n\n"
+            for list_elements in self.dict_non_mapped_subgroups_entity_file.values():
+                if len(list_elements) > 10:
+                    message += f"{str(list_elements[0:3])[:-1]}...{str(list_elements[-3:])[1:]}\n"
+            PrintMessageInput([title, message, window_title_2])
+
         if len(self.dict_group_elements_to_update_element_info_file) > 0:
             self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
                                                                                 self.dict_non_mapped_subgroups_info_file,

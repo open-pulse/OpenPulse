@@ -166,6 +166,9 @@ class Project:
         self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path=geometry_path, kernel=kernel)
         self.empty_geometry = False
     
+    def edit_imported_geometry(self, geometry_filename):
+        self.file.update_project_attributes(geometry_filename=geometry_filename)
+
     def load_geometry_entities(self, kernel="built-in"):
 
         path = get_new_path(self.file._geometry_path, self.file._geometry_entities_file_name)
@@ -922,7 +925,11 @@ class Project:
                 self.file.add_multiple_cross_sections_expansion_joints_valves_in_file(  _line_id, 
                                                                                         map_cross_sections_to_elements, 
                                                                                         map_expansion_joints_to_elements,
-                                                                                        map_valves_to_elements )                                        
+                                                                                        map_valves_to_elements )  
+                
+                for list_elements_mapped in map_cross_sections_to_elements.values():
+                    self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements_mapped)
+
 
     def set_variable_cross_section_by_line(self, line_id, parameters):
         self._set_variable_cross_section_to_selected_line(line_id, parameters)

@@ -142,6 +142,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items = []
         self.item_top_generalSettings = QTreeWidgetItem(['General Settings'])
         self.item_child_createGeometry = QTreeWidgetItem(['Create a Geometry'])
+        self.item_child_editGeometry = QTreeWidgetItem(['Edit Imported Geometry'])
         self.item_child_setProjectAttributes = QTreeWidgetItem(['Set Project Attributes'])
         self.item_child_setGeometryFile = QTreeWidgetItem(['Set Geometry File'])
         self.item_child_setMeshProperties = QTreeWidgetItem(['Set Mesh Properties'])
@@ -151,6 +152,7 @@ class MenuItems(QTreeWidget):
         #
         self.list_top_items.append(self.item_top_generalSettings)
         self.list_child_items.append(self.item_child_createGeometry)
+        self.list_child_items.append(self.item_child_editGeometry)
         self.list_child_items.append(self.item_child_setProjectAttributes)
         self.list_child_items.append(self.item_child_setGeometryFile)
         self.list_child_items.append(self.item_child_setGeometryFile)
@@ -254,6 +256,7 @@ class MenuItems(QTreeWidget):
         """Adds the Top Level Items and the Child Levels Items at the TreeWidget."""
         self.addTopLevelItem(self.item_top_generalSettings)
         self.item_top_generalSettings.addChild(self.item_child_createGeometry)
+        self.item_top_generalSettings.addChild(self.item_child_editGeometry)
         self.item_top_generalSettings.addChild(self.item_child_setProjectAttributes)
         self.item_top_generalSettings.addChild(self.item_child_setMeshProperties)
         self.item_top_generalSettings.addChild(self.item_child_setGeometryFile)
@@ -387,7 +390,11 @@ class MenuItems(QTreeWidget):
                 elif read:
                     self.modify_model_setup_items_access(False)
                     self.mainWindow.set_enable_menuBar(True)
-                    
+
+        elif item == self.item_child_editGeometry:
+            if not self.item_child_editGeometry.isDisabled():
+                read = self.mainWindow.getInputWidget().edit_an_imported_geometry()
+
         elif item == self.item_child_setGeometryFile:
             if not self.item_child_setGeometryFile.isDisabled():
                 self.mainWindow.getInputWidget().set_geometry_file()
@@ -602,6 +609,7 @@ class MenuItems(QTreeWidget):
     def modify_geometry_item_access(self, bool_key):
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
+        self.item_child_editGeometry.setHidden(True)
 
     def modify_general_settings_items_access(self, bool_key):
         #
@@ -609,6 +617,7 @@ class MenuItems(QTreeWidget):
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
+        self.item_child_editGeometry.setHidden(True)
         # self.item_child_set_material.setDisabled(bool_key)
         # self.item_child_set_fluid.setDisabled(bool_key)
         # self.item_child_set_crossSection.setDisabled(bool_key)
@@ -616,12 +625,14 @@ class MenuItems(QTreeWidget):
     def modify_model_setup_items_access(self, bool_key):
         #
         self.item_child_setProjectAttributes.setDisabled(bool_key)
+        self.item_child_editGeometry.setDisabled(bool_key)
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
+        self.item_child_editGeometry.setHidden(False)
         #
         self.item_child_setStructuralElementType.setDisabled(bool_key) 
         self.item_child_addFlanges.setDisabled(bool_key) 

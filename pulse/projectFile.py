@@ -174,19 +174,26 @@ class ProjectFile:
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
 
-    def update_project_attributes(self, element_size, geometry_tolerance):
+    def update_project_attributes(self, element_size=0, geometry_tolerance=0, geometry_filename=""):
         project_ini_file_path = get_new_path(self._project_path, "project.ini")
         config = configparser.ConfigParser()
         config.read(project_ini_file_path)
         
-        if 'element size' in config['PROJECT'].keys(): 
-            read_element_size = config['PROJECT']['element size']
-            if read_element_size != str(element_size):
+        if element_size != 0:
+            if 'element size' in config['PROJECT'].keys(): 
+                read_element_size = config['PROJECT']['element size']
+                if read_element_size != str(element_size):
+                    config['PROJECT']['element size'] = str(element_size)
+            else:
                 config['PROJECT']['element size'] = str(element_size)
-        else:
-            config['PROJECT']['element size'] = str(element_size)
+        
+        if geometry_tolerance != 0:
+            if 'Geometry tolerance' in config['PROJECT'].keys():
+                config['PROJECT']['Geometry tolerance'] = str(geometry_tolerance)
 
-        config['PROJECT']['Geometry tolerance'] = str(geometry_tolerance)
+        if geometry_filename != "":
+            if 'geometry file' in config['PROJECT'].keys():
+                config['PROJECT']['geometry file'] = geometry_filename
         
         self.write_data_in_file(project_ini_file_path, config)
 
@@ -2261,45 +2268,58 @@ class ProjectFile:
 
 
     def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
+        """ This method updates the lists of elements in entity file after remesh process. A mapping process checks the boundaries of the
+            attribution before and after meshing process. If the mapping process could not find boundaries of atribution after remesh, 
+            so the all attribuiton from line related to the group of elements will be removed.
         
+        """
         if os.path.exists(self._entity_path):
             config = configparser.ConfigParser()
             config.read(self._entity_path)
             sections = config.sections()
             
             for section in sections:
-                
-                if 'list of elements' in config[section].keys():
-                    str_list_elements = config[section]['list of elements']
-                    list_elements = self._get_list_of_values_from_string(str_list_elements)
-                    list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                    temp_list = []
-                    try:
+                if section in config.sections():
+                    if 'list of elements' in config[section].keys():
+                        str_list_elements = config[section]['list of elements']
+                        list_elements = self._get_list_of_values_from_string(str_list_elements)
+                        list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+                        temp_list = []
+                        lines_to_reset = []
+                        try:
 
-                        for subgroup_elements in list_subgroup_elements:
-                            str_subgroup_elements = str(subgroup_elements)
-                            if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
-                                temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
-                
-                        if temp_list != []:
-                            new_list_elements = [value for group in temp_list for value in group]
-                            config[section]['list of elements'] =  str(new_list_elements)
-                        else:
-                            config.remove_section()
+                            for subgroup_elements in list_subgroup_elements:
+                                str_subgroup_elements = str(subgroup_elements)
+                                if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
+                                    temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
+                                elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
+                                    lines_to_reset.append(section)    
 
-                    except Exception as log_error:
-                        
-                        if "-" in section:
-                            line_id = section.split("-")[0]
-                            subkey = f"{line_id}-"
-                            config.remove_section(section)
-                            if line_id in sections:
-                                for key in config[line_id].keys():                                                     
-                                    # for key in config[line_id].keys():
-                                    config.remove_option(section=line_id, option=key)
-                            for _section in sections:
-                                if subkey in _section:
-                                    config.remove_section(_section)           
+                            if lines_to_reset != []:
+                                for line_to_reset in lines_to_reset:
+                                    prefix = line_to_reset.split("-")[0] + "-"
+                                    for _section in sections:
+                                        if prefix in _section:
+                                            config.remove_section(section=_section)
+                            elif temp_list != []:
+                                new_list_elements = [value for group in temp_list for value in group]
+                                config[section]['list of elements'] =  str(new_list_elements)
+                            else:
+                                config.remove_section(section=section)
+
+                        except Exception as log_error:
+
+                            if "-" in section:
+                                line_id = section.split("-")[0]
+                                subkey = f"{line_id}-"
+                                config.remove_section(section)
+                                if line_id in sections:
+                                    for key in config[line_id].keys():                                                     
+                                        # for key in config[line_id].keys():
+                                        config.remove_option(section=line_id, option=key)
+                                for _section in sections:
+                                    if subkey in _section:
+                                        config.remove_section(_section)       
 
             self.write_data_in_file(self._entity_path, config)
 

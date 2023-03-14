@@ -4,6 +4,7 @@ from data.user_input.project.loadProjectInput import LoadProjectInput
 from data.user_input.project.getStartedInput import GetStartedInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
+from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
 from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
 from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
@@ -149,6 +150,10 @@ class InputUi:
     def call_geometry_designer(self):
         read = self.processInput(GeometryDesignerInput, self.project, self.opv)
         return read.complete
+
+    def edit_an_imported_geometry(self):
+        read = self.processInput(EditImportedGeometryInput, self.project)
+        return
 
     def set_mesh_properties(self):
         read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)

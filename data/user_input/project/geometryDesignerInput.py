@@ -797,7 +797,7 @@ class GeometryDesignerInput(QDialog):
         if self.check_geometry_tolerance_input_value():
             return True
 
-        self.project.file.update_project_attributes(self.element_size, self.geometry_tolerance)
+        self.project.file.update_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
         self.project.initial_load_project_actions(self.project_ini_path)
         if self.checkBox_maintain_lines_attributes.isChecked():
             self.process_lines_mapping()
@@ -839,7 +839,7 @@ class GeometryDesignerInput(QDialog):
         [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
         [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
 
-        if len(self.dict_group_elements_to_update_entity_file) > 0:
+        if (len(self.dict_group_elements_to_update_entity_file) + len(self.dict_non_mapped_subgroups_entity_file)) > 0:
             self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
                                                                         self.dict_non_mapped_subgroups_entity_file)
         if len(self.dict_group_elements_to_update_element_info_file) > 0:
