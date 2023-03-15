@@ -2235,8 +2235,6 @@ class ProjectFile:
     def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
         if os.path.exists(self._node_structural_path):
 
-            # print(dict_old_to_new_indexes, dict_non_mapped_nodes)
-
             config = configparser.ConfigParser()
             config_new = configparser.ConfigParser()
             config.read(self._node_structural_path)

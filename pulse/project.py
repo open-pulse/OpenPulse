@@ -129,7 +129,7 @@ class Project:
 
     def initial_load_project_actions(self, project_file_path):
         try:
-            self.reset()
+            self.reset(reset_all=True)
             self.file.load(project_file_path)
             if self.file._import_type == 1:
                 path = self.file.get_geometry_path()
@@ -147,7 +147,9 @@ class Project:
             else:
                 self.empty_geometry = False
                 self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
-                self.entities = self.preprocessor.dict_tag_to_entity.values()                    
+                self.entities = self.preprocessor.dict_tag_to_entity.values()
+                if not os.path.exists(self.file._entity_path):
+                    self.file.create_entity_file(self.preprocessor.all_lines)                   
                 return True
         except Exception as log_error:
             title = "Error while processing initial load project actions"
@@ -161,13 +163,17 @@ class Project:
         else:
             return False
 
-    def set_geometry_entities(self, entities_data, geometry_path, kernel):
+    def set_geometry_entities(self, entities_data, geometry_path, kernel, imported_geometry_path=""):
         self.file.add_geometry_entities_to_file(entities_data)
-        self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path=geometry_path, kernel=kernel)
+        self.preprocessor.generate_geometry_gmsh(   entities_data, 
+                                                    geometry_path=geometry_path, 
+                                                    kernel=kernel, 
+                                                    imported_geometry_path=imported_geometry_path )
         self.empty_geometry = False
     
     def edit_imported_geometry(self, geometry_filename):
         self.file.update_project_attributes(geometry_filename=geometry_filename)
+        # self.initial_load_project_actions(self.project_ini_file_path)
 
     def load_geometry_entities(self, kernel="built-in"):
 

@@ -1,14 +1,15 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QCheckBox, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QRadioButton
+from PyQt5.QtWidgets import QDialog, QWidget, QLineEdit, QCheckBox, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QRadioButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
+from shutil import copyfile, rmtree
 import os
 import configparser
 import numpy as np
 from time import time
 from collections import defaultdict
 
-from pulse.utils import get_new_path, get_fillet_parameters
+from pulse.utils import *
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
@@ -26,9 +27,14 @@ class GeometryDesignerInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
+        self.nodes = self.preprocessor.nodes
+        self.file = self.project.file
         self.opv = opv
+        self.opv.setInputObject(self)
+
         self.project_path = project.file._project_path
         self.project_ini_path = get_new_path(self.project_path, "project.ini")
+        self.imported_geometry_path = self.file._geometry_path
         self.cache_dict_nodes = self.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
         self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
@@ -56,6 +62,19 @@ class GeometryDesignerInput(QDialog):
 
         self.complete = False
         self.exec_()
+
+    def update(self):
+        list_picked_nodes = self.opv.getListPickedPoints()
+        if len(list_picked_nodes) == 1:
+            node = self.nodes[list_picked_nodes[0]]
+            coord_x, coord_y, coord_z = node.x, node.y, node.z
+            self.lineEdit_coord_x.setText(str(round(coord_x, 6)))
+            self.lineEdit_coord_y.setText(str(round(coord_y, 6)))
+            self.lineEdit_coord_z.setText(str(round(coord_z, 6)))
+        else:
+            self.lineEdit_coord_x.setText("")
+            self.lineEdit_coord_y.setText("")
+            self.lineEdit_coord_z.setText("")
 
     def _define_Qt_variables(self):
         
@@ -91,15 +110,15 @@ class GeometryDesignerInput(QDialog):
         self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
         self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
         
-        if self.project.file._element_size is None:
+        if self.file._element_size is None:
             self.lineEdit_element_size.setText("")
         else:
-            self.lineEdit_element_size.setText(str(self.project.file._element_size))
+            self.lineEdit_element_size.setText(str(self.file._element_size))
         
-        if self.project.file._geometry_tolerance is None:
+        if self.file._geometry_tolerance is None:
             self.lineEdit_geometry_tolerance.setText("")
         else:
-            self.lineEdit_geometry_tolerance.setText(str(self.project.file._geometry_tolerance))
+            self.lineEdit_geometry_tolerance.setText(str(self.file._geometry_tolerance))
 
         self.checkBox_auto_point_ID = self.findChild(QCheckBox, 'checkBox_auto_point_ID')
         self.checkBox_auto_line_ID = self.findChild(QCheckBox, 'checkBox_auto_line_ID')
@@ -127,6 +146,9 @@ class GeometryDesignerInput(QDialog):
         self.pushButton_clear_all_entities = self.findChild(QPushButton, 'pushButton_clear_all_entities')
         self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
         self.pushButton_generate_geometry = self.findChild(QPushButton, 'pushButton_generate_geometry')
+        self.pushButton_reset_geometry = self.findChild(QPushButton, 'pushButton_reset_geometry')
+
+        self.widget_reset_geometry = self.findChild(QWidget, 'widget_reset_geometry')
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -191,6 +213,7 @@ class GeometryDesignerInput(QDialog):
         self.pushButton_clear_all_entities.clicked.connect(self.clear_all_entities)
         self.pushButton_cancel.clicked.connect(self.cancel)
         self.pushButton_generate_geometry.clicked.connect(self.generate_geometry)
+        self.pushButton_reset_geometry.clicked.connect(self.reset_geometry)
 
     def _create_onSingleClick_connections(self):
         self.treeWidget_points.itemClicked.connect(self.on_click_item_points)
@@ -349,17 +372,35 @@ class GeometryDesignerInput(QDialog):
         self.lineEdit_fillet_line_id_2.setText("")
         self.lineEdit_fillet_radius.setText("")         
 
+    def check_hibrid_edition(self):
+        self.widget_reset_geometry.setVisible(False)
+        if os.path.exists(self.imported_geometry_path):
+            if os.path.basename(self.imported_geometry_path) != "":
+                self.opv.changePlotToMesh()
+                temp_geometry_file_path = get_new_path(self.file._project_path, self.file._geometry_entities_file_name)
+                if os.path.exists(temp_geometry_file_path):
+                    self.widget_reset_geometry.setVisible(True)
+                    self.checkBox_maintain_lines_attributes.setChecked(False)
+                    self.checkBox_maintain_lines_attributes.setDisabled(True)
+                    self.radioButton_built_in.setDisabled(True)
+                    self.radioButton_open_Cascade.setDisabled(True)
+                    self.checkBox_export_geometry.setDisabled(True)
+                    return False
+        return True 
+
     def load_geometry_entities_from_file(self):
         try:
-            self.cache_geometry = self.preprocessor.geometry
+            if self.check_hibrid_edition():
+                self.cache_geometry = self.preprocessor.geometry
         except:
             self.cache_geometry = None
             self.checkBox_maintain_lines_attributes.setChecked(False)
             self.checkBox_maintain_nodes_attributes.setChecked(False)
             self.checkBox_maintain_lines_attributes.setDisabled(True)
             self.checkBox_maintain_nodes_attributes.setDisabled(True)
+
         self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_vertex_coordinates()
-        entities_data = self.project.file.load_geometry_entities_file()
+        entities_data = self.file.load_geometry_entities_file()
         
         self.update_process_geometry_and_mesh_state()
         if entities_data is None:
@@ -741,7 +782,7 @@ class GeometryDesignerInput(QDialog):
         try:
 
             self.complete = False
-            if len(self.lines) == 0:
+            if len(self.lines) == 0 and self.imported_geometry_path == "":
                 title = "None lines detected in geometry"
                 message = "There is no lines connecting points in geometry design. Please, it is necessary " 
                 message += "to define at least one line to proceed with the geometry and mesh processing."
@@ -765,7 +806,7 @@ class GeometryDesignerInput(QDialog):
                         ext = "step"
                     if self.lineEdit_geometry_name.text() != "":
                         filename = f"{self.lineEdit_geometry_name.text()}.{ext}"
-                        geometry_path = get_new_path(self.project.file._project_path, filename)
+                        geometry_path = get_new_path(self.file._project_path, filename)
                     else:
                         window_title = "ERROR"
                         message_title = f"Invalid geometry name"
@@ -775,8 +816,18 @@ class GeometryDesignerInput(QDialog):
                         return                  
                 else:                   
                     geometry_path = ""
- 
-                self.project.set_geometry_entities(entities_data, geometry_path, kernel=kernel)
+
+                self.new_basename = ""
+                if os.path.basename(self.imported_geometry_path) != "":
+                    self.imported_geometry_path = self.imported_geometry_path
+                    self.geometry_filename = os.path.basename(self.imported_geometry_path)
+                    _, self.new_basename = get_edited_filename(self.imported_geometry_path)
+                       
+                self.project.set_geometry_entities(entities_data, 
+                                                   geometry_path, 
+                                                   kernel=kernel, 
+                                                   imported_geometry_path=self.imported_geometry_path)
+                
                 if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.check_mesh_setup():
                     if self.process_mesh():
                         return
@@ -787,7 +838,11 @@ class GeometryDesignerInput(QDialog):
             self.close()
 
         except Exception as log_error:
-            print(str(log_error))
+            window_title = "ERROR"
+            message_title = "Error ocurred while edit geometry (built-in)"
+            message = "An error has been raised while processing the OpenPulse built-in geometry editor. \nDetails: "
+            message += f"{log_error}"
+            PrintMessageInput([[message_title, message, window_title]])
 
     def process_mesh(self):
  
@@ -797,12 +852,24 @@ class GeometryDesignerInput(QDialog):
         if self.check_geometry_tolerance_input_value():
             return True
 
-        self.project.file.update_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
+        self.file.update_project_attributes(element_size=self.element_size, 
+                                            geometry_tolerance=self.geometry_tolerance,
+                                            geometry_filename=self.new_basename)
+        
+        if self.new_basename != "":
+            self.checkBox_maintain_lines_attributes.setChecked(False)
+            self.checkBox_maintain_lines_attributes.setDisabled(True)
+            if os.path.exists(self.file._entity_path):
+                os.remove(self.file._entity_path)
+                # self.project.remove_all_unnecessary_files()
+
         self.project.initial_load_project_actions(self.project_ini_path)
+            
         if self.checkBox_maintain_lines_attributes.isChecked():
             self.process_lines_mapping()
         if self.checkBox_maintain_nodes_attributes.isChecked():
             self.process_nodes_mapping()
+
         self.project.load_project_files()
         self.preprocessor.check_disconnected_lines(self.element_size)
         self.opv.updatePlots()
@@ -821,14 +888,14 @@ class GeometryDesignerInput(QDialog):
                 for line_id, new_coords in self.dict_lines_edge_coord.items():
                     if (np.array(cache_coords) == np.array(new_coords)).all() or (np.array(cache_coords) == np.flip(new_coords, axis=0)).all():
                         dict_map_lines[line_id] = cache_line_id
-        self.project.file.update_entity_file(self.preprocessor.all_lines, dict_map_lines=dict_map_lines)
+        self.file.update_entity_file(self.preprocessor.all_lines, dict_map_lines=dict_map_lines)
 
     def process_nodes_mapping(self):
 
         data_1 = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)
         [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = data_1
 
-        if len(self.dict_old_to_new_node_external_indexes) > 0:
+        if len(self.dict_old_to_new_node_external_indexes) + len(self.dict_non_mapped_bcs) > 0:
             self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs)
 
     def process_elements_mapping(self):
@@ -1010,3 +1077,54 @@ class GeometryDesignerInput(QDialog):
             # self.stop = True
             return False
         return True
+    
+    def call_double_confirmation_to_reset_geometry(self):
+
+        title = "Restore geometry file"
+        message = "Do you really want to restore the imported geometry file?\n\n\n"
+        message += "Press the 'Proceed' button to proceed with the file restoration, otherwise, press 'Cancel' or 'Close' buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+
+        if read._doNotRun:
+            return True
+
+        if read._continue:
+            return False
+
+    def reset_geometry(self):
+        
+        if self.call_double_confirmation_to_reset_geometry():
+            return
+        
+        self.imported_geometry_path = self.file._geometry_path
+        dirname = os.path.dirname(self.imported_geometry_path)
+        backup_path = get_new_path(dirname, "geometry_backup")
+        if os.path.exists(backup_path):
+            list_filenames = os.listdir(backup_path).copy()
+            geometry_filename = list_filenames[0]
+            geometry_path_start = get_new_path(backup_path, geometry_filename)
+            geometry_path_end = get_new_path(dirname, geometry_filename)
+            copyfile(geometry_path_start, geometry_path_end)
+            temp_geometry_file_path = get_new_path(self.file._project_path, self.file._geometry_entities_file_name)
+            if os.path.exists(temp_geometry_file_path):
+                os.remove(temp_geometry_file_path)
+            if os.path.exists(self.imported_geometry_path):
+                os.remove(self.imported_geometry_path)
+            
+            # rmtree(backup_path)
+            self.file.update_project_attributes(geometry_filename=geometry_filename)
+            self.project.initial_load_project_actions(self.project_ini_path)
+
+            if True:
+                if os.path.exists(self.file._entity_path):
+                    os.remove(self.file._entity_path)
+
+                self.file.create_entity_file(self.preprocessor.all_lines)
+                # self.project.remove_all_unnecessary_files()
+            
+            self.project.load_project_files()
+            self.preprocessor.check_disconnected_lines(self.file._element_size)
+            self.opv.updatePlots()
+            # self.opv.changePlotToMesh()
+            self.opv.changePlotToEntities()
+            self.close()

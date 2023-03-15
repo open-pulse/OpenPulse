@@ -1,7 +1,7 @@
 from collections import deque
 from random import choice
 from collections import defaultdict
-import re
+from shutil import copyfile
 from libs.gmsh import gmsh 
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -263,10 +263,11 @@ class Preprocessor:
         Parameters
         ----------
         str
-            CAD file path. '.igs' is the only format file supported.
+            the path of geometry file (only IGES and STEP CAD formats are supported).
         """
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
+        gmsh.option.setNumber("General.Verbosity", 0)
         gmsh.open(path)
 
     def _set_gmsh_options(self, element_size, tolerance=1e-6):
@@ -334,7 +335,7 @@ class Preprocessor:
                 self.all_lines.append(line_tag)
                 self.entities.append(newEntity)
                 self.dict_tag_to_entity[line_tag] = newEntity
-            
+
             gmsh.model.mesh.removeDuplicateNodes()
 
             node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
@@ -3320,13 +3321,15 @@ class Preprocessor:
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
 
-    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in"):
+    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in", imported_geometry_path=""):
         try:
             
             self.geometry = Geometry()
             gmsh.initialize('', False)
             gmsh.option.setNumber("General.Terminal", 0)
-            gmsh.model.add("OpenPulse - geometry designer")
+            # gmsh.option.setNumber("General.ExpertMode", 1)
+            gmsh.option.setNumber("General.Verbosity", 0)
+            # gmsh.model.add("OpenPulse - geometry designer")
 
             points = entities_data["points_data"]
             lines = entities_data["lines_data"]
@@ -3334,6 +3337,7 @@ class Preprocessor:
 
             corner_points = []
             list_lines = []
+            
             for point_id, coords in points.items():
 
                 if unit_length == "m":
@@ -3394,6 +3398,28 @@ class Preprocessor:
                 list_lines.append(seg2)
                 self.geometry.set_lines(len(list_lines), data[6:])
             
+            if os.path.exists(imported_geometry_path):
+                if "_edited" in imported_geometry_path:
+                    dirname = os.path.dirname(imported_geometry_path)
+                    geometry_backup_folder_path = get_new_path(dirname, "geometry_backup")
+                    if os.path.exists(geometry_backup_folder_path):
+                        filenames = os.listdir(geometry_backup_folder_path)
+                        if len(filenames) == 1:
+                            imported_geometry_path = get_new_path(geometry_backup_folder_path, filenames[0])
+                            gmsh.merge(imported_geometry_path)
+                else:
+                    # gmsh.merge(imported_geometry_path)
+                    dirname = os.path.dirname(imported_geometry_path)
+                    basename = os.path.basename(imported_geometry_path)
+                    geometry_backup_path = get_new_path(dirname, "geometry_backup")
+                    path_copy = get_new_path(geometry_backup_path, basename)
+                    if not os.path.exists(path_copy):
+                        create_new_folder(dirname, "geometry_backup")
+                    copyfile(imported_geometry_path, path_copy)
+                    os.remove(imported_geometry_path)
+                    imported_geometry_path = path_copy
+                    gmsh.merge(imported_geometry_path)
+
             gmsh.model.addPhysicalGroup(1, list_lines, 1)
             
             if kernel == "built-in":
@@ -3403,6 +3429,12 @@ class Preprocessor:
 
             if geometry_path != "":
                 gmsh.write(geometry_path)
+            else:
+                if os.path.basename(imported_geometry_path) != "":
+                    _, new_basename = get_edited_filename(imported_geometry_path)
+                    project_path = imported_geometry_path.split("geometry_backup")[0]
+                    new_path = get_new_path(project_path[:-1], new_basename)
+                    gmsh.write(new_path)
 
             # if '-nopopup' not in sys.argv:
             #     gmsh.option.setNumber('General.FltkColorScheme', 1)

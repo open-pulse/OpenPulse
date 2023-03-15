@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt, QRect
 
-from pulse.utils import get_new_path
+from pulse.utils import *
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
@@ -46,30 +46,24 @@ class EditImportedGeometryInput(QDialog):
             gmsh.fltk.run()
 
         title = f"Geometry edition confirm"
-        message = "Do you really want to confirm the geometry edition?\n\n"
+        message = "Do you really want to confirm the current geometry edition?\n\n"
         message += "\n\nPress the Confirm and save button to proceed with the edtion and save the modified geometry "
         message += "into the project file, otherwise, press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Confirm and save')
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Confirm and save', rightButton_size=220)
 
         if read._doNotRun:
             return
         
         if read._continue:
 
-            basename = os.path.basename(path)
-            dirname = os.path.dirname(path)
-            for ext in [".step", ".stp", ".STEP", ".STP", ".iges", ".igs", ".IGES", ".IGS"]:
-                if ext in basename:
-                    strings = basename.split(ext)
-                    new_basename = strings[0] + "_edited.stp"
-                    new_path = get_new_path(dirname, new_basename)
-                    self.geometry_edited = True
-                    
-                    self.project.edit_imported_geometry(new_basename)
-                    gmsh.write(new_path)
-                    # self.project.initial_load_project_actions(self.project_ini_file_path)
-                    break
+            new_path, new_basename = get_edited_filename(path)
 
+            if new_path != "" and new_basename != "":
+  
+                self.project.edit_imported_geometry(new_basename)
+                gmsh.write(new_path)
+                self.geometry_edited = True
+                # self.project.initial_load_project_actions(self.project_ini_file_path)
 
         gmsh.finalize()
         return True
