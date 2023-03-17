@@ -831,7 +831,12 @@ class GeometryDesignerInput(QDialog):
                         self.geometry_filename = os.path.basename(self.imported_geometry_path)
                         _, self.new_basename = get_edited_filename(self.imported_geometry_path)  
 
-                if self.project.set_geometry_entities(entities_data, geometry_path, kernel=kernel):
+                if geometry_path != "" or self.new_basename != "":
+                    only_save = False
+                else:
+                    only_save = True
+                
+                if self.project.set_geometry_entities(entities_data, geometry_path, kernel=kernel, only_save=only_save):
                     return
             
                 if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.check_mesh_setup():

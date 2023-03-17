@@ -159,14 +159,20 @@ class Project:
         else:
             return False
 
-    def set_geometry_entities(self, entities_data, geometry_path, kernel):
+    def set_geometry_entities(self, entities_data, geometry_path, kernel, only_save=False):
+        """
+        """
         self.file.add_geometry_entities_to_file(entities_data)
-        if geometry_path != "":
-            if self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path = geometry_path, kernel = kernel):
-                return True
-            else:
-                self.empty_geometry = False
-                return False
+
+        if only_save:
+            self.empty_geometry = False
+            return False
+
+        if self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path = geometry_path, kernel = kernel):
+            return True
+        else:
+            self.empty_geometry = False
+            return False
     
     def edit_imported_geometry(self, geometry_filename):
         self.file.update_project_attributes(geometry_filename=geometry_filename)
