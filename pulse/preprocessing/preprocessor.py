@@ -26,7 +26,8 @@ class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self):
+    def __init__(self, file):
+        self.file = file
         self.reset_variables()
 
     def reset_variables(self):
@@ -3321,15 +3322,15 @@ class Preprocessor:
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
 
-    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in", imported_geometry_path=""):
+    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in"):
+        """
+        """
         try:
-            
+            message = ""
             self.geometry = Geometry()
             gmsh.initialize('', False)
             gmsh.option.setNumber("General.Terminal", 0)
-            # gmsh.option.setNumber("General.ExpertMode", 1)
             gmsh.option.setNumber("General.Verbosity", 0)
-            # gmsh.model.add("OpenPulse - geometry designer")
 
             points = entities_data["points_data"]
             lines = entities_data["lines_data"]
@@ -3398,27 +3399,9 @@ class Preprocessor:
                 list_lines.append(seg2)
                 self.geometry.set_lines(len(list_lines), data[6:])
             
-            if os.path.exists(imported_geometry_path):
-                if "_edited" in imported_geometry_path:
-                    dirname = os.path.dirname(imported_geometry_path)
-                    geometry_backup_folder_path = get_new_path(dirname, "geometry_backup")
-                    if os.path.exists(geometry_backup_folder_path):
-                        filenames = os.listdir(geometry_backup_folder_path)
-                        if len(filenames) == 1:
-                            imported_geometry_path = get_new_path(geometry_backup_folder_path, filenames[0])
-                            gmsh.merge(imported_geometry_path)
-                else:
-                    # gmsh.merge(imported_geometry_path)
-                    dirname = os.path.dirname(imported_geometry_path)
-                    basename = os.path.basename(imported_geometry_path)
-                    geometry_backup_path = get_new_path(dirname, "geometry_backup")
-                    path_copy = get_new_path(geometry_backup_path, basename)
-                    if not os.path.exists(path_copy):
-                        create_new_folder(dirname, "geometry_backup")
-                    copyfile(imported_geometry_path, path_copy)
-                    os.remove(imported_geometry_path)
-                    imported_geometry_path = path_copy
-                    gmsh.merge(imported_geometry_path)
+            if os.path.exists(self.file._geometry_path):
+                if os.path.basename(self.file._geometry_path) != "":
+                    gmsh.merge(self.file._geometry_path)
 
             gmsh.model.addPhysicalGroup(1, list_lines, 1)
             
@@ -3429,21 +3412,52 @@ class Preprocessor:
 
             if geometry_path != "":
                 gmsh.write(geometry_path)
+                gmsh.finalize()
             else:
-                if os.path.basename(imported_geometry_path) != "":
-                    _, new_basename = get_edited_filename(imported_geometry_path)
-                    project_path = imported_geometry_path.split("geometry_backup")[0]
-                    new_path = get_new_path(project_path[:-1], new_basename)
-                    gmsh.write(new_path)
-
-            # if '-nopopup' not in sys.argv:
-            #     gmsh.option.setNumber('General.FltkColorScheme', 1)
-            #     gmsh.fltk.run()
-
-            # gmsh.finalize()
+                if os.path.exists(self.file._geometry_path):
+                    if os.path.basename(self.file._geometry_path) != "":
+                        _, new_basename = get_edited_filename(self.file._geometry_path)
+                        new_path = get_new_path(self.file._project_path, new_basename)
+                        extension = new_basename.split(".")[1]
+                        if extension in ["step", "stp", "STEP", "STP", "iges", "igs", "IGES", "IGS"]:
+                            gmsh.write(new_path)
+                            gmsh.finalize()
+                            filenames = os.listdir(self.file._backup_geometry_path)
+                            if len(filenames) == 1:    
+                                if os.path.basename(self.file._geometry_path) == filenames[0]:
+                                    os.remove(self.file._geometry_path)
+                        else:
+                            message = "The output cad file format is not supported.\n\n"
+                            message += f"Filename: {new_basename}"
 
         except Exception as _error:
-            print(str(_error))
+            message = str(_error)
+
+        if message != "":
+            title = "Error while processing generate_geometry_gmsh method"
+            PrintMessageInput([title, message, window_title_1])
+            return True
+        else:
+            return False
+
+    def remove_selected_lines_and_process_geometry(self, geometry_path, lines):
+        """
+        
+        """
+        gmsh.initialize('', False)
+        gmsh.option.setNumber("General.Terminal", 0)
+        gmsh.option.setNumber("General.Verbosity", 0)
+
+        gmsh.merge(geometry_path)
+
+        for line in lines:
+            gmsh.model.occ.remove([[1, line]], recursive=True)
+
+        gmsh.model.occ.synchronize()
+        new_path, new_basename = get_edited_filename(geometry_path)
+        gmsh.write(new_path)
+
+        return new_basename
 
     #TODO: remove the following methods if they are not necessary anymore
 

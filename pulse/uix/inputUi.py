@@ -154,6 +154,9 @@ class InputUi:
     def edit_an_imported_geometry(self):
         read = self.processInput(EditImportedGeometryInput, self.project)
         return
+    
+    def get_opv(self):
+        return self.opv
 
     def set_mesh_properties(self):
         read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)

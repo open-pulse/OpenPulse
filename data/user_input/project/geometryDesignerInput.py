@@ -35,6 +35,7 @@ class GeometryDesignerInput(QDialog):
         self.project_path = project.file._project_path
         self.project_ini_path = get_new_path(self.project_path, "project.ini")
         self.imported_geometry_path = self.file._geometry_path
+        self.geometry_entities_path = self.file.get_geometry_entities_path()
         self.cache_dict_nodes = self.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
         self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
@@ -374,20 +375,27 @@ class GeometryDesignerInput(QDialog):
 
     def check_hibrid_edition(self):
         self.widget_reset_geometry.setVisible(False)
+        geometry_state = self.file.get_geometry_state_from_project_file()
         if os.path.exists(self.imported_geometry_path):
             if os.path.basename(self.imported_geometry_path) != "":
                 self.opv.changePlotToMesh()
                 temp_geometry_file_path = get_new_path(self.file._project_path, self.file._geometry_entities_file_name)
-                if os.path.exists(temp_geometry_file_path):
-                    self.widget_reset_geometry.setVisible(True)
-                    self.checkBox_maintain_lines_attributes.setChecked(False)
-                    self.checkBox_maintain_lines_attributes.setDisabled(True)
-                    self.radioButton_built_in.setDisabled(True)
-                    self.radioButton_open_Cascade.setDisabled(True)
-                    self.checkBox_export_geometry.setDisabled(True)
+                if os.path.exists(temp_geometry_file_path) or geometry_state==1:
+                    self.configure_reset_geometry_button_visibility()
                     return False
+        elif geometry_state == 1:
+            self.configure_reset_geometry_button_visibility()
+            return False
         return True 
 
+    def configure_reset_geometry_button_visibility(self):
+        self.widget_reset_geometry.setVisible(True)
+        self.checkBox_maintain_lines_attributes.setChecked(False)
+        self.checkBox_maintain_lines_attributes.setDisabled(True)
+        self.radioButton_built_in.setDisabled(True)
+        self.radioButton_open_Cascade.setDisabled(True)
+        self.checkBox_export_geometry.setDisabled(True)
+        
     def load_geometry_entities_from_file(self):
         try:
             if self.check_hibrid_edition():
@@ -818,16 +826,14 @@ class GeometryDesignerInput(QDialog):
                     geometry_path = ""
 
                 self.new_basename = ""
-                if os.path.basename(self.imported_geometry_path) != "":
-                    self.imported_geometry_path = self.imported_geometry_path
-                    self.geometry_filename = os.path.basename(self.imported_geometry_path)
-                    _, self.new_basename = get_edited_filename(self.imported_geometry_path)
-                       
-                self.project.set_geometry_entities(entities_data, 
-                                                   geometry_path, 
-                                                   kernel=kernel, 
-                                                   imported_geometry_path=self.imported_geometry_path)
-                
+                if os.path.exists(self.imported_geometry_path):
+                    if os.path.basename(self.imported_geometry_path) != "":
+                        self.geometry_filename = os.path.basename(self.imported_geometry_path)
+                        _, self.new_basename = get_edited_filename(self.imported_geometry_path)  
+
+                if self.project.set_geometry_entities(entities_data, geometry_path, kernel=kernel):
+                    return
+            
                 if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.check_mesh_setup():
                     if self.process_mesh():
                         return
@@ -852,16 +858,21 @@ class GeometryDesignerInput(QDialog):
         if self.check_geometry_tolerance_input_value():
             return True
 
-        self.file.update_project_attributes(element_size=self.element_size, 
-                                            geometry_tolerance=self.geometry_tolerance,
-                                            geometry_filename=self.new_basename)
-        
+        geometry_state = None
         if self.new_basename != "":
+            geometry_state = 1
             self.checkBox_maintain_lines_attributes.setChecked(False)
             self.checkBox_maintain_lines_attributes.setDisabled(True)
             if os.path.exists(self.file._entity_path):
                 os.remove(self.file._entity_path)
+            if os.path.exists(self.geometry_entities_path):
+                os.remove(self.geometry_entities_path)
                 # self.project.remove_all_unnecessary_files()
+
+        self.file.update_project_attributes(element_size = self.element_size, 
+                                            geometry_tolerance = self.geometry_tolerance,
+                                            geometry_filename = self.new_basename,
+                                            geometry_state = geometry_state)
 
         self.project.initial_load_project_actions(self.project_ini_path)
             
@@ -1096,31 +1107,32 @@ class GeometryDesignerInput(QDialog):
         if self.call_double_confirmation_to_reset_geometry():
             return
         
-        self.imported_geometry_path = self.file._geometry_path
-        dirname = os.path.dirname(self.imported_geometry_path)
-        backup_path = get_new_path(dirname, "geometry_backup")
-        if os.path.exists(backup_path):
-            list_filenames = os.listdir(backup_path).copy()
+        self.file._geometry_path = self.file._geometry_path
+        if os.path.exists(self.file._backup_geometry_path):
+            list_filenames = os.listdir(self.file._backup_geometry_path).copy()
             geometry_filename = list_filenames[0]
-            geometry_path_start = get_new_path(backup_path, geometry_filename)
-            geometry_path_end = get_new_path(dirname, geometry_filename)
+            geometry_path_start = get_new_path(self.file._backup_geometry_path, geometry_filename)
+            geometry_path_end = get_new_path(self.file._project_path, geometry_filename)
             copyfile(geometry_path_start, geometry_path_end)
-            temp_geometry_file_path = get_new_path(self.file._project_path, self.file._geometry_entities_file_name)
-            if os.path.exists(temp_geometry_file_path):
-                os.remove(temp_geometry_file_path)
-            if os.path.exists(self.imported_geometry_path):
-                os.remove(self.imported_geometry_path)
             
-            # rmtree(backup_path)
-            self.file.update_project_attributes(geometry_filename=geometry_filename)
-            self.project.initial_load_project_actions(self.project_ini_path)
-
-            if True:
-                if os.path.exists(self.file._entity_path):
+            if os.path.exists(self.geometry_entities_path):
+                os.remove(self.geometry_entities_path)
+            if os.path.exists(self.file._geometry_path):
+                os.remove(self.file._geometry_path)
+            if os.path.exists(self.file._entity_path):
                     os.remove(self.file._entity_path)
 
-                self.file.create_entity_file(self.preprocessor.all_lines)
-                # self.project.remove_all_unnecessary_files()
+            # rmtree(backup_path)
+            self.file.update_project_attributes(geometry_filename = geometry_filename, 
+                                                geometry_state = 0)
+            self.project.initial_load_project_actions(self.project_ini_path)
+
+            # if True:
+            #     if os.path.exists(self.file._entity_path):
+            #         os.remove(self.file._entity_path)
+
+            #     self.file.create_entity_file(self.preprocessor.all_lines)
+            #     # self.project.remove_all_unnecessary_files()
             
             self.project.load_project_files()
             self.preprocessor.check_disconnected_lines(self.file._element_size)
