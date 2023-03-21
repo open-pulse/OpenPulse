@@ -910,14 +910,14 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
             
-            Y_out = (d_out/2)*cossine + self.offset_y
-            Z_out = (d_out/2)*sine + self.offset_z
-            Y_in = (d_in/2)*cossine + self.offset_y
-            Z_in = (d_in/2)*sine + self.offset_z
+            Y_out = (d_out/2)*cossine - self.offset_y
+            Z_out = (d_out/2)*sine - self.offset_z
+            Y_in = (d_in/2)*cossine - self.offset_y
+            Z_in = (d_in/2)*sine - self.offset_z
 
             if self.insulation_thickness != float(0):
-                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine + self.offset_y
-                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine + self.offset_z
+                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine - self.offset_y
+                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine - self.offset_z
 
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
@@ -925,13 +925,13 @@ class CrossSection:
         elif self.section_label == "Rectangular section": # Beam: Rectangular section
 
             b, h, b_in, h_in, offset_y, offset_z = self.section_parameters
-            Y_out = np.array([(b/2), (b/2),  (b/2), 0, -(b/2), -(b/2), -(b/2), 0]) + offset_y
-            Z_out = np.array([(h/2), 0, -(h/2), -(h/2), -(h/2), 0, (h/2), (h/2)]) + offset_z
+            Y_out = np.array([(b/2), (b/2),  (b/2), 0, -(b/2), -(b/2), -(b/2), 0]) - offset_y
+            Z_out = np.array([(h/2), 0, -(h/2), -(h/2), -(h/2), 0, (h/2), (h/2)]) - offset_z
             outer_points = list(zip(Y_out, Z_out))
 
             if b_in != 0:
-                Y_in = np.array([(b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]) + offset_y
-                Z_in = np.array([(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]) + offset_z
+                Y_in = np.array([(b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]) - offset_y
+                Z_in = np.array([(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]) - offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
         elif self.section_label == "Circular section": # Beam: Circular section
@@ -948,13 +948,13 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
 
-            Y_out = (d_out/2)*cossine + offset_y 
-            Z_out = (d_out/2)*sine + offset_z
+            Y_out = (d_out/2)*cossine - offset_y 
+            Z_out = (d_out/2)*sine - offset_z
             outer_points = list(zip(Y_out, Z_out))
                         
             if d_in != 0.:
-                Y_in = (d_in/2)*cossine + offset_y
-                Z_in = (d_in/2)*sine + offset_z
+                Y_in = (d_in/2)*cossine - offset_y
+                Z_in = (d_in/2)*sine - offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
         elif self.section_label == 'C-section': # Beam: C-section
@@ -963,8 +963,8 @@ class CrossSection:
             Yp_out = [0, w2, w2, tw, tw, w1, w1, 0]
             Zp_out = [-(h/2), -(h/2), -((h/2)-t2), -((h/2)-t2), ((h/2)-t1), ((h/2)-t1), (h/2), (h/2)]
 
-            Y_out = np.array(Yp_out) + offset_y
-            Z_out = np.array(Zp_out) + offset_z
+            Y_out = np.array(Yp_out) - offset_y
+            Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
 
         elif self.section_label == 'I-section': # Beam: I-section
@@ -973,8 +973,8 @@ class CrossSection:
             Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
             Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t2, -(h/2)+t2, -(h/2), -(h/2), -(h/2)+t2, -(h/2)+t2, (h/2)-t1, (h/2)-t1, (h/2)]
             
-            Y_out = np.array(Yp_out) + offset_y
-            Z_out = np.array(Zp_out) + offset_z
+            Y_out = np.array(Yp_out) - offset_y
+            Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
     
         elif self.section_label == 'T-section': # Beam: T-section
@@ -983,8 +983,8 @@ class CrossSection:
             Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
             Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2), -(h/2), (h/2)-t1, (h/2)-t1, (h/2)]
 
-            Y_out = np.array(Yp_out) + offset_y
-            Z_out = np.array(Zp_out) + offset_z
+            Y_out = np.array(Yp_out) - offset_y
+            Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
         
         elif self.section_label == "Expansion joint section" : #
@@ -1005,10 +1005,10 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
             
-            Y_out = r_out*cossine + self.offset_y
-            Z_out = r_out*sine + self.offset_z
-            Y_in = r_in*cossine + self.offset_y
-            Z_in = r_in*sine + self.offset_z
+            Y_out = r_out*cossine - self.offset_y
+            Z_out = r_out*sine - self.offset_z
+            Y_in = r_in*cossine - self.offset_y
+            Z_in = r_in*sine - self.offset_z
             
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
@@ -1028,14 +1028,14 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
             
-            Y_out = (d_out/2)*cossine + self.offset_y
-            Z_out = (d_out/2)*sine + self.offset_z
-            Y_in = (d_in/2)*cossine + self.offset_y
-            Z_in = (d_in/2)*sine + self.offset_z
+            Y_out = (d_out/2)*cossine - self.offset_y
+            Z_out = (d_out/2)*sine - self.offset_z
+            Y_in = (d_in/2)*cossine - self.offset_y
+            Z_in = (d_in/2)*sine - self.offset_z
 
             if self.insulation_thickness != float(0):
-                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine + self.offset_y
-                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine + self.offset_z
+                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine - self.offset_y
+                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine - self.offset_z
 
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
@@ -1081,20 +1081,20 @@ class CrossSection:
         
         r_out = d_out/2
         r_in = d_in/2
-        
+
         d_theta = 2*np.pi/N
         theta = -np.arange(0, 2*np.pi, d_theta)
         sine = np.sin(theta)
         cossine = np.cos(theta)
         
-        Y_out = r_out*cossine + offset_y
-        Z_out = r_out*sine + offset_z
-        Y_in = r_in*cossine + offset_y
-        Z_in = r_in*sine + offset_z
+        Y_out = r_out*cossine - offset_y
+        Z_out = r_out*sine - offset_z
+        Y_in = r_in*cossine - offset_y
+        Z_in = r_in*sine - offset_z
 
         if insulation_thickness != float(0):
-            Y_out = (r_out + insulation_thickness)*cossine + offset_y
-            Z_out = (r_out + insulation_thickness)*sine + offset_z
+            Y_out = (r_out + insulation_thickness)*cossine - offset_y
+            Z_out = (r_out + insulation_thickness)*sine - offset_z
 
         outer_points = list(zip(Y_out, Z_out))
         inner_points = list(zip(Y_in, Z_in))

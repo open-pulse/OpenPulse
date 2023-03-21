@@ -85,17 +85,20 @@ class SymbolsActorBase(vtkActorBase):
             elif diagonal <= 2:
                 self.scaleFactor = 0.3
             elif diagonal <= 10:
-                self.scaleFactor = 1
+                self.scaleFactor = 0.4
             elif diagonal <= 20:
-                self.scaleFactor = 2
+                self.scaleFactor = 0.6
             elif diagonal <= 30:
-                self.scaleFactor = 2.5
+                self.scaleFactor = 0.8
             elif diagonal <= 40:
-                self.scaleFactor = 3
+                self.scaleFactor = 1
             elif diagonal <= 50:
-                self.scaleFactor = 4
+                self.scaleFactor = 1.2
             else:
-                self.scaleFactor = 5
+                self.scaleFactor = 2.5
+
+            # print(f"Structure diagonal: {diagonal}")
+            # print(f"Symbols scale factor: {self.scaleFactor}")
 
     def source(self):
 

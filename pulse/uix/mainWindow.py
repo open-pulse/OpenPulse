@@ -17,7 +17,7 @@ from pulse.uix.menu import *
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
-        QMainWindow.__init__(self, parent)
+        super(MainWindow, self).__init__(parent)
 
         self.config = Config()
         self.project = Project()
@@ -38,11 +38,10 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
 
     def eventFilter(self, obj, event):
-        # if (event.type() == QEvent.KeyPress and obj is self):
-        if (event.type() == QEvent.ShortcutOverride and obj is self):
+        if event.type() == QEvent.ShortcutOverride:
             if event.key() == Qt.Key_Delete:
                 self.remove_selected_lines()
-        return True
+        return super(MainWindow, self).eventFilter(obj, event)
 
     def remove_selected_lines(self):
         lines = self.opv_widget.getListPickedLines()
