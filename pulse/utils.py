@@ -561,6 +561,24 @@ def get_new_path(path, name):
         new_path = '{}/{}'.format(path, name)
     return new_path
 
+def get_edited_filename(path):
+    new_path = ""
+    new_basename = ""
+    if os.path.exists(path):
+        if os.path.basename(path) != "":
+            basename = os.path.basename(path)
+            dirname = os.path.dirname(path)
+            for ext in [".step", ".stp", ".STEP", ".STP", ".iges", ".igs", ".IGES", ".IGS"]:
+                if ext in basename:
+                    strings = basename.split(ext)
+                    if strings[0][-7:] == "_edited":
+                        new_basename = basename
+                    else:
+                        new_basename = strings[0] + "_edited.stp"
+                    new_path = get_new_path(dirname, new_basename)
+                    break
+    return new_path, new_basename
+            
 def get_linear_distribution(x_initial, x_final, N):
     n = np.arange(N)/(N-1)
     return (x_final-x_initial)*n + x_initial

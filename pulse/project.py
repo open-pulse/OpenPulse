@@ -10,6 +10,7 @@ from data.user_input.model.setup.structural.expansionJointInput import get_list_
 from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from data.user_input.project.loadingScreen import LoadingScreen
 
 import numpy as np
@@ -23,8 +24,9 @@ window_title = "ERROR"
 
 class Project:
     def __init__(self):
-        self.preprocessor = Preprocessor()
-        self.file = ProjectFile()  
+        self.file = ProjectFile() 
+        self.preprocessor = Preprocessor(self.file)
+         
         self.reset()
 
     def reset(self, reset_all=False):
@@ -77,13 +79,6 @@ class Project:
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
-    def check_if_there_are_tables_at_the_model(self):
-        if os.path.exists(self.file._structural_imported_data_folder_path):
-            return True
-        if os.path.exists(self.file._acoustic_imported_data_folder_path):
-            return True
-        return False
-
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset(reset_all=True)
         self.file.new(  project_folder_path, 
@@ -97,6 +92,7 @@ class Project:
                         coord_path, 
                         conn_path   )
         
+        self.file.create_backup_geometry_folder()
         self.process_geometry_and_mesh(tolerance=geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
@@ -129,10 +125,10 @@ class Project:
 
     def initial_load_project_actions(self, project_file_path):
         try:
-            self.reset()
+            self.reset(reset_all=True)
             self.file.load(project_file_path)
             if self.file._import_type == 1:
-                path = self.file.get_geometry_path()
+                path = self.file.get_geometry_entities_path()
                 if os.path.exists(path):
                     self.load_geometry_entities()
                     if self.check_mesh_setup():
@@ -147,7 +143,9 @@ class Project:
             else:
                 self.empty_geometry = False
                 self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
-                self.entities = self.preprocessor.dict_tag_to_entity.values()                    
+                self.entities = self.preprocessor.dict_tag_to_entity.values()
+                if not os.path.exists(self.file._entity_path):
+                    self.file.create_entity_file(self.preprocessor.all_lines)                   
                 return True
         except Exception as log_error:
             title = "Error while processing initial load project actions"
@@ -161,17 +159,32 @@ class Project:
         else:
             return False
 
-    def set_geometry_entities(self, entities_data, geometry_path, kernel):
+    def set_geometry_entities(self, entities_data, geometry_path, kernel, only_save=False):
+        """
+        """
         self.file.add_geometry_entities_to_file(entities_data)
-        self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path=geometry_path, kernel=kernel)
-        self.empty_geometry = False
+
+        if only_save:
+            self.empty_geometry = False
+            return False
+
+        if self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path = geometry_path, kernel = kernel):
+            return True
+        else:
+            self.empty_geometry = False
+            return False
     
     def edit_imported_geometry(self, geometry_filename):
         self.file.update_project_attributes(geometry_filename=geometry_filename)
+        # self.initial_load_project_actions(self.project_ini_file_path)
 
-    def load_geometry_entities(self, kernel="built-in"):
+    def load_geometry_entities(self):
+        """ This method loads geometry data from file a creates a geometry based on
+            GMSH built-in functions.
+        """
 
-        path = get_new_path(self.file._geometry_path, self.file._geometry_entities_file_name)
+        path = get_new_path(self.file._project_path, self.file._geometry_entities_file_name)
+
         if os.path.exists(path):
             input_entities_data = self.file.load_geometry_entities_file()
             if input_entities_data is None:
@@ -204,6 +217,27 @@ class Project:
             self.preprocessor.generate_geometry_gmsh(output_entities_data)
             self.empty_geometry = False
 
+    def remove_selected_lines_from_geometry(self, lines):
+
+        title = "Adittional confirmation required to proceed"
+        message = "Do you really want to remove the selected lines and edit current geometry file?\n\n\n"
+        message += "Press the 'Proceed' button to proceed with line removal otherwise press 'Cancel' or 'Close' buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+
+        if read._doNotRun:
+            return False
+        
+        if read._continue:
+            geometry_path = self.file._geometry_path
+            new_geometry_filename = self.preprocessor.remove_selected_lines_and_process_geometry(geometry_path, lines)
+            self.file.update_project_attributes(geometry_filename=new_geometry_filename, geometry_state=1)
+            if os.path.exists(self.file._entity_path):
+                os.remove(self.file._entity_path)
+            self.initial_load_project_actions(self.file._project_ini_file_path)
+            self.load_project_files()
+            self.preprocessor.check_disconnected_lines(self.file._element_size)
+            return True
+        
     def load_project_files(self):
         self.load_structural_bc_file()
         self.load_acoustic_bc_file()
@@ -230,7 +264,7 @@ class Project:
         self.reset()
         self.remove_all_unnecessary_files()
         self.file.reset_project_setup()
-        path = self.file.get_geometry_path()
+        path = self.file.get_geometry_entities_path()
         if os.path.exists(path):
             self.load_geometry_entities()
             if self.check_mesh_setup():
@@ -855,7 +889,7 @@ class Project:
         if isinstance(frequencies, np.ndarray):
             frequencies = list(frequencies)
         updated = False
-        if self.list_frequencies == [] or not self.check_if_there_are_tables_at_the_model():
+        if self.list_frequencies == [] or not self.file.check_if_there_are_tables_at_the_model():
             updated = True
             self.list_frequencies = frequencies
         if self.list_frequencies == frequencies:

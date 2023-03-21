@@ -155,6 +155,9 @@ class InputUi:
         self.opv.Disable()
         self.processInput(EditImportedGeometryInput, self.project)
         self.opv.Enable()
+    
+    def get_opv(self):
+        return self.opv
 
     def set_mesh_properties(self):
         read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)

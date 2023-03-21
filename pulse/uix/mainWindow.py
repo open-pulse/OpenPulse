@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QEvent
 from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel, QStatusBar, QSizeGrip
 
 from pulse.uix.menu.Menu import Menu
@@ -35,13 +35,23 @@ class MainWindow(QMainWindow):
         self._createStatusBar()
         self.show()
         self.loadRecentProject()
+        self.installEventFilter(self)
 
-    # Let this method be operational in some way!
-    # def keyPressEvent(self, event):
-    #     if event.key() == Qt.Key_H:
-    #         self.hide_selection()
-    #     elif event.key() == Qt.Key_U:
-    #         self.unhide_selection()
+    def eventFilter(self, obj, event):
+        # if (event.type() == QEvent.KeyPress and obj is self):
+        if (event.type() == QEvent.ShortcutOverride and obj is self):
+            if event.key() == Qt.Key_Delete:
+                self.remove_selected_lines()
+        return True
+
+    def remove_selected_lines(self):
+        lines = self.opv_widget.getListPickedLines()
+        if len(lines) > 0:
+            if self.project.remove_selected_lines_from_geometry(lines):
+                self.opv_widget.updatePlots()
+                self.opv_widget.changePlotToEntities()
+                # self.cameraFront_call()
+                # self.opv_widget.changePlotToMesh()
 
     def _loadIcons(self):
         icons_path = 'data\\icons\\'

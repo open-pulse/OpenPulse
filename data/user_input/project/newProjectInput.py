@@ -276,12 +276,13 @@ class NewProjectInput(QDialog):
 
             config['PROJECT']['Import type'] = str(0)
             config['PROJECT']['Geometry file'] = geometry_file_name
+            config['PROJECT']['Geometry state'] = str(0)
             config['PROJECT']['Element size'] = element_size
             config['PROJECT']['Geometry tolerance'] = geometry_tolerance
 
         if self.tabWidget_new_project.currentWidget() == self.tab_create_empty_project:
             config['PROJECT']['Import type'] = str(1)
-            config['PROJECT']['Geometry file'] = ""
+            # config['PROJECT']['Geometry file'] = ""
 
         elif self.tabWidget_new_project.currentWidget() == self.tab_import_mesh:
             nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())

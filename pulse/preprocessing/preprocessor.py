@@ -1,7 +1,7 @@
 from collections import deque
 from random import choice
 from collections import defaultdict
-import re
+from shutil import copyfile
 from libs.gmsh import gmsh 
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -26,7 +26,8 @@ class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self):
+    def __init__(self, file):
+        self.file = file
         self.reset_variables()
 
     def reset_variables(self):
@@ -263,10 +264,11 @@ class Preprocessor:
         Parameters
         ----------
         str
-            CAD file path. '.igs' is the only format file supported.
+            the path of geometry file (only IGES and STEP CAD formats are supported).
         """
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
+        gmsh.option.setNumber("General.Verbosity", 0)
         gmsh.open(path)
 
     def _set_gmsh_options(self, element_size, tolerance=1e-6):
@@ -334,7 +336,7 @@ class Preprocessor:
                 self.all_lines.append(line_tag)
                 self.entities.append(newEntity)
                 self.dict_tag_to_entity[line_tag] = newEntity
-            
+
             gmsh.model.mesh.removeDuplicateNodes()
 
             node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
@@ -3321,12 +3323,14 @@ class Preprocessor:
         return self.unprescribed_pipe_indexes
 
     def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in"):
+        """
+        """
         try:
-            
+            message = ""
             self.geometry = Geometry()
             gmsh.initialize('', False)
             gmsh.option.setNumber("General.Terminal", 0)
-            gmsh.model.add("OpenPulse - geometry designer")
+            gmsh.option.setNumber("General.Verbosity", 0)
 
             points = entities_data["points_data"]
             lines = entities_data["lines_data"]
@@ -3334,6 +3338,7 @@ class Preprocessor:
 
             corner_points = []
             list_lines = []
+            
             for point_id, coords in points.items():
 
                 if unit_length == "m":
@@ -3394,6 +3399,10 @@ class Preprocessor:
                 list_lines.append(seg2)
                 self.geometry.set_lines(len(list_lines), data[6:])
             
+            if os.path.exists(self.file._geometry_path):
+                if os.path.basename(self.file._geometry_path) != "":
+                    gmsh.merge(self.file._geometry_path)
+
             gmsh.model.addPhysicalGroup(1, list_lines, 1)
             
             if kernel == "built-in":
@@ -3403,15 +3412,52 @@ class Preprocessor:
 
             if geometry_path != "":
                 gmsh.write(geometry_path)
-
-            # if '-nopopup' not in sys.argv:
-            #     gmsh.option.setNumber('General.FltkColorScheme', 1)
-            #     gmsh.fltk.run()
-
-            # gmsh.finalize()
+                gmsh.finalize()
+            else:
+                if os.path.exists(self.file._geometry_path):
+                    if os.path.basename(self.file._geometry_path) != "":
+                        _, new_basename = get_edited_filename(self.file._geometry_path)
+                        new_path = get_new_path(self.file._project_path, new_basename)
+                        extension = new_basename.split(".")[1]
+                        if extension in ["step", "stp", "STEP", "STP", "iges", "igs", "IGES", "IGS"]:
+                            gmsh.write(new_path)
+                            gmsh.finalize()
+                            filenames = os.listdir(self.file._backup_geometry_path)
+                            if len(filenames) == 1:    
+                                if os.path.basename(self.file._geometry_path) == filenames[0]:
+                                    os.remove(self.file._geometry_path)
+                        else:
+                            message = "The output cad file format is not supported.\n\n"
+                            message += f"Filename: {new_basename}"
 
         except Exception as _error:
-            print(str(_error))
+            message = str(_error)
+
+        if message != "":
+            title = "Error while processing generate_geometry_gmsh method"
+            PrintMessageInput([title, message, window_title_1])
+            return True
+        else:
+            return False
+
+    def remove_selected_lines_and_process_geometry(self, geometry_path, lines):
+        """
+        
+        """
+        gmsh.initialize('', False)
+        gmsh.option.setNumber("General.Terminal", 0)
+        gmsh.option.setNumber("General.Verbosity", 0)
+
+        gmsh.merge(geometry_path)
+
+        for line in lines:
+            gmsh.model.occ.remove([[1, line]], recursive=True)
+
+        gmsh.model.occ.synchronize()
+        new_path, new_basename = get_edited_filename(geometry_path)
+        gmsh.write(new_path)
+
+        return new_basename
 
     #TODO: remove the following methods if they are not necessary anymore
 

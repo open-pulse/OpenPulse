@@ -1,15 +1,17 @@
-import re
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
-import configparser
-from collections import defaultdict
+
 import os
+import configparser
 import numpy as np
 from math import pi
+
+from collections import defaultdict
+from shutil import copyfile, rmtree
 
 window_title = "ERROR"
 
@@ -28,9 +30,11 @@ class ProjectFile:
         self._geometry_path = ""
         self._geometry_filename = ""
         self._geometry_tolerance = 1e-8 # default value to gmsh geometry tolerance (in milimeters)
+        self._geometry_state = 0
         self._conn_path = ""
         self._coord_path = ""
         self._entity_path = ""
+        self._backup_geometry_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
         self._element_info_path = ""
@@ -56,6 +60,7 @@ class ProjectFile:
         self._elements_file_name = "elements_info.dat"
         self._project_base_name = "project.ini"
         self._imported_data_folder_name = "imported_data"
+        self._backup_geometry_foldername = "geometry_backup"
 
     def get_list_filenames_to_maintain_after_reset(self):
         files_to_maintain_after_reset = []
@@ -78,6 +83,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         self._conn_path = conn_path
         self._coord_path = coord_path
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -85,6 +91,7 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
     def new_empty(self, project_path, project_name, import_type, material_list_path, fluid_list_path):
         self._project_path = project_path
@@ -93,13 +100,15 @@ class ProjectFile:
         self._material_list_path = material_list_path
         self._fluid_list_path = fluid_list_path
         self._geometry_path = ""
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
-        self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")    
+        self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
     
     def copy(self, project_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
@@ -109,6 +118,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         self._conn_path = conn_path
         self._coord_path = coord_path
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -116,12 +126,13 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
     def get_element_size_from_project_file(self):
         if self._project_path != "":
-            project_ini_file_path = get_new_path(self._project_path, "project.ini")
+            # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
             config = configparser.ConfigParser()
-            config.read(project_ini_file_path)
+            config.read(self._project_ini_file_path)
             if 'element size' in config['PROJECT'].keys():
                 element_size = config['PROJECT']['element size']
                 if element_size != "":
@@ -129,8 +140,32 @@ class ProjectFile:
             else:
                 return ""
             
-    def get_geometry_path(self):
+    def get_geometry_entities_path(self):
         return get_new_path(self._project_path, self._geometry_entities_file_name)
+    
+    def get_geometry_state_from_project_file(self):
+        if self._project_path != "":
+            # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+            config = configparser.ConfigParser()
+            config.read(self._project_ini_file_path)
+            if 'geometry state' in config['PROJECT'].keys():
+                geometry_state = config['PROJECT']['geometry state']
+                if geometry_state != "":
+                    return int(geometry_state)
+            else:
+                return -1
+
+    def create_backup_geometry_folder(self):
+        """
+        """
+        if not os.path.exists(self._backup_geometry_path):
+            os.mkdir(self._backup_geometry_path)
+
+        if os.path.exists(self._geometry_path):
+            basename = os.path.basename(self._geometry_path)
+            if basename != "":
+                new_geometry_path = get_new_path(self._backup_geometry_path, basename)
+                copyfile(self._geometry_path, new_geometry_path)
 
     def load(self, project_file_path):
 
@@ -143,27 +178,35 @@ class ProjectFile:
         project_name = config['PROJECT']['Name']
         import_type = int(config['PROJECT']['Import type'])
 
+        section = config['PROJECT']
+        keys = list(section.keys())
+
         if import_type in [0,1]:
-            if 'geometry file' in list(config['PROJECT'].keys()):
-                geometry_file = config['PROJECT']['Geometry file']
+            if 'geometry file' in keys:
+                geometry_file = section['Geometry file']
                 self._geometry_path =  get_new_path(self._project_path, geometry_file)
-            if 'element size' in list(config['PROJECT'].keys()):
-                element_size = config['PROJECT']['Element size']
+            if 'element size' in keys:
+                element_size = section['Element size']
                 self._element_size = float(element_size)
-            if 'geometry tolerance' in list(config['PROJECT'].keys()):
-                geometry_tolerance = config['PROJECT']['Geometry tolerance']
+            if 'geometry tolerance' in keys:
+                geometry_tolerance = section['Geometry tolerance']
                 self._geometry_tolerance = float(geometry_tolerance)
+            if 'geometry state' in keys:
+                geometry_state = section['Geometry state']
+                self._geometry_state = int(geometry_state)
+
         elif import_type == 2:
-            coord_file = config['PROJECT']['Nodal coordinates file']
-            conn_file = config['PROJECT']['Connectivity matrix file']
+            coord_file = section['Nodal coordinates file']
+            conn_file = section['Connectivity matrix file']
             self._conn_path =  get_new_path(self._project_path, conn_file)
             self._coord_path =  get_new_path(self._project_path, coord_file)
 
-        material_list_file = config['PROJECT']['Material list file']
-        fluid_list_file = config['PROJECT']['Fluid list file']
+        material_list_file = section['Material list file']
+        fluid_list_file = section['Fluid list file']
 
         self._project_name = project_name
         self._import_type = import_type
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._material_list_path = get_new_path(self._project_path, material_list_file)
         self._fluid_list_path =  get_new_path(self._project_path, fluid_list_file)
         self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
@@ -173,35 +216,43 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
-    def update_project_attributes(self, element_size=0, geometry_tolerance=0, geometry_filename=""):
-        project_ini_file_path = get_new_path(self._project_path, "project.ini")
+    def update_project_attributes(self, element_size=None, geometry_tolerance=None, geometry_filename=None, geometry_state=None):
+        
         config = configparser.ConfigParser()
-        config.read(project_ini_file_path)
-        
-        if element_size != 0:
-            if 'element size' in config['PROJECT'].keys(): 
-                read_element_size = config['PROJECT']['element size']
-                if read_element_size != str(element_size):
-                    config['PROJECT']['element size'] = str(element_size)
-            else:
-                config['PROJECT']['element size'] = str(element_size)
-        
-        if geometry_tolerance != 0:
-            if 'Geometry tolerance' in config['PROJECT'].keys():
-                config['PROJECT']['Geometry tolerance'] = str(geometry_tolerance)
+        config.read(self._project_ini_file_path)
 
-        if geometry_filename != "":
-            if 'geometry file' in config['PROJECT'].keys():
-                config['PROJECT']['geometry file'] = geometry_filename
+        section = config['PROJECT']
+        keys = section.keys()
+
+        if element_size is not None:
+            if 'element size' in keys: 
+                read_element_size = section['element size']
+                if read_element_size != str(element_size):
+                    section['element size'] = str(element_size)
+            else:
+                section['element size'] = str(element_size)
         
-        self.write_data_in_file(project_ini_file_path, config)
+        if geometry_tolerance is not None:
+            if 'Geometry tolerance' in keys:
+                section['Geometry tolerance'] = str(geometry_tolerance)
+
+        if geometry_filename is not None:
+            if 'geometry file' in keys:
+                section['geometry file'] = geometry_filename
+        
+        if geometry_state is not None:
+            if 'geometry state' in keys:
+                section['geometry state'] = str(geometry_state)
+        
+        self.write_data_in_file(self._project_ini_file_path, config)
 
     def add_geometry_entities_to_file(self, entities_data):
         
-        temp_geometry_file_path = get_new_path(self._project_path, self._geometry_entities_file_name)
+        geometry_file_path = self.get_geometry_entities_path()
         config = configparser.ConfigParser()
-        config.read(temp_geometry_file_path)
+        config.read(geometry_file_path)
 
         if len(entities_data["points_data"]) > 0:
             config['Points'] = entities_data["points_data"]
@@ -221,14 +272,14 @@ class ProjectFile:
             if 'Fillets' in config.sections():
                 config.remove_section('Fillets')
 
-        self.write_data_in_file(temp_geometry_file_path, config)
+        self.write_data_in_file(geometry_file_path, config)
         
     def load_geometry_entities_file(self):
 
-        temp_geometry_file_path = get_new_path(self._project_path, self._geometry_entities_file_name)
-        if os.path.exists(temp_geometry_file_path):
+        geometry_file_path = self.get_geometry_entities_path()
+        if os.path.exists(geometry_file_path):
             config = configparser.ConfigParser()
-            config.read(temp_geometry_file_path)
+            config.read(geometry_file_path)
             sections = config.sections()
             entities_data = {}
 
@@ -428,6 +479,13 @@ class ProjectFile:
                 entity_data[entity] = dict_section
 
         return entity_data
+
+    def check_if_there_are_tables_at_the_model(self):
+        if os.path.exists(self._structural_imported_data_folder_path):
+            return True
+        if os.path.exists(self._acoustic_imported_data_folder_path):
+            return True
+        return False
 
     def get_dict_of_entities_from_file(self):
 
@@ -2234,8 +2292,6 @@ class ProjectFile:
 
     def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
         if os.path.exists(self._node_structural_path):
-
-            # print(dict_old_to_new_indexes, dict_non_mapped_nodes)
 
             config = configparser.ConfigParser()
             config_new = configparser.ConfigParser()
