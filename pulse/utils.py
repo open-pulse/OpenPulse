@@ -579,6 +579,12 @@ def get_edited_filename(path):
                     break
     return new_path, new_basename
             
+def get_linear_distribution_for_variable_section(x_initial, x_final, N):
+    """This function returns the linear distributions for variable sections"""
+    n = np.arange(N, dtype=float)/N
+    n_shift = np.arange(1, N+1, 1, dtype=float)/N
+    return (x_final-x_initial)*n + x_initial, (x_final-x_initial)*n_shift + x_initial
+
 def get_linear_distribution(x_initial, x_final, N):
     n = np.arange(N)/(N-1)
     return (x_final-x_initial)*n + x_initial

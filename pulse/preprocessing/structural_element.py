@@ -466,14 +466,37 @@ class StructuralElement:
         mu = self.material.mu_parameter
         G = self.material.shear_modulus
 
-        # Area properties
-        A = self.cross_section.area
-        Iy = self.cross_section.second_moment_area_y
-        Iz = self.cross_section.second_moment_area_z
-        J = self.cross_section.polar_moment_area
-        res_y = self.cross_section.res_y
-        res_z = self.cross_section.res_z
- 
+        if True:#None in [self.first_node.cross_section, self.last_node.cross_section]:
+            # Area properties - constant section along x-axis
+            A = self.cross_section.area
+            Iy = self.cross_section.second_moment_area_y
+            Iz = self.cross_section.second_moment_area_z
+            J = self.cross_section.polar_moment_area
+            res_y = self.cross_section.res_y
+            res_z = self.cross_section.res_z
+        else:
+            # Area properties - variable section along x-axis
+            cross_section_first = self.first_node.cross_section
+            cross_section_last = self.last_node.cross_section
+            centroide_and_shear_center_first = cross_section_first.get_centroide_and_shear_center()
+            centroide_and_shear_center_last  = cross_section_last.get_centroide_and_shear_center()            
+            avg_centroide_and_shear_center = list((centroide_and_shear_center_first + centroide_and_shear_center_last)/2)
+            
+            cross_section_first.update_properties(avg_data=avg_centroide_and_shear_center)
+            cross_section_last.update_properties(avg_data=avg_centroide_and_shear_center)
+            
+            A = (cross_section_first.area + cross_section_last.area)/2
+            Iy = (cross_section_first.second_moment_area_y + cross_section_last.second_moment_area_y)/2
+            Iz = (cross_section_first.second_moment_area_z + cross_section_last.second_moment_area_z)/2
+            J = (cross_section_first.polar_moment_area + cross_section_last.polar_moment_area)/2
+            res_y = (cross_section_first.res_y + cross_section_last.res_y)/2
+            res_z = (cross_section_first.res_z + cross_section_last.res_z)/2
+
+            # print(f"\n index: {self.index, cross_section_first.area, cross_section_last.area}")
+            # print(centroide_and_shear_center_first)
+            # print(centroide_and_shear_center_last)
+            # print(avg_centroide_and_shear_center)
+
         # Shear coefficiets
         aly = 1/res_y
         alz = 1/res_z
@@ -640,12 +663,24 @@ class StructuralElement:
         L   = self.length
         rho = self.material.density
 
-        # Area properties
-        A = self.cross_section.area
-        Iy = self.cross_section.second_moment_area_y
-        Iz = self.cross_section.second_moment_area_z
-        J = self.cross_section.polar_moment_area
-        Ais = self.cross_section.area_insulation
+        if True:#None in [self.first_node.cross_section, self.last_node.cross_section]:
+            # Area properties - constant section along x-axis
+            A = self.cross_section.area
+            Iy = self.cross_section.second_moment_area_y
+            Iz = self.cross_section.second_moment_area_z
+            J = self.cross_section.polar_moment_area
+            Ais = self.cross_section.area_insulation
+        else:
+            # Area properties - variable section along x-axis
+            cross_section_first = self.first_node.cross_section
+            cross_section_last = self.last_node.cross_section
+            A = (cross_section_first.area + cross_section_last.area)/2
+            Iy = (cross_section_first.second_moment_area_y + cross_section_last.second_moment_area_y)/2
+            Iz = (cross_section_first.second_moment_area_z + cross_section_last.second_moment_area_z)/2
+            J = (cross_section_first.polar_moment_area + cross_section_last.polar_moment_area)/2
+            Ais = (cross_section_first.area_insulation + cross_section_last.area_insulation)/2
+    
+        # Ais = self.cross_section.area_insulation
         rho_insulation = self.cross_section.insulation_density
                     
         if self.fluid is not None and self.adding_mass_effect:

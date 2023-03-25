@@ -9,7 +9,7 @@ import configparser
 
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import get_linear_distribution
+from pulse.utils import *
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -40,6 +40,7 @@ class CrossSectionInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
+        self.file = project.file
         self.before_run = project.get_pre_solution_model_checks()
         # self.preprocessor.get_nodes_and_elements_with_expansion()
 
@@ -403,49 +404,22 @@ class CrossSectionInput(QDialog):
         if self.stop:
             return    
 
-        list_outerDiameter = get_linear_distribution(outerDiameter_initial, outerDiameter_final, N)
-        list_thickness = get_linear_distribution(thickness_initial, thickness_final, N)
-        list_offset_y = get_linear_distribution(offset_y_initial, offset_y_final, N)
-        list_offset_z = get_linear_distribution(offset_z_initial, offset_z_final, N)
-
         if self.flip:
-            list_outerDiameter = np.flip(list_outerDiameter)
-            list_thickness = np.flip(list_thickness)
-            list_offset_y = np.flip(list_offset_y)
-            list_offset_z = np.flip(list_offset_z)
-
-            list_variable_parameters = [    outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
-                                            outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
-                                            insulation_thickness, insulation_density  ]
-
+            variable_parameters = [ outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
+                                    outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
+                                    insulation_thickness, insulation_density  ]
         else:
-
-            list_variable_parameters = [    outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
-                                            outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
-                                            insulation_thickness, insulation_density  ]
- 
-        self.section_label = "Pipe section"
-
-        for index, element_id in enumerate(self.list_elements):
-  
-            section_parameters = {  "outer_diameter" : list_outerDiameter[index],
-                                    "thickness" : list_thickness[index], 
-                                    "offset_y" : list_offset_y[index], 
-                                    "offset_z" : list_offset_z[index], 
-                                    "insulation_thickness" : insulation_thickness, 
-                                    "insulation_density" : insulation_density }
-            
-            pipe_section_info = {   "section_type_label" : self.section_label ,
-                                    "section_parameters" : section_parameters }
-
-            self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
-            self.project.set_cross_section_by_elements([element_id], self.cross_section)
+            variable_parameters = [ outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
+                                    outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
+                                    insulation_thickness, insulation_density  ]
         
-        self.project.add_cross_sections_expansion_joints_valves_in_file(self.list_elements)
+        self.project.set_variable_cross_section_by_line(self.lines_typed[0], variable_parameters)
+        # self.project.add_cross_sections_expansion_joints_valves_in_file(self.list_elements)
         self.project.set_structural_element_type_by_lines(self.lines_typed[0], self.element_type)
-        self.project.set_variable_cross_section_by_line(self.lines_typed[0], list_variable_parameters)
-        
-        self.remove_line_from_list(self.lines_typed[0])
+        self.file.modify_variable_cross_section_in_file(self.lines_typed[0], variable_parameters)
+        # self.project.set_variable_cross_section_by_line(self.lines_typed[0], variable_parameters)
+        self.project._set_variable_cross_section_to_selected_line(self.lines_typed[0], variable_parameters)
+        self.project.reset_number_sections_by_line(self.lines_typed[0])
         self.actions_to_finalize()
 
     def update_section_entries(self, variable_section=False):
@@ -714,19 +688,7 @@ class CrossSectionInput(QDialog):
             title = "INPUT CROSS-SECTION ERROR"
             PrintMessageInput([title, message, window_title]) 
             return
-
-        # elif abs(offset_y) > 0.2*(outerDiameter/2):
-        #     title = "INPUT CROSS-SECTION ERROR"
-        #     message = f"The OFFSET_Y must be less or equals to 20{'%'} of the outer radius."
-        #     PrintMessageInput([title, message, window_title]) 
-        #     return
-        
-        # elif abs(offset_z) > 0.2*(outerDiameter/2):
-        #     title = "INPUT CROSS-SECTION ERROR"
-        #     message = message = f"The OFFSET_Z must be less or equals to 20{'%'} of the outer radius."
-        #     PrintMessageInput([title, message, window_title]) 
-        #     return
-            
+           
         self.section_label = "Pipe section"
 
         self.section_parameters = { "outer_diameter" : outerDiameter,
@@ -741,6 +703,7 @@ class CrossSectionInput(QDialog):
 
         if plot:
             return
+        
         self.cross_section = CrossSection(pipe_section_info=self.pipe_section_info)
         self.set_cross_sections()
         self.actions_to_finalize()
@@ -847,17 +810,13 @@ class CrossSectionInput(QDialog):
             self.project.set_structural_element_wall_formulation_by_lines(self.lines_typed, None)
         self.actions_to_finalize()
 
-    def remove_line_from_list(self, line):
-        if line in list(self.project.number_sections_by_line.keys()):
-            self.project.number_sections_by_line.pop(line)
-
     def set_cross_sections(self):
 
         if self.flagEntity:
             if self.remove_expansion_joint_tables_files:
                 self.process_expansion_joint_table_files_removal(self.lines_typed)
             for line_id in self.lines_typed:
-                self.remove_line_from_list(line_id)
+                self.project.reset_number_sections_by_line(line_id)
             self.project.add_valve_by_line(line_id, None, reset_cross=False)
             self.project._set_expansion_joint_to_selected_lines(self.lines_typed, None)
                 

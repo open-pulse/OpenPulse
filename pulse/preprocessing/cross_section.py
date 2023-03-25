@@ -201,30 +201,8 @@ class CrossSection:
         self.offset = [self.offset_y, self.offset_z]
         self.insulation_thickness = 0
         self.insulation_density = 0
-        self.offset_virtual = None
 
-        # Beam section properties
-        self.area = kwargs.get('area', 0)
-        self.first_moment_area_y = 0
-        self.first_moment_area_z = 0
-        self.second_moment_area_y = kwargs.get('Iyy', 0)
-        self.second_moment_area_z = kwargs.get('Izz', 0)
-        self.second_moment_area_yz = kwargs.get('Iyz', 0)
-        self.polar_moment_area = 0
-        self.y_centroid = 0
-        self.z_centroid = 0
-        self.shear_coefficient = 1
-
-        # Shear properties
-        self.y_shear = 0
-        self.z_shear = 0
-        self.res_y = 0
-        self.res_z = 0
-        # self.res_yz = 0
-
-        # Principal Bending Axis Rotation
-        self.principal_axis = None
-        self.principal_axis_translation = None
+        self._reset_variables()
 
         # Input cluster data for pipe and beam sections 
         self.pipe_section_info = kwargs.get('pipe_section_info', None)
@@ -291,7 +269,36 @@ class CrossSection:
             self.section_label = self.expansion_joint_info[0]
             self.expansion_joint_plot_key = self.expansion_joint_info[1]
             self.outer_diameter = self.expansion_joint_info[2]
-                    
+
+    def _reset_variables(self):
+        """ This method resets the
+        
+        """
+
+        # Beam section properties
+        self.area = 0
+        self.first_moment_area_y = 0
+        self.first_moment_area_z = 0
+        self.second_moment_area_y = 0
+        self.second_moment_area_z = 0
+        self.second_moment_area_yz = 0
+        self.polar_moment_area = 0
+        self.y_centroid = 0
+        self.z_centroid = 0
+        self.shear_coefficient = 1
+
+        # Shear properties
+        self.y_shear = 0
+        self.z_shear = 0
+        self.res_y = 0
+        self.res_z = 0
+        # self.res_yz = 0
+
+        # Principal Bending Axis Rotation
+        self.principal_axis = None
+        self.principal_axis_translation = None
+        self.offset_virtual = None
+
     @property
     def outer_radius(self):
         return self.outer_diameter/2
@@ -395,7 +402,7 @@ class CrossSection:
     
     def mesh_coordinate(self):
         """
-        This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.
+        This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.self.offset_virtual
 
         Returns
         -------
@@ -519,6 +526,7 @@ class CrossSection:
         self.polar_moment_area = Iy + Iz
         self.y_centroid = Qz/A
         self.z_centroid = Qy/A
+        # print(A, Iy, Iz, Iyz, Qy, Qz, Qz/A, Qy/A)
 
     def assembly_indexes(self):
         """
@@ -656,7 +664,7 @@ class CrossSection:
         self.y_shear = -(psi_z.T @ FT)/ccg
         self.z_shear = (psi_y.T @ FT)/ccg
 
-    def offset_rotation(self, el_type = 'pipe_1'):
+    def offset_rotation(self, el_type = 'pipe_1', avg_data=[]):
         """
         This method updates the tube cross section rotation due to the shear effects and eccentricity offset.
 
@@ -677,6 +685,9 @@ class CrossSection:
             y_s = self.y_shear + self.offset_y
             z_s = self.z_shear + self.offset_z
         else:
+            if avg_data != []:
+                self.y_centroid, self.z_centroid, self.y_shear, self.z_shear = avg_data
+            
             y_c = self.y_centroid
             z_c = self.z_centroid
             y_s = self.y_shear
@@ -694,13 +705,13 @@ class CrossSection:
             else:
                 angle = atan(2*Iyz/(Iz-Iy))/2
             # Rotational part of transformation matrix
-            rotation = np.array([[ 1. ,      0.   ,    0.    ],
-                                [ 0. ,cos(angle) ,sin(angle)],
-                                [ 0. ,-sin(angle),cos(angle)]])
+            rotation = np.array([[ 1. ,       0.   ,     0.    ],
+                                 [ 0. , cos(angle) , sin(angle)],
+                                 [ 0. , -sin(angle), cos(angle)]])
             # Translational part of transformation matrix
-            translation = np.array([[ 0  , z_c,-y_c],
-                                    [-z_s,  0 , 0  ],
-                                    [y_s ,  0 , 0  ]])
+            translation = np.array([[ 0. , z_c, -y_c],
+                                    [-z_s,  0.,  0. ],
+                                    [y_s ,  0.,  0. ]])
             T = np.eye(12)
             T[0:3,3:6]   = translation
             T[6:9,9:12]  = translation
@@ -719,15 +730,20 @@ class CrossSection:
             self.principal_axis_translation = T
             self.principal_axis = T
 
-    def update_properties(self):
+    def get_centroide_and_shear_center(self):
+        self._reset_variables()
+        self.shear_properties(poisson_ratio = 0, el_type = None)
+        return np.array([self.y_centroid, self.z_centroid, self.y_shear, self.z_shear])
+
+    def update_properties(self, avg_data=[]):
         """
         This method updates all the tube cross section properties.
         """
-        # self.area_properties(None)
+        self._reset_variables()
         if self.element_type == 'pipe_1':
             self.shear_properties(poisson_ratio = 0, el_type = None)
-            self.offset_rotation(el_type = 'pipe_1')
-            self.shear_properties(poisson_ratio = 0, el_type = self.element_type)
+            self.offset_rotation(el_type = 'pipe_1', avg_data = avg_data)
+            self.shear_properties(poisson_ratio = 0, el_type = 'pipe_1')
         else:
             self.shear_properties(poisson_ratio=self.poisson_ratio, el_type=self.element_type)
 

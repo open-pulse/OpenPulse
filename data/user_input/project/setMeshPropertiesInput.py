@@ -200,7 +200,7 @@ class SetMeshPropertiesInput(QDialog):
         if (len(self.dict_group_elements_to_update_entity_file) + len(self.dict_non_mapped_subgroups_entity_file)) > 0:
             self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
                                                                         self.dict_non_mapped_subgroups_entity_file)
-            
+
         if len(self.dict_non_mapped_subgroups_entity_file) > 0:
             title = "Non mapped elements"
             message = "There are elements that have not been mapped after the meshing process. Therefore, the line "

@@ -544,7 +544,7 @@ class ProjectFile:
                     self.element_type_is_structural = True
                 else:
                     self.dict_structural_element_type[entity] = 'pipe_1'
-                    
+       
             if 'structural element wall formulation' in entityFile[entity].keys():
                 wall_formulation = entityFile[entity]['structural element wall formulation']
                 if wall_formulation != "":
@@ -601,12 +601,12 @@ class ProjectFile:
                                                         "pressure ratio" : _data[7],
                                                         "molar mass" : _data[8],
                                                         "connection type" : int(_data[9])   }
-                                                        
+                                           
             str_joint_parameters = ""
             if 'expansion joint parameters' in entityFile[entity].keys():
                 str_joint_parameters = entityFile[entity]['expansion joint parameters']
                 joint_parameters = self._get_list_of_values_from_string(str_joint_parameters, are_values_int=False)
-        
+
             str_joint_stiffness = ""
             if 'expansion joint stiffness' in entityFile[entity].keys():
                 str_joint_stiffness = entityFile[entity]['expansion joint stiffness']
@@ -765,7 +765,7 @@ class ProjectFile:
             number_flange_elements = 0
 
             if structural_element_type == "valve":
-            
+
                 if "valve parameters" in entityFile[entity].keys():
                     str_valve_parameters = entityFile[entity]['valve parameters']
                     valve_parameters = self._get_list_of_values_from_string(str_valve_parameters, are_values_int=False)
@@ -776,7 +776,7 @@ class ProjectFile:
                 
                 if "valve center coordinates" in entityFile[entity].keys():
                     str_valve_coord = entityFile[entity]['valve center coordinates']
-                    valve_data["valve_center_coordinates"] = self._get_list_of_values_from_string(str_valve_coord, are_values_int=False) 
+                    valve_data["valve_center_coordinates"] = self._get_list_of_values_from_string(str_valve_coord, are_values_int=False)
                 
                 if "valve section parameters" in entityFile[entity].keys():
                     str_valve_section_parameters = entityFile[entity]['valve section parameters'] 
@@ -784,7 +784,7 @@ class ProjectFile:
                 
                 if "flange section parameters" in entityFile[entity].keys():
                     str_flange_section_parameters = entityFile[entity]['flange section parameters']
-                    flange_section_parameters = self._get_list_of_values_from_string(str_flange_section_parameters, are_values_int=False) 
+                    flange_section_parameters = self._get_list_of_values_from_string(str_flange_section_parameters, are_values_int=False)
                 
                 if 'list of elements' in entityFile[entity].keys():
                     str_valve_list_elements = entityFile[entity]['list of elements']
@@ -804,7 +804,7 @@ class ProjectFile:
                                         
                     list_valve_elements = valve_data["valve_elements"]
                     valve_thickness = valve_section_parameters[1]
-                    
+
                     N = number_valve_elements - number_flange_elements
                     nf = int(number_flange_elements/2) 
                     if number_flange_elements == 0:
@@ -818,17 +818,17 @@ class ProjectFile:
                         flange_diameter = flange_section_parameters[0]
                         list_outer_diameters = np.ones(number_valve_elements)*flange_diameter
                         list_inner_diameters = list_outer_diameters - 2*flange_thickness
-                        
+
                         list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_section_parameters[0], N)
                         list_inner_diameters[nf:-nf] = list_outer_diameters[nf:-nf] - 2*valve_thickness
-                        
+
                         lists_flange_elements = [list_valve_elements[0:nf], list_valve_elements[-nf:]]
                         list_flange_elements = [element_id for _list_elements in lists_flange_elements for element_id in _list_elements]
                         valve_data["flange_elements"] = list_flange_elements
                     
-                    dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, decimals=6)))                        
-                    dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, decimals=6)))                        
-                                                    
+                    dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, decimals=6)))                      
+                    dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, decimals=6)))
+
                     for _id in list_inner_elements:
                         dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
                         valve_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]
@@ -1157,11 +1157,17 @@ class ProjectFile:
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        
+        sections = list(config.sections())
+
         for line_id in lines:
             str_line = str(line_id)
-            if str_line in list(config.sections()):
+            if str_line in sections:
                 config[str_line]['variable section parameters'] = str(parameters)
+
+            for section in sections:
+                prefix = f"{line_id}-"
+                if prefix in section:
+                    config.remove_section(section=section)
             
         self.write_data_in_file(self._entity_path, config)
 

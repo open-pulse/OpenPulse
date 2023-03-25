@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QProgressBar, QLabel
-from pulse.utils import get_new_path, create_new_folder, check_is_there_a_group_of_elements_inside_list_elements, remove_bc_from_file
+from pulse.utils import *
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
@@ -507,7 +507,8 @@ class Project:
                     else:
                         self.number_sections_by_line[prefix_key] = 1
                 else:
-                    self.load_cross_section_by_line(int(key), cross)
+                    if key not in dict_variable_sections.keys():
+                        self.load_cross_section_by_line(int(key), cross)
             
             # Variable Cross-section to the entities
             for key, value in dict_variable_sections.items():
@@ -590,6 +591,9 @@ class Project:
         map_cross_section_to_elements = defaultdict(list)
 
         for index, element in self.preprocessor.structural_elements.items():
+
+            # if None not in [element.first_node.cross_section, element.last_node.cross_section]:
+            #     continue
 
             e_type  = element.element_type
             if e_type in ['beam_1', 'expansion_joint']:
@@ -924,6 +928,109 @@ class Project:
         self._set_material_to_selected_lines(lines, material)
         self.file.add_material_in_file(lines, material)
 
+    def set_variable_cross_section_by_line(self, line_id, parameters):
+        """
+        This method sets the variable section info by line selection.
+        """
+
+        [   outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
+            outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
+            insulation_thickness, insulation_density  ] = parameters
+
+        elements_from_line = self.preprocessor.line_to_elements[line_id]
+        self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
+
+        first_element = self.preprocessor.structural_elements[elements_from_line[0]]
+        last_element = self.preprocessor.structural_elements[elements_from_line[-1]]
+        
+        coord_first_1 = first_element.first_node.coordinates
+        coord_last_1 = last_element.last_node.coordinates
+        
+        coord_first_2 = last_element.first_node.coordinates
+        coord_last_2 = first_element.last_node.coordinates
+        
+        lines_vertex_coords = self.preprocessor.get_lines_vertex_coordinates(_array=False)
+        vertex_coords = lines_vertex_coords[line_id]
+
+        N = len(elements_from_line)
+        if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
+            outerDiameter_first, outerDiameter_last = get_linear_distribution_for_variable_section(outerDiameter_initial, outerDiameter_final, N)
+            thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
+            offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
+            offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
+
+        elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
+            outerDiameter_first, outerDiameter_last = get_linear_distribution_for_variable_section(outerDiameter_final, outerDiameter_initial, N)
+            thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
+            offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
+            offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
+        
+        cross_sections_first = []
+        cross_sections_last = []
+        for index, element_id in enumerate(elements_from_line):
+
+            first_node = self.preprocessor.structural_elements[element_id].first_node
+            last_node = self.preprocessor.structural_elements[element_id].last_node
+            
+            section_parameters_first = {"outer_diameter" : outerDiameter_first[index],
+                                        "thickness" : thickness_first[index],
+                                        "offset_y" : offset_y_first[index],
+                                        "offset_z" : offset_z_first[index],
+                                        "insulation_thickness" : insulation_thickness,
+                                        "insulation_density" : insulation_density}
+            
+            pipe_section_info_first = { "section_type_label" : "Pipe section" ,
+                                        "section_parameters" : section_parameters_first }
+
+            section_parameters_last = { "outer_diameter" : outerDiameter_last[index],
+                                        "thickness" : thickness_last[index],
+                                        "offset_y" : offset_y_last[index],
+                                        "offset_z" : offset_z_last[index],
+                                        "insulation_thickness" : insulation_thickness,
+                                        "insulation_density" : insulation_density}
+            
+            pipe_section_info_last = { "section_type_label" : "Pipe section" ,
+                                        "section_parameters" : section_parameters_last }
+
+            cross_section_first = CrossSection(pipe_section_info=pipe_section_info_first)
+            cross_section_last = CrossSection(pipe_section_info=pipe_section_info_last)
+
+            cross_sections_first.append(cross_section_first)
+            # cross_sections_last.append(cross_section_last)
+
+            first_node.cross_section = cross_section_first
+            last_node.cross_section = cross_section_last
+ 
+            # if element_id < 53:
+            #     # print(f"{element_id} - {first_node.cross_section}")
+            #     cross_section_first = first_node.cross_section
+            #     cross_section_last = last_node.cross_section
+            #     centroide_and_shear_center_first = cross_section_first.get_centroide_and_shear_center()
+            #     centroide_and_shear_center_last  = cross_section_last.get_centroide_and_shear_center()            
+            #     avg_centroide_and_shear_center = list((centroide_and_shear_center_first + centroide_and_shear_center_last)/2)
+                
+            #     print(f"\n index: {element_id, cross_section_first.area, cross_section_last.area}")
+            #     print(centroide_and_shear_center_first)
+            #     print(centroide_and_shear_center_last)
+            #     print(avg_centroide_and_shear_center)
+
+            #     print("entrei 1")
+            #     first_node.cross_section.update_properties()
+            #     print("entrei 2")
+            #     last_node.cross_section.update_properties()
+
+            #     print("entrei 3")
+            #     centroide_and_shear_center_first = cross_section_first.get_centroide_and_shear_center()
+            #     centroide_and_shear_center_last  = cross_section_last.get_centroide_and_shear_center()            
+            #     avg_centroide_and_shear_center = list((centroide_and_shear_center_first + centroide_and_shear_center_last)/2)
+                
+            #     print(f"\n index: {element_id, cross_section_first.area, cross_section_last.area}")
+            #     print(centroide_and_shear_center_first)
+            #     print(centroide_and_shear_center_last)
+            #     print(avg_centroide_and_shear_center)
+
+        self.set_cross_section_by_elements(elements_from_line, cross_sections_first, remesh_mapping=False)
+        
     def set_cross_section_by_line(self, lines, cross_section):
         self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
         if self.file.get_import_type() in [0,1]:
@@ -933,13 +1040,18 @@ class Project:
         self._set_cross_section_to_selected_line(lines, cross_section)
         self.file.add_cross_section_in_file(lines, cross_section)
 
-    def set_cross_section_by_elements(self, list_elements, cross_section):
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
+    def set_cross_section_by_elements(self, list_elements, cross_section, remesh_mapping=True):
+        if remesh_mapping:
+            self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
         self.preprocessor.set_cross_section_by_element(list_elements, cross_section)       
         # for element in list_elements:
         #     line = self.preprocessor.elements_to_line[element]
         #     if line not in self.lines_with_cross_section_by_elements:
         #         self.lines_with_cross_section_by_elements.append(line)
+
+    def reset_number_sections_by_line(self, line_id):
+        if line_id in list(self.number_sections_by_line.keys()):
+            self.number_sections_by_line.pop(line_id)
 
     def add_cross_sections_expansion_joints_valves_in_file(self, list_elements):
         list_lines = []
@@ -963,11 +1075,6 @@ class Project:
                 
                 for list_elements_mapped in map_cross_sections_to_elements.values():
                     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements_mapped)
-
-
-    def set_variable_cross_section_by_line(self, line_id, parameters):
-        self._set_variable_cross_section_to_selected_line(line_id, parameters)
-        self.file.modify_variable_cross_section_in_file(line_id, parameters)
     
     def set_structural_element_type_to_all(self, element_type):
         self.preprocessor.set_structural_element_type_by_element('all', element_type)
@@ -1390,6 +1497,7 @@ class Project:
 
     def load_variable_cross_section_by_line(self, line_id, data):
         self._set_variable_cross_section_to_selected_line(line_id, data)
+        self.set_variable_cross_section_by_line(line_id, data)
 
     def load_expansion_joint_by_lines(self, line_id, data):
         self.preprocessor.add_expansion_joint_by_line(line_id, data)
@@ -1587,9 +1695,11 @@ class Project:
         for line_id in lines:
             entity = self.preprocessor.dict_tag_to_entity[line_id]
             entity.cross_section = cross
+            entity.variable_cross_section_data = None
 
     def _set_variable_cross_section_to_selected_line(self, line_id, parameters):
         entity = self.preprocessor.dict_tag_to_entity[line_id]
+        entity.cross_section = None
         entity.variable_cross_section_data = parameters
 
     def _set_structural_element_type_to_selected_lines(self, lines, element_type):

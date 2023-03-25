@@ -507,7 +507,7 @@ class Preprocessor:
         edge_nodes = [list_nodes[0], _node]
         return length, edge_nodes
 
-    def get_lines_vertex_coordinates(self):
+    def get_lines_vertex_coordinates(self, _array=True):
         """
         This method returns a dictionary containing line IDs as keys and its vertex node coordinates as values.
         """
@@ -516,7 +516,10 @@ class Preprocessor:
             for line_id in self.dict_tag_to_entity.keys():
                 _, vertex_nodes = self.get_line_length(line_id)
                 for vertex_node in vertex_nodes:
-                    dict_line_to_vertex_coords[line_id].append(vertex_node.coordinates)
+                    if _array:
+                        dict_line_to_vertex_coords[line_id].append(vertex_node.coordinates)
+                    else:
+                        dict_line_to_vertex_coords[line_id].append(list(vertex_node.coordinates))         
         return dict_line_to_vertex_coords
 
     def _finalize_gmsh(self):
