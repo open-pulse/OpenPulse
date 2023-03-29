@@ -287,21 +287,21 @@ class ProjectFile:
                 points_data = {}
                 keys = list(config['Points'].keys())
                 for key in keys:
-                    points_data[int(key)] = self._get_list_of_values_from_string(config['Points'][key], are_values_int=False)
+                    points_data[int(key)] = get_list_of_values_from_string(config['Points'][key], int_values=False)
                 entities_data['points_data'] = points_data   
 
             if 'Lines' in sections:
                 lines_data = {}
                 keys = list(config['Lines'].keys())
                 for key in keys:
-                    lines_data[int(key)] = self._get_list_of_values_from_string(config['Lines'][key])
+                    lines_data[int(key)] = get_list_of_values_from_string(config['Lines'][key])
                 entities_data['lines_data'] = lines_data 
 
             if 'Fillets' in sections:
                 fillets_data = {}
                 keys = list(config['Fillets'].keys())
                 for key in keys:
-                    fillets_data[int(key)] = self._get_list_of_values_from_string(config['Fillets'][key], are_values_int=False)
+                    fillets_data[int(key)] = get_list_of_values_from_string(config['Fillets'][key], int_values=False)
                 entities_data['fillets_data'] = fillets_data 
             
             return entities_data
@@ -487,6 +487,119 @@ class ProjectFile:
             return True
         return False
 
+    def get_cross_sections_from_file(self):
+        """ This method returns a dictionary of already applied cross-sections.
+        """
+        entityFile = configparser.ConfigParser()
+        entityFile.read(self._entity_path)
+        sections = entityFile.sections()
+        section_info = {}
+        parameters_to_entity_id = defaultdict(list)
+        parameters_to_elements_id = {}
+        variable_section_line_ids = []
+        _id = 1
+
+        for entity in sections:
+
+            line_prefix = ""
+            list_elements = []
+
+            if 'structural element type' in entityFile[entity].keys():
+                
+                structural_element_type = entityFile[entity]['structural element type']
+                if structural_element_type in ['pipe_1', 'pipe_2']:
+
+                    if 'variable section parameters' in entityFile[entity].keys():
+                        if line_prefix not in variable_section_line_ids:
+                            variable_section_line_ids.append(entity)
+                    
+                    if "-" in entity:
+                        line_prefix = entity.split("-")[0]
+                        if line_prefix in variable_section_line_ids:
+                            continue
+                        elif 'list of elements' in entityFile[entity].keys():
+                            str_list_elements = entityFile[entity]['list of elements']
+                            list_elements = get_list_of_values_from_string(str_list_elements)
+
+                    if 'outer diameter' in entityFile[entity].keys():
+                        outerDiameter = entityFile[entity]['outer diameter']
+                    
+                    if 'thickness' in entityFile[entity].keys():
+                        thickness = entityFile[entity]['thickness']
+                    
+                    if 'offset [e_y, e_z]' in entityFile[entity].keys():
+                        offset = entityFile[entity]['offset [e_y, e_z]']
+                        offset_y, offset_z = self._get_offset_from_string(offset) 
+                    
+                    if 'insulation thickness' in entityFile[entity].keys():
+                        insulation_thickness = entityFile[entity]['insulation thickness']
+                    
+                    if 'insulation density' in entityFile[entity].keys():
+                        insulation_density = entityFile[entity]['insulation density']
+        
+                    if outerDiameter != "" and thickness != "":
+                        outerDiameter = float(outerDiameter)
+                        thickness = float(thickness)
+                        offset_y = float(offset_y)
+                        offset_z = float(offset_z)
+                        insulation_thickness = float(insulation_thickness)
+                        insulation_density = float(insulation_density)
+                        section_parameters = [outerDiameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
+                    
+                    if 'section parameters' in entityFile[entity].keys():
+                        str_section_parameters = entityFile[entity]['section parameters']
+                        section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)                  
+                
+                    if 'variable section parameters' in entityFile[entity].keys():
+                        str_section_variable_parameters = entityFile[entity]['variable section parameters']
+                        section_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)                  
+                
+                elif 'beam section type' in entityFile[entity].keys():
+                        section_type = entityFile[entity]['beam section type']
+                        structural_element_type = f"beam_1 - {section_type}"
+                        if section_type == "Generic section":   
+                            continue              
+                        else:
+                            if 'section parameters' in entityFile[entity].keys():
+                                str_section_parameters = entityFile[entity]['section parameters']
+                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+    
+                if str(section_parameters) not in parameters_to_entity_id.keys():
+                    section_info[_id] = [structural_element_type, section_parameters]
+                    _id += 1
+
+                str_section_parameters = str(section_parameters)
+                if line_prefix == "":
+                    parameters_to_entity_id[str_section_parameters].append(int(entity))
+                else:   
+                    if list_elements == []:
+                        parameters_to_entity_id[str_section_parameters].append(int(entity)) 
+                    else:
+                        if str_section_parameters not in parameters_to_elements_id.keys():
+                            parameters_to_elements_id[str_section_parameters] = list_elements
+        
+        section_info_elements = {}
+        section_info_lines = {}
+        id_1 = 0
+        id_2 = 0
+        for _id, _data in section_info.items():
+            _section_parameters = _data[1]
+            str_section_parameters = str(_section_parameters)
+            if str_section_parameters in parameters_to_entity_id.keys():
+                id_1 += 1
+                data_lines = _data.copy()
+                data_lines.append("line ids")
+                data_lines.append(parameters_to_entity_id[str_section_parameters])
+                section_info_lines[id_1] = data_lines
+            if str_section_parameters in parameters_to_elements_id.keys():
+                id_2 += 1
+                data_elements = _data.copy()
+                data_elements.append("element ids")
+                data_elements.append(parameters_to_elements_id[str_section_parameters])
+                section_info_elements[id_2] = data_elements
+
+        return section_info_lines, section_info_elements
+                    
     def get_dict_of_entities_from_file(self):
 
         material_list = configparser.ConfigParser()
@@ -537,7 +650,7 @@ class ProjectFile:
                     if 'list of elements' in entityFile[entity].keys():
                         if "-" in entity:
                             str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            list_elements = get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_type[entity] = [list_elements, structural_element_type]
                     else:
                         self.dict_structural_element_type[entity] = structural_element_type
@@ -551,7 +664,7 @@ class ProjectFile:
                     if "-" in entity:
                         if 'list of elements' in entityFile[entity].keys():
                             str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            list_elements = get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_wall_formulation[entity] = [list_elements, wall_formulation]
                     else:
                         self.dict_structural_element_wall_formulation[entity] = wall_formulation
@@ -565,7 +678,7 @@ class ProjectFile:
                     if "-" in entity:
                         if 'list of elements' in entityFile[entity].keys():
                             str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            list_elements = get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_force_offset[entity] = [list_elements, int(force_offset)]
                     else:
                         self.dict_structural_element_force_offset[entity] = int(force_offset)
@@ -590,7 +703,7 @@ class ProjectFile:
 
             if 'compressor info' in entityFile[entity].keys():
                 str_compressor_info = entityFile[entity]['compressor info']
-                _data = self._get_list_of_values_from_string(str_compressor_info, are_values_int=False)
+                _data = get_list_of_values_from_string(str_compressor_info, int_values=False)
                 self.compressor_info[int(entity)] = {   "temperature (suction)" : _data[0],
                                                         "pressure (suction)" : _data[1],
                                                         "temperature (discharge)" : _data[2],
@@ -605,7 +718,7 @@ class ProjectFile:
             str_joint_parameters = ""
             if 'expansion joint parameters' in entityFile[entity].keys():
                 str_joint_parameters = entityFile[entity]['expansion joint parameters']
-                joint_parameters = self._get_list_of_values_from_string(str_joint_parameters, are_values_int=False)
+                joint_parameters = get_list_of_values_from_string(str_joint_parameters, int_values=False)
 
             str_joint_stiffness = ""
             if 'expansion joint stiffness' in entityFile[entity].keys():
@@ -622,7 +735,7 @@ class ProjectFile:
 
                 if 'list of elements' in entityFile[entity].keys():
                     str_list_elements = entityFile[entity]['list of elements']
-                    list_elements = self._get_list_of_values_from_string(str_list_elements)
+                    list_elements = get_list_of_values_from_string(str_list_elements)
 
                 if structural_element_type == "":
                     line_id = entity.split("-")[0]
@@ -688,13 +801,13 @@ class ProjectFile:
                         if section_type == "Generic section":                 
                             if 'section properties' in entityFile[entity].keys():
                                 str_section_properties =  entityFile[entity]['section properties']
-                                section_properties = self._get_list_of_values_from_string(str_section_properties, are_values_int=False)
+                                section_properties = get_list_of_values_from_string(str_section_properties, int_values=False)
                                 section_properties = get_beam_section_properties(section_type, section_properties)
                                 section_parameters = None
                         else:
                             if 'section parameters' in entityFile[entity].keys():
                                 str_section_parameters = entityFile[entity]['section parameters']
-                                section_parameters = self._get_list_of_values_from_string(str_section_parameters, are_values_int=False)
+                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
                                 section_properties = get_beam_section_properties(section_type, section_parameters)
     
                         beam_section_info = {   "section_type_label" : section_type,
@@ -726,7 +839,7 @@ class ProjectFile:
 
                     if 'variable section parameters' in entityFile[entity].keys():
                         str_section_variable_parameters = entityFile[entity]['variable section parameters']
-                        section_variable_parameters = self._get_list_of_values_from_string(str_section_variable_parameters, are_values_int=False)
+                        section_variable_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)
                         self.dict_variable_sections[entity] = section_variable_parameters
 
                     if outerDiameter != "" and thickness != "":
@@ -768,7 +881,7 @@ class ProjectFile:
 
                 if "valve parameters" in entityFile[entity].keys():
                     str_valve_parameters = entityFile[entity]['valve parameters']
-                    valve_parameters = self._get_list_of_values_from_string(str_valve_parameters, are_values_int=False)
+                    valve_parameters = get_list_of_values_from_string(str_valve_parameters, int_values=False)
                     [valve_length, stiffening_factor, valve_mass] = valve_parameters
                     valve_data["valve_length"] = valve_length
                     valve_data["stiffening_factor"] = stiffening_factor
@@ -776,19 +889,19 @@ class ProjectFile:
                 
                 if "valve center coordinates" in entityFile[entity].keys():
                     str_valve_coord = entityFile[entity]['valve center coordinates']
-                    valve_data["valve_center_coordinates"] = self._get_list_of_values_from_string(str_valve_coord, are_values_int=False)
+                    valve_data["valve_center_coordinates"] = get_list_of_values_from_string(str_valve_coord, int_values=False)
                 
                 if "valve section parameters" in entityFile[entity].keys():
                     str_valve_section_parameters = entityFile[entity]['valve section parameters'] 
-                    valve_section_parameters = self._get_list_of_values_from_string(str_valve_section_parameters, are_values_int=False)
+                    valve_section_parameters = get_list_of_values_from_string(str_valve_section_parameters, int_values=False)
                 
                 if "flange section parameters" in entityFile[entity].keys():
                     str_flange_section_parameters = entityFile[entity]['flange section parameters']
-                    flange_section_parameters = self._get_list_of_values_from_string(str_flange_section_parameters, are_values_int=False)
+                    flange_section_parameters = get_list_of_values_from_string(str_flange_section_parameters, int_values=False)
                 
                 if 'list of elements' in entityFile[entity].keys():
                     str_valve_list_elements = entityFile[entity]['list of elements']
-                    valve_data["valve_elements"] = self._get_list_of_values_from_string(str_valve_list_elements)
+                    valve_data["valve_elements"] = get_list_of_values_from_string(str_valve_list_elements)
                     number_valve_elements = len(valve_data["valve_elements"])
                     
                 if 'number of flange elements' in entityFile[entity].keys():
@@ -940,7 +1053,7 @@ class ProjectFile:
 
             if 'stress stiffening parameters' in entityFile[entity].keys():
                 list_parameters = entityFile[entity]['stress stiffening parameters']
-                _list_parameters = self._get_list_of_values_from_string(list_parameters, are_values_int=False)
+                _list_parameters = get_list_of_values_from_string(list_parameters, int_values=False)
                 try:
                     self.dict_stress_stiffening[int(entity)] = _list_parameters
                 except Exception as err:
@@ -956,7 +1069,7 @@ class ProjectFile:
                         length_correction_type = int(element_file[section]['length correction type'])   
                     if 'list of elements' in  element_file[section].keys():
                         list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(list_elements)
+                        get_list_elements = get_list_of_values_from_string(list_elements)
                     if length_correction_type in [0,1,2] and get_list_elements != []:
                         self.dict_length_correction[section] = [get_list_elements, length_correction_type]
             except Exception as log_error:  
@@ -968,11 +1081,11 @@ class ProjectFile:
                 if "PERFORATED PLATE" in section:
                     if 'perforated plate data' in  element_file[section].keys():
                         list_data = element_file[section]['perforated plate data']   
-                        pp_data = self._get_list_of_values_from_string(list_data, False)
+                        pp_data = get_list_of_values_from_string(list_data, False)
 
                     if 'list of elements' in  element_file[section].keys():
                         list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(list_elements)
+                        get_list_elements = get_list_of_values_from_string(list_elements)
                     
                     if pp_data != [] and get_list_elements != []:
                         perforated_plate = PerforatedPlate( float(pp_data[0]), 
@@ -1006,7 +1119,7 @@ class ProjectFile:
                 if "CAPPED END" in section:
                     if 'list of elements' in element_file[section].keys():
                         _list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                        get_list_elements = get_list_of_values_from_string(_list_elements)
                         self.dict_capped_end[section] = get_list_elements
             except Exception as err:  
                 title = "ERROR WHILE LOADING CAPPED END FROM FILE"
@@ -1017,10 +1130,10 @@ class ProjectFile:
                 if "STRESS STIFFENING" in section:
                     if 'stress stiffening parameters' in  element_file[section].keys():
                         _list_parameters = element_file[section]['stress stiffening parameters']
-                        get_list_parameters = self._get_list_of_values_from_string(_list_parameters, are_values_int=False)
+                        get_list_parameters = get_list_of_values_from_string(_list_parameters, int_values=False)
                     if 'list of elements' in  element_file[section].keys():
                         _list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                        get_list_elements = get_list_of_values_from_string(_list_elements)
                     self.dict_stress_stiffening[section] = [get_list_elements, get_list_parameters]
             except Exception as err: 
                 title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE" 
@@ -1031,13 +1144,13 @@ class ProjectFile:
                 if "B2PX ROTATION DECOUPLING" in section:
                     if 'list of elements' in  element_file[section].keys():
                         _list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                        get_list_elements = get_list_of_values_from_string(_list_elements)
                     if 'list of nodes' in  element_file[section].keys():
                         _list_nodes = element_file[section]['list of nodes']
-                        get_list_nodes = self._get_list_of_values_from_string(_list_nodes)
+                        get_list_nodes = get_list_of_values_from_string(_list_nodes)
                     if 'rotation dofs mask' in  element_file[section].keys():
                         _dofs_mask = element_file[section]['rotation dofs mask']
-                        get_dofs_mask = self._get_list_bool_from_string(_dofs_mask)
+                        get_dofs_mask = get_list_bool_from_string(_dofs_mask)
                     self.dict_B2XP_rotation_decoupling[section] = [get_list_elements, get_list_nodes, get_dofs_mask]
             except Exception as err: 
                 title = "ERROR WHILE LOADING B2PX ROTATION DECOUPLING FROM FILE" 
@@ -1902,27 +2015,6 @@ class ProjectFile:
                 offset_z = float(offset[1])
         return offset_y, offset_z
 
-    def _get_list_bool_from_string(self, input_string):
-        for text in ["[", "]", " "]:
-            input_string = input_string.replace(text,"")
-        list_of_strings = input_string.strip().split(",")
-        list_bool = [True if item=="True" else False for item in list_of_strings]
-        return list_bool
-
-    def _get_list_of_values_from_string(self, input_string, are_values_int=True):
-        
-        input_string = input_string[1:-1].split(',')
-        list_values = []
-        
-        if are_values_int:
-            for value in input_string:
-                list_values.append(int(value))
-        else:
-            for value in input_string:
-                list_values.append(float(value))
-
-        return list_values
-
     def _get_acoustic_bc_from_string(self, str_value, label, folder_table_name):
         
         load_path_table = ""
@@ -2344,7 +2436,7 @@ class ProjectFile:
                 if section in config.sections():
                     if 'list of elements' in config[section].keys():
                         str_list_elements = config[section]['list of elements']
-                        list_elements = self._get_list_of_values_from_string(str_list_elements)
+                        list_elements = get_list_of_values_from_string(str_list_elements)
                         list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
                         temp_list = []
                         lines_to_reset = []
@@ -2468,7 +2560,7 @@ class ProjectFile:
     #         if prefix in section:
     #             if 'list of elements' in config[section].keys():
     #                 str_list_elements = config[section]['list of elements']
-    #                 old_list_elements = self._get_list_of_values_from_string(str_list_elements)
+    #                 old_list_elements = get_list_of_values_from_string(str_list_elements)
     #                 new_list_elements = []
     #                 temp_list = old_list_elements.copy()
     #                 for element_id in temp_list:
