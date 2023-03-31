@@ -37,7 +37,7 @@ class TubeActor(vtkActorBase):
     @transparent.setter
     def transparent(self, value):
         if value:
-            if self.preprocessor.number_structural_elements > 5e4:
+            if self.preprocessor.number_structural_elements > 2e5:
                 self._actor.GetProperty().SetOpacity(0)
                 self._actor.GetProperty().SetLighting(True)
             else:

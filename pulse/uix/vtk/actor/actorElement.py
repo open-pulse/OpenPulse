@@ -2,7 +2,7 @@ import vtk
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorElement(vtkActorBase):
-    def __init__(self, element, size =0.01, tag=-1):
+    def __init__(self, element, size=0.01, tag=-1):
         super().__init__()
         self.element = element
         self.tag = tag

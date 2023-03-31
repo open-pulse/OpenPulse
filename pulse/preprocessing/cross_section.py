@@ -270,9 +270,18 @@ class CrossSection:
             self.expansion_joint_plot_key = self.expansion_joint_info[1]
             self.outer_diameter = self.expansion_joint_info[2]
 
-    def _reset_variables(self):
-        """ This method resets the
+    def set_section_parameters(self, parameters):
+        """
+        """
+        self.outer_diameter, self.thickness = parameters
+
+    def get_section_parameters(self):
+        """
+        """
+        return np.array([self.outer_diameter, self.thickness], dtype=float)
         
+    def _reset_variables(self):
+        """ This method resets the cross-section properties.
         """
 
         # Beam section properties

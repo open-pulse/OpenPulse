@@ -595,6 +595,9 @@ class Project:
             # if None not in [element.first_node.cross_section, element.last_node.cross_section]:
             #     continue
 
+            if element.variable_section:
+                continue
+
             e_type  = element.element_type
             if e_type in ['beam_1', 'expansion_joint']:
                 continue
@@ -968,9 +971,10 @@ class Project:
         cross_sections_first = []
         cross_sections_last = []
         for index, element_id in enumerate(elements_from_line):
-
-            first_node = self.preprocessor.structural_elements[element_id].first_node
-            last_node = self.preprocessor.structural_elements[element_id].last_node
+            
+            element = self.preprocessor.structural_elements[element_id]
+            first_node = element.first_node
+            last_node = element.last_node
             
             section_parameters_first = {"outer_diameter" : outerDiameter_first[index],
                                         "thickness" : thickness_first[index],
@@ -1000,38 +1004,12 @@ class Project:
 
             first_node.cross_section = cross_section_first
             last_node.cross_section = cross_section_last
- 
-            # if element_id < 53:
-            #     # print(f"{element_id} - {first_node.cross_section}")
-            #     cross_section_first = first_node.cross_section
-            #     cross_section_last = last_node.cross_section
-            #     centroide_and_shear_center_first = cross_section_first.get_centroide_and_shear_center()
-            #     centroide_and_shear_center_last  = cross_section_last.get_centroide_and_shear_center()            
-            #     avg_centroide_and_shear_center = list((centroide_and_shear_center_first + centroide_and_shear_center_last)/2)
-                
-            #     print(f"\n index: {element_id, cross_section_first.area, cross_section_last.area}")
-            #     print(centroide_and_shear_center_first)
-            #     print(centroide_and_shear_center_last)
-            #     print(avg_centroide_and_shear_center)
 
-            #     print("entrei 1")
-            #     first_node.cross_section.update_properties()
-            #     print("entrei 2")
-            #     last_node.cross_section.update_properties()
-
-            #     print("entrei 3")
-            #     centroide_and_shear_center_first = cross_section_first.get_centroide_and_shear_center()
-            #     centroide_and_shear_center_last  = cross_section_last.get_centroide_and_shear_center()            
-            #     avg_centroide_and_shear_center = list((centroide_and_shear_center_first + centroide_and_shear_center_last)/2)
-                
-            #     print(f"\n index: {element_id, cross_section_first.area, cross_section_last.area}")
-            #     print(centroide_and_shear_center_first)
-            #     print(centroide_and_shear_center_last)
-            #     print(avg_centroide_and_shear_center)
-
-        self.set_cross_section_by_elements(elements_from_line, cross_sections_first, remesh_mapping=False)
+        self.set_cross_section_by_elements(elements_from_line, cross_sections_first, remesh_mapping=False, variable_section=True)
         
     def set_cross_section_by_line(self, lines, cross_section):
+        """
+        """
         self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
         if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_cross_section_by_line(lines, cross_section)
@@ -1040,10 +1018,12 @@ class Project:
         self._set_cross_section_to_selected_line(lines, cross_section)
         self.file.add_cross_section_in_file(lines, cross_section)
 
-    def set_cross_section_by_elements(self, list_elements, cross_section, remesh_mapping=True):
+    def set_cross_section_by_elements(self, list_elements, cross_section, remesh_mapping=True, variable_section=False):
+        """
+        """
         if remesh_mapping:
             self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
-        self.preprocessor.set_cross_section_by_element(list_elements, cross_section)       
+        self.preprocessor.set_cross_section_by_element(list_elements, cross_section, variable_section=variable_section)       
         # for element in list_elements:
         #     line = self.preprocessor.elements_to_line[element]
         #     if line not in self.lines_with_cross_section_by_elements:

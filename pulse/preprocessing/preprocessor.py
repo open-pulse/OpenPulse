@@ -178,15 +178,15 @@ class Preprocessor:
         if self.number_structural_elements <= 1e3:
             self.section_number_of_divisions = 36 
         if self.number_structural_elements <= 5e3:
-            self.section_number_of_divisions = 18        
+            self.section_number_of_divisions = 24        
         elif self.number_structural_elements <= 1e4:
-            self.section_number_of_divisions = 12
+            self.section_number_of_divisions = 16
         elif self.number_structural_elements <= 5e4:
-            self.section_number_of_divisions = 8
+            self.section_number_of_divisions = 10
         elif self.number_structural_elements <= 2e4:
-            self.section_number_of_divisions = 6
+            self.section_number_of_divisions = 8
         else:
-            self.section_number_of_divisions = 5
+            self.section_number_of_divisions = 6
 
     def neighbor_elements_diameter(self):
         """
@@ -1135,7 +1135,7 @@ class Preprocessor:
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
     
-    def set_cross_section_by_element(self, elements, cross_section, update_cross_section=False, update_section_points=True):
+    def set_cross_section_by_element(self, elements, cross_section, update_cross_section=False, update_section_points=True, variable_section=False):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
 
@@ -1160,11 +1160,13 @@ class Preprocessor:
                 _element = [element]
                 for element in slicer(self.structural_elements, _element):
                     element.cross_section = _cross_section
+                    element.variable_section = variable_section
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
         else:    
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
+                element.variable_section = variable_section
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
        
