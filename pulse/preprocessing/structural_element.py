@@ -721,7 +721,6 @@ class StructuralElement:
         mu = self.material.mu_parameter
         G = self.material.shear_modulus
         
-        # print("element: ", self.index)
         self.process_offset_transformation_matrices()
                             
         ## Numerical integration by Gauss quadrature
@@ -737,8 +736,8 @@ class StructuralElement:
         Ktse = 0.
 
         sections = [self.first_node.cross_section, self.last_node.cross_section]
-        prop_1 = [self.first_node.cross_section.outer_diameter, self.last_node.cross_section.outer_diameter]
-        prop_2 = [self.first_node.cross_section.thickness, self.last_node.cross_section.thickness]
+        prop_1 = [sections[0].outer_diameter, sections[1].outer_diameter]
+        prop_2 = [sections[0].thickness, sections[1].thickness]
 
         for point, weigth in zip( points, weigths ):
 
@@ -760,7 +759,6 @@ class StructuralElement:
             J = section.polar_moment_area
             res_y = section.res_y
             res_z = section.res_z
-            # print(A, Iy, Iz, J, res_y, res_z)
         
             # Shear coefficiets
             aly = 1/res_y
@@ -866,8 +864,8 @@ class StructuralElement:
         points, weigths = gauss_quadrature( integrations_points )
         
         sections = [self.first_node.cross_section, self.last_node.cross_section]
-        prop_1 = [self.first_node.cross_section.outer_diameter, self.last_node.cross_section.outer_diameter]
-        prop_2 = [self.first_node.cross_section.thickness, self.last_node.cross_section.thickness]
+        prop_1 = [sections[0].outer_diameter, sections[1].outer_diameter]
+        prop_2 = [sections[0].thickness, sections[1].thickness]
 
         Me = 0
         index = 0
@@ -875,8 +873,7 @@ class StructuralElement:
         aux_eyes = np.eye( DOF_PER_NODE_STRUCTURAL )
 
         for point, weigth in zip(points, weigths):
-            # print(index, point, weigth)
-            # print("\n")
+    
             phi, _ = shape_function( point )
             N = np.c_[phi[0]*aux_eyes, phi[1]*aux_eyes]
 
@@ -886,9 +883,6 @@ class StructuralElement:
             section = sections[index]
             section.set_section_parameters([outer_diameter, thickness])
             section.update_properties()
-            # print(f"\npoint: {point} - {index}")
-            # print(prop_1[0], prop_1[1], outer_diameter)
-            # print(prop_2[0], prop_2[1], thickness)
 
             # Area properties - constant section along x-axis
             A = section.area
@@ -946,74 +940,90 @@ class StructuralElement:
         """
         """
 
-        Nn = DOF_PER_NODE_STRUCTURAL
-        Ne = DOF_PER_ELEMENT
+        N_dof = DOF_PER_NODE_STRUCTURAL
+        E_dof = DOF_PER_ELEMENT
 
-        # Area properties - variable section along x-axis
         cross_section_first = self.first_node.cross_section
         cross_section_last = self.last_node.cross_section
+        
+        yc_1, zc_1, ys_1, zs_1 = cross_section_first.get_centroide_and_shear_center()
+        yc_2, zc_2, ys_2, zs_2  = cross_section_last.get_centroide_and_shear_center()        
+
+        delta_yc = yc_2 - yc_1
+        delta_zc = zc_2 - zc_1
+        delta_ys = ys_2 - ys_1
+        delta_zs = zs_2 - zs_1
+
         offset_first = cross_section_first.offset
         offset_last = cross_section_last.offset
-        centroide_and_shear_center_first = cross_section_first.get_centroide_and_shear_center()
-        centroide_and_shear_center_last  = cross_section_last.get_centroide_and_shear_center()        
+
+        y1_offset, z1_offset = offset_first
+        y2_offset, z2_offset = offset_last
+
+        delta_yo = y2_offset - y1_offset
+        delta_zo = z2_offset- z1_offset
 
         # process matrix transformation to account the shear center differences effect
-
-        yc_1, zc_1, ys_1, zs_1 = centroide_and_shear_center_first
-        yc_2, zc_2, ys_2, zs_2 = centroide_and_shear_center_last
-        delta_yc, delta_zc, delta_ys, delta_zs = centroide_and_shear_center_last - centroide_and_shear_center_first
-
         Le = self.length
-        Lsb = np.sqrt(Le**2 + delta_ys**2)
-        Lsc = np.sqrt(Le**2 + delta_ys**2 + delta_zs**2)
-        
-        C1 = Lsc/Le
-        C2 = -(delta_ys*Lsc)/(Lsb*Le)
-        C3 = -delta_zs/Lsb
+        delta_xo = 0
+        L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
+        L_B = np.sqrt(Le**2 + delta_yo**2)
+        L_G = L_A - delta_xo
+        L_N = Le
 
-        Rs = np.eye(Nn, dtype=float)
-        Ts_1 = np.eye(Nn, dtype=float)
-        Ts_2 = np.eye(Nn, dtype=float)
+        L_G = Le
+        L_SB = np.sqrt(L_G**2 + delta_ys**2)
+        L_SC = np.sqrt(L_G**2 + delta_ys**2 + delta_zs**2)
+
+        C1 = L_SC/L_G
+        C2 = -(delta_ys*L_SC)/(L_SB*L_G)
+        C3 = -delta_zs/L_SB
+
+        Rs = np.eye(N_dof, dtype=float)
+        Ts_1 = np.eye(N_dof, dtype=float)
+        Ts_2 = np.eye(N_dof, dtype=float)
 
         Rs[[3,4,5],[3,3,3]] = [C1, C2, C3]
         Ts_1[[1,2],[3,3]] = [-zs_1, ys_1]
         Ts_2[[1,2],[3,3]] = [-zs_2, ys_2]
 
-        Sc = np.zeros((Ne, Ne), dtype=float)
-        Sc[0:Nn, 0:Nn] = Rs@Ts_1
-        Sc[Nn:, Nn:] = Rs@Ts_2
+        Sc = np.zeros((E_dof, E_dof), dtype=float)
+        Sc[0:N_dof, 0:N_dof] = Rs@Ts_1
+        Sc[N_dof:, N_dof:] = Rs@Ts_2
 
         # process matrix transformation to account the offset effect
+        ro = np.array([ [      L_A/L_N, delta_yo/L_B,       (L_A*delta_zo)/(L_N*L_B)],
+                        [-delta_yo/L_N,      L_A/L_B, -(delta_yo*delta_zo)/(L_N*L_B)],
+                        [-delta_zo/L_N,            0,                        L_B/L_N] ])
 
-        y1_offset, z1_offset = offset_first
-        y2_offset, z2_offset = offset_last
-        delta_yo = y2_offset - y1_offset
-        delta_zo = z2_offset- z1_offset
-        
-        Lob = np.sqrt(Le**2 + delta_yo**2)
-        Loc = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
+        # L_ = sqrt(Le**2 + delta_yo**2)
+        # L = sqrt(Le**2 + delta_yo**2 + delta_zo**2)
 
-        Ro = np.zeros((Nn,Nn), dtype=float)
-        To_1 = np.eye(Nn, dtype=float)
-        To_2 = np.eye(Nn, dtype=float)
+        # sin_delta = delta_yo / L_
+        # cos_delta = Le / L_
+        # sin_epsilon = -delta_zo / L
+        # cos_epsilon = L_ / L
 
-        Ro[[0,0,0],[0,1,2]] = [1, delta_yo/Lob, delta_zo/Lob]
-        Ro[[1,1,1],[0,1,2]] = [-delta_yo/Le, Le/Lob, -(delta_yo*delta_zo)/(Le*Lob)]
-        Ro[[2,2,2],[0,1,2]] = [-delta_zo/Le, 0, Lob/Le]
-        Ro[[3,3,3],[3,4,5]] = Ro[[0,0,0],[0,1,2]]
-        Ro[[4,4,4],[3,4,5]] = Ro[[1,1,1],[0,1,2]]
-        Ro[[5,5,5],[3,4,5]] = Ro[[2,2,2],[0,1,2]]
+        # ro = np.array([ [cos_delta*cos_epsilon, -sin_delta, cos_delta*sin_epsilon],
+        #                 [sin_delta*cos_epsilon,  cos_delta, sin_delta*sin_epsilon],
+        #                 [         -sin_epsilon,          0,           cos_epsilon] ])
 
-        To_1[[0,0,1,2],[4,5,3,3]] = [z1_offset, -y1_offset, -z1_offset, y1_offset]
-        To_2[[0,0,1,2],[4,5,3,3]] = [z2_offset, -y2_offset, -z2_offset, y2_offset]
+        Ro = np.zeros((N_dof,N_dof), dtype=float)
+        Ro[0:int(N_dof/2), 0:int(N_dof/2)] = ro
+        Ro[ int(N_dof/2):,  int(N_dof/2):] = ro
 
-        Oc = np.zeros((Ne, Ne), dtype=float)
-        Oc[0:Nn, 0:Nn] = To_1@Ro
-        Oc[Nn:, Nn:] = To_2@Ro
+        To_I = np.eye(N_dof, dtype=float)
+        To_J = np.eye(N_dof, dtype=float)
+        To_I[[0,0,1,2],[4,5,3,3]] = [z1_offset, -y1_offset, -z1_offset, y1_offset]
+        To_J[[0,0,1,2],[4,5,3,3]] = [z2_offset, -y2_offset, -z2_offset, y2_offset]
 
-        self.transf_mat_Offset = Oc
-        self.transf_mat_OffsetShear_left = Oc.T@Sc.T
-        self.transf_mat_OffsetShear_right = Sc@Oc
+        Of = np.zeros((E_dof, E_dof), dtype=float)
+        Of[0:N_dof, 0:N_dof] = To_I@Ro
+        Of[N_dof:, N_dof:] = To_J@Ro
+
+        self.transf_mat_Offset = Of
+        self.transf_mat_OffsetShear_left = Of.T@Sc.T
+        self.transf_mat_OffsetShear_right = Sc@Of
 
 
     def force_vector(self):
