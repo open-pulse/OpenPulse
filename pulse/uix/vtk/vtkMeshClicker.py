@@ -175,11 +175,11 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.selectActors()
 
     def rightButtonPressEvent(self, obj, event):
-        altPressed = bool(self.GetInteractor().GetAltKey())
-        if altPressed:
-            self.StartDolly()
-        else:
-            self.StartRotate()
+        renderer = self.__rendererMesh._renderer
+        camera = renderer.GetActiveCamera()
+        camera.SetFocalPoint (1461,9627,32)
+        self.StartRotate()
+        
     
     def rightButtonReleaseEvent(self, obj, event):
         self.EndRotate()
