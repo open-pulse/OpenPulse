@@ -962,16 +962,20 @@ class StructuralElement:
 
         delta_yo = y2_offset - y1_offset
         delta_zo = z2_offset- z1_offset
+        # delta_yo *= -1
+        # delta_zo *= -1
 
         # process matrix transformation to account the shear center differences effect
         Le = self.length
-        delta_xo = 0
-        L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
-        L_B = np.sqrt(Le**2 + delta_yo**2)
-        L_G = L_A - delta_xo
+        # delta_xo = 0
+        # L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
+        # L_G = L_A - delta_xo
+        
         L_N = Le
-
+        L_A = Le
         L_G = Le
+        L_B = np.sqrt(Le**2 + delta_yo**2)
+        
         L_SB = np.sqrt(L_G**2 + delta_ys**2)
         L_SC = np.sqrt(L_G**2 + delta_ys**2 + delta_zs**2)
 
@@ -995,18 +999,21 @@ class StructuralElement:
         ro = np.array([ [      L_A/L_N, delta_yo/L_B,       (L_A*delta_zo)/(L_N*L_B)],
                         [-delta_yo/L_N,      L_A/L_B, -(delta_yo*delta_zo)/(L_N*L_B)],
                         [-delta_zo/L_N,            0,                        L_B/L_N] ])
-
-        # L_ = sqrt(Le**2 + delta_yo**2)
-        # L = sqrt(Le**2 + delta_yo**2 + delta_zo**2)
+        
+        # delta_x = sqrt(Le**2 - delta_yo**2 - delta_zo**2)
+        # L_ = sqrt(delta_x**2 + delta_yo**2)
+        # L = sqrt(delta_x**2 + delta_yo**2 + delta_zo**2)
 
         # sin_delta = delta_yo / L_
-        # cos_delta = Le / L_
+        # cos_delta = delta_x / L_
         # sin_epsilon = -delta_zo / L
         # cos_epsilon = L_ / L
 
         # ro = np.array([ [cos_delta*cos_epsilon, -sin_delta, cos_delta*sin_epsilon],
         #                 [sin_delta*cos_epsilon,  cos_delta, sin_delta*sin_epsilon],
         #                 [         -sin_epsilon,          0,           cos_epsilon] ])
+        
+        # print(ro@np.array([Le,0,0]), delta_yo, delta_zo)
 
         Ro = np.zeros((N_dof,N_dof), dtype=float)
         Ro[0:int(N_dof/2), 0:int(N_dof/2)] = ro
