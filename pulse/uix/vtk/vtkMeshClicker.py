@@ -140,7 +140,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.mousePosition = (0,0)
         self.target_focal_point = None
         self.__leftButtonClicked = False 
-        self.__altKeyClicked = False
+        self.__rightButtonClicked = False
         
         self.createObservers()
 
@@ -179,7 +179,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     def rightButtonPressEvent(self, obj, event):
         self.clickPosition = self.GetInteractor().GetEventPosition()
         self.mousePosition = self.clickPosition
-
+        self.__rightButtonClicked = True
         renderer = self.__rendererMesh._renderer
 
         picker = vtk.vtkPropPicker()
@@ -193,6 +193,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         
     
     def rightButtonReleaseEvent(self, obj, event):
+        self.__rightButtonClicked = False
         self.EndRotate()
         self.EndDolly()
 
@@ -203,7 +204,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         if self.__leftButtonClicked:
             self.updateSelectionBox()
 
-        if self.target_focal_point is not None:
+        if self.__rightButtonClicked and self.target_focal_point is not None:
             renderer = self.__rendererMesh._renderer
             camera = renderer.GetActiveCamera()
 
