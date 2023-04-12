@@ -1,5 +1,6 @@
 import vtk 
 from PyQt5 import Qt, QtCore
+import numpy as np
 
 from functools import partial
 from math import sqrt
@@ -137,6 +138,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         
         self.clickPosition = (0,0)
         self.mousePosition = (0,0)
+        self.target_focal_point = None
         self.__leftButtonClicked = False 
         self.__altKeyClicked = False
         
@@ -175,9 +177,18 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.selectActors()
 
     def rightButtonPressEvent(self, obj, event):
+        self.clickPosition = self.GetInteractor().GetEventPosition()
+        self.mousePosition = self.clickPosition
+
         renderer = self.__rendererMesh._renderer
-        camera = renderer.GetActiveCamera()
-        camera.SetFocalPoint (1461,9627,32)
+
+        picker = vtk.vtkPropPicker()
+        picker.Pick(self.clickPosition[0], self.clickPosition[1], 0, renderer)
+        pos = picker.GetPickPosition()
+
+        if pos!=(0,0,0):
+            self.target_focal_point = pos
+
         self.StartRotate()
         
     
@@ -188,8 +199,25 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     def mouseMoveEvent(self, obj, event):  
         self.OnMouseMove()
         self.mousePosition = self.GetInteractor().GetEventPosition()
+        
         if self.__leftButtonClicked:
             self.updateSelectionBox()
+
+        if self.target_focal_point is not None:
+            renderer = self.__rendererMesh._renderer
+            camera = renderer.GetActiveCamera()
+
+
+            x0,y0,z0 = camera.GetFocalPoint()
+            x1,y1,z1 = self.target_focal_point
+            k = 0.05
+            x0 += (x1-x0) * k 
+            y0 += (y1-y0) * k
+            z0 += (z1-z0) * k
+            camera.SetFocalPoint(x0,y0,z0)
+
+ 
+       
 
     def KeyPressEvent(self, obj, event):
         key = self.GetInteractor().GetKeySym()
