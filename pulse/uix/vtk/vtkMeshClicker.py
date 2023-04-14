@@ -141,6 +141,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.target_focal_point = None
         self.__leftButtonClicked = False 
         self.__rightButtonClicked = False
+        self.picker = vtk.vtkPropPicker()
         
         self.createObservers()
 
@@ -153,6 +154,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.AddObserver('MouseMoveEvent', self.mouseMoveEvent)        
         self.AddObserver('KeyPressEvent', self.KeyPressEvent)
         self.AddObserver('KeyReleaseEvent', self.KeyReleaseEvent)
+        self.AddObserver('MouseWheelForwardEvent', self.MouseWheel)
 
     def releaseButtons(self):
         if self.__leftButtonClicked:
@@ -175,6 +177,30 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         if obj is None and event is None:
             return
         self.selectActors()
+
+    def MouseWheel(self, obj, event):
+
+        renderer = self.__rendererMesh._renderer
+
+        self.picker.Pick(self.mousePosition[0], self.mousePosition[1], 0, renderer)
+        
+        camera = renderer.GetActiveCamera()
+        pos = self.picker.GetPickPosition()
+        
+        if pos!=(0,0,0):
+            self.target_focal_point = pos
+
+        x0,y0,z0 = camera.GetFocalPoint()
+        x1,y1,z1 = self.target_focal_point
+        k = 0.3
+        x0 += (x1-x0) * k 
+        y0 += (y1-y0) * k
+        z0 += (z1-z0) * k
+
+        camera.SetFocalPoint(x0,y0,z0)
+    
+        self.OnMouseWheelForward()
+
 
     def rightButtonPressEvent(self, obj, event):
         self.clickPosition = self.GetInteractor().GetEventPosition()
@@ -201,6 +227,8 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.OnMouseMove()
         self.mousePosition = self.GetInteractor().GetEventPosition()
         
+        
+
         if self.__leftButtonClicked:
             self.updateSelectionBox()
 
