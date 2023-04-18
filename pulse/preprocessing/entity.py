@@ -43,7 +43,8 @@ class Entity:
         --------
         get_nodes : List of nodes that belong to the entity.
         """
-        self.nodes.append(node)
+        # self.nodes.append(node)
+        self.nodes = node
 
     def insertEdge(self, edge):
         """
@@ -57,7 +58,8 @@ class Entity:
         --------
         get_elements : List of elements that belong to the entity.
         """
-        self.elements.append(edge)
+        # self.elements.append(edge)
+        self.elements = edge
         
     def get_nodes(self):
         """

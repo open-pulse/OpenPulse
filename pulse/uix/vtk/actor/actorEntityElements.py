@@ -47,7 +47,7 @@ class ActorEntityElements(vtkActorBase):
             _tubeFilter = vtk.vtkTubeFilter()
             _tubeFilter.SetInputData(_data)
             _tubeFilter.SetRadius(0.003)
-            _tubeFilter.SetNumberOfSides(50)
+            _tubeFilter.SetNumberOfSides(36)
             _tubeFilter.Update()
 
             self._object.AddInputConnection(_tubeFilter.GetOutputPort())

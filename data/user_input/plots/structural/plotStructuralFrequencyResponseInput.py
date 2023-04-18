@@ -97,7 +97,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.toolButton_ExportResults.clicked.connect(self.ExportResults)
         self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
         self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
-        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
+        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox')
 
         self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
         self.use_cursor = self.checkBox_cursor.isChecked()
@@ -200,18 +200,40 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     
     def ImportResults(self):
         try:
-            skiprows = int(self.lineEdit_skiprows.text())
-            self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
-            self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
-            self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            title = "Information"
-            message = "The results have been imported."
-            PrintMessageInput([title, message, window_title2])
-        except Exception as e:
-            title = "ERROR WHILE LOADING TABLE"
-            message = [str(e) + " It is recommended to skip the header rows."] 
-            PrintMessageInput([title, message[0], window_title1])
+            message = ""
+            run = True
+            skiprows = int(self.spinBox_skiprows.text())
+            maximum_lines_to_skip = 100
+ 
+            while run:
+                try:
+                    self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
+                    self.spinBox_skiprows.setValue(int(skiprows))
+                    run = False
+                except:
+                    skiprows += 1
+                    if skiprows>=maximum_lines_to_skip:
+                        run = False
+                        title = "Error while loading data from file"
+                        message = "The maximum number of rows to skip has been reached and no valid data has "
+                        message += "been found. Please, verify the data in the imported file to proceed."
+                        message += "Maximum number of header rows: 100"
+
+            if skiprows<maximum_lines_to_skip:
+                self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
+                self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
+                title = "Information"
+                message = "The results have been imported."
+                PrintMessageInput([title, message, window_title2])
+                return
+
+        except Exception as log_error:
+            title = "Error while loading data from file"
+            message = str(log_error)
             return
+        
+        if message != "":
+            PrintMessageInput([title, message, window_title1])
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
@@ -321,7 +343,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         return output_data
 
     def plot(self):
-        self.fig = plt.figure(figsize=[12,7])
+        self.fig = plt.figure(figsize=[10,8])
         ax = self.fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
@@ -368,7 +390,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                     first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
             else: 
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
         else:
             if float(0) in response or float(0) in imported_Yvalues or self.plotReal or self.plotImag:
                 if float(0) in response[1:] or float(0) in imported_Yvalues[1:] or self.plotReal or self.plotImag:
@@ -380,7 +402,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             else:                
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
                 second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
 
         plt.gca().add_artist(_legends)
 

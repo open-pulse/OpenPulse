@@ -15,6 +15,7 @@ from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
+from pulse.utils import *
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -1138,7 +1139,7 @@ class FluidInput(QDialog):
                 molar_fractions = None                  
                 if 'molar fractions' in keys:
                     str_molar_fractions = str(rFluid['molar fractions'])
-                    molar_fractions = self.project.file._get_list_of_values_from_string(str_molar_fractions, are_values_int=False)
+                    molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
 
                 if not None in [temperature, pressure, key_mixture, molar_fractions]:
                     self.fluid_name_to_REFPROP_data[name] = [name, temperature, pressure, key_mixture, molar_fractions]

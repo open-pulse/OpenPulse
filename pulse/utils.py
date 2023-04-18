@@ -3,14 +3,12 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 from functools import wraps
 from time import time
 from scipy.sparse import issparse
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import Qt
 import configparser
 import numpy as np
 import os
+import sys
+import gmsh
 from scipy.spatial.transform import Rotation
-
-
 
 def split_sequence(sequence, size):
     ''' 
@@ -126,7 +124,7 @@ def timer(function):
         return values
     return wrapper
     
-def m_to_mm(m):
+def m_to_mm(value):
     ''' 
     Converts meter to millimeter.
 
@@ -140,7 +138,9 @@ def m_to_mm(m):
     out: float
         Value in millimeters
     '''
-    return float(m) * 1000
+    if isinstance(value, list):
+        return np.array(value) * 1000 
+    return float(value) * 1000
 
 def mm_to_m(mm):
     ''' 
@@ -233,7 +233,7 @@ def inverse_matrix_3x3(A):
     
     return invA
 
-def _transformation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
+def transformation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
     '''    
     This method returns the rotation matrix of an element 
     based on its spatial position. 
@@ -286,7 +286,7 @@ def _transformation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
     return rotation_matrix
 
 
-def _transformation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
+def transformation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
     '''    
     This method returns the rotation matrices to a set of N elements 
     based on their spatial positions. 
@@ -344,7 +344,7 @@ def _transformation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
 
     return data_rot.T.reshape(-1,3,3)
 
-def _transformation_matrix_3x3_by_angles(gamma, epsilon, delta):
+def transformation_matrix_3x3_by_angles(gamma, epsilon, delta):
     '''    
     This method returns the rotation matrix of an element based on 
     the angles of rotations gamma, epsilon and delta. 
@@ -389,7 +389,7 @@ def _transformation_matrix_3x3_by_angles(gamma, epsilon, delta):
 
     return data_rot.reshape(3,3)
 
-def _transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
+def transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
     '''    
     This method returns the rotation matrices to a set of N elements 
     based on the angles of rotations gamma, epsilon and delta. 
@@ -532,10 +532,10 @@ def sparse_is_equal(a, b):
     Parameters
     ----------
     a: scipy.sparse
-        A sparce matrix.
+        A sparse matrix.
 
     b: scipy.sparse
-        Another sparce matrix.
+        Another sparse matrix.
 
     Returns
     -------
@@ -563,6 +563,72 @@ def get_new_path(path, name):
     elif "/" in path:
         new_path = '{}/{}'.format(path, name)
     return new_path
+
+def get_edited_filename(path):
+    new_path = ""
+    new_basename = ""
+    if os.path.exists(path):
+        if os.path.basename(path) != "":
+            basename = os.path.basename(path)
+            dirname = os.path.dirname(path)
+            for ext in [".step", ".stp", ".STEP", ".STP", ".iges", ".igs", ".IGES", ".IGS"]:
+                if ext in basename:
+                    strings = basename.split(ext)
+                    if strings[0][-7:] == "_edited":
+                        new_basename = basename
+                    else:
+                        new_basename = strings[0] + "_edited.stp"
+                    new_path = get_new_path(dirname, new_basename)
+                    break
+    return new_path, new_basename
+
+def get_list_of_values_from_string(input_string, int_values=True):
+    """ 
+    This function returns a list of values for a given string of a list.
+
+    Parameters
+    ----------
+    input_string: string of a list
+    int_values: bool
+
+    Returns
+    ----------
+    list of int values if int_values is True or a list of float numbers if int_values is False
+    """
+    input_string = input_string[1:-1].split(',')
+    list_values = []
+    if int_values:
+        for value in input_string:
+            list_values.append(int(value))
+    else:
+        for value in input_string:
+            list_values.append(float(value))
+    return list_values
+
+def get_list_bool_from_string(input_string):
+    """
+    This function returns a list of boolean variables for a given string of a boolean list.
+
+    Parameters
+    ----------
+    input_string: string of a list of boolean variables
+
+    Returns
+    ----------
+    list of boolean variables
+
+    """
+    for text in ["[", "]", " "]:
+        input_string = input_string.replace(text,"")
+    list_of_strings = input_string.strip().split(",")
+    list_bool = [True if item=="True" else False for item in list_of_strings]
+    return list_bool
+
+def get_linear_distribution_for_variable_section(x_initial, x_final, N):
+    """This function returns the linear distributions for variable sections"""
+    n = np.arange(N, dtype=float)/N
+    n_shift = np.arange(1, N+1, 1, dtype=float)/N
+    return (x_final-x_initial)*n + x_initial, (x_final-x_initial)*n_shift + x_initial
 
 def get_linear_distribution(x_initial, x_final, N):
     n = np.arange(N)/(N-1)
@@ -611,3 +677,172 @@ def check_is_there_a_group_of_elements_inside_list_elements(input_list):
         _value = value
     list_of_lists.append(list_i)
     return list_of_lists
+
+def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
+    """
+    This method process the fillet parameters, respectiveliy, start point, center point and end point of the arc circle.
+    For a given two pair of points P1P2 and P2P3, P2 is the commom point.
+
+    Inputs: np.ndarray(3x3)
+    P1, P2, P3: 3d nodal coordinates of each point in which the P2 point is the common one of both lines
+
+    Outputs: np.ndarray(6x3)
+    P1, P2, P3, Pc, Q1, Q2
+    """
+
+    if unit_length == "m":
+        factor = 1
+    elif unit_length == "in":
+        factor = 1/25.4
+    elif unit_length == "mm":
+        factor = 1/1000
+    
+    radius *= factor
+
+    try:
+
+        if isinstance(P1, list):
+            P1 = np.array(P1)
+        if isinstance(P2, list):
+            P2 = np.array(P2)
+        if isinstance(P3, list):
+            P3 = np.array(P3)
+                    
+        cache_P2 = P2*factor
+        Points = (np.array([P1,P2,P3]) - np.array([P2,P2,P2]))*factor
+
+        u = Points[0,:] - Points[1,:]
+        v = Points[2,:] - Points[1,:]
+        theta = get_angle_between_vectors(u,v)
+        if np.dot(u,v) < 0:
+            theta = np.pi - theta 
+
+        alpha = theta/2
+        d = radius/np.sin(alpha)
+
+        L_min = np.min([np.linalg.norm(u),np.linalg.norm(v)])
+        allowable_radius = L_min*np.tan(alpha)
+        if radius >= allowable_radius:
+            print(f"The fillet radius must be less than {round(allowable_radius,2)} [mm].")
+            return None, True
+
+        if np.linalg.norm(np.cross(u,v)) == 0:
+            print("The input points belong to the same line. Please, check the point coordinates to proceed!")
+            return None, True
+
+        n_plane = np.cross(u,v)/np.linalg.norm(np.cross(u,v))
+        n_z = np.array([0,0,1])
+
+        if np.linalg.norm(np.cross(n_plane,n_z)) == 0:
+            r = Rotation.from_rotvec([0,0,0])
+        else:
+            rot_axis = np.cross(n_plane,n_z)/np.linalg.norm(np.cross(n_plane,n_z))
+            rot_axis_norm = rot_axis/np.linalg.norm(rot_axis)
+            ang_rot = np.arccos(np.dot(n_plane,n_z)/(np.linalg.norm(n_plane)*np.linalg.norm(n_z)))
+            rot_vect = rot_axis_norm*ang_rot
+            r = Rotation.from_rotvec(rot_vect)
+
+        rot_matrix = r.as_matrix()
+
+        # This operation rotates the plane containing the lines P1P2 and P2P3 aligning it with the xy plane.
+        Points = Points@rot_matrix.T
+
+        u = Points[0,:] - Points[1,:]
+        v = Points[2,:] - Points[1,:]
+
+        nx = np.array([1,0,0])
+        ang_z = get_angle_between_vectors(u,nx)
+                
+        if u[0]>=0 and u[1]>=0:
+            rot_ang_z_axis = -ang_z
+        elif u[0]>=0 and u[1]<=0:
+            rot_ang_z_axis = ang_z
+        elif u[0]<0 and u[1]<=0:
+            rot_ang_z_axis = -ang_z
+        elif u[0]<0 and u[1]>=0:
+            rot_ang_z_axis = ang_z
+
+        rot_xy_plane = np.array([   [np.cos(rot_ang_z_axis), -np.sin(rot_ang_z_axis), 0],
+                                    [np.sin(rot_ang_z_axis), np.cos(rot_ang_z_axis), 0],
+                                    [0, 0, 1]   ])
+        Points = Points@rot_xy_plane.T
+        
+        P1 = Points[0,:]
+        P2 = Points[1,:]
+        P3 = Points[2,:]
+        x1,y1,_ = P1
+        x2,y2,_ = P2
+        x3,y3,_ = P3
+        
+        if x1>0 and y3>0:
+            w = np.array([np.cos(alpha),np.sin(alpha),0])
+        elif x1<0 and y3>0:
+            w = np.array([-np.cos(alpha),np.sin(alpha),0])
+        elif x1<0 and y3<0:
+            w = np.array([-np.cos(alpha),-np.sin(alpha),0])
+        elif x1>0 and y3<0:
+            w = np.array([np.cos(alpha),-np.sin(alpha),0])
+
+        Pc = P2 + w*d
+  
+        # Define a normal vetor to the line P1P2 
+        # equation: (nx_1,ny_1).(x2-x1,y2-y1) = 0
+        nx_1 = 1
+        ny_1 = 1
+        if x2-x1 != 0:
+            nx_1 = -ny_1*((y2-y1)/(x2-x1))
+        else:
+            ny_1 = -nx_1*((x2-x1)/(y2-y1))
+
+        n1 = np.array([nx_1,ny_1,0])/np.linalg.norm(np.array([nx_1,ny_1,0]))
+        Q1 = Pc - n1*radius
+
+        if round(np.linalg.norm(np.cross(Q1-P2, P2-P1)),6) != 0:
+            Q1 = Pc + n1*radius
+
+        # Define a normal vetor to the line P2P3 
+        # equation: (nx_2,ny_2).(x3-x2,y3-y2) = 0
+        nx_2 = 1
+        ny_2 = 1
+        if x3-x2 != 0:
+            nx_2 = -ny_2*((y3-y2)/(x3-x2))
+        else:
+            ny_2 = -nx_2*((x3-x2)/(y3-y2))
+
+        n2 = np.array([nx_2,ny_2,0])/np.linalg.norm(np.array([nx_2,ny_2,0]))
+        Q2 = Pc - n2*radius
+        if round(np.linalg.norm(np.cross(Q2-P2, P3-P2)),6) != 0:
+            Q2 = Pc + n2*radius
+       
+        Points2 = np.zeros((6,3))
+        Points2[0:3,:] = Points
+        Points2[3,:] = Pc
+        Points2[4,:] = Q1
+        Points2[5,:] = Q2
+        Points2 = Points2@rot_xy_plane
+        
+        # Points_f = Points2 + np.ones((6,3))*np.array(cache_P2)*0
+        Points_f = Points2@rot_matrix + np.ones((6,3))*np.array(cache_P2)
+        P1 = Points_f[0,:]
+        P2 = Points_f[1,:]
+        P3 = Points_f[2,:]
+        Pc = np.round(Points_f[3,:],8)
+        Q1 = np.round(Points_f[4,:],8)
+        Q2 = np.round(Points_f[5,:],8)
+        # print(f"output data:\n\n P1: {P1}\n P2: {P2}\n P3: {P3}\n Pc: {Pc}\n Q1: {Q1}\n Q2: {Q2}")
+
+       # Checks if P1Q1P2 and P2Q2P3 are colinear 
+        cross_P1Q1_P1P2 = round(np.linalg.norm(np.cross(Q1-P2, P2-P1)),6)
+        cross_P2Q2_P2P3 =  round(np.linalg.norm(np.cross(Q2-P2, P3-P2)),6)
+        if [cross_P1Q1_P1P2,cross_P2Q2_P2P3] != [0,0]:
+            print(f"The P1-Q1-P2 and P2Q2-P3 are colinear: {cross_P1Q1_P1P2, cross_P2Q2_P2P3}")
+            return None, True
+
+    except Exception as error:
+        print(str(error))
+        return None, True
+
+    return [P1, P2, P3, Pc, Q1, Q2], False
+
+def get_angle_between_vectors(vect_1, vect_2):
+    return np.arccos(np.linalg.norm(np.dot(vect_1,vect_2))/(np.linalg.norm(vect_1)*np.linalg.norm(vect_2)))

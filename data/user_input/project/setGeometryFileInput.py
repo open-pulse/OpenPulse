@@ -52,9 +52,10 @@ class SetGeometryFileInput(QDialog):
         # self.current_coord_path_path = self.project.file._coord_path
         self.import_type = self.project.file._import_type
 
-        self.materialListName = "materialList.dat"
-        self.fluidListName = "fluidList.dat"
-        self.projectFileName = "project.ini"
+        self.materialListName = self.project.file._material_file_name
+        self.fluidListName = self.project.file._fluid_file_name
+        self.projectFileName = self.project.file._project_base_name
+
         self.material_list_path = ""
         self.fluid_list_path = ""
         self.selected_geometry_path = ""
@@ -184,8 +185,9 @@ class SetGeometryFileInput(QDialog):
     
     def remove_other_files(self):
         list_filenames = os.listdir(self.current_project_file_path).copy()
+        files_to_maintain = self.project.file.get_list_filenames_to_maintain_after_reset
         for filename in list_filenames:
-            if filename not in ["entity.dat", "fluidList.dat", "materialList.dat", "project.ini", self.geometry_filename]:
+            if filename not in files_to_maintain:
                 file_path = get_new_path(self.current_project_file_path, filename)
                 if os.path.exists(file_path):
                     os.remove(file_path)

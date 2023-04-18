@@ -460,9 +460,10 @@ class opvRenderer(vtkRendererBase):
         for line_id in line_ids:
             elements = self.lineToElements[line_id]
             elementsFromEntities = elementsFromEntities.union(elements)
-
+        
         self.opvLines.setColor(selectionColor, keys=elementsFromEntities)
         self.opvTubes.setColor(selectionColor, keys=elementsFromEntities)
+        self.update()
 
     def highlight_elements(self, element_ids, reset_colors=True, color=(255,0,0)):
         if reset_colors:
@@ -471,6 +472,7 @@ class opvRenderer(vtkRendererBase):
 
         self.opvLines.setColor(selectionColor, keys=element_ids)
         self.opvTubes.setColor(selectionColor, keys=element_ids)
+        self.update()
 
     def highlight_nodes(self, node_ids, reset_colors=True, color=(255,0,0)):
         if reset_colors:

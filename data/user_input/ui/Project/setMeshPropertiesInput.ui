@@ -89,13 +89,13 @@
      <enum>QFrame::Box</enum>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Modify the Mesh properties&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Set Mesh parameters&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QFrame" name="frame_2">
+   <widget class="QFrame" name="frame_current_element_size">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -163,7 +163,7 @@ color: rgb(255, 0, 0);</string>
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="label_current_element_size">
      <property name="geometry">
       <rect>
        <x>12</x>
@@ -242,7 +242,7 @@ color: rgb(0, 0, 255);</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="label_geometry_tolerance">
     <property name="geometry">
      <rect>
       <x>42</x>
@@ -313,7 +313,7 @@ color: rgb(0, 0, 255);</string>
      <string>Confirm and Generate mesh</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_9">
+   <widget class="QLabel" name="label_new_element_size">
     <property name="geometry">
      <rect>
       <x>42</x>
