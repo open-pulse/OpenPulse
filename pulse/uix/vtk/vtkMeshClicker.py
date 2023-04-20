@@ -141,6 +141,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.target_focal_point = None
         self.__leftButtonClicked = False 
         self.__rightButtonClicked = False
+        self.__rotating = False
         self.picker = vtk.vtkPropPicker()
         
         self.createObservers()
@@ -215,19 +216,20 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         if pos!=(0,0,0):
             self.target_focal_point = pos
 
-        self.StartRotate()
+        self.__rotating = True
         
     
     def rightButtonReleaseEvent(self, obj, event):
         self.__rightButtonClicked = False
-        self.EndRotate()
+        self.__rotating = False
         self.EndDolly()
 
     def mouseMoveEvent(self, obj, event):  
         self.OnMouseMove()
         self.mousePosition = self.GetInteractor().GetEventPosition()
         
-        
+        if self.__rotating:
+            self.rotate()
 
         if self.__leftButtonClicked:
             self.updateSelectionBox()
@@ -237,13 +239,13 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
             camera = renderer.GetActiveCamera()
 
 
-            x0,y0,z0 = camera.GetFocalPoint()
-            x1,y1,z1 = self.target_focal_point
-            k = 0.05
-            x0 += (x1-x0) * k 
-            y0 += (y1-y0) * k
-            z0 += (z1-z0) * k
-            camera.SetFocalPoint(x0,y0,z0)
+            # x0,y0,z0 = camera.GetFocalPoint()
+            # x1,y1,z1 = self.target_focal_point
+            # k = 0.05
+            # x0 += (x1-x0) * k
+            # y0 += (y1-y0) * k
+            # z0 += (z1-z0) * k
+            # camera.SetFocalPoint(x0,y0,z0)
 
  
        
@@ -259,6 +261,73 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
             self.__altKeyClicked = False
 
     # 
+    def rotate(self):
+
+        renderer = self.__rendererMesh._renderer
+
+        if renderer is None:
+            return
+        
+        rwi = self.GetInteractor()
+        dx = rwi.GetEventPosition()[0] - rwi.GetLastEventPosition()[0]
+        dy = rwi.GetEventPosition()[1] - rwi.GetLastEventPosition()[1]
+
+        size = renderer.GetRenderWindow().GetSize() 
+        delta_elevation = -20.0 / size[1]
+        delta_azimuth = -20.0 / size[0]
+
+        motion_factor = 10
+
+        rxf = dx * delta_azimuth * motion_factor
+        ryf = dy * delta_elevation * motion_factor
+
+        camera = renderer.GetActiveCamera()
+        # camera.Azimuth(rxf)
+        self.move_azimuth(rxf, camera)
+        camera.Elevation(ryf)
+        camera.OrthogonalizeViewUp()
+  
+        # if AutoAdjustCameraClippingRange()
+
+
+        if rwi.GetLightFollowCamera():
+            renderer.UpdateLightsGeometryToFollowCamera()
+        
+        rwi.Render()
+
+    
+    
+    def move_azimuth(self, angle, camera):
+
+        print('Hello')
+
+        
+        transform = camera.GetModelViewTransformObject()
+        transform.Identity()
+        # renderer = self.__rendererMesh._renderer
+        
+        fp = camera.GetFocalPoint()
+        transform.Translate(+fp[0], +fp[1], +fp[2])
+        transform.RotateWXYZ(angle, camera.GetViewUp())
+        transform.Translate(-fp[0], -fp[1], -fp[2])
+        
+        new_position = transform.TransformPoint(camera.GetPosition())
+        camera.SetPosition(new_position)
+        
+        # camera.TransformPoint(camera.Position, camera.newPosition) 
+        # camera.SetModelTransformMatrix(transform.GetMatrix ())
+
+        
+
+        
+       
+
+
+
+        
+
+
+
     def createSelectionBox(self):
         size = self.GetInteractor().GetSize()
         renderWindow = self.GetInteractor().GetRenderWindow()
