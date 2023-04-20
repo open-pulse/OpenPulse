@@ -282,12 +282,13 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         ryf = dy * delta_elevation * motion_factor
 
         camera = renderer.GetActiveCamera()
-        # camera.Azimuth(rxf)
+        
         self.move_azimuth(rxf, camera)
-        camera.Elevation(ryf)
+        self.move_elevation(ryf, camera)
+        
         camera.OrthogonalizeViewUp()
   
-        # if AutoAdjustCameraClippingRange()
+        renderer.ResetCameraClippingRange()
 
 
         if rwi.GetLightFollowCamera():
@@ -299,12 +300,8 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     
     def move_azimuth(self, angle, camera):
 
-        print('Hello')
-
-        
         transform = camera.GetModelViewTransformObject()
         transform.Identity()
-        # renderer = self.__rendererMesh._renderer
         
         fp = camera.GetFocalPoint()
         transform.Translate(+fp[0], +fp[1], +fp[2])
@@ -314,10 +311,34 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         new_position = transform.TransformPoint(camera.GetPosition())
         camera.SetPosition(new_position)
         
-        # camera.TransformPoint(camera.Position, camera.newPosition) 
-        # camera.SetModelTransformMatrix(transform.GetMatrix ())
+        
+    def move_elevation(self, angle, camera):
+
+        fp = camera.GetFocalPoint()
+        transform = camera.GetModelViewTransformObject()
+        transform.Identity()
+
+        axis = [0,0,0]
+        axis[0] = camera.GetViewTransformObject().GetMatrix().GetElement(0, 0)
+        axis[1] = camera.GetViewTransformObject().GetMatrix().GetElement(0, 1)
+        axis[2] = camera.GetViewTransformObject().GetMatrix().GetElement(0, 2)
+
+        saved_view_up = camera.GetViewUp()
+        transform.RotateWXYZ(angle, axis)
+        new_view_up = transform.TransformPoint(camera.GetViewUp())
+        camera.SetViewUp(new_view_up)
+        transform.Identity()
 
         
+        transform.Translate(+fp[0], +fp[1], +fp[2])
+        transform.RotateWXYZ(angle, axis)
+        transform.Translate(-fp[0], -fp[1], -fp[2])
+        
+        new_position = transform.TransformPoint(camera.GetPosition())
+        camera.SetPosition(new_position)
+        camera.SetViewUp(saved_view_up)
+
+        camera.Modified()
 
         
        
