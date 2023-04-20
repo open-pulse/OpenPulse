@@ -45,6 +45,9 @@ class opvRenderer(vtkRendererBase):
         self.elementsBounds = dict()
         self.lineToElements = dict()
 
+        self.raw_segment_bounds = dict()
+        self.raw_segment_to_raw_line = dict()
+
         self.hidden_nodes    = set()
         self.hidden_elements = set()
         self.hidden_lines = set()
@@ -81,9 +84,6 @@ class opvRenderer(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        self.saveNodesBounds()
-        self.saveElementsBounds()
-        self.saveLineToElements()
 
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
@@ -100,6 +100,11 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes.build()
         self.opvRawLines.build()
         self.buildSymbols()
+
+        self.saveNodesBounds()
+        self.saveElementsBounds()
+        self.saveLineToElements()
+        self.saveRawLinesData()
         
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvNodes)
@@ -379,6 +384,9 @@ class opvRenderer(vtkRendererBase):
         # preprocessor = self.project.get_preprocess()
         self.lineToElements = self.preprocessor.line_to_elements
     
+    def saveRawLinesData(self):
+        pass
+
     def getListPickedPoints(self):
         if self.selectionToNodes():
             return self._style.getListPickedPoints()
