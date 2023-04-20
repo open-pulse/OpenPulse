@@ -237,19 +237,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         if self.__rightButtonClicked and self.target_focal_point is not None:
             renderer = self.__rendererMesh._renderer
             camera = renderer.GetActiveCamera()
-
-
-            # x0,y0,z0 = camera.GetFocalPoint()
-            # x1,y1,z1 = self.target_focal_point
-            # k = 0.05
-            # x0 += (x1-x0) * k
-            # y0 += (y1-y0) * k
-            # z0 += (z1-z0) * k
-            # camera.SetFocalPoint(x0,y0,z0)
-
  
-       
-
     def KeyPressEvent(self, obj, event):
         key = self.GetInteractor().GetKeySym()
         if (key == 'Alt_L') or (key == 'Alt_R'):
@@ -260,7 +248,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         if (key == 'Alt_L') or (key == 'Alt_R'):
             self.__altKeyClicked = False
 
-    # 
     def rotate(self):
 
         renderer = self.__rendererMesh._renderer
@@ -283,9 +270,8 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         camera = renderer.GetActiveCamera()
         
-        self.move_azimuth(rxf, camera)
-        self.move_elevation(ryf, camera)
-        
+        self.rotate_cam(rxf, ryf)
+
         camera.OrthogonalizeViewUp()
   
         renderer.ResetCameraClippingRange()
@@ -296,59 +282,39 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         
         rwi.Render()
 
-    
-    
-    def move_azimuth(self, angle, camera):
+    def rotate_cam(self, anglex, angley):
 
-        transform = camera.GetModelViewTransformObject()
+        renderer = self.__rendererMesh._renderer
+        camera = renderer.GetActiveCamera()
+
+        transform = vtk.vtkTransform()
         transform.Identity()
-        
         fp = camera.GetFocalPoint()
-        transform.Translate(+fp[0], +fp[1], +fp[2])
-        transform.RotateWXYZ(angle, camera.GetViewUp())
-        transform.Translate(-fp[0], -fp[1], -fp[2])
-        
-        new_position = transform.TransformPoint(camera.GetPosition())
-        camera.SetPosition(new_position)
-        
-        
-    def move_elevation(self, angle, camera):
 
-        fp = camera.GetFocalPoint()
-        transform = camera.GetModelViewTransformObject()
-        transform.Identity()
-
-        axis = [0,0,0]
-        axis[0] = camera.GetViewTransformObject().GetMatrix().GetElement(0, 0)
-        axis[1] = camera.GetViewTransformObject().GetMatrix().GetElement(0, 1)
-        axis[2] = camera.GetViewTransformObject().GetMatrix().GetElement(0, 2)
+        axis = [
+            -camera.GetViewTransformObject().GetMatrix().GetElement(0, 0),
+            -camera.GetViewTransformObject().GetMatrix().GetElement(0, 1),
+            -camera.GetViewTransformObject().GetMatrix().GetElement(0, 2),
+        ]         
 
         saved_view_up = camera.GetViewUp()
-        transform.RotateWXYZ(angle, axis)
+        transform.RotateWXYZ(angley, axis)
         new_view_up = transform.TransformPoint(camera.GetViewUp())
         camera.SetViewUp(new_view_up)
         transform.Identity()
 
-        
         transform.Translate(+fp[0], +fp[1], +fp[2])
-        transform.RotateWXYZ(angle, axis)
+        transform.RotateWXYZ(anglex, camera.GetViewUp())
+        transform.RotateWXYZ(angley, axis)
         transform.Translate(-fp[0], -fp[1], -fp[2])
         
         new_position = transform.TransformPoint(camera.GetPosition())
         camera.SetPosition(new_position)
+
         camera.SetViewUp(saved_view_up)
 
         camera.Modified()
-
         
-       
-
-
-
-        
-
-
-
     def createSelectionBox(self):
         size = self.GetInteractor().GetSize()
         renderWindow = self.GetInteractor().GetRenderWindow()
