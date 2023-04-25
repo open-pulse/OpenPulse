@@ -160,6 +160,8 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.AddObserver('MouseMoveEvent', self.mouseMoveEvent)
         self.AddObserver('KeyPressEvent', self.KeyPressEvent)
         self.AddObserver('KeyReleaseEvent', self.KeyReleaseEvent)
+        self.AddObserver('MouseWheelForwardEvent', self.MouseWheelForward)
+        self.AddObserver('MouseWheelBackwardEvent', self.MouseWheelBackward)
 
     def releaseButtons(self):
         if self.__leftButtonClicked:
@@ -326,6 +328,79 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         camera.SetViewUp(saved_view_up)
 
         camera.Modified()
+
+    def MouseWheelForward(self, obj, event):
+
+        int_pos = self.GetInteractor().GetEventPosition()
+
+        self.FindPokedRenderer(int_pos[0], int_pos[1])
+
+        if self.GetCurrentRenderer() is None:
+            return
+      
+        motion_factor = 10
+        mouse_motion_factor = 1
+
+        factor = motion_factor * 0.2 * mouse_motion_factor
+
+        self.StartDolly()
+        self.Dolly_dan(1.1 ** factor)
+        self.EndDolly()
+        self.ReleaseFocus()
+        print('forward')
+        
+
+
+    def MouseWheelBackward(self, obj, event):
+
+        int_pos = self.GetInteractor().GetEventPosition()
+
+        self.FindPokedRenderer(int_pos[0], int_pos[1])
+
+        if self.GetCurrentRenderer() is None:
+            return
+      
+        motion_factor = 10
+        mouse_motion_factor = 1
+
+        factor = motion_factor * -0.2 * mouse_motion_factor
+
+       
+        self.StartDolly()
+        self.Dolly_dan(1.1 ** factor)
+        self.EndDolly()
+        self.ReleaseFocus()
+
+        print('backward')
+        
+
+
+    def Dolly_dan(self, amount):
+
+        renderer = self.__rendererMesh._renderer
+        camera = renderer.GetActiveCamera()
+
+        if amount <= 0:
+            return
+        
+        distance = camera.GetDistance()
+
+        dir_proj = camera.GetDirectionOfProjection()
+
+        d = (distance)/ amount 
+
+        fp = camera.GetFocalPoint()
+
+        camera.SetPosition(fp[0] - d * dir_proj[0],
+                           fp[1] - d * dir_proj[1],
+                           fp[2] - d * dir_proj[2])
+ 
+
+
+
+       
+
+    
 
     def createSelectionBox(self):
         size = self.GetInteractor().GetSize()
