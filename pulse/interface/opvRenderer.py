@@ -88,7 +88,6 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
         self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
-        self.opvRawLines = RawLinesActor("C:\\Users\\User\\Documents\\OpenPulse\\examples\\iges_files\\old_geometries\\tube_2.iges", self.project)
 
         self.opvAcousticNodesSymbols = AcousticNodesSymbolsActor(self.project)
         self.opvAcousticElementsSymbols = AcousticElementsSymbolsActor(self.project)
@@ -98,7 +97,6 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes.build()
         self.opvLines.build()
         self.opvTubes.build()
-        self.opvRawLines.build()
         self.buildSymbols()
 
         self.saveNodesBounds()
@@ -110,7 +108,6 @@ class opvRenderer(vtkRendererBase):
         plt(self.opvNodes)
         plt(self.opvLines)
         plt(self.opvTubes)
-        plt(self.opvRawLines)
         plt(self.opvAcousticNodesSymbols)
         plt(self.opvAcousticElementsSymbols)
         plt(self.opvStructuralNodesSymbols)
@@ -323,7 +320,6 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes.transparent = plot_filter.transparent
         self.buildSymbols()
 
-        self.opvRawLines.setVisibility(plot_filter.raw_lines)
         self.opvAcousticNodesSymbols.setVisibility(plot_filter.acoustic_symbols)
         self.opvAcousticElementsSymbols.setVisibility(plot_filter.acoustic_symbols)
         self.opvStructuralNodesSymbols.setVisibility(plot_filter.structural_symbols)
