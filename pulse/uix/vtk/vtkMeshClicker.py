@@ -337,19 +337,16 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         if self.GetCurrentRenderer() is None:
             return
-      
+        
         motion_factor = 10
         mouse_motion_factor = 1
 
         factor = motion_factor * 0.2 * mouse_motion_factor
 
-        self.StartDolly()
         self.Dolly_dan(1.1 ** factor)
-        self.EndDolly()
-        self.ReleaseFocus()
-        print('forward')
-        
 
+        self.ReleaseFocus()
+        
 
     def MouseWheelBackward(self, obj, event):
 
@@ -358,22 +355,17 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.FindPokedRenderer(int_pos[0], int_pos[1])
 
         if self.GetCurrentRenderer() is None:
-            return
-      
+             return
+        
         motion_factor = 10
         mouse_motion_factor = 1
 
         factor = motion_factor * -0.2 * mouse_motion_factor
 
-       
-        self.StartDolly()
         self.Dolly_dan(1.1 ** factor)
-        self.EndDolly()
-        self.ReleaseFocus()
-
-        print('backward')
         
-
+        self.ReleaseFocus()
+        
 
     def Dolly_dan(self, amount):
 
@@ -389,18 +381,46 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         d = (distance)/ amount 
 
+        if camera.GetParallelProjection():
+            camera.SetParallelScale(camera.GetParallelScale() / amount)
+
+        pos_cam =  np.array(camera.GetPosition())
         fp = camera.GetFocalPoint()
 
-        camera.SetPosition(fp[0] - d * dir_proj[0],
-                           fp[1] - d * dir_proj[1],
-                           fp[2] - d * dir_proj[2])
- 
+        rwi = self.GetInteractor()
+        x = rwi.GetEventPosition()[0]
+        y = rwi.GetEventPosition()[1]
 
+        cam_up = np.array(camera.GetViewUp())
+        cam_in =  np.array(camera.GetDirectionOfProjection())
+        cam_side = np.cross(cam_up,cam_in)
 
+        size = renderer.GetSize() 
+        
+        center_x = (size[0])/2
+        center_y = (size[1])/2
+        print(center_x,center_y)
+        print(x,y)
+        factor_x = x - center_x
+        factor_y = y - center_y
+        
+      
 
-       
+        distance_center_mouse_x = (x - center_x) * -0.0003
+        distance_center_mouse_y = (y - center_y) * 0.0003
+        
+        new_fp = fp+ (distance_center_mouse_x * cam_side) + distance_center_mouse_y * cam_up 
 
-    
+        camera.SetFocalPoint(new_fp)
+
+        new_position = pos_cam + (distance_center_mouse_x * cam_side) + distance_center_mouse_y * cam_up 
+
+        camera.SetPosition(new_position)
+
+        renderer.ResetCameraClippingRange()
+        renderer.UpdateLightsGeometryToFollowCamera()
+
+        self.GetInteractor().Render()
 
     def createSelectionBox(self):
         size = self.GetInteractor().GetSize()
