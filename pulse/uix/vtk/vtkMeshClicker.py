@@ -155,8 +155,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.AddObserver('LeftButtonPressEvent', self.leftButtonPressEvent)
         self.AddObserver('LeftButtonReleaseEvent', self.leftButtonReleaseEvent)
         self.AddObserver('RightButtonPressEvent', self.rightButtonPressEvent)
-        self.AddObserver('RightButtonReleaseEvent',
-                         self.rightButtonReleaseEvent)
+        self.AddObserver('RightButtonReleaseEvent', self.rightButtonReleaseEvent)
         self.AddObserver('MouseMoveEvent', self.mouseMoveEvent)
         self.AddObserver('KeyPressEvent', self.KeyPressEvent)
         self.AddObserver('KeyReleaseEvent', self.KeyReleaseEvent)
@@ -365,62 +364,44 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.Dolly_dan(1.1 ** factor)
         
         self.ReleaseFocus()
-        
+
 
     def Dolly_dan(self, amount):
-
         renderer = self.__rendererMesh._renderer
         camera = renderer.GetActiveCamera()
+        cursor = self.GetInteractor().GetEventPosition()
 
         if amount <= 0:
             return
-        
-        distance = camera.GetDistance()
-
-        dir_proj = camera.GetDirectionOfProjection()
-
-        d = (distance)/ amount 
-
-        if camera.GetParallelProjection():
-            camera.SetParallelScale(camera.GetParallelScale() / amount)
-
-        pos_cam =  np.array(camera.GetPosition())
-        fp = camera.GetFocalPoint()
-
-        rwi = self.GetInteractor()
-        x = rwi.GetEventPosition()[0]
-        y = rwi.GetEventPosition()[1]
 
         cam_up = np.array(camera.GetViewUp())
         cam_in =  np.array(camera.GetDirectionOfProjection())
-        cam_side = np.cross(cam_up,cam_in)
+        cam_side = np.cross(cam_in, cam_up)
 
-        size = renderer.GetSize() 
+        displacements = self._get_dolly_displacements(
+            amount,
+            cursor,
+            camera,
+            renderer,
+        )
+
+        camera_position =  np.array(camera.GetPosition())
+        focal_point = np.array(camera.GetFocalPoint())
+
+        rotated_displacements = cam_side * displacements[0] + cam_up * displacements[1]
+        camera.SetPosition(camera_position + rotated_displacements)
+        camera.SetFocalPoint(focal_point + rotated_displacements)
         
-        center_x = (size[0])/2
-        center_y = (size[1])/2
-        print(center_x,center_y)
-        print(x,y)
-        factor_x = x - center_x
-        factor_y = y - center_y
-        
-      
+        if camera.GetParallelProjection():
+            camera.SetParallelScale(camera.GetParallelScale() / amount)
+            self.GetInteractor().Render()
 
-        distance_center_mouse_x = (x - center_x) * -0.0003
-        distance_center_mouse_y = (y - center_y) * 0.0003
-        
-        new_fp = fp+ (distance_center_mouse_x * cam_side) + distance_center_mouse_y * cam_up 
-
-        camera.SetFocalPoint(new_fp)
-
-        new_position = pos_cam + (distance_center_mouse_x * cam_side) + distance_center_mouse_y * cam_up 
-
-        camera.SetPosition(new_position)
-
-        renderer.ResetCameraClippingRange()
-        renderer.UpdateLightsGeometryToFollowCamera()
-
-        self.GetInteractor().Render()
+    def _get_dolly_displacements(self, amount, cursor, camera, renderer):
+        cursor = np.array(cursor)
+        scale = 2 * camera.GetParallelScale() / renderer.GetSize()[1]
+        view_center = np.array(renderer.GetSize()) / 2
+        cursor_to_center = cursor - view_center
+        return cursor_to_center * scale * (1 - 1/amount)
 
     def createSelectionBox(self):
         size = self.GetInteractor().GetSize()
