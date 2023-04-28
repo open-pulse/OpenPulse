@@ -967,13 +967,13 @@ class StructuralElement:
 
         # process matrix transformation to account the shear center differences effect
         Le = self.length
-        # delta_xo = 0
-        # L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
-        # L_G = L_A - delta_xo
+        delta_xo = 0
+        L_A = np.sqrt(Le**2 + delta_yo**2 + delta_zo**2)
+        L_G = L_A - delta_xo
         
         L_N = Le
-        L_A = Le
-        L_G = Le
+        # L_A = Le
+        # L_G = Le
         L_B = np.sqrt(Le**2 + delta_yo**2)
         
         L_SB = np.sqrt(L_G**2 + delta_ys**2)

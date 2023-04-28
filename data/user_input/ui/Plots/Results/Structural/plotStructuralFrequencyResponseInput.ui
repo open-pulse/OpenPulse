@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>472</width>
-    <height>411</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>472</width>
-    <height>411</height>
+    <height>500</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>472</width>
-    <height>411</height>
+    <height>500</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -121,19 +121,19 @@
      <x>0</x>
      <y>40</y>
      <width>472</width>
-     <height>371</height>
+     <height>460</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
      <width>0</width>
-     <height>341</height>
+     <height>460</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>472</width>
-     <height>400</height>
+     <height>460</height>
     </size>
    </property>
    <property name="frameShape">
@@ -148,7 +148,7 @@
       <x>12</x>
       <y>22</y>
       <width>450</width>
-      <height>329</height>
+      <height>427</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -179,25 +179,25 @@
      <attribute name="title">
       <string>Plot</string>
      </attribute>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="pushButton_plot_frequency_response">
       <property name="geometry">
        <rect>
         <x>82</x>
-        <y>258</y>
+        <y>340</y>
         <width>283</width>
-        <height>30</height>
+        <height>36</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
         <width>283</width>
-        <height>30</height>
+        <height>36</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>283</width>
-        <height>30</height>
+        <height>36</height>
        </size>
       </property>
       <property name="font">
@@ -212,26 +212,29 @@
       <property name="text">
        <string>Plot the frequency response</string>
       </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
      </widget>
      <widget class="QFrame" name="frame_4">
       <property name="geometry">
        <rect>
         <x>260</x>
-        <y>48</y>
+        <y>78</y>
         <width>165</width>
-        <height>120</height>
+        <height>136</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
         <width>165</width>
-        <height>120</height>
+        <height>136</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>165</width>
-        <height>120</height>
+        <height>136</height>
        </size>
       </property>
       <property name="sizeIncrement">
@@ -250,7 +253,7 @@
        <property name="geometry">
         <rect>
          <x>16</x>
-         <y>28</y>
+         <y>42</y>
          <width>145</width>
          <height>87</height>
         </rect>
@@ -360,7 +363,7 @@
          <x>0</x>
          <y>0</y>
          <width>165</width>
-         <height>25</height>
+         <height>32</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -372,13 +375,13 @@
        <property name="minimumSize">
         <size>
          <width>165</width>
-         <height>21</height>
+         <height>32</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>165</width>
-         <height>60</height>
+         <height>32</height>
         </size>
        </property>
        <property name="font">
@@ -424,21 +427,21 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>12</x>
-        <y>48</y>
+        <y>78</y>
         <width>240</width>
-        <height>120</height>
+        <height>136</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
         <width>240</width>
-        <height>120</height>
+        <height>136</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>240</width>
-        <height>120</height>
+        <height>136</height>
        </size>
       </property>
       <property name="frameShape">
@@ -456,7 +459,7 @@ p, li { white-space: pre-wrap; }
          <x>0</x>
          <y>0</y>
          <width>240</width>
-         <height>25</height>
+         <height>32</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -468,13 +471,13 @@ p, li { white-space: pre-wrap; }
        <property name="minimumSize">
         <size>
          <width>240</width>
-         <height>25</height>
+         <height>32</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>240</width>
-         <height>25</height>
+         <height>32</height>
         </size>
        </property>
        <property name="font">
@@ -519,7 +522,7 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>64</x>
-         <y>30</y>
+         <y>44</y>
          <width>109</width>
          <height>85</height>
         </rect>
@@ -681,8 +684,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="label_10">
       <property name="geometry">
        <rect>
-        <x>48</x>
-        <y>10</y>
+        <x>44</x>
+        <y>28</y>
         <width>125</width>
         <height>25</height>
        </rect>
@@ -718,8 +721,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLineEdit" name="lineEdit_nodeID">
       <property name="geometry">
        <rect>
-        <x>178</x>
-        <y>10</y>
+        <x>174</x>
+        <y>28</y>
         <width>108</width>
         <height>25</height>
        </rect>
@@ -759,9 +762,9 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>14</x>
-        <y>182</y>
+        <y>240</y>
         <width>417</width>
-        <height>63</height>
+        <height>75</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -786,7 +789,7 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>6</x>
-         <y>30</y>
+         <y>40</y>
          <width>70</width>
          <height>25</height>
         </rect>
@@ -829,7 +832,7 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>78</x>
-         <y>30</y>
+         <y>40</y>
          <width>162</width>
          <height>25</height>
         </rect>
@@ -863,7 +866,7 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>244</x>
-         <y>30</y>
+         <y>40</y>
          <width>162</width>
          <height>25</height>
         </rect>
@@ -902,7 +905,7 @@ p, li { white-space: pre-wrap; }
          <x>0</x>
          <y>0</y>
          <width>417</width>
-         <height>25</height>
+         <height>32</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -914,13 +917,13 @@ p, li { white-space: pre-wrap; }
        <property name="minimumSize">
         <size>
          <width>417</width>
-         <height>25</height>
+         <height>32</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>417</width>
-         <height>25</height>
+         <height>32</height>
         </size>
        </property>
        <property name="font">
@@ -971,9 +974,9 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>6</x>
-        <y>52</y>
+        <y>8</y>
         <width>433</width>
-        <height>195</height>
+        <height>375</height>
        </rect>
       </property>
       <property name="font">
@@ -985,8 +988,14 @@ p, li { white-space: pre-wrap; }
         <bold>true</bold>
        </font>
       </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
       <property name="currentIndex">
        <number>0</number>
+      </property>
+      <property name="elideMode">
+       <enum>Qt::ElideRight</enum>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -996,7 +1005,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>133</x>
-          <y>10</y>
+          <y>36</y>
           <width>249</width>
           <height>27</height>
          </rect>
@@ -1052,7 +1061,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>154</x>
-          <y>124</y>
+          <y>210</y>
           <width>120</width>
           <height>30</height>
          </rect>
@@ -1086,7 +1095,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>2</x>
-          <y>86</y>
+          <y>148</y>
           <width>125</width>
           <height>25</height>
          </rect>
@@ -1123,7 +1132,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>132</x>
-          <y>86</y>
+          <y>148</y>
           <width>221</width>
           <height>25</height>
          </rect>
@@ -1159,7 +1168,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>358</x>
-          <y>86</y>
+          <y>148</y>
           <width>60</width>
           <height>25</height>
          </rect>
@@ -1193,7 +1202,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>132</x>
-          <y>46</y>
+          <y>98</y>
           <width>221</width>
           <height>25</height>
          </rect>
@@ -1232,7 +1241,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>2</x>
-          <y>46</y>
+          <y>98</y>
           <width>125</width>
           <height>25</height>
          </rect>
@@ -1272,7 +1281,7 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>24</x>
-          <y>14</y>
+          <y>40</y>
           <width>100</width>
           <height>20</height>
          </rect>
@@ -1313,180 +1322,11 @@ p, li { white-space: pre-wrap; }
        <attribute name="title">
         <string>Import</string>
        </attribute>
-       <widget class="QPushButton" name="pushButton_AddImportedPlot">
-        <property name="geometry">
-         <rect>
-          <x>60</x>
-          <y>120</y>
-          <width>310</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>310</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>310</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <italic>true</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Add imported results to the main plot</string>
-        </property>
-       </widget>
-       <widget class="QSpinBox" name="spinBox">
-        <property name="geometry">
-         <rect>
-          <x>270</x>
-          <y>72</y>
-          <width>42</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>10</number>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_12">
-        <property name="geometry">
-         <rect>
-          <x>106</x>
-          <y>72</y>
-          <width>160</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Header rows to skip:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_9">
-        <property name="geometry">
-         <rect>
-          <x>18</x>
-          <y>26</y>
-          <width>100</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Load results:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_ImportResultsPath">
-        <property name="geometry">
-         <rect>
-          <x>120</x>
-          <y>26</y>
-          <width>229</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-          <weight>50</weight>
-          <italic>true</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
        <widget class="QToolButton" name="toolButton_ChooseFolderImport">
         <property name="geometry">
          <rect>
-          <x>354</x>
-          <y>26</y>
+          <x>346</x>
+          <y>46</y>
           <width>60</width>
           <height>25</height>
          </rect>
@@ -1520,6 +1360,334 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="text">
          <string>Search</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_ImportResultsPath">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>112</x>
+          <y>46</y>
+          <width>229</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <weight>50</weight>
+          <italic>true</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_9">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>46</y>
+          <width>100</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Load results:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QTreeWidget" name="treeWidget_import_text_files">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>82</y>
+          <width>410</width>
+          <height>120</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>410</width>
+          <height>120</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>410</width>
+          <height>120</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>8</pointsize>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="indentation">
+         <number>0</number>
+        </property>
+        <column>
+         <property name="text">
+          <string>Filename</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Add to plot</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+       </widget>
+       <widget class="QLabel" name="label_12">
+        <property name="geometry">
+         <rect>
+          <x>136</x>
+          <y>10</y>
+          <width>160</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>160</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>160</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Header rows to skip:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="spinBox">
+        <property name="geometry">
+         <rect>
+          <x>298</x>
+          <y>10</y>
+          <width>42</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="maximum">
+         <number>10</number>
+        </property>
+       </widget>
+       <widget class="QTreeWidget" name="treeWidget_import_sheet_files">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>214</y>
+          <width>410</width>
+          <height>120</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>410</width>
+          <height>120</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>410</width>
+          <height>120</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>8</pointsize>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="indentation">
+         <number>0</number>
+        </property>
+        <column>
+         <property name="text">
+          <string>Filename</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Sheetname</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Add to plot</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>9</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+       </widget>
+       <widget class="QCheckBox" name="checkBox_skiprows">
+        <property name="geometry">
+         <rect>
+          <x>108</x>
+          <y>10</y>
+          <width>25</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </widget>

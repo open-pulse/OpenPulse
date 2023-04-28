@@ -6,6 +6,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 import os
+import pathlib
+import pandas as pd
+import openpyxl
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -77,38 +80,88 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.frequencies = project.frequencies
         self.solution = solution
 
+        self.initialize_variables()
+        self.define_and_configure_Qt_variables()
+        self.create_connections()
+        self.update_skiprows_visibility()
+        self.writeNodes(self.list_node_IDs)
+        self.exec_()
+
+    def initialize_variables(self):
+        """
+        """
         self.userPath = os.path.expanduser('~')
+        self.imported_path = ""
         self.save_path = ""
         self.node_ID = 0
         self.imported_data = None
         self.localDof = None
+        self.imported_results = {}
+        self.ids_to_checkBox = {}
+        self.checkButtons_state = {}
 
+    def define_and_configure_Qt_variables(self):
+        """
+        """
+        # CheckBox
+        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
+        self.checkBox_skiprows = self.findChild(QCheckBox, "checkBox_skiprows")
+        # LineEdit
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
         self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
-
-        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
-        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
-        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
-        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
-        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
-        self.toolButton_ExportResults.clicked.connect(self.ExportResults)
-        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
-        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
-        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox')
-
-        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.use_cursor = self.checkBox_cursor.isChecked()
-        self.checkBox_cursor.clicked.connect(self.update_cursor)
-
+        self.lineEdit_ImportResultsPath.setDisabled(True)
+        # PushButton
+        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
+        # RadioButton
         self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
         self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
         self.radioButton_uz = self.findChild(QRadioButton, 'radioButton_uz')
         self.radioButton_rx = self.findChild(QRadioButton, 'radioButton_rx')
         self.radioButton_ry = self.findChild(QRadioButton, 'radioButton_ry')
         self.radioButton_rz = self.findChild(QRadioButton, 'radioButton_rz')
+        self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
+        self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
+        self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
+        self.radioButton_Absolute = self.findChild(QRadioButton, 'radioButton_Absolute')
+        self.radioButton_Real_Imaginary = self.findChild(QRadioButton, 'radioButton_Real_Imaginary')
+        self.radioButton_NoneDiff = self.findChild(QRadioButton, 'radioButton_NoneDiff')
+        self.radioButton_SingleDiff = self.findChild(QRadioButton, 'radioButton_SingleDiff')
+        self.radioButton_DoubleDiff = self.findChild(QRadioButton, 'radioButton_DoubleDiff')
+        # SpinBox
+        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox')
+        # TabWidget
+        self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
+        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
+        # ToolButton
+        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
+        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
+        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
+        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
+        # TreeWidget
+        self.treeWidget_import_text_files = self.findChild(QTreeWidget, "treeWidget_import_text_files")
+        self.treeWidget_import_sheet_files = self.findChild(QTreeWidget, "treeWidget_import_sheet_files")
+
+        widths_1 = [320, 60]
+        for i, width in enumerate(widths_1):
+            self.treeWidget_import_text_files.setColumnWidth(i, width)
+
+        widths_2 = [180, 150, 60]
+        for i, width in enumerate(widths_2):
+            self.treeWidget_import_sheet_files.setColumnWidth(i, width)
+
+    def create_connections(self):
+        """
+        """
+        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
+        self.toolButton_ExportResults.clicked.connect(self.ExportResults)
+        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
+        self.use_cursor = self.checkBox_cursor.isChecked()
+        self.checkBox_cursor.clicked.connect(self.update_cursor)
+        self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
+
         self.Ux = self.radioButton_ux.isChecked()
         self.Uy = self.radioButton_uy.isChecked()
         self.Uz = self.radioButton_uz.isChecked()
@@ -116,48 +169,24 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.Ry = self.radioButton_ry.isChecked()
         self.Rz = self.radioButton_rz.isChecked()
 
-        self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
-        self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
-        self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
-        self.radioButton_plotAbs.clicked.connect(self.radioButtonEvent_YAxis)
-        self.radioButton_plotReal.clicked.connect(self.radioButtonEvent_YAxis)
-        self.radioButton_plotImag.clicked.connect(self.radioButtonEvent_YAxis)
-        self.plotAbs = self.radioButton_plotAbs.isChecked()
-        self.plotReal = self.radioButton_plotReal.isChecked()
-        self.plotImag = self.radioButton_plotImag.isChecked()
-
-        self.radioButton_Absolute = self.findChild(QRadioButton, 'radioButton_Absolute')
-        self.radioButton_Real_Imaginary = self.findChild(QRadioButton, 'radioButton_Real_Imaginary')
         self.radioButton_Absolute.clicked.connect(self.radioButtonEvent_save_data)
         self.radioButton_Real_Imaginary.clicked.connect(self.radioButtonEvent_save_data)
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
-        self.radioButton_NoneDiff = self.findChild(QRadioButton, 'radioButton_NoneDiff')
-        self.radioButton_SingleDiff = self.findChild(QRadioButton, 'radioButton_SingleDiff')
-        self.radioButton_DoubleDiff = self.findChild(QRadioButton, 'radioButton_DoubleDiff')
-        self.radioButton_NoneDiff.clicked.connect(self.radioButtonEvent_modify_spectrum)
-        self.radioButton_SingleDiff.clicked.connect(self.radioButtonEvent_modify_spectrum)
-        self.radioButton_DoubleDiff.clicked.connect(self.radioButtonEvent_modify_spectrum)
-        self.NoneDiff = self.radioButton_NoneDiff.isChecked()
-        self.SingleDiff = self.radioButton_SingleDiff.isChecked()
-        self.DoubleDiff = self.radioButton_DoubleDiff.isChecked()
-
-        self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
-        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
-        self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
-        self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)  
-        self.pushButton = self.findChild(QPushButton, 'pushButton')
-        self.pushButton.clicked.connect(self.check)
-
-        self.writeNodes(self.list_node_IDs)
-        self.exec_()
+        # self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)
+        self.pushButton_plot_frequency_response.clicked.connect(self.check_inputs_and_plot)
 
     def update_cursor(self):
         self.use_cursor = self.checkBox_cursor.isChecked()
 
+    def update_skiprows_visibility(self):
+        self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
+
     def reset_imported_data(self):
-        self.imported_data = None
+        self.initialize_variables()
+        self.update_treeWidget_info()
+        self.lineEdit_ImportResultsPath.setText("")
         title = "Information"
         message = "The plot data has been reseted."
         PrintMessageInput([title, message, window_title2])
@@ -175,41 +204,83 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.check_inputs_and_plot()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def radioButtonEvent_YAxis(self):
-        self.plotAbs = self.radioButton_plotAbs.isChecked()
-        self.plotReal = self.radioButton_plotReal.isChecked()
-        self.plotImag = self.radioButton_plotImag.isChecked()
-
     def radioButtonEvent_save_data(self):
+        """
+        """
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
-    def radioButtonEvent_modify_spectrum(self):
-        self.NoneDiff = self.radioButton_NoneDiff.isChecked()
-        self.SingleDiff = self.radioButton_SingleDiff.isChecked()
-        self.DoubleDiff = self.radioButton_DoubleDiff.isChecked()
-
     def choose_path_import_results(self):
-        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
-        self.import_name = basename(self.import_path)
-        self.lineEdit_ImportResultsPath.setText(str(self.import_path))
+        """
+        """
+        if self.imported_path == "":
+            _path = self.userPath
+        else:
+            _path = os.path.dirname(self.imported_path)
+
+        self.imported_path, _ = QFileDialog.getOpenFileName(None, 'Open file', _path, 'Files (*.csv; *.dat; *.txt; *.xlsx; *.xls)')
+        self.import_name = basename(self.imported_path)
+        self.lineEdit_ImportResultsPath.setText(self.imported_path)
+        
+        if self.imported_path != "":
+            if os.path.exists(self.imported_path):
+                self.ImportResults()
+                self.update_treeWidget_info()
     
+    def get_data_index(self):
+        """
+        """
+        index = 1
+        run = True
+        while run:
+            if index not in self.imported_results.keys():
+                key = index
+                run = False
+            else:
+                index += 1
+        return key
+
     def ImportResults(self):
+        """
+        """
         try:
             message = ""
             run = True
-            skiprows = int(self.spinBox_skiprows.text())
+            if self.checkBox_skiprows.isChecked():
+                skiprows = int(self.spinBox_skiprows.text())
+            else:
+                skiprows = 0
             maximum_lines_to_skip = 100
- 
+            
             while run:
                 try:
-                    self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
+                    sufix = pathlib.Path(self.imported_path).suffix
+                    filename = os.path.basename(self.imported_path)
+                    if sufix in [".txt", ".dat", ".csv"]:
+                        loaded_data = np.loadtxt(self.imported_path, delimiter=",", skiprows=skiprows)
+                        key = self.get_data_index()
+                        self.imported_results[key] = {  "data" : loaded_data,
+                                                        "filename" : filename,
+                                                        "extension" : sufix  }
+
+                    elif sufix in [".xls", ".xlsx"]:
+                        wb = openpyxl.load_workbook(self.imported_path)
+                        sheetnames = wb.sheetnames
+                        for sheetname in sheetnames:
+                            sheet_data = pd.read_excel(self.imported_path, sheet_name=sheetname, header=skiprows, usecols=[0,1,2]).to_numpy()
+                            key = self.get_data_index()
+                            self.imported_results[key] = {  "data" : sheet_data,
+                                                            "filename" : filename,
+                                                            "sheetname" : sheetname,
+                                                            "extension" : sufix  }
+
                     self.spinBox_skiprows.setValue(int(skiprows))
                     run = False
+
                 except:
                     skiprows += 1
                     if skiprows>=maximum_lines_to_skip:
@@ -219,13 +290,13 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                         message += "been found. Please, verify the data in the imported file to proceed."
                         message += "Maximum number of header rows: 100"
 
-            if skiprows<maximum_lines_to_skip:
-                self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
-                self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-                title = "Information"
-                message = "The results have been imported."
-                PrintMessageInput([title, message, window_title2])
-                return
+            # if skiprows<maximum_lines_to_skip:
+            #     self.legend_imported = "imported data: "+ basename(self.imported_path).split(".")[0]
+            #     self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
+            #     title = "Information"
+            #     message = "The results have been imported."
+            #     PrintMessageInput([title, message, window_title2])
+            #     return
 
         except Exception as log_error:
             title = "Error while loading data from file"
@@ -235,22 +306,64 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         if message != "":
             PrintMessageInput([title, message, window_title1])
 
+
+    def update_treeWidget_info(self):
+        """
+        """
+        self.cache_checkButtons_state()
+        self.treeWidget_import_text_files.clear()
+        self.treeWidget_import_sheet_files.clear()
+        #
+        if len(self.imported_results) > 0:
+            for i, (id, data) in enumerate(self.imported_results.items()):
+                # Creates the QCheckButtons to control data to be plotted
+                self.ids_to_checkBox[id] = QCheckBox()
+                self.ids_to_checkBox[id].setStyleSheet("margin-left:30%; margin-right:50%;")
+
+                if id in self.checkButtons_state.keys():
+                    self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])
+
+                if "sheetname" in data.keys():
+                    _item = QTreeWidgetItem([str(data["filename"]), str(data["sheetname"])])
+                    self.treeWidget_import_sheet_files.addTopLevelItem(_item)
+                    self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
+                else:
+                    _item = QTreeWidgetItem([str(data["filename"])])
+                    self.treeWidget_import_text_files.addTopLevelItem(_item)
+                    self.treeWidget_import_text_files.setItemWidget(_item, 1, self.ids_to_checkBox[id])                  
+
+                for i in range(5):
+                    _item.setTextAlignment(i, Qt.AlignCenter)
+            
+
+    def cache_checkButtons_state(self):
+        """
+        """
+        self.checkButtons_state = {}
+        for key, check in self.ids_to_checkBox.items():
+            self.checkButtons_state[key] = check.isChecked()
+
+
     def choose_path_export_results(self):
+        """
+        """
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
         self.save_name = basename(self.save_path)
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
 
-    def check(self, export=False):
-        
+
+    def check_inputs_and_plot(self, export=False):
+        """
+        """
         lineEdit_nodeID = self.lineEdit_nodeID.text()
         stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if stop:
             return True
 
         self.localDof = None
-        if self.SingleDiff:
+        if self.radioButton_SingleDiff.isChecked():
             _unit_label = "m/s"
-        elif self.DoubleDiff:
+        elif self.radioButton_DoubleDiff.isChecked():
             _unit_label = "m/s²"
         else:
             _unit_label = "m"    
@@ -285,9 +398,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.localdof_label = "Rz"
             self.unit_label = _unit_label
 
-        if self.SingleDiff:
+        if self.radioButton_SingleDiff.isChecked():
             _unit_label = "rad/s"
-        elif self.DoubleDiff:
+        elif self.radioButton_DoubleDiff.isChecked():
             _unit_label = "rad/s²"
         else:
             _unit_label = "rad"
@@ -296,6 +409,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.plot()
 
         return False
+
 
     def ExportResults(self):
         
@@ -313,7 +427,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return
         
-        if self.check(export=True):
+        if self.check_inputs_and_plot(export=True):
             return
 
         freq = self.frequencies
@@ -332,85 +446,98 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         message = "The results have been exported."
         PrintMessageInput([title, message, window_title2])
 
+
     def get_response(self):
         response = get_structural_frf(self.preprocessor, self.solution, self.node_ID, self.localDof)
-        if self.SingleDiff:
+        if self.radioButton_SingleDiff.isChecked():
             output_data = response*(1j*2*np.pi)*self.frequencies
-        elif self.DoubleDiff:
+        elif self.radioButton_DoubleDiff.isChecked():
             output_data = response*((1j*2*np.pi*self.frequencies)**2)
         else:
             output_data = response
         return output_data
 
+
     def plot(self):
+        """
+        """
         self.fig = plt.figure(figsize=[10,8])
-        ax = self.fig.add_subplot(1,1,1)
+        self.ax = self.fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
         response = self.get_response()
 
-        if self.imported_data is not None:
-            data = self.imported_data
-            imported_Xvalues = data[:,0]
-
-            if self.plotAbs:
-                imported_Yvalues = np.abs(data[:,1] + 1j*data[:,2])  
-            elif self.plotReal:
-                imported_Yvalues = data[:,1]
-            elif self.plotImag:
-                imported_Yvalues = data[:,2]
-
-        if self.plotAbs:
-            response = np.abs(response)
-            ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-            if not float(0) in response:
-                if self.imported_data is None:
-                    ax.set_yscale('log')
-                    # ax.set_yscale('log', nonpositive='clip')
-                else:
-                    if not float(0) in imported_Yvalues:
-                        ax.set_yscale('log')
-                        # ax.set_yscale('log', nonpositive='clip')
-                        
-        elif self.plotReal:
-            response = np.real(response)
-            ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-        elif self.plotImag:
-            response = np.imag(response)
-            ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-
+        list_plots = []
+        list_legends = []
+        colors = [  [0,0,0], [0,0,1], [0,1,0], [1,1,0], [0,1,1],
+                    [1,0,1], [0.75,0.75,0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]  ]
+        
         legend_label = "Response {} at node {}".format(self.localdof_label, self.node_ID)
+        plot_model = self.call_plotter(frequencies, response)
+        list_plots.append(plot_model)
+        list_legends.append(legend_label)
+        j = 0
+        for id, checkBox in self.ids_to_checkBox.items():
+            if checkBox.isChecked():
 
-        if self.imported_data is None:
-
-            if float(0) in response or self.plotReal or self.plotImag:
-                if float(0) in response[1:] or self.plotReal or self.plotImag:
-                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+                if id < len(colors):
+                    color = colors[j]
+                    j += 1
                 else:
-                    first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
-            else: 
-                first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
-        else:
-            if float(0) in response or float(0) in imported_Yvalues or self.plotReal or self.plotImag:
-                if float(0) in response[1:] or float(0) in imported_Yvalues[1:] or self.plotReal or self.plotImag:
-                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
-                    second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
-                else:                   
-                    first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
-                    second_plot, = plt.semilogy(imported_Xvalues[1:], imported_Yvalues[1:], color=[0,0,1], linewidth=1, linestyle="--")
-            else:                
-                first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-                second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
+                    color = np.random.randint(0,255,3)/255
 
+                # legend_label = f"Signal #{id}"
+                data = self.imported_results[id]["data"]
+                x_values = data[:, 0]
+                y_values = data[:, 1] + 1j*data[:, 2]
+
+                if "sheetname" in self.imported_results[id].keys():
+                    sheetname = self.imported_results[id]["sheetname"]
+                    legend_label = f"{sheetname}"
+                else:
+                    legend_label = self.imported_results[id]["filename"]
+
+                plot_imported = self.call_plotter(x_values, y_values, color=color, linestyle="--")
+                list_plots.append(plot_imported)
+                list_legends.append(legend_label)
+
+        _legends = plt.legend(handles=list_plots, labels=list_legends)
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('STRUCTURAL FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
-        ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
+        self.ax.set_title(('STRUCTURAL FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
+        self.ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
    
-        #self.use_cursor = Cursor(ax)
-        self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)
+        #self.use_cursor = Cursor(self.ax)
+        self.cursor = SnaptoCursor(self.ax, frequencies, response, self.use_cursor)
         self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
         self.fig.show()
+
+
+    def call_plotter(self, x_values, y_values, color=[1, 0, 0], linestyle="-"):
+        """
+        """
+        if self.radioButton_plotAbs.isChecked():
+            y_values = np.abs(y_values)
+            self.ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+
+            if not float(0) in y_values:
+                self.ax.set_yscale('log')
+                        
+        elif self.radioButton_plotReal.isChecked():
+            y_values = np.real(y_values)
+            self.ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+        
+        elif self.radioButton_plotImag.isChecked():
+            y_values = np.imag(y_values)
+            self.ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+
+        aux_bool = self.radioButton_plotReal.isChecked() + self.radioButton_plotImag.isChecked()
+        if float(0) in y_values or aux_bool:
+            if float(0) in y_values[1:] or aux_bool:
+                _plot, = plt.plot(x_values, y_values, color=color, linewidth=2, linestyle=linestyle)
+            else:
+                _plot, = plt.semilogy(x_values[1:], y_values[1:], color=color, linewidth=2, linestyle=linestyle)
+        else: 
+            _plot, = plt.semilogy(x_values, y_values, color=color, linewidth=2, linestyle=linestyle)
+        return _plot
