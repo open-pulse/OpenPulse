@@ -342,7 +342,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         factor = motion_factor * 0.2 * mouse_motion_factor
 
-        self.Dolly_dan(1.1 ** factor)
+        self.dolly(1.1 ** factor)
 
         self.ReleaseFocus()
         
@@ -360,12 +360,12 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         factor = motion_factor * -0.2 * mouse_motion_factor
 
-        self.Dolly_dan(1.1 ** factor)
+        self.dolly(1.1 ** factor)
         
         self.ReleaseFocus()
 
 
-    def Dolly_dan(self, factor):
+    def dolly(self, factor):
         renderer = self.__rendererMesh._renderer
         camera = renderer.GetActiveCamera()
         cursor = self.GetInteractor().GetEventPosition()
