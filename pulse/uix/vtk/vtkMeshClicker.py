@@ -417,10 +417,10 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         nodeBounds = self.__rendererMesh.nodesBounds
         camPos = renderer.GetActiveCamera().GetPosition()
-        def distanceFromCamera(key): return distanceBoundsToPoint(
-            camPos, nodeBounds[key])
-        pickedPoints = {key for key, bound in nodeBounds.items(
-        ) if extractor.OverallBoundsTest(bound)}
+        def distanceFromCamera(key): 
+            return distanceBoundsToPoint(camPos, nodeBounds[key])
+        
+        pickedPoints = {key for key, bound in nodeBounds.items() if extractor.OverallBoundsTest(bound)}
 
         # when not box selecting, pick only the closest point
         if tooSmall and pickedPoints:
@@ -444,10 +444,11 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         elementsBounds = self.__rendererMesh.elementsBounds
         camPos = renderer.GetActiveCamera().GetPosition()
-        def distanceFromCamera(key): return distanceBoundsToPoint(
-            camPos, elementsBounds[key])
-        pickedElements = {key for key, bound in elementsBounds.items(
-        ) if extractor.OverallBoundsTest(bound)}
+
+        def distanceFromCamera(key): 
+            return distanceBoundsToPoint(camPos, elementsBounds[key])
+        
+        pickedElements = {key for key, bound in elementsBounds.items() if extractor.OverallBoundsTest(bound)}
 
         # when not box selecting, pick only the closest element
         if tooSmall and pickedElements:
