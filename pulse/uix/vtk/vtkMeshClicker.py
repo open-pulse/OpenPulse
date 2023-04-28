@@ -348,7 +348,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         
 
     def MouseWheelBackward(self, obj, event):
-
         int_pos = self.GetInteractor().GetEventPosition()
 
         self.FindPokedRenderer(int_pos[0], int_pos[1])
@@ -366,12 +365,12 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.ReleaseFocus()
 
 
-    def Dolly_dan(self, amount):
+    def Dolly_dan(self, factor):
         renderer = self.__rendererMesh._renderer
         camera = renderer.GetActiveCamera()
         cursor = self.GetInteractor().GetEventPosition()
 
-        if amount <= 0:
+        if factor <= 0:
             return
 
         cam_up = np.array(camera.GetViewUp())
@@ -379,7 +378,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         cam_side = np.cross(cam_in, cam_up)
 
         displacements = self._get_dolly_displacements(
-            amount,
+            factor,
             cursor,
             camera,
             renderer,
@@ -387,21 +386,35 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         camera_position =  np.array(camera.GetPosition())
         focal_point = np.array(camera.GetFocalPoint())
-
         rotated_displacements = cam_side * displacements[0] + cam_up * displacements[1]
         camera.SetPosition(camera_position + rotated_displacements)
         camera.SetFocalPoint(focal_point + rotated_displacements)
         
         if camera.GetParallelProjection():
-            camera.SetParallelScale(camera.GetParallelScale() / amount)
-            self.GetInteractor().Render()
+            camera.SetParallelScale(camera.GetParallelScale() / factor)
+        else:
+            camera.Dolly(factor)
+            if self.GetAutoAdjustCameraClippingRange():
+                renderer.ResetCameraClippingRange()
 
-    def _get_dolly_displacements(self, amount, cursor, camera, renderer):
+        if self.GetInteractor().GetLightFollowCamera():
+            renderer.UpdateLightsGeometryToFollowCamera()
+
+        self.GetInteractor().Render()
+
+    def _get_dolly_displacements(self, factor, cursor, camera, renderer):
         cursor = np.array(cursor)
-        scale = 2 * camera.GetParallelScale() / renderer.GetSize()[1]
         view_center = np.array(renderer.GetSize()) / 2
         cursor_to_center = cursor - view_center
-        return cursor_to_center * scale * (1 - 1/amount)
+
+        if camera.GetParallelProjection():
+            view_height = 2 * camera.GetParallelScale()
+        else:
+            correction = camera.GetDistance()
+            view_height = 2 * correction * np.tan(0.5 * camera.GetViewAngle() / 57.296)
+        
+        scale = view_height / renderer.GetSize()[1]
+        return cursor_to_center * scale * (1 - 1/factor)
 
     def createSelectionBox(self):
         size = self.GetInteractor().GetSize()
