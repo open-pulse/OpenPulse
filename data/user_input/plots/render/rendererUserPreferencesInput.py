@@ -69,19 +69,10 @@ class RendererUserPreferencesInput(QDialog):
         '''
 
         plot_filter = self.opv.opvRenderer._plotFilter
-
-        self.checkBox_nodes_viewer.setChecked(
-            PlotFilter.nodes & plot_filter
-        )
-        self.checkBox_elements_viewer.setChecked(
-            PlotFilter.tubes & plot_filter
-        )
-        self.checkBox_acoustic_symbols_viewer.setChecked(
-            PlotFilter.acoustic_symbols & plot_filter
-        )
-        self.checkBox_structural_symbols_viewer.setChecked(
-            PlotFilter.structural_symbols & plot_filter
-        )
+        self.checkBox_nodes_viewer.setChecked(plot_filter.nodes)
+        self.checkBox_elements_viewer.setChecked(plot_filter.tubes)
+        self.checkBox_acoustic_symbols_viewer.setChecked(plot_filter.acoustic_symbols)
+        self.checkBox_structural_symbols_viewer.setChecked(plot_filter.structural_symbols)
 
     def load_selection_state(self):
         '''
@@ -89,51 +80,48 @@ class RendererUserPreferencesInput(QDialog):
         '''
 
         selection_filter = self.opv.opvRenderer._selectionFilter
-
-        self.checkBox_nodes_selector.setChecked(
-            SelectionFilter.nodes & selection_filter
-        )
-        self.checkBox_elements_selector.setChecked(
-            SelectionFilter.elements & selection_filter
-        )
-        self.checkBox_lines_selector.setChecked(
-            SelectionFilter.entities & selection_filter
-        )
+        self.checkBox_nodes_selector.setChecked(selection_filter.nodes)
+        self.checkBox_elements_selector.setChecked(selection_filter.elements)
+        self.checkBox_lines_selector.setChecked(selection_filter.entities)
     
     def update_selection_state(self):
         '''
         Reads the users options and updates selection behavior.
         '''
 
-        plt_nodes = self.checkBox_nodes_viewer.isChecked()
-        slc_nodes = self.checkBox_nodes_selector.isChecked()
-        slc_elements = self.checkBox_elements_selector.isChecked()
-        slc_entities = self.checkBox_lines_selector.isChecked()
+        plot_nodes = self.checkBox_nodes_viewer.isChecked()
+        select_nodes = self.checkBox_nodes_selector.isChecked()
+        select_elements = self.checkBox_elements_selector.isChecked()
+        select_entities = self.checkBox_lines_selector.isChecked()
 
-        self.opv.opvRenderer.setSelectionFilter(
-            (SelectionFilter.nodes if slc_nodes and plt_nodes else 0)
-            | (SelectionFilter.elements if slc_elements else 0)
-            | (SelectionFilter.entities if slc_entities else 0)
+        selection_filter = SelectionFilter(
+            nodes = plot_nodes and select_nodes,
+            elements = select_elements,
+            entities = select_entities,
         )
+
+        self.opv.opvRenderer.setSelectionFilter(selection_filter)
     
     def update_plot_state(self):
         '''
         Reads the users options and updates the plot.
         '''
 
-        plt_nodes = self.checkBox_nodes_viewer.isChecked()
-        plt_tubes = self.checkBox_elements_viewer.isChecked()
-        plt_acoustic = self.checkBox_acoustic_symbols_viewer.isChecked()
-        plt_structural = self.checkBox_structural_symbols_viewer.isChecked()
+        plot_nodes = self.checkBox_nodes_viewer.isChecked()
+        plot_tubes = self.checkBox_elements_viewer.isChecked()
+        plot_acoustic = self.checkBox_acoustic_symbols_viewer.isChecked()
+        plot_structural = self.checkBox_structural_symbols_viewer.isChecked()
 
-        self.opv.opvRenderer.setPlotFilter(
-            (PlotFilter.lines)
-            | (PlotFilter.nodes if plt_nodes else 0)
-            | (PlotFilter.tubes if plt_tubes else 0)
-            | (PlotFilter.acoustic_symbols if plt_acoustic else 0)
-            | (PlotFilter.structural_symbols if plt_structural else 0)
-            | (PlotFilter.transparent if (plt_nodes or plt_acoustic or plt_structural) else 0)
+        plot_filter = PlotFilter(
+            lines = True,
+            nodes = plot_nodes,
+            tubes = plot_tubes,
+            acoustic_symbols = plot_acoustic,
+            structural_symbols = plot_structural,
+            transparent = plot_nodes or plot_acoustic or plot_structural
         )
+
+        self.opv.opvRenderer.setPlotFilter(plot_filter)
 
     def load_background_color_state(self):
         if self.opv.background_color == (0,0,0):

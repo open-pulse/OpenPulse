@@ -5,6 +5,7 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
 from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
+from pulse.interface.opvGeometryRenderer import opvGeometryRenderer
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
 from data.user_input.project.loadingScreen import LoadingScreen
 
@@ -21,10 +22,12 @@ class OPVUi(QVTKRenderWindowInteractor):
     
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
+        self.opvGeometryRenderer = opvGeometryRenderer(self.project, self)
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
+        self.change_plot_to_raw_lines = False
 
         self._createAxes()        
 
@@ -52,50 +55,85 @@ class OPVUi(QVTKRenderWindowInteractor):
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.opvAnalysisRenderer.getRenderer())
+        self.GetRenderWindow().RemoveRenderer(self.opvGeometryRenderer.getRenderer())
 
     def clearRendereresUse(self):
         self.opvRenderer.setInUse(False)
         self.opvAnalysisRenderer.setInUse(False)
+        self.opvGeometryRenderer.setInUse(False)
 
     def updatePlots(self):
-        def callback():
-            self.project.preprocessor.add_lids_to_variable_cross_sections()
-            self.opvRenderer.plot()
-            self.opvAnalysisRenderer.plot()        
-        LoadingScreen('Updating Plot', target=callback)
+        # def callback():
+        self.project.preprocessor.add_lids_to_variable_cross_sections()
+        self.opvRenderer.plot()
+        self.opvAnalysisRenderer.plot()
+        self.opvGeometryRenderer.plot()
+        # LoadingScreen('Updating Plot', target=callback)
+
+    def changePlotToRawLines(self):
+        self.opvGeometryRenderer.plot()
+
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
+        self.change_plot_to_raw_lines = True
+        self.setRenderer(self.opvGeometryRenderer)
+
+        plot_filter = PlotFilter(raw_lines=True)
+        selection_filter = SelectionFilter()
+
+        # self.opvRenderer.setPlotFilter(plot_filter)
+        # self.opvRenderer.setSelectionFilter(selection_filter)
+        self._updateAxes()
 
     def changePlotToEntities(self):
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = True
         self.change_plot_to_entities_with_cross_section = False
+        self.change_plot_to_raw_lines = False
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.setPlotFilter(PlotFilter.lines)
-        self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
+        plot_filter = PlotFilter(lines=True)
+        selection_filter = SelectionFilter(entities=True)
+
+        self.opvRenderer.setPlotFilter(plot_filter)
+        self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
     def changePlotToEntitiesWithCrossSection(self):
         self.change_plot_to_mesh = False
         self.change_plot_to_entities_with_cross_section = True
         self.change_plot_to_entities = False
+        self.change_plot_to_raw_lines = False
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.setPlotFilter(PlotFilter.lines | PlotFilter.tubes)
-        self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
+        plot_filter = PlotFilter(lines=True, tubes=True)
+        selection_filter = SelectionFilter(entities=True)
+
+        self.opvRenderer.setPlotFilter(plot_filter)
+        self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
     def changePlotToMesh(self):
         self.change_plot_to_mesh = True
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
+        self.change_plot_to_raw_lines = False
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.setPlotFilter(
-            PlotFilter.nodes | PlotFilter.lines 
-            | PlotFilter.tubes | PlotFilter.transparent
-            | PlotFilter.acoustic_symbols | PlotFilter.structural_symbols
+        plot_filter = PlotFilter(
+            nodes=True,
+            lines=True,
+            tubes=True,
+            transparent=True,
+            acoustic_symbols=True,
+            structural_symbols=True,
         )
-        self.opvRenderer.setSelectionFilter(SelectionFilter.nodes | SelectionFilter.elements)
+
+        selection_filter = SelectionFilter(nodes=True, elements=True)
+
+        self.opvRenderer.setPlotFilter(plot_filter)
+        self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
     
     def custom_plot(self, plot_filter, selection_filter):
@@ -142,11 +180,18 @@ class OPVUi(QVTKRenderWindowInteractor):
             lastCamera = self.opvAnalysisRenderer._renderer.GetActiveCamera()
             renderer._renderer.GetActiveCamera().DeepCopy(lastCamera)
 
+        if (self.opvGeometryRenderer.getInUse()):
+            lastCamera = self.opvGeometryRenderer._renderer.GetActiveCamera()
+            renderer._renderer.GetActiveCamera().DeepCopy(lastCamera)
+
+        renderer._renderer.ResetCameraClippingRange()
+
         self.clearRendereres()
         self.clearRendereresUse()
         renderer.setInUse(True)
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
+
 
 
     def setCameraView(self, view=6):
@@ -241,6 +286,7 @@ class OPVUi(QVTKRenderWindowInteractor):
     def updateEntityRadius(self, *args, **kwargs):
         self.opvRenderer.plot()
         self.opvAnalysisRenderer.plot()
+        self.opvGeometryRenderer.plot()
         # self.updatePlots()
 
     def updateRendererMesh(self, *args, **kwargs):

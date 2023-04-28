@@ -616,7 +616,7 @@ class PerforatedPlateInput(QDialog):
             if self.tabWidget_dimensionless.currentIndex()==0:
                 if self.check_svalues():
                     return True
-        print("passei aqui!")
+        
         self.dict_inputs['single hole'] = self.flag_single_hole
 
         self.perforated_plate = PerforatedPlate(self.dict_inputs['hole diameter'], 
@@ -918,7 +918,7 @@ class PerforatedPlateInput(QDialog):
 
         legend_label = "Response at element {}".format(self.plot_select_element)
         first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-        _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+        _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
 
         plt.gca().add_artist(_legends)
 

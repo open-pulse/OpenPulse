@@ -2,7 +2,7 @@ import vtk
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorElement(vtkActorBase):
-    def __init__(self, element, size =0.01, tag=-1):
+    def __init__(self, element, size=0.01, tag=-1):
         super().__init__()
         self.element = element
         self.tag = tag
@@ -35,7 +35,7 @@ class ActorElement(vtkActorBase):
     def filter(self):
         self._tubeFilter.SetInputData(self._object)
         self._tubeFilter.SetRadius(self.size)
-        self._tubeFilter.SetNumberOfSides(50)
+        self._tubeFilter.SetNumberOfSides(36)
         self._tubeFilter.Update()
 
     def map(self):

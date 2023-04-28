@@ -1,3 +1,4 @@
+import os
 import sys
 import configparser
 
@@ -19,25 +20,29 @@ class Config:
             for k, v in config.items('project'):
                 self.recentProjects[k] = v
 
-    def writeRecentProject(self, projectName, projectDir):
-        projectName = projectName.lower()
-        projectSectionName = 'project'
+    def writeRecentProject(self, project_path):
+        
+        project_name = os.path.basename(os.path.dirname(project_path))
+        project_name = project_name.lower()
+   
+        section_name = 'project'
         config = configparser.ConfigParser()
         config.read(self.configFileName)
-        if config.has_section(projectSectionName):
-            count = len(config.items(projectSectionName)) - 10
-            for pName, _ in config.items(projectSectionName):
+
+        if config.has_section(section_name):
+            count = len(config.items(section_name)) - 10
+            for pName, _ in config.items(section_name):
                 if count < 0:
                     break
                 else:
-                    config.remove_option(projectSectionName, pName)
+                    config.remove_option(section_name, pName)
                     self.recentProjects.pop(pName)
                     count -= 1
-            config[projectSectionName][projectName] = projectDir
+            config[section_name][project_name] = project_path
         else:
-            config[projectSectionName] = {projectName: projectDir}
+            config[section_name] = {project_name: project_path}
 
-        self.recentProjects[projectName] = projectDir
+        self.recentProjects[project_name] = project_path
 
         with open(self.configFileName, 'w') as configfile:
             config.write(configfile)

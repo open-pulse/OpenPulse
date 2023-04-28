@@ -743,21 +743,6 @@ class ExpansionJointInput(QDialog):
                 changed = True
               
         return changed
-       
-    def _get_list_of_values_from_string(self, input_string, are_values_int=True):
-        
-        input_string = input_string[1:-1].split(',')
-        list_values = []
-        
-        if are_values_int:
-            for value in input_string:
-                list_values.append(int(value))
-        else:
-            for value in input_string:
-                list_values.append(float(value))
-
-        return list_values
-
 
     def load_table(self, lineEdit, stiffness_label, direct_load=False):
         window_title = "ERROR"

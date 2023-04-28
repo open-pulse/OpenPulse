@@ -6,3 +6,6 @@ PyQt5 >= 5.15.4
 h5py >= 3.2.1
 cx_Freeze >= 6.6
 ctREFPROP
+pandas
+openpyxl
+h5py
