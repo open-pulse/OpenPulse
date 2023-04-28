@@ -41,6 +41,9 @@ def split_sequence(sequence, size):
         subsequences.append(subsequence)
     return subsequences
 
+def unwrap(data):
+    return list(data[0]) if data else []
+
 def slicer(iterable, argument):
     ''' 
     A function to deal better with elements. 

@@ -152,6 +152,11 @@ class MainWindow(QMainWindow):
         self.mesh_setup_visibility_action.setStatusTip('User preferences')
         self.mesh_setup_visibility_action.triggered.connect(self.getInputWidget().mesh_setup_visibility)
 
+        self.raw_lines_action = QAction('&Plot Raw Lines', self)        
+        self.raw_lines_action.setShortcut('Ctrl+8')
+        self.raw_lines_action.setStatusTip('Plot Raw Lines')
+        self.raw_lines_action.triggered.connect(self.plot_raw_lines)
+
         # General Settings
         self.setProjectAtributtes_action = QAction('&Set Project Attributes', self) 
         self.setProjectAtributtes_action.setShortcut('Alt+1')
@@ -451,6 +456,7 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.plot_material_action)
         self.graphicMenu.addAction(self.plot_fluid_action)
         self.graphicMenu.addAction(self.mesh_setup_visibility_action)
+        self.graphicMenu.addAction(self.raw_lines_action)
 
     def _loadGeneralSettingsMenu(self):
         self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)
@@ -819,6 +825,9 @@ class MainWindow(QMainWindow):
 
     def plot_mesh(self):
         self.opv_widget.changePlotToMesh()
+
+    def plot_raw_lines(self):
+        self.opv_widget.changePlotToRawLines()
 
     def draw(self):
         self.opv_widget.updatePlots()
