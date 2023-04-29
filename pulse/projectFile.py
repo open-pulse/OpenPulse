@@ -490,114 +490,127 @@ class ProjectFile:
     def get_cross_sections_from_file(self):
         """ This method returns a dictionary of already applied cross-sections.
         """
-        entityFile = configparser.ConfigParser()
-        entityFile.read(self._entity_path)
-        sections = entityFile.sections()
-        section_info = {}
-        parameters_to_entity_id = defaultdict(list)
-        parameters_to_elements_id = {}
-        variable_section_line_ids = []
-        _id = 1
+        try:
 
-        for entity in sections:
+            entityFile = configparser.ConfigParser()
+            entityFile.read(self._entity_path)
+            sections = entityFile.sections()
+            section_info = {}
+            parameters_to_entity_id = defaultdict(list)
+            parameters_to_elements_id = {}
+            variable_section_line_ids = []
+            _id = 1
 
-            line_prefix = ""
-            list_elements = []
+            for entity in sections:
 
-            if 'structural element type' in entityFile[entity].keys():
-                
-                structural_element_type = entityFile[entity]['structural element type']
-                if structural_element_type in ['pipe_1', 'pipe_2']:
+                line_prefix = ""
+                list_elements = []
+                outerDiameter = ""
+                thickness = ""
 
-                    if 'variable section parameters' in entityFile[entity].keys():
-                        if line_prefix not in variable_section_line_ids:
-                            variable_section_line_ids.append(entity)
+                if 'structural element type' in entityFile[entity].keys():
                     
-                    if "-" in entity:
-                        line_prefix = entity.split("-")[0]
-                        if line_prefix in variable_section_line_ids:
-                            continue
-                        elif 'list of elements' in entityFile[entity].keys():
-                            str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)
+                    structural_element_type = entityFile[entity]['structural element type']
+                    if structural_element_type in ['pipe_1', 'pipe_2']:
 
-                    if 'outer diameter' in entityFile[entity].keys():
-                        outerDiameter = entityFile[entity]['outer diameter']
+                        if 'variable section parameters' in entityFile[entity].keys():
+                            if line_prefix not in variable_section_line_ids:
+                                variable_section_line_ids.append(entity)
+                        
+                        if "-" in entity:
+                            line_prefix = entity.split("-")[0]
+                            if line_prefix in variable_section_line_ids:
+                                continue
+                            elif 'list of elements' in entityFile[entity].keys():
+                                str_list_elements = entityFile[entity]['list of elements']
+                                list_elements = get_list_of_values_from_string(str_list_elements)
+
+                        if 'outer diameter' in entityFile[entity].keys():
+                            outerDiameter = entityFile[entity]['outer diameter']
+                        
+                        if 'thickness' in entityFile[entity].keys():
+                            thickness = entityFile[entity]['thickness']
+                        
+                        if 'offset [e_y, e_z]' in entityFile[entity].keys():
+                            offset = entityFile[entity]['offset [e_y, e_z]']
+                            offset_y, offset_z = self._get_offset_from_string(offset) 
+                        
+                        if 'insulation thickness' in entityFile[entity].keys():
+                            insulation_thickness = entityFile[entity]['insulation thickness']
+                        
+                        if 'insulation density' in entityFile[entity].keys():
+                            insulation_density = entityFile[entity]['insulation density']
+            
+                        if outerDiameter != "" and thickness != "":
+                            outerDiameter = float(outerDiameter)
+                            thickness = float(thickness)
+                            offset_y = float(offset_y)
+                            offset_z = float(offset_z)
+                            insulation_thickness = float(insulation_thickness)
+                            insulation_density = float(insulation_density)
+                            section_parameters = [outerDiameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
+                        
+                        if 'section parameters' in entityFile[entity].keys():
+                            str_section_parameters = entityFile[entity]['section parameters']
+                            section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)                  
                     
-                    if 'thickness' in entityFile[entity].keys():
-                        thickness = entityFile[entity]['thickness']
+                        if 'variable section parameters' in entityFile[entity].keys():
+                            str_section_variable_parameters = entityFile[entity]['variable section parameters']
+                            section_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)                  
                     
-                    if 'offset [e_y, e_z]' in entityFile[entity].keys():
-                        offset = entityFile[entity]['offset [e_y, e_z]']
-                        offset_y, offset_z = self._get_offset_from_string(offset) 
+                    elif 'beam section type' in entityFile[entity].keys():
+                            section_type = entityFile[entity]['beam section type']
+                            structural_element_type = f"beam_1 - {section_type}"
+                            if section_type == "Generic section":   
+                                continue              
+                            else:
+                                if 'section parameters' in entityFile[entity].keys():
+                                    str_section_parameters = entityFile[entity]['section parameters']
+                                    section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+
+                    str_section_parameters = str(section_parameters)
+                    if str_section_parameters not in parameters_to_entity_id.keys():
+                        section_info[_id] = [structural_element_type, section_parameters]
+                        _id += 1
                     
-                    if 'insulation thickness' in entityFile[entity].keys():
-                        insulation_thickness = entityFile[entity]['insulation thickness']
-                    
-                    if 'insulation density' in entityFile[entity].keys():
-                        insulation_density = entityFile[entity]['insulation density']
-        
-                    if outerDiameter != "" and thickness != "":
-                        outerDiameter = float(outerDiameter)
-                        thickness = float(thickness)
-                        offset_y = float(offset_y)
-                        offset_z = float(offset_z)
-                        insulation_thickness = float(insulation_thickness)
-                        insulation_density = float(insulation_density)
-                        section_parameters = [outerDiameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
-                    
-                    if 'section parameters' in entityFile[entity].keys():
-                        str_section_parameters = entityFile[entity]['section parameters']
-                        section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)                  
-                
-                    if 'variable section parameters' in entityFile[entity].keys():
-                        str_section_variable_parameters = entityFile[entity]['variable section parameters']
-                        section_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)                  
-                
-                elif 'beam section type' in entityFile[entity].keys():
-                        section_type = entityFile[entity]['beam section type']
-                        structural_element_type = f"beam_1 - {section_type}"
-                        if section_type == "Generic section":   
-                            continue              
+                    if line_prefix == "":
+                        parameters_to_entity_id[str_section_parameters].append(int(entity))
+                    else:   
+                        if list_elements == []:
+                            parameters_to_entity_id[str_section_parameters].append(int(entity)) 
                         else:
-                            if 'section parameters' in entityFile[entity].keys():
-                                str_section_parameters = entityFile[entity]['section parameters']
-                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+                            if str_section_parameters not in parameters_to_elements_id.keys():
+                                parameters_to_elements_id[str_section_parameters] = list_elements
+            
+            section_info_elements = {}
+            section_info_lines = {}
+            id_1 = 0
+            id_2 = 0
+            for _id, _data in section_info.items():
+                _section_parameters = _data[1]
+                str_section_parameters = str(_section_parameters)
+                if str_section_parameters in parameters_to_entity_id.keys():
+                    id_1 += 1
+                    data_lines = _data.copy()
+                    data_lines.append("line ids")
+                    data_lines.append(parameters_to_entity_id[str_section_parameters])
+                    section_info_lines[id_1] = data_lines
+                if str_section_parameters in parameters_to_elements_id.keys():
+                    id_2 += 1
+                    data_elements = _data.copy()
+                    data_elements.append("element ids")
+                    data_elements.append(parameters_to_elements_id[str_section_parameters])
+                    section_info_elements[id_2] = data_elements
+
+        except Exception as error_log:
+
+            title = "Error while processing cross-sections"
+            message = "An error has been reached while processing the 'get_cross_sections_from_file' method.\n\n"
+            message += f"Last line id: {entity}\n\n"
+            message += f"Details: \n\n {str(error_log)}"
+            PrintMessageInput([title, message, window_title])
+            return {}, {}
     
-                if str(section_parameters) not in parameters_to_entity_id.keys():
-                    section_info[_id] = [structural_element_type, section_parameters]
-                    _id += 1
-
-                str_section_parameters = str(section_parameters)
-                if line_prefix == "":
-                    parameters_to_entity_id[str_section_parameters].append(int(entity))
-                else:   
-                    if list_elements == []:
-                        parameters_to_entity_id[str_section_parameters].append(int(entity)) 
-                    else:
-                        if str_section_parameters not in parameters_to_elements_id.keys():
-                            parameters_to_elements_id[str_section_parameters] = list_elements
-        
-        section_info_elements = {}
-        section_info_lines = {}
-        id_1 = 0
-        id_2 = 0
-        for _id, _data in section_info.items():
-            _section_parameters = _data[1]
-            str_section_parameters = str(_section_parameters)
-            if str_section_parameters in parameters_to_entity_id.keys():
-                id_1 += 1
-                data_lines = _data.copy()
-                data_lines.append("line ids")
-                data_lines.append(parameters_to_entity_id[str_section_parameters])
-                section_info_lines[id_1] = data_lines
-            if str_section_parameters in parameters_to_elements_id.keys():
-                id_2 += 1
-                data_elements = _data.copy()
-                data_elements.append("element ids")
-                data_elements.append(parameters_to_elements_id[str_section_parameters])
-                section_info_elements[id_2] = data_elements
-
         return section_info_lines, section_info_elements
                     
     def get_dict_of_entities_from_file(self):

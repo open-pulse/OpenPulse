@@ -257,10 +257,12 @@ class opvRenderer(vtkRendererBase):
     def hide_show_acoustic_symbols(self):
         # bitwise xor to toogle bit
         self._plotFilter.acoustic_symbols = not self._plotFilter.acoustic_symbols
+        self.setPlotFilter( self._plotFilter )
 
     def hide_show_structural_symbols(self):
         # bitwise xor to toogle bit
-        self._plotFilter.acoustic_symbols = not self._plotFilter.structural_symbols
+        self._plotFilter.structural_symbols = not self._plotFilter.structural_symbols
+        self.setPlotFilter( self._plotFilter )
 
     def unhide_nodes(self, nodes=None, _update_Renderer=False):
         if not nodes:
