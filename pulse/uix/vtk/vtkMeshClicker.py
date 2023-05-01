@@ -198,12 +198,11 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
             self.center_of_rotation = pos
 
         else:
-            x0, x1, y0, y1, z0, z1 = renderer.ComputeVisiblePropBounds()
-            self.center_of_rotation = [
-                (x0+x1)/2,
-                (y0+y1)/2,
-                (z0+z1)/2,
-            ]
+            self.center_of_rotation = self.__rendererMesh.project.preprocessor.camera_rotation_center
+            # x0, x1, y0, y1, z0, z1 = renderer.ComputeVisiblePropBounds()
+            # self.center_of_rotation = [ (x0+x1)/2,
+            #                             (y0+y1)/2,
+            #                             (z0+z1)/2 ]
 
         self.sphere_rotation_actor.SetPosition(self.center_of_rotation)
         renderer.AddActor(self.sphere_rotation_actor)

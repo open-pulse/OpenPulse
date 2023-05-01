@@ -115,6 +115,7 @@ class Preprocessor:
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
+        self.camera_rotation_center = [0, 0, 0]
 
     def set_element_size(self, element_size):
         self.element_size = element_size
@@ -907,6 +908,9 @@ class Preprocessor:
         x_min, y_min, z_min = np.min(nodal_coordinates[:,1:], axis=0)
         x_max, y_max, z_max = np.max(nodal_coordinates[:,1:], axis=0)
         self.structure_principal_diagonal = np.sqrt((x_max-x_min)**2 + (y_max-y_min)**2 + (z_max-z_min)**2)
+        self.camera_rotation_center = [ (x_max + x_min)/2,
+                                        (y_max + y_min)/2,
+                                        (z_max + z_min)/2 ]
         # print('The base length is: {}[m]'.format(round(self.structure_principal_diagonal,6)))
 
     def get_global_structural_indexes(self):

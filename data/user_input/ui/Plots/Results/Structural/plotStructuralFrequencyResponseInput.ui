@@ -1322,31 +1322,31 @@ p, li { white-space: pre-wrap; }
        <attribute name="title">
         <string>Import</string>
        </attribute>
-       <widget class="QToolButton" name="toolButton_ChooseFolderImport">
+       <widget class="QPushButton" name="pushButton_search_file_to_import">
         <property name="geometry">
          <rect>
-          <x>346</x>
+          <x>330</x>
           <y>46</y>
-          <width>60</width>
-          <height>25</height>
+          <width>88</width>
+          <height>30</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>25</height>
+          <width>88</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>65</width>
-          <height>25</height>
+          <width>88</width>
+          <height>30</height>
          </size>
         </property>
         <property name="sizeIncrement">
          <size>
-          <width>65</width>
-          <height>25</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
         <property name="font">
@@ -1368,22 +1368,22 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="geometry">
          <rect>
-          <x>112</x>
+          <x>66</x>
           <y>46</y>
-          <width>229</width>
-          <height>25</height>
+          <width>260</width>
+          <height>30</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>25</height>
+          <width>260</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
-          <height>25</height>
+          <width>260</width>
+          <height>30</height>
          </size>
         </property>
         <property name="font">
@@ -1408,22 +1408,22 @@ color: rgb(0, 0, 255);</string>
        <widget class="QLabel" name="label_9">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>6</x>
           <y>46</y>
-          <width>100</width>
-          <height>25</height>
+          <width>60</width>
+          <height>30</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>100</width>
-          <height>25</height>
+          <width>60</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
-          <height>25</height>
+          <width>60</width>
+          <height>30</height>
          </size>
         </property>
         <property name="font">
@@ -1436,7 +1436,7 @@ color: rgb(0, 0, 255);</string>
          </font>
         </property>
         <property name="text">
-         <string>Load results:</string>
+         <string>Path:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

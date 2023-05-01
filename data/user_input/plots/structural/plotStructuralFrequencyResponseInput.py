@@ -62,6 +62,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
+        self.search_icon = QIcon(icons_path + 'searchFile.png')
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -106,14 +107,19 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         # CheckBox
         self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
         self.checkBox_skiprows = self.findChild(QCheckBox, "checkBox_skiprows")
+        
         # LineEdit
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
         self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
         self.lineEdit_ImportResultsPath.setDisabled(True)
+
         # PushButton
         self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
+        self.pushButton_search_file_to_import = self.findChild(QPushButton, 'pushButton_search_file_to_import')
+        self.pushButton_search_file_to_import.setIcon(self.search_icon)
+
         # RadioButton
         self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
         self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
@@ -129,16 +135,19 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.radioButton_NoneDiff = self.findChild(QRadioButton, 'radioButton_NoneDiff')
         self.radioButton_SingleDiff = self.findChild(QRadioButton, 'radioButton_SingleDiff')
         self.radioButton_DoubleDiff = self.findChild(QRadioButton, 'radioButton_DoubleDiff')
+
         # SpinBox
         self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox')
+
         # TabWidget
         self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
         self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
+
         # ToolButton
-        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
         self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
         self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
         self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
+        
         # TreeWidget
         self.treeWidget_import_text_files = self.findChild(QTreeWidget, "treeWidget_import_text_files")
         self.treeWidget_import_sheet_files = self.findChild(QTreeWidget, "treeWidget_import_sheet_files")
@@ -154,7 +163,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     def create_connections(self):
         """
         """
-        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.pushButton_search_file_to_import.clicked.connect(self.choose_path_import_results)
         self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
         self.toolButton_ExportResults.clicked.connect(self.ExportResults)
         self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
