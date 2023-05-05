@@ -11,6 +11,7 @@ class vtkInteractorStyleArcballCamera(vtk.vtkInteractorStyleTrackballCamera):
         self._rightButtonClicked = False
         self._rotating = False
         self.picker = vtk.vtkPropPicker()
+        self.is_panning = False
 
         self.make_rotation_sphere()
         self.create_observers()
@@ -23,7 +24,20 @@ class vtkInteractorStyleArcballCamera(vtk.vtkInteractorStyleTrackballCamera):
         self.AddObserver('MouseMoveEvent', self.mouse_move_event)
         self.AddObserver('MouseWheelForwardEvent', self.mouse_wheel_forward_event)
         self.AddObserver('MouseWheelBackwardEvent', self.mouse_wheel_backward_event)
+        self.AddObserver('MiddleButtonPressEvent', self.click_mid_button_press_event)
+        self.AddObserver('MiddleButtonReleaseEvent', self.click_mid_button_release_event)
 
+
+    def click_mid_button_press_event(self, obj, event):
+        int_pos = self.GetInteractor().GetEventPosition()
+
+        self.FindPokedRenderer(int_pos[0], int_pos[1])
+
+        self.is_panning = True
+        
+    def click_mid_button_release_event(self, obj, event):
+        self.is_panning = False
+        
     def set_default_center_of_rotation(self, center):
         self.default_center_of_rotation = center
 
@@ -46,7 +60,7 @@ class vtkInteractorStyleArcballCamera(vtk.vtkInteractorStyleTrackballCamera):
 
         elif self.default_center_of_rotation is not None:
             self.center_of_rotation = self.default_center_of_rotation
-            
+
         else:
             x0, x1, y0, y1, z0, z1 = renderer.ComputeVisiblePropBounds()
             self.center_of_rotation = [ (x0+x1)/2,
@@ -68,9 +82,14 @@ class vtkInteractorStyleArcballCamera(vtk.vtkInteractorStyleTrackballCamera):
         self.EndDolly()
 
     def mouse_move_event(self, obj, event):
-        self.OnMouseMove()
         if self._rotating:
             self.rotate()
+        
+        if self.is_panning:
+            self.Pan()
+
+        self.OnMouseMove()
+            
 
     def mouse_wheel_forward_event(self, obj, event):
         int_pos = self.GetInteractor().GetEventPosition()
