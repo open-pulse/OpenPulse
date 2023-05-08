@@ -95,10 +95,16 @@
      <enum>Qt::AutoText</enum>
     </property>
     <property name="alignment">
-     <set>Qt::AlignCenter</set>
+     <set>Qt::AlignJustify|Qt::AlignVCenter</set>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
+    </property>
+    <property name="margin">
+     <number>10</number>
+    </property>
+    <property name="indent">
+     <number>-1</number>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_close">

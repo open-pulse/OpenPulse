@@ -59,6 +59,7 @@ from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSect
 from data.user_input.plots.render.rendererUserPreferencesInput import RendererUserPreferencesInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
+from data.user_input.model.checks.checkBeamCriteriaInput import CheckBeamCriteriaInput
 #
 from data.user_input.project.printMessageInput import PrintMessageInput
 #
@@ -430,6 +431,9 @@ class InputUi:
 
     def acoustic_model_info(self):
         self.processInput(AcousticModelInfoInput, self.project, self.opv)
+
+    def check_beam_criteria(self):
+        self.processInput(CheckBeamCriteriaInput, self.project, self.opv)
 
     def about_OpenPulse(self):
         self.processInput(AboutOpenPulseInput, self.project, self.opv)

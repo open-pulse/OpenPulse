@@ -286,6 +286,10 @@ class MainWindow(QMainWindow):
         self.acoustic_model_info_action.setStatusTip('Acoustic Model Info')
         self.acoustic_model_info_action.triggered.connect(self.getInputWidget().acoustic_model_info)
 
+        self.check_beam_criteria_action = QAction('&Check Beam Validity Criteria', self)    
+        self.check_beam_criteria_action.setStatusTip('Check Beam Validity Criteria')
+        self.check_beam_criteria_action.triggered.connect(self.getInputWidget().check_beam_criteria)
+
         # Analysis
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
         self.selectAnalysisType_action.setShortcut('Alt+Q')
@@ -489,6 +493,7 @@ class MainWindow(QMainWindow):
     def _loadModelInfoMenu(self):
         self.modelInfoMenu.addAction(self.structural_model_info_action)
         self.modelInfoMenu.addAction(self.acoustic_model_info_action)
+        self.modelInfoMenu.addAction(self.check_beam_criteria_action)
 
     def _loadAnalysisMenu(self):
         self.analysisMenu.addAction(self.selectAnalysisType_action)
