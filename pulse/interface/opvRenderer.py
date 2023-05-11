@@ -115,6 +115,7 @@ class opvRenderer(vtkRendererBase):
 
         self.updateColors()
         self.updateHud()
+        self._style.set_default_center_of_rotation(self.project.preprocessor.camera_rotation_center)
         self._renderer.ResetCameraClippingRange()
 
     def buildSymbols(self):
