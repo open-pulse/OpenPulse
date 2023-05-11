@@ -338,20 +338,60 @@ class ProjectFile:
         
         preferences = {}
         if "User interface preferences" in sections:
-            background_color = config['User interface preferences']['background-color']
-            font_color = config['User interface preferences']['font-color']
-            OpenPulse_logo = config['User interface preferences']['openpulse logo']
-            mopt_logo = config['User interface preferences']['mopt logo']
-            reference_scale = config['User interface preferences']['reference scale']
 
+            #temporary default preferences to maintain compatibility with the other versions
+            background_color = '(0,0,0)'
+            font_color = '(1,1,1)'
+            nodes_color = '(255,255,63)'
+            lines_color = '(255,255,255)'
+            surfaces_color = '(255,255,255)'
+            transparency = 0.8
+            OpenPulse_logo = '1'
+            mopt_logo = '1'
+            reference_scale = '1'
+
+            config_preferences = config['User interface preferences']
+            keys = config_preferences.keys() 
+            if 'background color' in keys:
+                background_color = config_preferences['background color']
+            if 'font color' in keys:
+                font_color = config_preferences['font color']
+            if 'nodes color' in keys:
+                nodes_color = config_preferences['nodes color']
+            if 'lines color' in keys:
+                lines_color = config_preferences['lines color']
+            if 'surfaces color' in keys:
+                surfaces_color = config_preferences['surfaces color']
+            if 'transparency' in keys:
+                transparency = float(config_preferences['transparency'])
+            if 'openpulse logo' in keys:
+                OpenPulse_logo = config_preferences['openpulse logo']
+            if 'mopt logo' in keys:
+                mopt_logo = config_preferences['mopt logo']
+            if 'reference scale' in keys:
+                reference_scale = config_preferences['reference scale']
+    
             background_color = background_color[1:-1].split(",")
             background_color = tuple([float(val) for val in background_color])
             
             font_color = font_color[1:-1].split(",")
             font_color = tuple([float(val) for val in font_color])
+
+            nodes_color = nodes_color[1:-1].split(",")
+            nodes_color = tuple([float(val) for val in nodes_color])
+
+            lines_color = lines_color[1:-1].split(",")
+            lines_color = tuple([float(val) for val in lines_color])
+
+            surfaces_color = surfaces_color[1:-1].split(",")
+            surfaces_color = tuple([float(val) for val in surfaces_color])
         
             preferences = { 'background_color' : background_color,
                             'font_color' : font_color,
+                            'nodes_color' :  nodes_color,
+                            'lines_color' : lines_color,
+                            'surfaces_color' : surfaces_color,
+                            'transparency' : transparency,
                             'OpenPulse_logo' : bool(int(OpenPulse_logo)),
                             'mopt_logo' : bool(int(mopt_logo)),
                             'reference_scale' : bool(int(reference_scale)) }
@@ -359,6 +399,7 @@ class ProjectFile:
         global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
 
         return float(f_min), float(f_max), float(f_step), global_damping, preferences
+
 
     def add_frequency_in_file(self, min_, max_, step_):
         min_ = str(min_)

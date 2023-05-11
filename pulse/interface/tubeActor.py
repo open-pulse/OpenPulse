@@ -7,13 +7,14 @@ from pulse.interface.vtkActorBase import vtkActorBase
 
 
 class TubeActor(vtkActorBase):
-    def __init__(self, elements, project, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__()
 
-        self.elements = elements
         self.project = project
         self.preprocessor = project.preprocessor
-
+        self.elements = project.get_structural_elements()
+        self.opv = opv
+        
         self.hidden_elements = kwargs.get('hidden_elements', set())
         self.pressure_plot = kwargs.get('pressure_plot', False)
         
@@ -37,11 +38,13 @@ class TubeActor(vtkActorBase):
     @transparent.setter
     def transparent(self, value):
         if value:
+            opacity = 1 - self.opv.opvRenderer.elements_transparency
             if self.preprocessor.number_structural_elements > 2e5:
                 self._actor.GetProperty().SetOpacity(0)
                 self._actor.GetProperty().SetLighting(True)
             else:
-                self._actor.GetProperty().SetOpacity(0.15)
+                # self._actor.GetProperty().SetOpacity(0.15)
+                self._actor.GetProperty().SetOpacity(opacity)
                 self._actor.GetProperty().SetLighting(False)
         else:
             self._actor.GetProperty().SetOpacity(1)

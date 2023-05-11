@@ -85,9 +85,9 @@ class opvRenderer(vtkRendererBase):
     def plot(self):
         self.reset()
 
-        self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
-        self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
-        self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
+        self.opvNodes = NodesActor(self.project)
+        self.opvLines = LinesActor(self.project)
+        self.opvTubes = TubeActor(self.project, self.opv)
 
         self.opvAcousticNodesSymbols = AcousticNodesSymbolsActor(self.project)
         self.opvAcousticElementsSymbols = AcousticElementsSymbolsActor(self.project)
@@ -408,13 +408,10 @@ class opvRenderer(vtkRendererBase):
         if any([v is None for v in visual]):
             return
         
-        nodesColor = (255, 255, 63)
-        linesColor = (255, 255, 255)
-        tubesColor = (255, 255, 255)
+        self.opvNodes.setColor(self.nodes_color)
+        self.opvLines.setColor(self.lines_color)
+        self.opvTubes.setColor(self.surfaces_color)
 
-        self.opvNodes.setColor(nodesColor)
-        self.opvLines.setColor(linesColor)
-        self.opvTubes.setColor(tubesColor)
 
     def call_update_in_QDialogs_if_highlighted(self):
         self.opv.updateDialogs()

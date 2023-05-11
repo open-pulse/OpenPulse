@@ -99,8 +99,8 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
-        self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project, pressure_plot=True)
+        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv)
+        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True)
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 

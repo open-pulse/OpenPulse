@@ -5,11 +5,11 @@ from time import time
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class LinesActor(vtkActorBase):
-    def __init__(self, elements, project, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super().__init__()
 
-        self.elements = elements 
         self.project = project
+        self.elements = project.get_structural_elements()
         # self.elements = project.preprocessor.structural_elements
         self.hidden_elements = kwargs.get('hidden_elements', set())
 
