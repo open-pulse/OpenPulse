@@ -250,8 +250,11 @@ class vtkMeshClicker(vtkInteractorStyleArcballCamera):
         pickedEntities = self.pickEntities(pickedElements)
 
         # give preference to points selection
-        if len(pickedPoints) == 1 and len(pickedElements) == 1:
-            pickedElements.clear()
+        if len(pickedPoints) == 1:
+            if len(pickedElements) == 1 or len(pickedEntities) == 1:
+                pickedElements.clear()
+                pickedEntities.clear()
+            
 
         # add or remove selection with control, shift and alt
         if controlPressed:
