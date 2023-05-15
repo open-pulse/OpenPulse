@@ -3,6 +3,7 @@ import numpy as np
 from time import time
 from dataclasses import dataclass
 from collections import defaultdict
+import os
 
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
@@ -12,7 +13,7 @@ from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
 from pulse.interface.rawLinesActor import RawLinesActor
-from pulse.interface.rawNodesActor import RawNodesActor
+from pulse.interface.rawPointsActor import RawPointsActor
 from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
@@ -29,9 +30,10 @@ class opvGeometryRenderer(vtkRendererBase):
 
         self.project = project 
         self.opv = opv
+        self.geometry_path = self.project.file._geometry_path
 
         self.opvRawLines = None
-        self.opvRawNodes = None
+        self.opvRawPoints = None
         self.opvSelectionLinesActor = None
         self.opvSelectionNodesActor = None
 
@@ -41,29 +43,40 @@ class opvGeometryRenderer(vtkRendererBase):
         self.lineToElements = dict()
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
 
+    def check_geometry_to_proceed(self):
+        self.geometry_path = self.project.file._geometry_path
+        if not os.path.exists(self.geometry_path):
+            return True
+        if os.path.basename(self.geometry_path) == "":
+            return True
+        return False
+
     def plot(self):
-        self.opvRawNodes = RawNodesActor()
-        # MODIFIQUE A LINHA ABAIXO:
-        # Substitua por algo como
-        # pontos = self.project.blabla.pontos
-        # self.opvRawNodes.set_data(pontos)
-        self.opvRawNodes.load_file("C:\\Users\\User\\Documents\\OpenPulse\\examples\\iges_files\\old_geometries\\tube_2.iges")
-        self.opvRawNodes.build()
+
+        self.reset()
+
+        if self.check_geometry_to_proceed():
+            return True
         
-        self.opvRawLines = RawLinesActor()
-        # MODIFIQUE A LINHA ABAIXO:
-        # Substitua por algo como
-        # linhas = self.project.blabla.linhas
-        # self.opvRawLines.set_data(linhas)
-        self.opvRawLines.load_file("C:\\Users\\User\\Documents\\OpenPulse\\examples\\iges_files\\old_geometries\\tube_2.iges")
+        self.opvRawPoints = RawPointsActor()    
+        # self.opvRawPoints.load_file("C:\\VRU\warm_up\\OpenPulse\\examples\\iges_files\\old_geometries\\tube_2.iges")
+        self.opvRawPoints.load_file(self.geometry_path)
+        self.opvRawPoints.build()
+    
+        self.opvRawLines = RawLinesActor()    
+        # self.opvRawLines.load_file("C:\\VRU\warm_up\\OpenPulse\\examples\\iges_files\\old_geometries\\tube_2.iges")
+        self.opvRawLines.load_file(self.geometry_path)
         self.opvRawLines.build()
+
         self._renderer.AddActor(self.opvRawLines.getActor())
 
         self.save_nodes_bounds()
         self.save_elements_bounds()
 
-        self._renderer.AddActor(self.opvRawNodes.getActor())
+        self._renderer.AddActor(self.opvRawPoints.getActor())
         self._renderer.ResetCameraClippingRange()
+        
+        return False
 
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -80,10 +93,10 @@ class opvGeometryRenderer(vtkRendererBase):
     def save_nodes_bounds(self):
         self.nodesBounds.clear()
 
-        if self.opvRawNodes is None:
+        if self.opvRawPoints is None:
             return
 
-        for i, x, y, z in self.opvRawNodes._nodes:
+        for i, x, y, z in self.opvRawPoints._nodes:
             self.nodesBounds[i] = (x,x, y,y, z,z)
 
     def save_elements_bounds(self):
@@ -110,19 +123,27 @@ class opvGeometryRenderer(vtkRendererBase):
         self.lineToElements = dict(line_to_elements)
 
     def highlight(self, obj, event):
+        
+        if self.check_geometry_to_proceed():
+            return
+        
         self.highlight_nodes(obj, event)
         self.highlight_lines(obj, event)
         self.update()
 
     def highlight_nodes(self, obj, event):
+
+        if self.opvRawPoints is None:
+            return
+        
         selected_nodes = obj.getListPickedPoints()
-        selected_nodes_coords = [node for node in self.opvRawNodes._nodes if node[0] in selected_nodes]
+        selected_nodes_coords = [node for node in self.opvRawPoints._nodes if node[0] in selected_nodes]
         
         if self.opvSelectionNodesActor is not None:
             self._renderer.RemoveActor(self.opvSelectionNodesActor.getActor())
         
         if selected_nodes:
-            self.opvSelectionNodesActor = RawNodesActor()
+            self.opvSelectionNodesActor = RawPointsActor()
             self.opvSelectionNodesActor.set_data(selected_nodes_coords)
             self.opvSelectionNodesActor.build()
 
@@ -131,12 +152,15 @@ class opvGeometryRenderer(vtkRendererBase):
             self._renderer.AddActor(self.opvSelectionNodesActor.getActor())
 
     def highlight_lines(self, obj, event):
+        
+        if self.opvRawLines is None:
+            return
+        
         selected_segments = obj.getListPickedLines()
         selected_segments_coords = [segment for segment in self.opvRawLines._segments if segment[0] in selected_segments]
         
         if self.opvSelectionLinesActor is not None:
             self._renderer.RemoveActor(self.opvSelectionLinesActor.getActor())
-        
 
         if selected_segments:
             self.opvSelectionLinesActor = RawLinesActor()

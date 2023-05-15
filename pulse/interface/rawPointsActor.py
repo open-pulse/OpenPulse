@@ -7,7 +7,7 @@ from pulse.utils import split_sequence, unwrap
 from libs.gmsh import gmsh
 
 
-class RawNodesActor(vtkActorBase):
+class RawPointsActor(vtkActorBase):
     def __init__(self):
         super().__init__()
         self._data = vtk.vtkPolyData()

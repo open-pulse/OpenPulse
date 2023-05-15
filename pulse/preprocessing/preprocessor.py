@@ -3331,7 +3331,7 @@ class Preprocessor:
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
 
-    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in"):
+    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="Open Cascade"):
         """
         """
         try:
@@ -3407,10 +3407,11 @@ class Preprocessor:
                     seg2 = gmsh.model.occ.addCircleArc(Q1, Q3, Q2, tag=-1)
                 list_lines.append(seg2)
                 self.geometry.set_lines(len(list_lines), data[6:])
-            
-            if os.path.exists(self.file._geometry_path):
-                if os.path.basename(self.file._geometry_path) != "":
-                    gmsh.merge(self.file._geometry_path)
+
+            if os.path.exists(self.file._backup_geometry_path):
+                if os.path.exists(self.file._geometry_path):
+                    if os.path.basename(self.file._geometry_path) != "":
+                        gmsh.merge(self.file._geometry_path)
 
             gmsh.model.addPhysicalGroup(1, list_lines, 1)
             
@@ -3422,22 +3423,11 @@ class Preprocessor:
             if geometry_path != "":
                 gmsh.write(geometry_path)
                 gmsh.finalize()
-            else:
-                if os.path.exists(self.file._geometry_path):
-                    if os.path.basename(self.file._geometry_path) != "":
-                        _, new_basename = get_edited_filename(self.file._geometry_path)
-                        new_path = get_new_path(self.file._project_path, new_basename)
-                        extension = new_basename.split(".")[1]
-                        if extension in ["step", "stp", "STEP", "STP", "iges", "igs", "IGES", "IGS"]:
-                            gmsh.write(new_path)
-                            gmsh.finalize()
-                            filenames = os.listdir(self.file._backup_geometry_path)
-                            if len(filenames) == 1:    
-                                if os.path.basename(self.file._geometry_path) == filenames[0]:
-                                    os.remove(self.file._geometry_path)
-                        else:
-                            message = "The output cad file format is not supported.\n\n"
-                            message += f"Filename: {new_basename}"
+                if os.path.exists(self.file._backup_geometry_path):
+                    filenames = os.listdir(self.file._backup_geometry_path)
+                    if len(filenames) == 1:
+                        if os.path.basename(self.file._geometry_path) == filenames[0]:
+                            os.remove(self.file._geometry_path)
 
         except Exception as _error:
             message = str(_error)
@@ -3451,22 +3441,18 @@ class Preprocessor:
 
     def remove_selected_lines_and_process_geometry(self, geometry_path, lines):
         """
-        
         """
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal", 0)
         gmsh.option.setNumber("General.Verbosity", 0)
-
-        gmsh.merge(geometry_path)
+        gmsh.open(geometry_path)
 
         for line in lines:
             gmsh.model.occ.remove([[1, line]], recursive=True)
 
         gmsh.model.occ.synchronize()
-        new_path, new_basename = get_edited_filename(geometry_path)
-        gmsh.write(new_path)
-
-        return new_basename
+        gmsh.write(geometry_path)
+        gmsh.finalize()
 
     #TODO: remove the following methods if they are not necessary anymore
 

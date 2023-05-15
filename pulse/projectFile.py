@@ -30,7 +30,6 @@ class ProjectFile:
         self._geometry_path = ""
         self._geometry_filename = ""
         self._geometry_tolerance = 1e-8 # default value to gmsh geometry tolerance (in milimeters)
-        self._geometry_state = 0
         self._conn_path = ""
         self._coord_path = ""
         self._entity_path = ""
@@ -143,17 +142,17 @@ class ProjectFile:
     def get_geometry_entities_path(self):
         return get_new_path(self._project_path, self._geometry_entities_file_name)
     
-    def get_geometry_state_from_project_file(self):
-        if self._project_path != "":
-            # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
-            config = configparser.ConfigParser()
-            config.read(self._project_ini_file_path)
-            if 'geometry state' in config['PROJECT'].keys():
-                geometry_state = config['PROJECT']['geometry state']
-                if geometry_state != "":
-                    return int(geometry_state)
-            else:
-                return -1
+    # def get_geometry_state_from_project_file(self):
+    #     if self._project_path != "":
+    #         # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+    #         config = configparser.ConfigParser()
+    #         config.read(self._project_ini_file_path)
+    #         if 'geometry state' in config['PROJECT'].keys():
+    #             geometry_state = config['PROJECT']['geometry state']
+    #             if geometry_state != "":
+    #                 return int(geometry_state)
+    #         else:
+    #             return -1
 
     def create_backup_geometry_folder(self):
         """
@@ -166,6 +165,9 @@ class ProjectFile:
             if basename != "":
                 new_geometry_path = get_new_path(self._backup_geometry_path, basename)
                 copyfile(self._geometry_path, new_geometry_path)
+
+    def update_geometry_path(self, geometry_path):
+        self._geometry_path = geometry_path
 
     def load(self, project_file_path):
 
@@ -191,9 +193,9 @@ class ProjectFile:
             if 'geometry tolerance' in keys:
                 geometry_tolerance = section['Geometry tolerance']
                 self._geometry_tolerance = float(geometry_tolerance)
-            if 'geometry state' in keys:
-                geometry_state = section['Geometry state']
-                self._geometry_state = int(geometry_state)
+            # if 'geometry state' in keys:
+            #     geometry_state = section['Geometry state']
+            #     self._geometry_state = int(geometry_state)
 
         elif import_type == 2:
             coord_file = section['Nodal coordinates file']
@@ -235,16 +237,16 @@ class ProjectFile:
                 section['element size'] = str(element_size)
         
         if geometry_tolerance is not None:
-            if 'Geometry tolerance' in keys:
-                section['Geometry tolerance'] = str(geometry_tolerance)
+            # if 'Geometry tolerance' in keys:
+            section['Geometry tolerance'] = str(geometry_tolerance)
 
         if geometry_filename is not None:
-            if 'geometry file' in keys:
-                section['geometry file'] = geometry_filename
+            # if 'geometry file' in keys:
+            section['geometry file'] = geometry_filename
         
-        if geometry_state is not None:
-            if 'geometry state' in keys:
-                section['geometry state'] = str(geometry_state)
+        # if geometry_state is not None:
+        #     if 'geometry state' in keys:
+        #         section['geometry state'] = str(geometry_state)
         
         self.write_data_in_file(self._project_ini_file_path, config)
 

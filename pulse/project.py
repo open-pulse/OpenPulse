@@ -127,26 +127,19 @@ class Project:
         try:
             self.reset(reset_all=True)
             self.file.load(project_file_path)
-            if self.file._import_type == 1:
-                path = self.file.get_geometry_entities_path()
-                if os.path.exists(path):
-                    self.load_geometry_entities()
-                    if self.check_mesh_setup():
-                        self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
-                        self.entities = self.preprocessor.dict_tag_to_entity.values()
-                        if not os.path.exists(self.file._entity_path):
-                            self.file.create_entity_file(self.preprocessor.all_lines)
-                    return True
-                else:
-                    self.empty_geometry = True
-                    return False
-            else:
+    
+            self.empty_geometry = True
+            if os.path.exists(self.file._geometry_path):
                 self.empty_geometry = False
-                self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
-                self.entities = self.preprocessor.dict_tag_to_entity.values()
-                if not os.path.exists(self.file._entity_path):
-                    self.file.create_entity_file(self.preprocessor.all_lines)                   
+                if self.check_mesh_setup():
+                    self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
+                    self.entities = self.preprocessor.dict_tag_to_entity.values()
+                    if not os.path.exists(self.file._entity_path):
+                        self.file.create_entity_file(self.preprocessor.all_lines)                   
                 return True
+            else:
+                return False
+            
         except Exception as log_error:
             title = "Error while processing initial load project actions"
             message = str(log_error)
@@ -163,6 +156,8 @@ class Project:
         """
         """
         self.file.add_geometry_entities_to_file(entities_data)
+        geometry_filename = os.path.basename(geometry_path)
+        self.file.update_project_attributes(geometry_filename=geometry_filename)
 
         if only_save:
             self.empty_geometry = False
@@ -172,6 +167,7 @@ class Project:
             return True
         else:
             self.empty_geometry = False
+            self.file.update_geometry_path(geometry_path)
             return False
     
     def edit_imported_geometry(self, geometry_filename):
@@ -229,8 +225,8 @@ class Project:
         
         if read._continue:
             geometry_path = self.file._geometry_path
-            new_geometry_filename = self.preprocessor.remove_selected_lines_and_process_geometry(geometry_path, lines)
-            self.file.update_project_attributes(geometry_filename=new_geometry_filename, geometry_state=1)
+            self.preprocessor.remove_selected_lines_and_process_geometry(geometry_path, lines)
+            # self.file.update_project_attributes(geometry_filename=new_geometry_filename)#, geometry_state=1)
             if os.path.exists(self.file._entity_path):
                 os.remove(self.file._entity_path)
             self.initial_load_project_actions(self.file._project_ini_file_path)
@@ -264,15 +260,16 @@ class Project:
         self.reset()
         self.remove_all_unnecessary_files()
         self.file.reset_project_setup()
-        path = self.file.get_geometry_entities_path()
-        if os.path.exists(path):
-            self.load_geometry_entities()
+        # path = self.file.get_geometry_entities_path()
+        if os.path.exists(self.file._geometry_path):
+            # self.load_geometry_entities()
             if self.check_mesh_setup():
                 self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
                 self.entities = self.preprocessor.dict_tag_to_entity.values()
-        else:
-            self.process_geometry_and_mesh()
-        self.file.create_entity_file(self.preprocessor.all_lines)
+                self.file.create_entity_file(self.preprocessor.all_lines)
+        # else:
+        #     self.process_geometry_and_mesh()
+        # self.file.create_entity_file(self.preprocessor.all_lines)
 
     def create_folders_structural(self, new_folder_name):
         """This method creates the 'imported_data', 'structural' and 'new_folder_name' folders 
@@ -401,10 +398,10 @@ class Project:
     def process_geometry_and_mesh(self, tolerance=1e-6):
         # t0 = time()
         import_type = self.file.get_import_type()
-        if import_type == 0:
+        if import_type in [0, 1]:
             self.preprocessor.generate(self.file.geometry_path, self.file.element_size, tolerance=tolerance)
-        elif import_type == 1:
-            self.preprocessor.generate("", self.file.element_size, tolerance=tolerance, gmsh_geometry=True)
+        # elif import_type == 1:
+        #     self.preprocessor.generate("", self.file.element_size, tolerance=tolerance, gmsh_geometry=True)
         elif import_type == 2:
             self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
         # dt = time()-t0

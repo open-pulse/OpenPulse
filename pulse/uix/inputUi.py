@@ -154,8 +154,11 @@ class InputUi:
 
     def edit_an_imported_geometry(self):
         self.opv.Disable()
-        self.processInput(EditImportedGeometryInput, self.project)
+        read = self.processInput(EditImportedGeometryInput, self.project)
         self.opv.Enable()
+        self.opv.updatePlots()
+        self.opv.changePlotToEntities()
+        return read.complete
     
     def get_opv(self):
         return self.opv

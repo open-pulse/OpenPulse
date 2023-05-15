@@ -20,23 +20,29 @@ class EditImportedGeometryInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
-        self.project_ini_file_path = get_new_path(self.project.file._project_path, self.project.file._project_base_name)
+        self.file = project.file
+        self.geometry_path = self.file._geometry_path
+        self.project_ini_file_path = self.file._project_ini_file_path
         
-        self.geometry_edited = False
-
-        if os.path.basename(self.project.file._geometry_path) != "":
-            self.call_gmsh(self.project.file._geometry_path)
+        self.geometry_basename = "" 
+        self.complete = False
+        if os.path.exists(self.geometry_path):
+            if os.path.basename(self.geometry_path) != "":
+                self.geometry_basename = os.path.basename(self.geometry_path)
+                self.call_gmsh(self.geometry_path)
     
     def call_gmsh(self, path):
        
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal", 0)
+        gmsh.option.setNumber("General.Verbosity", 0)
         
         try:
             gmsh.option.setNumber("General.NumThreads", 4)
         except:
             pass
-        gmsh.open(path)
+
+        gmsh.open(self.geometry_path)
         # gmsh.option.setString("General.OCCTargetUnit", "m")
 
         gmsh.model.occ.synchronize()
@@ -45,25 +51,33 @@ class EditImportedGeometryInput(QDialog):
             gmsh.option.setNumber('General.FltkColorScheme', 1)
             gmsh.fltk.run()
 
-        title = f"Geometry edition confirm"
+        title = f"Additional confirmation required"
         message = "Do you really want to confirm the current geometry edition?\n\n"
         message += "\n\nPress the Confirm and save button to proceed with the edtion and save the modified geometry "
         message += "into the project file, otherwise, press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Confirm and save', rightButton_size=220)
+        read = CallDoubleConfirmationInput( title, 
+                                            message, 
+                                            leftButton_label='Cancel', 
+                                            rightButton_label='Confirm and save', 
+                                            rightButton_size=220 )
 
         if read._doNotRun:
+            gmsh.finalize()
             return
         
         if read._continue:
 
-            new_path, new_basename = get_edited_filename(path)
+            filename = self.geometry_basename.split(".")[0]
+            self.new_basename = filename + ".step"
+            self.new_geometry_path = get_new_path(self.file._project_path, self.new_basename)
+            gmsh.write(self.new_geometry_path)
+            gmsh.finalize()
 
-            if new_path != "" and new_basename != "":
-  
-                self.project.edit_imported_geometry(new_basename)
-                gmsh.write(new_path)
-                self.geometry_edited = True
-                # self.project.initial_load_project_actions(self.project_ini_file_path)
+            if os.path.exists(self.file._entity_path):
+                os.remove(self.file._entity_path)
+            
+            self.project.edit_imported_geometry(self.new_basename)
+            self.project.initial_load_project_actions(self.project_ini_file_path)
+            self.complete = True
 
-        gmsh.finalize()
         return True

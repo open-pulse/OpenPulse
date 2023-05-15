@@ -117,45 +117,45 @@ class MainWindow(QMainWindow):
         self.about_action.triggered.connect(self.getInputWidget().about_OpenPulse)
 
         # Graphics
+        self.raw_geometry_action = QAction('&Plot Raw Lines', self)        
+        self.raw_geometry_action.setShortcut('Ctrl+1')
+        self.raw_geometry_action.setStatusTip('Plot Raw Lines')
+        self.raw_geometry_action.triggered.connect(self.plot_raw_geometry)
+
         self.entities_action = QAction('&Plot Lines', self)        
-        self.entities_action.setShortcut('Ctrl+1')
+        self.entities_action.setShortcut('Ctrl+2')
         self.entities_action.setStatusTip('Plot Lines')
         self.entities_action.triggered.connect(self.plot_entities)
-
-        self.entities_action_radius = QAction('&Plot Lines with Cross-section', self)        
-        self.entities_action_radius.setShortcut('Ctrl+2')
-        self.entities_action_radius.setStatusTip('Plot Lines with Cross-section')
-        self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
 
         self.mesh_action = QAction('&Plot Mesh', self)        
         self.mesh_action.setShortcut('Ctrl+3')
         self.mesh_action.setStatusTip('Plot Mesh')
         self.mesh_action.triggered.connect(self.plot_mesh)
 
+        self.entities_action_radius = QAction('&Plot Lines with Cross-section', self)        
+        self.entities_action_radius.setShortcut('Ctrl+4')
+        self.entities_action_radius.setStatusTip('Plot Lines with Cross-section')
+        self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
+
         self.section_action = QAction('&Plot Cross-section', self)
-        self.section_action.setShortcut('Ctrl+4')
+        self.section_action.setShortcut('Ctrl+5')
         self.section_action.setStatusTip('Plot Cross-section')
         self.section_action.triggered.connect(self.getInputWidget().plot_cross_section)
 
         self.plot_material_action = QAction('&Plot Material', self)
-        self.plot_material_action.setShortcut('Ctrl+5')
+        self.plot_material_action.setShortcut('Ctrl+6')
         self.plot_material_action.setStatusTip('Plot Material')
         # self.plot_material_action.triggered.connect(self.getInputWidget().plot_material)
 
         self.plot_fluid_action = QAction('&Plot Fluid', self)
-        self.plot_fluid_action.setShortcut('Ctrl+6')
+        self.plot_fluid_action.setShortcut('Ctrl+7')
         self.plot_fluid_action.setStatusTip('Plot Fluid')
         # self.plot_fluid_action.triggered.connect(self.getInputWidget().plot_fluid)
 
         self.mesh_setup_visibility_action = QAction('&User preferences', self)
-        self.mesh_setup_visibility_action.setShortcut('Ctrl+7')
+        self.mesh_setup_visibility_action.setShortcut('Ctrl+8')
         self.mesh_setup_visibility_action.setStatusTip('User preferences')
         self.mesh_setup_visibility_action.triggered.connect(self.getInputWidget().mesh_setup_visibility)
-
-        self.raw_lines_action = QAction('&Plot Raw Lines', self)        
-        self.raw_lines_action.setShortcut('Ctrl+8')
-        self.raw_lines_action.setStatusTip('Plot Raw Lines')
-        self.raw_lines_action.triggered.connect(self.plot_raw_lines)
 
         # General Settings
         self.setProjectAtributtes_action = QAction('&Set Project Attributes', self) 
@@ -453,15 +453,15 @@ class MainWindow(QMainWindow):
         self.projectMenu.addAction(self.exit_action)
 
     def _loadGraphicMenu(self):
+        self.graphicMenu.addAction(self.raw_geometry_action)
         self.graphicMenu.addAction(self.entities_action)
-        self.graphicMenu.addAction(self.entities_action_radius)
         self.graphicMenu.addAction(self.mesh_action)
+        self.graphicMenu.addAction(self.entities_action_radius)
         self.graphicMenu.addAction(self.section_action)
         self.graphicMenu.addAction(self.plot_material_action)
         self.graphicMenu.addAction(self.plot_fluid_action)
         self.graphicMenu.addAction(self.mesh_setup_visibility_action)
-        self.graphicMenu.addAction(self.raw_lines_action)
-
+        
     def _loadGeneralSettingsMenu(self):
         self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)
         self.generalSettingsMenu.addAction(self.setMeshProperties_action)
@@ -831,8 +831,8 @@ class MainWindow(QMainWindow):
     def plot_mesh(self):
         self.opv_widget.changePlotToMesh()
 
-    def plot_raw_lines(self):
-        self.opv_widget.changePlotToRawLines()
+    def plot_raw_geometry(self):
+        self.opv_widget.changePlotToRawGeometry()
 
     def draw(self):
         self.opv_widget.updatePlots()

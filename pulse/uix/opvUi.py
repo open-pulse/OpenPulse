@@ -82,8 +82,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvGeometryRenderer.plot()
         # LoadingScreen('Updating Plot', target=callback)
 
-    def changePlotToRawLines(self):
-        self.opvGeometryRenderer.plot()
+    def changePlotToRawGeometry(self):
+        
+        if self.opvGeometryRenderer.plot():
+            return
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
