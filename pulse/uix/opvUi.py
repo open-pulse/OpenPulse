@@ -56,12 +56,17 @@ class OPVUi(QVTKRenderWindowInteractor):
             #
             self.opvRenderer.changeBackgroundColor(self.background_color)
             self.opvAnalysisRenderer.changeBackgroundColor(self.background_color)
+            self.opvGeometryRenderer.changeBackgroundColor(self.background_color)
+
             self.opvRenderer.changeFontColor(self.font_color)
             self.opvAnalysisRenderer.changeFontColor(self.font_color)
+            self.opvGeometryRenderer.changeFontColor(self.font_color)
+
             self.opvRenderer.changeReferenceScaleFontColor(self.font_color)
             self.opvAnalysisRenderer.changeReferenceScaleFontColor(self.font_color)
+            self.opvGeometryRenderer.changeReferenceScaleFontColor(self.font_color)
+
             self.opvRenderer.changeNodesColor(self.nodes_color)
-            self.opvRenderer.changeLinesColor(self.lines_color)
             self.opvRenderer.changeSurfacesColor(self.surfaces_color)
             self.opvRenderer.changeElementsTransparency(self.elements_transparency)
         
@@ -211,7 +216,15 @@ class OPVUi(QVTKRenderWindowInteractor):
 
 
     def setCameraView(self, view=6):
-        x,y,z = self.opvRenderer._renderer.GetActiveCamera().GetFocalPoint()
+        if (self.opvRenderer.getInUse()):
+            x,y,z = self.opvRenderer._renderer.GetActiveCamera().GetFocalPoint()
+        elif (self.opvAnalysisRenderer.getInUse()):
+            x,y,z = self.opvAnalysisRenderer._renderer.GetActiveCamera().GetFocalPoint()
+        elif (self.opvGeometryRenderer.getInUse()):
+            x,y,z = self.opvGeometryRenderer._renderer.GetActiveCamera().GetFocalPoint()
+        else:
+            return
+
         vx, vy, vz = (0,1,0)
 
         ORTH   = 0
@@ -248,6 +261,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
         self.opvRenderer._renderer.ResetCamera(*self.opvRenderer.getBounds())
         self.opvRenderer.update()
+
+        self.opvGeometryRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
+        self.opvGeometryRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
+        self.opvGeometryRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
+        self.opvGeometryRenderer._renderer.ResetCamera(*self.opvGeometryRenderer.getBounds())
+        self.opvGeometryRenderer.update()
 
         self.opvAnalysisRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
         self.opvAnalysisRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)

@@ -36,12 +36,24 @@ class opvGeometryRenderer(vtkRendererBase):
         self.opvRawPoints = None
         self.opvSelectionLinesActor = None
         self.opvSelectionNodesActor = None
+        self.scaleBar = None
 
         # Selection stuff
         self.nodesBounds = dict()
         self.elementsBounds = dict()
         self.lineToElements = dict()
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
+
+        self.updateHud()
+
+    def updateHud(self):
+        self._createScaleBar()
+        self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+
+    def getBounds(self):
+        if self.opvRawLines:
+            return self.opvRawLines._actor.GetBounds()
+        return ()
 
     def check_geometry_to_proceed(self):
         self.geometry_path = self.project.file._geometry_path
@@ -75,7 +87,8 @@ class opvGeometryRenderer(vtkRendererBase):
 
         self._renderer.AddActor(self.opvRawPoints.getActor())
         self._renderer.ResetCameraClippingRange()
-        
+        self.updateHud()
+
         return False
 
     def reset(self):
