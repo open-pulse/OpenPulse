@@ -16,6 +16,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.parent = parent
         self.project = project
+        self.lastCamera = None
 
         self.inputObject = None
         self.defaultPreferences()
@@ -186,18 +187,19 @@ class OPVUi(QVTKRenderWindowInteractor):
         if renderer.getInUse(): 
             return
         
+        newCamera = self.lastCamera
+
         if (self.opvRenderer.getInUse()):
-            lastCamera = self.opvRenderer._renderer.GetActiveCamera()
-            renderer._renderer.GetActiveCamera().DeepCopy(lastCamera)
+            self.lastCamera = self.opvRenderer._renderer.GetActiveCamera()
 
         if (self.opvAnalysisRenderer.getInUse()):
-            lastCamera = self.opvAnalysisRenderer._renderer.GetActiveCamera()
-            renderer._renderer.GetActiveCamera().DeepCopy(lastCamera)
+            self.lastCamera = self.opvAnalysisRenderer._renderer.GetActiveCamera()
 
         if (self.opvGeometryRenderer.getInUse()):
-            lastCamera = self.opvGeometryRenderer._renderer.GetActiveCamera()
-            renderer._renderer.GetActiveCamera().DeepCopy(lastCamera)
+            self.lastCamera = self.opvGeometryRenderer._renderer.GetActiveCamera()
 
+        if newCamera is not None:
+            renderer._renderer.GetActiveCamera().DeepCopy(newCamera)
         renderer._renderer.ResetCameraClippingRange()
 
         self.clearRendereres()
