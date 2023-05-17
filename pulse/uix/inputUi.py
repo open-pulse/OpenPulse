@@ -77,6 +77,7 @@ class InputUi:
         self.project = project
         self.parent = parent
         self.opv = self.parent.getOPVWidget()
+        self.menu_items = parent.menu_widget.menu_items
         
         self.analysis_ID = None
         self.global_damping = [0,0,0,0]
@@ -113,7 +114,7 @@ class InputUi:
         return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
-        self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
+        self.menu_items.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput, self.project, self.opv, config, self)
         self.parent._updateStatusBar()
         return self.initial_project_action(get_started.draw)          
@@ -122,19 +123,19 @@ class InputUi:
         mesh_setup = self.project.check_mesh_setup()
         if finalized:
             if self.project.empty_geometry:
-                self.parent.menuWidget.tree_widget.modify_geometry_item_access(False)
+                self.menu_items.modify_geometry_item_access(False)
                 return True
             elif not mesh_setup:
-                self.parent.menuWidget.tree_widget.modify_general_settings_items_access(False)
+                self.menu_items.modify_general_settings_items_access(False)
                 return True   
             else:
                 self.project.none_project_action = False
                 self.parent.set_enable_menuBar(True)
-                self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
+                self.menu_items.modify_model_setup_items_access(False) 
                 return True
         else:
             self.project.none_project_action = True
-            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
+            self.menu_items.modify_model_setup_items_access(True)
             return False                 
 
     def reset_project(self):

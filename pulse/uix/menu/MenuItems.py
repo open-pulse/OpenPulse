@@ -677,6 +677,7 @@ class MenuItems(QTreeWidget):
             self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
             self.item_child_analisysSetup.setDisabled(True)
             self.item_child_runAnalysis.setDisabled(True)
+            # self.item_top_analysis.setHidden(True)
             self.item_top_resultsViewer_structural.setHidden(True)
             self.item_top_resultsViewer_acoustic.setHidden(True)
         
@@ -755,6 +756,18 @@ class MenuItems(QTreeWidget):
             self.item_top_resultsViewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_structural)
             self.expandItem(self.item_top_resultsViewer_acoustic)
+
+    def update_structural_analysis_visibility_items(self):
+        self.item_top_structuralModelSetup.setHidden(False)
+        self.item_top_acousticModelSetup.setHidden(True)
+        
+    def update_acoustic_analysis_visibility_items(self):
+        self.item_top_structuralModelSetup.setHidden(True)
+        self.item_top_acousticModelSetup.setHidden(False)
+
+    def update_coupled_analysis_visibility_items(self):
+        self.item_top_structuralModelSetup.setHidden(False)
+        self.item_top_acousticModelSetup.setHidden(False)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

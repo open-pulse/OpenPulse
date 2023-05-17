@@ -21,7 +21,6 @@ class MainWindow(QMainWindow):
 
         self.config = Config()
         self.project = Project()
-        self.menuWidget = Menu(self)
 
         self._loadIcons()
         self._config()
@@ -737,14 +736,14 @@ class MainWindow(QMainWindow):
         self.toolbar_animation.addAction(self.playPauseAnimaton_action)
 
     def _createBasicLayout(self):
-        self.menuWidget = Menu(self)
+        self.menu_widget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
 
-        working_area.addWidget(self.menuWidget)
+        working_area.addWidget(self.menu_widget)
         working_area.addWidget(self.opv_widget)
         working_area.setSizes([100,400])
 
@@ -863,7 +862,7 @@ class MainWindow(QMainWindow):
         return self.inputWidget
 
     def getMenuWidget(self):
-        return self.menuWidget
+        return self.menu_widget
 
     def getOPVWidget(self):
         return self.opv_widget
