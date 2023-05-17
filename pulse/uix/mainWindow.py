@@ -158,38 +158,43 @@ class MainWindow(QMainWindow):
         self.mesh_setup_visibility_action.triggered.connect(self.getInputWidget().mesh_setup_visibility)
 
         # General Settings
+        self.create_edit_geometry_action = QAction('&Create/Edit Geometry', self) 
+        self.create_edit_geometry_action.setShortcut('Alt+1')
+        self.create_edit_geometry_action.setStatusTip('Create/Edit Geometry')
+        self.create_edit_geometry_action.triggered.connect(self.getInputWidget().call_geometry_designer)
+
+        self.edit_geometry_GMSH_GUI_action = QAction('&Edit Geometry (GMSH GUI)', self) 
+        self.edit_geometry_GMSH_GUI_action.setShortcut('Alt+2')
+        self.edit_geometry_GMSH_GUI_action.setStatusTip('Edit Geometry (GMSH GUI)')
+        self.edit_geometry_GMSH_GUI_action.triggered.connect(self.getInputWidget().edit_an_imported_geometry)
+
         self.setProjectAtributtes_action = QAction('&Set Project Attributes', self) 
-        self.setProjectAtributtes_action.setShortcut('Alt+1')
+        self.setProjectAtributtes_action.setShortcut('Alt+3')
         self.setProjectAtributtes_action.setStatusTip('Set Project Attributes')
         self.setProjectAtributtes_action.triggered.connect(self.getInputWidget().set_project_attributes)
 
-        self.geometryDesigner_action = QAction('&Geometry Designer', self) 
-        self.geometryDesigner_action.setShortcut('Alt+2')
-        self.geometryDesigner_action.setStatusTip('Geometry Designer')
-        self.geometryDesigner_action.triggered.connect(self.getInputWidget().call_geometry_designer)
-
         self.setMeshProperties_action = QAction('&Set Mesh Properties', self) 
-        self.setMeshProperties_action.setShortcut('Alt+3')
+        self.setMeshProperties_action.setShortcut('Alt+4')
         self.setMeshProperties_action.setStatusTip('Set Mesh Properties')
         self.setMeshProperties_action.triggered.connect(self.getInputWidget().set_mesh_properties)
 
         self.setGeometryFile_action = QAction('&Set Geometry File', self) 
-        self.setGeometryFile_action.setShortcut('Alt+4')
+        self.setGeometryFile_action.setShortcut('Alt+5')
         self.setGeometryFile_action.setStatusTip('Set Geometry File')
         self.setGeometryFile_action.triggered.connect(self.getInputWidget().set_geometry_file)
 
         self.setMaterial_action = QAction('&Set Material', self)        
-        self.setMaterial_action.setShortcut('Alt+5')
+        self.setMaterial_action.setShortcut('Alt+6')
         self.setMaterial_action.setStatusTip('Set Material')
         self.setMaterial_action.triggered.connect(self.getInputWidget().set_material)
 
         self.set_fluid_action = QAction('&Set Fluid', self)        
-        self.set_fluid_action.setShortcut('Alt+6')
+        self.set_fluid_action.setShortcut('Alt+7')
         self.set_fluid_action.setStatusTip('Set Fluid')
         self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
 
         self.set_crossSection_action = QAction('&Set Cross-Section', self)        
-        self.set_crossSection_action.setShortcut('Alt+7')
+        self.set_crossSection_action.setShortcut('Alt+8')
         self.set_crossSection_action.setStatusTip('Set Cross-Section')
         self.set_crossSection_action.triggered.connect(self.getInputWidget().set_cross_section)
 
@@ -463,6 +468,8 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.mesh_setup_visibility_action)
         
     def _loadGeneralSettingsMenu(self):
+        self.generalSettingsMenu.addAction(self.create_edit_geometry_action)
+        self.generalSettingsMenu.addAction(self.edit_geometry_GMSH_GUI_action)
         self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)
         self.generalSettingsMenu.addAction(self.setMeshProperties_action)
         self.generalSettingsMenu.addAction(self.setGeometryFile_action)        

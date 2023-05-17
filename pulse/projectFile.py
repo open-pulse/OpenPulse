@@ -155,7 +155,9 @@ class ProjectFile:
     #             return -1
 
     def create_backup_geometry_folder(self):
-        """
+        """ This method creates a backup geometry folder if it was not create yet. Additionally, a geometry file copy
+            is pasted inside geometry backup folder just after its creation. This geometry file will be used in resetting
+            geometry process.
         """
         if not os.path.exists(self._backup_geometry_path):
             os.mkdir(self._backup_geometry_path)

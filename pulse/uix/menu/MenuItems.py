@@ -141,8 +141,8 @@ class MenuItems(QTreeWidget):
         self.list_top_items = []
         self.list_child_items = []
         self.item_top_generalSettings = QTreeWidgetItem(['General Settings'])
-        self.item_child_createGeometry = QTreeWidgetItem(['Create a Geometry'])
-        self.item_child_editGeometry = QTreeWidgetItem(['Edit Imported Geometry'])
+        self.item_child_createGeometry = QTreeWidgetItem(['Create/Edit Geometry'])
+        self.item_child_editGeometry = QTreeWidgetItem(['Edit Geometry (GMSH GUI)'])
         self.item_child_setProjectAttributes = QTreeWidgetItem(['Set Project Attributes'])
         self.item_child_setGeometryFile = QTreeWidgetItem(['Set Geometry File'])
         self.item_child_setMeshProperties = QTreeWidgetItem(['Set Mesh Properties'])
@@ -661,6 +661,7 @@ class MenuItems(QTreeWidget):
     def _updateItems(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
         self.modify_model_setup_items_access(False)
+
         if True:
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotDisplacementField.setDisabled(True)
@@ -676,6 +677,8 @@ class MenuItems(QTreeWidget):
             self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
             self.item_child_analisysSetup.setDisabled(True)
             self.item_child_runAnalysis.setDisabled(True)
+            self.item_top_resultsViewer_structural.setHidden(True)
+            self.item_top_resultsViewer_acoustic.setHidden(True)
         
         if self.project.analysis_ID in [None, 2,4]:
             self.item_child_analisysSetup.setDisabled(True)
@@ -686,7 +689,15 @@ class MenuItems(QTreeWidget):
             self.item_child_runAnalysis.setDisabled(False)
         
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
-        
+
+            if self.project.analysis_ID in [0, 1, 2]:
+                self.item_top_resultsViewer_structural.setHidden(False)
+            elif self.project.analysis_ID in [3, 4]:
+                self.item_top_resultsViewer_acoustic.setHidden(False)
+            elif self.project.analysis_ID in [5, 6]:    
+                self.item_top_resultsViewer_acoustic.setHidden(False)
+                self.item_top_resultsViewer_structural.setHidden(False)
+
             if self.project.analysis_ID == 0 or self.project.analysis_ID == 1:
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
                 self.item_child_plotDisplacementField.setDisabled(False)
@@ -724,23 +735,26 @@ class MenuItems(QTreeWidget):
             self.update_TreeVisibility_after_solution()
             
     def update_TreeVisibility_after_solution(self):
-        """Expands and collapses the Top Level Items ont the menu after the solution is done."""
+        """Expands and collapses the Top Level Items ont the menu after the solution is done.
+        
+        """
         self.collapseItem(self.item_top_generalSettings)
+        self.collapseItem(self.item_top_structuralModelSetup)
+        self.collapseItem(self.item_top_acousticModelSetup)
+
         if self.project.analysis_ID in [0,1,2]:
+            self.item_top_resultsViewer_structural.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_structural)
-            self.expandItem(self.item_top_structuralModelSetup)
-            self.collapseItem(self.item_top_resultsViewer_acoustic)
-            self.collapseItem(self.item_top_acousticModelSetup)
+            # self.expandItem(self.item_top_structuralModelSetup)            
         elif self.project.analysis_ID in [3,4]:
+            self.item_top_resultsViewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_acoustic)
-            self.expandItem(self.item_top_acousticModelSetup)
-            self.collapseItem(self.item_top_resultsViewer_structural)
-            self.collapseItem(self.item_top_structuralModelSetup)
+            # self.expandItem(self.item_top_acousticModelSetup)
         elif self.project.analysis_ID in [5,6]:
+            self.item_top_resultsViewer_structural.setHidden(False)
+            self.item_top_resultsViewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_structural)
             self.expandItem(self.item_top_resultsViewer_acoustic)
-            self.expandItem(self.item_top_structuralModelSetup)
-            self.expandItem(self.item_top_acousticModelSetup)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

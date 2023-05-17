@@ -70,8 +70,16 @@ class EditImportedGeometryInput(QDialog):
             filename = self.geometry_basename.split(".")[0]
             self.new_basename = filename + ".step"
             self.new_geometry_path = get_new_path(self.file._project_path, self.new_basename)
+            
+            if os.path.exists(self.file._geometry_path):
+                os.remove(self.file._geometry_path)
+
             gmsh.write(self.new_geometry_path)
             gmsh.finalize()
+
+            # self.geometry_entities_path = self.file.get_geometry_entities_path()
+            # if os.path.exists(self.geometry_entities_path):
+            #     os.remove(self.geometry_entities_path)
 
             if os.path.exists(self.file._entity_path):
                 os.remove(self.file._entity_path)
