@@ -183,6 +183,7 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.opvAnalysisRenderer.showDisplacement(frequency_indice)
         
         self._updateAxes()
+        self.opvAnalysisRenderer._renderer.ResetCamera()
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
@@ -206,6 +207,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         if newCamera is not None:
             renderer._renderer.GetActiveCamera().DeepCopy(newCamera)
         renderer._renderer.ResetCameraClippingRange()
+        renderer._renderer.ResetCamera()
 
         self.clearRendereres()
         self.clearRendereresUse()
