@@ -226,7 +226,7 @@ class Project:
         if read._continue:
             geometry_path = self.file._geometry_path
             self.preprocessor.remove_selected_lines_and_process_geometry(geometry_path, lines)
-            # self.file.update_project_attributes(geometry_filename=new_geometry_filename)#, geometry_state=1)
+            # self.file.update_project_attributes(geometry_filename=new_geometry_filename)
             if os.path.exists(self.file._entity_path):
                 os.remove(self.file._entity_path)
             self.initial_load_project_actions(self.file._project_ini_file_path)
