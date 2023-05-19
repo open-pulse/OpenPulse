@@ -104,10 +104,27 @@ class CheckBeamCriteriaInput(QDialog):
         self.before_run.check_beam_theory_criteria()
         lineEdit = self.lineEdit_beam_criteria
         criteria = self.check_inputs(lineEdit, "Beam criteria")
+
         if criteria is not None:
             internal_index = 0
             lines_to_highlight = []
             self.non_beam_segments = []
+
+            for section_id, criteria_data in self.before_run.one_section_one_line.items():
+                # print(section_id, key, criteria_data["ratio"], criteria_data["lines"])
+                [element_type, section_parameters, tag_type, tags] = self.section_data_lines[section_id]
+                
+                if criteria > criteria_data["ratio"]:
+                    for line in criteria_data["line ID"]:
+                        if line not in lines_to_highlight:
+                            lines_to_highlight.append(line)
+                            
+                    internal_index += 1
+                    data = [section_id, section_id, section_parameters, criteria_data["ratio"], criteria_data["line ID"]]
+                    self.non_beam_data[internal_index] = data
+                    if data not in self.non_beam_segments:
+                        self.non_beam_segments.append(data)
+
             for section_id, data in self.before_run.one_section_multiple_lines.items():
                 for key, criteria_data in data.items():
                     # print(section_id, key, criteria_data["ratio"], criteria_data["lines"])

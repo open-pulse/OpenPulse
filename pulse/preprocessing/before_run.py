@@ -667,7 +667,7 @@ class BeforeRun:
                     self.one_section_one_line[section_id] = {   "section parameter" : parameter,
                                                                 "length" : length_1,
                                                                 "ratio" : ratio_1,
-                                                                "line ID" : tags[0]   }
+                                                                "line ID" : tags   }
                     
                 else:
 
