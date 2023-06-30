@@ -1,3 +1,11 @@
+import logging
+
+logging.basicConfig(format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d:%H:%M:%S',
+    level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
+
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.loadingScreen import LoadingScreen
 import vtk
@@ -61,11 +69,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider = None
         self.logoWidget = None
         self.stressesTextProperty = vtk.vtkTextProperty()
-        self._createPlayer()
+
+        # self._createPlayer()
         self.reset_min_max_values()
         self.cache_plot_state()
         self.updateHud()
-        
         self._animationFrames = []
 
     def update_phase_steps_attribute(self):
