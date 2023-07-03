@@ -2,7 +2,7 @@ from collections import deque
 from random import choice
 from collections import defaultdict
 from shutil import copyfile
-from libs.gmsh import gmsh 
+import gmsh 
 import numpy as np
 from scipy.spatial.transform import Rotation
 from time import time
@@ -309,11 +309,11 @@ class Preprocessor:
 
                 # Element
                 _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
-                
-                line_connect_data = np.zeros((len(line_element_indexes[0]),3))
-                line_connect_data[:,0] = line_element_indexes[0]
-                line_connect_data[:,1:] = line_connectivity[0].reshape(-1,2)
-                newEntity.insertEdge(list(line_connect_data))
+                if line_element_indexes:
+                    line_connect_data = np.zeros((len(line_element_indexes[0]),3))
+                    line_connect_data[:,0] = line_element_indexes[0]
+                    line_connect_data[:,1:] = line_connectivity[0].reshape(-1,2)
+                    newEntity.insertEdge(list(line_connect_data))
 
                 # line_connectivity = split_sequence(line_connectivity[0], 2)
                 # for index, (start, end) in zip(line_element_indexes[0], line_connectivity):
@@ -451,11 +451,13 @@ class Preprocessor:
             # t0 = time()   
             mapping = self.map_elements
             for dim, tag in gmsh.model.getEntities(1):
-                elements_of_entity = gmsh.model.mesh.getElements(dim, tag)[1][0]
-                list_elements = np.array([mapping[element] for element in elements_of_entity], dtype=int)
-                self.line_to_elements[tag] = list_elements
-                for element_id in list_elements:
-                    self.elements_to_line[element_id] = tag 
+                elements_of_entity = gmsh.model.mesh.getElements(dim, tag)
+                if elements_of_entity and elements_of_entity[1]:
+                    elements_of_entity = elements_of_entity[1][0]
+                    list_elements = np.array([mapping[element] for element in elements_of_entity], dtype=int)
+                    self.line_to_elements[tag] = list_elements
+                    for element_id in list_elements:
+                        self.elements_to_line[element_id] = tag 
             # dt = time() - t0
             # print(f"Time to process : {dt}")
 

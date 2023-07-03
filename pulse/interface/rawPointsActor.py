@@ -4,7 +4,7 @@ from time import time
 
 from pulse.interface.vtkActorBase import vtkActorBase
 from pulse.utils import split_sequence, unwrap
-from libs.gmsh import gmsh
+import gmsh
 
 
 class RawPointsActor(vtkActorBase):

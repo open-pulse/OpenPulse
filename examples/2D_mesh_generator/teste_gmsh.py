@@ -1,4 +1,4 @@
-from libs.gmsh import gmsh  
+import gmsh  
 import numpy as np 
 from tempfile import TemporaryDirectory
 from pathlib import Path
