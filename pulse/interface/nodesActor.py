@@ -5,11 +5,12 @@ from time import time
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class NodesActor(vtkActorBase):
-    def __init__(self, nodes, project, color=(255,255,63), *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super().__init__()
 
-        self.nodes = nodes 
         self.project = project
+        self.nodes = project.get_nodes()
+        
         # self.nodes = project.preprocessor.nodes
         self.hidden_nodes = kwargs.get('hidden_nodes', set())
 

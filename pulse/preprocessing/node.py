@@ -95,6 +95,7 @@ class Node:
         self.nodal_solution_gcs = None
         self.static_nodal_solution_gcs = None
         self.acoustic_solution = None
+        self.cross_section = None
 
     @property
     def coordinates(self):

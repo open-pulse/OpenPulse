@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel
+from PyQt5.QtCore import Qt, QSize, QEvent
+from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel, QStatusBar, QSizeGrip
 
 from pulse.uix.menu.Menu import Menu
 from pulse.uix.inputUi import InputUi
@@ -10,20 +10,17 @@ from pulse.uix.config import Config
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 import sys
-from os.path import expanduser, basename, exists, dirname
-from pathlib import Path
-import numpy as np
+import os
 
 from pulse.uix.menu import *
 # from pulse.uix.menu.widgets import *
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
-        QMainWindow.__init__(self, parent)
+        super(MainWindow, self).__init__(parent)
 
         self.config = Config()
         self.project = Project()
-        self.menuWidget = Menu(self)
 
         self._loadIcons()
         self._config()
@@ -33,15 +30,26 @@ class MainWindow(QMainWindow):
         self._createProjectToolBar()
         self._createAnimationToolBar()
         self._createHideShowToolBar()
+        self.set_enable_menuBar(False)
+        self._createStatusBar()
         self.show()
         self.loadRecentProject()
+        self.installEventFilter(self)
 
-    # Let this method be operational in some way!
-    # def keyPressEvent(self, event):
-    #     if event.key() == Qt.Key_H:
-    #         self.hide_selection()
-    #     elif event.key() == Qt.Key_U:
-    #         self.unhide_selection()
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.ShortcutOverride:
+            if event.key() == Qt.Key_Delete:
+                self.remove_selected_lines()
+        return super(MainWindow, self).eventFilter(obj, event)
+
+    def remove_selected_lines(self):
+        lines = self.opv_widget.getListPickedLines()
+        if len(lines) > 0:
+            if self.project.remove_selected_lines_from_geometry(lines):
+                self.opv_widget.updatePlots()
+                self.opv_widget.changePlotToEntities()
+                # self.cameraFront_call()
+                # self.opv_widget.changePlotToMesh()
 
     def _loadIcons(self):
         icons_path = 'data\\icons\\'
@@ -108,151 +116,166 @@ class MainWindow(QMainWindow):
         self.about_action.triggered.connect(self.getInputWidget().about_OpenPulse)
 
         # Graphics
+        self.raw_geometry_action = QAction('&Plot Raw Lines', self)        
+        self.raw_geometry_action.setShortcut('Ctrl+1')
+        self.raw_geometry_action.setStatusTip('Plot Raw Lines')
+        self.raw_geometry_action.triggered.connect(self.plot_raw_geometry)
+
         self.entities_action = QAction('&Plot Lines', self)        
-        self.entities_action.setShortcut('Ctrl+1')
+        self.entities_action.setShortcut('Ctrl+2')
         self.entities_action.setStatusTip('Plot Lines')
         self.entities_action.triggered.connect(self.plot_entities)
-
-        self.entities_action_radius = QAction('&Plot Lines with Cross-section', self)        
-        self.entities_action_radius.setShortcut('Ctrl+2')
-        self.entities_action_radius.setStatusTip('Plot Lines with Cross-section')
-        self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
 
         self.mesh_action = QAction('&Plot Mesh', self)        
         self.mesh_action.setShortcut('Ctrl+3')
         self.mesh_action.setStatusTip('Plot Mesh')
         self.mesh_action.triggered.connect(self.plot_mesh)
 
+        self.entities_action_radius = QAction('&Plot Lines with Cross-section', self)        
+        self.entities_action_radius.setShortcut('Ctrl+4')
+        self.entities_action_radius.setStatusTip('Plot Lines with Cross-section')
+        self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
+
         self.section_action = QAction('&Plot Cross-section', self)
-        self.section_action.setShortcut('Ctrl+4')
+        self.section_action.setShortcut('Ctrl+5')
         self.section_action.setStatusTip('Plot Cross-section')
         self.section_action.triggered.connect(self.getInputWidget().plot_cross_section)
 
         self.plot_material_action = QAction('&Plot Material', self)
-        self.plot_material_action.setShortcut('Ctrl+5')
+        self.plot_material_action.setShortcut('Ctrl+6')
         self.plot_material_action.setStatusTip('Plot Material')
         # self.plot_material_action.triggered.connect(self.getInputWidget().plot_material)
 
         self.plot_fluid_action = QAction('&Plot Fluid', self)
-        self.plot_fluid_action.setShortcut('Ctrl+6')
+        self.plot_fluid_action.setShortcut('Ctrl+7')
         self.plot_fluid_action.setStatusTip('Plot Fluid')
         # self.plot_fluid_action.triggered.connect(self.getInputWidget().plot_fluid)
 
         self.mesh_setup_visibility_action = QAction('&User preferences', self)
-        self.mesh_setup_visibility_action.setShortcut('Ctrl+7')
+        self.mesh_setup_visibility_action.setShortcut('Ctrl+8')
         self.mesh_setup_visibility_action.setStatusTip('User preferences')
         self.mesh_setup_visibility_action.triggered.connect(self.getInputWidget().mesh_setup_visibility)
 
         # General Settings
+        self.create_edit_geometry_action = QAction('&Create/Edit Geometry', self) 
+        self.create_edit_geometry_action.setShortcut('Alt+1')
+        self.create_edit_geometry_action.setStatusTip('Create/Edit Geometry')
+        self.create_edit_geometry_action.triggered.connect(self.getInputWidget().call_geometry_designer)
+
+        self.edit_geometry_GMSH_GUI_action = QAction('&Edit Geometry (GMSH GUI)', self) 
+        self.edit_geometry_GMSH_GUI_action.setShortcut('Alt+2')
+        self.edit_geometry_GMSH_GUI_action.setStatusTip('Edit Geometry (GMSH GUI)')
+        self.edit_geometry_GMSH_GUI_action.triggered.connect(self.getInputWidget().edit_an_imported_geometry)
+
         self.setProjectAtributtes_action = QAction('&Set Project Attributes', self) 
-        self.setProjectAtributtes_action.setShortcut('Alt+1')
+        self.setProjectAtributtes_action.setShortcut('Alt+3')
         self.setProjectAtributtes_action.setStatusTip('Set Project Attributes')
         self.setProjectAtributtes_action.triggered.connect(self.getInputWidget().set_project_attributes)
 
         self.setMeshProperties_action = QAction('&Set Mesh Properties', self) 
-        self.setMeshProperties_action.setShortcut('Alt+2')
+        self.setMeshProperties_action.setShortcut('Alt+4')
         self.setMeshProperties_action.setStatusTip('Set Mesh Properties')
         self.setMeshProperties_action.triggered.connect(self.getInputWidget().set_mesh_properties)
 
         self.setGeometryFile_action = QAction('&Set Geometry File', self) 
-        self.setGeometryFile_action.setShortcut('Alt+3')
+        self.setGeometryFile_action.setShortcut('Alt+5')
         self.setGeometryFile_action.setStatusTip('Set Geometry File')
         self.setGeometryFile_action.triggered.connect(self.getInputWidget().set_geometry_file)
 
         self.setMaterial_action = QAction('&Set Material', self)        
-        self.setMaterial_action.setShortcut('Alt+4')
+        self.setMaterial_action.setShortcut('Alt+6')
         self.setMaterial_action.setStatusTip('Set Material')
         self.setMaterial_action.triggered.connect(self.getInputWidget().set_material)
 
         self.set_fluid_action = QAction('&Set Fluid', self)        
-        self.set_fluid_action.setShortcut('Alt+5')
+        self.set_fluid_action.setShortcut('Alt+7')
         self.set_fluid_action.setStatusTip('Set Fluid')
         self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
 
         self.set_crossSection_action = QAction('&Set Cross-Section', self)        
-        self.set_crossSection_action.setShortcut('Alt+6')
+        self.set_crossSection_action.setShortcut('Alt+8')
         self.set_crossSection_action.setStatusTip('Set Cross-Section')
         self.set_crossSection_action.triggered.connect(self.getInputWidget().set_cross_section)
 
         # Structural Model Setup
         self.setStructuralElementType_action = QAction('&Set Structural Element Type', self)        
-        # self.setStructuralElementType_action.setShortcut('Alt+4')
+        # self.setStructuralElementType_action.setShortcut('')
         self.setStructuralElementType_action.setStatusTip('Set Structural Element Type')
         self.setStructuralElementType_action.triggered.connect(self.getInputWidget().setStructuralElementType)
 
         self.addFlanges_action = QAction('&Add Connecting Flanges', self)
-        # self.addFlanges_action.setShortcut('Ctrl+3')
+        # self.addFlanges_action.setShortcut('')
         self.addFlanges_action.setStatusTip('Add Connecting Flanges')
         self.addFlanges_action.triggered.connect(self.getInputWidget().add_flanges)
 
         self.setDOF_action = QAction('&Set Prescribed DOFs', self)        
-        # self.setDOF_action.setShortcut('Alt+5')
+        # self.setDOF_action.setShortcut('')
         self.setDOF_action.setStatusTip('Set Prescribed DOFs')
         self.setDOF_action.triggered.connect(self.getInputWidget().setDOF)
 
         self.setForce_action = QAction('&Set Nodal Loads', self)        
-        # self.setForce_action.setShortcut('Alt+6')
+        # self.setForce_action.setShortcut('')
         self.setForce_action.setStatusTip('Set Nodal Loads')
         self.setForce_action.triggered.connect(self.getInputWidget().setNodalLoads)
 
         self.setMass_action = QAction('&Add: Mass / Spring / Damper', self)        
-        # self.setMass_action.setShortcut('Alt+7')
+        # self.setMass_action.setShortcut('')
         self.setMass_action.setStatusTip('Add: Mass / Spring / Damper')
         self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
         self.setcappedEnd_action = QAction('&Set Capped End', self)        
-        # self.setcappedEnd_action.setShortcut('Alt+8')
+        # self.setcappedEnd_action.setShortcut('')
         self.setcappedEnd_action.setStatusTip('Set Capped End')
         self.setcappedEnd_action.triggered.connect(self.getInputWidget().setcappedEnd)
 
         self.stressStiffening_action = QAction('&Set Strees Stiffening', self)        
-        # self.stressStiffening_action.setShortcut('Alt+9')
+        # self.stressStiffening_action.setShortcut('')
         self.stressStiffening_action.setStatusTip('Set Strees Stiffening')
         self.stressStiffening_action.triggered.connect(self.getInputWidget().set_stress_stress_stiffening)
 
         self.nodalLinks_action = QAction('&Add Elastic Nodal Links', self)        
-        # self.nodalLinks_action.setShortcut('Alt+9')
+        # self.nodalLinks_action.setShortcut('')
         self.nodalLinks_action.setStatusTip('Add Elastic Nodal Links')
         self.nodalLinks_action.triggered.connect(self.getInputWidget().add_elastic_nodal_links)
 
         # Acoustic Model Setup
         self.setAcousticElementType_action = QAction('&Set Acoustic Element Type', self)        
-        # self.setAcousticElementType_action.setShortcut('Ctrl+Alt+1')
+        # self.setAcousticElementType_action.setShortcut('')
         self.setAcousticElementType_action.setStatusTip('Set Acoustic Element Type')
         self.setAcousticElementType_action.triggered.connect(self.getInputWidget().set_acoustic_element_type)
 
         self.setAcousticPressure_action = QAction('&Set Acoustic Pressure', self)        
-        # self.setAcousticPressure_action.setShortcut('Ctrl+Alt+3')
+        # self.setAcousticPressure_action.setShortcut('')
         self.setAcousticPressure_action.setStatusTip('Set Acoustic Pressure')
         self.setAcousticPressure_action.triggered.connect(self.getInputWidget().setAcousticPressure)
 
         self.setVolumeVelocity_action = QAction('&Set Volume Velocity', self)        
-        # self.setVolumeVelocity_action.setShortcut('Ctrl+Alt+4')
+        # self.setVolumeVelocity_action.setShortcut('')
         self.setVolumeVelocity_action.setStatusTip('Set Volume Velocity')
         self.setVolumeVelocity_action.triggered.connect(self.getInputWidget().setVolumeVelocity)
 
         self.setSpecificImpedance_action = QAction('&Set Specific Impedance', self)        
-        # self.setSpecificImpedance_action.setShortcut('Ctrl+Alt+5')
+        # self.setSpecificImpedance_action.setShortcut('')
         self.setSpecificImpedance_action.setStatusTip('Set Specific Impedance')
         self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setSpecificImpedance)
 
         self.set_radiation_impedance_action = QAction('&Set Radiation Impedance', self)        
-        # self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+6')
+        # self.set_radiation_impedance_action.setShortcut('')
         self.set_radiation_impedance_action.setStatusTip('Set Radiation Impedance')
         self.set_radiation_impedance_action.triggered.connect(self.getInputWidget().set_radiation_impedance)
 
         self.add_perforated_plate_action = QAction('&Add Perforated Plate', self)        
-        # self.add_perforated_plate_action.setShortcut('Ctrl+Alt+7')
+        # self.add_perforated_plate_action.setShortcut('')
         self.add_perforated_plate_action.setStatusTip('Add Perforated Plate')
         self.add_perforated_plate_action.triggered.connect(self.getInputWidget().add_perforated_plate)
 
         self.set_acoustic_element_length_correction_action = QAction('&Set Acoustic Element Length Correction', self)        
-        # self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+8')
+        # self.set_acoustic_element_length_correction_action.setShortcut('')
         self.set_acoustic_element_length_correction_action.setStatusTip('Set Acoustic Element Length Correction')
         self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
 
         self.add_compressor_excitation_action = QAction('&Add Compressor Excitation', self)        
-        # self.add_compressor_excitation_action.setShortcut('Ctrl+Alt+9')
+        # self.add_compressor_excitation_action.setShortcut('')
         self.add_compressor_excitation_action.setStatusTip('Add Compressor Excitation')
         self.add_compressor_excitation_action.triggered.connect(self.getInputWidget().add_compressor_excitation)
 
@@ -266,6 +289,10 @@ class MainWindow(QMainWindow):
         self.acoustic_model_info_action.setShortcut('F4')  
         self.acoustic_model_info_action.setStatusTip('Acoustic Model Info')
         self.acoustic_model_info_action.triggered.connect(self.getInputWidget().acoustic_model_info)
+
+        self.check_beam_criteria_action = QAction('&Check Beam Validity Criteria', self)    
+        self.check_beam_criteria_action.setStatusTip('Check Beam Validity Criteria')
+        self.check_beam_criteria_action.triggered.connect(self.getInputWidget().check_beam_criteria)
 
         # Analysis
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
@@ -285,53 +312,58 @@ class MainWindow(QMainWindow):
  
         # Results Viewer
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
-        self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
+        # self.plotStructuralModeShapes_action.setShortcut('')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
         self.plotStructuralModeShapes_action.triggered.connect(self.getInputWidget().plotStructuralModeShapes)
 
         self.plotDisplacementField_action = QAction('&Plot Displacement Field', self)        
-        self.plotDisplacementField_action.setShortcut('Ctrl+W')
+        # self.plotDisplacementField_action.setShortcut('')
         self.plotDisplacementField_action.setStatusTip('Plot Displacement Field')
         self.plotDisplacementField_action.triggered.connect(self.getInputWidget().plotDisplacementField)
 
         self.plotStructuralFrequencyResponse = QAction('&Plot Structural Frequency Response', self)        
-        self.plotStructuralFrequencyResponse.setShortcut('Ctrl+T')
+        # self.plotStructuralFrequencyResponse.setShortcut('')
         self.plotStructuralFrequencyResponse.setStatusTip('Plot Structural Frequency Response')
         self.plotStructuralFrequencyResponse.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponse)
 
         self.plotReactionsFrequencyResponse = QAction('&Plot Reactions Frequency Response', self)        
-        self.plotReactionsFrequencyResponse.setShortcut('Ctrl+W')
+        # self.plotReactionsFrequencyResponse.setShortcut('')
         self.plotReactionsFrequencyResponse.setStatusTip('Plot Reactions Frequency Response')
         self.plotReactionsFrequencyResponse.triggered.connect(self.getInputWidget().plotReactionsFrequencyResponse)
 
         self.plotSressField_action = QAction('&Plot Stress Field', self)        
-        # self.plotSressField_action.setShortcut('Ctrl+R')
+        # self.plotSressField_action.setShortcut('')
         self.plotSressField_action.setStatusTip('Plot Stress Field')
         self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
 
         self.plotSressFrequencyResponse_action = QAction('&Plot Stress Frequency Response', self)        
-        # self.plotSressFrequencyResponse_action.setShortcut('Ctrl+R')
+        # self.plotSressFrequencyResponse_action.setShortcut('')
         self.plotSressFrequencyResponse_action.setStatusTip('Plot Stress Frequency Response')
         self.plotSressFrequencyResponse_action.triggered.connect(self.getInputWidget().plotStressFrequencyResponse)
 
         self.plotPressureField_action = QAction('&Plot Acoustic Pressure Field', self)        
-        self.plotPressureField_action.setShortcut('Ctrl+E')
+        # self.plotPressureField_action.setShortcut('')
         self.plotPressureField_action.setStatusTip('Plot Acoustic Pressure Field')
         self.plotPressureField_action.triggered.connect(self.getInputWidget().plotAcousticPressureField)
 
         self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
-        self.plotAcousticFrequencyResponse.setShortcut('Ctrl+U')
+        # self.plotAcousticFrequencyResponse.setShortcut('')
         self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
         self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponse)
 
+        self.plotAcousticDeltaPressures = QAction('&Plot Acoustic Delta Pressures', self)        
+        # self.plotAcousticDeltaPressures.setShortcut('')
+        self.plotAcousticDeltaPressures.setStatusTip('Plot Acoustic Delta Pressures')
+        self.plotAcousticDeltaPressures.triggered.connect(self.getInputWidget().plot_TL_NR)
+
         self.plot_TL_NR = QAction('&Plot Transmission Loss or Attenuation', self)        
-        self.plot_TL_NR.setShortcut('Ctrl+V')
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
+        # self.plot_TL_NR.setShortcut('')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
         self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
-        self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
+        self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
 
         self.animationSettings_action = QAction('&Animation Settings', self)
@@ -425,15 +457,18 @@ class MainWindow(QMainWindow):
         self.projectMenu.addAction(self.exit_action)
 
     def _loadGraphicMenu(self):
+        self.graphicMenu.addAction(self.raw_geometry_action)
         self.graphicMenu.addAction(self.entities_action)
-        self.graphicMenu.addAction(self.entities_action_radius)
         self.graphicMenu.addAction(self.mesh_action)
+        self.graphicMenu.addAction(self.entities_action_radius)
         self.graphicMenu.addAction(self.section_action)
         self.graphicMenu.addAction(self.plot_material_action)
         self.graphicMenu.addAction(self.plot_fluid_action)
         self.graphicMenu.addAction(self.mesh_setup_visibility_action)
-
+        
     def _loadGeneralSettingsMenu(self):
+        self.generalSettingsMenu.addAction(self.create_edit_geometry_action)
+        self.generalSettingsMenu.addAction(self.edit_geometry_GMSH_GUI_action)
         self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)
         self.generalSettingsMenu.addAction(self.setMeshProperties_action)
         self.generalSettingsMenu.addAction(self.setGeometryFile_action)        
@@ -464,6 +499,7 @@ class MainWindow(QMainWindow):
     def _loadModelInfoMenu(self):
         self.modelInfoMenu.addAction(self.structural_model_info_action)
         self.modelInfoMenu.addAction(self.acoustic_model_info_action)
+        self.modelInfoMenu.addAction(self.check_beam_criteria_action)
 
     def _loadAnalysisMenu(self):
         self.analysisMenu.addAction(self.selectAnalysisType_action)
@@ -481,6 +517,7 @@ class MainWindow(QMainWindow):
         #acoustic
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
+        self.resultsViewerMenu.addAction(self.plotAcousticDeltaPressures)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
         #animation
         self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
@@ -561,6 +598,46 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.reset_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
+
+    def _createStatusBar(self):
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        #
+        label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
+        self.label_geometry_state = QLabel("", self)
+        self.label_geometry_state.setFont(label_font)
+        self.status_bar.addPermanentWidget(self.label_geometry_state)
+        #
+        self.label_mesh_state = QLabel("", self)
+        self.label_mesh_state.setFont(label_font)
+        self.status_bar.addPermanentWidget(self.label_mesh_state)
+
+    def _updateGeometryState(self, label):
+        _state = ""
+        if label != "":
+            _state = f" Geometry: {label} "            
+        self.label_geometry_state.setText(_state)
+
+    def _updateMeshState(self, label):
+        _state = ""
+        if label != "":
+            _state = f" Mesh: {label} "           
+        self.label_mesh_state.setText(_state)
+
+    def _updateStatusBar(self):
+        # Check and update geometry state
+        if self.project.empty_geometry:
+            self._updateGeometryState("pending")
+        else:
+            self._updateGeometryState("ok")
+        # Check and update mesh state
+        if len(self.project.preprocessor.structural_elements) == 0:
+            if self.project.check_mesh_setup():
+                self._updateMeshState("setup complete but not generated")
+            else:
+                self._updateMeshState("pending")
+        else:
+            self._updateMeshState("ok")
 
     def _createHideShowToolBar(self):
 
@@ -659,27 +736,27 @@ class MainWindow(QMainWindow):
         self.toolbar_animation.addAction(self.playPauseAnimaton_action)
 
     def _createBasicLayout(self):
-        self.menuWidget = Menu(self)
+        self.menu_widget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
 
-        working_area.addWidget(self.menuWidget)
+        working_area.addWidget(self.menu_widget)
         working_area.addWidget(self.opv_widget)
         working_area.setSizes([100,400])
 
     def newProject_call(self):
         if self.inputWidget.new_project(self.config):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.get_project_name())
+            self.changeWindowTitle(self.project.file._project_name)
             self.draw()
 
     def importProject_call(self, path=None):
         if self.inputWidget.loadProject(self.config, path):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.get_project_name())
+            self.changeWindowTitle(self.project.file._project_name)
             self.draw()
     
     def resetProject_call(self):
@@ -695,13 +772,12 @@ class MainWindow(QMainWindow):
         else:
             if self.inputWidget.getStarted(self.config):
                 self._loadProjectMenu()
-                self.changeWindowTitle(self.project.get_project_name())
+                self.changeWindowTitle(self.project.file._project_name)
                 self.draw()
 
     def savePNG_call(self):
-        userPath = expanduser('~')
-        project_path = "{}\\OpenPulse\\Projects".format(userPath)
-        if not exists(project_path):
+        project_path = self.project.file._project_path
+        if not os.path.exists(project_path):
             project_path = ""
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
@@ -761,10 +837,13 @@ class MainWindow(QMainWindow):
     def plot_mesh(self):
         self.opv_widget.changePlotToMesh()
 
+    def plot_raw_geometry(self):
+        self.opv_widget.changePlotToRawGeometry()
+
     def draw(self):
         self.opv_widget.updatePlots()
         self.plot_entities_with_cross_section()
-        self.opv_widget.setCameraView(0)
+        self.opv_widget.setCameraView(5)
 
     def closeEvent(self, event):
         title = "OpenPulse stop execution requested"
@@ -783,7 +862,7 @@ class MainWindow(QMainWindow):
         return self.inputWidget
 
     def getMenuWidget(self):
-        return self.menuWidget
+        return self.menu_widget
 
     def getOPVWidget(self):
         return self.opv_widget

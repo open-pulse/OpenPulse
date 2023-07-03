@@ -95,11 +95,14 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>11</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>true</italic>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="alternatingRowColors">
+     <bool>true</bool>
     </property>
     <column>
      <property name="text">
@@ -120,7 +123,7 @@
     </column>
     <column>
      <property name="text">
-      <string notr="true">Natural frequency</string>
+      <string notr="true">Natural frequency [Hz]</string>
      </property>
      <property name="font">
       <font>

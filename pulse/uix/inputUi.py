@@ -3,6 +3,8 @@ from data.user_input.project.newProjectInput import NewProjectInput
 from data.user_input.project.loadProjectInput import LoadProjectInput
 from data.user_input.project.getStartedInput import GetStartedInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
+from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
+from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
 from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
 from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
@@ -32,7 +34,7 @@ from data.user_input.model.setup.acoustic.specificimpedanceInput import Specific
 from data.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
 from data.user_input.model.setup.acoustic.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
-from data.user_input.model.setup.acoustic.compressorModelinput import CompressorModelInput
+from data.user_input.model.setup.acoustic.compressorModelinput2 import CompressorModelInput
 #
 from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
@@ -49,6 +51,7 @@ from data.user_input.plots.acoustic.plotAcousticModeShapeInput import PlotAcoust
 from data.user_input.plots.acoustic.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
 from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
+from data.user_input.plots.acoustic.plotAcousticDeltaPressureInput import Plot_Acoustic_Delta_Pressures_Input
 from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
@@ -56,6 +59,7 @@ from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSect
 from data.user_input.plots.render.rendererUserPreferencesInput import RendererUserPreferencesInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
+from data.user_input.model.checks.checkBeamCriteriaInput import CheckBeamCriteriaInput
 #
 from data.user_input.project.printMessageInput import PrintMessageInput
 #
@@ -73,6 +77,7 @@ class InputUi:
         self.project = project
         self.parent = parent
         self.opv = self.parent.getOPVWidget()
+        self.menu_items = parent.menu_widget.menu_items
         
         self.analysis_ID = None
         self.global_damping = [0,0,0,0]
@@ -99,27 +104,38 @@ class InputUi:
             # return read
 
     def new_project(self, config):
-        new_project_input = self.processInput(NewProjectInput, self.project, config)
+        new_project_input = self.processInput(NewProjectInput, self.project, self.opv, config)
+        self.parent._updateStatusBar()
         return self.initial_project_action(new_project_input.create)
 
     def loadProject(self, config, path=None):
         load_project = self.processInput(LoadProjectInput, self.project, self.opv, config, path)
+        self.parent._updateStatusBar()
         return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
+        self.menu_items.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput, self.project, self.opv, config, self)
+        self.parent._updateStatusBar()
         return self.initial_project_action(get_started.draw)          
     
-    def initial_project_action(self, obj):
-        if obj:
-            self.project.none_project_action = False
-            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
-            self.parent.set_enable_menuBar(True)
-            return True
+    def initial_project_action(self, finalized):
+        mesh_setup = self.project.check_mesh_setup()
+        if finalized:
+            if self.project.empty_geometry:
+                self.menu_items.modify_geometry_item_access(False)
+                return True
+            elif not mesh_setup:
+                self.menu_items.modify_general_settings_items_access(False)
+                return True   
+            else:
+                self.project.none_project_action = False
+                self.parent.set_enable_menuBar(True)
+                self.menu_items.modify_model_setup_items_access(False) 
+                return True
         else:
             self.project.none_project_action = True
-            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
-            self.parent.set_enable_menuBar(False)
+            self.menu_items.modify_model_setup_items_access(True)
             return False                 
 
     def reset_project(self):
@@ -128,13 +144,31 @@ class InputUi:
             
     def set_project_attributes(self):
         self.processInput(SetProjectAttributesInput, self.project, self.opv)
-        self.parent.changeWindowTitle(self.project._project_name)
+        self.parent.changeWindowTitle(self.project.file._project_name)
 
     def set_geometry_file(self):
         self.processInput(SetGeometryFileInput, self.project, self.opv)
 
+    def call_geometry_designer(self):
+        read = self.processInput(GeometryDesignerInput, self.project, self.opv)
+        return read.complete
+
+    def edit_an_imported_geometry(self):
+        self.opv.Disable()
+        read = self.processInput(EditImportedGeometryInput, self.project)
+        self.opv.Enable()
+        if read.complete:
+            self.opv.updatePlots()
+            self.opv.changePlotToEntities()
+        return read.complete
+    
+    def get_opv(self):
+        return self.opv
+
     def set_mesh_properties(self):
         read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)
+        if read.complete:
+            self.initial_project_action(True)
         return read.complete
 
     def set_material(self):
@@ -353,6 +387,14 @@ class InputUi:
             self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv, 
                                 self.analysis_method_label, solution )
 
+    def plotAcousticDeltaPressures(self):
+        if self.analysis_ID in [3,5,6]:
+            solution = self.project.get_acoustic_solution()
+            if solution is None:
+                return
+            self.processInput(  Plot_Acoustic_Delta_Pressures_Input, self.project, self.opv, 
+                                self.analysis_method_label, solution  )
+
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
@@ -394,6 +436,9 @@ class InputUi:
 
     def acoustic_model_info(self):
         self.processInput(AcousticModelInfoInput, self.project, self.opv)
+
+    def check_beam_criteria(self):
+        self.processInput(CheckBeamCriteriaInput, self.project, self.opv)
 
     def about_OpenPulse(self):
         self.processInput(AboutOpenPulseInput, self.project, self.opv)

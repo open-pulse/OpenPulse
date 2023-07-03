@@ -440,6 +440,7 @@ class BeforeRun:
         acoustic_message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
     
         if analysis_ID == 2:
+            
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
                 self.opv.opvRenderer.highlight_lines(lines_without_materials)
@@ -521,6 +522,7 @@ class BeforeRun:
                     return True
     
         elif analysis_ID == 3:
+
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
@@ -604,3 +606,140 @@ class BeforeRun:
                 for element_id in element_ids:
                     list_elements.append(element_id)
         return list_lines, list_elements
+    
+    def check_beam_theory_criteria(self, criteria=10):
+        """
+        """
+        
+        def get_neighboors(input_lines, list_of_neighboor_lines, neighboor_data, index):
+            
+            stop = False
+            removed_from_list = False
+            output_lines = input_lines.copy()
+            if input_lines in list_of_neighboor_lines:
+                list_of_neighboor_lines.remove(input_lines)
+
+            for neighboor_lines in list_of_neighboor_lines:
+                if stop:
+                    break
+                for line_id in neighboor_lines:
+                    if line_id in input_lines:
+                        cache_neighboor_lines = neighboor_lines.copy()
+                        stop=True
+                        break
+            if stop:
+                for line in cache_neighboor_lines:
+                    if line not in output_lines:
+                        output_lines.append(line)
+                
+                if cache_neighboor_lines in list_of_neighboor_lines:
+                    list_of_neighboor_lines.remove(cache_neighboor_lines)
+                    removed_from_list = True
+
+            neighboor_data[index] = output_lines
+                
+            if not removed_from_list or len(list_of_neighboor_lines)==0:
+                if len(list_of_neighboor_lines) > 0:
+                    output_lines = list_of_neighboor_lines[0]
+                    index += 1
+            
+            return output_lines, list_of_neighboor_lines, neighboor_data, index
+
+        self.section_data_lines, _ = self.project.file.get_cross_sections_from_file()
+
+        self.one_section_one_line = {}
+        self.one_section_multiple_lines = {}
+        for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
+
+            if (element_type == "pipe_1" and len(section_parameters) == 6) or "beam_1" in element_type:
+                # print(f"\nTags: {tags} - {section_parameters}")
+
+                if len(tags) == 1:
+                    line_ID = tags[0]
+                    length_1, edge_nodes_1 = self.preprocessor.get_line_length(line_ID)
+
+                    if element_type == "pipe_1" and len(section_parameters) == 6:
+                        parameter = section_parameters[0]
+                    elif "beam_1" in element_type:
+                        parameter = max(section_parameters)
+                
+                    ratio_1 = length_1/parameter
+                    self.one_section_one_line[section_id] = {   "section parameter" : parameter,
+                                                                "length" : length_1,
+                                                                "ratio" : ratio_1,
+                                                                "line ID" : tags   }
+                    
+                else:
+
+                    data = {}
+                    neighboor_lines = []
+
+                    for i, tag in enumerate(tags):
+                        filtered_lines = []                                
+                        length_0, edge_nodes_0 = self.preprocessor.get_line_length(tag)
+                        lines = self.get_lines_from_nodes(edge_nodes_0)
+                        for line in lines:
+                            if line in tags and line not in filtered_lines:
+                                filtered_lines.append(line)
+                        data[tag] = [length_0, edge_nodes_0, filtered_lines]
+                        neighboor_lines.append(filtered_lines)
+                        
+                    index = 1
+                    cache_neighboor_lines = neighboor_lines.copy()
+                    ref_lines = neighboor_lines[0]
+                    max_iter = 0
+                    neighboor_data = {}
+
+                    while len(cache_neighboor_lines) > 0 and max_iter < 1000:
+                        ref_lines, cache_neighboor_lines, neighboor_data, index = get_neighboors(   ref_lines, 
+                                                                                                    cache_neighboor_lines, 
+                                                                                                    neighboor_data, 
+                                                                                                    index   )
+                    
+                    aux = {}
+                    if len(neighboor_data)>0:
+                        for ind, neigh_lines in neighboor_data.items():
+
+                            if element_type == "pipe_1" and len(section_parameters) == 6:
+                                parameter = section_parameters[0]
+                            elif "beam_1" in element_type:
+                                parameter = max(section_parameters)
+
+                            lengths = []
+                            for n_line in neigh_lines:
+                                length, _ = self.preprocessor.get_line_length(n_line)
+                                lengths.append(length)
+                            total_length = np.sum(lengths)
+                            ratio = total_length/parameter
+                            aux[ind] = {"section parameter" : parameter,
+                                        "lines" : neigh_lines,
+                                        "lengths" : lengths,
+                                        "total length" : total_length,
+                                        "ratio" : ratio}
+                    
+                    self.one_section_multiple_lines[section_id] = aux
+        
+                
+    def get_lines_from_nodes(self, edge_nodes):
+        """
+        """
+        lines = []
+        if len(edge_nodes) == 2:
+            
+            node_1 = edge_nodes[0]
+            node_2 = edge_nodes[1]
+
+            elements_node_1 = self.preprocessor.elements_connected_to_node[node_1]
+            elements_node_2 = self.preprocessor.elements_connected_to_node[node_2]
+            
+            # if len(elements_node_1) == 2:
+            for element in elements_node_1:
+                line_1 = self.preprocessor.elements_to_line[element.index]
+                lines.append(line_1)
+
+            # if len(elements_node_2) == 2:
+            for element in elements_node_2:
+                line_2 = self.preprocessor.elements_to_line[element.index]
+                lines.append(line_2)
+        
+        return lines

@@ -90,6 +90,12 @@ class PlotStructuralModeShapeInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget.addTopLevelItem(new)
 
+        # data = np.zeros((len(self.dict_modes_frequencies),2))
+        # data[:,0] = np.array(list(self.dict_modes_frequencies.keys()))
+        # data[:,1] = np.array(list(self.dict_modes_frequencies.values()))
+        # header = "Mode || Natural frequency [Hz]"
+        # np.savetxt("results_modal_OpenPulse.txt", data, delimiter=";", header=header)
+
     def on_click_item(self, item):
         self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))

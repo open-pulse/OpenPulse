@@ -1,46 +1,46 @@
-import re
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
-import configparser
-from collections import defaultdict
+
 import os
+import configparser
 import numpy as np
 from math import pi
+
+from collections import defaultdict
+from shutil import copyfile, rmtree
 
 window_title = "ERROR"
 
 class ProjectFile:
     def __init__(self):
-        self._reset()
-        self.reset_frequency_setup()
-        self._entity_file_name = "entity.dat"
-        self._node_structural_file_name = "structural_nodal_info.dat"
-        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
-        self._elements_file_name = "elements_info.dat"
-        self._project_base_name = "project.ini"
-        self._imported_data_folder_name = "imported_data"
+        self.reset()
 
-    def _reset(self):
+    def reset(self):
         self._project_name = ""
         self._import_type = 0
         self._section = 0
-        self._element_size = 1e-8
+        self._element_size = 0.01 # default value to the element size (in meters)
         self._project_path = ""
         self._material_list_path = ""
         self._fluid_list_path = ""
         self._geometry_path = ""
+        self._geometry_filename = ""
+        self._geometry_tolerance = 1e-8 # default value to gmsh geometry tolerance (in milimeters)
         self._conn_path = ""
         self._coord_path = ""
         self._entity_path = ""
+        self._backup_geometry_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
         self._element_info_path = ""
         self._analysis_path = ""
         self.element_type_is_structural = False
+        self.default_filenames()
+        self.reset_frequency_setup()
 
     def reset_frequency_setup(self):
         self.f_min = None
@@ -48,6 +48,28 @@ class ProjectFile:
         self.f_step = None
         self.non_zero_frequency_info = []
         self.zero_frequency = False
+
+    def default_filenames(self):
+        self._entity_file_name = "entity.dat"
+        self._material_file_name = "materialList.dat"
+        self._fluid_file_name = "fluidList.dat"
+        self._geometry_entities_file_name = "geometry_entities.dat"
+        self._node_structural_file_name = "structural_nodal_info.dat"
+        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
+        self._elements_file_name = "elements_info.dat"
+        self._project_base_name = "project.ini"
+        self._imported_data_folder_name = "imported_data"
+        self._backup_geometry_foldername = "geometry_backup"
+
+    def get_list_filenames_to_maintain_after_reset(self):
+        files_to_maintain_after_reset = []
+        files_to_maintain_after_reset.append(self._project_base_name)
+        files_to_maintain_after_reset.append(self._material_file_name)
+        files_to_maintain_after_reset.append(self._fluid_file_name)
+        files_to_maintain_after_reset.append(self._geometry_entities_file_name)
+        if os.path.exists(self._geometry_path):
+            files_to_maintain_after_reset.append(os.path.basename(self._geometry_path))
+        return files_to_maintain_after_reset
 
     def new(self, project_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
@@ -60,6 +82,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         self._conn_path = conn_path
         self._coord_path = coord_path
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -67,6 +90,24 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
+
+    def new_empty(self, project_path, project_name, import_type, material_list_path, fluid_list_path):
+        self._project_path = project_path
+        self._project_name = project_name
+        self._import_type = import_type
+        self._material_list_path = material_list_path
+        self._fluid_list_path = fluid_list_path
+        self._geometry_path = ""
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
+        self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
+        self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
+        self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
     
     def copy(self, project_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
@@ -76,6 +117,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         self._conn_path = conn_path
         self._coord_path = coord_path
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -83,8 +125,54 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
+
+    def get_element_size_from_project_file(self):
+        if self._project_path != "":
+            # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+            config = configparser.ConfigParser()
+            config.read(self._project_ini_file_path)
+            if 'element size' in config['PROJECT'].keys():
+                element_size = config['PROJECT']['element size']
+                if element_size != "":
+                    return float(element_size)
+            else:
+                return ""
+            
+    def get_geometry_entities_path(self):
+        return get_new_path(self._project_path, self._geometry_entities_file_name)
+    
+    # def get_geometry_state_from_project_file(self):
+    #     if self._project_path != "":
+    #         # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+    #         config = configparser.ConfigParser()
+    #         config.read(self._project_ini_file_path)
+    #         if 'geometry state' in config['PROJECT'].keys():
+    #             geometry_state = config['PROJECT']['geometry state']
+    #             if geometry_state != "":
+    #                 return int(geometry_state)
+    #         else:
+    #             return -1
+
+    def create_backup_geometry_folder(self):
+        """ This method creates a backup geometry folder if it was not create yet. Additionally, a geometry file copy
+            is pasted inside geometry backup folder just after its creation. This geometry file will be used in resetting
+            geometry process.
+        """
+        if not os.path.exists(self._backup_geometry_path):
+            os.mkdir(self._backup_geometry_path)
+
+        if os.path.exists(self._geometry_path):
+            basename = os.path.basename(self._geometry_path)
+            if basename != "":
+                new_geometry_path = get_new_path(self._backup_geometry_path, basename)
+                copyfile(self._geometry_path, new_geometry_path)
+
+    def update_geometry_path(self, geometry_path):
+        self._geometry_path = geometry_path
 
     def load(self, project_file_path):
+
         self.project_file_path = project_file_path.replace('/', '\\')
         self._project_path = os.path.dirname(self.project_file_path)
                 
@@ -94,26 +182,35 @@ class ProjectFile:
         project_name = config['PROJECT']['Name']
         import_type = int(config['PROJECT']['Import type'])
 
-        if import_type == 0:
-            geometry_file = config['PROJECT']['Geometry file']
-            element_size = config['PROJECT']['Element size']
-            if 'geometry tolerance' in list(config['PROJECT'].keys()):
-                geometry_tolerance = config['PROJECT']['Geometry tolerance']
-                self._geometry_tolerance = float(geometry_tolerance)
-            self._element_size = float(element_size)
-            self._geometry_path =  get_new_path(self._project_path, geometry_file)
+        section = config['PROJECT']
+        keys = list(section.keys())
 
-        elif import_type == 1:
-            coord_file = config['PROJECT']['Nodal coordinates file']
-            conn_file = config['PROJECT']['Connectivity matrix file']
+        if import_type in [0,1]:
+            if 'geometry file' in keys:
+                geometry_file = section['Geometry file']
+                self._geometry_path =  get_new_path(self._project_path, geometry_file)
+            if 'element size' in keys:
+                element_size = section['Element size']
+                self._element_size = float(element_size)
+            if 'geometry tolerance' in keys:
+                geometry_tolerance = section['Geometry tolerance']
+                self._geometry_tolerance = float(geometry_tolerance)
+            # if 'geometry state' in keys:
+            #     geometry_state = section['Geometry state']
+            #     self._geometry_state = int(geometry_state)
+
+        elif import_type == 2:
+            coord_file = section['Nodal coordinates file']
+            conn_file = section['Connectivity matrix file']
             self._conn_path =  get_new_path(self._project_path, conn_file)
             self._coord_path =  get_new_path(self._project_path, coord_file)
 
-        material_list_file = config['PROJECT']['Material list file']
-        fluid_list_file = config['PROJECT']['Fluid list file']
+        material_list_file = section['Material list file']
+        fluid_list_file = section['Fluid list file']
 
         self._project_name = project_name
         self._import_type = import_type
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._material_list_path = get_new_path(self._project_path, material_list_file)
         self._fluid_list_path =  get_new_path(self._project_path, fluid_list_file)
         self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
@@ -123,6 +220,97 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
+
+    def update_project_attributes(self, element_size=None, geometry_tolerance=None, geometry_filename=None, geometry_state=None):
+        
+        config = configparser.ConfigParser()
+        config.read(self._project_ini_file_path)
+
+        section = config['PROJECT']
+        keys = section.keys()
+
+        if element_size is not None:
+            if 'element size' in keys: 
+                read_element_size = section['element size']
+                if read_element_size != str(element_size):
+                    section['element size'] = str(element_size)
+            else:
+                section['element size'] = str(element_size)
+        
+        if geometry_tolerance is not None:
+            # if 'Geometry tolerance' in keys:
+            section['Geometry tolerance'] = str(geometry_tolerance)
+
+        if geometry_filename is not None:
+            # if 'geometry file' in keys:
+            section['geometry file'] = geometry_filename
+        
+        # if geometry_state is not None:
+        #     if 'geometry state' in keys:
+        #         section['geometry state'] = str(geometry_state)
+        
+        self.write_data_in_file(self._project_ini_file_path, config)
+
+    def add_geometry_entities_to_file(self, entities_data):
+        
+        geometry_file_path = self.get_geometry_entities_path()
+        config = configparser.ConfigParser()
+        config.read(geometry_file_path)
+
+        if len(entities_data["points_data"]) > 0:
+            config['Points'] = entities_data["points_data"]
+        else:
+            if 'Points' in config.sections():
+                config.remove_section('Points')
+        
+        if len(entities_data["lines_data"]) > 0:
+            config['Lines'] = entities_data["lines_data"]
+        else:
+            if 'Lines' in config.sections():
+                config.remove_section('Lines')
+
+        if len(entities_data["fillets_data"]) > 0:
+            config['Fillets'] = entities_data["fillets_data"]
+        else:
+            if 'Fillets' in config.sections():
+                config.remove_section('Fillets')
+
+        self.write_data_in_file(geometry_file_path, config)
+        
+    def load_geometry_entities_file(self):
+
+        geometry_file_path = self.get_geometry_entities_path()
+        if os.path.exists(geometry_file_path):
+            config = configparser.ConfigParser()
+            config.read(geometry_file_path)
+            sections = config.sections()
+            entities_data = {}
+
+            if 'Points' in sections:
+                points_data = {}
+                keys = list(config['Points'].keys())
+                for key in keys:
+                    points_data[int(key)] = get_list_of_values_from_string(config['Points'][key], int_values=False)
+                entities_data['points_data'] = points_data   
+
+            if 'Lines' in sections:
+                lines_data = {}
+                keys = list(config['Lines'].keys())
+                for key in keys:
+                    lines_data[int(key)] = get_list_of_values_from_string(config['Lines'][key])
+                entities_data['lines_data'] = lines_data 
+
+            if 'Fillets' in sections:
+                fillets_data = {}
+                keys = list(config['Fillets'].keys())
+                for key in keys:
+                    fillets_data[int(key)] = get_list_of_values_from_string(config['Fillets'][key], int_values=False)
+                entities_data['fillets_data'] = fillets_data 
+            
+            return entities_data
+        else:
+            return None
 
     #Frequency Setup Analysis
     def load_analysis_file(self):
@@ -154,20 +342,60 @@ class ProjectFile:
         
         preferences = {}
         if "User interface preferences" in sections:
-            background_color = config['User interface preferences']['background-color']
-            font_color = config['User interface preferences']['font-color']
-            OpenPulse_logo = config['User interface preferences']['openpulse logo']
-            mopt_logo = config['User interface preferences']['mopt logo']
-            reference_scale = config['User interface preferences']['reference scale']
 
+            #temporary default preferences to maintain compatibility with the other versions
+            background_color = '(0,0,0)'
+            font_color = '(1,1,1)'
+            nodes_color = '(255,255,63)'
+            lines_color = '(255,255,255)'
+            surfaces_color = '(255,255,255)'
+            transparency = 0.8
+            OpenPulse_logo = '1'
+            mopt_logo = '1'
+            reference_scale = '1'
+
+            config_preferences = config['User interface preferences']
+            keys = config_preferences.keys() 
+            if 'background color' in keys:
+                background_color = config_preferences['background color']
+            if 'font color' in keys:
+                font_color = config_preferences['font color']
+            if 'nodes color' in keys:
+                nodes_color = config_preferences['nodes color']
+            if 'lines color' in keys:
+                lines_color = config_preferences['lines color']
+            if 'surfaces color' in keys:
+                surfaces_color = config_preferences['surfaces color']
+            if 'transparency' in keys:
+                transparency = float(config_preferences['transparency'])
+            if 'openpulse logo' in keys:
+                OpenPulse_logo = config_preferences['openpulse logo']
+            if 'mopt logo' in keys:
+                mopt_logo = config_preferences['mopt logo']
+            if 'reference scale' in keys:
+                reference_scale = config_preferences['reference scale']
+    
             background_color = background_color[1:-1].split(",")
             background_color = tuple([float(val) for val in background_color])
             
             font_color = font_color[1:-1].split(",")
             font_color = tuple([float(val) for val in font_color])
+
+            nodes_color = nodes_color[1:-1].split(",")
+            nodes_color = tuple([float(val) for val in nodes_color])
+
+            lines_color = lines_color[1:-1].split(",")
+            lines_color = tuple([float(val) for val in lines_color])
+
+            surfaces_color = surfaces_color[1:-1].split(",")
+            surfaces_color = tuple([float(val) for val in surfaces_color])
         
             preferences = { 'background_color' : background_color,
                             'font_color' : font_color,
+                            'nodes_color' :  nodes_color,
+                            'lines_color' : lines_color,
+                            'surfaces_color' : surfaces_color,
+                            'transparency' : transparency,
                             'OpenPulse_logo' : bool(int(OpenPulse_logo)),
                             'mopt_logo' : bool(int(mopt_logo)),
                             'reference_scale' : bool(int(reference_scale)) }
@@ -175,6 +403,7 @@ class ProjectFile:
         global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
 
         return float(f_min), float(f_max), float(f_step), global_damping, preferences
+
 
     def add_frequency_in_file(self, min_, max_, step_):
         min_ = str(min_)
@@ -235,12 +464,200 @@ class ProjectFile:
         self.write_data_in_file(temp_project_base_file_path, config)
         
     def create_entity_file(self, entities):
+
         config = configparser.ConfigParser()
         for entity_id in entities:
             config[str(entity_id)] = {}
         
         self.write_data_in_file(self._entity_path, config)
+
+    def update_entity_file(self, entities, dict_map_lines={}):
+
+        try:
+            
+            if os.path.exists(self._entity_path):
+
+                config = configparser.ConfigParser()
+                config2 = configparser.ConfigParser()
+                config2.read(self._entity_path)
+                sections = config2.sections()
+
+                mapped_entities = []
+                for entity_id in entities:
+                    if len(dict_map_lines) == 0:
+                        config[str(entity_id)] = {}
+                    elif str(entity_id) not in sections:
+                        config[str(entity_id)] = {}
+                    elif entity_id not in dict_map_lines.keys():
+                        config[str(entity_id)] = {} 
+                    else:
+                        for section in sections:
+                            if "-" in section:
+                                prefix = int(section.split("-")[0])
+                                sufix = int(section.split("-")[1])
+                                if dict_map_lines[entity_id] == prefix:
+                                    _key = f"{entity_id}-{sufix}"
+                                    config[_key] = config2[section]
+                            else:
+                                if entity_id not in mapped_entities:
+                                    config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
+                                    mapped_entities.append(entity_id)
+            
+                self.write_data_in_file(self._entity_path, config)
+
+        except Exception as _error:
+            print(str(_error))
+
+    def get_entity_file_data(self):
+
+        entity_data = {}
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for entity in config.sections():
+            keys = config[entity].keys()
+            if len(config[entity].keys()) > 0:
+                dict_section = {}
+                for key in keys:
+                    dict_section[key] = config[entity][key]
+                
+                entity_data[entity] = dict_section
+
+        return entity_data
+
+    def check_if_there_are_tables_at_the_model(self):
+        if os.path.exists(self._structural_imported_data_folder_path):
+            return True
+        if os.path.exists(self._acoustic_imported_data_folder_path):
+            return True
+        return False
+
+    def get_cross_sections_from_file(self):
+        """ This method returns a dictionary of already applied cross-sections.
+        """
+        try:
+
+            entityFile = configparser.ConfigParser()
+            entityFile.read(self._entity_path)
+            sections = entityFile.sections()
+            section_info = {}
+            parameters_to_entity_id = defaultdict(list)
+            parameters_to_elements_id = {}
+            variable_section_line_ids = []
+            _id = 1
+
+            for entity in sections:
+
+                line_prefix = ""
+                list_elements = []
+                outerDiameter = ""
+                thickness = ""
+
+                if 'structural element type' in entityFile[entity].keys():
+                    
+                    structural_element_type = entityFile[entity]['structural element type']
+                    if structural_element_type in ['pipe_1', 'pipe_2']:
+
+                        if 'variable section parameters' in entityFile[entity].keys():
+                            if line_prefix not in variable_section_line_ids:
+                                variable_section_line_ids.append(entity)
+                        
+                        if "-" in entity:
+                            line_prefix = entity.split("-")[0]
+                            if line_prefix in variable_section_line_ids:
+                                continue
+                            elif 'list of elements' in entityFile[entity].keys():
+                                str_list_elements = entityFile[entity]['list of elements']
+                                list_elements = get_list_of_values_from_string(str_list_elements)
+
+                        if 'outer diameter' in entityFile[entity].keys():
+                            outerDiameter = entityFile[entity]['outer diameter']
+                        
+                        if 'thickness' in entityFile[entity].keys():
+                            thickness = entityFile[entity]['thickness']
+                        
+                        if 'offset [e_y, e_z]' in entityFile[entity].keys():
+                            offset = entityFile[entity]['offset [e_y, e_z]']
+                            offset_y, offset_z = self._get_offset_from_string(offset) 
+                        
+                        if 'insulation thickness' in entityFile[entity].keys():
+                            insulation_thickness = entityFile[entity]['insulation thickness']
+                        
+                        if 'insulation density' in entityFile[entity].keys():
+                            insulation_density = entityFile[entity]['insulation density']
+            
+                        if outerDiameter != "" and thickness != "":
+                            outerDiameter = float(outerDiameter)
+                            thickness = float(thickness)
+                            offset_y = float(offset_y)
+                            offset_z = float(offset_z)
+                            insulation_thickness = float(insulation_thickness)
+                            insulation_density = float(insulation_density)
+                            section_parameters = [outerDiameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
+                        
+                        if 'section parameters' in entityFile[entity].keys():
+                            str_section_parameters = entityFile[entity]['section parameters']
+                            section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)                  
+                    
+                        if 'variable section parameters' in entityFile[entity].keys():
+                            str_section_variable_parameters = entityFile[entity]['variable section parameters']
+                            section_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)                  
+                    
+                    elif 'beam section type' in entityFile[entity].keys():
+                            section_type = entityFile[entity]['beam section type']
+                            structural_element_type = f"beam_1 - {section_type}"
+                            if section_type == "Generic section":   
+                                continue              
+                            else:
+                                if 'section parameters' in entityFile[entity].keys():
+                                    str_section_parameters = entityFile[entity]['section parameters']
+                                    section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+
+                    str_section_parameters = str(section_parameters)
+                    if str_section_parameters not in parameters_to_entity_id.keys():
+                        section_info[_id] = [structural_element_type, section_parameters]
+                        _id += 1
+                    
+                    if line_prefix == "":
+                        parameters_to_entity_id[str_section_parameters].append(int(entity))
+                    else:   
+                        if list_elements == []:
+                            parameters_to_entity_id[str_section_parameters].append(int(entity)) 
+                        else:
+                            if str_section_parameters not in parameters_to_elements_id.keys():
+                                parameters_to_elements_id[str_section_parameters] = list_elements
+            
+            section_info_elements = {}
+            section_info_lines = {}
+            id_1 = 0
+            id_2 = 0
+            for _id, _data in section_info.items():
+                _section_parameters = _data[1]
+                str_section_parameters = str(_section_parameters)
+                if str_section_parameters in parameters_to_entity_id.keys():
+                    id_1 += 1
+                    data_lines = _data.copy()
+                    data_lines.append("line ids")
+                    data_lines.append(parameters_to_entity_id[str_section_parameters])
+                    section_info_lines[id_1] = data_lines
+                if str_section_parameters in parameters_to_elements_id.keys():
+                    id_2 += 1
+                    data_elements = _data.copy()
+                    data_elements.append("element ids")
+                    data_elements.append(parameters_to_elements_id[str_section_parameters])
+                    section_info_elements[id_2] = data_elements
+
+        except Exception as error_log:
+
+            title = "Error while processing cross-sections"
+            message = "An error has been reached while processing the 'get_cross_sections_from_file' method.\n\n"
+            message += f"Last line id: {entity}\n\n"
+            message += f"Details: \n\n {str(error_log)}"
+            PrintMessageInput([title, message, window_title])
+            return {}, {}
     
+        return section_info_lines, section_info_elements
+                    
     def get_dict_of_entities_from_file(self):
 
         material_list = configparser.ConfigParser()
@@ -291,21 +708,21 @@ class ProjectFile:
                     if 'list of elements' in entityFile[entity].keys():
                         if "-" in entity:
                             str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            list_elements = get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_type[entity] = [list_elements, structural_element_type]
                     else:
                         self.dict_structural_element_type[entity] = structural_element_type
                     self.element_type_is_structural = True
                 else:
                     self.dict_structural_element_type[entity] = 'pipe_1'
-                    
+       
             if 'structural element wall formulation' in entityFile[entity].keys():
                 wall_formulation = entityFile[entity]['structural element wall formulation']
                 if wall_formulation != "":
                     if "-" in entity:
                         if 'list of elements' in entityFile[entity].keys():
                             str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            list_elements = get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_wall_formulation[entity] = [list_elements, wall_formulation]
                     else:
                         self.dict_structural_element_wall_formulation[entity] = wall_formulation
@@ -319,7 +736,7 @@ class ProjectFile:
                     if "-" in entity:
                         if 'list of elements' in entityFile[entity].keys():
                             str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            list_elements = get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_force_offset[entity] = [list_elements, int(force_offset)]
                     else:
                         self.dict_structural_element_force_offset[entity] = int(force_offset)
@@ -344,7 +761,7 @@ class ProjectFile:
 
             if 'compressor info' in entityFile[entity].keys():
                 str_compressor_info = entityFile[entity]['compressor info']
-                _data = self._get_list_of_values_from_string(str_compressor_info, are_values_int=False)
+                _data = get_list_of_values_from_string(str_compressor_info, int_values=False)
                 self.compressor_info[int(entity)] = {   "temperature (suction)" : _data[0],
                                                         "pressure (suction)" : _data[1],
                                                         "temperature (discharge)" : _data[2],
@@ -355,12 +772,12 @@ class ProjectFile:
                                                         "pressure ratio" : _data[7],
                                                         "molar mass" : _data[8],
                                                         "connection type" : int(_data[9])   }
-                                                        
+                                           
             str_joint_parameters = ""
             if 'expansion joint parameters' in entityFile[entity].keys():
                 str_joint_parameters = entityFile[entity]['expansion joint parameters']
-                joint_parameters = self._get_list_of_values_from_string(str_joint_parameters, are_values_int=False)
-        
+                joint_parameters = get_list_of_values_from_string(str_joint_parameters, int_values=False)
+
             str_joint_stiffness = ""
             if 'expansion joint stiffness' in entityFile[entity].keys():
                 str_joint_stiffness = entityFile[entity]['expansion joint stiffness']
@@ -376,7 +793,7 @@ class ProjectFile:
 
                 if 'list of elements' in entityFile[entity].keys():
                     str_list_elements = entityFile[entity]['list of elements']
-                    list_elements = self._get_list_of_values_from_string(str_list_elements)
+                    list_elements = get_list_of_values_from_string(str_list_elements)
 
                 if structural_element_type == "":
                     line_id = entity.split("-")[0]
@@ -442,13 +859,13 @@ class ProjectFile:
                         if section_type == "Generic section":                 
                             if 'section properties' in entityFile[entity].keys():
                                 str_section_properties =  entityFile[entity]['section properties']
-                                section_properties = self._get_list_of_values_from_string(str_section_properties, are_values_int=False)
+                                section_properties = get_list_of_values_from_string(str_section_properties, int_values=False)
                                 section_properties = get_beam_section_properties(section_type, section_properties)
                                 section_parameters = None
                         else:
                             if 'section parameters' in entityFile[entity].keys():
                                 str_section_parameters = entityFile[entity]['section parameters']
-                                section_parameters = self._get_list_of_values_from_string(str_section_parameters, are_values_int=False)
+                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
                                 section_properties = get_beam_section_properties(section_type, section_parameters)
     
                         beam_section_info = {   "section_type_label" : section_type,
@@ -480,7 +897,7 @@ class ProjectFile:
 
                     if 'variable section parameters' in entityFile[entity].keys():
                         str_section_variable_parameters = entityFile[entity]['variable section parameters']
-                        section_variable_parameters = self._get_list_of_values_from_string(str_section_variable_parameters, are_values_int=False)
+                        section_variable_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)
                         self.dict_variable_sections[entity] = section_variable_parameters
 
                     if outerDiameter != "" and thickness != "":
@@ -519,10 +936,10 @@ class ProjectFile:
             number_flange_elements = 0
 
             if structural_element_type == "valve":
-            
+
                 if "valve parameters" in entityFile[entity].keys():
                     str_valve_parameters = entityFile[entity]['valve parameters']
-                    valve_parameters = self._get_list_of_values_from_string(str_valve_parameters, are_values_int=False)
+                    valve_parameters = get_list_of_values_from_string(str_valve_parameters, int_values=False)
                     [valve_length, stiffening_factor, valve_mass] = valve_parameters
                     valve_data["valve_length"] = valve_length
                     valve_data["stiffening_factor"] = stiffening_factor
@@ -530,19 +947,19 @@ class ProjectFile:
                 
                 if "valve center coordinates" in entityFile[entity].keys():
                     str_valve_coord = entityFile[entity]['valve center coordinates']
-                    valve_data["valve_center_coordinates"] = self._get_list_of_values_from_string(str_valve_coord, are_values_int=False) 
+                    valve_data["valve_center_coordinates"] = get_list_of_values_from_string(str_valve_coord, int_values=False)
                 
                 if "valve section parameters" in entityFile[entity].keys():
                     str_valve_section_parameters = entityFile[entity]['valve section parameters'] 
-                    valve_section_parameters = self._get_list_of_values_from_string(str_valve_section_parameters, are_values_int=False)
+                    valve_section_parameters = get_list_of_values_from_string(str_valve_section_parameters, int_values=False)
                 
                 if "flange section parameters" in entityFile[entity].keys():
                     str_flange_section_parameters = entityFile[entity]['flange section parameters']
-                    flange_section_parameters = self._get_list_of_values_from_string(str_flange_section_parameters, are_values_int=False) 
+                    flange_section_parameters = get_list_of_values_from_string(str_flange_section_parameters, int_values=False)
                 
                 if 'list of elements' in entityFile[entity].keys():
                     str_valve_list_elements = entityFile[entity]['list of elements']
-                    valve_data["valve_elements"] = self._get_list_of_values_from_string(str_valve_list_elements)
+                    valve_data["valve_elements"] = get_list_of_values_from_string(str_valve_list_elements)
                     number_valve_elements = len(valve_data["valve_elements"])
                     
                 if 'number of flange elements' in entityFile[entity].keys():
@@ -558,7 +975,7 @@ class ProjectFile:
                                         
                     list_valve_elements = valve_data["valve_elements"]
                     valve_thickness = valve_section_parameters[1]
-                    
+
                     N = number_valve_elements - number_flange_elements
                     nf = int(number_flange_elements/2) 
                     if number_flange_elements == 0:
@@ -572,17 +989,17 @@ class ProjectFile:
                         flange_diameter = flange_section_parameters[0]
                         list_outer_diameters = np.ones(number_valve_elements)*flange_diameter
                         list_inner_diameters = list_outer_diameters - 2*flange_thickness
-                        
+
                         list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_section_parameters[0], N)
                         list_inner_diameters[nf:-nf] = list_outer_diameters[nf:-nf] - 2*valve_thickness
-                        
+
                         lists_flange_elements = [list_valve_elements[0:nf], list_valve_elements[-nf:]]
                         list_flange_elements = [element_id for _list_elements in lists_flange_elements for element_id in _list_elements]
                         valve_data["flange_elements"] = list_flange_elements
                     
-                    dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, decimals=6)))                        
-                    dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, decimals=6)))                        
-                                                    
+                    dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, decimals=6)))                      
+                    dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, decimals=6)))
+
                     for _id in list_inner_elements:
                         dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
                         valve_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]
@@ -694,7 +1111,7 @@ class ProjectFile:
 
             if 'stress stiffening parameters' in entityFile[entity].keys():
                 list_parameters = entityFile[entity]['stress stiffening parameters']
-                _list_parameters = self._get_list_of_values_from_string(list_parameters, are_values_int=False)
+                _list_parameters = get_list_of_values_from_string(list_parameters, int_values=False)
                 try:
                     self.dict_stress_stiffening[int(entity)] = _list_parameters
                 except Exception as err:
@@ -710,7 +1127,7 @@ class ProjectFile:
                         length_correction_type = int(element_file[section]['length correction type'])   
                     if 'list of elements' in  element_file[section].keys():
                         list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(list_elements)
+                        get_list_elements = get_list_of_values_from_string(list_elements)
                     if length_correction_type in [0,1,2] and get_list_elements != []:
                         self.dict_length_correction[section] = [get_list_elements, length_correction_type]
             except Exception as log_error:  
@@ -722,11 +1139,11 @@ class ProjectFile:
                 if "PERFORATED PLATE" in section:
                     if 'perforated plate data' in  element_file[section].keys():
                         list_data = element_file[section]['perforated plate data']   
-                        pp_data = self._get_list_of_values_from_string(list_data, False)
+                        pp_data = get_list_of_values_from_string(list_data, False)
 
                     if 'list of elements' in  element_file[section].keys():
                         list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(list_elements)
+                        get_list_elements = get_list_of_values_from_string(list_elements)
                     
                     if pp_data != [] and get_list_elements != []:
                         perforated_plate = PerforatedPlate( float(pp_data[0]), 
@@ -760,7 +1177,7 @@ class ProjectFile:
                 if "CAPPED END" in section:
                     if 'list of elements' in element_file[section].keys():
                         _list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                        get_list_elements = get_list_of_values_from_string(_list_elements)
                         self.dict_capped_end[section] = get_list_elements
             except Exception as err:  
                 title = "ERROR WHILE LOADING CAPPED END FROM FILE"
@@ -771,10 +1188,10 @@ class ProjectFile:
                 if "STRESS STIFFENING" in section:
                     if 'stress stiffening parameters' in  element_file[section].keys():
                         _list_parameters = element_file[section]['stress stiffening parameters']
-                        get_list_parameters = self._get_list_of_values_from_string(_list_parameters, are_values_int=False)
+                        get_list_parameters = get_list_of_values_from_string(_list_parameters, int_values=False)
                     if 'list of elements' in  element_file[section].keys():
                         _list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                        get_list_elements = get_list_of_values_from_string(_list_elements)
                     self.dict_stress_stiffening[section] = [get_list_elements, get_list_parameters]
             except Exception as err: 
                 title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE" 
@@ -785,13 +1202,13 @@ class ProjectFile:
                 if "B2PX ROTATION DECOUPLING" in section:
                     if 'list of elements' in  element_file[section].keys():
                         _list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                        get_list_elements = get_list_of_values_from_string(_list_elements)
                     if 'list of nodes' in  element_file[section].keys():
                         _list_nodes = element_file[section]['list of nodes']
-                        get_list_nodes = self._get_list_of_values_from_string(_list_nodes)
+                        get_list_nodes = get_list_of_values_from_string(_list_nodes)
                     if 'rotation dofs mask' in  element_file[section].keys():
                         _dofs_mask = element_file[section]['rotation dofs mask']
-                        get_dofs_mask = self._get_list_bool_from_string(_dofs_mask)
+                        get_dofs_mask = get_list_bool_from_string(_dofs_mask)
                     self.dict_B2XP_rotation_decoupling[section] = [get_list_elements, get_list_nodes, get_dofs_mask]
             except Exception as err: 
                 title = "ERROR WHILE LOADING B2PX ROTATION DECOUPLING FROM FILE" 
@@ -911,11 +1328,17 @@ class ProjectFile:
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        
+        sections = list(config.sections())
+
         for line_id in lines:
             str_line = str(line_id)
-            if str_line in list(config.sections()):
+            if str_line in sections:
                 config[str_line]['variable section parameters'] = str(parameters)
+
+            for section in sections:
+                prefix = f"{line_id}-"
+                if prefix in section:
+                    config.remove_section(section=section)
             
         self.write_data_in_file(self._entity_path, config)
 
@@ -1650,27 +2073,6 @@ class ProjectFile:
                 offset_z = float(offset[1])
         return offset_y, offset_z
 
-    def _get_list_bool_from_string(self, input_string):
-        for text in ["[", "]", " "]:
-            input_string = input_string.replace(text,"")
-        list_of_strings = input_string.strip().split(",")
-        list_bool = [True if item=="True" else False for item in list_of_strings]
-        return list_bool
-
-    def _get_list_of_values_from_string(self, input_string, are_values_int=True):
-        
-        input_string = input_string[1:-1].split(',')
-        list_values = []
-        
-        if are_values_int:
-            for value in input_string:
-                list_values.append(int(value))
-        else:
-            for value in input_string:
-                list_values.append(float(value))
-
-        return list_values
-
     def _get_acoustic_bc_from_string(self, str_value, label, folder_table_name):
         
         load_path_table = ""
@@ -2029,83 +2431,109 @@ class ProjectFile:
     #         self.confirm_table_file_removal(list_table_names)
 
 
-    def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, remove_non_mapped_bcs=False):
-        config = configparser.ConfigParser()
-        config.read(self._node_acoustic_path)
+    def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_indexes):
+        if os.path.exists(self._node_acoustic_path):
+            config = configparser.ConfigParser()
+            config.read(self._node_acoustic_path)
+            for node_id in list(config.sections()):
+                try:
+                    new_key = str(dict_old_to_new_indexes[node_id])
+                    if node_id != new_key:
+                        config[new_key] = config[node_id]
+                        config.remove_section(node_id)
+                except Exception as log_error:
+                    config.remove_section(node_id)
+            self.write_data_in_file(self._node_acoustic_path, config)
 
-        for node_id in list(config.sections()):
-            try:
-                config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
-                config.remove_section(node_id)
-            except Exception as log_error:
-                config.remove_section(node_id)
 
-        self.write_data_in_file(self._node_acoustic_path, config)
+    def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
+        if os.path.exists(self._node_structural_path):
 
-
-    def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes):
-        config = configparser.ConfigParser()
-        config.read(self._node_structural_path)
-
-        for node_id in list(config.sections()):
-            try:
-                if "-" in node_id:
-                    [_node_id1, _node_id2]  = node_id.split("-")
-                    key_id1 = str(dict_old_to_new_indexes[_node_id1])
-                    key_id2 = str(dict_old_to_new_indexes[_node_id2])
-                    new_key = f"{key_id1}-{key_id2}"
-                    config[new_key] = config[node_id] 
-                else:
-                    config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
-                config.remove_section(node_id)
-            except Exception as log_error:
-                config.remove_section(node_id)
-
-        self.write_data_in_file(self._node_structural_path, config)
+            config = configparser.ConfigParser()
+            config_new = configparser.ConfigParser()
+            config.read(self._node_structural_path)
+            sections = list(config.sections())
+            
+            for section in sections:
+                try:
+                    if section not in dict_non_mapped_nodes.values():     
+                        if "-" in section:
+                            [_node_id1, _node_id2]  = section.split("-")
+                            key_id1 = str(dict_old_to_new_indexes[_node_id1])
+                            key_id2 = str(dict_old_to_new_indexes[_node_id2])
+                            new_key = f"{key_id1}-{key_id2}"
+                        else:
+                            new_key = str(dict_old_to_new_indexes[section])
+                            # if section != new_key:
+                            #     config2[new_key] = config[section]
+                            #     config.remove_section(section)   
+                        if section != new_key:
+                            config_new[new_key] = config[section]
+                            # config.remove_section(section)
+                        else:
+                            config_new[section] = config[section]                     
+                
+                except Exception as log_error:
+                    config.remove_section(section)
+            
+            self.write_data_in_file(self._node_structural_path, config_new)
 
 
     def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
-        config = configparser.ConfigParser()
-        config.read(self._entity_path)
-        sections = config.sections()
+        """ This method updates the lists of elements in entity file after remesh process. A mapping process checks the boundaries of the
+            attribution before and after meshing process. If the mapping process could not find boundaries of atribution after remesh, 
+            so the all attribuiton from line related to the group of elements will be removed.
+        
+        """
+        if os.path.exists(self._entity_path):
+            config = configparser.ConfigParser()
+            config.read(self._entity_path)
+            sections = config.sections()
+            
+            for section in sections:
+                if section in config.sections():
+                    if 'list of elements' in config[section].keys():
+                        str_list_elements = config[section]['list of elements']
+                        list_elements = get_list_of_values_from_string(str_list_elements)
+                        list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+                        temp_list = []
+                        lines_to_reset = []
+                        try:
 
-        for section in sections:
-            if section in config.sections():
-                if 'list of elements' in config[section].keys():
-                
-                    str_list_elements = config[section]['list of elements']
-                    list_elements = self._get_list_of_values_from_string(str_list_elements)
-                    list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+                            for subgroup_elements in list_subgroup_elements:
+                                str_subgroup_elements = str(subgroup_elements)
+                                if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
+                                    temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
+                                elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
+                                    lines_to_reset.append(section)    
 
-                    temp_list = []
-                    try:
+                            if lines_to_reset != []:
+                                for line_to_reset in lines_to_reset:
+                                    prefix = line_to_reset.split("-")[0] + "-"
+                                    for _section in sections:
+                                        if prefix in _section:
+                                            config.remove_section(section=_section)
+                            elif temp_list != []:
+                                new_list_elements = [value for group in temp_list for value in group]
+                                config[section]['list of elements'] =  str(new_list_elements)
+                            else:
+                                config.remove_section(section=section)
 
-                        for subgroup_elements in list_subgroup_elements:
-                            str_subgroup_elements = str(subgroup_elements)
-                            # if str_subgroup_elements not in dict_non_mapped_subgroups_entity_file.keys():
-                            temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
-                   
-                        # if temp_list != []:
-                            new_list_elements = [value for group in temp_list for value in group]
-                            config[section]['list of elements'] =  str(new_list_elements)
-                        # else:
-                        #     config.remove_section()
+                        except Exception as log_error:
 
-                    except Exception as log_error:
-                        
-                        if "-" in section:
-                            line_id = section.split("-")[0]
-                            subkey = f"{line_id}-"
-                            config.remove_section(section)
-                            if line_id in sections:
-                                for key in config[line_id].keys():                                                     
-                                    for key in config[line_id].keys():
+                            if "-" in section:
+                                line_id = section.split("-")[0]
+                                subkey = f"{line_id}-"
+                                config.remove_section(section)
+                                if line_id in sections:
+                                    for key in config[line_id].keys():                                                     
+                                        # for key in config[line_id].keys():
                                         config.remove_option(section=line_id, option=key)
-                            for _section in sections:
-                                if subkey in _section:
-                                    config.remove_section(_section)           
+                                for _section in sections:
+                                    if subkey in _section:
+                                        config.remove_section(_section)       
 
-        self.write_data_in_file(self._entity_path, config)
+            self.write_data_in_file(self._entity_path, config)
 
 
     def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
@@ -2190,7 +2618,7 @@ class ProjectFile:
     #         if prefix in section:
     #             if 'list of elements' in config[section].keys():
     #                 str_list_elements = config[section]['list of elements']
-    #                 old_list_elements = self._get_list_of_values_from_string(str_list_elements)
+    #                 old_list_elements = get_list_of_values_from_string(str_list_elements)
     #                 new_list_elements = []
     #                 temp_list = old_list_elements.copy()
     #                 for element_id in temp_list:

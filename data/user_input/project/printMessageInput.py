@@ -5,7 +5,7 @@ from PyQt5 import uic
 from threading import Thread
 
 class PrintMessageInput(QDialog):
-    def __init__(self, text_info, opv=None, fontsizes=[13,12], *args, **kwargs):
+    def __init__(self, text_info, opv=None, fontsizes=[13,12], alignment=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Messages/printMessages.ui', self)
 
@@ -25,6 +25,8 @@ class PrintMessageInput(QDialog):
 
         self.title_fontsize, self.message_fontsize = fontsizes
 
+        self.alignment = alignment
+
         self._label_title = self.findChild(QLabel, '_label_title')
         self._label_message = self.findChild(QLabel, '_label_message')
         
@@ -34,7 +36,16 @@ class PrintMessageInput(QDialog):
         self._label_title.setFont(self.font_title)
         self._label_message.setFont(self.font_message)
         self._label_message.setWordWrap(True)
+        self._label_message.setMargin(20)
 
+        try:
+            if alignment is None:
+                self._label_message.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            else:
+                self._label_message.setAlignment(alignment | Qt.AlignVCenter)
+        except:
+            self._label_message.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        
         self.text_info = text_info
         message = self.preprocess_big_strings(self.text_info[1])
 
@@ -44,10 +55,10 @@ class PrintMessageInput(QDialog):
         elif 200 <= len(message) < 400:
             height = 400
             width = 600
-        elif 400 <= len(message) < 800:
+        elif 400 <= len(message) < 1000:
             height = 600
             width = 600
-        elif len(message) >= 800:
+        elif len(message) >= 1000:
             height = 800
             width = 600
 

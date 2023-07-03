@@ -14,12 +14,11 @@ class Menu(QSplitter):
     def __init__(self, main_window):
         super().__init__(Qt.Vertical)
         self.main_window = main_window
-        self.tree_widget = MenuItems(self.main_window)
-        self.data_widget = MenuInfo(self.main_window)
-
-        self.addWidget(self.tree_widget)
-        #self.addWidget(self.data_widget)
-        self.setSizes([100, 100])
+        self.menu_items = MenuItems(self.main_window)
+        self.menu_info = MenuInfo(self.main_window, self.menu_items)
+        self.addWidget(self.menu_info)
+        self.addWidget(self.menu_items)
+        self.setSizes([60, 800])
 
     def hidden_data(self):
         pass

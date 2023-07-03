@@ -5,6 +5,11 @@ class vtkRendererBase(ABC):
     def __init__(self, style):
         super().__init__()
 
+        self.nodes_color = (255, 255, 63)
+        self.lines_color = (255, 255, 255)
+        self.surfaces_color = (255, 255, 255)
+        self.elements_transparency = 0.8
+
         self.background_color = (0,0,0)
         self._renderer = vtk.vtkRenderer()
         self._renderer.SetBackground(self.background_color)
@@ -91,7 +96,19 @@ class vtkRendererBase(ABC):
             self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_black.png')
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
+        
+    def changeNodesColor(self, color):
+        self.nodes_color = color 
     
+    def changeLinesColor(self, color):
+        self.lines_color = color
+
+    def changeSurfacesColor(self, color):
+        self.surfaces_color = color
+    
+    def changeElementsTransparency(self, transparency):
+        self.elements_transparency = transparency
+
     def changeFontColor(self, color):
         self.textProperty.SetColor(color)
 

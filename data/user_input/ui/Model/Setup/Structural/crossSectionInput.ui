@@ -250,7 +250,7 @@
    <widget class="QTabWidget" name="tabWidget_general">
     <property name="geometry">
      <rect>
-      <x>12</x>
+      <x>14</x>
       <y>46</y>
       <width>576</width>
       <height>475</height>
@@ -6834,6 +6834,270 @@ elements</string>
       <property name="text">
        <string>Plot cross-section</string>
       </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_sections">
+     <attribute name="title">
+      <string>Sections</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_load_section_info">
+      <property name="geometry">
+       <rect>
+        <x>232</x>
+        <y>408</y>
+        <width>120</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Load</string>
+      </property>
+     </widget>
+     <widget class="QTabWidget" name="tabWidget_sections_data">
+      <property name="geometry">
+       <rect>
+        <x>4</x>
+        <y>8</y>
+        <width>564</width>
+        <height>393</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>564</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>564</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab_section_lines">
+       <attribute name="title">
+        <string>Attributed by lines</string>
+       </attribute>
+       <widget class="QTreeWidget" name="treeWidget_sections_parameters_by_lines">
+        <property name="geometry">
+         <rect>
+          <x>4</x>
+          <y>6</y>
+          <width>550</width>
+          <height>350</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>9</pointsize>
+          <italic>false</italic>
+         </font>
+        </property>
+        <property name="indentation">
+         <number>1</number>
+        </property>
+        <property name="headerHidden">
+         <bool>false</bool>
+        </property>
+        <attribute name="headerHighlightSections">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerShowSortIndicator" stdset="0">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>ID</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Element type</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Section parameters</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_section_elements">
+       <attribute name="title">
+        <string>Attributed by elements</string>
+       </attribute>
+       <widget class="QTreeWidget" name="treeWidget_sections_parameters_by_elements">
+        <property name="geometry">
+         <rect>
+          <x>4</x>
+          <y>6</y>
+          <width>550</width>
+          <height>350</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>9</pointsize>
+          <italic>false</italic>
+         </font>
+        </property>
+        <property name="indentation">
+         <number>1</number>
+        </property>
+        <property name="headerHidden">
+         <bool>false</bool>
+        </property>
+        <attribute name="headerHighlightSections">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerShowSortIndicator" stdset="0">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>ID</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Element type</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Section parameters</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+       </widget>
+      </widget>
      </widget>
     </widget>
    </widget>
