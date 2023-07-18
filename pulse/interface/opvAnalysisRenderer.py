@@ -501,15 +501,13 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def update_min_max_stresses_text(self):
                 
-        min_stress = self.project.min_stress
-        max_stress = self.project.max_stress
         stress_label = self.project.stress_label
 
         text = ""
         if self.min_max_stresses_values_current is not None:
-            [max_stress, min_stress] = self.min_max_stresses_values_current
-            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
+            [min_stress, max_stress] = self.min_max_stresses_values_current
             text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_label, min_stress)
+            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
         
         width, height = self._renderer.GetSize()
                 

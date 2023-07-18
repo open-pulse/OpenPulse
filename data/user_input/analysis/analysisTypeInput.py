@@ -11,11 +11,13 @@ from data.user_input.analysis.acousticHarmonicAnalysisInput import AcousticHarmo
 from data.user_input.analysis.coupledHarmonicAnalysisInput import CoupledHarmonicAnalysisInput
 from data.user_input.analysis.structuralModalAnalysisInput import StructuralModalAnalysisInput
 from data.user_input.analysis.acousticModalAnalysisInput import AcousticModalAnalysisInput
+from data.user_input.analysis.statict_analysis_input import StaticAnalysisInput
 
 class AnalysisTypeInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Analysis/analysisTypeInput.ui', self)
+        # uic.loadUi('data/user_input/ui/Analysis/analysisTypeInput.ui', self)
+        uic.loadUi('data/user_input/ui/Analysis/analysis_type_input.ui', self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -51,6 +53,9 @@ class AnalysisTypeInput(QDialog):
 
         self.pushButton_modal_acoustic = self.findChild(QPushButton, 'pushButton_modal_acoustic')
         self.pushButton_modal_acoustic.clicked.connect(self.modal_acoustic)
+
+        self.pushButton_static_analysis = self.findChild(QPushButton, 'pushButton_static_analysis')
+        self.pushButton_static_analysis.clicked.connect(self.static_analysis)
 
         self.complete = False
         self.exec_()
@@ -122,3 +127,10 @@ class AnalysisTypeInput(QDialog):
         self.analysis_type_label = "Acoustic Modal Analysis"
         self.complete = modal.complete
         self.close()
+
+    def static_analysis(self):
+        static = StaticAnalysisInput()
+        self.analysis_ID = 7
+        self.analysis_type_label = "Static Analysis"
+        if static.complete:
+            self.close()
