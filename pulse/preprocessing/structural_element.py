@@ -1068,6 +1068,28 @@ class StructuralElement:
         else:
             raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
         
+        ############################## SELF WEIGHT ########################################
+        # #
+        # #Linear shape functions
+        # g = np.array([0., -9.81, 0])
+        # # o usuario deve indicar se a gravidade do modelo está em X, Y ou Z global. Aqui, indiquei que está em Y global.
+        # eload = rho*A*g #cuidado: aqui deve ter a massa do tubo + gás + revestimento
+        # eload = np.append(eload,[0,0,0], axis=1)  #completando o eload com 3 zeros -- vetor de carregamento aqui será vazio para os momentos.
+        # # trazendo a gravidade para a coordenada elementar---> EU ACHO QUE NÃO PRECISA DESSE PASSO. TENTAR ASSIM: NÃO TRAZER PARA A COORDENADA...
+        # #... ELEMENTAR E NO FINAL NÃO TRANSFORMAR (usar o eload global e no final não considerar a linha 218).
+        # iT_e = np.inv(T_e)
+        # eload_ =  np.transpose(iT_e) @ eload @ iT_e               
+        # #
+        # Fe_sw = np.zeros((2*ngln,1))
+        # for i in range(nint_m):
+        #     pksi = pint_m[i]
+        #     phi, dphi = shape(pksi)
+        #     N[0:ngln,0:ngln]=phi[0]*np.identity(ngln)
+        #     N[0:ngln,(ngln):(2*ngln)]=phi[1]*np.identity(ngln)
+        #     #
+        #     Fe_sw = Fe_sw + (N.T @ eload_.T)*detJac*wfact_m[i]
+        # Fe_sw = np.transpose(T_e) @ Fe_sw @ T_e
+        #
         if self.force_offset:
             if self.variable_section:
                 return self.transf_mat_OffsetShear_left @ Fe

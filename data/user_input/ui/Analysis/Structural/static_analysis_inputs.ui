@@ -76,6 +76,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
@@ -270,33 +273,31 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>0</number>
          </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_model_setup">
+          <widget class="QCheckBox" name="checkBox_self_weight">
            <property name="minimumSize">
             <size>
-             <width>320</width>
+             <width>220</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>320</width>
+             <width>220</width>
              <height>26</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
-            <string>Gravity acceleration model setup</string>
+            <string>Enable self weight effect</string>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -328,51 +329,17 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>2</number>
          </property>
          <property name="topMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
           <number>2</number>
          </property>
          <property name="bottomMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="spacing">
           <number>2</number>
          </property>
-         <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_acceleration_x_axis">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 0, 0);</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="3">
           <widget class="QLabel" name="label_13">
            <property name="minimumSize">
@@ -404,33 +371,49 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QRadioButton" name="radioButton_acceleration_x_axis">
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_acceleration_x_axis">
            <property name="minimumSize">
             <size>
-             <width>160</width>
+             <width>90</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>160</width>
+             <width>90</width>
              <height>26</height>
             </size>
            </property>
            <property name="font">
             <font>
+             <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
-           <property name="text">
-            <string>x-axis acceleration</string>
+           <property name="styleSheet">
+            <string notr="true">QLineEdit{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 255); background-color: rgb(255, 255, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QLineEdit::disabled{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(150,150, 150); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
            </property>
-           <attribute name="buttonGroup">
-            <string notr="true">button_group_acceleration_direction</string>
-           </attribute>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QFrame" name="frame_9">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
           </widget>
          </item>
          <item row="0" column="0">
@@ -443,13 +426,17 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            </property>
           </widget>
          </item>
-         <item row="0" column="4">
-          <widget class="QFrame" name="frame_9">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+           <property name="text">
+            <string>x-axis acceleration:</string>
            </property>
           </widget>
          </item>
@@ -481,42 +468,64 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>2</number>
          </property>
          <property name="topMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
           <number>2</number>
          </property>
          <property name="bottomMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="spacing">
           <number>2</number>
          </property>
+         <item row="0" column="4">
+          <widget class="QFrame" name="frame_10">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QFrame" name="frame_7">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="2">
           <widget class="QLineEdit" name="lineEdit_acceleration_y_axis">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>26</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">color: rgb(255, 0, 0);</string>
+            <string notr="true">QLineEdit{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 255); background-color: rgb(255, 255, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QLineEdit::disabled{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(150,150, 150); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+</string>
            </property>
            <property name="text">
             <string>-9.80665</string>
@@ -558,19 +567,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QRadioButton" name="radioButton_acceleration_y_axis">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>160</width>
-             <height>26</height>
-            </size>
-           </property>
+          <widget class="QLabel" name="label_2">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -579,33 +576,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </font>
            </property>
            <property name="text">
-            <string>y-axis acceleration</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">button_group_acceleration_direction</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_7">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QFrame" name="frame_10">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <string>y-axis acceleration:</string>
            </property>
           </widget>
          </item>
@@ -637,17 +608,37 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>2</number>
          </property>
          <property name="topMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
           <number>2</number>
          </property>
          <property name="bottomMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="spacing">
           <number>2</number>
          </property>
+         <item row="0" column="4">
+          <widget class="QFrame" name="frame_11">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QFrame" name="frame_8">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="3">
           <widget class="QLabel" name="label_unit_3">
            <property name="minimumSize">
@@ -679,20 +670,40 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QRadioButton" name="radioButton_acceleration_z_axis">
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_acceleration_z_axis">
            <property name="minimumSize">
             <size>
-             <width>160</width>
+             <width>90</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>160</width>
+             <width>90</width>
              <height>26</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLineEdit{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 255); background-color: rgb(255, 255, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QLineEdit::disabled{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(150,150, 150); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_3">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -701,61 +712,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </font>
            </property>
            <property name="text">
-            <string>z-axis acceleration</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">button_group_acceleration_direction</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_acceleration_z_axis">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">color: rgb(255, 0, 0);</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_8">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QFrame" name="frame_11">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <string>z-axis acceleration:</string>
            </property>
           </widget>
          </item>
@@ -769,7 +726,4 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="button_group_acceleration_direction"/>
- </buttongroups>
 </ui>
