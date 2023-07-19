@@ -1,14 +1,13 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QWidget
-from os.path import basename
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
-from PyQt5.Qt import QApplication
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-from time import time, sleep
+import numpy as np
+from pathlib import Path
 import configparser
+
+from time import time, sleep
 from threading import Thread
-from time import time
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -24,10 +23,10 @@ window_title_2 = "WARNING MESSAGE"
 class RunAnalysisInput(QDialog):
     def __init__(self, project, analysis_ID, analysis_type_label, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Analysis/runAnalysisInput.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Analysis/runAnalysisInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -99,14 +98,14 @@ class RunAnalysisInput(QDialog):
     def preparing_mathematical_model_to_solve(self):
 
         t0 = time()
-        if self.analysis_ID in [0,1,3,5,6]:
+        if self.analysis_ID in [0, 1, 3, 5, 6]:
             if self.frequencies is None:
                 return
             if len(self.frequencies) == 0:
                 return
 
         if self.project.preprocessor._process_beam_nodes_and_indexes():
-            if self.analysis_ID not in [0,1,2]:
+            if self.analysis_ID not in [0, 1, 2]:
                 title = "INCORRECT ANALYSIS TYPE"
                 message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
                 info_text = [title, message, window_title_2]
@@ -117,13 +116,10 @@ class RunAnalysisInput(QDialog):
             self.project.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.solve = self.project.get_structural_solve()
 
-        elif self.analysis_ID == 4:
+        elif self.analysis_ID in [3, 4]:
             self.solve = self.project.get_acoustic_solve()
 
-        elif self.analysis_ID == 3:
-            self.solve = self.project.get_acoustic_solve()
-
-        elif self.analysis_ID in [5,6]:
+        elif self.analysis_ID in [5, 6]:
             self.project.preprocessor.enable_fluid_mass_adding_effect()
             self.solve = self.project.get_acoustic_solve()
             
@@ -138,10 +134,10 @@ class RunAnalysisInput(QDialog):
         t0 = time()
 
         if self.analysis_ID == 0:
-            self.solution_structural = self.solve.direct_method(self.damping) # Structural Harmonic Analysis - Direct Method
+            self.solution_structural = self.solve.direct_method() # Structural Harmonic Analysis - Direct Method
 
         elif self.analysis_ID == 1: # Structural Harmonic Analysis - Mode Superposition Method
-            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
+            self.solution_structural = self.solve.mode_superposition(self.modes)
 
         elif self.analysis_ID == 3: # Acoustic Harmonic Analysis - Direct Method
             self.solution_acoustic, self.convergence_dataLog = self.solve.direct_method()
@@ -156,7 +152,7 @@ class RunAnalysisInput(QDialog):
             self.solve = self.project.get_structural_solve()
             
             t0_structural = time()
-            self.solution_structural = self.solve.direct_method(self.damping) #Coupled Harmonic Analysis - Direct Method
+            self.solution_structural = self.solve.direct_method() #Coupled Harmonic Analysis - Direct Method
             self.project.time_to_solve_structural_model = time() - t0_structural
             
         elif self.analysis_ID == 6: # Coupled Harmonic Analysis - Mode Superposition Method
@@ -169,7 +165,7 @@ class RunAnalysisInput(QDialog):
             self.solve = self.project.get_structural_solve()
             
             t0_structural = time()
-            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
+            self.solution_structural = self.solve.mode_superposition(self.modes)
             self.project.time_to_solve_structural_model = time() - t0_structural
             
         elif self.analysis_ID == 2: # Structural Modal Analysis
@@ -177,11 +173,16 @@ class RunAnalysisInput(QDialog):
 
         elif self.analysis_ID == 4: # Acoustic Modal Analysis
             self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
-        
+    
+        elif self.analysis_ID == 7: # Static Analysis
+            self.solution_structural = self.solve.static_analysis()
+        else:
+            raise NotImplementedError("Not implemented analysis")
+
         self.project.time_to_solve_model = time() - t0
 
         if isinstance(self.solve, SolutionAcoustic):
-            if self.analysis_ID in [3,5,6]:
+            if self.analysis_ID in [3, 5, 6]:
                 if self.solve.non_linear:
                     sleep(2)
 
@@ -212,14 +213,14 @@ class RunAnalysisInput(QDialog):
 
             self.project.set_acoustic_solution(self.solution_acoustic)
         
-        elif self.analysis_ID in [0,1,5,6]:
+        elif self.analysis_ID in [0, 1, 5, 6, 7]:
             
             if self.solution_structural is None:
                 return
 
             self.project.set_structural_solve(self.solve)
             self.project.set_structural_solution(self.solution_structural)
-            self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
+            self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes()
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
             self.project.set_structural_reactions([ self.dict_reactions_at_constrained_dofs,
                                                     self.dict_reactions_at_springs,
@@ -259,7 +260,7 @@ class RunAnalysisInput(QDialog):
             self.project.set_acoustic_natural_frequencies(None)
         elif self.analysis_ID == 3:
             self.project.set_acoustic_solution(None)
-        elif self.analysis_ID in [0,1,5,6]:
+        elif self.analysis_ID in [0, 1, 5, 6, 7]:
             self.project.set_acoustic_solution(None)
             self.project.set_structural_solution(None)
             self.project.set_structural_reactions([ {}, {}, {} ])

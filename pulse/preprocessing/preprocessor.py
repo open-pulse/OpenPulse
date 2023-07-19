@@ -116,6 +116,8 @@ class Preprocessor:
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
         self.camera_rotation_center = [0, 0, 0]
+        self.gravity_vector = np.zeros(self.DOFS_ELEMENT, dtype=float)
+        self.damping = [0, 0, 0, 0]
 
     def set_element_size(self, element_size):
         self.element_size = element_size
@@ -2585,6 +2587,9 @@ class Preprocessor:
             PrintMessageInput([title, message, window_title_1])
             return True  
 
+    def set_gravity_setup(self, gravity):
+        self.gravity_vector = gravity
+
     def get_radius(self):
         """
         This method updates and returns the ????.
@@ -2735,6 +2740,9 @@ class Preprocessor:
         else:
             CompressorModel(list_parameters)
         
+    def set_structural_damping(self, value):
+        self.global_damping = value
+
     def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
         """
         This method returns the ordered global degrees of freedom of two nodes.

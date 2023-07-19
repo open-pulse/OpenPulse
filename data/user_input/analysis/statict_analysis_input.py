@@ -5,10 +5,11 @@ from PyQt5 import uic
 import numpy as np
 from pathlib import Path
 
+from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 class StaticAnalysisInput(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui/Analysis/Structural/static_analysis_inputs.ui'), self)
@@ -18,9 +19,10 @@ class StaticAnalysisInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowTitle("Static Analysis Setup")
 
+        self.project = project
+        self.reset_variables()
         self._define_qt_variables()
 
-        self.complete = False
         self.exec()
 
     def keyPressEvent(self, event):
@@ -28,6 +30,11 @@ class StaticAnalysisInput(QDialog):
             self.confirm()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def reset_variables(self):
+        self.complete = False
+        self.global_damping = [0, 0, 0, 0]
+        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
     def _define_qt_variables(self):
         #
@@ -42,6 +49,7 @@ class StaticAnalysisInput(QDialog):
         self.pushButton_run_analysis.clicked.connect(self.confirm)
 
     def change_input_fields_visibility(self):
+        #
         _bool = not self.checkBox_self_weight.isChecked()
         self.lineEdit_acceleration_x_axis.setDisabled(_bool)
         self.lineEdit_acceleration_y_axis.setDisabled(_bool)
@@ -49,7 +57,6 @@ class StaticAnalysisInput(QDialog):
 
     def check_gravity_values(self):
         #
-        self.gravity = None
         self.acceleration_x = 0
         self.acceleration_y = 0
         self.acceleration_z = 0
@@ -72,40 +79,34 @@ class StaticAnalysisInput(QDialog):
             lineEdit.setFocus()
             return True
         #
-        self.gravity = np.array([self.acceleration_x, self.acceleration_y, self.acceleration_z, 0, 0, 0])
-        if np.sum(np.abs(self.gravity)) == 0:
-    
-            window_title = "WARNING"
-            title = "Invalid input fields"
-            message = "Dear user, you should to enter a valid gravity setup to proceed. The null gravity vector"
-            message += "do not provide an effective static loading."
-            text_info = [title, message, window_title]
-            PrintMessageInput(text_info)
-
-            return True
+        if self.checkBox_self_weight.isChecked():
+            self.gravity = np.array([self.acceleration_x, self.acceleration_y, self.acceleration_z, 0, 0, 0])
+        #
+        # if np.sum(np.abs(self.gravity)) == 0:
+        #     #
+        #     window_title = "WARNING"
+        #     title = "Invalid input fields"
+        #     message = "Dear user, you should to enter a valid gravity setup to proceed. The null "
+        #     message += "gravity vector does not provide an effective static loading."
+        #     #
+        #     text_info = [title, message, window_title]
+        #     PrintMessageInput(text_info)
+        #     #
+        #     return True
+        return False
 
     def confirm(self):
-        #
-        window_title = "WARNING"
-        title = "Under development functionality"
-        message = "Dear user, the 'Static Analysis' functionality is currently under implementation stage."
-        text_info = [title, message, window_title]
-        #
-        PrintMessageInput(text_info)
+        # if self.checkBox_self_weight.isChecked():
 
-        if self.checkBox_self_weight.isChecked():
-            if self.check_gravity_values():
-                return
-        
-            if self.gravity is not None:
-                print(f"gravity setup: {self.gravity}")
-                # self.project.set_gravity_setup(self.gravity)
-                self.complete = True
-                self.close()
-        
+        if self.check_gravity_values():
+            return
+
+        self.project.set_gravity_setup(self.gravity)
+        self.project.set_structural_damping(self.global_damping)
+        self.project.set_frequencies(np.array([0], dtype=float), 0, 0, 0)
         self.complete = True
         self.close()
-    
+        
     def check_inputs(self, lineEdit, label, only_positive=False, zero_included=True, _float=True):
         self.stop = False
         message = ""

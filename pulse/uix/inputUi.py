@@ -259,7 +259,7 @@ class InputUi:
 
     def analysisTypeInput(self):
 
-        read = self.processInput(AnalysisTypeInput)
+        read = self.processInput(AnalysisTypeInput, self.project)
 
         if not read.complete:
             return
@@ -274,15 +274,15 @@ class InputUi:
         if self.analysis_ID is None:
             self.project.analysis_ID = None
             return
-               
-        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+
+        # self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
         
-        if self.analysis_ID in [0, 1, 3, 5, 6]:
+        if self.analysis_ID in [0, 1, 3, 5, 6, 7]:
             self.project.set_structural_solution(None)
             self.project.set_acoustic_solution(None)
-        
-        if self.analysis_ID in [2, 4]:
+
+        if self.analysis_ID in [2, 4, 7]:
             self.project.update_project_analysis_setup_state(True)
             self.runAnalysis()
         else:
@@ -323,7 +323,7 @@ class InputUi:
         if read.complete:
             if self.analysis_ID == 2:
                 self.before_run.check_modal_analysis_imported_data()
-            elif self.analysis_ID in [3,5,6]:
+            elif self.analysis_ID in [3, 5, 6]:
                 self.before_run.check_all_acoustic_criteria()
 
             self.after_run = self.project.get_post_solution_model_checks(opv=self.opv)
@@ -344,7 +344,7 @@ class InputUi:
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
-        if self.analysis_ID in [0,1,5,6]:
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
             if solution is None:
                 return
             plot = self.processInput(PlotDisplacementFieldInput, self.project, self.opv)
@@ -410,7 +410,7 @@ class InputUi:
     def plotStressField(self):
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = True
-        if self.analysis_ID in [0,1,5,6]:
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
@@ -418,7 +418,7 @@ class InputUi:
 
     def plotStressFrequencyResponse(self):
         solution = self.project.get_structural_solution()
-        if self.analysis_ID in [0,1,5,6]:
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return

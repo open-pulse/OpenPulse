@@ -37,7 +37,7 @@ class Project:
         self.analysis_ID = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
-        self.global_damping = [0,0,0,0]
+        self.global_damping = [0, 0, 0, 0]
         self.preferences = {}
         self.modes = 0
         self.frequencies = None
@@ -1893,7 +1893,10 @@ class Project:
             lines = [lines]
         self.preprocessor.set_structural_element_force_offset_by_lines(lines, force_offset)
         self._set_structural_element_force_offset_to_lines(lines, force_offset)
-        self.file.modify_structural_element_force_offset_in_file(lines, force_offset) 
+        self.file.modify_structural_element_force_offset_in_file(lines, force_offset)
+
+    def set_gravity_setup(self, gravity):
+        self.preprocessor.set_gravity_setup(gravity)
 
     def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
         if isinstance(lines, int):
@@ -2024,8 +2027,9 @@ class Project:
     def get_post_solution_model_checks(self, opv=None):
         return AfterRun(self, opv)
 
-    def set_damping(self, value):
+    def set_structural_damping(self, value):
         self.global_damping = value
+        self.preprocessor.set_structural_damping(value)
         self.file.add_damping_in_file(value)
 
     def get_damping(self):
@@ -2081,15 +2085,15 @@ class Project:
         if self.analysis_ID is None:
             return self.analysis_ID
         analysis = self.analysis_ID
-        if analysis >=0 and analysis <= 6:
-            if (analysis in [3,5,6] and self.plot_pressure_field) or self.plot_stress_field:
+        if analysis >=0 and analysis <= 7:
+            if (analysis in [3, 5, 6] and self.plot_pressure_field) or self.plot_stress_field:
                 return "Pa"
-            elif analysis in [5,6] and not self.plot_pressure_field:
+            elif analysis in [5, 6] and not self.plot_pressure_field:
                 return "m"            
-            elif analysis in [0,1]:
+            elif analysis in [0, 1, 7]:
                 return "m"
             else:
-                return "-"  
+                return "-"
 
     def set_stresses_values_for_color_table(self, values):
         self.stresses_values_for_color_table = values

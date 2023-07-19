@@ -681,7 +681,7 @@ class MenuItems(QTreeWidget):
             self.item_top_resultsViewer_structural.setHidden(True)
             self.item_top_resultsViewer_acoustic.setHidden(True)
         
-        if self.project.analysis_ID in [None, 2,4]:
+        if self.project.analysis_ID in [None, 2, 4, 7]:
             self.item_child_analisysSetup.setDisabled(True)
         else:
             self.item_child_analisysSetup.setDisabled(False)
@@ -691,28 +691,33 @@ class MenuItems(QTreeWidget):
         
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
 
-            if self.project.analysis_ID in [0, 1, 2]:
+            if self.project.analysis_ID in [0, 1, 2, 7]:
                 self.item_top_resultsViewer_structural.setHidden(False)
+            
             elif self.project.analysis_ID in [3, 4]:
                 self.item_top_resultsViewer_acoustic.setHidden(False)
+            
             elif self.project.analysis_ID in [5, 6]:    
                 self.item_top_resultsViewer_acoustic.setHidden(False)
                 self.item_top_resultsViewer_structural.setHidden(False)
 
-            if self.project.analysis_ID == 0 or self.project.analysis_ID == 1:
+            if self.project.analysis_ID in [0, 1]:
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
                 self.item_child_plotDisplacementField.setDisabled(False)
                 self.item_child_plotReactionsFrequencyResponse.setDisabled(False)
                 self.item_child_plotStressField.setDisabled(False)
                 self.item_child_plotStressFrequencyResponse.setDisabled(False)
+            
             elif self.project.analysis_ID == 2:
                 self.item_child_plotStructuralModeShapes.setDisabled(False)
                 if self.project.get_acoustic_solution() is not None:
                     self.item_child_plotAcousticModeShapes.setDisabled(False)    
+            
             elif self.project.analysis_ID == 4:
                 self.item_child_plotAcousticModeShapes.setDisabled(False)
                 if self.project.get_structural_solution() is not None:
                     self.item_child_plotStructuralModeShapes.setDisabled(False)  
+            
             elif self.project.analysis_ID == 3:
                 if self.project.perforated_plate_dataLog:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
@@ -720,7 +725,8 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plotAcousticDeltaPressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
-            elif self.project.analysis_ID in [5,6]:
+            
+            elif self.project.analysis_ID in [5, 6]:
                 if self.project.perforated_plate_dataLog:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
@@ -732,6 +738,12 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotAcousticDeltaPressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
                 self.item_child_plotReactionsFrequencyResponse.setDisabled(False)  
+            
+            elif self.project.analysis_ID == 7:
+                self.item_child_plotDisplacementField.setDisabled(False)
+                self.item_child_plotStressField.setDisabled(False)
+                # self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
+                # self.item_child_plotStressFrequencyResponse.setDisabled(False)
 
             self.update_TreeVisibility_after_solution()
             
@@ -743,7 +755,7 @@ class MenuItems(QTreeWidget):
         self.collapseItem(self.item_top_structuralModelSetup)
         self.collapseItem(self.item_top_acousticModelSetup)
 
-        if self.project.analysis_ID in [0,1,2]:
+        if self.project.analysis_ID in [0, 1, 2, 7]:
             self.item_top_resultsViewer_structural.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_structural)
             # self.expandItem(self.item_top_structuralModelSetup)            
@@ -751,7 +763,7 @@ class MenuItems(QTreeWidget):
             self.item_top_resultsViewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_acoustic)
             # self.expandItem(self.item_top_acousticModelSetup)
-        elif self.project.analysis_ID in [5,6]:
+        elif self.project.analysis_ID in [5, 6]:
             self.item_top_resultsViewer_structural.setHidden(False)
             self.item_top_resultsViewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_structural)

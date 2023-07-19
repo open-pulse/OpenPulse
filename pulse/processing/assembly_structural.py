@@ -315,6 +315,59 @@ class AssemblyStructural:
 
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
         
+
+    def get_static_global_loads(self):
+        """
+        This method perform the assembly process of the structural FEM force and moment loads.
+
+        Parameters
+        ----------
+        pressure_external : float, optional
+            Static pressure difference between atmosphere and the fluid in the pipeline.
+            Default is 0.
+
+        loads_matrix3D : boll, optional
+            
+            Default is False.
+
+        Returns
+        ----------
+        array
+            Loads vectors. Each column corresponds to a frequency of analysis.
+        """
+
+        cols = 1
+        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
+
+        loads = np.zeros((total_dof, cols), dtype=complex)
+        pressure_loads = np.zeros((total_dof, cols), dtype=complex)
+    
+        # self-weight and stress stiffening loads
+        for element in self.preprocessor.structural_elements.values():
+            position = element.global_dof
+            loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
+            # loads[position] += element.force_vector_stress_stiffening()
+            # loads[position] += element.force_vector_gcs()
+
+        # distributed loads
+        for element in self.preprocessor.structural_elements.values():
+            if np.sum(element.loaded_forces) != 0:
+                position = element.global_dof
+                loads[position] += element.force_vector_gcs()   
+
+        # nodal loads
+        for node in self.preprocessor.nodes.values():
+            if node.there_are_nodal_loads:
+                position = node.global_dof
+                if node.loaded_table_for_nodal_loads:
+                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else bc for bc in node.nodal_loads]
+                else:
+                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.nodal_loads]
+                loads[position, :] += temp_loads
+
+        return loads[self.unprescribed_indexes,:]
+
+
     def get_global_loads(self, pressure_external = 0, loads_matrix3D=False, static_analysis=False):
         """
         This method perform the assembly process of the structural FEM force and moment loads.
@@ -345,18 +398,20 @@ class AssemblyStructural:
         loads = np.zeros((total_dof, cols), dtype=complex)
         pressure_loads = np.zeros((total_dof, cols), dtype=complex)
     
-        # stress stiffening loads
+        # self-weight and stress stiffening loads
         if static_analysis:
             for element in self.preprocessor.structural_elements.values():
                 position = element.global_dof
-                loads[position] += element.force_vector_stress_stiffening() 
+                loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
+                # loads[position] += element.force_vector_stress_stiffening()
+                # loads[position] += element.force_vector_gcs()
             return loads[self.unprescribed_indexes,:]
 
         # distributed loads
         for element in self.preprocessor.structural_elements.values():
             if np.sum(element.loaded_forces) != 0:
                 position = element.global_dof
-                loads[position] += element.force_vector_gcs()      
+                loads[position] += element.force_vector_gcs()   
 
         # nodal loads
         for node in self.preprocessor.nodes.values():

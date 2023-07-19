@@ -1,8 +1,8 @@
-from locale import windows_locale
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTabWidget, QLabel, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
 import numpy as np
 
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -31,16 +31,17 @@ class AnalysisSetupInput(QDialog):
         self.analysis_ID = project.analysis_ID
 
         if self.analysis_ID in [1,6]:
-            uic.loadUi('data/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisModeSuperpositionMethod.ui', self)
+            ui_path = Path('data/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisModeSuperpositionMethod.ui')
         elif self.analysis_ID in [0,5]:
-            uic.loadUi('data/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisDirectMethod.ui', self)
+            ui_path = Path('data/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisDirectMethod.ui')
         elif self.analysis_ID in [3]:
-            uic.loadUi('data/user_input/ui/Analysis/Acoustic/analysisSetupInput_HarmonicAnalysisDirectMethod.ui', self)
+            ui_path = Path('data/user_input/ui/Analysis/Acoustic/analysisSetupInput_HarmonicAnalysisDirectMethod.ui')
         else:
             return
+        uic.loadUi(ui_path, self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         title = project.analysis_type_label
@@ -174,7 +175,7 @@ class AnalysisSetupInput(QDialog):
                 return True
 
         self.global_damping = [alpha_v, beta_v, alpha_h, beta_h]
-        self.project.set_damping(self.global_damping)
+        self.project.set_structural_damping(self.global_damping)
 
         if self.project.file.check_if_there_are_tables_at_the_model():
             self.frequencies = self.project.frequencies

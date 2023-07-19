@@ -16,7 +16,8 @@ class AcousticHarmonicAnalysisInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.index = 0
-
+        self.complete = False
+        
         self.comboBox = self.findChild(QComboBox, 'comboBox')
         self.comboBox.currentIndexChanged.connect(self.selectionChange)
         self.index = self.comboBox.currentIndex()
@@ -24,7 +25,7 @@ class AcousticHarmonicAnalysisInput(QDialog):
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)
 
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -36,6 +37,7 @@ class AcousticHarmonicAnalysisInput(QDialog):
         self.index = self.comboBox.currentIndex()
 
     def check(self):
+        self.complete = True
         self.close()
 
     def button_clicked(self):

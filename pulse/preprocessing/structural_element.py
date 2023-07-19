@@ -1056,9 +1056,10 @@ class StructuralElement:
         det_jacobian = L / 2
 
         Fe = 0
+        aux_eyes = np.eye( DOF_PER_NODE_STRUCTURAL, dtype=float)
         for point, weigth in zip(points, weigths):
             phi, _ = shape_function(point)
-            N = np.c_[phi[0] * np.eye( DOF_PER_NODE_STRUCTURAL ), phi[1] * np.eye( DOF_PER_NODE_STRUCTURAL )] 
+            N = np.c_[phi[0]*aux_eyes, phi[1]*aux_eyes] 
             Fe += (N.T @ self.loaded_forces.T) * det_jacobian * weigth
         
         if self.element_type == 'pipe_1':
@@ -1068,28 +1069,6 @@ class StructuralElement:
         else:
             raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
         
-        ############################## SELF WEIGHT ########################################
-        # #
-        # #Linear shape functions
-        # g = np.array([0., -9.81, 0])
-        # # o usuario deve indicar se a gravidade do modelo está em X, Y ou Z global. Aqui, indiquei que está em Y global.
-        # eload = rho*A*g #cuidado: aqui deve ter a massa do tubo + gás + revestimento
-        # eload = np.append(eload,[0,0,0], axis=1)  #completando o eload com 3 zeros -- vetor de carregamento aqui será vazio para os momentos.
-        # # trazendo a gravidade para a coordenada elementar---> EU ACHO QUE NÃO PRECISA DESSE PASSO. TENTAR ASSIM: NÃO TRAZER PARA A COORDENADA...
-        # #... ELEMENTAR E NO FINAL NÃO TRANSFORMAR (usar o eload global e no final não considerar a linha 218).
-        # iT_e = np.inv(T_e)
-        # eload_ =  np.transpose(iT_e) @ eload @ iT_e               
-        # #
-        # Fe_sw = np.zeros((2*ngln,1))
-        # for i in range(nint_m):
-        #     pksi = pint_m[i]
-        #     phi, dphi = shape(pksi)
-        #     N[0:ngln,0:ngln]=phi[0]*np.identity(ngln)
-        #     N[0:ngln,(ngln):(2*ngln)]=phi[1]*np.identity(ngln)
-        #     #
-        #     Fe_sw = Fe_sw + (N.T @ eload_.T)*detJac*wfact_m[i]
-        # Fe_sw = np.transpose(T_e) @ Fe_sw @ T_e
-        #
         if self.force_offset:
             if self.variable_section:
                 return self.transf_mat_OffsetShear_left @ Fe
@@ -1161,6 +1140,7 @@ class StructuralElement:
         else:
             return R.T @ aux
 
+
     def force_vector_stress_stiffening(self, vector_gcs=True):
         """
         This method returns description
@@ -1214,7 +1194,70 @@ class StructuralElement:
             return (capped_end - 2*nu) * axial_stress * A * aux
         elif self.wall_formutation_type == "thin wall":
             return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
-            
+    
+
+    def get_self_weighted_load(self, gravity_vector):
+        """
+        This method returns the self-weighted loads for static analysis.
+        Returns
+        -------
+        Fe_sw : array
+            Load vector due to self-weight in the global coordinate system.
+        """
+ 
+        g = gravity_vector
+        #
+        rho = self.material.density
+        A = self.cross_section.area
+        #
+        A_fluid = A_ins = 0.
+        rho_fluid = rho_ins = 0.
+        if self.element_type in ["pipe_1", "valve"]:
+            A_ins = self.cross_section.area_insulation
+            rho_ins = self.cross_section.insulation_density
+            if self.fluid is not None and self.adding_mass_effect:
+                rho_fluid = self.fluid.density
+                A_fluid = self.cross_section.area_fluid
+        
+        eload = (rho*A + rho_fluid*A_fluid + rho_ins*A_ins)*g
+
+        _R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        _Rt = self.transpose_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        
+        # convert the loads to the local coordinates
+        eload_lcs =  _R @ eload @ _Rt               
+        eload_lcs = eload_lcs.reshape(-1, 1)
+
+        ## Numerical integration by Gauss quadrature
+        L = self.length
+        integrations_points = 2
+        points, weigths = gauss_quadrature(integrations_points)
+
+        #Determinant of Jacobian (linear 1D trasform)
+        det_jacobian = L / 2
+
+        Fe_sw = 0.
+        aux_eyes = np.eye(DOF_PER_NODE_STRUCTURAL, dtype=float)
+
+        for point, weigth in zip(points, weigths):
+            phi, _ = shape_function(point)
+            N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
+            Fe_sw += (N.T @ eload_lcs) * det_jacobian * weigth
+        
+        if self.element_type == 'pipe_1':
+            principal_axis = self.cross_section.principal_axis
+        else:
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+
+        if self.force_offset:
+            if self.variable_section:
+                return self.transf_mat_OffsetShear_left @ Fe_sw
+            else:
+                return principal_axis.T @ Fe_sw
+        else:
+            return Fe_sw
+
+        
     def stiffness_matrix_beam(self):
         """
         This method returns the beam element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is suitable for any beam cross section data.

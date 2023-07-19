@@ -239,6 +239,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider.SetEnabled(True)
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
+        #
+        # max_value = np.max(np.abs(np.real(u_def)))
+        # print(f"Maximum displacement: {round(max_value, 14)}")
         
     def get_min_max_values_to_stresses(self):
         solution = self.project.stresses_values_for_color_table
@@ -491,7 +494,8 @@ class opvAnalysisRenderer(vtkRendererBase):
             text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
         else:
             frequencies = self.project.get_frequencies()
-            text += self.project.analysis_method_label + "\n"
+            if self.project.analysis_method_label is not None:
+                text += self.project.analysis_method_label + "\n"
             text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
 
         if not self.project.plot_pressure_field:
