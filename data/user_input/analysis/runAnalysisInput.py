@@ -23,7 +23,8 @@ window_title_2 = "WARNING MESSAGE"
 class RunAnalysisInput(QDialog):
     def __init__(self, project, analysis_ID, analysis_type_label, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(Path('data/user_input/ui/Analysis/runAnalysisInput.ui'), self)
+
+        uic.loadUi(Path('data/user_input/ui/analysis_/general_/run_analysis_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

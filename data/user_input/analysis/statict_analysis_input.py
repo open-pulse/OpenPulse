@@ -12,7 +12,7 @@ class StaticAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Analysis/Structural/static_analysis_inputs.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/analysis_/structural_/static_analysis_inputs.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

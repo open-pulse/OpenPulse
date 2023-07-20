@@ -22,6 +22,7 @@ from data.user_input.analysis.statict_analysis_input import StaticAnalysisInput
 |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
 |    5 - Coupled - Harmonic analysis through direct method           |
 |    6 - Coupled - Harmonic analysis through mode superposition      |
+|    7 - Structural - Static analysis (under development)            |
 |--------------------------------------------------------------------|
 """
 
@@ -29,7 +30,7 @@ class AnalysisTypeInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-        uic.loadUi(Path('data/user_input/ui/Analysis/analysis_type_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/analysis_/general_/analysis_type_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -88,8 +89,8 @@ class AnalysisTypeInput(QDialog):
 
     def harmonic_acoustic(self):
         #
-        obj = AcousticHarmonicAnalysisInput()
-        self.method_ID = obj.index
+        # obj = AcousticHarmonicAnalysisInput()
+        # self.method_ID = obj.index
         self.method_ID = 0
         self.analysis_type_label = "Acoustic Harmonic Analysis"
 
@@ -100,9 +101,10 @@ class AnalysisTypeInput(QDialog):
             return
     
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
-        self.complete = obj.complete
-        if obj.complete:
-            self.close()
+        # self.complete = obj.complete
+        # if obj.complete:
+        self.complete = True
+        self.close()
 
     def harmonic_coupled(self):
         #

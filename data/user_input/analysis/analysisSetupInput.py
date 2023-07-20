@@ -24,71 +24,79 @@ class AnalysisSetupInput(QDialog):
         |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
         |    5 - Coupled - Harmonic analysis through direct method           |
         |    6 - Coupled - Harmonic analysis through mode superposition      |
+        |    7 - Structural - Static analysis (under development)            |
         |--------------------------------------------------------------------|
         """
 
         self.project = project
         self.analysis_ID = project.analysis_ID
 
-        if self.analysis_ID in [1,6]:
-            ui_path = Path('data/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisModeSuperpositionMethod.ui')
-        elif self.analysis_ID in [0,5]:
-            ui_path = Path('data/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisDirectMethod.ui')
+        if self.analysis_ID in [1, 6]:
+            ui_path = Path('data/user_input/ui/analysis_/structural_/harmonic_analysis_mode_superposition_method_inputs.ui')
+        elif self.analysis_ID in [0, 5]:
+            ui_path = Path('data/user_input/ui/analysis_/structural_/harmonic_analysis_direct_method_inputs.ui')
         elif self.analysis_ID in [3]:
-            ui_path = Path('data/user_input/ui/Analysis/Acoustic/analysisSetupInput_HarmonicAnalysisDirectMethod.ui')
+            ui_path = Path('data/user_input/ui/analysis_/acoustic_/harmonic_analysis_direct_method_inputs.ui')
         else:
             return
+
         uic.loadUi(ui_path, self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
-        title = project.analysis_type_label
-        subtitle = project.analysis_method_label
-        
+        self._initialize_variables()
+        self._define_qt_variables()
+        self._create_connections()
+
+        self.update_frequency_setup_input_texts()
+        self.update_damping_input_texts()
+        self.exec()
+
+    def _initialize_variables(self):
+        self.title = self.project.analysis_type_label
+        self.subtitle = self.project.analysis_method_label
+        self.f_min = self.project.f_min
+        self.f_max = self.project.f_max
+        self.f_step = self.project.f_step
+        self.global_damping = self.project.global_damping
+
         self.complete = False
         self.flag_run = False
         self.frequencies = []
-
-        self.f_min = project.f_min
-        self.f_max = project.f_max
-        self.f_step = project.f_step
-
-        self.global_damping = project.global_damping
         self.modes = 0
 
+    def _define_qt_variables(self):
+        # QLabel objects
         self.label_title = self.findChild(QLabel, 'label_title')
         self.label_subtitle = self.findChild(QLabel, 'label_subtitle')
-
+        self.label_title.setText(self.title)
+        self.label_subtitle.setText(self.subtitle)
+        
+        # QLineEdit objects
         if self.analysis_ID == 1:
             self.lineEdit_modes = self.findChild(QLineEdit, 'lineEdit_modes')
-
         self.lineEdit_av = self.findChild(QLineEdit, 'lineEdit_av')
         self.lineEdit_bv = self.findChild(QLineEdit, 'lineEdit_bv')
         self.lineEdit_ah = self.findChild(QLineEdit, 'lineEdit_ah')
         self.lineEdit_bh = self.findChild(QLineEdit, 'lineEdit_bh')
-        
         self.lineEdit_fmin = self.findChild(QLineEdit, 'lineEdit_min')
         self.lineEdit_fmax = self.findChild(QLineEdit, 'lineEdit_max')
         self.lineEdit_fstep = self.findChild(QLineEdit, 'lineEdit_step')
-
+        
+        # QPushButton objects
         self.pushButton_confirm_close = self.findChild(QPushButton, 'pushButton_confirm_close')
-        self.pushButton_confirm_close.clicked.connect(self.check_exit)
         self.pushButton_confirm_run_analysis = self.findChild(QPushButton, 'pushButton_confirm_run_analysis')
-        self.pushButton_confirm_run_analysis.clicked.connect(self.check_run)
 
+        # QTabWidget objects
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
-        self.tabWidget.currentChanged.connect(self.tabEvent)
         self.currentTab = self.tabWidget.currentIndex()
-        
-        self.label_title.setText(title)
-        self.label_subtitle.setText(subtitle)
 
-        self.update_frequency_setup_input_texts()
-        self.update_damping_input_texts()
-        
-        self.exec_()
+    def _create_connections(self):
+        self.pushButton_confirm_close.clicked.connect(self.check_exit)
+        self.pushButton_confirm_run_analysis.clicked.connect(self.check_run)
+        self.tabWidget.currentChanged.connect(self.tabEvent)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -119,9 +127,9 @@ class AnalysisSetupInput(QDialog):
 
     def check_exit(self):
         input_fmin = input_fmax = input_fstep = 0
-        if self.analysis_ID not in [2,4]:
-            
-            if self.analysis_ID == 1:
+        if self.analysis_ID not in [2, 4]:
+
+            if self.analysis_ID in [1, 6]:
                 self.modes = self.check_inputs(self.lineEdit_modes, "'number of modes'")
                 if self.stop:
                     self.lineEdit_modes.setFocus()

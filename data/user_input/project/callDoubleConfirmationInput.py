@@ -1,17 +1,18 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QLabel
-from PyQt5.QtGui import QIcon, QFont 
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+import numpy as np
+from pathlib import Path
 from pulse import __version__, __release_date__
-# import os
-# import configparser
-# from shutil import copyfile
-# import numpy as np
+
 
 class CallDoubleConfirmationInput(QDialog):
     def __init__(self, title, message, leftButton_label="Return", rightButton_label="Remove", rightButton_size=160, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/callDoubleConfirmationInput.ui', self)
+
+        # uic.loadUi(Path('data/user_input/ui/Project/callDoubleConfirmationInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/Project/call_double_confirmation_input.ui'), self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -42,8 +43,8 @@ class CallDoubleConfirmationInput(QDialog):
         self.exec_()
 
     def define_qt_variables(self):
-        self.QLabel_message = self.findChild(QLabel, 'QLabel_message')
-        self.QLabel_title = self.findChild(QLabel, 'QLabel_title')
+        self.QLabel_message = self.findChild(QLabel, 'label_message')
+        self.QLabel_title = self.findChild(QLabel, 'label_title')
         self.pushButton_rightButton = self.findChild(QPushButton, 'pushButton_rightButton')
         self.pushButton_leftButton = self.findChild(QPushButton, 'pushButton_leftButton')
     

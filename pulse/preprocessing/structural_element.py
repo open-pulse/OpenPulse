@@ -416,7 +416,7 @@ class StructuralElement:
             Force vector in the global coordinate system.
         """
         Rt = self.transpose_rotation_matrix
-        return Rt @ self.force_vector()
+        return Rt @ self.get_distributed_load()
 
     def _element_rotation_matrix(self):
         """
@@ -1033,7 +1033,7 @@ class StructuralElement:
         self.transf_mat_OffsetShear_right = Sc@Of
 
 
-    def force_vector(self):
+    def get_distributed_load(self):
         """
         This method returns the element load vector in the local coordinate system. The loads are forces and moments according to the degree of freedom.
 
@@ -1047,6 +1047,14 @@ class StructuralElement:
         TypeError
             Only pipe_1 and pipe_2 element types are allowed.
         """
+
+        _R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        _Rt = self.transpose_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        
+        # convert the loads to the local coordinates
+        eload_lcs =  _R @ self.loaded_forces @ _Rt               
+        eload_lcs = eload_lcs.reshape(-1, 1)
+
         ## Numerical integration by Gauss quadrature
         L = self.length
         integrations_points = 2
@@ -1060,7 +1068,7 @@ class StructuralElement:
         for point, weigth in zip(points, weigths):
             phi, _ = shape_function(point)
             N = np.c_[phi[0]*aux_eyes, phi[1]*aux_eyes] 
-            Fe += (N.T @ self.loaded_forces.T) * det_jacobian * weigth
+            Fe += (N.T @ eload_lcs) * det_jacobian * weigth
         
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis

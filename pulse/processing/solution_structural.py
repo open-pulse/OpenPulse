@@ -81,6 +81,13 @@ class SolutionStructural:
         return full_solution
 
 
+    def get_loads_for_stress_stiffening(self):
+        """ This method returns the loads relative to internal pressure only for
+            stress stiffening analysis.
+        """
+        return self.assembly.get_global_loads_for_stress_stiffening()
+
+
     def get_combined_loads(self, static_analysis=False):
         """
         This method adds the effects of prescribed displacement and rotation into global loads vector.
@@ -100,8 +107,8 @@ class SolutionStructural:
 
         F = self.assembly.get_global_loads(static_analysis=static_analysis)
 
-        if static_analysis:
-            return F
+        # if static_analysis:
+        #     return F
 
         unprescribed_indexes = self.unprescribed_indexes
 
@@ -120,20 +127,20 @@ class SolutionStructural:
             
             for i, freq in enumerate(self.frequencies):
                 
-                _Kr = Kr + (self.Kr_exp_joint[i].toarray())[unprescribed_indexes, :] 
-
-                Kr_lump_i = (self.Kr_lump[i].toarray())[unprescribed_indexes, :]
-                Mr_lump_i = (self.Mr_lump[i].toarray())[unprescribed_indexes, :]
-                Cr_lump_i = (self.Cr_lump[i].toarray())[unprescribed_indexes, :]
-
+                _Kr = Kr + (self.Kr_exp_joint[i].toarray())[unprescribed_indexes, :]
                 Kr_add = np.sum(_Kr*self.array_prescribed_values[:,i], axis=1)
                 Mr_add = np.sum(_Mr*self.array_prescribed_values[:,i], axis=1)
                 
                 if self.nodes_connected_to_springs != []:
+                    Kr_lump_i = (self.Kr_lump[i].toarray())[unprescribed_indexes, :]
                     Kr_add_lump = np.sum(Kr_lump_i*self.array_prescribed_values[:,i], axis=1)
+
                 if self.nodes_with_lumped_masses != []:
+                    Mr_lump_i = (self.Mr_lump[i].toarray())[unprescribed_indexes, :]
                     Mr_add_lump = np.sum(Mr_lump_i*self.array_prescribed_values[:,i], axis=1)
+
                 if self.nodes_connected_to_dampers != []:
+                    Cr_lump_i = (self.Cr_lump[i].toarray())[unprescribed_indexes, :]
                     Cr_add_lump = np.sum(Cr_lump_i*self.array_prescribed_values[:,i], axis=1)
 
                 omega = 2*np.pi*freq
@@ -389,7 +396,8 @@ class SolutionStructural:
        
         # t0 = time()
         alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
-        F = self.assembly.get_static_global_loads()
+        # F = self.assembly.get_global_loads_for_static_analysis()
+        F = self.get_combined_loads(static_analysis=True)
 
         # dt = time() - t0
         # print("Time elapsed: {}[s]".format(dt))
