@@ -325,8 +325,12 @@ class BeforeRun:
         self.is_there_acoustic_pressure = False
         self.is_there_volume_velocity = False
         for node in self.nodes.values():
+            
+            if structural:               
+                if self.preprocessor.stress_stiffening_enabled:
+                    self.is_there_loads = True
+                    return
 
-            if structural:
                 if node.there_are_nodal_loads:
                     self.is_there_loads = True
                     return
@@ -348,7 +352,6 @@ class BeforeRun:
                 if node.volume_velocity is not None:
                     self.is_there_volume_velocity = True
                     return    
-
 
     def check_all_acoustic_criteria(self):
         window_title = "WARNING"

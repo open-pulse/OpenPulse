@@ -1,21 +1,21 @@
-import os
-from os.path import basename
-from pulse.processing.solution_acoustic import relative_error
-from PyQt5.QtWidgets import QLineEdit, QFileDialog, QDialog, QTreeWidget, QToolButton, QSpinBox, QWidget, QRadioButton, QCheckBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
+import os
+import numpy as np
 import configparser
 import numpy as np
 import matplotlib.pyplot as plt
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.preprocessing.perforated_plate import PerforatedPlate
-from pulse.utils import get_new_path, remove_bc_from_file
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from pulse.utils import get_new_path, remove_bc_from_file
 
 window_title_1 = "ERROR"
 window_title_2 = "WARNING"
@@ -56,10 +56,11 @@ class SnaptoCursor(object):
 class PerforatedPlateInput(QDialog):
     def __init__(self, project, opv, valve_ids=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/perforatedPlateInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Acoustic/perforatedPlateInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -1100,7 +1101,7 @@ class PerforatedPlateInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationPerforatedPlate.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationPerforatedPlate.ui'), self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')

@@ -1,16 +1,14 @@
-from re import M
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QTreeWidget, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QToolButton, QMessageBox, QRadioButton
-from os.path import basename
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5 import uic, QtCore
-import configparser
-from collections import defaultdict
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5 import uic
+from pathlib import Path
+
 import os
 import numpy as np
+import configparser
+from collections import defaultdict
 import matplotlib.pyplot as plt
-from numpy.core.numeric import False_  
 
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.cross_section import CrossSection
@@ -19,7 +17,6 @@ from pulse.utils import create_new_folder, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
-
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
@@ -50,12 +47,12 @@ class ClickableLineEdit(QLineEdit):
 class ExpansionJointInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/expansionJointInput.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/expansionJointInput.ui'), self)
         
-        clicked = QtCore.pyqtSignal()
+        clicked = pyqtSignal()
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -1383,10 +1380,11 @@ class ExpansionJointInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, selection, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Info/getExpansionJointInformationInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Info/getExpansionJointInformationInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

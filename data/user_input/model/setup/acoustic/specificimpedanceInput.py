@@ -1,9 +1,11 @@
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5 import uic
+from pathlib import Path
+
 import os
 import numpy as np
-from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QFileDialog, QDialog,  QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget, QSpinBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
 
 from pulse.utils import remove_bc_from_file, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -15,10 +17,11 @@ window_title_2 = "WARNING"
 class SpecificImpedanceInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/specificImpedanceInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Acoustic/specificImpedanceInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

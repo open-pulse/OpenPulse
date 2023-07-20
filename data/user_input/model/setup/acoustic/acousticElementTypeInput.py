@@ -1,9 +1,8 @@
-from PyQt5.QtWidgets import  QDialog, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QWidget, QCheckBox, QLabel
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
+from pathlib import Path
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
@@ -13,10 +12,11 @@ window_title2 = "WARNING"
 class AcousticElementTypeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/acousticElementTypeInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Acoustic/acousticElementTypeInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
   
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -286,13 +286,14 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, key, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-
-        uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
         self.project = project
         self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity

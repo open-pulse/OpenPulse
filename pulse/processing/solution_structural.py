@@ -102,18 +102,20 @@ class SolutionStructural:
         array
             Force and moment global loads. Each column corresponds to a frequency of analysis.
         """
-        # t0 = time()
-        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
 
+        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
         F = self.assembly.get_global_loads(static_analysis=static_analysis)
 
-        # if static_analysis:
-        #     return F
+        if static_analysis:
+            _frequencies = np.array([0.], dtype=float)
+        else:
+            _frequencies = self.frequencies
+            # return F
 
         unprescribed_indexes = self.unprescribed_indexes
 
         rows = len(unprescribed_indexes)
-        cols = len(self.frequencies)
+        cols = len(_frequencies)
         F_eq = np.zeros((rows,cols), dtype=complex)
         
         if np.sum(self.array_prescribed_values) != 0:
@@ -125,7 +127,7 @@ class SolutionStructural:
             Kr = (self.Kr.toarray())[unprescribed_indexes, :]
             _Mr = (self.Mr.toarray())[unprescribed_indexes, :] + (self.Mr_exp_joint.toarray())[unprescribed_indexes, :]
             
-            for i, freq in enumerate(self.frequencies):
+            for i, freq in enumerate(_frequencies):
                 
                 _Kr = Kr + (self.Kr_exp_joint[i].toarray())[unprescribed_indexes, :]
                 Kr_add = np.sum(_Kr*self.array_prescribed_values[:,i], axis=1)
@@ -149,9 +151,6 @@ class SolutionStructural:
                 F_Cadd = 1j*((betaH + omega*betaV)*Kr_add + (alphaH + omega*alphaV)*Mr_add)
                 F_Cadd_lump = 1j*omega*Cr_add_lump
                 F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
-
-        # dt = time()-t0
-        # print("Time elapsed: {}[s]".format(dt))
 
         F_combined = F - F_eq
 
@@ -249,20 +248,16 @@ class SolutionStructural:
         """
 
         alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
-        
-        # t0 = time()
-        F = self.get_combined_loads()
-        # dt = time() - t0
-        # print("Time elapsed: {}[s]".format(dt))
-
-        rows = self.K.shape[0]
-        cols = len(self.frequencies)
 
         if self.preprocessor.stress_stiffening_enabled:
             self.static_analysis()
 
+        rows = self.K.shape[0]
+        cols = len(self.frequencies)
+
+        F = self.get_combined_loads()
         solution = np.zeros((rows, cols), dtype=complex)
-    
+        
         for i, freq in enumerate(self.frequencies):
 
             omega = 2*np.pi*freq
@@ -394,13 +389,9 @@ class SolutionStructural:
             Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
         """
        
-        # t0 = time()
         alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
         # F = self.assembly.get_global_loads_for_static_analysis()
         F = self.get_combined_loads(static_analysis=True)
-
-        # dt = time() - t0
-        # print("Time elapsed: {}[s]".format(dt))
 
         rows = self.K.shape[0]
         cols = 1

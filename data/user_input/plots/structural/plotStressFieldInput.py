@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QPushButton, QCheckBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
+from pathlib import Path
 import numpy as np
 
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -12,10 +10,10 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 class PlotStressFieldInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStressFieldInput.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Plots/Results/Structural/plotStressFieldInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.opv = opv

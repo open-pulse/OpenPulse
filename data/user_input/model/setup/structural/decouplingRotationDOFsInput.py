@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QCheckBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 import configparser
 import numpy as np
 import matplotlib.pyplot as plt  
@@ -17,10 +17,11 @@ window_title2 = "WARNING MESSAGE"
 class DecouplingRotationDOFsInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/decouplingRotationDOFsInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/decouplingRotationDOFsInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -283,13 +284,15 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, decoupled_DOFs_bool, decoupled_DOFs_labels, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Info/getInformationRotationDecouplingInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
  
-        uic.loadUi('data/user_input/ui/Model/Info/getInformationRotationDecouplingInput.ui', self)
         self.flagLines = True
         self.flagElements = False
         self.lineEdit_decoupled_DOFs = self.findChild(QLineEdit, 'lineEdit_decoupled_DOFs')

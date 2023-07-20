@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QTabWidget, QRadioButton, QSplitter, QGridLayout, QLabel
-from PyQt5.QtCore import Qt, QSize, QEvent
-from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
 
 class MenuInfo(QWidget):
     """Menu Info
@@ -15,7 +16,7 @@ class MenuInfo(QWidget):
         #
         self.main_window = main_window
         self.menu_items = menu_items
-        uic.loadUi('data/user_input/ui/Project/analysisFilter.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Project/analysisFilter.ui'), self)
         self._define_Qt_variables_and_connections()
         # self._create_radioButtons()
         # self._set_config()

@@ -1202,6 +1202,8 @@ class StructuralElement:
             return (capped_end - 2*nu) * axial_stress * A * aux
         elif self.wall_formutation_type == "thin wall":
             return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
+        else:
+            raise TypeError('Only thin and thick wall formulation types are allowable.')
     
 
     def get_self_weighted_load(self, gravity_vector):
@@ -1213,8 +1215,10 @@ class StructuralElement:
             Load vector due to self-weight in the global coordinate system.
         """
  
-        g = gravity_vector
+        if np.sum(gravity_vector) == 0:
+            return np.zeros((12,1), dtype=float)
         #
+        g = gravity_vector
         rho = self.material.density
         A = self.cross_section.area
         #

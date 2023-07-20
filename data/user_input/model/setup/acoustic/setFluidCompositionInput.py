@@ -1,33 +1,32 @@
-from operator import concat
-from PyQt5.QtWidgets import QTreeWidgetItem, QLineEdit, QDialog, QTabWidget, QLabel, QCheckBox, QSpinBox, QPushButton, QWidget, QFileDialog, QComboBox, QTreeWidget
-import os
-from os.path import basename
-
-from numpy.lib.utils import lookfor
-from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-from pulse.utils import get_new_path
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, QSize
+from pathlib import Path
+
+import os
 import numpy as np
 import sys
 import configparser
-from PyQt5 import uic
+
+from pulse.utils import get_new_path
+from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 window_title_1 = "ERROR"
 
 class SetFluidCompositionInput(QDialog):
     def __init__(self, project, opv, selected_fluid_to_edit=None, *args, **kwargs):
         super().__init__()
-        uic.loadUi('data/user_input/ui/model/setup/acoustic/setFluidCompositionInput.ui', self)
+        
+        uic.loadUi(Path('data/user_input/ui/model/setup/acoustic/setFluidCompositionInput.ui'), self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        icons_path = 'data\\icons\\'
-        self.icon_pulse = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon_pulse)
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
 
         self.icon_animate = QIcon(icons_path + 'play_pause.png')
 

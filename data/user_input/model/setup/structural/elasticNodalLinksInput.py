@@ -1,14 +1,14 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QTreeWidget, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QToolButton, QMessageBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
-from collections import defaultdict
+from pathlib import Path
+
 import os
 import numpy as np
+import configparser
 import matplotlib.pyplot as plt  
+from collections import defaultdict
 
 from pulse.utils import get_new_path, remove_bc_from_file
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -20,10 +20,11 @@ window_title_2 = "WARNING MESSAGE"
 class ElasticNodalLinksInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/elasticNodalLinksInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/elasticNodalLinksInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -1033,13 +1034,14 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, selected_link, label, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-
-        uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
         self.label = label
         self.selected_link = selected_link

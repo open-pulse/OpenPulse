@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QCheckBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
+from pathlib import Path
 
 from pulse.preprocessing.cross_section import CrossSection
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -18,10 +16,11 @@ window_title_2 = "WARNING MESSAGE"
 class StressStiffeningInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/stressStiffeningInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/stressStiffeningInput.ui'), self)
+        
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -462,19 +461,20 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, values, label, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
         if label == "Elements":
-            uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
+            uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationInput.ui'), self)
             self.flagElements = True
             self.flagLines = False
 
         elif label == "Lines":
-            uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationAndRemoveInput.ui', self)
+            uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationAndRemoveInput.ui'), self)
             self.flagLines = True
             self.flagElements = False
             self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')

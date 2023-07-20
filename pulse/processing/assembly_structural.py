@@ -374,36 +374,36 @@ class AssemblyStructural:
         array
             Loads vectors. Each column corresponds to a frequency of analysis.
         """
+        try:
+            cols = 1
+            total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
 
-        cols = 1
-        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
-        loads = np.zeros((total_dof, cols), dtype=complex)
-    
-        # elementary loads - element integration
-        for element in self.preprocessor.structural_elements.values():
+            _frequencies = np.array([0.], dtype=float)
+            loads = np.zeros((total_dof, cols), dtype=complex)
+        
+            # elementary loads - element integration
+            for element in self.preprocessor.structural_elements.values():
+                position = element.global_dof
+                # self-weight loads
+                loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
+                # stress stiffening loads
+                loads[position] += element.force_vector_stress_stiffening()
+                # distributed loads
+                loads[position] += element.get_distributed_load()
 
-            #
-            position = element.global_dof
-            
-            # self-weight loads
-            loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
-            
-            # stress stiffening loads
-            # loads[position] += element.force_vector_stress_stiffening()
-
-            # distributed loads
-            loads[position] += element.get_distributed_load()
-
-        # nodal loads
-        for node in self.preprocessor.nodes.values():
-            if node.there_are_nodal_loads:
-                position = node.global_dof
-                if node.loaded_table_for_nodal_loads:
-                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else bc for bc in node.nodal_loads]
-                else:
-                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.nodal_loads]
-                loads[position, :] += temp_loads
-
+            # nodal loads
+            for node in self.preprocessor.nodes.values():
+                if node.there_are_nodal_loads:
+                    position = node.global_dof
+                    if node.loaded_table_for_nodal_loads:
+                        temp_loads = [_frequencies if bc is None else bc for bc in node.nodal_loads]
+                    else:
+                        temp_loads = [_frequencies if bc is None else np.ones_like(_frequencies)*bc for bc in node.nodal_loads]
+                    loads[position, :] += temp_loads
+        
+        except Exception as _error_log:
+            print(str(_error_log))
+                  
         return loads[self.unprescribed_indexes,:]
 
 
@@ -430,57 +430,48 @@ class AssemblyStructural:
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
 
         if self.frequencies is None or static_analysis:
-            cols = 1
+            _frequencies = np.array([0.], dtype=float)
         else:
-            cols = len(self.frequencies)
+            _frequencies = self.frequencies
+        cols = len(self.frequencies)
 
         loads = np.zeros((total_dof, cols), dtype=complex)
         pressure_loads = np.zeros((total_dof, cols), dtype=complex)
     
         if static_analysis:
             return self.get_global_loads_for_static_analysis()
-        else:
-            pass
-            # # element-related loads
-            # for element in self.preprocessor.structural_elements.values():
-            #     position = element.global_dof
-                
-            #     # self-weight and stress stiffening loads
-            #     loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
-                
-            #     # internal loads
-            #     # loads[position] += element.force_vector_stress_stiffening()
-                
-            #     # distributed loads
-            #     # loads[position] += element.get_distributed_load()
-            
-            # # return loads[self.unprescribed_indexes,:]
+        
+        # distributed loads
+        for element in self.preprocessor.structural_elements.values():
+            position = element.global_dof 
+            loads[position] += element.get_distributed_load()
   
         # nodal loads
         for node in self.preprocessor.nodes.values():
             if node.there_are_nodal_loads:
                 position = node.global_dof
                 if node.loaded_table_for_nodal_loads:
-                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else bc for bc in node.nodal_loads]
+                    temp_loads = [np.zeros_like(_frequencies) if bc is None else bc for bc in node.nodal_loads]
                 else:
-                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.nodal_loads]
+                    temp_loads = [np.zeros_like(_frequencies) if bc is None else np.ones_like(_frequencies)*bc for bc in node.nodal_loads]
                 loads[position, :] += temp_loads
            
         loads = loads[self.unprescribed_indexes,:]
         
+        # acoustic-structural loads
         if self.acoustic_solution is not None:
             for element in self.preprocessor.structural_elements.values():
                 pressure_first = self.acoustic_solution[element.first_node.global_index, :]
                 pressure_last = self.acoustic_solution[element.last_node.global_index, :]
                 pressure = np.c_[pressure_first, pressure_last].T
                 position = element.global_dof
-                pressure_loads[position, :] += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)
+                pressure_loads[position, :] += element.force_vector_acoustic_gcs(_frequencies, pressure, pressure_external)
         
         pressure_loads = pressure_loads[self.unprescribed_indexes,:]
 
         if loads_matrix3D:
-            loads = loads.T.reshape((len(self.frequencies), loads.shape[0], 1))
-            loads += pressure_loads.T.reshape((len(self.frequencies), pressure_loads.shape[0],1))
+            loads = loads.T.reshape((len(_frequencies), loads.shape[0], 1))
+            loads += pressure_loads.T.reshape((len(_frequencies), pressure_loads.shape[0],1))
         else:
             loads += pressure_loads
 

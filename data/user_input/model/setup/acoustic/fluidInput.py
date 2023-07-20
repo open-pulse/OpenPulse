@@ -1,13 +1,11 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QHeaderView, QWidget, QComboBox, QFrame
-from PyQt5.QtGui import QIcon, QColor, QBrush, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
-from time import time
-from matplotlib.style import available
-import numpy as np
+from pathlib import Path
 
-# from PyQt5.uic.uiparser import QtWidgets
+import numpy as np
+import configparser
 
 from pulse.preprocessing.fluid import Fluid
 from pulse.default_libraries import default_fluid_library
@@ -30,10 +28,11 @@ def getColorRGB(color):
 class FluidInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__()
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/fluidlnput.ui', self)
+
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Acoustic/fluidlnput.ui'), self)
         
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
