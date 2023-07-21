@@ -85,9 +85,9 @@ and then ```envpulse/Scripts/activate```.
 
 - [Effect of flow on the acoustic length correction factor of a Helmholtz resonator neck at high Strouhal number: a symmetric three-dimensional parametric study](https://asa.scitation.org/doi/10.1121/1.5147459). 
 
-## Next events
+## FIA 2020/22 - 12o Congresso Iberoamericano de Acústica 
 
-- 12o Congresso Iberoamericano de Acústica. August 28 - 31, 2022. [FIA2020/2022](https://fia2022.com.br).
+- [FIA2020/2022](fia2020.com.br/anais/index.php#topo).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
