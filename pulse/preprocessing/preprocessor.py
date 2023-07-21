@@ -3462,66 +3462,17 @@ class Preprocessor:
         gmsh.write(geometry_path)
         gmsh.finalize()
 
-    #TODO: remove the following methods if they are not necessary anymore
+    def update_nodal_solution_info(self, nodal_solution):
+        """ This method sets the static nodal solution for 
+            stress stiffening analysis.
+        Parameters
+        ----------
+        nodal_solution: complex array of values
+        """
 
-    # def get_beam_nodes_and_indexes(self, list_beam_elements):
-    #     """
-    #     This method returns the global indexes of the nodes associated to structural beam elements.
+        for node in self.nodes.values():  
+            global_indexes = node.global_dof
+            node.static_nodal_solution_gcs = nodal_solution[global_indexes, 0]
 
-    #     Returns
-    #     ----------
-    #     list
-    #         Nodes global indexes associated to beam element.
-    #     """
-    #     list_beam_nodes = []
-    #     list_node_ids = []
-    #     # print(len(list_beam_elements))
-    #     self.get_nodes_connected_to_beam_and_pipe()#list_beam_elements)
-    #     # list(self.nodes_with_multiples_neighbors.keys())
-        
-    #     # for element in self.structural_elements.values():
-    #     for element in list_beam_elements:
-    #         # if element.element_type in ['beam_1']:
-            
-    #         node_first = element.first_node
-    #         node_last = element.last_node
-            
-    #         if node_first not in list_beam_nodes:
-    #             list_beam_nodes.append(node_first)
-    #             list_node_ids.append(node_first.global_index)
-            
-    #         if node_last not in list_beam_nodes:
-    #             list_beam_nodes.append(node_last)
-    #             list_node_ids.append(node_last.global_index)
-                        
-    #         if node_first in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'First node: {node_first.external_index}')
-    #             list_beam_nodes.remove(node_first)
-    #             list_node_ids.remove(node_first.global_index)
-
-    #         if node_last in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'Last node: {node_last.external_index}')
-    #             list_beam_nodes.remove(node_last) 
-    #             list_node_ids.remove(node_last.global_index) 
-
-    #     print(len(list_node_ids))
-    #     return list_node_ids
-
-    # def get_nodes_connected_to_beam_and_pipe(self):
-    #     list_nodes_with_multiples_neighbors = list(self.nodes_with_multiples_neighbors.keys())
-    #     self.dict_node_to_multiple_element_types = defaultdict(list)
-    #     self.nodes_connected_to_beam_and_pipe = []
-    #     for element in self.structural_elements.values():#list_beam_elements:
-    #         first_node = element.first_node
-    #         last_node = element.last_node
-    #         if first_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[first_node].append(element.element_type)
-    #         if last_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[last_node].append(element.element_type)
-    #     for node, element_types in self.dict_node_to_multiple_element_types.items():
-    #         if "beam_1" in element_types:
-    #             if ("pipe_1" or "pipe_2") in element_types:
-    #                 print(f"Node to remove: {node.external_index}")
-    #                 # print(element_types)
-    #                 self.nodes_connected_to_beam_and_pipe.append(node)
-    #     print(len(self.nodes_connected_to_beam_and_pipe))
+        for element in self.structural_elements.values():
+            element.static_analysis_evaluated = True

@@ -194,8 +194,11 @@ class SolutionStructural:
         """
 
         if K==[] and M==[]:
+
             if self.preprocessor.stress_stiffening_enabled:
-                self.static_analysis()
+                static_solution = self.static_analysis()
+                self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+                self.update_global_matrices()
   
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
             Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
@@ -250,7 +253,9 @@ class SolutionStructural:
         alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
 
         if self.preprocessor.stress_stiffening_enabled:
-            self.static_analysis()
+            static_solution = self.static_analysis()
+            self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+            self.update_global_matrices()
 
         rows = self.K.shape[0]
         cols = len(self.frequencies)
@@ -316,7 +321,10 @@ class SolutionStructural:
         else:
             F = self.assembly.get_global_loads(loads_matrix3D=fastest)
             if self.preprocessor.stress_stiffening_enabled:
-                self.static_analysis()
+                static_solution = self.static_analysis()
+                self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+                self.update_global_matrices()
+            
             # Kadd_lump = self.K + self.K_lump[0]
             # Madd_lump = self.M + self.M_lump[0]
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
@@ -405,23 +413,13 @@ class SolutionStructural:
                   ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
         
         F_Clump = 1j*omega*self.C_lump[0]
-        
         A = F_K + F_M + F_C + F_Clump
 
         solution[:,0] = spsolve(A, F[:,0])
-
         self.solution = self._reinsert_prescribed_dofs(solution)
-        # self.update_nodal_solution_info(np.real(self.solution))
-        # self.update_global_matrices()
-        
+
         return self.solution
-  
-    def update_nodal_solution_info(self, nodal_solution):
-        for node in self.preprocessor.nodes.values():  
-            global_indexes = node.global_dof
-            node.static_nodal_solution_gcs = nodal_solution[global_indexes, 0]
-        for element in self.preprocessor.structural_elements.values():
-            element.static_analysis_evaluated = True
+
 
     def get_reactions_at_fixed_nodes(self):
         """
@@ -633,10 +631,10 @@ class SolutionStructural:
                     p = np.zeros((2, len(self.frequencies)))
                 pm = np.sum(p,axis=0)/2
 
-                if element.wall_formutation_type == "thick wall":
+                if element.wall_formulation == "thick_wall":
                     hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
                     radial_stress =  -2*nu*(pm*di**2 - p0*do**2)/(do**2 - di**2)
-                if element.wall_formutation_type == "thin wall":
+                if element.wall_formulation == "thin_wall":
                     hoop_stress = pm
                     radial_stress = -nu*pi*(do/(do-di) - 1)
                    

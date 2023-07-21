@@ -122,7 +122,7 @@ class StructuralElement:
         self.index = index
 
         self.element_type = kwargs.get('element_type', 'pipe_1')
-        self.wall_formulation = kwargs.get('wall_formulation', 'thick_wall')
+        self.wall_formulation = kwargs.get('wall_formulation', 'thin_wall')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
@@ -134,7 +134,6 @@ class StructuralElement:
 
         self.capped_end = kwargs.get('capped_end', False)
         self.stress_intensification = kwargs.get('stress_intensification', True)
-        self.wall_formutation_type = kwargs.get('wall_formutation_type', "thick wall")
         self.force_offset = True
 
         self.section_rotation_xyz_undeformed = None
@@ -545,10 +544,10 @@ class StructuralElement:
             Te = (E*A/L)*(Ue[6] - Ue[0]) - Fp_x
             K_geo = (Te/L)*mat_K_geo
 
-            # if self.index in [12]:
-            #     # print("\nElement 12:")
-            #     # print("UX(11):", self.first_node.static_nodal_solution_gcs[0])
-            #     # print("UX(12):", self.last_node.static_nodal_solution_gcs[0])
+            # if self.index in [12, 13, 14, 15]:
+            #     print("\nElement 12:")
+            #     print(f"UX(first): {self.first_node.static_nodal_solution_gcs[0]}")
+            #     print(f"UX(last): {self.last_node.static_nodal_solution_gcs[0]}")
             #     print(f"Te: {Te}")
 
         for point, weigth in zip(points, weigths):
@@ -1118,9 +1117,9 @@ class StructuralElement:
 
         if self.element_type in ['pipe_1', 'pipe_2']:
             stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
-            if self.wall_formutation_type == "thick wall": 
+            if self.wall_formulation == "thick_wall": 
                 force = A * (capped_end - 2*nu)* stress_axial
-            elif self.wall_formutation_type == "thin wall":
+            elif self.wall_formulation == "thin_wall":
                 force = A * (capped_end*stress_axial - nu*pressures*(Do/(Do-Di) - 1))
         elif self.element_type in ['expansion_joint','valve']:
             nu = 0
@@ -1198,9 +1197,9 @@ class StructuralElement:
             aux = 1
             capped_end = 0
 
-        if self.wall_formutation_type == "thick wall":
+        if self.wall_formulation == "thick_wall":
             return (capped_end - 2*nu) * axial_stress * A * aux
-        elif self.wall_formutation_type == "thin wall":
+        elif self.wall_formulation == "thin_wall":
             return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
         else:
             raise TypeError('Only thin and thick wall formulation types are allowable.')
