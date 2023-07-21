@@ -87,7 +87,7 @@ and then ```envpulse/Scripts/activate```.
 
 ## FIA 2020/22 - 12o Congresso Iberoamericano de Acústica 
 
-- [FIA2020/2022](fia2020.com.br/anais/index.php#topo).
+- [FIA2020/2022](https://fia2020.com.br/anais/index.php#topo).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
