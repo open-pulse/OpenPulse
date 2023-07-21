@@ -104,7 +104,7 @@ class StressStiffeningInput(QDialog):
         self.update_info()
         self.update_buttons_()
         self.tabEvent_()
-        self.exec_()
+        self.exec()
 
     def force_to_close(self):
         self.close()
@@ -503,7 +503,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.update_dict()
         self.load_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

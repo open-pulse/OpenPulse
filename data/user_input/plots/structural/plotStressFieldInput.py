@@ -77,7 +77,7 @@ class PlotStressFieldInput(QDialog):
         self.treeWidget_list_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.load()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

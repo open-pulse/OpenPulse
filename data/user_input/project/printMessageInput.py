@@ -1,21 +1,24 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QLabel, QFrame
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 from threading import Thread
 
 class PrintMessageInput(QDialog):
     def __init__(self, text_info, opv=None, fontsizes=[13,12], alignment=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Messages/printMessages.ui', self)
+
+        uic.loadUi(Path('data/user_input/ui/Plots/Messages/printMessages.ui'), self)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.message_close)
 
         self.frame_message = self.findChild(QFrame, 'frame_message')
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -88,7 +91,7 @@ class PrintMessageInput(QDialog):
         if len(text_info)>2:
             self.setWindowTitle(text_info[2])
 
-        self.exec_()
+        self.exec()
 
     def message_close(self):
         self.close()

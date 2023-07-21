@@ -1,16 +1,13 @@
-from math import e
-from re import M
-from PyQt5.QtWidgets import QDialog, QFrame, QLineEdit, QCheckBox, QFileDialog, QTreeWidget, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QToolButton, QMessageBox, QRadioButton, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt, QSize, QRect, QPoint, pyqtSignal 
-from PyQt5 import uic, QtCore
-import configparser
-from collections import defaultdict
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5 import uic
+from pathlib import Path
+
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from pulse.preprocessing.cross_section import CrossSection
@@ -25,10 +22,11 @@ window_title_2 = "WARNING MESSAGE"
 class ValvesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/valvesInput.ui', self)
+
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/valvesInput.ui'), self)
         
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -133,7 +131,7 @@ class ValvesInput(QDialog):
         self.tabWidget_inputs.setCurrentIndex(0)
         self.checkBox_enable_acoustic_effects_event_update()
         self.tabWidget_inputs.currentChanged.connect(self.tabEvent_inputs)
-        self.exec_()
+        self.exec()
 
     def tabEvent_inputs(self):
 

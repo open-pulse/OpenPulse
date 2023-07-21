@@ -1,6 +1,7 @@
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QSize, QEvent
-from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel, QStatusBar, QSizeGrip
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from pathlib import Path
 
 from pulse.uix.menu.Menu import Menu
 from pulse.uix.inputUi import InputUi
@@ -14,6 +15,11 @@ import os
 
 from pulse.uix.menu import *
 # from pulse.uix.menu.widgets import *
+
+def get_icons_path(filename):
+    path = f"data/icons/{filename}"
+    if os.path.exists(path):
+        return str(Path(path))
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -52,19 +58,18 @@ class MainWindow(QMainWindow):
                 # self.opv_widget.changePlotToMesh()
 
     def _loadIcons(self):
-        icons_path = 'data\\icons\\'
-        self.pulse_icon = QIcon(icons_path + 'pulse.png')
-        self.new_icon = QIcon(icons_path + 'add.png')
-        self.open_icon = QIcon(icons_path + 'upload.png')
-        self.reset_icon = QIcon(icons_path + 'refresh.png')
-        self.saveImage_icon = QIcon(icons_path + 'save_image.png')
-        self.exit_icon = QIcon(icons_path + 'exit.png')
-        self.playpause_icon = QIcon(icons_path + 'play_pause.png')
-        self.element_and_lines_with_cross_sections_icon = QIcon(icons_path + 'cross_section_representation.png')
-        self.lines_only_icon = QIcon(icons_path + 'lines_only.png')
-        self.elements_and_nodes_icon = QIcon(icons_path + 'elements_and_nodes.png')
-        self.elements_only_icon = QIcon(icons_path + 'elements_only.png')
-        self.nodes_only_icon = QIcon(icons_path + 'nodes_only.png')
+        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.new_icon = QIcon(get_icons_path('add.png'))
+        self.open_icon = QIcon(get_icons_path('upload.png'))
+        self.reset_icon = QIcon(get_icons_path('refresh.png'))
+        self.saveImage_icon = QIcon(get_icons_path('save_image.png'))
+        self.exit_icon = QIcon(get_icons_path('exit.png'))
+        self.playpause_icon = QIcon(get_icons_path('play_pause.png'))
+        self.element_and_lines_with_cross_sections_icon = QIcon(get_icons_path('cross_section_representation.png'))
+        self.lines_only_icon = QIcon(get_icons_path('lines_only.png'))
+        self.elements_and_nodes_icon = QIcon(get_icons_path('elements_and_nodes.png'))
+        self.elements_only_icon = QIcon(get_icons_path('elements_only.png'))
+        self.nodes_only_icon = QIcon(get_icons_path('nodes_only.png'))
         
     def _config(self):
         self.setMinimumSize(QSize(800, 600))

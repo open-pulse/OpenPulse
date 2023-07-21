@@ -1,13 +1,12 @@
-from PyQt5.QtWidgets import QMessageBox, QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
-import matplotlib.pyplot as plt
-import numpy as np
+from pathlib import Path
+
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -54,10 +53,11 @@ class SnaptoCursor(object):
 class Plot_TL_NR_Input(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plot_TL_NR_Input.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Plots/Results/Acoustic/plot_TL_NR_Input.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -131,7 +131,7 @@ class Plot_TL_NR_Input(QDialog):
         self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
 
         self.writeNodes(self.opv.getListPickedPoints())
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -226,7 +226,7 @@ class Plot_TL_NR_Input(QDialog):
 
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
-        self.import_name = basename(self.import_path)
+        self.import_name = os.basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     
     def ImportResults(self):
@@ -251,7 +251,7 @@ class Plot_TL_NR_Input(QDialog):
                         message += "Maximum number of header rows: 100"
 
             if skiprows<maximum_lines_to_skip:
-                self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
+                self.legend_imported = "imported data: "+ os.basename(self.import_path).split(".")[0]
                 self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
                 title = "Information"
                 message = "The results have been imported."
@@ -268,7 +268,7 @@ class Plot_TL_NR_Input(QDialog):
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
-        self.save_name = basename(self.save_path)
+        self.save_name = os.basename(self.save_path)
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
     
     def ExportResults(self):

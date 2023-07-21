@@ -85,7 +85,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             self.write_ids(self.elements_id)
 
         self.load_elements_info()
-        self.exec_()
+        self.exec()
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_element_length_correction.currentIndex()
@@ -302,7 +302,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.force_to_close)
 
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

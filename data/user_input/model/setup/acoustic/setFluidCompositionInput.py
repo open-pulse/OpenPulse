@@ -28,8 +28,6 @@ class SetFluidCompositionInput(QDialog):
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
-        self.icon_animate = QIcon(icons_path + 'play_pause.png')
-
         self.project = project
         self.opv = opv
         self.opv.setInputObject(self)

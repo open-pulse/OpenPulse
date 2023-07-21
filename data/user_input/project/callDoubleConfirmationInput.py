@@ -14,8 +14,8 @@ class CallDoubleConfirmationInput(QDialog):
         # uic.loadUi(Path('data/user_input/ui/Project/callDoubleConfirmationInput.ui'), self)
         uic.loadUi(Path('data/user_input/ui/Project/call_double_confirmation_input.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -40,7 +40,7 @@ class CallDoubleConfirmationInput(QDialog):
         self._continue = False
         self._doNotRun = True
         self._stop = True
-        self.exec_()
+        self.exec()
 
     def define_qt_variables(self):
         self.QLabel_message = self.findChild(QLabel, 'label_message')

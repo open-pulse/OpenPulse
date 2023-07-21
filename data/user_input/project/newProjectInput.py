@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 import os
 import configparser
 from shutil import copyfile
@@ -19,10 +21,11 @@ window_title2 = "WARNING MESSAGE"
 class NewProjectInput(QDialog):
     def __init__(self, project, opv, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/newProjectInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'add.png')
+        uic.loadUi(Path('data/user_input/ui/Project/newProjectInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -51,7 +54,7 @@ class NewProjectInput(QDialog):
         self._create_Qt_actions()
         self.currentTab = self.tabWidget_new_project.currentIndex()
 
-        self.exec_()
+        self.exec()
 
     def _define_Qt_variables(self):
         self.lineEdit_project_name = self.findChild(QLineEdit, 'lineEdit_project_name')

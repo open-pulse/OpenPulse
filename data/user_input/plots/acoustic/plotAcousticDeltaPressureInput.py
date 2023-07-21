@@ -1,14 +1,14 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QRadioButton, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton, QSpinBox, QFrame
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
+from pathlib import Path
+
+import os
+import numpy as np
+from os.path import basename
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons
-import numpy as np
-import os
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -55,10 +55,11 @@ class SnaptoCursor(object):
 class Plot_Acoustic_Delta_Pressures_Input(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticDeltaPressuresInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Plots/Results/Acoustic/plotAcousticDeltaPressuresInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -82,7 +83,7 @@ class Plot_Acoustic_Delta_Pressures_Input(QDialog):
         self._define_Qt_variables()
         self._Qt_connections()
         self.writeNodes(self.opv.getListPickedPoints())
-        self.exec_()
+        self.exec()
 
     def _reset(self):
         self.userPath = os.path.expanduser('~')

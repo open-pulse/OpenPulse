@@ -1,13 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QWidget, QLineEdit, QCheckBox, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QRadioButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-from shutil import copyfile, rmtree
+from pathlib import Path
+
 import os
-import configparser
 import numpy as np
 from time import time
 from collections import defaultdict
+from shutil import copyfile, rmtree
 
 from pulse.utils import *
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -19,10 +20,11 @@ window_title_2 = "WARNING MESSAGE"
 class GeometryDesignerInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/geometryDesigner.ui', self)
+        
+        uic.loadUi(Path('data/user_input/ui/Project/geometryDesigner.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.project = project
@@ -55,7 +57,7 @@ class GeometryDesignerInput(QDialog):
         self.load_geometry_entities_from_file()
 
         self.complete = False
-        self.exec_()
+        self.exec()
 
     def check_mesh_and_update_controls(self):
         if self.project.check_mesh_setup():

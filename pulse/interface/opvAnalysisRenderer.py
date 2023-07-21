@@ -240,8 +240,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
         #
-        max_value = np.max(np.abs(np.real(u_def)))
-        print(f"Maximum displacement: {round(max_value, 14)}")
+        # max_value = np.max(np.abs(np.real(u_def)))
+        # print(f"Maximum displacement: {round(max_value, 14)}")
         
     def get_min_max_values_to_stresses(self):
         solution = self.project.stresses_values_for_color_table

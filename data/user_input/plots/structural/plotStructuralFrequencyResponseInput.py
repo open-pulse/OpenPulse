@@ -1,23 +1,32 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
+from pathlib import Path
+
 import os
-import pathlib
+import numpy as np
+from os.path import basename
 import pandas as pd
 import openpyxl
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
 
+def get_icons_path(filename):
+    path = f"data/icons/{filename}"
+    if os.path.exists(path):
+        return str(Path(path))
+
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
+
+def get_icons_path(filename):
+    path = f"data/icons/{filename}"
+    if os.path.exists(path):
+        return str(Path(path))
 
 class SnaptoCursor(object):
     def __init__(self, ax, x, y, show_cursor):
@@ -58,11 +67,11 @@ class SnaptoCursor(object):
 class PlotStructuralFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStructuralFrequencyResponseInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.search_icon = QIcon(icons_path + 'searchFile.png')
+        uic.loadUi(Path('data/user_input/ui/Plots/Results/Structural/plotStructuralFrequencyResponseInput.ui'), self)
+
+        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.search_icon = QIcon(get_icons_path('searchFile.png'))
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -86,7 +95,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.create_connections()
         self.update_skiprows_visibility()
         self.writeNodes(self.list_node_IDs)
-        self.exec_()
+        self.exec()
 
     def initialize_variables(self):
         """
@@ -267,7 +276,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             
             while run:
                 try:
-                    sufix = pathlib.Path(self.imported_path).suffix
+                    sufix = Path(self.imported_path).suffix
                     filename = os.path.basename(self.imported_path)
                     if sufix in [".txt", ".dat", ".csv"]:
                         loaded_data = np.loadtxt(self.imported_path, delimiter=",", skiprows=skiprows)

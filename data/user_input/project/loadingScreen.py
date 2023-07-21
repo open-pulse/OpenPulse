@@ -1,9 +1,7 @@
-from threading import Thread
-from time import sleep
-
-from PyQt5.QtCore import Qt, QSize, QRect, QPoint, QObject, QThread, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy, QPushButton
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from PyQt5.QtGui import QMovie, QFont, QIcon
+from pathlib import Path
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse import __version__, __release_date__
@@ -30,9 +28,10 @@ class QWorker(QObject):
 class LoadingScreen(QDialog):
     def __init__(self, title='', text='', target=None, project=None, args=None, kwargs=None):
         super().__init__()
-        self.icon = QIcon('data\\icons\\pulse.png')
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
-        self.configWindow()
 
         self.project = project
 

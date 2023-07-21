@@ -54,7 +54,7 @@ class AcousticModelInfoInput(QDialog):
 
         self.load_nodes_info()
         self.project_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:

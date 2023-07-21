@@ -1,25 +1,30 @@
-import os
-from os.path import basename
-from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox, QTreeWidget, QLabel
-from pulse.utils import remove_bc_from_file
-from PyQt5.QtGui import QColor, QBrush, QFont, QIcon, QDesktopServices
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
+import os
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from pulse import __version__, __release_date__
 
+def get_icons_path(filename):
+    path = f"data/icons/{filename}"
+    if os.path.exists(path):
+        return str(Path(path))
+
 class AboutOpenPulseInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/aboutOpenPulseInput.ui', self)
+        
+        uic.loadUi(Path('data/user_input/ui/Project/aboutOpenPulseInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.load_icon = QIcon(icons_path + 'loadProject.png')
-        self.new_icon = QIcon(icons_path + 'add.png')
-        self.reset_icon = QIcon(icons_path + 'refresh.png')
+        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.load_icon = QIcon(get_icons_path('loadProject.png'))
+        self.new_icon = QIcon(get_icons_path('add.png'))
+        self.reset_icon = QIcon(get_icons_path('refresh.png'))
         self.setWindowIcon(self.icon)
 
         self.project = project
@@ -48,7 +53,7 @@ class AboutOpenPulseInput(QDialog):
         self.toolButton_repository = self.findChild(QToolButton, 'toolButton_repository')
         self.toolButton_repository.clicked.connect(self.open_gitHub_repository)
 
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -67,14 +72,6 @@ class AboutOpenPulseInput(QDialog):
         except Exception as log_error:
             message = str(log_error)
             PrintMessageInput([title, message, "OpenPulse"])
-
-    def createFont(self):
-        self.font = QFont()
-        self.font.setFamily("Arial")
-        self.font.setPointSize(9)
-        self.font.setWeight(75)
-        self.font.setBold(False)
-        self.font.setItalic(False)
 
     def continueButtonEvent(self):
         self.close()

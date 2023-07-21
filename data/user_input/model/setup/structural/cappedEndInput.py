@@ -131,7 +131,7 @@ class CappedEndInput(QDialog):
         self.load_elements_info()
         self.update_buttons_()
         self.tabEvent_()
-        self.exec_()
+        self.exec()
 
     def update_buttons_(self):
         self.pushButton_get_information_elem.setDisabled(True)
@@ -492,7 +492,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

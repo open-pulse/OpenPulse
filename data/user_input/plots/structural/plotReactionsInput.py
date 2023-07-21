@@ -1,13 +1,13 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
+from pathlib import Path
+
 import os
-import matplotlib.pyplot as plt
 import numpy as np
+from os.path import basename
+import matplotlib.pyplot as plt
 
 from pulse.postprocessing.plot_structural_data import get_reactions
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -58,11 +58,13 @@ class SnaptoCursor(object):
 class PlotReactionsInput(QDialog):
     def __init__(self, project, opv, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotReactionsInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Plots/Results/Structural/plotReactionsInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
 
@@ -173,7 +175,7 @@ class PlotReactionsInput(QDialog):
         self.tab_nodes_with_dampers = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_dampers")
 
         self.load_nodes_info()
-        self.exec_()
+        self.exec()
 
     def update_cursor(self):
         self.use_cursor = self.checkBox_cursor.isChecked()

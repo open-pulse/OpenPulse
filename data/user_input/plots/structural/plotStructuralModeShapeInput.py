@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QTreeWidgetItem, QPushButton
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 import numpy as np
 import configparser
 
@@ -15,11 +15,12 @@ window_title_2 = "WARNING MESSAGE"
 class PlotStructuralModeShapeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStructuralModeShapeInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
+        uic.loadUi(Path('data/user_input/ui/Plots/Results/Structural/plotStructuralModeShapeInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon) 
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -44,7 +45,7 @@ class PlotStructuralModeShapeInput(QDialog):
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.confirm_selection)
         self.load()
-        self.exec_()
+        self.exec()
 
     def get_dict_modes_frequencies(self):
         modes = np.arange(1,len(self.natural_frequencies)+1,1)

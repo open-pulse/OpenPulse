@@ -238,7 +238,7 @@ class PerforatedPlateInput(QDialog):
 
         self.update()
         self.load_elements_info()
-        self.exec_()
+        self.exec()
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_perforated_plate.currentIndex()
@@ -1103,9 +1103,9 @@ class GetInformationOfGroup(QDialog):
         super().__init__(*args, **kwargs)
         uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationPerforatedPlate.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon) 
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -1134,7 +1134,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.force_to_close)
 
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

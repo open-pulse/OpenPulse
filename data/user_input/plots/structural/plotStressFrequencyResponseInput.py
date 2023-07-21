@@ -165,7 +165,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
 
-        self.exec_()
+        self.exec()
 
     def update_cursor(self):
         self.use_cursor = self.checkBox_cursor.isChecked()

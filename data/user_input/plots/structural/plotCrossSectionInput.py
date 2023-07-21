@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QPushButton, QRadioButton, QLabel, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
 
 from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -13,10 +13,11 @@ import matplotlib.pyplot as plt
 class PlotCrossSectionInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Model/plotSectionInput.ui', self)
+        
+        uic.loadUi(Path('data/user_input/ui/Plots/Model/plotSectionInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -63,7 +64,7 @@ class PlotCrossSectionInput(QDialog):
         else:
             self.lineEdit_id_labels.setText("Line ID:")
             self.lineEdit_selected_ID.setText("")
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

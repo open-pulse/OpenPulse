@@ -110,7 +110,7 @@ class BeamXaxisRotationInput(QDialog):
             self.lineEdit_selected_ID.setDisabled(True)
 
         self.load_beam_xaxis_rotation_info()
-        self.exec_()
+        self.exec()
     
     def write_ids(self, list_ids):
         text = ""
@@ -328,7 +328,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

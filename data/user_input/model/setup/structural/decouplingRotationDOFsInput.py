@@ -101,7 +101,7 @@ class DecouplingRotationDOFsInput(QDialog):
         self.pushButton_get_nodes.clicked.connect(self.check_get_nodes)
         self.load_decoupling_info()
         self.update()
-        self.exec_()
+        self.exec()
     
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_B2PX_rotation_decoupling.currentIndex()
@@ -326,7 +326,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.update_dict()
         self.load_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

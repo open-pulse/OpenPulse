@@ -1,13 +1,13 @@
-from PyQt5.QtWidgets import QLineEdit, QToolButton, QWidget, QFileDialog, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QMessageBox, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5 import uic
-import configparser
+from pathlib import Path
+
 import os
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from os.path import basename
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -54,11 +54,12 @@ class SnaptoCursor(object):
 class PlotAcousticFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticFrequencyResponseInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
+        uic.loadUi(Path('data/user_input/ui/Plots/Results/Acoustic/plotAcousticFrequencyResponseInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon) 
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -127,7 +128,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.pushButton.clicked.connect(self.check)
 
         self.writeNodes(self.list_node_IDs)
-        self.exec_()
+        self.exec()
 
     def update_cursor(self):
         self.use_cursor = self.checkBox_cursor.isChecked()

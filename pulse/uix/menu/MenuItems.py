@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QStyledItemDelegate, QFrame
-from PyQt5.QtGui import QBrush, QColor, QFont, QIcon, QPixmap, QPainter, QPen, QLinearGradient
-from PyQt5.QtCore import Qt, QSize, QRect
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from pathlib import Path
+
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 class BorderItemDelegate(QStyledItemDelegate):
@@ -80,24 +82,25 @@ class MenuItems(QTreeWidget):
         """Create Icons objects that are placed on the right side of the item.
             Currently isn't used.
         """
+        path = str(Path('data/icons/pulse.png'))
         self.icon_child_set_material = QIcon()
-        self.icon_child_set_material.addPixmap(QPixmap("data/icons/pulse.png"), QIcon.Active, QIcon.On)
+        self.icon_child_set_material.addPixmap(QPixmap(path), QIcon.Active, QIcon.On)
 
     def _createFonts(self):
         """Create Font objects that configure the font of the items."""
         self.font_top_Items = QFont()
-        self.font_top_Items.setFamily("Segoe UI")
-        self.font_top_Items.setPointSize(13)
-        self.font_top_Items.setBold(True)
-        self.font_top_Items.setItalic(False)
-        self.font_top_Items.setWeight(75)
+        # self.font_top_Items.setFamily("Segoe UI")
+        self.font_top_Items.setPointSize(12)
+        # self.font_top_Items.setBold(False)
+        # self.font_top_Items.setItalic(False)
+        self.font_top_Items.setWeight(60)
 
         self.font_child_Items = QFont()
-        self.font_child_Items.setFamily("Segoe UI")
-        self.font_child_Items.setPointSize(12)
+        # self.font_child_Items.setFamily("Segoe UI")
+        self.font_child_Items.setPointSize(11)
         #self.font_child_Items.setBold(False)
         #self.font_child_Items.setItalic(True)
-        self.font_child_Items.setWeight(60)
+        self.font_child_Items.setWeight(50)
 
     def _createColorsBrush(self):
         """Create Color objects that define the color of the text and/or background of the items."""

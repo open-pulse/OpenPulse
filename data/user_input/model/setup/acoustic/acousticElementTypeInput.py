@@ -100,7 +100,7 @@ class AcousticElementTypeInput(QDialog):
         self.selectionChange()
 
         self.load_element_type_info()
-        self.exec_()
+        self.exec()
 
     def write_ids(self, list_ids):
         text = ""
@@ -325,7 +325,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

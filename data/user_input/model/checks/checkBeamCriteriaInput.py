@@ -31,7 +31,7 @@ class CheckBeamCriteriaInput(QDialog):
         self.create_connections()
         self.load_existing_sections()
 
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:

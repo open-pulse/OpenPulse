@@ -245,7 +245,7 @@ class ElasticNodalLinksInput(QDialog):
         self.update()
         self.load_elastic_links_stiffness_info()
         self.load_elastic_links_damping_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -1071,7 +1071,7 @@ class GetInformationOfGroup(QDialog):
         
         self.load_file_info()
         self.update_treeWidget_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

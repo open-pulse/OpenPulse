@@ -220,7 +220,7 @@ class ExpansionJointInput(QDialog):
         self.load_expansion_joint_by_line_info()
         self.load_expansion_joint_by_elements_info()
         self.update_tabs()
-        self.exec_()
+        self.exec()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -1404,7 +1404,7 @@ class GetInformationOfGroup(QDialog):
         
         self.update_header_labels()
         self.update_treeWidget_joint_parameters_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

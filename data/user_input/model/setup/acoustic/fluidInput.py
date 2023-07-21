@@ -248,7 +248,7 @@ class FluidInput(QDialog):
         
         if self.compressor_thermodynamic_state:
             self.check_compressor_inputs()
-        self.exec_()
+        self.exec()
 
     def edit_REFPROP_fluid(self):
         self.REFPROP = SetFluidCompositionInput(self.project, self.opv, selected_fluid_to_edit=self.selected_REFPROP_fluid, compressor_info=self.compressor_thermodynamic_state)

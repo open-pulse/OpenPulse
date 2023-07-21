@@ -115,7 +115,7 @@ class StructuralElementTypeInput(QDialog):
 
         self.update()
         self.load_element_type_info()
-        self.exec_()
+        self.exec()
 
     def checkBox_Event(self):
         self.capped_end_effect = self.checkBox_capped_end.isChecked()
@@ -393,7 +393,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

@@ -34,7 +34,7 @@ class AcousticModalAnalysisInput(QDialog):
         self.pushButton_2.clicked.connect(self.confirm)
 
         self.complete = False
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

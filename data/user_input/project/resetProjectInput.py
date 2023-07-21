@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QPushButton, QDialog
-from pulse.project import Project
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from os.path import basename, expanduser, exists
 from PyQt5 import uic
+from pathlib import Path
+
 import os
 import configparser
 from shutil import copyfile
@@ -19,10 +19,11 @@ message += "has been reset to default values."
 class ResetProjectInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/resetProjectInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'add.png')
+        uic.loadUi(Path('data/user_input/ui/Project/resetProjectInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.project = project
@@ -37,7 +38,7 @@ class ResetProjectInput(QDialog):
         self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
         self.pushButton_cancel.clicked.connect(self.force_to_close)
 
-        self.exec_()
+        self.exec()
     
     def confirm_reset(self):
         self.project.reset_project()

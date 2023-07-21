@@ -195,7 +195,7 @@ class SolutionStructural:
 
         if K==[] and M==[]:
             if self.preprocessor.stress_stiffening_enabled:
-                self.static_analysis([0,0,0,0])
+                self.static_analysis()
   
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
             Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
@@ -316,7 +316,7 @@ class SolutionStructural:
         else:
             F = self.assembly.get_global_loads(loads_matrix3D=fastest)
             if self.preprocessor.stress_stiffening_enabled:
-                self.static_analysis(global_damping)
+                self.static_analysis()
             # Kadd_lump = self.K + self.K_lump[0]
             # Madd_lump = self.M + self.M_lump[0]
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]

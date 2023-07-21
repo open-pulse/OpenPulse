@@ -1,17 +1,16 @@
-from pulse.preprocessing.entity import Entity
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget
-from os.path import basename
-from PyQt5.QtGui import QColor, QBrush, QFont, QIcon
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
+
+import numpy as np
 import configparser
+import matplotlib.pyplot as plt
 
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 window_title = "ERROR MESSAGE"
 
@@ -23,10 +22,11 @@ class CrossSectionInput(QDialog):
                     elements_to_update_cross_section = [],
                     *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/crossSectionInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/crossSectionInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -75,7 +75,7 @@ class CrossSectionInput(QDialog):
         self.load_existing_sections()
         self.initial_condition()
         self.update_QDialog_info()       
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
