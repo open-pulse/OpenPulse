@@ -76,9 +76,9 @@ and then ```envpulse/Scripts/activate```.
 
 - Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
 
-## Article published in Mechanical Systems and Signal Processing - Volume 186, 1 March 2023
+## Article published: Mechanical Systems and Signal Processing - Volume 186, 1 March 2023
 
-- [Time-harmonic analysis of acoustic pulsation in gas pipeline systems using the Finite Element Transfer Matrix Method: Theoretical aspects](https://doi.org/10.1016/j.ymssp.2022.109824)).
+- [Time-harmonic analysis of acoustic pulsation in gas pipeline systems using the Finite Element Transfer Matrix Method: Theoretical aspects](https://doi.org/10.1016/j.ymssp.2022.109824).
 
 ## ISMA2020 - International Conference on Noise and Vibration Engineering
 
