@@ -89,6 +89,10 @@ and then ```envpulse/Scripts/activate```.
 
 - [FIA2020/2022](https://fia2020.com.br/anais/index.php#topo).
 
+## Next events 
+
+- [EAA Forum acusticum 2023](https://www.fa2023.org/)).
+
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
 
