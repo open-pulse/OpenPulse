@@ -84,26 +84,36 @@ class PlotReactionsInput(QDialog):
         self.analysisMethod = analysisMethod
         self.frequencies = project.frequencies
         
+        self._define_qt_variables()
+        self._create_connections()
+
+        self.load_nodes_info()
+        self.exec()
+
+    def _reset_variables(self):
         self.node_ID = 0
         self.imported_data = None
         self.localDof = None
 
+    def _define_qt_variables(self):
+        
+        #QCheckBox objects
+        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
+        self.use_cursor = self.checkBox_cursor.isChecked()
+        
+        #QLineEdit objects
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-
+        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
-        self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
-
-        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
-        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
-        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
-        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
-        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
-        self.toolButton_ExportResults.clicked.connect(self.ExportResults)
-        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
-        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
-        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
-
+        self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')  
+        
+        #QPushButton objects
+        self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
+        self.pushButton_plot_reactions_frequency_response = self.findChild(QPushButton, 'pushButton_plot_reactions_frequency_response')
+        self.pushButton_ResetPlot = self.findChild(QToolButton, 'pushButton_ResetPlot')
+        
+        #QRadioButton objects
         self.radioButton_Fx = self.findChild(QRadioButton, 'radioButton_Fx')
         self.radioButton_Fy = self.findChild(QRadioButton, 'radioButton_Fy')
         self.radioButton_Fz = self.findChild(QRadioButton, 'radioButton_Fz')
@@ -120,16 +130,9 @@ class PlotReactionsInput(QDialog):
         self.list_radioButtons = [  self.radioButton_Fx, self.radioButton_Fy, self.radioButton_Fz,
                                     self.radioButton_Mx, self.radioButton_My, self.radioButton_Mz   ]
 
-        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.use_cursor = self.checkBox_cursor.isChecked()
-        self.checkBox_cursor.clicked.connect(self.update_cursor)
-
         self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
         self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
         self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
-        self.radioButton_plotAbs.clicked.connect(self.radioButtonEvent_YAxis)
-        self.radioButton_plotReal.clicked.connect(self.radioButtonEvent_YAxis)
-        self.radioButton_plotImag.clicked.connect(self.radioButtonEvent_YAxis)
         self.plotAbs = self.radioButton_plotAbs.isChecked()
         self.plotReal = self.radioButton_plotReal.isChecked()
         self.plotImag = self.radioButton_plotImag.isChecked()
@@ -140,42 +143,55 @@ class PlotReactionsInput(QDialog):
         self.radioButton_Real_Imaginary.clicked.connect(self.radioButtonEvent_save_data)
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
-
+        
+        #QTabWidget objects
         self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
         self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
-        self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
-        self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)  
-        self.pushButton_plot_reactions_frequency_response = self.findChild(QPushButton, 'pushButton_plot_reactions_frequency_response')
-        self.pushButton_plot_reactions_frequency_response.clicked.connect(self.check)
-
-        self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
-        self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
-        self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
-
-        self.treeWidget_reactions_at_dampers = self.findChild(QTreeWidget, 'treeWidget_reactions_at_dampers')
-        self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_dampers.itemClicked.connect(self.on_click_item)
-        self.treeWidget_reactions_at_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
-
-        self.treeWidget_reactions_at_constrained_dofs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_constrained_dofs')
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
-        self.treeWidget_reactions_at_constrained_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.tabWidget_reactions = self.findChild(QTabWidget, "tabWidget_reactions")
-        self.tab_constrained_dofs = self.tabWidget_plot_results.findChild(QWidget, "tab_constrained_dofs")
-        self.tab_external_springs_dampers = self.tabWidget_plot_results.findChild(QWidget, "tab_external_springs_dampers")
+        self.tab_constrained_dofs = self.tabWidget_reactions.findChild(QWidget, "tab_constrained_dofs")
+        self.tab_external_springs_dampers = self.tabWidget_reactions.findChild(QWidget, "tab_external_springs_dampers")
 
         self.tabWidget_springs_dampers = self.findChild(QTabWidget, "tabWidget_springs_dampers")
         self.tab_nodes_with_springs = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_springs")
         self.tab_nodes_with_dampers = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_dampers")
+        
+        #QToolButton objects
+        
+        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
+        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
+        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
+        
+        #QTreeWidget objects
+        self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
+        self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
 
-        self.load_nodes_info()
-        self.exec()
+        self.treeWidget_reactions_at_dampers = self.findChild(QTreeWidget, 'treeWidget_reactions_at_dampers')
+        self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
+
+        self.treeWidget_reactions_at_constrained_dofs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_constrained_dofs')
+        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
+
+    def _create_connections(self):
+        self.checkBox_cursor.clicked.connect(self.update_cursor)
+        self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)  
+        self.pushButton_plot_reactions_frequency_response.clicked.connect(self.check)
+        self.pushButton_ResetPlot.clicked.connect(self.reset_imported_data)
+        self.radioButton_plotAbs.clicked.connect(self.radioButtonEvent_YAxis)
+        self.radioButton_plotReal.clicked.connect(self.radioButtonEvent_YAxis)
+        self.radioButton_plotImag.clicked.connect(self.radioButtonEvent_YAxis)
+        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
+        self.toolButton_ExportResults.clicked.connect(self.ExportResults)   
+        self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
+        self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_reactions_at_dampers.itemClicked.connect(self.on_click_item)
+        self.treeWidget_reactions_at_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
+        self.treeWidget_reactions_at_constrained_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def update_cursor(self):
         self.use_cursor = self.checkBox_cursor.isChecked()

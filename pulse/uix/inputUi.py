@@ -45,6 +45,7 @@ from data.user_input.plots.structural.plotDisplacementFieldInput import PlotDisp
 from data.user_input.plots.structural.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from data.user_input.plots.structural.plot_structural_nodal_results import PlotStructuralNodalResults
 from data.user_input.plots.structural.plotReactionsInput import PlotReactionsInput
+from data.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
 from data.user_input.plots.structural.plotStressFieldInput import PlotStressFieldInput
 from data.user_input.plots.structural.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
 #
@@ -429,8 +430,10 @@ class InputUi:
             self.processInput(PlotStressFrequencyResponseInput, self.project, self.opv, self.analysis_method_label)
 
     def plotReactionsFrequencyResponse(self):
-        if self.analysis_ID in [0, 1, 5, 6, 7]:
+        if self.analysis_ID in [0, 1, 5, 6]:
             self.processInput(PlotReactionsInput, self.project, self.opv, self.analysis_method_label)
+        elif self.analysis_ID == 7:
+            self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
 
     def animationSettings(self):
         self.processInput(AnimationSettingsInput, self.project, self.opv)

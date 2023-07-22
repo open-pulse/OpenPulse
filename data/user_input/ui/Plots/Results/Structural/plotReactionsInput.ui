@@ -99,8 +99,8 @@
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
-       <pointsize>14</pointsize>
+       <family>MS Shell Dlg 2</family>
+       <pointsize>13</pointsize>
        <weight>75</weight>
        <italic>false</italic>
        <bold>true</bold>
@@ -155,10 +155,10 @@
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
        <weight>75</weight>
-       <italic>true</italic>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -180,12 +180,17 @@
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
-         <pointsize>12</pointsize>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>11</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
        </property>
        <property name="text">
         <string>Plot the reactions frequency response</string>
@@ -250,10 +255,10 @@
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -287,10 +292,10 @@
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -315,10 +320,10 @@
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -361,7 +366,7 @@
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
@@ -375,11 +380,7 @@
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:11pt; font-weight:600; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Y-axis plot controls&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Y-axis plot controls</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -455,6 +456,13 @@ p, li { white-space: pre-wrap; }
           <height>25</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
@@ -462,11 +470,7 @@ p, li { white-space: pre-wrap; }
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:11pt; font-weight:600; font-style:italic;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;Select the load to get response&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Select the load to get response</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -504,10 +508,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -529,10 +533,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -557,10 +561,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -582,10 +586,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -607,10 +611,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -632,10 +636,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
-             <italic>true</italic>
+             <italic>false</italic>
              <bold>true</bold>
             </font>
            </property>
@@ -1168,10 +1172,10 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
        <weight>75</weight>
-       <italic>true</italic>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -1219,10 +1223,10 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
           <weight>75</weight>
-          <italic>true</italic>
+          <italic>false</italic>
           <bold>true</bold>
          </font>
         </property>
@@ -1236,10 +1240,10 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
           <weight>75</weight>
-          <italic>true</italic>
+          <italic>false</italic>
           <bold>true</bold>
          </font>
         </property>
@@ -1264,10 +1268,10 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
        </property>
@@ -1317,10 +1321,10 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Arial</family>
+            <family>MS Shell Dlg 2</family>
             <pointsize>10</pointsize>
             <weight>75</weight>
-            <italic>true</italic>
+            <italic>false</italic>
             <bold>true</bold>
            </font>
           </property>
@@ -1334,10 +1338,10 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Arial</family>
+            <family>MS Shell Dlg 2</family>
             <pointsize>10</pointsize>
             <weight>75</weight>
-            <italic>true</italic>
+            <italic>false</italic>
             <bold>true</bold>
            </font>
           </property>
@@ -1390,10 +1394,10 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Arial</family>
+            <family>MS Shell Dlg 2</family>
             <pointsize>10</pointsize>
             <weight>75</weight>
-            <italic>true</italic>
+            <italic>false</italic>
             <bold>true</bold>
            </font>
           </property>
@@ -1407,10 +1411,10 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="font">
            <font>
-            <family>Arial</family>
+            <family>MS Shell Dlg 2</family>
             <pointsize>10</pointsize>
             <weight>75</weight>
-            <italic>true</italic>
+            <italic>false</italic>
             <bold>true</bold>
            </font>
           </property>
@@ -1423,7 +1427,7 @@ p, li { white-space: pre-wrap; }
       </widget>
      </widget>
     </widget>
-    <widget class="QToolButton" name="toolButton_ResetPlot">
+    <widget class="QPushButton" name="pushButton_ResetPlot">
      <property name="geometry">
       <rect>
        <x>354</x>
@@ -1446,15 +1450,17 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
-       <pointsize>11</pointsize>
+       <family>MS Shell Dlg 2</family>
+       <pointsize>10</pointsize>
        <weight>75</weight>
-       <italic>true</italic>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(159, 247, 245);</string>
+      <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
      </property>
      <property name="text">
       <string>Reset plot</string>
@@ -1465,7 +1471,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>262</x>
        <y>344</y>
-       <width>83</width>
+       <width>88</width>
        <height>29</height>
       </rect>
      </property>
@@ -1493,31 +1499,54 @@ p, li { white-space: pre-wrap; }
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <widget class="QCheckBox" name="checkBox_cursor">
-      <property name="geometry">
-       <rect>
-        <x>6</x>
-        <y>4</y>
-        <width>75</width>
-        <height>22</height>
-       </rect>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
       </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
+      <property name="topMargin">
+       <number>0</number>
       </property>
-      <property name="text">
-       <string>Cursor</string>
+      <property name="rightMargin">
+       <number>0</number>
       </property>
-      <property name="checked">
-       <bool>false</bool>
+      <property name="bottomMargin">
+       <number>0</number>
       </property>
-     </widget>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBox_cursor">
+        <property name="minimumSize">
+         <size>
+          <width>72</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>72</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Cursor</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
     <widget class="QLabel" name="label_2">
      <property name="geometry">
@@ -1542,7 +1571,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
        <weight>75</weight>
        <italic>false</italic>
@@ -1835,7 +1864,7 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
        <weight>75</weight>
        <italic>true</italic>
@@ -1849,8 +1878,7 @@ p, li { white-space: pre-wrap; }
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255); color: rgb(0, 0, 255);</string>
      </property>
      <property name="text">
       <string/>
@@ -1923,7 +1951,7 @@ color: rgb(0, 0, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>false</italic>

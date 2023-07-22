@@ -78,10 +78,10 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>11</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -115,10 +115,10 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -152,17 +152,17 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
       <property name="text">
-       <string>Modes:</string>
+       <string>Modes:  </string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton">
@@ -188,12 +188,17 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
        <string>Run Analysis</string>
@@ -222,8 +227,8 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <italic>false</italic>
         <bold>true</bold>
@@ -262,8 +267,8 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <italic>false</italic>
         <bold>true</bold>
@@ -287,8 +292,8 @@
      <widget class="QLabel" name="label_4">
       <property name="geometry">
        <rect>
-        <x>226</x>
-        <y>72</y>
+        <x>228</x>
+        <y>78</y>
         <width>49</width>
         <height>30</height>
        </rect>
@@ -307,8 +312,8 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -324,7 +329,7 @@
       <property name="geometry">
        <rect>
         <x>56</x>
-        <y>72</y>
+        <y>78</y>
         <width>70</width>
         <height>30</height>
        </rect>
@@ -343,24 +348,24 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
       <property name="text">
-       <string>Sigma:</string>
+       <string>Sigma:  </string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_input_sigma_factor">
       <property name="geometry">
        <rect>
         <x>126</x>
-        <y>72</y>
+        <y>78</y>
         <width>100</width>
         <height>30</height>
        </rect>
@@ -385,6 +390,9 @@
         <italic>true</italic>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;See scipy.sparse.linalg.eigs for more details.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>1e-2</string>
@@ -397,7 +405,7 @@
       <property name="geometry">
        <rect>
         <x>76</x>
-        <y>116</y>
+        <y>128</y>
         <width>200</width>
         <height>32</height>
        </rect>
@@ -416,12 +424,17 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
        <string>Run Analysis</string>
@@ -431,7 +444,7 @@
       <property name="geometry">
        <rect>
         <x>6</x>
-        <y>4</y>
+        <y>8</y>
         <width>340</width>
         <height>30</height>
        </rect>
@@ -450,8 +463,8 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <italic>false</italic>
         <bold>true</bold>
@@ -471,7 +484,7 @@
       <property name="geometry">
        <rect>
         <x>6</x>
-        <y>32</y>
+        <y>36</y>
         <width>340</width>
         <height>30</height>
        </rect>
@@ -490,8 +503,8 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <italic>false</italic>
         <bold>true</bold>
@@ -499,46 +512,6 @@
       </property>
       <property name="text">
        <string>near sigma using shift-invert mode</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_10">
-      <property name="geometry">
-       <rect>
-        <x>18</x>
-        <y>154</y>
-        <width>320</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>320</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>320</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>9</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Note: see scipy.sparse.linalg.eigs for more details.</string>
       </property>
       <property name="textFormat">
        <enum>Qt::AutoText</enum>
@@ -587,8 +560,8 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
-      <pointsize>14</pointsize>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>

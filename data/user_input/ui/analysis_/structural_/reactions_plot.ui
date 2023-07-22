@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>340</width>
-    <height>326</height>
+    <width>450</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -18,8 +18,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>340</width>
-    <height>326</height>
+    <width>450</width>
+    <height>600</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
    <property name="bottomMargin">
     <number>4</number>
    </property>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QFrame" name="frame_2">
      <property name="minimumSize">
       <size>
@@ -298,6 +298,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>Force Fy reaction</string>
+           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
@@ -434,6 +437,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>Force Fz reaction</string>
+           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
@@ -469,6 +475,9 @@
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="toolTip">
+            <string>Moment Mz reaction</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -564,6 +573,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>Moment Mx reaction</string>
+           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
@@ -628,6 +640,9 @@
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="toolTip">
+            <string>Force Fx reaction</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -781,6 +796,9 @@
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="toolTip">
+            <string>Moment My reaction</string>
+           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
@@ -861,6 +879,296 @@
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QFrame" name="frame_5">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>268</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QTabWidget" name="tabWidget_reactions">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>246</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>246</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <widget class="QWidget" name="tab_constrained_dofs">
+         <attribute name="title">
+          <string>Constrained DOFs</string>
+         </attribute>
+         <widget class="QTreeWidget" name="treeWidget_reactions_at_constrained_dofs">
+          <property name="geometry">
+           <rect>
+            <x>54</x>
+            <y>22</y>
+            <width>282</width>
+            <height>170</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>282</width>
+            <height>170</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>282</width>
+            <height>170</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="indentation">
+           <number>0</number>
+          </property>
+          <column>
+           <property name="text">
+            <string>Nodes</string>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Reactions</string>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </column>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="tab_external_springs_dampers">
+         <attribute name="title">
+          <string>External elements</string>
+         </attribute>
+         <widget class="QTabWidget" name="tabWidget_springs_dampers">
+          <property name="geometry">
+           <rect>
+            <x>14</x>
+            <y>8</y>
+            <width>363</width>
+            <height>197</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>MS Shell Dlg 2</family>
+            <pointsize>11</pointsize>
+            <weight>75</weight>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tab_nodes_with_springs">
+           <attribute name="title">
+            <string>Reactions at springs</string>
+           </attribute>
+           <widget class="QTreeWidget" name="treeWidget_reactions_at_springs">
+            <property name="geometry">
+             <rect>
+              <x>38</x>
+              <y>10</y>
+              <width>282</width>
+              <height>150</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>282</width>
+              <height>150</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>282</width>
+              <height>150</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>9</pointsize>
+              <weight>50</weight>
+              <italic>true</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="indentation">
+             <number>0</number>
+            </property>
+            <column>
+             <property name="text">
+              <string>Nodes</string>
+             </property>
+             <property name="font">
+              <font>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <italic>false</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Reactions</string>
+             </property>
+             <property name="font">
+              <font>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <italic>false</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tab_nodes_with_dampers">
+           <attribute name="title">
+            <string>Reactions at dampers</string>
+           </attribute>
+           <widget class="QTreeWidget" name="treeWidget_reactions_at_dampers">
+            <property name="geometry">
+             <rect>
+              <x>38</x>
+              <y>10</y>
+              <width>282</width>
+              <height>150</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>282</width>
+              <height>150</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>282</width>
+              <height>150</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>9</pointsize>
+              <weight>50</weight>
+              <italic>true</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="indentation">
+             <number>0</number>
+            </property>
+            <column>
+             <property name="text">
+              <string>Nodes</string>
+             </property>
+             <property name="font">
+              <font>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <italic>false</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Reactions</string>
+             </property>
+             <property name="font">
+              <font>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <italic>false</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+           </widget>
+          </widget>
+         </widget>
+        </widget>
        </widget>
       </item>
      </layout>
