@@ -481,8 +481,13 @@ class PlotReactionsInput(QDialog):
 
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('REACTIONS FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
-        ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
+        if self.analysisMethod is None:
+            title = "REACTIONS FREQUENCY RESPONSE"
+        else:
+            title = f"REACTIONS FREQUENCY RESPONSE - {self.analysisMethod.upper()}"
+
+        ax.set_title(title, fontsize = 12, fontweight = 'bold')
+        ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
 
         #self.cursor = Cursor(ax)
         self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)

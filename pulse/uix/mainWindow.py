@@ -852,9 +852,12 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         title = "OpenPulse stop execution requested"
-        message = "Do you really want to stop the OpenPulse processing and close \nthe current project setup?\n\n\n"
-        message += "Note: The current project setup progress has already \nbeen saved in the project files."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label="No", rightButton_label="Yes")
+        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+
+        buttons_config = {"left_button_label" : "No", 
+                          "right_button_label" : "Yes",
+                          "right_toolTip" : "The current project setup progress has already been saved in the project files."}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._stop:
             event.ignore()

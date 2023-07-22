@@ -30,6 +30,7 @@ class Node:
         Default is None.
     """
     def __init__(self, x, y, z, **kwargs):
+        
         self.x = x
         self.y = y
         self.z = z

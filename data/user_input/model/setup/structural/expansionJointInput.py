@@ -1156,7 +1156,9 @@ class ExpansionJointInput(QDialog):
         message += f"added to the line {line_id}?\n\n\n"
         message += "Press the Continue button to proceed with removal or press \n"
         message += "Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._doNotRun:
             return
@@ -1186,7 +1188,8 @@ class ExpansionJointInput(QDialog):
         message += f"{selected_group}\n"
         message += "\n\nPress the Continue button to proceed with removal or press \n"
         message += "Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
             return
@@ -1238,7 +1241,8 @@ class ExpansionJointInput(QDialog):
         title = "Remove all expansion joints added to the model"
         message = "Are you really sure you want to remove all expansion joints from the model?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         # if read._doNotRun:
         #     return
@@ -1364,7 +1368,9 @@ class ExpansionJointInput(QDialog):
         for table in list_tables:
             message += f"{table}\n"
         message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._doNotRun:
             return

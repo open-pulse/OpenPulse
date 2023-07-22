@@ -983,7 +983,8 @@ class GeometryDesignerInput(QDialog):
         title = "Resetting of all Points"
         message = "Do you really want to reset the all defined Points?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
             return
@@ -1005,7 +1006,9 @@ class GeometryDesignerInput(QDialog):
         title = "Resetting of all Lines"
         message = "Do you really want to reset the all defined Lines?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        
         if read._doNotRun:
             return
 
@@ -1020,7 +1023,9 @@ class GeometryDesignerInput(QDialog):
         title = "Resetting of all Fillets"
         message = "Do you really want to reset the all defined Fillets?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        
         if read._doNotRun:
             return
 
@@ -1039,7 +1044,9 @@ class GeometryDesignerInput(QDialog):
         title = "Removal of all Entities"
         message = "Do you really want to remove the all defined Entities?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
         if read._doNotRun:
             return
 
@@ -1121,7 +1128,8 @@ class GeometryDesignerInput(QDialog):
         title = "Restore geometry file"
         message = "Do you really want to restore the imported geometry file?\n\n\n"
         message += "Press the 'Proceed' button to proceed with the file restoration, otherwise, press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
             return True

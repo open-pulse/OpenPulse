@@ -150,7 +150,8 @@ class SetMeshPropertiesInput(QDialog):
             message = message[:-2]
             message += ".\n\nPress the Return button if you want to change the element size and process remapping once, press the "
             message += "Remove button to remove unmapped boundary conditions or press Close button to abort the mesh operation."
-            read = CallDoubleConfirmationInput(title, message, leftButton_label = 'Remove', rightButton_label = 'Return')
+            buttons_config = {"left_button_label" : "Remove", "right_button_label" : "Return"}
+            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
             
             if read._doNotRun:
                 self.undo_mesh_actions()

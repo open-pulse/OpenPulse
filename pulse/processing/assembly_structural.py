@@ -82,6 +82,7 @@ class AssemblyStructural:
                 global_prescribed.extend(node.get_prescribed_dofs_bc_values())      
 
         try:    
+            
             aux_ones = np.ones(number_frequencies, dtype=complex)
             for value in global_prescribed:
                 if isinstance(value, complex):
@@ -89,8 +90,9 @@ class AssemblyStructural:
                 elif isinstance(value, np.ndarray):
                     list_prescribed_dofs.append(value[0:number_frequencies])
             array_prescribed_values = np.array(list_prescribed_dofs)
-        except Exception as log_error:
-            print(str(log_error))
+        
+        except Exception as _error_log:
+            print(str(_error_log))
 
         return global_prescribed, array_prescribed_values
 
@@ -142,7 +144,6 @@ class AssemblyStructural:
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         
         for index, element in enumerate(self.preprocessor.structural_elements.values()):
-            # mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
             if element.element_type == "expansion_joint":
                 self.expansion_joint_data[index] = element
             else:
@@ -375,6 +376,7 @@ class AssemblyStructural:
             Loads vectors. Each column corresponds to a frequency of analysis.
         """
         try:
+
             cols = 1
             total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
 
@@ -433,11 +435,11 @@ class AssemblyStructural:
             _frequencies = np.array([0.], dtype=float)
         else:
             _frequencies = self.frequencies
-        cols = len(self.frequencies)
+        cols = len(_frequencies)
 
         loads = np.zeros((total_dof, cols), dtype=complex)
         pressure_loads = np.zeros((total_dof, cols), dtype=complex)
-    
+        
         if static_analysis:
             return self.get_global_loads_for_static_analysis()
         

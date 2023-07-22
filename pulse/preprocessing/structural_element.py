@@ -1121,9 +1121,13 @@ class StructuralElement:
                 force = A * (capped_end - 2*nu)* stress_axial
             elif self.wall_formulation == "thin_wall":
                 force = A * (capped_end*stress_axial - nu*pressures*(Do/(Do-Di) - 1))
+            else:
+                raise TypeError('Only thin and thick wall formulation types are allowable.')
+            
         elif self.element_type in ['expansion_joint','valve']:
             nu = 0
             force = (capped_end - 2*nu)* A *pressures
+            
         else:
             return np.zeros((rows, cols))
 

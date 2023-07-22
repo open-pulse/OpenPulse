@@ -1099,7 +1099,8 @@ class CompressorModelInput(QDialog):
                 message += f"{node.external_index}\n"
             message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
             message += "\nClose buttons to abort the current operation."
-            read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
             if read._doNotRun:
                 return

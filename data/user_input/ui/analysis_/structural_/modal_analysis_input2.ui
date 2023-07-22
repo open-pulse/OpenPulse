@@ -235,7 +235,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        </font>
       </property>
       <property name="text">
-       <string>in acoustic modal analysis</string>
+       <string>in structural modal analysis</string>
       </property>
       <property name="textFormat">
        <enum>Qt::AutoText</enum>
@@ -568,7 +568,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
      </font>
     </property>
     <property name="text">
-     <string>Acoustic modal analysis</string>
+     <string>Structural modal analysis</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>

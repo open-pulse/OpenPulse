@@ -522,8 +522,13 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         _legends = plt.legend(handles=list_plots, labels=list_legends)
         plt.gca().add_artist(_legends)
 
-        self.ax.set_title(('STRUCTURAL FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
-        self.ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
+        if self.analysisMethod is None:
+            title = "NODAL RESPONSE"
+        else:
+            title = f"STRUCTURAL FREQUENCY RESPONSE - {self.analysisMethod.upper()}"
+
+        self.ax.set_title(title, fontsize = 12, fontweight = 'bold')
+        self.ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
    
         #self.use_cursor = Cursor(self.ax)
         self.cursor = SnaptoCursor(self.ax, frequencies, response, self.use_cursor)

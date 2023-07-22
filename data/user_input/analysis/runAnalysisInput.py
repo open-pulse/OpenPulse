@@ -44,7 +44,6 @@ class RunAnalysisInput(QDialog):
         self.analysis_ID = analysis_ID
         self.analysis_type_label = analysis_type_label
         self.frequencies = self.project.frequencies
-        self.damping = self.project.global_damping
         self.modes = self.project.modes
         self.solution_acoustic = None
         self.solution_structural = None
@@ -267,24 +266,24 @@ class RunAnalysisInput(QDialog):
             self.project.set_structural_reactions([ {}, {}, {} ])
 
     def config_title_font(self):
-        font = QFont()
-        font.setPointSize(19)
-        font.setBold(True)
-        font.setItalic(True)
-        font.setFamily("Arial")
-        # font.setWeight(60)
-        self.label_title.setFont(font)
-        self.label_title.setStyleSheet("color:black")
+        # font = QFont()
+        # font.setPointSize(19)
+        # font.setBold(True)
+        # font.setItalic(True)
+        # font.setFamily("Arial")
+        # # font.setWeight(60)
+        # self.label_title.setFont(font)
+        self.label_message.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
 
     def config_message_font(self):
-        font = QFont()
-        font.setPointSize(17)
-        font.setBold(True)
-        # font.setItalic(True)
-        font.setFamily("Arial")
-        # font.setWeight(60)
-        self.label_message.setFont(font)
-        self.label_message.setStyleSheet("color:blue")
+        # font = QFont()
+        # font.setPointSize(12)
+        # # font.setBold(True)
+        # # font.setItalic(True)
+        # font.setFamily("MS Shell Dlg 2")
+        # font.setWeight(50)
+        # self.label_message.setFont(font)
+        self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
 
     def print_final_log(self):
 

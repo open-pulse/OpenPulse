@@ -745,9 +745,11 @@ class MenuItems(QTreeWidget):
             elif self.project.analysis_ID == 7:
                 self.item_child_plotDisplacementField.setDisabled(False)
                 self.item_child_plotStressField.setDisabled(False)
-                # self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
-                # self.item_child_plotStressFrequencyResponse.setDisabled(False)
+                self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
+                self.item_child_plotReactionsFrequencyResponse.setDisabled(False)
+                self.item_child_plotStressFrequencyResponse.setDisabled(False)
 
+            self.modify_item_names_according_to_analysis()
             self.update_TreeVisibility_after_solution()
             
     def update_TreeVisibility_after_solution(self):
@@ -771,6 +773,17 @@ class MenuItems(QTreeWidget):
             self.item_top_resultsViewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_structural)
             self.expandItem(self.item_top_resultsViewer_acoustic)
+
+    def modify_item_names_according_to_analysis(self):
+        if self.project.analysis_ID == 7:
+            self.item_child_plotStructuralFrequencyResponse.setText(0, 'Plot Structural Nodal Response')
+            self.item_child_plotReactionsFrequencyResponse.setText(0, 'Plot Reactions Response')
+            self.item_child_plotStressFrequencyResponse.setText(0, 'Plot Stress Response')
+        else:
+            self.item_child_plotStructuralFrequencyResponse.setText(0, 'Plot Structural Frequency Response')
+            self.item_child_plotReactionsFrequencyResponse.setText(0, 'Plot Reactions Frequency Response')
+            self.item_child_plotStressFrequencyResponse.setText(0, 'Plot Stress Frequency Response')
+
 
     def update_structural_analysis_visibility_items(self):
         self.item_top_structuralModelSetup.setHidden(False)

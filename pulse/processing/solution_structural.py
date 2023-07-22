@@ -32,6 +32,8 @@ class SolutionStructural:
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
         self.K_exp_joint, self.M_exp_joint, self.Kr_exp_joint, self.Mr_exp_joint = self.assembly.get_expansion_joint_global_matrices()
 
+        self.cache_K = self.K.copy()
+
         self.nodes_connected_to_springs = self.assembly.nodes_connected_to_springs
         self.nodes_with_lumped_masses = self.assembly.nodes_with_lumped_masses
         self.nodes_connected_to_dampers = self.assembly.nodes_connected_to_dampers
@@ -49,7 +51,9 @@ class SolutionStructural:
         self.reset_stress_stiffening = False
 
     def update_global_matrices(self):
-        self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices() 
+        self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
+        # print(np.max(np.abs(self.cache_K - self.K)))
+        # print(np.max(np.abs(self.K)))
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
         """
@@ -103,19 +107,18 @@ class SolutionStructural:
             Force and moment global loads. Each column corresponds to a frequency of analysis.
         """
 
+        unprescribed_indexes = self.unprescribed_indexes
         alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
+
         F = self.assembly.get_global_loads(static_analysis=static_analysis)
 
         if static_analysis:
             _frequencies = np.array([0.], dtype=float)
         else:
-            _frequencies = self.frequencies
-            # return F
+            _frequencies = self.frequencies       
 
-        unprescribed_indexes = self.unprescribed_indexes
-
-        rows = len(unprescribed_indexes)
         cols = len(_frequencies)
+        rows = len(unprescribed_indexes)
         F_eq = np.zeros((rows,cols), dtype=complex)
         
         if np.sum(self.array_prescribed_values) != 0:
@@ -202,10 +205,7 @@ class SolutionStructural:
   
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
             Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
-            # else:
-            #     #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
-            #     Kadd_lump = self.K + self.K_exp_joint[0]
-            #     Madd_lump = self.M + self.M_exp_joint
+            ##Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
         else:
             Kadd_lump = K
             Madd_lump = M

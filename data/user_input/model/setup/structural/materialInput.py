@@ -735,7 +735,9 @@ class MaterialInput(QDialog):
         title = "Resetting of materials library"
         message = "Do you really want to reset the material library to default values?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._doNotRun:
             return

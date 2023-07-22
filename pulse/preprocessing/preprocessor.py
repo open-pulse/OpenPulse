@@ -117,7 +117,7 @@ class Preprocessor:
         self.stop_processing = False
         self.camera_rotation_center = [0, 0, 0]
         self.gravity_vector = np.zeros(self.DOFS_ELEMENT, dtype=float)
-        self.damping = [0, 0, 0, 0]
+        self.global_damping = [0, 0, 0, 0]
 
     def set_element_size(self, element_size):
         self.element_size = element_size

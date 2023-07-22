@@ -74,7 +74,6 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.before_run = project.get_pre_solution_model_checks()
 
         self.frequencies = project.frequencies
-        self.damping = project.get_damping()
         self.solve = self.project.structural_solve 
     
         self.analysisMethod = analysisMethod
@@ -357,10 +356,10 @@ class PlotStressFrequencyResponseInput(QDialog):
         plt.gca().add_artist(_legends)
 
         if self.analysisMethod is None:
-            title = '{} STRESS FREQUENCY RESPONSE'.format(self.stress_label.upper())
+            title = f"{self.stress_label.upper()} STRESS FREQUENCY RESPONSE"
         else:
-            title = '{} STRESS FREQUENCY RESPONSE - {}'.format(self.stress_label.upper(), self.analysisMethod.upper())
+            title = f"{self.stress_label.upper()} STRESS FREQUENCY RESPONSE - {self.analysisMethod.upper()}"
 
-        ax.set_title(title, fontsize = 16, fontweight = 'bold')
-        ax.set_xlabel('Frequency [Hz]', fontsize = 14, fontweight = 'bold')
+        ax.set_title(title, fontsize = 12, fontweight = 'bold')
+        ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
         self.fig.show()

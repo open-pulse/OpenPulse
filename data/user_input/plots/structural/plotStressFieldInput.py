@@ -24,7 +24,6 @@ class PlotStressFieldInput(QDialog):
         self.project = project
         self.solve = self.project.structural_solve
         self.preprocessor = self.project.preprocessor
-        self.damping = project.get_damping()
         self.frequencies = project.frequencies
         self.dict_frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.selected_index = None

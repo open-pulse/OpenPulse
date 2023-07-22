@@ -7,7 +7,6 @@ from pathlib import Path
 import os
 
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from pulse import __version__, __release_date__
 
 def get_icons_path(filename):
@@ -50,8 +49,8 @@ class AboutOpenPulseInput(QDialog):
         self.label_main_info = self.findChild(QLabel, 'label_main_info')
         self.label_main_info.setText(main_info)
         
-        self.toolButton_repository = self.findChild(QToolButton, 'toolButton_repository')
-        self.toolButton_repository.clicked.connect(self.open_gitHub_repository)
+        self.pushButton_repository = self.findChild(QToolButton, 'pushButton_repository')
+        self.pushButton_repository.clicked.connect(self.open_gitHub_repository)
 
         self.exec()
 

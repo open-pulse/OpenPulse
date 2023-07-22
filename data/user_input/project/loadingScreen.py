@@ -59,6 +59,7 @@ class LoadingScreen(QDialog):
             self.config_pushButton()
 
         self.setLayout(self.layout)
+        self.configWindow()
         self.configAppearance()        
 
         self.threadWorker = QThread()

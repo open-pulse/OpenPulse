@@ -219,14 +219,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         solution = self.project.get_structural_solution()
         self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
 
-    def computeDisplacement(self, frequency, phase_step=0):
+    def computeDisplacement(self, frequency_index, phase_step=0):
 
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()    
 
         _, _, u_def, self._magnificationFactor, self.min_max_rDisp_values_current = get_structural_response(preprocessor, 
                                                                                                             solution, 
-                                                                                                            frequency, 
+                                                                                                            frequency_index, 
                                                                                                             phase_step=phase_step,
                                                                                                             r_max=self.rDisp_max)
         
@@ -239,9 +239,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider.SetEnabled(True)
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
-        #
-        # max_value = np.max(np.abs(np.real(u_def)))
-        # print(f"Maximum displacement: {round(max_value, 14)}")
         
     def get_min_max_values_to_stresses(self):
         solution = self.project.stresses_values_for_color_table

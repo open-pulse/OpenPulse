@@ -505,7 +505,9 @@ class LoadsInput(QDialog):
         title = "Remove all nodal loads from the structural model"
         message = "Do you really want to remove all nodal loads from the structural model?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._continue:
             self.basenames = []

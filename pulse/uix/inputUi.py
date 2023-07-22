@@ -43,6 +43,7 @@ from data.user_input.analysis.runAnalysisInput import RunAnalysisInput
 from data.user_input.plots.structural.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
 from data.user_input.plots.structural.plotDisplacementFieldInput import PlotDisplacementFieldInput
 from data.user_input.plots.structural.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
+from data.user_input.plots.structural.plot_structural_nodal_results import PlotStructuralNodalResults
 from data.user_input.plots.structural.plotReactionsInput import PlotReactionsInput
 from data.user_input.plots.structural.plotStressFieldInput import PlotStressFieldInput
 from data.user_input.plots.structural.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
@@ -372,12 +373,15 @@ class InputUi:
             self.processInput(PlotAcousticPressureFieldInput, self.project, self.opv)           
 
     def plotStructuralFrequencyResponse(self):
-        if self.analysis_ID in [0,1,5,6]:
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv, 
-                                self.analysis_method_label, solution  )
+            if self.analysis_ID == 7:
+                self.processInput(PlotStructuralNodalResults, self.project, self.opv, solution)
+            else:
+                self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv, 
+                                    self.analysis_method_label, solution  )
 
     def plotAcousticFrequencyResponse(self):
         if self.analysis_ID in [3,5,6]:
@@ -425,7 +429,7 @@ class InputUi:
             self.processInput(PlotStressFrequencyResponseInput, self.project, self.opv, self.analysis_method_label)
 
     def plotReactionsFrequencyResponse(self):
-        if self.analysis_ID in [0,1,5,6]:
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
             self.processInput(PlotReactionsInput, self.project, self.opv, self.analysis_method_label)
 
     def animationSettings(self):
