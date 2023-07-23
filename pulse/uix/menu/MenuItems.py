@@ -684,7 +684,7 @@ class MenuItems(QTreeWidget):
             self.item_top_resultsViewer_structural.setHidden(True)
             self.item_top_resultsViewer_acoustic.setHidden(True)
         
-        if self.project.analysis_ID in [None, 2, 4, 7]:
+        if self.project.analysis_ID in [None, 2, 4]:
             self.item_child_analisysSetup.setDisabled(True)
         else:
             self.item_child_analisysSetup.setDisabled(False)

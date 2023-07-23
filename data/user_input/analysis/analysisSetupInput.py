@@ -5,6 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 import numpy as np
 
+from data.user_input.analysis.statict_analysis_input import StaticAnalysisInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title = "ERROR"
@@ -37,6 +38,10 @@ class AnalysisSetupInput(QDialog):
             ui_path = Path('data/user_input/ui/analysis_/structural_/harmonic_analysis_direct_method_inputs.ui')
         elif self.analysis_ID in [3]:
             ui_path = Path('data/user_input/ui/analysis_/acoustic_/harmonic_analysis_direct_method_inputs.ui')
+        elif self.analysis_ID == 7:
+            read = StaticAnalysisInput(self.project)
+            self.complete = self.flag_run = read.complete
+            return
         else:
             return
 

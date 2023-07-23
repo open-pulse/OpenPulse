@@ -612,7 +612,7 @@ class SolutionStructural:
                 normal = Dab @ Bab @ T @ rot @ u
                 shear = Dts @ Bts @ T @ rot @ u
 
-                element.internal_load = np.multiply(np.r_[normal, shear],damping)
+                element.internal_load = np.multiply(np.r_[normal, shear], damping)
                 # Stress
                 do = element.cross_section.outer_diameter
                 di = element.cross_section.inner_diameter
@@ -639,8 +639,8 @@ class SolutionStructural:
                     radial_stress = -nu*pi*(do/(do-di) - 1)
                    
                 stress_data = np.c_[element.internal_load[0]/area - radial_stress,
-                                    element.internal_load[2] * ro/Iy,
-                                    element.internal_load[1] * ro/Iz,
+                                    element.internal_load[1] * ro/Iy,
+                                    element.internal_load[2] * ro/Iz,
                                     hoop_stress,
                                     element.internal_load[3] * ro/J,
                                     element.internal_load[4]/area,

@@ -30,11 +30,6 @@ class PlotStaticAnalysisReactions(QDialog):
 
         uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/reactions_plot.ui'), self)
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.reactions = project.get_structural_reactions()
-        self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.reactions
-
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
@@ -44,9 +39,16 @@ class PlotStaticAnalysisReactions(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
+
+        self.project = project
+        self.preprocessor = project.preprocessor
         
+        [   self.dict_reactions_at_constrained_dofs, 
+            self.dict_reactions_at_springs, 
+            self.dict_reactions_at_dampers   ] = project.get_structural_reactions()
+
         self._define_qt_variables()
-        # self.update()
+        self._create_connections()
         self.exec()
 
     def _define_qt_variables(self):
@@ -67,6 +69,8 @@ class PlotStaticAnalysisReactions(QDialog):
                             self.lineEdit_reaction_my,
                             self.lineEdit_reaction_mz  ]
         #
+        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        #
         self.tabWidget_reactions = self.findChild(QTabWidget, "tabWidget_reactions")
         self.tab_constrained_dofs = self.tabWidget_reactions.findChild(QWidget, "tab_constrained_dofs")
         self.tab_external_springs_dampers = self.tabWidget_reactions.findChild(QWidget, "tab_external_springs_dampers")
@@ -78,28 +82,37 @@ class PlotStaticAnalysisReactions(QDialog):
         self.treeWidget_reactions_at_constrained_dofs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_constrained_dofs')
         self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
         self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
-        self.treeWidget_reactions_at_constrained_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.treeWidget_reactions_at_dampers = self.findChild(QTreeWidget, 'treeWidget_reactions_at_dampers')
         self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
         self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_dampers.itemClicked.connect(self.on_click_item)
-        self.treeWidget_reactions_at_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
         self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
         self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
-        self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self._load_nodes_info()
         self._config_lineEdits()
+        self._tabWidgets_visibility()
+
+    def _create_connections(self):
+        self.pushButton_reset.clicked.connect(self._reset_lineEdits)
+        self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
+        self.treeWidget_reactions_at_constrained_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_reactions_at_dampers.itemClicked.connect(self.on_click_item)
+        self.treeWidget_reactions_at_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
+        self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def _config_lineEdits(self):
         for lineEdit in self.lineEdits:
             lineEdit.setDisabled(True)
             lineEdit.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)")
+
+    def _tabWidgets_visibility(self):
+        self.tabWidget_springs_dampers.removeTab(1)
+        if len(self.dict_reactions_at_springs) == 0:
+            self.tabWidget_reactions.removeTab(1)
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
@@ -221,6 +234,7 @@ class PlotStaticAnalysisReactions(QDialog):
 
     def on_click_item(self, item):
         self.lineEdit_node_id.setText(item.text(0))
+        self.plot_reactions()
 
     def on_doubleclick_item(self, item):
         self.lineEdit_node_id.setText(item.text(0))

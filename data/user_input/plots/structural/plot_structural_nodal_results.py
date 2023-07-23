@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-class PlotStructuralNodalResults(QDialog):
+class PlotNodalResultsForStaticAnalysis(QDialog):
     def __init__(self, project, opv, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -48,6 +48,9 @@ class PlotStructuralNodalResults(QDialog):
                             self.lineEdit_response_ry,
                             self.lineEdit_response_rz  ]
         #
+        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        self.pushButton_reset.clicked.connect(self.reset_selection)
+        #
         self._config_lineEdits()
 
     def _config_lineEdits(self):
@@ -58,6 +61,11 @@ class PlotStructuralNodalResults(QDialog):
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
             lineEdit.setText("")
+
+    def reset_selection(self):
+        self._reset_lineEdits()
+        self.opv.opvRenderer.updateColors()
+        self.opv.opvRenderer.update()
 
     def _update_lineEdit(self):    
         node_id = self.list_node_IDs[0]
