@@ -776,9 +776,9 @@ class MenuItems(QTreeWidget):
 
     def modify_item_names_according_to_analysis(self):
         if self.project.analysis_ID == 7:
-            self.item_child_plotStructuralFrequencyResponse.setText(0, 'Plot Structural Nodal Response')
-            self.item_child_plotReactionsFrequencyResponse.setText(0, 'Plot Reactions Response')
-            self.item_child_plotStressFrequencyResponse.setText(0, 'Plot Stress Response')
+            self.item_child_plotStructuralFrequencyResponse.setText(0, 'Plot Nodal Response')
+            self.item_child_plotReactionsFrequencyResponse.setText(0, 'Plot Reactions')
+            self.item_child_plotStressFrequencyResponse.setText(0, 'Plot Stresses')
         else:
             self.item_child_plotStructuralFrequencyResponse.setText(0, 'Plot Structural Frequency Response')
             self.item_child_plotReactionsFrequencyResponse.setText(0, 'Plot Reactions Frequency Response')

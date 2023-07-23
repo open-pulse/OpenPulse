@@ -20,7 +20,7 @@ class AnimationSettingsInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Plots/Animation/animationSettingsInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/animation_/animationSettingsInput.ui'), self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)

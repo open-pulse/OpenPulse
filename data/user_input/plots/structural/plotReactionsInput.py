@@ -59,7 +59,7 @@ class PlotReactionsInput(QDialog):
     def __init__(self, project, opv, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Plots/Results/Structural/plotReactionsInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plotReactionsInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -78,22 +78,26 @@ class PlotReactionsInput(QDialog):
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
 
-        reactions = project.get_structural_reactions()
-        self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers = reactions
-
         self.analysisMethod = analysisMethod
         self.frequencies = project.frequencies
         
+        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
-
         self.load_nodes_info()
         self.exec()
 
     def _reset_variables(self):
+        #
         self.node_ID = 0
-        self.imported_data = None
         self.localDof = None
+        self.imported_data = None
+        #
+        reactions = self.project.get_structural_reactions()
+        #
+        [   self.dict_reactions_at_constrained_dofs, 
+            self.dict_reactions_at_springs, 
+            self.dict_reactions_at_dampers   ] = reactions
 
     def _define_qt_variables(self):
         
@@ -109,10 +113,10 @@ class PlotReactionsInput(QDialog):
         self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')  
         
         #QPushButton objects
+        self.pushButton_ResetPlot = self.findChild(QPushButton, 'pushButton_ResetPlot')
         self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
         self.pushButton_plot_reactions_frequency_response = self.findChild(QPushButton, 'pushButton_plot_reactions_frequency_response')
-        self.pushButton_ResetPlot = self.findChild(QToolButton, 'pushButton_ResetPlot')
-        
+
         #QRadioButton objects
         self.radioButton_Fx = self.findChild(QRadioButton, 'radioButton_Fx')
         self.radioButton_Fy = self.findChild(QRadioButton, 'radioButton_Fy')

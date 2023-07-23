@@ -10,7 +10,7 @@ class PlotStructuralNodalResults(QDialog):
     def __init__(self, project, opv, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/analysis_/structural_/nodal_response_plot.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/nodal_response_plot.ui'), self)
 
         self.project = project
 

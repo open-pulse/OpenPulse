@@ -28,7 +28,7 @@ class PlotStaticAnalysisReactions(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/analysis_/structural_/reactions_plot.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/reactions_plot.ui'), self)
 
         self.project = project
         self.preprocessor = project.preprocessor

@@ -56,7 +56,7 @@ class Plot_Acoustic_Delta_Pressures_Input(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Plots/Results/Acoustic/plotAcousticDeltaPressuresInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plotAcousticDeltaPressuresInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

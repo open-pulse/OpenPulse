@@ -494,7 +494,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <x>62</x>
           <y>32</y>
           <width>107</width>
-          <height>74</height>
+          <height>91</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">

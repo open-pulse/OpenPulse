@@ -506,7 +506,7 @@
             </font>
            </property>
            <property name="text">
-            <string> [N/rad]</string>
+            <string> [N.m]</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -729,7 +729,7 @@
             </font>
            </property>
            <property name="text">
-            <string> [N/rad]</string>
+            <string> [N.m]</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -758,7 +758,7 @@
             </font>
            </property>
            <property name="text">
-            <string> [N/rad]</string>
+            <string> [N.m]</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -923,7 +923,7 @@
          </font>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_constrained_dofs">
          <attribute name="title">

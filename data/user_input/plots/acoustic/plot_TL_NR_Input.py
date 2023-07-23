@@ -54,7 +54,7 @@ class Plot_TL_NR_Input(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Plots/Results/Acoustic/plot_TL_NR_Input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plot_TL_NR_Input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
