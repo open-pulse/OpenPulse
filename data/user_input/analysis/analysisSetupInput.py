@@ -50,6 +50,9 @@ class AnalysisSetupInput(QDialog):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Analysis setup")
 
         self._initialize_variables()
         self._define_qt_variables()

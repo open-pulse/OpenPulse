@@ -17,6 +17,8 @@ class SetInertialLoad(QDialog):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)        
         self.setWindowTitle("Set inertial load")
 
         self.project = project

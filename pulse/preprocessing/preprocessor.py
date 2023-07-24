@@ -26,8 +26,9 @@ class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self, file):
-        self.file = file
+    def __init__(self, project):
+        self.project = project
+        self.file = project.file
         self.reset_variables()
 
     def reset_variables(self):

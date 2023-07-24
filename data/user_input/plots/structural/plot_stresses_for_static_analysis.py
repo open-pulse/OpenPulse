@@ -24,7 +24,7 @@ class PlotStressesForStaticAnalysis(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Structural nodal response")
+        self.setWindowTitle("Plot stresses for static analysis")
 
         self.stress_labels = [  "Normal axial", 
                                 "Normal bending y", 

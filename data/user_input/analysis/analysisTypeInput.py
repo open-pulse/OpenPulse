@@ -35,6 +35,9 @@ class AnalysisTypeInput(QDialog):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Analysis type")
 
         self.project = project
 
@@ -74,6 +77,7 @@ class AnalysisTypeInput(QDialog):
 
     def harmonic_structural(self):
         #
+        self.close()
         select = StructuralHarmonicAnalysisInput()
         self.method_ID = select.index
         self.analysis_type_label = "Structural Harmonic Analysis"
@@ -85,10 +89,11 @@ class AnalysisTypeInput(QDialog):
             self.analysis_method_label = "Mode Superposition Method"
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.complete = True
-        self.close()
+        # self.close()
 
     def harmonic_acoustic(self):
         #
+        self.close()
         # obj = AcousticHarmonicAnalysisInput()
         # self.method_ID = obj.index
         self.method_ID = 0
@@ -104,10 +109,11 @@ class AnalysisTypeInput(QDialog):
         # self.complete = obj.complete
         # if obj.complete:
         self.complete = True
-        self.close()
+        # self.close()
 
     def harmonic_coupled(self):
         #
+        self.close()
         coupled = CoupledHarmonicAnalysisInput()
         self.method_ID = coupled.index
         self.analysis_type_label = "Coupled Harmonic Analysis"
@@ -119,11 +125,12 @@ class AnalysisTypeInput(QDialog):
             self.analysis_method_label = "Mode Superposition Method"
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.complete = coupled.complete
-        if coupled.complete:
-            self.close()
+        # if coupled.complete:
+        #     self.close()
 
     def modal_structural(self):
         #
+        self.close()
         modal = StructuralModalAnalysisInput()
         if modal.modes is None:
             return
@@ -133,11 +140,12 @@ class AnalysisTypeInput(QDialog):
         self.analysis_type_label = "Structural Modal Analysis"
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.complete = modal.complete
-        if modal.complete:
-            self.close()
+        # if modal.complete:
+        #     self.close()
 
     def modal_acoustic(self):
         #
+        self.close()
         modal = AcousticModalAnalysisInput()
         if modal.modes is None:
             return
@@ -147,15 +155,17 @@ class AnalysisTypeInput(QDialog):
         self.analysis_type_label = "Acoustic Modal Analysis"
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.complete = modal.complete
-        if modal.complete:
-            self.close()
+        # if modal.complete:
+            # self.close()
 
     def static_analysis(self):
         #
+        self.close()
         static = StaticAnalysisInput(self.project)
         self.analysis_ID = 7
         self.analysis_type_label = "Static Analysis"
         self.complete = static.complete
-        if static.complete:
-            self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
-            self.close()
+        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        # if static.complete:
+        #     self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        #     # self.close()

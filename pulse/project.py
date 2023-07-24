@@ -25,7 +25,7 @@ window_title = "ERROR"
 class Project:
     def __init__(self):
         self.file = ProjectFile() 
-        self.preprocessor = Preprocessor(self.file)
+        self.preprocessor = Preprocessor(self)
          
         self.reset()
 
@@ -58,6 +58,10 @@ class Project:
         self.setup_analysis_complete = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
+        self.weight_load = True
+        self.internal_pressure_load = True
+        self.external_nodal_loads = True
+        self.element_distributed_load = True
 
         self.time_to_load_or_create_project = 0
         self.time_to_checking_entries = 0
@@ -1628,6 +1632,12 @@ class Project:
             self.f_min, self.f_max, self.f_step = min_, max_, step_
             self.file.add_frequency_in_file(min_, max_, step_)
         self.frequencies = frequencies
+    
+    def set_static_analysis_setup(self, analysis_setup):
+        [self.weight_load, 
+         self.internal_pressure_load,
+         self.external_nodal_loads,
+         self.element_distributed_load] = analysis_setup
 
     def load_prescribed_dofs_bc_by_node(self, node_id, data):
         self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
@@ -1783,7 +1793,7 @@ class Project:
             if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
                 return True
             self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)
-        return False    
+        return False
     
     def set_specific_impedance_bc_by_node(self, node_ids, data, imported_table):
         label = ["specific impedance"] 
@@ -1805,7 +1815,7 @@ class Project:
             if self.preprocessor.set_compressor_excitation_bc_by_node([node_id], data, connection_info):
                 return True
             self.file.add_acoustic_bc_in_file([node_id], data, True, label)
-        return False 
+        return False
 
     def remove_acoustic_pressure_table_files(self, node_ids):
         str_key = "acoustic pressure"

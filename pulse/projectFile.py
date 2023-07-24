@@ -503,7 +503,7 @@ class ProjectFile:
             if 'stiffening_effect' in section.keys():
                 key_stiffening = int(section['stiffening_effect'])
 
-        return gravity, bool(key_stiffening)
+        return np.array(gravity, dtype=float), bool(key_stiffening)
 
     def create_entity_file(self, entities):
 

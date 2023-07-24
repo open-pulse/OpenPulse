@@ -387,22 +387,26 @@ class AssemblyStructural:
             for element in self.preprocessor.structural_elements.values():
                 position = element.global_dof
                 # self-weight loads
-                loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
+                if self.preprocessor.project.weight_load:
+                    loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
                 # stress stiffening loads
-                loads[position] += element.force_vector_stress_stiffening()
+                if self.preprocessor.project.internal_pressure_load:
+                    loads[position] += element.force_vector_stress_stiffening()
                 # distributed loads
-                loads[position] += element.get_distributed_load()
+                if self.preprocessor.project.element_distributed_load:
+                    loads[position] += element.get_distributed_load()
+            
+            if self.preprocessor.project.external_nodal_loads:
+                # nodal loads
+                for node in self.preprocessor.nodes.values():
+                    if node.there_are_nodal_loads:
+                        position = node.global_dof
+                        if node.loaded_table_for_nodal_loads:
+                            temp_loads = [_frequencies if bc is None else bc for bc in node.nodal_loads]
+                        else:
+                            temp_loads = [_frequencies if bc is None else np.ones_like(_frequencies)*bc for bc in node.nodal_loads]
+                        loads[position, :] += temp_loads
 
-            # nodal loads
-            for node in self.preprocessor.nodes.values():
-                if node.there_are_nodal_loads:
-                    position = node.global_dof
-                    if node.loaded_table_for_nodal_loads:
-                        temp_loads = [_frequencies if bc is None else bc for bc in node.nodal_loads]
-                    else:
-                        temp_loads = [_frequencies if bc is None else np.ones_like(_frequencies)*bc for bc in node.nodal_loads]
-                    loads[position, :] += temp_loads
-        
         except Exception as _error_log:
             print(str(_error_log))
                   
