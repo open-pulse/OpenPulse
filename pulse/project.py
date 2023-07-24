@@ -240,6 +240,8 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
         self.load_analysis_file()
+        self.load_visibility_preferences()
+        self.load_inertia_load_setup()
 
     def update_node_ids_in_file_after_remesh(self, dict_mapped_indexes, dict_non_mapped_indexes):
         self.file.modify_node_ids_in_acoustic_bc_file(dict_mapped_indexes, dict_non_mapped_indexes)
@@ -882,7 +884,15 @@ class Project:
                 self.load_radiation_impedance_bc_by_node(key, RadImp)
 
     def load_analysis_file(self):
-        self.f_min, self.f_max, self.f_step, self.global_damping, self.preferences = self.file.load_analysis_file()
+        self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
+
+    def load_visibility_preferences(self):
+        self.preferences = self.file.load_visibility_preferences_file()
+
+    def load_inertia_load_setup(self):
+        gravity, stiffening_effect = self.file.load_inertia_load_setup()
+        self.preprocessor.set_inertia_load(gravity)
+        self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
     def load_frequencies_from_table(self):
         self.f_min, self.f_max, self.f_step = self.file.f_min, self.file.f_max, self.file.f_step
@@ -1896,8 +1906,10 @@ class Project:
         self._set_structural_element_force_offset_to_lines(lines, force_offset)
         self.file.modify_structural_element_force_offset_in_file(lines, force_offset)
 
-    def set_gravity_setup(self, gravity):
-        self.preprocessor.set_gravity_setup(gravity)
+    def set_inertia_load_setup(self, gravity, stiffening_effect=False):
+        self.preprocessor.set_inertia_load(gravity)
+        self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
+        self.file.add_inertia_load_setup_to_file(gravity, stiffening_effect)
 
     def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
         if isinstance(lines, int):

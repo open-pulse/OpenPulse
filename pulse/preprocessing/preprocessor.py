@@ -2591,7 +2591,7 @@ class Preprocessor:
             PrintMessageInput([title, message, window_title_1])
             return True  
 
-    def set_gravity_setup(self, gravity):
+    def set_inertia_load(self, gravity):
         self.gravity_vector = gravity
 
     def get_radius(self):

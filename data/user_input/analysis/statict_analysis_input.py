@@ -103,7 +103,7 @@ class StaticAnalysisInput(QDialog):
         if self.check_gravity_values():
             return
 
-        self.project.set_gravity_setup(self.gravity)
+        self.project.set_inertia_load_setup(self.gravity)
         self.project.set_structural_damping(self.global_damping)
         self.project.set_frequencies(np.array([0], dtype=float), 0, 0, 0)
         self.complete = True

@@ -24,7 +24,7 @@ class SetInertialLoad(QDialog):
         
         self._reset_variables()
         self._define_qt_variables()
-        self._load_gravity_vector()
+        self._load_inertia_load_setup()
         self.exec()
 
     def keyPressEvent(self, event):
@@ -102,10 +102,8 @@ class SetInertialLoad(QDialog):
         if self.check_gravity_values():
             return
 
-        self.project.set_gravity_setup(self.gravity)
-
-        if self.checkBox_stiffening_effect.isChecked():
-            self.project.preprocessor.modify_stress_stiffening_effect(True)
+        key = self.checkBox_stiffening_effect.isChecked()
+        self.project.set_inertia_load_setup(self.gravity, stiffening_effect=key)
         
         self.complete = True
         self.close()
@@ -151,9 +149,14 @@ class SetInertialLoad(QDialog):
             return None
         return out
     
-    def _load_gravity_vector(self):
+    def _load_inertia_load_setup(self):
+
+        key_stiffening = self.project.preprocessor.stress_stiffening_enabled
+        self.checkBox_stiffening_effect.setChecked(key_stiffening)
+
         if np.sum(self.gravity_vector) != 0:
             g = self.gravity_vector
             self.lineEdit_acceleration_x_axis.setText(str(g[0]))
             self.lineEdit_acceleration_y_axis.setText(str(g[1]))
             self.lineEdit_acceleration_z_axis.setText(str(g[2]))
+        
