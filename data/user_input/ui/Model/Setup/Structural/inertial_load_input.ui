@@ -35,11 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Static Analysis Setup</string>
-  </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>../../../../../../Downloads/load - Copia.png</normaloff>../../../../../../Downloads/load - Copia.png</iconset>
+   <string>Set inertial load</string>
   </property>
   <property name="whatsThis">
    <string/>
@@ -128,7 +124,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Static Analysis Setup</string>
+         <string>Set Inertial Load</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -186,16 +182,16 @@
        <number>2</number>
       </property>
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_run_analysis">
+       <widget class="QPushButton" name="pushButton_confirm">
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>140</width>
           <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>200</width>
+          <width>140</width>
           <height>32</height>
          </size>
         </property>
@@ -214,7 +210,7 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
         </property>
         <property name="text">
-         <string>Run Analysis</string>
+         <string>Confirm</string>
         </property>
        </widget>
       </item>
@@ -288,7 +284,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>0</number>
          </property>
          <item row="0" column="0">
-          <widget class="QCheckBox" name="checkBox_self_weight">
+          <widget class="QCheckBox" name="checkBox_stiffening_effect">
            <property name="minimumSize">
             <size>
              <width>220</width>
@@ -308,8 +304,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
              <bold>true</bold>
             </font>
            </property>
+           <property name="toolTip">
+            <string>Enable stiffness matrix updating in modal and harmonic analysis.</string>
+           </property>
            <property name="text">
-            <string>Enable self weight effect</string>
+            <string>Enable stiffening effect</string>
            </property>
            <property name="checked">
             <bool>true</bool>

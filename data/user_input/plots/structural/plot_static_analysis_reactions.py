@@ -35,7 +35,7 @@ class PlotStaticAnalysisReactions(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Structural nodal response")
+        self.setWindowTitle("Get the static reactions")
 
         self.opv = opv
         self.opv.setInputObject(self)

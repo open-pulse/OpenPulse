@@ -1,32 +1,34 @@
 #
+from data.user_input.project.getStartedInput import GetStartedInput
 from data.user_input.project.newProjectInput import NewProjectInput
 from data.user_input.project.loadProjectInput import LoadProjectInput
-from data.user_input.project.getStartedInput import GetStartedInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
+from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
+#
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
 from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
 from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
-from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
+from data.user_input.model.setup.structural.materialInput import MaterialInput
+from data.user_input.model.setup.acoustic.fluidInput import FluidInput
+from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
-from data.user_input.model.setup.structural.materialInput import MaterialInput
-from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
-from data.user_input.model.setup.structural.flangesInput import FlangesInput
-from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
 from data.user_input.model.setup.structural.dofInput import DOFInput
-from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 from data.user_input.model.setup.structural.loadsInput import LoadsInput
 from data.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
-from data.user_input.model.setup.structural.cappedEndInput import CappedEndInput
-from data.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
 from data.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
-from data.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
+from data.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
+from data.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
+from data.user_input.model.setup.structural.cappedEndInput import CappedEndInput
 from data.user_input.model.setup.structural.valvesInput import ValvesInput
+from data.user_input.model.setup.structural.flangesInput import FlangesInput
+from data.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
+from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
+from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
-from data.user_input.model.setup.acoustic.fluidInput import FluidInput
 from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
 from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
 from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
@@ -222,6 +224,9 @@ class InputUi:
 
     def add_elastic_nodal_links(self):
         self.processInput(ElasticNodalLinksInput, self.project, self.opv)
+
+    def set_inertial_load(self):
+        return self.processInput(SetInertialLoad, self.project)
     
     def add_expansion_joint(self):
         self.processInput(ExpansionJointInput, self.project, self.opv)

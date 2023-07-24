@@ -116,7 +116,7 @@ class Preprocessor:
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
         self.camera_rotation_center = [0, 0, 0]
-        self.gravity_vector = np.zeros(self.DOFS_ELEMENT, dtype=float)
+        self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
         self.global_damping = [0, 0, 0, 0]
 
     def set_element_size(self, element_size):
@@ -1882,6 +1882,9 @@ class Preprocessor:
         except Exception as _error:
             print(str(_error))
 
+    def modify_stress_stiffening_effect(self, _bool):
+        self.stress_stiffening_enabled = _bool
+
     def set_stress_stiffening_by_line(self, lines, pressures, remove=False):
         """
         This method .
@@ -1940,7 +1943,8 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        self.stress_stiffening_enabled = True
+
+        self.modify_stress_stiffening_effect(True)
         
         for element in slicer(self.structural_elements, elements):
             element.external_pressure = pressures[0]

@@ -8,16 +8,16 @@ from pathlib import Path
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-class StaticAnalysisInput(QDialog):
+class SetInertialLoad(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/analysis_/structural_/static_analysis_inputs.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/inertial_load_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
-        self.setWindowTitle("Static Analysis Setup")
+        self.setWindowTitle("Set inertial load")
 
         self.project = project
         self.gravity_vector = self.project.preprocessor.gravity_vector
@@ -40,19 +40,19 @@ class StaticAnalysisInput(QDialog):
 
     def _define_qt_variables(self):
         #
-        self.checkBox_self_weight = self.findChild(QCheckBox, 'checkBox_self_weight')
-        self.checkBox_self_weight.stateChanged.connect(self.change_input_fields_visibility)
+        self.checkBox_stiffening_effect = self.findChild(QCheckBox, 'checkBox_stiffening_effect')
+        self.checkBox_stiffening_effect.stateChanged.connect(self.change_input_fields_visibility)
         #
         self.lineEdit_acceleration_x_axis = self.findChild(QLineEdit, 'lineEdit_acceleration_x_axis')
         self.lineEdit_acceleration_y_axis = self.findChild(QLineEdit, 'lineEdit_acceleration_y_axis')
         self.lineEdit_acceleration_z_axis = self.findChild(QLineEdit, 'lineEdit_acceleration_z_axis')
         #
-        self.pushButton_run_analysis = self.findChild(QPushButton, 'pushButton_run_analysis')
-        self.pushButton_run_analysis.clicked.connect(self.confirm)
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_confirm.clicked.connect(self.confirm)
 
     def change_input_fields_visibility(self):
         #
-        _bool = not self.checkBox_self_weight.isChecked()
+        _bool = not self.checkBox_stiffening_effect.isChecked()
         self.lineEdit_acceleration_x_axis.setDisabled(_bool)
         self.lineEdit_acceleration_y_axis.setDisabled(_bool)
         self.lineEdit_acceleration_z_axis.setDisabled(_bool)
@@ -81,7 +81,7 @@ class StaticAnalysisInput(QDialog):
             lineEdit.setFocus()
             return True
         #
-        if self.checkBox_self_weight.isChecked():
+        if self.checkBox_stiffening_effect.isChecked():
             self.gravity = np.array([self.acceleration_x, self.acceleration_y, self.acceleration_z, 0, 0, 0])
         #
         # if np.sum(np.abs(self.gravity)) == 0:
@@ -98,14 +98,15 @@ class StaticAnalysisInput(QDialog):
         return False
 
     def confirm(self):
-        # if self.checkBox_self_weight.isChecked():
 
         if self.check_gravity_values():
             return
 
         self.project.set_gravity_setup(self.gravity)
-        self.project.set_structural_damping(self.global_damping)
-        self.project.set_frequencies(np.array([0], dtype=float), 0, 0, 0)
+
+        if self.checkBox_stiffening_effect.isChecked():
+            self.project.preprocessor.modify_stress_stiffening_effect(True)
+        
         self.complete = True
         self.close()
         
