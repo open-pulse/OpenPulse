@@ -55,11 +55,11 @@ class SnaptoCursor(object):
             self.ax.figure.canvas.draw_idle()
 
 
-class PlotReactionsInput(QDialog):
+class PlotReactions(QDialog):
     def __init__(self, project, opv, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plotReactionsInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_reactions.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -160,11 +160,10 @@ class PlotReactionsInput(QDialog):
         self.tab_nodes_with_springs = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_springs")
         self.tab_nodes_with_dampers = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_dampers")
         
-        #QToolButton objects
-        
-        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
-        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
-        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
+        #QPushButton objects
+        self.pushButton_ChooseFolderImport = self.findChild(QPushButton, 'pushButton_ChooseFolderImport')
+        self.pushButton_ChooseFolderExport = self.findChild(QPushButton, 'pushButton_ChooseFolderExport')
+        self.pushButton_ExportResults = self.findChild(QPushButton, 'pushButton_ExportResults')
         
         #QTreeWidget objects
         self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
@@ -187,9 +186,9 @@ class PlotReactionsInput(QDialog):
         self.radioButton_plotAbs.clicked.connect(self.radioButtonEvent_YAxis)
         self.radioButton_plotReal.clicked.connect(self.radioButtonEvent_YAxis)
         self.radioButton_plotImag.clicked.connect(self.radioButtonEvent_YAxis)
-        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
-        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
-        self.toolButton_ExportResults.clicked.connect(self.ExportResults)   
+        self.pushButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.pushButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
+        self.pushButton_ExportResults.clicked.connect(self.ExportResults)   
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.treeWidget_reactions_at_dampers.itemClicked.connect(self.on_click_item)

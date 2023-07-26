@@ -7,19 +7,20 @@ import numpy as np
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-class PlotStressFieldInput(QDialog):
+class PlotStressField(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plotStressFieldInput.ui'), self)
+
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_stress_field.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.project = project
         self.solve = self.project.structural_solve

@@ -46,9 +46,10 @@ from data.user_input.plots.structural.plotStructuralModeShapeInput import PlotSt
 from data.user_input.plots.structural.plotDisplacementFieldInput import PlotDisplacementFieldInput
 from data.user_input.plots.structural.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from data.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
-from data.user_input.plots.structural.plotReactionsInput import PlotReactionsInput
+from data.user_input.plots.structural.plot_reactions import PlotReactions
 from data.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
-from data.user_input.plots.structural.plotStressFieldInput import PlotStressFieldInput
+from data.user_input.plots.structural.plot_stress_field import PlotStressField
+from data.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressFieldForStaticAnalysis
 from data.user_input.plots.structural.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
 from data.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
@@ -418,14 +419,17 @@ class InputUi:
         if self.project.perforated_plate_dataLog:
             self.processInput( PlotPerforatedPlateConvergenceData, self.project.perforated_plate_dataLog )
 
-    def plotStressField(self):
+    def plot_stress_field(self):
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = True
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            self.processInput(PlotStressFieldInput, self.project, self.opv)
+            if self.analysis_ID == 7:
+                self.processInput(PlotStressFieldForStaticAnalysis, self.project, self.opv)
+            else:
+                self.processInput(PlotStressField, self.project, self.opv)
 
     def plotStressFrequencyResponse(self):
         solution = self.project.get_structural_solution()
@@ -438,7 +442,7 @@ class InputUi:
 
     def plotReactionsFrequencyResponse(self):
         if self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotReactionsInput, self.project, self.opv, self.analysis_method_label)
+            self.processInput(PlotReactions, self.project, self.opv, self.analysis_method_label)
         elif self.analysis_ID == 7:
             self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
 

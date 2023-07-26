@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
         self.plotSressField_action = QAction('&Plot Stress Field', self)        
         # self.plotSressField_action.setShortcut('')
         self.plotSressField_action.setStatusTip('Plot Stress Field')
-        self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
+        self.plotSressField_action.triggered.connect(self.getInputWidget().plot_stress_field)
 
         self.plotSressFrequencyResponse_action = QAction('&Plot Stress Frequency Response', self)        
         # self.plotSressFrequencyResponse_action.setShortcut('')

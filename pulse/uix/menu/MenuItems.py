@@ -584,7 +584,7 @@ class MenuItems(QTreeWidget):
 
         elif item == self.item_child_plotStressField:
             if not self.item_child_plotStressField.isDisabled():
-                self.mainWindow.getInputWidget().plotStressField()
+                self.mainWindow.getInputWidget().plot_stress_field()
 
         elif item == self.item_child_plotStressFrequencyResponse:
             if not self.item_child_plotStressFrequencyResponse.isDisabled():
