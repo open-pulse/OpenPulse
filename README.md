@@ -18,7 +18,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - New structural elements: expansion joint, flange and valve (integrated with acoustic analysis);
 - Gas properties obtained through a fluid thermodynamic database (mixtures enabled);
 - Enhanced animation of results (animation and saving set-up);
-- Static analysis (self-weight, nodal, and internal pressure loads enabled).
+- Static analysis (allow to consider the self-weight, nodal, and internal pressure loads).
    
 <p align="">
    <img src="https://open-pulse.github.io/OpenPulse/doc/OP_gamma_example.PNG?raw=true" alt="OpenPulse logo" width="800"/>
