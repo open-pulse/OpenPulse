@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.postprocessing.save_data import SaveData
+from pulse.postprocessing.read_data import ReadData
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.loadingScreen import LoadingScreen
 
@@ -21,7 +23,7 @@ window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
 
 class RunAnalysisInput(QDialog):
-    def __init__(self, project, analysis_ID, analysis_type_label, *args, **kwargs):
+    def __init__(self, project, analysis_type_label, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui/analysis_/general_/run_analysis_input.ui'), self)
@@ -41,7 +43,7 @@ class RunAnalysisInput(QDialog):
 
         self.project = project
         self.solve = None
-        self.analysis_ID = analysis_ID
+        self.analysis_ID = project.analysis_ID
         self.analysis_type_label = analysis_type_label
         self.frequencies = self.project.frequencies
         self.modes = self.project.modes
@@ -225,6 +227,9 @@ class RunAnalysisInput(QDialog):
             self.project.set_structural_reactions([ self.dict_reactions_at_constrained_dofs,
                                                     self.dict_reactions_at_springs,
                                                     self.dict_reactions_at_dampers  ])
+            
+            # save = SaveData(self.project)
+            # read = ReadData(self.project)
 
         self.project.time_to_postprocess = time() - t0
         _times =  [self.project.time_to_process_cross_sections, self.project.time_to_preprocess_model, self.project.time_to_solve_model, self.project.time_to_postprocess]
