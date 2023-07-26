@@ -17,7 +17,8 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - Enhanced orifice plate (considering mean flow effects);
 - New structural elements: expansion joint, flange and valve (integrated with acoustic analysis);
 - Gas properties obtained through a fluid thermodynamic database (mixtures enabled);
-- Enhanced animation of results (animation and saving set-up).
+- Enhanced animation of results (animation and saving set-up);
+- Static analysis (self-weight, nodal loads, and internal pressure).
    
 <p align="">
    <img src="https://open-pulse.github.io/OpenPulse/doc/OP_gamma_example.PNG?raw=true" alt="OpenPulse logo" width="800"/>
@@ -42,15 +43,19 @@ python pulse.py
 
 ## Requirements
 
-    Python v. 3.9
+    Python >= 3.9
+    numpy
     scipy
     matplotlib
-    numpy
-    PyQt5
-    vtk
-    gmsh-sdk
-    h5py
     ctREFPROP
+    vtk
+    gmsh
+    PyQt5
+    pandas
+    openpyxl
+    h5py
+    cx_Freeze
+    
 
 ## Build your own version
 
