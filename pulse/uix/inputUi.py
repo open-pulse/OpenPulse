@@ -281,17 +281,15 @@ class InputUi:
         self.analysis_type_label = self.project.analysis_type_label
         self.analysis_method_label = self.project.analysis_method_label
 
-        if self.project.analysis_ID is None:
-            self.project.analysis_ID = None
+        if self.analysis_ID is None:
+            self.analysis_ID = None
             return
-
-        self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
         
-        if self.project.analysis_ID in [0, 1, 3, 5, 6, 7]:
+        if self.analysis_ID in [0, 1, 3, 5, 6, 7]:
             self.project.set_structural_solution(None)
             self.project.set_acoustic_solution(None)
 
-        if self.project.analysis_ID in [2, 4, 7]:
+        if self.analysis_ID in [2, 4, 7]:
             self.project.update_project_analysis_setup_state(True)
             self.runAnalysis()
         else:

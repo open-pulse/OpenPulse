@@ -41,12 +41,13 @@ class AnalysisTypeInput(QDialog):
 
         self.project = project
 
-        self.reset_variables()
+        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.exec()
 
-    def reset_variables(self):
+
+    def _reset_variables(self):
         self.analysis_ID = None
         self.analysis_type_label = None
         self.method_ID = None
@@ -54,6 +55,7 @@ class AnalysisTypeInput(QDialog):
         self.modes = 0
         self.sigma_factor = 1e-4
         self.complete = False
+
 
     def _define_qt_variables(self):
         self.pushButton_harmonic_structural = self.findChild(QPushButton, 'pushButton_harmonic_structural')
@@ -63,6 +65,7 @@ class AnalysisTypeInput(QDialog):
         self.pushButton_modal_acoustic = self.findChild(QPushButton, 'pushButton_modal_acoustic')
         self.pushButton_static_analysis = self.findChild(QPushButton, 'pushButton_static_analysis')
 
+
     def _create_connections(self):
         self.pushButton_harmonic_structural.clicked.connect(self.harmonic_structural)
         self.pushButton_harmonic_acoustic.clicked.connect(self.harmonic_acoustic)
@@ -70,10 +73,7 @@ class AnalysisTypeInput(QDialog):
         self.pushButton_modal_structural.clicked.connect(self.modal_structural)
         self.pushButton_modal_acoustic.clicked.connect(self.modal_acoustic)
         self.pushButton_static_analysis.clicked.connect(self.static_analysis)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            self.close()
+            
 
     def harmonic_structural(self):
         #
@@ -91,13 +91,11 @@ class AnalysisTypeInput(QDialog):
                                         self.analysis_type_label, 
                                         self.analysis_method_label )
         self.complete = True
-        # self.close()
+
 
     def harmonic_acoustic(self):
         #
         self.close()
-        # obj = AcousticHarmonicAnalysisInput()
-        # self.method_ID = obj.index
         self.method_ID = 0
         self.analysis_type_label = "Acoustic Harmonic Analysis"
 
@@ -108,10 +106,8 @@ class AnalysisTypeInput(QDialog):
             return
     
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
-        # self.complete = obj.complete
-        # if obj.complete:
         self.complete = True
-        # self.close()
+
 
     def harmonic_coupled(self):
         #
@@ -127,8 +123,7 @@ class AnalysisTypeInput(QDialog):
             self.analysis_method_label = "Mode Superposition Method"
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.complete = coupled.complete
-        # if coupled.complete:
-        #     self.close()
+
 
     def modal_structural(self):
         #
@@ -136,14 +131,12 @@ class AnalysisTypeInput(QDialog):
         modal = StructuralModalAnalysisInput()
         if modal.modes is None:
             return
-        self.modes = modal.modes
-        self.sigma_factor = modal.sigma_factor
         self.analysis_ID = 2
         self.analysis_type_label = "Structural Modal Analysis"
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
         self.complete = modal.complete
-        # if modal.complete:
-        #     self.close()
+
 
     def modal_acoustic(self):
         #
@@ -151,14 +144,12 @@ class AnalysisTypeInput(QDialog):
         modal = AcousticModalAnalysisInput()
         if modal.modes is None:
             return
-        self.modes = modal.modes
-        self.sigma_factor = modal.sigma_factor
         self.analysis_ID = 4
         self.analysis_type_label = "Acoustic Modal Analysis"
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
         self.complete = modal.complete
-        # if modal.complete:
-            # self.close()
+
 
     def static_analysis(self):
         #
@@ -168,6 +159,9 @@ class AnalysisTypeInput(QDialog):
         self.analysis_type_label = "Static Analysis"
         self.complete = static.complete
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
-        # if static.complete:
-        #     self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
-        #     # self.close()
+        self.complete = static.complete
+
+    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close()
