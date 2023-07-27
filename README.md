@@ -81,6 +81,10 @@ and then ```envpulse/Scripts/activate```.
 
 - Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
 
+## Article published: Mechanical Systems and Signal Processing - Volume 186, 1 March 2023
+
+- [Time-harmonic analysis of acoustic pulsation in gas pipeline systems using the Finite Element Transfer Matrix Method: Theoretical aspects](https://doi.org/10.1016/j.ymssp.2022.109824).
+
 ## ISMA2020 - International Conference on Noise and Vibration Engineering
 
 - [Presentation](https://www.youtube.com/watch?v=iarKDAei6fg&t).
@@ -90,9 +94,13 @@ and then ```envpulse/Scripts/activate```.
 
 - [Effect of flow on the acoustic length correction factor of a Helmholtz resonator neck at high Strouhal number: a symmetric three-dimensional parametric study](https://asa.scitation.org/doi/10.1121/1.5147459). 
 
-## Next events
+## FIA 2020/22 - 12o Congresso Iberoamericano de Acústica 
 
-- 12o Congresso Iberoamericano de Acústica. August 28 - 31, 2022. [FIA2020/2022](https://fia2022.com.br).
+- [FIA2020/2022](https://fia2020.com.br/anais/index.php#topo).
+
+## Next events 
+
+- [EAA Forum Acusticum 2023](https://www.fa2023.org/).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
