@@ -266,6 +266,7 @@ class InputUi:
         self.processInput(CompressorModelInput, self.project, self.opv)
         # self.opv.updateRendererMesh()                                
 
+
     def analysisTypeInput(self):
 
         read = self.processInput(AnalysisTypeInput, self.project)
@@ -276,22 +277,21 @@ class InputUi:
         if read.method_ID == -1:
             return
 
-        self.analysis_ID = read.analysis_ID
-        self.analysis_type_label = read.analysis_type_label
-        self.analysis_method_label = read.analysis_method_label
+        self.analysis_ID = self.project.analysis_ID
+        self.analysis_type_label = self.project.analysis_type_label
+        self.analysis_method_label = self.project.analysis_method_label
 
-        if self.analysis_ID is None:
+        if self.project.analysis_ID is None:
             self.project.analysis_ID = None
             return
 
-        # self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
         
-        if self.analysis_ID in [0, 1, 3, 5, 6, 7]:
+        if self.project.analysis_ID in [0, 1, 3, 5, 6, 7]:
             self.project.set_structural_solution(None)
             self.project.set_acoustic_solution(None)
 
-        if self.analysis_ID in [2, 4, 7]:
+        if self.project.analysis_ID in [2, 4, 7]:
             self.project.update_project_analysis_setup_state(True)
             self.runAnalysis()
         else:
@@ -328,7 +328,7 @@ class InputUi:
             return
         # self.project.time_to_checking_entries = time()-t0
 
-        read = self.processInput(RunAnalysisInput, self.project, self.analysis_ID, self.analysis_type_label)
+        read = self.processInput(RunAnalysisInput, self.project)
         if read.complete:
             if self.analysis_ID == 2:
                 self.before_run.check_modal_analysis_imported_data()

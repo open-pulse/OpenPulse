@@ -23,7 +23,7 @@ window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
 
 class RunAnalysisInput(QDialog):
-    def __init__(self, project, analysis_type_label, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui/analysis_/general_/run_analysis_input.ui'), self)
@@ -31,28 +31,14 @@ class RunAnalysisInput(QDialog):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
-
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         # self.setWindowModality(Qt.WindowModal)
 
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_message = self.findChild(QLabel, 'label_message')
-        self.label_message.setWordWrap(True)
-        self.config_title_font()
-        self.config_message_font()
-
         self.project = project
-        self.solve = None
-        self.analysis_ID = project.analysis_ID
-        self.analysis_type_label = analysis_type_label
-        self.frequencies = self.project.frequencies
-        self.modes = self.project.modes
-        self.solution_acoustic = None
-        self.solution_structural = None
-        self.convergence_dataLog = None
-        self.natural_frequencies_acoustic = []
-        self.natural_frequencies_structural = []
-        self.complete = False
+
+        self._reset_variables()
+        self._load_analysis_info()
+        self._define_and_config_qt_variables()
 
         LoadingScreen('SOLUTION IN PROGRESS', 'Processing the cross-sections',  target=self.process_cross_sections, project=project)
         if self.project.preprocessor.stop_processing:
@@ -72,6 +58,31 @@ class RunAnalysisInput(QDialog):
             LoadingScreen('SOLUTION IN PROGRESS', 'Post-processing the obtained results', target=self.post_process_results)
             self.exec()
             self.check_warnings()
+    
+    def _reset_variables(self):
+        self.solution_acoustic = None
+        self.solution_structural = None
+        self.convergence_dataLog = None
+        self.natural_frequencies_acoustic = []
+        self.natural_frequencies_structural = []
+        self.complete = False
+        self.solve = None
+
+
+    def _load_analysis_info(self):
+        self.analysis_ID = self.project.analysis_ID
+        self.analysis_type_label = self.project.analysis_type_label
+        self.frequencies = self.project.frequencies
+        self.modes = self.project.modes
+
+
+    def _define_and_config_qt_variables(self):
+        self.label_title = self.findChild(QLabel, 'label_title')
+        self.label_message = self.findChild(QLabel, 'label_message')
+        self.label_message.setWordWrap(True)
+        self.config_title_font()
+        self.config_message_font()
+
 
     def pre_non_linear_convergence_plot(self):
         if isinstance(self.solve, SolutionAcoustic):
@@ -84,19 +95,22 @@ class RunAnalysisInput(QDialog):
                     plt.ion()
                     plt.show()
 
+    
     def post_non_linear_convergence_plot(self):
         if isinstance(self.solve, SolutionAcoustic):
             if self.analysis_ID in [3,5,6]:
                 if self.solve.non_linear:
                     self.anime._stop()
 
+    
     def process_cross_sections(self):
 
-        t0i = time()
+        t0 = time()
         self.complete = False
         self.project.process_cross_sections_mapping()
-        self.project.time_to_process_cross_sections = time() - t0i
+        self.project.time_to_process_cross_sections = time() - t0
 
+    
     def preparing_mathematical_model_to_solve(self):
 
         t0 = time()
@@ -131,6 +145,7 @@ class RunAnalysisInput(QDialog):
 
         self.project.time_to_preprocess_model = time() - t0
        
+    
     def process_analysis(self):
         
         t0 = time()
@@ -188,6 +203,7 @@ class RunAnalysisInput(QDialog):
                 if self.solve.non_linear:
                     sleep(2)
 
+
     def post_process_results(self): 
 
         t0 = time()
@@ -227,7 +243,7 @@ class RunAnalysisInput(QDialog):
             self.project.set_structural_reactions([ self.dict_reactions_at_constrained_dofs,
                                                     self.dict_reactions_at_springs,
                                                     self.dict_reactions_at_dampers  ])
-            
+
             # save = SaveData(self.project)
             # read = ReadData(self.project)
 
@@ -236,6 +252,7 @@ class RunAnalysisInput(QDialog):
         self.project.total_time = sum(_times)
         self.print_final_log()
         self.complete = True
+
 
     def check_warnings(self):
         # WARNINGS REACHED DURING SOLUTION
@@ -251,6 +268,7 @@ class RunAnalysisInput(QDialog):
                 message = self.solve.warning_Modal_prescribedDOFs[0] 
         if message != "":
             PrintMessageInput([title, message, window_title_2])
+
 
     def reset_all_results(self):
 
@@ -270,25 +288,14 @@ class RunAnalysisInput(QDialog):
             self.project.set_structural_solution(None)
             self.project.set_structural_reactions([ {}, {}, {} ])
 
+
     def config_title_font(self):
-        # font = QFont()
-        # font.setPointSize(19)
-        # font.setBold(True)
-        # font.setItalic(True)
-        # font.setFamily("Arial")
-        # # font.setWeight(60)
-        # self.label_title.setFont(font)
         self.label_message.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
 
+
     def config_message_font(self):
-        # font = QFont()
-        # font.setPointSize(12)
-        # # font.setBold(True)
-        # # font.setItalic(True)
-        # font.setFamily("MS Shell Dlg 2")
-        # font.setWeight(50)
-        # self.label_message.setFont(font)
         self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
+
 
     def print_final_log(self):
 

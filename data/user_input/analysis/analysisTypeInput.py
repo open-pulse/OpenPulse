@@ -87,7 +87,9 @@ class AnalysisTypeInput(QDialog):
         else:
             self.analysis_ID = 1
             self.analysis_method_label = "Mode Superposition Method"
-        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_analysis_type( self.analysis_ID, 
+                                        self.analysis_type_label, 
+                                        self.analysis_method_label )
         self.complete = True
         # self.close()
 
