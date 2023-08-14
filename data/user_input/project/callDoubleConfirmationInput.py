@@ -40,8 +40,8 @@ class CallDoubleConfirmationInput(QDialog):
         self.right_button_size = 160
 
     def _define_qt_variables(self):
-        self.QLabel_message = self.findChild(QLabel, 'label_message')
-        self.QLabel_title = self.findChild(QLabel, 'label_title')
+        self.label_message = self.findChild(QLabel, 'label_message')
+        self.label_title = self.findChild(QLabel, 'label_title')
         self.pushButton_rightButton = self.findChild(QPushButton, 'pushButton_rightButton')
         self.pushButton_leftButton = self.findChild(QPushButton, 'pushButton_leftButton')
     
@@ -75,13 +75,13 @@ class CallDoubleConfirmationInput(QDialog):
             self.pushButton_rightButton.setGeometry(QRect(int(x-dx), y, width, height))    
 
     def _configure_labels(self):
-        self.QLabel_title.setText(self.title)
-        self.QLabel_message.setText(self.message)
-        self.QLabel_message.setWordWrap(True)
+        self.label_title.setText(self.title)
+        self.label_message.setText(self.message)
+        self.label_message.setWordWrap(True)
         self.create_font_title()
         self.create_font_message()
-        self.QLabel_title.setFont(self.font_title)
-        self.QLabel_message.setFont(self.font_message)
+        self.label_title.setFont(self.font_title)
+        self.label_message.setFont(self.font_message)
 
     def confirm_action(self):
         self._continue = True

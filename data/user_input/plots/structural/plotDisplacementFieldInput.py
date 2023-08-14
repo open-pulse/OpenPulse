@@ -37,10 +37,10 @@ class PlotDisplacementFieldInput(QDialog):
     def _define_qt_variables(self):
         self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
         self.pushButton = self.findChild(QPushButton, 'pushButton')
-        self.pushButton.clicked.connect(self.check_selected_frequency)
         self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
 
     def _create_connections(self):
+        self.pushButton.clicked.connect(self.check_selected_frequency)
         self.treeWidget.itemClicked.connect(self.on_click_item)
         self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
 

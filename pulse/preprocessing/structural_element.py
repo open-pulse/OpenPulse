@@ -1074,7 +1074,8 @@ class StructuralElement:
         elif self.element_type == 'pipe_2':
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+            return np.zeros((DOF_PER_ELEMENT, 1), dtype=float)
+            # raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
         
         if self.force_offset:
             if self.variable_section:

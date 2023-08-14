@@ -1781,33 +1781,43 @@ class Project:
             self.file.add_fluid_in_file(line, fluid)
 
     def set_acoustic_pressure_bc_by_node(self, node_ids, data, imported_table):
-        label = ["acoustic pressure"] 
-        for node_id in node_ids:
-            if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data) :
-                return
-            self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label) 
+        label = ["acoustic pressure"]
+        if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
+            return
+        # for node_id in node_ids:
+        self.file.add_acoustic_bc_in_file(node_ids, data, imported_table, label) 
     
     def set_volume_velocity_bc_by_node(self, node_ids, data, imported_table):
-        label = ["volume velocity"] 
-        for node_id in node_ids:
-            if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
-                return True
-            self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)
+        label = ["volume velocity"]
+        if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
+            return True
+        self.file.add_acoustic_bc_in_file(node_ids, data, imported_table, label)
         return False
+        # for node_id in node_ids:
+        #     if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
+        #         return True
+        #     self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)
+        # return False
     
     def set_specific_impedance_bc_by_node(self, node_ids, data, imported_table):
-        label = ["specific impedance"] 
-        for node_id in node_ids: 
-            if self.preprocessor.set_specific_impedance_bc_by_node(node_id, data):
-                return 
-            self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)   
+        label = ["specific impedance"]
+        if self.preprocessor.set_specific_impedance_bc_by_node(node_ids, data):
+            return
+        self.file.add_acoustic_bc_in_file(node_ids, data, imported_table, label) 
+        # for node_id in node_ids: 
+        #     if self.preprocessor.set_specific_impedance_bc_by_node(node_id, data):
+        #         return 
+        #     self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)   
 
     def set_radiation_impedance_bc_by_node(self, node_ids, values):
         label = ["radiation impedance"] 
-        for node_id in node_ids:    
-            if self.preprocessor.set_radiation_impedance_bc_by_node(node_id, values):
-                return
-            self.file.add_acoustic_bc_in_file([node_id], [values, None], False, label) 
+        if self.preprocessor.set_radiation_impedance_bc_by_node(node_ids, values):
+            return
+        self.file.add_acoustic_bc_in_file(node_ids, [values, None], False, label)
+        # for node_id in node_ids:    
+        #     if self.preprocessor.set_radiation_impedance_bc_by_node(node_id, values):
+        #         return
+        #     self.file.add_acoustic_bc_in_file([node_id], [values, None], False, label)
     
     def set_compressor_excitation_bc_by_node(self, node_ids, data, table_index, connection_info):
         label = [f"compressor excitation - {table_index}"]
