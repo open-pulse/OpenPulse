@@ -8,6 +8,7 @@ import numpy as np
 import configparser
 import matplotlib.pyplot as plt
 
+from data.user_input.model.setup.structural.getStandardCrossSection import GetStandardCrossSectionInfo
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
@@ -69,7 +70,7 @@ class CrossSectionInput(QDialog):
         self.section_data_lines = {}
         self.section_data_elements = {}
 
-        self.create_qt_variables()
+        self.define_qt_variables()
         self.create_lists_of_entries()
         self.create_connections()
         self.load_existing_sections()
@@ -86,7 +87,9 @@ class CrossSectionInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def create_qt_variables(self):
+    def define_qt_variables(self):
+        
+        self.comboBox_pipe = self.findChild(QComboBox, 'comboBox_pipe')
         
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
@@ -169,11 +172,11 @@ class CrossSectionInput(QDialog):
 
         self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
         self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')
-        self.pushButton_plot_pipe_cross_section = self.findChild(QPushButton, 'pushButton_plot_pipe_cross_section')
-        self.pushButton_plot_beam_cross_section = self.findChild(QPushButton, 'pushButton_plot_beam_cross_section')
         self.pushButton_flip_element_ids = self.findChild(QPushButton, 'pushButton_flip_element_ids')
         self.pushButton_load_section_info = self.findChild(QPushButton, "pushButton_load_section_info")
-        self.comboBox_pipe = self.findChild(QComboBox, 'comboBox_pipe')
+        self.pushButton_plot_pipe_cross_section = self.findChild(QPushButton, 'pushButton_plot_pipe_cross_section')
+        self.pushButton_plot_beam_cross_section = self.findChild(QPushButton, 'pushButton_plot_beam_cross_section')
+        self.pushButton_select_standard_section = self.findChild(QPushButton, 'pushButton_select_standard_section')
 
         self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
@@ -215,6 +218,7 @@ class CrossSectionInput(QDialog):
                 
         self.pushButton_confirm_pipe.clicked.connect(self.confirm_pipe)
         self.pushButton_confirm_beam.clicked.connect(self.confirm_beam)
+        self.pushButton_select_standard_section.clicked.connect(self.select_standard_section)
 
         # self.pushButton_confirm_generic_section_beam = self.findChild(QPushButton, 'pushButton_confirm_generic_section_beam')
         # self.pushButton_confirm_generic_section_beam.clicked.connect(self.confirm_beam)
@@ -1145,6 +1149,14 @@ class CrossSectionInput(QDialog):
     def confirm_beam(self):
         self.element_type = 'beam_1'
         self.check_beam()
+
+    def select_standard_section(self):
+        read = GetStandardCrossSectionInfo()
+        if read.complete:
+            outer_diameter = round(read.outer_diameter, 6)
+            thickness = round(read.wall_thickness, 6)
+            self.lineEdit_outerDiameter.setText(str(outer_diameter))
+            self.lineEdit_thickness.setText(str(thickness))
 
     def process_expansion_joint_table_files_removal(self, list_line_ids):
 
