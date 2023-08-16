@@ -761,13 +761,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                      <widget class="QPushButton" name="pushButton_select_standard_section">
                       <property name="minimumSize">
                        <size>
-                        <width>240</width>
+                        <width>250</width>
                         <height>32</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>240</width>
+                        <width>250</width>
                         <height>32</height>
                        </size>
                       </property>
@@ -794,13 +794,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                      <widget class="QPushButton" name="pushButton_check_if_section_is_normalized">
                       <property name="minimumSize">
                        <size>
-                        <width>240</width>
+                        <width>250</width>
                         <height>32</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>240</width>
+                        <width>250</width>
                         <height>32</height>
                        </size>
                       </property>
@@ -819,7 +819,7 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
                       </property>
                       <property name="text">
-                       <string>Is section normalized?</string>
+                       <string>Check if section is normalized</string>
                       </property>
                      </widget>
                     </item>
@@ -1247,7 +1247,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                      </widget>
                     </item>
                     <item row="0" column="1">
-                     <widget class="QLineEdit" name="lineEdit_outerDiameter">
+                     <widget class="QLineEdit" name="lineEdit_outside_diameter">
                       <property name="minimumSize">
                        <size>
                         <width>75</width>
@@ -1343,7 +1343,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                      </widget>
                     </item>
                     <item row="1" column="1">
-                     <widget class="QLineEdit" name="lineEdit_thickness">
+                     <widget class="QLineEdit" name="lineEdit_wall_thickness">
                       <property name="minimumSize">
                        <size>
                         <width>75</width>
@@ -1440,10 +1440,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                     </item>
                    </layout>
                    <zorder>label_24</zorder>
-                   <zorder>lineEdit_outerDiameter</zorder>
+                   <zorder>lineEdit_outside_diameter</zorder>
                    <zorder>lineEdit_offset_z</zorder>
                    <zorder>label_22</zorder>
-                   <zorder>lineEdit_thickness</zorder>
+                   <zorder>lineEdit_wall_thickness</zorder>
                    <zorder>lineEdit_offset_y</zorder>
                    <zorder>label_17</zorder>
                    <zorder>label_21</zorder>
@@ -2305,7 +2305,7 @@ elements</string>
                         <number>4</number>
                        </property>
                        <item row="0" column="0">
-                        <widget class="QLineEdit" name="lineEdit_outerDiameter_initial">
+                        <widget class="QLineEdit" name="lineEdit_outside_diameter_initial">
                          <property name="minimumSize">
                           <size>
                            <width>85</width>
@@ -2370,7 +2370,7 @@ elements</string>
                         </widget>
                        </item>
                        <item row="1" column="0">
-                        <widget class="QLineEdit" name="lineEdit_thickness_initial">
+                        <widget class="QLineEdit" name="lineEdit_wall_thickness_initial">
                          <property name="minimumSize">
                           <size>
                            <width>85</width>
@@ -2604,7 +2604,7 @@ elements</string>
                         <number>4</number>
                        </property>
                        <item row="0" column="0">
-                        <widget class="QLineEdit" name="lineEdit_outerDiameter_final">
+                        <widget class="QLineEdit" name="lineEdit_outside_diameter_final">
                          <property name="minimumSize">
                           <size>
                            <width>85</width>
@@ -2669,7 +2669,7 @@ elements</string>
                         </widget>
                        </item>
                        <item row="1" column="0">
-                        <widget class="QLineEdit" name="lineEdit_thickness_final">
+                        <widget class="QLineEdit" name="lineEdit_wall_thickness_final">
                          <property name="minimumSize">
                           <size>
                            <width>85</width>
@@ -3352,7 +3352,7 @@ elements</string>
                 <set>Qt::AlignCenter</set>
                </property>
               </widget>
-              <widget class="QLineEdit" name="lineEdit_thickness_rectangular_section">
+              <widget class="QLineEdit" name="lineEdit_wall_thickness_rectangular_section">
                <property name="geometry">
                 <rect>
                  <x>144</x>
@@ -3830,7 +3830,7 @@ elements</string>
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
-              <widget class="QLineEdit" name="lineEdit_thickness_circular_section">
+              <widget class="QLineEdit" name="lineEdit_wall_thickness_circular_section">
                <property name="geometry">
                 <rect>
                  <x>174</x>
@@ -3870,7 +3870,7 @@ elements</string>
                 <set>Qt::AlignCenter</set>
                </property>
               </widget>
-              <widget class="QLineEdit" name="lineEdit_outer_diameter_circular_section">
+              <widget class="QLineEdit" name="lineEdit_outside_diameter_circular_section">
                <property name="geometry">
                 <rect>
                  <x>174</x>
@@ -7359,20 +7359,20 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
  <tabstops>
   <tabstop>tabWidget_general</tabstop>
   <tabstop>tabWidget_pipe_section</tabstop>
-  <tabstop>lineEdit_outerDiameter</tabstop>
-  <tabstop>lineEdit_thickness</tabstop>
+  <tabstop>lineEdit_outside_diameter</tabstop>
+  <tabstop>lineEdit_wall_thickness</tabstop>
   <tabstop>lineEdit_offset_y</tabstop>
   <tabstop>lineEdit_offset_z</tabstop>
   <tabstop>lineEdit_insulation_thickness</tabstop>
   <tabstop>lineEdit_insulation_density</tabstop>
   <tabstop>lineEdit_element_id_initial</tabstop>
   <tabstop>lineEdit_element_id_final</tabstop>
-  <tabstop>lineEdit_outerDiameter_initial</tabstop>
-  <tabstop>lineEdit_thickness_initial</tabstop>
+  <tabstop>lineEdit_outside_diameter_initial</tabstop>
+  <tabstop>lineEdit_wall_thickness_initial</tabstop>
   <tabstop>lineEdit_offset_y_initial</tabstop>
   <tabstop>lineEdit_offset_z_initial</tabstop>
-  <tabstop>lineEdit_outerDiameter_final</tabstop>
-  <tabstop>lineEdit_thickness_final</tabstop>
+  <tabstop>lineEdit_outside_diameter_final</tabstop>
+  <tabstop>lineEdit_wall_thickness_final</tabstop>
   <tabstop>lineEdit_offset_y_final</tabstop>
   <tabstop>lineEdit_offset_z_final</tabstop>
   <tabstop>lineEdit_insulation_thickness_variable_section</tabstop>
@@ -7380,11 +7380,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
   <tabstop>tabWidget_beam_section</tabstop>
   <tabstop>lineEdit_base_rectangular_section</tabstop>
   <tabstop>lineEdit_height_rectangular_section</tabstop>
-  <tabstop>lineEdit_thickness_rectangular_section</tabstop>
+  <tabstop>lineEdit_wall_thickness_rectangular_section</tabstop>
   <tabstop>lineEdit_offsety_rectangular_section</tabstop>
   <tabstop>lineEdit_offsetz_rectangular_section</tabstop>
-  <tabstop>lineEdit_outer_diameter_circular_section</tabstop>
-  <tabstop>lineEdit_thickness_circular_section</tabstop>
+  <tabstop>lineEdit_outside_diameter_circular_section</tabstop>
+  <tabstop>lineEdit_wall_thickness_circular_section</tabstop>
   <tabstop>lineEdit_offsety_circular_section</tabstop>
   <tabstop>lineEdit_offsetz_circular_section</tabstop>
   <tabstop>lineEdit_height_C_section</tabstop>

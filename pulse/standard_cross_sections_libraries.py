@@ -1,26 +1,23 @@
-import numpy as np
 import configparser
 from pathlib import Path
-from fractions import Fraction
 
-path1 = Path('pulse/lib/standard_cross_sections_CS.dat')
-path2 = Path('pulse/lib/standard_cross_sections_SS.dat')
 
 class StandardCrossSections:
     def __init__(self):
+        self._reset_variables()
+        self._load_standard_cross_sections_for_carbon_steel()
+        self._load_standard_cross_sections_for_stainless_steel()
+
+    def _reset_variables(self):
         self.carbon_steel_cross_sections = dict()
         self.stainless_steel_cross_sections = dict()
         self.default_path_for_carbon_steel = Path('pulse/lib/standard_cross_sections_carbon_steel.dat')
         self.default_path_for_stainless_steel = Path('pulse/lib/standard_cross_sections_stainless_steel.dat')
-        self.load_standard_cross_sections_for_carbon_steel(export=False)
-        self.load_standard_cross_sections_for_stainless_steel(export=False)
 
-
-    def load_standard_cross_sections_for_carbon_steel(self, export=False):
+    def _load_standard_cross_sections_for_carbon_steel(self):
         """ This method loads the standard cross-sections from ASME B36.10m (2018)
             Welded and Seamless Wrought Steel Pipe.
         """
-        # standard_cross_sections = configparser.ConfigParser()
 
         file = open(self.default_path_for_carbon_steel, mode="r", encoding="utf-8")
         lines = file.readlines()
@@ -64,15 +61,12 @@ class StandardCrossSections:
         
             outside_diameter_in = float(line[4])
             outside_diameter_mm = 25.4*float(line[4])
-            # outside_diameter_mm = float(line[5][1:-1])
 
             thickness_in = float(line[6])
             thickness_mm = 25.4*float(line[6])
-            # thickness_mm = float(line[7][1:-1])
 
             linear_mass_lb_ft = float(line[8])
             linear_mass_kg_m = (0.45359237/0.3048)*float(line[8])
-            # linear_mass_kg_m = float(line[9][1:-3])
             
             self.carbon_steel_cross_sections[index] = { "NPS" : _NPS,
                                                         "DN" : _DN,
@@ -85,21 +79,17 @@ class StandardCrossSections:
                                                         "Plain end mass (lb/ft)" : linear_mass_lb_ft,
                                                         "Plain end mass (kg/m)" : linear_mass_kg_m }
 
-        if export:
-            with open(path1, 'w') as config_file:
-                self.carbon_steel_cross_sections.write(config_file)
-
         file.close()
 
 
-    def load_standard_cross_sections_for_stainless_steel(self, export=False):
+    def _load_standard_cross_sections_for_stainless_steel(self):
         """ This method loads the standard cross-sections from ASME B36.19m (2018)
             Stainless Steel Pipe.
         """
-        # standard_cross_sections = configparser.ConfigParser()
 
         file = open(self.default_path_for_stainless_steel, mode="r", encoding="utf-8")
         lines = file.readlines()
+        shift = 0
 
         for index, line in enumerate(lines):
             
@@ -134,9 +124,9 @@ class StandardCrossSections:
         
             outside_diameter_in = float(line[3])
             outside_diameter_mm = 25.4*float(line[3])
-            # outside_diameter_mm = float(line[4][1:-1])
 
             if line[5] == "...":
+                shift += 1
                 continue
 
             else:
@@ -146,24 +136,16 @@ class StandardCrossSections:
                 linear_mass_lb_ft = float(line[7])
                 linear_mass_kg_m = (0.45359237/0.3048)*float(line[7])
 
-                # if "..." in line[8]: 
-                #     linear_mass_kg_m = (0.45359237/0.3048)*float(line[7])
-                # else:
-                #     linear_mass_kg_m = float(line[8][1:-3])
-            
-            self.stainless_steel_cross_sections[index] = {  "NPS" : NPS,
-                                                            "DN" : DN,
-                                                            "Schedule" : schedule,
-                                                            "Identification" : "",
-                                                            "Outside diameter (in)" : outside_diameter_in,
-                                                            "Outside diameter (mm)" : outside_diameter_mm,
-                                                            "Wall thickness (in)" : thickness_in,
-                                                            "Wall thickness (mm)" : thickness_mm,
-                                                            "Plain end mass (lb/ft)" : linear_mass_lb_ft,
-                                                            "Plain end mass (kg/m)" : linear_mass_kg_m  }
-        if export:
-            with open(path2, 'w') as config_file:
-                self.stainless_steel_cross_sections.write(config_file)
+            self.stainless_steel_cross_sections[index-shift] = {"NPS" : NPS,
+                                                                "DN" : DN,
+                                                                "Schedule" : schedule,
+                                                                "Identification" : "",
+                                                                "Outside diameter (in)" : outside_diameter_in,
+                                                                "Outside diameter (mm)" : outside_diameter_mm,
+                                                                "Wall thickness (in)" : thickness_in,
+                                                                "Wall thickness (mm)" : thickness_mm,
+                                                                "Plain end mass (lb/ft)" : linear_mass_lb_ft,
+                                                                "Plain end mass (kg/m)" : linear_mass_kg_m}
 
         file.close()
 

@@ -7,9 +7,10 @@ from pathlib import Path
 from pulse.standard_cross_sections_libraries import StandardCrossSections
 
 import numpy as np
+from collections import defaultdict
 
 class GetStandardCrossSection(QDialog):
-    def __init__(self, show_window=True, *args, **kwargs):
+    def __init__(self, show_window=True, section_data=None, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/standard_cross_section_input.ui'), self)
@@ -24,17 +25,22 @@ class GetStandardCrossSection(QDialog):
         self._load_cross_section_libraries()
         self._define_qt_variables()
         self._create_connections()
-        self.load_treeWidget()
+        
+        if section_data is None:
+            self.load_treeWidget()
+        else:
+            if self.check_section(section_data):
+                return
+            self.load_treeWidget()
 
-        if show_window:
-            self.exec()
-
+        self.exec()
 
     def _reset_variables(self):
         self.complete = False
         self.selected_id = None
         self.outer_diameter = 0.
         self.wall_thickness = 0.
+        self.highlight_section = defaultdict(list)
 
 
     def _load_cross_section_libraries(self):
@@ -115,6 +121,8 @@ class GetStandardCrossSection(QDialog):
             
             self.treeWidget_section_data.addTopLevelItem(new)
 
+        self.highlight_standard_section()
+
 
     def on_click_item(self, item):
         self.selected_id = int(item.text(0))
@@ -136,3 +144,53 @@ class GetStandardCrossSection(QDialog):
             self.wall_thickness = data["Wall thickness (in)"]*(25.4/1000)
             self.complete = True
             self.close()
+
+    def check_section(self, section_data):
+        """
+        """
+
+        self.highlight_section = defaultdict(list)
+        outside_diameter_1 = section_data["outside diameter"]
+        thickness_1 = section_data["wall thickness"]
+
+        self.std_data_CS = self.carbon_steel_cross_sections
+        self.std_data_SS = self.stainless_steel_cross_sections
+        for index, data in self.std_data_CS.items():
+            outside_diameter_2 = data["Outside diameter (in)"]*(25.4/1000)
+            thickness_2 = data["Wall thickness (in)"]*(25.4/1000)
+            if np.abs(outside_diameter_1 - outside_diameter_2) < 1e-4:
+                if np.abs(thickness_1 - thickness_2) < 1e-4:
+                    self.highlight_section["carbon steel pipe"].append(index-1)
+
+        for index, data in self.std_data_SS.items():
+            outside_diameter_2 = data["Outside diameter (in)"]*(25.4/1000)
+            thickness_2 = data["Wall thickness (in)"]*(25.4/1000)
+            if np.abs(outside_diameter_1 - outside_diameter_2) < 1e-4:
+                if np.abs(thickness_1 - thickness_2) < 1e-4:
+                    self.highlight_section["stainless steel pipe"].append(index-1)
+        
+        if len(self.highlight_section) > 0:
+            return False
+        else:
+            return True
+
+
+    def highlight_standard_section(self):
+        """
+        """
+        if len(self.highlight_section) > 0:
+            self.pushButton_confirm_selection.setDisabled(True)
+            for key, indexes in self.highlight_section.items():
+                if key == "carbon steel pipe" and self.radioButton_carbon_steel.isChecked():
+                    for index in indexes:
+                        item = self.treeWidget_section_data.topLevelItem(index)
+                        for i in range(7):
+                            item.setForeground(i, QBrush(QColor(255,0,0)))
+                            item.setBackground(i, QBrush(QColor(200,200,200)))
+
+                if key == "stainless steel pipe" and self.radioButton_stainless_steel.isChecked():
+                    for index in indexes:
+                        item = self.treeWidget_section_data.topLevelItem(index)
+                        for i in range(7):
+                            item.setForeground(i, QBrush(QColor(255,0,0)))
+                            item.setBackground(i, QBrush(QColor(200,200,200)))

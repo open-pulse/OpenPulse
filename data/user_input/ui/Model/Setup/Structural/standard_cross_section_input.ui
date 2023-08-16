@@ -43,6 +43,9 @@
    </property>
    <item row="2" column="0">
     <widget class="QFrame" name="frame">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -79,6 +82,9 @@
       </property>
       <item row="0" column="0">
        <widget class="QPushButton" name="pushButton_confirm_selection">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>180</width>
@@ -103,7 +109,8 @@
         <property name="styleSheet">
          <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(100,100, 100); background-color: rgb(200, 200, 200); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
         </property>
         <property name="text">
          <string>Confirm selection</string>
@@ -311,13 +318,18 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            </property>
            <property name="maximumSize">
             <size>
-             <width>600</width>
+             <width>620</width>
              <height>420</height>
             </size>
            </property>
            <property name="indentation">
             <number>0</number>
            </property>
+           <column>
+            <property name="text">
+             <string notr="true">1</string>
+            </property>
+           </column>
           </widget>
          </item>
         </layout>
