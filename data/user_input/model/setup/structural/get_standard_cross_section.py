@@ -10,7 +10,7 @@ import numpy as np
 from collections import defaultdict
 
 class GetStandardCrossSection(QDialog):
-    def __init__(self, show_window=True, section_data=None, *args, **kwargs):
+    def __init__(self, section_data=None, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/standard_cross_section_input.ui'), self)
@@ -38,7 +38,7 @@ class GetStandardCrossSection(QDialog):
     def _reset_variables(self):
         self.complete = False
         self.selected_id = None
-        self.outer_diameter = 0.
+        self.outside_diameter = 0.
         self.wall_thickness = 0.
         self.highlight_section = defaultdict(list)
 
@@ -131,7 +131,7 @@ class GetStandardCrossSection(QDialog):
     def on_double_click_item(self, item):
         _id = int(item.text(0))
         data = self.std_data[_id]
-        self.outer_diameter = data["Outside diameter (in)"]*(25.4/1000)
+        self.outside_diameter = data["Outside diameter (in)"]*(25.4/1000)
         self.wall_thickness = data["Wall thickness (in)"]*(25.4/1000)
         self.complete = True
         self.close()
@@ -140,7 +140,7 @@ class GetStandardCrossSection(QDialog):
     def confirm_selection(self):
         if self.selected_id is not None:
             data = self.std_data[self.selected_id]
-            self.outer_diameter = data["Outside diameter (in)"]*(25.4/1000)
+            self.outside_diameter = data["Outside diameter (in)"]*(25.4/1000)
             self.wall_thickness = data["Wall thickness (in)"]*(25.4/1000)
             self.complete = True
             self.close()

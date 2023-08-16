@@ -160,11 +160,14 @@ class CrossSectionInput(QDialog):
 
         self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
         self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')
-        self.pushButton_flip_element_ids = self.findChild(QPushButton, 'pushButton_flip_element_ids')
+        self.pushButton_flip_element_ids_initial = self.findChild(QPushButton, 'pushButton_flip_element_ids_initial')
+        self.pushButton_flip_element_ids_final = self.findChild(QPushButton, 'pushButton_flip_element_ids_final')
         self.pushButton_load_section_info = self.findChild(QPushButton, "pushButton_load_section_info")
         self.pushButton_plot_pipe_cross_section = self.findChild(QPushButton, 'pushButton_plot_pipe_cross_section')
         self.pushButton_plot_beam_cross_section = self.findChild(QPushButton, 'pushButton_plot_beam_cross_section')
         self.pushButton_select_standard_section = self.findChild(QPushButton, 'pushButton_select_standard_section')
+        self.pushButton_select_standard_section_initial = self.findChild(QPushButton, 'pushButton_select_standard_section_initial')
+        self.pushButton_select_standard_section_final = self.findChild(QPushButton, 'pushButton_select_standard_section_final')
         self.pushButton_check_if_section_is_normalized = self.findChild(QPushButton, 'pushButton_check_if_section_is_normalized')
 
         self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
@@ -208,10 +211,13 @@ class CrossSectionInput(QDialog):
         self.pushButton_confirm_pipe.clicked.connect(self.confirm_pipe)
         self.pushButton_confirm_beam.clicked.connect(self.confirm_beam)
         self.pushButton_select_standard_section.clicked.connect(self.select_standard_section)
+        self.pushButton_select_standard_section_initial.clicked.connect(self.select_standard_section_initial)
+        self.pushButton_select_standard_section_final.clicked.connect(self.select_standard_section_final)
         self.pushButton_check_if_section_is_normalized.clicked.connect(self.check_if_section_is_normalized)
         self.pushButton_plot_pipe_cross_section.clicked.connect(self.plot_section)
         self.pushButton_plot_beam_cross_section.clicked.connect(self.plot_section)
-        self.pushButton_flip_element_ids.clicked.connect(self.flip_element_ids)
+        self.pushButton_flip_element_ids_initial.clicked.connect(self.flip_element_ids)
+        self.pushButton_flip_element_ids_final.clicked.connect(self.flip_element_ids)
 
         self.tabWidget_general.currentChanged.connect(self.tabEvent_cross_section)
         self.currentTab_cross_section = self.tabWidget_general.currentIndex()
@@ -1156,6 +1162,22 @@ class CrossSectionInput(QDialog):
             thickness = round(read.wall_thickness, 6)
             self.lineEdit_outside_diameter.setText(str(outside_diameter))
             self.lineEdit_wall_thickness.setText(str(thickness))
+
+    def select_standard_section_initial(self):
+        read = GetStandardCrossSection()
+        if read.complete:
+            outside_diameter = round(read.outside_diameter, 6)
+            thickness = round(read.wall_thickness, 6)
+            self.lineEdit_outside_diameter_initial.setText(str(outside_diameter))
+            self.lineEdit_wall_thickness_initial.setText(str(thickness))
+
+    def select_standard_section_final(self):
+        read = GetStandardCrossSection()
+        if read.complete:
+            outside_diameter = round(read.outside_diameter, 6)
+            thickness = round(read.wall_thickness, 6)
+            self.lineEdit_outside_diameter_final.setText(str(outside_diameter))
+            self.lineEdit_wall_thickness_final.setText(str(thickness))
 
     def check_if_section_is_normalized(self):
         
