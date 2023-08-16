@@ -169,10 +169,8 @@ class StructuralElementTypeInput(QDialog):
                 _element_type = entity.structural_element_type
                 if _element_type == 'pipe_1':
                     self.comboBox.setCurrentIndex(0)
-                elif _element_type == 'pipe_2':
-                    self.comboBox.setCurrentIndex(1)
                 elif _element_type == 'beam_1':
-                    self.comboBox.setCurrentIndex(2)
+                    self.comboBox.setCurrentIndex(1)
                 
                 _wall_formulation = entity.structural_element_wall_formulation
                 if _wall_formulation == 'thick_wall':
@@ -258,13 +256,13 @@ class StructuralElementTypeInput(QDialog):
         for tag in tags:
             initial_etype = self.dict_tag_to_entity[tag].structural_element_type
             
-            if initial_etype in ['pipe_1', 'pipe_2', None] and final_etype in ['beam_1']:
+            if initial_etype in ['pipe_1', None] and final_etype in ['beam_1']:
                 
                 self.update_cross_section = True
                 self.pipe_to_beam = True
                 self.list_lines_to_update_cross_section.append(tag)
 
-            elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1', 'pipe_2']:
+            elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1']:
                 
                 self.update_cross_section = True
                 self.beam_to_pipe = True
@@ -290,9 +288,9 @@ class StructuralElementTypeInput(QDialog):
         # final_etype = self.element_type
         # for tag in tags:
         #     initial_etype = self.dict_tag_to_entity[tag].structural_element_type
-        #     if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
+        #     if initial_etype in ['pipe_1'] and final_etype in ['beam_1']:
         #         self.project.set_cross_section_by_line(tag, None)
-        #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
+        #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1']:
         #         self.project.set_cross_section_by_line(tag, None)
 
     def selectionChange(self, index):
@@ -300,8 +298,6 @@ class StructuralElementTypeInput(QDialog):
         if self.index == 0:
             self.element_type = 'pipe_1'
         elif self.index == 1:
-            self.element_type = 'pipe_2'
-        elif self.index ==2:
             self.element_type = 'beam_1'
         
         if self.index in [2]:
@@ -332,9 +328,10 @@ class StructuralElementTypeInput(QDialog):
             self.check_element_type_changes()
             lines = self.preprocessor.all_lines
             print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
+
         self.project.set_structural_element_type_by_lines(lines, self.element_type)
     
-        if self.element_type in ['pipe_1', 'pipe_2']:
+        if self.element_type == 'pipe_1':
             self.project.set_capped_end_by_lines(lines, self.capped_end_effect)
             self.project.set_structural_element_wall_formulation_by_lines(lines, self.wall_formulation)
         else:

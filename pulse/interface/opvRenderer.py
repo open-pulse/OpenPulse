@@ -739,7 +739,7 @@ class opvRenderer(vtkRendererBase):
                 insulation_density = 'undefined'
             else:
                 if structural_element.cross_section is not None:                 
-                    if structural_element.element_type in ["pipe_1", "pipe_2"]:
+                    if structural_element.element_type == "pipe_1":
                         outer_diameter = structural_element.cross_section.outer_diameter
                         thickness = structural_element.cross_section.thickness
                         offset_y = structural_element.cross_section.offset_y
@@ -872,7 +872,7 @@ class opvRenderer(vtkRendererBase):
                 #     text = f'Line ID  {line_ids[0]} ({number_cross_sections} cross-sections)\n\n'              
                 text += f'\nMaterial:  {material_name}\n'
 
-                if structural_element_type in ['pipe_1', 'pipe_2', 'valve']:
+                if structural_element_type in ['pipe_1', 'valve']:
                 
                     outer_diameter = 'multiples'
                     thickness = 'multiples'
@@ -926,7 +926,7 @@ class opvRenderer(vtkRendererBase):
                         text += f'Iyz:  {Iyz} [m^4]\n'
                         text += f'x-axis rotation: {xaxis_rotation} [deg]\n'
 
-                    elif entity.structural_element_type in ['pipe_1', 'pipe_2', 'valve']:
+                    elif entity.structural_element_type in ['pipe_1', 'valve']:
 
                         text += f'Structural element type:  {structural_element_type}\n\n'
                         

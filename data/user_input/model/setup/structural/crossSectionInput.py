@@ -8,7 +8,7 @@ import numpy as np
 import configparser
 import matplotlib.pyplot as plt
 
-from data.user_input.model.setup.structural.getStandardCrossSection import GetStandardCrossSectionInfo
+from data.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
@@ -24,7 +24,7 @@ class CrossSectionInput(QDialog):
                     *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/crossSectionInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/cross_section_inputs.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -88,11 +88,9 @@ class CrossSectionInput(QDialog):
             self.close()
 
     def define_qt_variables(self):
-        
-        self.comboBox_pipe = self.findChild(QComboBox, 'comboBox_pipe')
-        
+
+        self.label_selected_id = self.findChild(QLabel, 'label_selected_id')
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
         self.lineEdit_selected_ID.setEnabled(True)
 
         self.lineEdit_outerDiameter = self.findChild(QLineEdit, 'lineEdit_outerDiameter')
@@ -177,6 +175,7 @@ class CrossSectionInput(QDialog):
         self.pushButton_plot_pipe_cross_section = self.findChild(QPushButton, 'pushButton_plot_pipe_cross_section')
         self.pushButton_plot_beam_cross_section = self.findChild(QPushButton, 'pushButton_plot_beam_cross_section')
         self.pushButton_select_standard_section = self.findChild(QPushButton, 'pushButton_select_standard_section')
+        self.pushButton_check_if_section_is_normalized = self.findChild(QPushButton, 'pushButton_check_if_section_is_normalized')
 
         self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
@@ -219,16 +218,10 @@ class CrossSectionInput(QDialog):
         self.pushButton_confirm_pipe.clicked.connect(self.confirm_pipe)
         self.pushButton_confirm_beam.clicked.connect(self.confirm_beam)
         self.pushButton_select_standard_section.clicked.connect(self.select_standard_section)
-
-        # self.pushButton_confirm_generic_section_beam = self.findChild(QPushButton, 'pushButton_confirm_generic_section_beam')
-        # self.pushButton_confirm_generic_section_beam.clicked.connect(self.confirm_beam)
-
+        self.pushButton_check_if_section_is_normalized.clicked.connect(self.check_if_section_is_normalized)
         self.pushButton_plot_pipe_cross_section.clicked.connect(self.plot_section)
         self.pushButton_plot_beam_cross_section.clicked.connect(self.plot_section)
         self.pushButton_flip_element_ids.clicked.connect(self.flip_element_ids)
-
-        # self.comboBox_pipe.currentIndexChanged.connect(self.selectionChange)
-        self.index = self.comboBox_pipe.currentIndex() 
 
         self.tabWidget_general.currentChanged.connect(self.tabEvent_cross_section)
         self.currentTab_cross_section = self.tabWidget_general.currentIndex()
@@ -289,27 +282,27 @@ class CrossSectionInput(QDialog):
             self.tabWidget_general.setTabEnabled(1, False)
         
         if self.lines_to_update_cross_section != []:
-            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.label_selected_id.setText("Lines IDs:")
             self.radioButton_selected_lines.setChecked(True)
             self.write_ids(self.lines_to_update_cross_section)
 
         elif self.elements_to_update_cross_section != []:
-            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.label_selected_id.setText("Elements IDs:")
             self.radioButton_selected_elements.setChecked(True)
             self.write_ids(self.elements_to_update_cross_section)  
 
         # elif self.lines_id != []:
-        #     self.lineEdit_id_labels.setText("Lines IDs:")
+        #     self.label_selected_id.setText("Lines IDs:")
         #     self.radioButton_selected_lines.setChecked(True)
         #     self.write_ids(self.lines_id)
             
         # elif self.elements_id != []:
-        #     self.lineEdit_id_labels.setText("Elements IDs:")
+        #     self.label_selected_id.setText("Elements IDs:")
         #     self.radioButton_selected_elements.setChecked(True)
         #     self.write_ids(self.elements_id)
                           
         # else:
-        #     self.lineEdit_id_labels.setText("Lines IDs:")
+        #     self.label_selected_id.setText("Lines IDs:")
         #     self.radioButton_all_lines.setChecked(True)  
         #     self.lineEdit_selected_ID.setText("All lines")
         #     self.lineEdit_selected_ID.setEnabled(False)
@@ -324,7 +317,7 @@ class CrossSectionInput(QDialog):
                 for element_id in self.preprocessor.line_to_elements[self.lines_id[0]]:
                     element = self.structural_elements[element_id]
                     element_type = element.element_type
-                    if element_type in ["pipe_1", "pipe_2", "beam_1"]:
+                    if element_type in ["pipe_1", "beam_1"]:
                         break
             _variable_cross_section_data = self.selection.variable_cross_section_data
 
@@ -342,7 +335,7 @@ class CrossSectionInput(QDialog):
                 self.section_label = cross.section_info["section_type_label"]
                 self.section_parameters = cross.section_info["section_parameters"]
                         
-                if element_type in ['pipe_1', 'pipe_2']:
+                if element_type == 'pipe_1':
                     self.tabWidget_general.setCurrentWidget(self.tab_pipe)
                     self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
                                 
@@ -353,7 +346,7 @@ class CrossSectionInput(QDialog):
 
         else:
 
-            if element_type in ['pipe_1', 'pipe_2']:
+            if element_type == 'pipe_1':
                 self.tabWidget_general.setCurrentIndex(0)
                 if self.selection.variable_cross_section_data:
                     self.tabWidget_pipe_section.setCurrentIndex(1)
@@ -825,12 +818,12 @@ class CrossSectionInput(QDialog):
         """
         """
         if self.lines_id != []:
-            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.label_selected_id.setText("Lines IDs:")
             self.radioButton_selected_lines.setChecked(True)
             self.write_ids(self.lines_id)
             
         elif self.elements_id != []:
-            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.label_selected_id.setText("Elements IDs:")
             self.radioButton_selected_elements.setChecked(True)
             self.write_ids(self.elements_id)
             
@@ -839,7 +832,7 @@ class CrossSectionInput(QDialog):
                 if self.currentTab_pipe == 1:
                     self.lineEdit_selected_ID.setText("")
                     return
-            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.label_selected_id.setText("Lines IDs:")
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all_lines.setChecked(True)
 
@@ -886,12 +879,12 @@ class CrossSectionInput(QDialog):
             self.lineEdit_selected_ID.setEnabled(False)
 
         elif self.flagEntity:
-            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.label_selected_id.setText("Lines IDs:")
             # if self.lines_id != []:
             #     self.write_ids(self.lines_id)
                     
         elif self.flagElements:
-            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.label_selected_id.setText("Elements IDs:")
             # if self.elements_id != []:
             #     self.write_ids(self.elements_id)
         
@@ -1003,12 +996,8 @@ class CrossSectionInput(QDialog):
         self.actions_to_finalize()
 
     def confirm_pipe(self):
-
-        self.index = self.comboBox_pipe.currentIndex()
-        if self.index == 0:
-            self.element_type = 'pipe_1'
-        elif self.index == 1:
-            self.element_type = 'pipe_2'
+        
+        self.element_type = 'pipe_1'
 
         if self.flagElements:
 
@@ -1151,12 +1140,17 @@ class CrossSectionInput(QDialog):
         self.check_beam()
 
     def select_standard_section(self):
-        read = GetStandardCrossSectionInfo()
+        read = GetStandardCrossSection()
         if read.complete:
             outer_diameter = round(read.outer_diameter, 6)
             thickness = round(read.wall_thickness, 6)
             self.lineEdit_outerDiameter.setText(str(outer_diameter))
             self.lineEdit_thickness.setText(str(thickness))
+
+    def check_if_section_is_normalized(self):
+        read = GetStandardCrossSection(show_window=False)
+        data = read.std_data
+
 
     def process_expansion_joint_table_files_removal(self, list_line_ids):
 

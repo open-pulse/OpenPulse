@@ -8,9 +8,9 @@ from pulse.standard_cross_sections_libraries import StandardCrossSections
 
 import numpy as np
 
-class GetStandardCrossSectionInfo(QDialog):
-    def __init__(self, *args, **kwargs):
-        super(GetStandardCrossSectionInfo, self).__init__(*args, **kwargs)
+class GetStandardCrossSection(QDialog):
+    def __init__(self, show_window=True, *args, **kwargs):
+        super(GetStandardCrossSection, self).__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/standard_cross_section_input.ui'), self)
 
@@ -25,7 +25,9 @@ class GetStandardCrossSectionInfo(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self.load_treeWidget()
-        self.exec()
+
+        if show_window:
+            self.exec()
 
 
     def _reset_variables(self):

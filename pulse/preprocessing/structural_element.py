@@ -95,7 +95,7 @@ class StructuralElement:
     index : int
         Element index.
 
-    element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve'], optional
+    element_type : str, ['pipe_1', 'beam_1', 'expansion_joint', 'valve'], optional
         Element type
         Default is 'pipe_1'.
 
@@ -300,7 +300,7 @@ class StructuralElement:
         """
         self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()
         Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
-        if self.element_type in ['pipe_1','pipe_2']:
+        if self.element_type == 'pipe_1':
             if self.variable_section:
                 stiffness = Rt @ self.stiffness_matrix_pipes_variable_section() @ R
                 mass = Rt @ self.mass_matrix_pipes_variable_section() @ R
@@ -364,7 +364,7 @@ class StructuralElement:
         """
         R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
-        if self.element_type in ['pipe_1','pipe_2']:
+        if self.element_type == 'pipe_1':
             if self.variable_section:
                 return Rt @ self.stiffness_matrix_pipes_variable_section() @ R
             else:
@@ -393,7 +393,7 @@ class StructuralElement:
         """
         R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
-        if self.element_type in ['pipe_1','pipe_2']:
+        if self.element_type == 'pipe_1':
             if self.variable_section:
                 return Rt @ self.mass_matrix_pipes_variable_section() @ R
             else:
@@ -493,14 +493,8 @@ class StructuralElement:
             Qz = 0
             Iyz = 0
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            Qy = self.cross_section.first_moment_area_y
-            Qz = self.cross_section.first_moment_area_z
-            Iyz = self.cross_section.second_moment_area_yz
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            print('Only pipe_1 and pipe_2 element types are allowed.')
-            pass
+            print('Only pipe_1 element types are allowed.')
             
         # Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -616,14 +610,8 @@ class StructuralElement:
             Qz = 0
             Iyz = 0
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            Qy = self.cross_section.first_moment_area_y
-            Qz = self.cross_section.first_moment_area_z
-            Iyz = self.cross_section.second_moment_area_yz
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            print('Only pipe_1 and pipe_2 element types are allowed.')
-            pass
+            print('Only pipe_1 element types are allowed.')
 
         # Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -768,14 +756,8 @@ class StructuralElement:
                 Qz = 0
                 Iyz = 0
                 # principal_axis = section.principal_axis
-            elif self.element_type == 'pipe_2':
-                Qy = section.first_moment_area_y
-                Qz = section.first_moment_area_z
-                Iyz = section.second_moment_area_yz
-                # principal_axis = np.eye(DOF_PER_ELEMENT)
             else:
-                print('Only pipe_1 and pipe_2 element types are allowed.')
-                pass
+                print('Only pipe_1 element types are allowed.')
                 
             key = 1
             # Variables related to prestress effect
@@ -903,14 +885,8 @@ class StructuralElement:
                 Qz = 0
                 Iyz = 0
                 # principal_axis = section.principal_axis
-            elif self.element_type == 'pipe_2':
-                Qy = section.first_moment_area_y
-                Qz = section.first_moment_area_z
-                Iyz = section.second_moment_area_yz
-                # principal_axis = np.eye(DOF_PER_ELEMENT)
             else:
-                print('Only pipe_1 and pipe_2 element types are allowed.')
-                pass
+                print('Only pipe_1 element types are allowed.')
             
             #Fluid/Insulation inertia effects
             Gis = rho_insulation*np.array([[Ais, 0, 0],[0, Ais, 0],[0, 0, Ais]], dtype='float64') 
@@ -1044,7 +1020,7 @@ class StructuralElement:
         Raises
         ------
         TypeError
-            Only pipe_1 and pipe_2 element types are allowed.
+            Only pipe_1 element type is allowed.
         """
 
         _R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
@@ -1071,11 +1047,8 @@ class StructuralElement:
         
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
             return np.zeros((DOF_PER_ELEMENT, 1), dtype=float)
-            # raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
         
         if self.force_offset:
             if self.variable_section:
@@ -1116,7 +1089,7 @@ class StructuralElement:
         else:
             capped_end = 0
 
-        if self.element_type in ['pipe_1', 'pipe_2']:
+        if self.element_type == 'pipe_1':
             stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
             if self.wall_formulation == "thick_wall": 
                 force = A * (capped_end - 2*nu)* stress_axial
@@ -1139,10 +1112,10 @@ class StructuralElement:
         
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type in ['pipe_2', 'expansion_joint', 'valve']:
+        elif self.element_type in ['expansion_joint', 'valve']:
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+            raise TypeError(f'Invalid element type: {self.element_type}')
         
         if self.force_offset:
             if self.variable_section:
@@ -1173,7 +1146,7 @@ class StructuralElement:
         P_in = self.internal_pressure
         P_out = self.external_pressure
         
-        if self.element_type in ['pipe_1', 'pipe_2', 'valve']:
+        if self.element_type in ['pipe_1', 'valve']:
             axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
         else:
             return aux
@@ -1185,10 +1158,8 @@ class StructuralElement:
 
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+            raise TypeError(f'Invalid element type: {self.element_type}')
 
         aux[0], aux[6] = -1, 1
         R = self.element_rotation_matrix

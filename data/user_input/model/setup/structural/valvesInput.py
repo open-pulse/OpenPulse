@@ -843,7 +843,7 @@ class ValvesInput(QDialog):
         for element_id in valve_elements:
             cross = self.structural_elements[element_id].cross_section 
             element_type = self.structural_elements[element_id].element_type
-            if element_type in ['pipe_1', 'pipe_2']:
+            if element_type == 'pipe_1':
                 if cross:
                     if cross.outer_diameter > outer_diameter:
                         outer_diameter = cross.outer_diameter
@@ -879,7 +879,7 @@ class ValvesInput(QDialog):
                     if element_id not in valve_elements:
                         cross = self.structural_elements[element_id].cross_section
                         element_type = self.structural_elements[element_id].element_type
-                        if element_type in ['pipe_1', 'pipe_2']:
+                        if element_type == 'pipe_1':
                             if cross:
                                 if cross.outer_diameter > outer_diameter:
                                     outer_diameter = cross.outer_diameter
@@ -966,7 +966,7 @@ class ValvesInput(QDialog):
                 if element_id not in valve_elements:
                     cross = self.structural_elements[element_id].cross_section
                     element_type = self.structural_elements[element_id].element_type
-                    if element_type in ['pipe_1', 'pipe_2']:
+                    if element_type == 'pipe_1':
                         if cross:
                             self.project.set_cross_section_by_elements(valve_elements, cross)
                             self.project.add_cross_sections_expansion_joints_valves_in_file(valve_elements)

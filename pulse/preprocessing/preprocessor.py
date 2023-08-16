@@ -1057,7 +1057,7 @@ class Preprocessor:
         elements : list
             Structural elements indexes.
             
-        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve']
+        element_type : str, ['pipe_1', 'beam_1', 'expansion_joint', 'valve']
             Structural element type to be attributed to the listed elements.
             
         remove : bool, optional
@@ -1265,7 +1265,7 @@ class Preprocessor:
         line : list
             Entities tag.
             
-        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve']
+        element_type : str, ['pipe_1', 'beam_1', 'expansion_joint', 'valve']
             Structural element type to be attributed to elements.
             
         remove : bool, optional
@@ -2633,7 +2633,7 @@ class Preprocessor:
         # list_pipe_gdofs = []  
         pipe_gdofs = {}
         for element in self.structural_elements.values():
-            if element.element_type in ['pipe_1', 'pipe_2', 'expansion_joint', 'valve']:
+            if element.element_type in ['pipe_1', 'expansion_joint', 'valve']:
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
                 pipe_gdofs[gdofs_node_first] = gdofs_node_first 
@@ -2785,14 +2785,13 @@ class Preprocessor:
 
     def get_nodes_and_elements_with_expansion(self, ratio=10):
         title = "Incomplete model setup"
-        message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' or 'pipe_2' elements"
-        message += "before continue"
+        message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
         self.nodes_with_cross_section_transition = {}
         for node, neigh_elements in self.elements_connected_to_node.items():
             check_complete = False
             if len(neigh_elements) == 2:
 
-                if neigh_elements[0].element_type in ["pipe_1", "pipe_2"]:
+                if neigh_elements[0].element_type == "pipe_1":
                     if neigh_elements[0].cross_section is None:
                         PrintMessageInput([title, message, window_title_1])
                         return
@@ -2800,7 +2799,7 @@ class Preprocessor:
                         check_complete = True
                         diameter_first = neigh_elements[0].cross_section.outer_diameter
                         
-                if neigh_elements[1].element_type in ["pipe_1", "pipe_2"]:
+                if neigh_elements[1].element_type == "pipe_1":
                     if neigh_elements[1].cross_section is None:
                         PrintMessageInput([title, message, window_title_1])
                         return
@@ -3319,7 +3318,6 @@ class Preprocessor:
                                                 None : 0    }
 
         structural_etype_to_number_elements = { "pipe_1" : 0, 
-                                                "pipe_2" : 0, 
                                                 "beam_1" : 0, 
                                                 "expansion_joint" : 0, 
                                                 "valve" : 0, 

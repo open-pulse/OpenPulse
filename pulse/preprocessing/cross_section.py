@@ -144,7 +144,7 @@ class CrossSection:
         Poisson's ration of the material attributed to the tube.
         Default is 0.
 
-    element_type : ['pipe_1','pipe_2','beam_1'], optional
+    element_type : ['pipe_1', 'beam_1'], optional
         Element type of the structural elements attributed to the tube.
         Default is 'pipe_1'.
 
@@ -454,7 +454,7 @@ class CrossSection:
 
         Parameters
         -------
-        el_type : ['pipe_1','pipe_2','beam_1'], optional
+        el_type : ['pipe_1', 'beam_1'], optional
             Element type of the structural elements attributed to the tube.
             Default is None.
 
@@ -514,7 +514,7 @@ class CrossSection:
 
         Parameters
         -------
-        el_type : ['pipe_1','pipe_2','beam_1']
+        el_type : ['pipe_1', 'beam_1']
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
@@ -559,7 +559,7 @@ class CrossSection:
             Poisson's ration of the material attributed to the tube.
             Default is 0.
 
-        el_type : ['pipe_1','pipe_2','beam_1'], optional
+        el_type : ['pipe_1', 'beam_1'], optional
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
@@ -679,13 +679,10 @@ class CrossSection:
 
         Parameters
         -------
-        el_type : ['pipe_1','pipe_2','beam_1'], optional
+        el_type : ['pipe_1', 'beam_1'], optional
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
-        if el_type == 'pipe_2':
-            self.principal_axis = np.eye(12)
-            return
 
         if el_type == 'beam_1':
             self.y_shear, self.z_shear = self.get_beam_shear_center()

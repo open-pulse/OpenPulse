@@ -598,7 +598,7 @@ class ProjectFile:
                 if 'structural element type' in entityFile[entity].keys():
                     
                     structural_element_type = entityFile[entity]['structural element type']
-                    if structural_element_type in ['pipe_1', 'pipe_2']:
+                    if structural_element_type == 'pipe_1':
 
                         if 'variable section parameters' in entityFile[entity].keys():
                             if line_prefix not in variable_section_line_ids:
@@ -842,7 +842,7 @@ class ProjectFile:
                     if 'structural element type' in entityFile[line_id].keys():
                         structural_element_type = entityFile[line_id]['structural element type']
             
-                if structural_element_type in ['pipe_1', 'pipe_2']:
+                if structural_element_type == 'pipe_1':
 
                     if 'outer diameter' in entityFile[entity].keys():
                         outerDiameter = entityFile[entity]['outer diameter']
@@ -1556,8 +1556,6 @@ class ProjectFile:
                 index_etype = int(vals[6])
                 if index_etype == 0:
                     etype = 'pipe_1'
-                else:
-                    etype = 'pipe_2'
                 
                 config[section_key] = { 'structural element type' : etype,
                                         'outer diameter': f'{vals[0]}',

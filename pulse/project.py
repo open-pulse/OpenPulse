@@ -587,8 +587,8 @@ class Project:
 
     def process_cross_sections_mapping(self):  
 
-        label_etypes = ['pipe_1', 'pipe_2', 'valve']
-        indexes = [0, 1, 2]
+        label_etypes = ['pipe_1', 'valve']
+        indexes = [0, 1]
         
         dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
@@ -641,7 +641,7 @@ class Project:
                                     "insulation_thickness" : vals[6], 
                                     "insulation_density" : vals[7] }
     
-            if el_type in ['pipe_1', 'pipe_2']:
+            if el_type == 'pipe_1':
                 pipe_section_info = {   "section_type_label" : "Pipe section",
                                         "section_parameters" : section_parameters   }   
                 cross_section = CrossSection(pipe_section_info=pipe_section_info)                             
@@ -664,8 +664,8 @@ class Project:
         '''This methods returns a dictionary of multiples cross-sections associated to 
             the line of interest.        
         '''
-        label_etypes = ['pipe_1', 'pipe_2']
-        indexes = [0, 1]
+        label_etypes = ['pipe_1']
+        indexes = [0]
         dict_etype_index = dict(zip(label_etypes,indexes))
 
         dict_multiple_cross_sections = defaultdict(list)
