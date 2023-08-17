@@ -56,6 +56,51 @@ def default_material_library(path):
                             'Young Modulus': 96,
                             'Poisson': 0.345,
                             'Thermal expansion coefficient': 1.9e-5 }
+    
+    config['Ductile cast iron'] = { 
+                                    'Name': 'Ductile cast iron',
+                                    'Identifier': 7,
+                                    'Color': '[100,100,100]', #Medium Grey
+                                    'Density': 7200,
+                                    'Young Modulus': 161,
+                                    'Poisson': 0.29,
+                                    'Thermal expansion coefficient': 1.1e-5 }
+
+    config['API 5L-A'] = { 
+                            'Name': 'API 5L-A',
+                            'Identifier': 8,
+                            'Color': '[255,255,255]', #White color
+                            'Density': 7833.44,
+                            'Young Modulus': 202.7,
+                            'Poisson': 0.292,
+                            'Thermal expansion coefficient': 1.2e-5 }
+
+    config['API 5L-A25'] = { 
+                            'Name': 'API 5L-25A',
+                            'Identifier': 9,
+                            'Color': '[255,255,255]', #White color
+                            'Density': 7833.44,
+                            'Young Modulus': 203.4,
+                            'Poisson': 0.292,
+                            'Thermal expansion coefficient': 1.2e-5 }
+
+    config['API 5L-B'] = { 
+                            'Name': 'API 5L-B',
+                            'Identifier': 10,
+                            'Color': '[255,255,255]', #White color
+                            'Density': 7833.44,
+                            'Young Modulus': 202.7,
+                            'Poisson': 0.292,
+                            'Thermal expansion coefficient': 1.2e-5 }
+
+    config['API 5L-X42/X80'] = { 
+                                'Name': 'API 5L-X42/X80',
+                                'Identifier': 11,
+                                'Color': '[255,255,255]', #White color
+                                'Density': 7833.44,
+                                'Young Modulus': 202.7,
+                                'Poisson': 0.292,
+                                'Thermal expansion coefficient': 1.2e-5 }
 
     with open(path, 'w') as config_file:
         config.write(config_file)

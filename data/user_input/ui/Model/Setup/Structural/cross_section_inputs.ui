@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>610</width>
-    <height>627</height>
+    <height>628</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>610</width>
-    <height>610</height>
+    <height>628</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>610</width>
-    <height>627</height>
+    <height>628</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
