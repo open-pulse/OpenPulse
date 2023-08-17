@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Standard cross-sections</string>
+   <string>Standardized cross-sections</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -386,7 +386,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
          </font>
         </property>
         <property name="text">
-         <string>Select a standard cross-section</string>
+         <string>Select a standardized cross-section</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
