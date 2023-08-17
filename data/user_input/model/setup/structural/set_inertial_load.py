@@ -18,7 +18,7 @@ class SetInertialLoad(QDialog):
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)        
+        self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Set inertial load")
 
         self.project = project
@@ -55,9 +55,9 @@ class SetInertialLoad(QDialog):
     def change_input_fields_visibility(self):
         #
         _bool = not self.checkBox_stiffening_effect.isChecked()
-        self.lineEdit_acceleration_x_axis.setDisabled(_bool)
-        self.lineEdit_acceleration_y_axis.setDisabled(_bool)
-        self.lineEdit_acceleration_z_axis.setDisabled(_bool)
+        # self.lineEdit_acceleration_x_axis.setDisabled(_bool)
+        # self.lineEdit_acceleration_y_axis.setDisabled(_bool)
+        # self.lineEdit_acceleration_z_axis.setDisabled(_bool)
 
     def check_gravity_values(self):
         #
