@@ -1,11 +1,10 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
+
 import numpy as np
-import configparser
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
@@ -15,10 +14,11 @@ window_title_2 = "WARNING MESSAGE"
 class PlotAcousticModeShapeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticModeShapeInput.ui', self)
+        
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plotAcousticModeShapeInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.opv = opv
@@ -51,7 +51,7 @@ class PlotAcousticModeShapeInput(QDialog):
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.confirm_selection)
         self.load()
-        self.exec_()
+        self.exec()
 
     def radioButtonEvent(self):
         self.flag_real_part = self.radioButton_real_part.isChecked()

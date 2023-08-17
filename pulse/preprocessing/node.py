@@ -30,6 +30,7 @@ class Node:
         Default is None.
     """
     def __init__(self, x, y, z, **kwargs):
+        
         self.x = x
         self.y = y
         self.z = z
@@ -95,6 +96,7 @@ class Node:
         self.nodal_solution_gcs = None
         self.static_nodal_solution_gcs = None
         self.acoustic_solution = None
+        self.cross_section = None
 
     @property
     def coordinates(self):

@@ -74,7 +74,7 @@
    <property name="lineWidth">
     <number>1</number>
    </property>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="label_title">
     <property name="geometry">
      <rect>
       <x>64</x>
@@ -85,8 +85,8 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
-      <pointsize>14</pointsize>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -108,7 +108,7 @@
       <x>430</x>
       <y>4</y>
       <width>157</width>
-      <height>65</height>
+      <height>67</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -128,11 +128,11 @@
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
          <stylestrategy>PreferAntialias</stylestrategy>
         </font>
        </property>
@@ -163,11 +163,11 @@
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
          <stylestrategy>PreferAntialias</stylestrategy>
         </font>
        </property>
@@ -198,11 +198,11 @@
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
          <stylestrategy>PreferAntialias</stylestrategy>
         </font>
        </property>
@@ -250,7 +250,7 @@
    <widget class="QTabWidget" name="tabWidget_general">
     <property name="geometry">
      <rect>
-      <x>12</x>
+      <x>14</x>
       <y>46</y>
       <width>576</width>
       <height>475</height>
@@ -346,15 +346,15 @@
         <property name="geometry">
          <rect>
           <x>2</x>
-          <y>8</y>
+          <y>40</y>
           <width>330</width>
-          <height>280</height>
+          <height>253</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
           <width>320</width>
-          <height>280</height>
+          <height>200</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -369,687 +369,596 @@
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>
         </property>
-        <widget class="QLabel" name="label_24">
-         <property name="geometry">
-          <rect>
-           <x>258</x>
-           <y>148</y>
-           <width>43</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>[m]</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEdit_outerDiameter">
-         <property name="geometry">
-          <rect>
-           <x>184</x>
-           <y>16</y>
-           <width>75</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 0, 0);</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEdit_offset_z">
-         <property name="geometry">
-          <rect>
-           <x>184</x>
-           <y>148</y>
-           <width>75</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 0, 0);</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_22">
-         <property name="geometry">
-          <rect>
-           <x>2</x>
-           <y>104</y>
-           <width>174</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Offset y (e&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEdit_thickness">
-         <property name="geometry">
-          <rect>
-           <x>184</x>
-           <y>60</y>
-           <width>75</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 0, 0);</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEdit_offset_y">
-         <property name="geometry">
-          <rect>
-           <x>184</x>
-           <y>104</y>
-           <width>75</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 0, 0);</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_17">
-         <property name="geometry">
-          <rect>
-           <x>258</x>
-           <y>16</y>
-           <width>43</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_21">
-         <property name="geometry">
-          <rect>
-           <x>2</x>
-           <y>60</y>
-           <width>174</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Thickness (t):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_23">
-         <property name="geometry">
-          <rect>
-           <x>2</x>
-           <y>148</y>
-           <width>174</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Offset z (e&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_20">
-         <property name="geometry">
-          <rect>
-           <x>2</x>
-           <y>16</y>
-           <width>174</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Outer diameter (d&lt;span style=&quot; vertical-align:sub;&quot;&gt;out&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_19">
-         <property name="geometry">
-          <rect>
-           <x>258</x>
-           <y>104</y>
-           <width>43</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>[m]</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_18">
-         <property name="geometry">
-          <rect>
-           <x>258</x>
-           <y>60</y>
-           <width>43</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>[m]</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_42">
-         <property name="geometry">
-          <rect>
-           <x>258</x>
-           <y>192</y>
-           <width>43</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>[m]</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_26">
-         <property name="geometry">
-          <rect>
-           <x>2</x>
-           <y>192</y>
-           <width>174</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Insulation thickness (t&lt;span style=&quot; vertical-align:sub;&quot;&gt;i&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_25">
-         <property name="geometry">
-          <rect>
-           <x>2</x>
-           <y>236</y>
-           <width>174</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>174</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Insulation density:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEdit_insulation_density">
-         <property name="geometry">
-          <rect>
-           <x>184</x>
-           <y>236</y>
-           <width>75</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 0, 0);</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_41">
-         <property name="geometry">
-          <rect>
-           <x>264</x>
-           <y>236</y>
-           <width>63</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;[kg/m³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEdit_insulation_thickness">
-         <property name="geometry">
-          <rect>
-           <x>184</x>
-           <y>192</y>
-           <width>75</width>
-           <height>26</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>75</width>
-           <height>26</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 0, 0);</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_17">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_22">
+           <property name="minimumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Offset y (e&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_offset_y">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: rgb(255, 0, 0);</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="minimumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Outer diameter (d&lt;span style=&quot; vertical-align:sub;&quot;&gt;out&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_offset_z">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: rgb(255, 0, 0);</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="lineEdit_insulation_thickness">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: rgb(255, 0, 0);</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QLabel" name="label_42">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>[m]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEdit_insulation_density">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: rgb(255, 0, 0);</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="label_41">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;[kg/m³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="minimumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Offset z (e&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_25">
+           <property name="minimumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Insulation density:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_26">
+           <property name="minimumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Insulation thickness (t&lt;span style=&quot; vertical-align:sub;&quot;&gt;i&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_outerDiameter">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: rgb(255, 0, 0);</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_18">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>[m]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_19">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>[m]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_thickness">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color: rgb(255, 0, 0);</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_24">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>[m]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_21">
+           <property name="minimumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>174</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Thickness (t):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
         <zorder>label_24</zorder>
         <zorder>lineEdit_outerDiameter</zorder>
         <zorder>lineEdit_offset_z</zorder>
@@ -1072,22 +981,22 @@
        <widget class="QFrame" name="frame_3">
         <property name="geometry">
          <rect>
-          <x>138</x>
-          <y>292</y>
+          <x>144</x>
+          <y>298</y>
           <width>250</width>
-          <height>51</height>
+          <height>48</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
           <width>250</width>
-          <height>51</height>
+          <height>48</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>250</width>
-          <height>51</height>
+          <height>48</height>
          </size>
         </property>
         <property name="frameShape">
@@ -1096,144 +1005,149 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="QLabel" name="label_93">
-         <property name="geometry">
-          <rect>
-           <x>4</x>
-           <y>12</y>
-           <width>124</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>124</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>124</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Element type:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-        <widget class="QComboBox" name="comboBox_pipe">
-         <property name="geometry">
-          <rect>
-           <x>144</x>
-           <y>12</y>
-           <width>85</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>85</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>85</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>12</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="contextMenuPolicy">
-          <enum>Qt::ActionsContextMenu</enum>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="whatsThis">
-          <string/>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
-         <property name="inputMethodHints">
-          <set>Qt::ImhNone</set>
-         </property>
-         <property name="editable">
-          <bool>false</bool>
-         </property>
-         <property name="currentText">
-          <string>  Pipe 1</string>
-         </property>
-         <property name="currentIndex">
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
           <number>0</number>
          </property>
-         <property name="maxCount">
-          <number>500</number>
-         </property>
-         <property name="insertPolicy">
-          <enum>QComboBox::InsertAtBottom</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-         </property>
-         <property name="duplicatesEnabled">
-          <bool>false</bool>
-         </property>
-         <property name="frame">
-          <bool>true</bool>
-         </property>
-         <property name="modelColumn">
+         <property name="topMargin">
           <number>0</number>
          </property>
-         <item>
-          <property name="text">
-           <string>  Pipe 1</string>
-          </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_93">
+           <property name="minimumSize">
+            <size>
+             <width>124</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>124</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Element type:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>  Pipe 2</string>
-          </property>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="comboBox_pipe">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>92</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>92</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::ActionsContextMenu</enum>
+           </property>
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="whatsThis">
+            <string/>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="inputMethodHints">
+            <set>Qt::ImhNone</set>
+           </property>
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+           <property name="currentText">
+            <string>  Pipe 1</string>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <property name="maxCount">
+            <number>500</number>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::InsertAtBottom</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+           </property>
+           <property name="duplicatesEnabled">
+            <bool>false</bool>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="modelColumn">
+            <number>0</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>  Pipe 1</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>  Pipe 2</string>
+            </property>
+           </item>
+          </widget>
          </item>
-        </widget>
+        </layout>
        </widget>
        <widget class="QLabel" name="label_14">
         <property name="geometry">
          <rect>
-          <x>318</x>
-          <y>28</y>
+          <x>320</x>
+          <y>48</y>
           <width>225</width>
           <height>242</height>
          </rect>
@@ -1248,9 +1162,49 @@
          <bool>true</bool>
         </property>
        </widget>
+       <widget class="QPushButton" name="pushButton_select_standard_section">
+        <property name="geometry">
+         <rect>
+          <x>42</x>
+          <y>10</y>
+          <width>240</width>
+          <height>32</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>240</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>240</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+        </property>
+        <property name="text">
+         <string>Get a standard section</string>
+        </property>
+       </widget>
        <zorder>label_14</zorder>
        <zorder>frame_3</zorder>
        <zorder>frame_2</zorder>
+       <zorder>pushButton_select_standard_section</zorder>
       </widget>
       <widget class="QWidget" name="tab_variable_pipe_section">
        <attribute name="title">
@@ -2337,15 +2291,17 @@
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>12</pointsize>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>11</pointsize>
            <weight>75</weight>
-           <italic>true</italic>
+           <italic>false</italic>
            <bold>true</bold>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(150, 255, 200);</string>
+          <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
          </property>
          <property name="text">
           <string>Flip 
@@ -2881,7 +2837,7 @@ elements</string>
       <property name="geometry">
        <rect>
         <x>316</x>
-        <y>406</y>
+        <y>402</y>
         <width>180</width>
         <height>32</height>
        </rect>
@@ -2900,12 +2856,17 @@ elements</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
        <string>Confirm</string>
@@ -2915,7 +2876,7 @@ elements</string>
       <property name="geometry">
        <rect>
         <x>80</x>
-        <y>406</y>
+        <y>402</y>
         <width>180</width>
         <height>32</height>
        </rect>
@@ -2940,15 +2901,17 @@ elements</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(170, 255, 255);</string>
+       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
        <string>Plot cross-section</string>
@@ -6787,12 +6750,17 @@ elements</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
        <string>Confirm</string>
@@ -6821,19 +6789,290 @@ elements</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(170, 255, 255);</string>
+       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
        <string>Plot cross-section</string>
       </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_sections">
+     <attribute name="title">
+      <string>Sections</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_load_section_info">
+      <property name="geometry">
+       <rect>
+        <x>232</x>
+        <y>408</y>
+        <width>120</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+      </property>
+      <property name="text">
+       <string>Load</string>
+      </property>
+     </widget>
+     <widget class="QTabWidget" name="tabWidget_sections_data">
+      <property name="geometry">
+       <rect>
+        <x>4</x>
+        <y>8</y>
+        <width>564</width>
+        <height>393</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>564</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>564</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab_section_lines">
+       <attribute name="title">
+        <string>Attributed by lines</string>
+       </attribute>
+       <widget class="QTreeWidget" name="treeWidget_sections_parameters_by_lines">
+        <property name="geometry">
+         <rect>
+          <x>4</x>
+          <y>6</y>
+          <width>550</width>
+          <height>350</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>9</pointsize>
+          <italic>false</italic>
+         </font>
+        </property>
+        <property name="indentation">
+         <number>1</number>
+        </property>
+        <property name="headerHidden">
+         <bool>false</bool>
+        </property>
+        <attribute name="headerHighlightSections">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerShowSortIndicator" stdset="0">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>ID</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Element type</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Section parameters</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_section_elements">
+       <attribute name="title">
+        <string>Attributed by elements</string>
+       </attribute>
+       <widget class="QTreeWidget" name="treeWidget_sections_parameters_by_elements">
+        <property name="geometry">
+         <rect>
+          <x>4</x>
+          <y>6</y>
+          <width>550</width>
+          <height>350</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>550</width>
+          <height>350</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>9</pointsize>
+          <italic>false</italic>
+         </font>
+        </property>
+        <property name="indentation">
+         <number>1</number>
+        </property>
+        <property name="headerHidden">
+         <bool>false</bool>
+        </property>
+        <attribute name="headerHighlightSections">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerShowSortIndicator" stdset="0">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>ID</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Element type</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Section parameters</string>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </column>
+       </widget>
+      </widget>
      </widget>
     </widget>
    </widget>
@@ -6998,7 +7237,7 @@ color: rgb(0, 0, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>false</italic>

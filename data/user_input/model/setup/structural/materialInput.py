@@ -1,9 +1,9 @@
-from cmath import log
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QComboBox
-# from pulse.utils import getColorRGB
-from PyQt5.QtGui import QIcon, QColor, QBrush, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 import configparser
 import numpy as np
 
@@ -26,10 +26,10 @@ class MaterialInput(QDialog):
     def __init__(   self, project, opv,  cache_selected_lines=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/materialInput.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/materialInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -169,7 +169,7 @@ class MaterialInput(QDialog):
         self.comboBox_material_id = self.findChild(QComboBox, 'comboBox_material_id')    
         self.comboBox_material_id.currentIndexChanged.connect(self.get_comboBox_index)   
     
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -735,7 +735,9 @@ class MaterialInput(QDialog):
         title = "Resetting of materials library"
         message = "Do you really want to reset the material library to default values?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._doNotRun:
             return

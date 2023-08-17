@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QTreeWidgetItem, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
+
 import numpy as np
 
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -10,10 +11,11 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 class PlotAcousticPressureFieldInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticPressureFieldInput.ui', self)
+        
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plotAcousticPressureFieldInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.opv = opv
@@ -36,8 +38,7 @@ class PlotAcousticPressureFieldInput(QDialog):
         self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.load()
-
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

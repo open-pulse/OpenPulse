@@ -1,16 +1,15 @@
-from time import process_time_ns
-from data.user_input.project.printMessageInput import PrintMessageInput
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
 import configparser
 import os
+from os.path import basename
 import matplotlib.pyplot as plt
 import numpy as np
 
+from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 
 class SnaptoCursor(object):
@@ -54,11 +53,13 @@ window_title_2 = "WARNING"
 class PlotStressFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStressFrequencyResponseInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plotStressFrequencyResponseInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
 
@@ -73,7 +74,6 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.before_run = project.get_pre_solution_model_checks()
 
         self.frequencies = project.frequencies
-        self.damping = project.get_damping()
         self.solve = self.project.structural_solve 
     
         self.analysisMethod = analysisMethod
@@ -164,7 +164,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
 
-        self.exec_()
+        self.exec()
 
     def update_cursor(self):
         self.use_cursor = self.checkBox_cursor.isChecked()
@@ -301,7 +301,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.stress_key = self.keys[self.mask][0]
 
         if self.stress_data == [] or self.update_damping:
-            self.stress_data = self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = self.flag_damping_effect)
+            self.stress_data = self.solve.stress_calculate(pressure_external = 0, damping_flag = self.flag_damping_effect)
             self.update_damping = False
 
     def plot(self):
@@ -331,7 +331,7 @@ class PlotStressFrequencyResponseInput(QDialog):
             else:    
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
                 # second_plot, = plt.semilogy(data[:,0], np.abs(data[:,1]+1j*data[:,2]), color=[0,0,1], linewidth=1)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
 
         else:
 
@@ -351,11 +351,15 @@ class PlotStressFrequencyResponseInput(QDialog):
             else:    
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
                 second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
 
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('{} STRESS FREQUENCY RESPONSE - {}').format(self.stress_label.upper(), self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
-        ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
+        if self.analysisMethod is None:
+            title = f"{self.stress_label.upper()} STRESS FREQUENCY RESPONSE"
+        else:
+            title = f"{self.stress_label.upper()} STRESS FREQUENCY RESPONSE - {self.analysisMethod.upper()}"
 
+        ax.set_title(title, fontsize = 12, fontweight = 'bold')
+        ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
         self.fig.show()

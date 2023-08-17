@@ -51,12 +51,17 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Open a local Project</string>
@@ -67,8 +72,8 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>40</width>
-      <height>45</height>
+      <width>30</width>
+      <height>32</height>
      </size>
     </property>
     <property name="default">
@@ -86,12 +91,17 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Create a new Project</string>
@@ -102,8 +112,8 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>40</width>
-      <height>45</height>
+      <width>30</width>
+      <height>32</height>
      </size>
     </property>
     <property name="default">
@@ -121,15 +131,17 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Reset list of Projects</string>
@@ -140,8 +152,8 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>40</width>
-      <height>45</height>
+      <width>30</width>
+      <height>32</height>
      </size>
     </property>
    </widget>
@@ -238,15 +250,17 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>About Open Pulse</string>
@@ -257,8 +271,8 @@
     </property>
     <property name="iconSize">
      <size>
-      <width>40</width>
-      <height>45</height>
+      <width>30</width>
+      <height>32</height>
      </size>
     </property>
    </widget>
@@ -282,19 +296,19 @@
      <x>36</x>
      <y>4</y>
      <width>579</width>
-     <height>40</height>
+     <height>45</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>Linux Biolinum G</family>
-     <pointsize>25</pointsize>
+     <family>Bauhaus 93</family>
+     <pointsize>26</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
    <property name="text">
-    <string>OpenPulse</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#0055ff;&quot;&gt;O&lt;/span&gt;pen&lt;span style=&quot; color:#0055ff;&quot;&gt;P&lt;/span&gt;ulse&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -323,8 +337,8 @@
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
-     <pointsize>12</pointsize>
+     <family>MS Shell Dlg 2</family>
+     <pointsize>11</pointsize>
      <weight>75</weight>
      <italic>false</italic>
      <bold>true</bold>
@@ -341,15 +355,15 @@
    <property name="geometry">
     <rect>
      <x>28</x>
-     <y>90</y>
+     <y>86</y>
      <width>377</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
-     <pointsize>12</pointsize>
+     <family>MS Shell Dlg 2</family>
+     <pointsize>11</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -368,15 +382,15 @@
    <property name="geometry">
     <rect>
      <x>436</x>
-     <y>90</y>
+     <y>86</y>
      <width>189</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
-     <pointsize>12</pointsize>
+     <family>MS Shell Dlg 2</family>
+     <pointsize>11</pointsize>
      <weight>75</weight>
      <italic>false</italic>
      <bold>true</bold>
@@ -412,14 +426,11 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
-      <underline>false</underline>
-      <strikeout>false</strikeout>
-      <kerning>true</kerning>
      </font>
     </property>
     <property name="layoutDirection">
@@ -427,6 +438,11 @@
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Load 
@@ -462,6 +478,9 @@ project</string>
       <italic>false</italic>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
@@ -496,14 +515,11 @@ project</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
-      <underline>false</underline>
-      <strikeout>false</strikeout>
-      <kerning>true</kerning>
      </font>
     </property>
     <property name="layoutDirection">
@@ -511,6 +527,11 @@ project</string>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Load
@@ -546,6 +567,9 @@ Project</string>
       <italic>false</italic>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
@@ -580,14 +604,11 @@ Project</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
-      <underline>false</underline>
-      <strikeout>false</strikeout>
-      <kerning>true</kerning>
      </font>
     </property>
     <property name="layoutDirection">
@@ -595,6 +616,11 @@ Project</string>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Load
@@ -664,14 +690,11 @@ Project</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
-      <underline>false</underline>
-      <strikeout>false</strikeout>
-      <kerning>true</kerning>
      </font>
     </property>
     <property name="layoutDirection">
@@ -679,6 +702,11 @@ Project</string>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Load
@@ -748,14 +776,11 @@ Project</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>10</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
-      <underline>false</underline>
-      <strikeout>false</strikeout>
-      <kerning>true</kerning>
      </font>
     </property>
     <property name="layoutDirection">
@@ -763,6 +788,11 @@ Project</string>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
      <string>Load

@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QRadioButton, QPushButton
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
+
 import os
 import configparser
 from shutil import copyfile
@@ -18,10 +20,11 @@ window_title2 = "WARNING MESSAGE"
 class SetGeometryFileInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/setGeometryFileInput.ui', self)
 
-        icons_path = 'pulse\\data\\icons\\'
-        self.icon = QIcon(icons_path + 'add.png')
+        uic.loadUi(Path('data/user_input/ui/Project/setGeometryFileInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.project = project
@@ -52,9 +55,10 @@ class SetGeometryFileInput(QDialog):
         # self.current_coord_path_path = self.project.file._coord_path
         self.import_type = self.project.file._import_type
 
-        self.materialListName = "materialList.dat"
-        self.fluidListName = "fluidList.dat"
-        self.projectFileName = "project.ini"
+        self.materialListName = self.project.file._material_file_name
+        self.fluidListName = self.project.file._fluid_file_name
+        self.projectFileName = self.project.file._project_base_name
+
         self.material_list_path = ""
         self.fluid_list_path = ""
         self.selected_geometry_path = ""
@@ -77,7 +81,7 @@ class SetGeometryFileInput(QDialog):
         self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
         self.pushButton_cancel.clicked.connect(self.cancel)
 
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -184,8 +188,9 @@ class SetGeometryFileInput(QDialog):
     
     def remove_other_files(self):
         list_filenames = os.listdir(self.current_project_file_path).copy()
+        files_to_maintain = self.project.file.get_list_filenames_to_maintain_after_reset
         for filename in list_filenames:
-            if filename not in ["entity.dat", "fluidList.dat", "materialList.dat", "project.ini", self.geometry_filename]:
+            if filename not in files_to_maintain:
                 file_path = get_new_path(self.current_project_file_path, filename)
                 if os.path.exists(file_path):
                     os.remove(file_path)

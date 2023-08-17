@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QDialog, QColorDialog, QVBoxLayout, QWidget, QPushButton
-from PyQt5.QtCore import Qt, QSize, QRect, QPoint, QObject, QThread, pyqtSignal
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
+from pathlib import Path
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
@@ -9,14 +10,15 @@ class PickColorInput(QColorDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)  
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon) 
+
         self.color = [] 
         self.complete = False  
         self.colorSelected.connect(self.confirm_color)   
         self.configWindow()
-        self.exec_()
+        self.exec()
         
     def keyPressEvent(self, event):
         # if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

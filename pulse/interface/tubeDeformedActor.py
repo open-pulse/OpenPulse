@@ -8,8 +8,8 @@ from pulse.interface.tubeActor import TubeActor
 from pulse.uix.vtk.colorTable import ColorTable
 
 class TubeDeformedActor(TubeActor):
-    def __init__(self, elements, project):
-        super().__init__(elements, project)
+    def __init__(self, project, opv):
+        super().__init__(project, opv)
         self.transparent = False
 
     def source(self):

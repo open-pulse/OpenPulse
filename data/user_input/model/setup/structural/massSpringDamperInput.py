@@ -1,26 +1,26 @@
-import os
-from os.path import basename
-import numpy as np
-from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox, QTreeWidget
-from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
+
+import os
+import numpy as np
 import configparser
 from shutil import copyfile
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
 
 class MassSpringDamperInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/addMassSpringDamperInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/addMassSpringDamperInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -311,7 +311,7 @@ class MassSpringDamperInput(QDialog):
 
         self.update()
         self.load_nodes_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

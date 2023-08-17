@@ -1,9 +1,17 @@
-from abc import ABC, abstractmethod 
 import vtk
+
+from abc import ABC, abstractmethod 
+from pathlib import Path
+
 
 class vtkRendererBase(ABC):
     def __init__(self, style):
         super().__init__()
+
+        self.nodes_color = (255, 255, 63)
+        self.lines_color = (255, 255, 255)
+        self.surfaces_color = (255, 255, 255)
+        self.elements_transparency = 0.8
 
         self.background_color = (0,0,0)
         self._renderer = vtk.vtkRenderer()
@@ -33,8 +41,8 @@ class vtkRendererBase(ABC):
 
     def _createConfigLogos(self):
         
-        self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_white.png')
-        self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_white.png')
+        self._imageReader_pulse.SetFileName(Path('data/icons/OpenPulse_logo_white.png'))
+        self._imageReader_mopt.SetFileName(Path('data/icons/mopt_logo_white.png'))
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
         
@@ -78,20 +86,32 @@ class vtkRendererBase(ABC):
 
     def changeLogosToGetBetterContrast(self):
         if self.background_color == (0,0,0):
-            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_white.png')
-            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_white.png')
+            self._imageReader_pulse.SetFileName(Path('data/icons/OpenPulse_logo_white.png'))
+            self._imageReader_mopt.SetFileName(Path('data/icons/mopt_logo_white.png'))
         elif self.background_color == (0.25,0.25,0.25):
-            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_white.png')
-            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_white.png')
+            self._imageReader_pulse.SetFileName(Path('data/icons/OpenPulse_logo_white.png'))
+            self._imageReader_mopt.SetFileName(Path('data/icons/mopt_logo_white.png'))
         elif self.background_color == (0.7,0.7,0.7):
-            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_black.png')
-            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_black.png')
+            self._imageReader_pulse.SetFileName(Path('data/icons/OpenPulse_logo_black.png'))
+            self._imageReader_mopt.SetFileName(Path('data/icons/mopt_logo_black.png'))
         elif self.background_color == (1,1,1):
-            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_black.png')
-            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_black.png')
+            self._imageReader_pulse.SetFileName(Path('data/icons/OpenPulse_logo_black.png'))
+            self._imageReader_mopt.SetFileName(Path('data/icons/mopt_logo_black.png'))
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
+        
+    def changeNodesColor(self, color):
+        self.nodes_color = color 
     
+    def changeLinesColor(self, color):
+        self.lines_color = color
+
+    def changeSurfacesColor(self, color):
+        self.surfaces_color = color
+    
+    def changeElementsTransparency(self, transparency):
+        self.elements_transparency = transparency
+
     def changeFontColor(self, color):
         self.textProperty.SetColor(color)
 

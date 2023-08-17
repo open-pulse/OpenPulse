@@ -1,13 +1,11 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QHeaderView, QWidget, QComboBox, QFrame
-from PyQt5.QtGui import QIcon, QColor, QBrush, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
-from time import time
-from matplotlib.style import available
-import numpy as np
+from pathlib import Path
 
-# from PyQt5.uic.uiparser import QtWidgets
+import numpy as np
+import configparser
 
 from pulse.preprocessing.fluid import Fluid
 from pulse.default_libraries import default_fluid_library
@@ -15,6 +13,7 @@ from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
+from pulse.utils import *
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -29,10 +28,11 @@ def getColorRGB(color):
 class FluidInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__()
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/fluidlnput.ui', self)
+
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Acoustic/fluidlnput.ui'), self)
         
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -248,7 +248,7 @@ class FluidInput(QDialog):
         
         if self.compressor_thermodynamic_state:
             self.check_compressor_inputs()
-        self.exec_()
+        self.exec()
 
     def edit_REFPROP_fluid(self):
         self.REFPROP = SetFluidCompositionInput(self.project, self.opv, selected_fluid_to_edit=self.selected_REFPROP_fluid, compressor_info=self.compressor_thermodynamic_state)
@@ -1138,7 +1138,7 @@ class FluidInput(QDialog):
                 molar_fractions = None                  
                 if 'molar fractions' in keys:
                     str_molar_fractions = str(rFluid['molar fractions'])
-                    molar_fractions = self.project.file._get_list_of_values_from_string(str_molar_fractions, are_values_int=False)
+                    molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
 
                 if not None in [temperature, pressure, key_mixture, molar_fractions]:
                     self.fluid_name_to_REFPROP_data[name] = [name, temperature, pressure, key_mixture, molar_fractions]
@@ -1376,7 +1376,9 @@ class FluidInput(QDialog):
         title = "Resetting of fluids library"
         message = "Do you really want to reset the fluid library to default values?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._doNotRun:
             return

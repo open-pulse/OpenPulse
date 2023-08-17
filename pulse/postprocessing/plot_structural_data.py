@@ -49,17 +49,15 @@ def get_structural_response(preprocessor, solution, column, phase_step=None, r_m
     
     if r_max is None:
         _, r_max = get_max_min_values_of_resultant_displacements(solution, column)
-       
+    #
     data = np.abs(solution)
     phases = np.angle(solution)
     ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
-
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
-
+    #
     _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
                         phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
-
 
     if new_scf is None:
         scf = preprocessor.structure_principal_diagonal/50

@@ -99,8 +99,8 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
-        self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project, pressure_plot=True)
+        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv)
+        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True)
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
@@ -128,6 +128,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.updateInfoText()
         self.update_min_max_stresses_text()
         self.opv.update()
+        self._renderer.ResetCameraClippingRange()
         self.update()
 
     def updateHud(self):
@@ -218,14 +219,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         solution = self.project.get_structural_solution()
         self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
 
-    def computeDisplacement(self, frequency, phase_step=0):
+    def computeDisplacement(self, frequency_index, phase_step=0):
 
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()    
 
         _, _, u_def, self._magnificationFactor, self.min_max_rDisp_values_current = get_structural_response(preprocessor, 
                                                                                                             solution, 
-                                                                                                            frequency, 
+                                                                                                            frequency_index, 
                                                                                                             phase_step=phase_step,
                                                                                                             r_max=self.rDisp_max)
         
@@ -490,7 +491,8 @@ class opvAnalysisRenderer(vtkRendererBase):
             text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
         else:
             frequencies = self.project.get_frequencies()
-            text += self.project.analysis_method_label + "\n"
+            if self.project.analysis_method_label is not None:
+                text += self.project.analysis_method_label + "\n"
             text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
 
         if not self.project.plot_pressure_field:
@@ -500,15 +502,13 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def update_min_max_stresses_text(self):
                 
-        min_stress = self.project.min_stress
-        max_stress = self.project.max_stress
         stress_label = self.project.stress_label
 
         text = ""
         if self.min_max_stresses_values_current is not None:
-            [max_stress, min_stress] = self.min_max_stresses_values_current
-            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
+            [min_stress, max_stress] = self.min_max_stresses_values_current
             text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_label, min_stress)
+            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
         
         width, height = self._renderer.GetSize()
                 

@@ -144,7 +144,7 @@ class CrossSection:
         Poisson's ration of the material attributed to the tube.
         Default is 0.
 
-    element_type : ['pipe_1','pipe_2','beam_1'], optional
+    element_type : ['pipe_1', 'beam_1'], optional
         Element type of the structural elements attributed to the tube.
         Default is 'pipe_1'.
 
@@ -187,10 +187,12 @@ class CrossSection:
     
     def __init__(self, **kwargs):
             
-        self.division_number = kwargs.get('division_number', 64)
+        self.division_number = kwargs.get('division_number', 32)
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.poisson_ratio = kwargs.get('poisson_ratio', 0)
-                
+        
+        self.poligon_side_number = 18 # Pipe and Circular beam cross-section plots
+
         # Pipe section parameters
         self.outer_diameter = 0
         self.thickness = 0
@@ -199,30 +201,8 @@ class CrossSection:
         self.offset = [self.offset_y, self.offset_z]
         self.insulation_thickness = 0
         self.insulation_density = 0
-        self.offset_virtual = None
 
-        # Beam section properties
-        self.area = kwargs.get('area', 0)
-        self.first_moment_area_y = 0
-        self.first_moment_area_z = 0
-        self.second_moment_area_y = kwargs.get('Iyy', 0)
-        self.second_moment_area_z = kwargs.get('Izz', 0)
-        self.second_moment_area_yz = kwargs.get('Iyz', 0)
-        self.polar_moment_area = 0
-        self.y_centroid = 0
-        self.z_centroid = 0
-        self.shear_coefficient = 1
-
-        # Shear properties
-        self.y_shear = 0
-        self.z_shear = 0
-        self.res_y = 0
-        self.res_z = 0
-        # self.res_yz = 0
-
-        # Principal Bending Axis Rotation
-        self.principal_axis = None
-        self.principal_axis_translation = None
+        self._reset_variables()
 
         # Input cluster data for pipe and beam sections 
         self.pipe_section_info = kwargs.get('pipe_section_info', None)
@@ -289,7 +269,45 @@ class CrossSection:
             self.section_label = self.expansion_joint_info[0]
             self.expansion_joint_plot_key = self.expansion_joint_info[1]
             self.outer_diameter = self.expansion_joint_info[2]
-                    
+
+    def set_section_parameters(self, parameters):
+        """
+        """
+        self.outer_diameter, self.thickness = parameters
+
+    def get_section_parameters(self):
+        """
+        """
+        return np.array([self.outer_diameter, self.thickness], dtype=float)
+        
+    def _reset_variables(self):
+        """ This method resets the cross-section properties.
+        """
+
+        # Beam section properties
+        self.area = 0
+        self.first_moment_area_y = 0
+        self.first_moment_area_z = 0
+        self.second_moment_area_y = 0
+        self.second_moment_area_z = 0
+        self.second_moment_area_yz = 0
+        self.polar_moment_area = 0
+        self.y_centroid = 0
+        self.z_centroid = 0
+        self.shear_coefficient = 1
+
+        # Shear properties
+        self.y_shear = 0
+        self.z_shear = 0
+        self.res_y = 0
+        self.res_z = 0
+        # self.res_yz = 0
+
+        # Principal Bending Axis Rotation
+        self.principal_axis = None
+        self.principal_axis_translation = None
+        self.offset_virtual = None
+
     @property
     def outer_radius(self):
         return self.outer_diameter/2
@@ -393,7 +411,7 @@ class CrossSection:
     
     def mesh_coordinate(self):
         """
-        This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.
+        This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.self.offset_virtual
 
         Returns
         -------
@@ -436,7 +454,7 @@ class CrossSection:
 
         Parameters
         -------
-        el_type : ['pipe_1','pipe_2','beam_1'], optional
+        el_type : ['pipe_1', 'beam_1'], optional
             Element type of the structural elements attributed to the tube.
             Default is None.
 
@@ -496,7 +514,7 @@ class CrossSection:
 
         Parameters
         -------
-        el_type : ['pipe_1','pipe_2','beam_1']
+        el_type : ['pipe_1', 'beam_1']
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
@@ -517,6 +535,7 @@ class CrossSection:
         self.polar_moment_area = Iy + Iz
         self.y_centroid = Qz/A
         self.z_centroid = Qy/A
+        # print(A, Iy, Iz, Iyz, Qy, Qz, Qz/A, Qy/A)
 
     def assembly_indexes(self):
         """
@@ -540,7 +559,7 @@ class CrossSection:
             Poisson's ration of the material attributed to the tube.
             Default is 0.
 
-        el_type : ['pipe_1','pipe_2','beam_1'], optional
+        el_type : ['pipe_1', 'beam_1'], optional
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
@@ -654,19 +673,16 @@ class CrossSection:
         self.y_shear = -(psi_z.T @ FT)/ccg
         self.z_shear = (psi_y.T @ FT)/ccg
 
-    def offset_rotation(self, el_type = 'pipe_1'):
+    def offset_rotation(self, el_type = 'pipe_1', avg_data=[]):
         """
         This method updates the tube cross section rotation due to the shear effects and eccentricity offset.
 
         Parameters
         -------
-        el_type : ['pipe_1','pipe_2','beam_1'], optional
+        el_type : ['pipe_1', 'beam_1'], optional
             Element type of the structural elements attributed to the tube.
             Default is None.
         """
-        if el_type == 'pipe_2':
-            self.principal_axis = np.eye(12)
-            return
 
         if el_type == 'beam_1':
             self.y_shear, self.z_shear = self.get_beam_shear_center()
@@ -675,6 +691,9 @@ class CrossSection:
             y_s = self.y_shear + self.offset_y
             z_s = self.z_shear + self.offset_z
         else:
+            if avg_data != []:
+                self.y_centroid, self.z_centroid, self.y_shear, self.z_shear = avg_data
+            
             y_c = self.y_centroid
             z_c = self.z_centroid
             y_s = self.y_shear
@@ -692,13 +711,13 @@ class CrossSection:
             else:
                 angle = atan(2*Iyz/(Iz-Iy))/2
             # Rotational part of transformation matrix
-            rotation = np.array([[ 1. ,      0.   ,    0.    ],
-                                [ 0. ,cos(angle) ,sin(angle)],
-                                [ 0. ,-sin(angle),cos(angle)]])
+            rotation = np.array([[ 1. ,       0.   ,     0.    ],
+                                 [ 0. , cos(angle) , sin(angle)],
+                                 [ 0. , -sin(angle), cos(angle)]])
             # Translational part of transformation matrix
-            translation = np.array([[ 0  , z_c,-y_c],
-                                    [-z_s,  0 , 0  ],
-                                    [y_s ,  0 , 0  ]])
+            translation = np.array([[ 0. , z_c, -y_c],
+                                    [-z_s,  0.,  0. ],
+                                    [y_s ,  0.,  0. ]])
             T = np.eye(12)
             T[0:3,3:6]   = translation
             T[6:9,9:12]  = translation
@@ -717,15 +736,20 @@ class CrossSection:
             self.principal_axis_translation = T
             self.principal_axis = T
 
-    def update_properties(self):
+    def get_centroide_and_shear_center(self):
+        self._reset_variables()
+        self.shear_properties(poisson_ratio = 0, el_type = None)
+        return np.array([self.y_centroid, self.z_centroid, self.y_shear, self.z_shear])
+
+    def update_properties(self, avg_data=[]):
         """
         This method updates all the tube cross section properties.
         """
-        # self.area_properties(None)
+        self._reset_variables()
         if self.element_type == 'pipe_1':
             self.shear_properties(poisson_ratio = 0, el_type = None)
-            self.offset_rotation(el_type = 'pipe_1')
-            self.shear_properties(poisson_ratio = 0, el_type = self.element_type)
+            self.offset_rotation(el_type = 'pipe_1', avg_data = avg_data)
+            self.shear_properties(poisson_ratio = 0, el_type = 'pipe_1')
         else:
             self.shear_properties(poisson_ratio=self.poisson_ratio, el_type=self.element_type)
 
@@ -891,15 +915,14 @@ class CrossSection:
      
             return e_y, e_z
     
-    def get_cross_section_points(self, length):
+    def get_cross_section_points(self, number_divisions):
 
         inner_points = []
-        length = round(length, 4)
-
+        # length = round(length, 4)
+        self.poligon_side_number = number_divisions
+        N = number_divisions
+        
         if self.section_label == "Pipe section": # Pipe section - It's a pipe section, so ignore for beam plots
-
-            # N = element.cross_section.division_number
-            N = 32 # temporary number of divisions for pipe sections
  
             d_out = self.outer_diameter
             d_in = d_out - 2*self.thickness
@@ -909,35 +932,32 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
             
-            Y_out = (d_out/2)*cossine + self.offset_y
-            Z_out = (d_out/2)*sine + self.offset_z
-            Y_in = (d_in/2)*cossine + self.offset_y
-            Z_in = (d_in/2)*sine + self.offset_z
+            Y_out = (d_out/2)*cossine - self.offset_y
+            Z_out = (d_out/2)*sine - self.offset_z
+            Y_in = (d_in/2)*cossine - self.offset_y
+            Z_in = (d_in/2)*sine - self.offset_z
 
             if self.insulation_thickness != float(0):
-                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine + self.offset_y
-                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine + self.offset_z
+                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine - self.offset_y
+                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine - self.offset_z
 
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
 
         elif self.section_label == "Rectangular section": # Beam: Rectangular section
 
-            b, h, b_in, h_in, offset_y, offset_z = self.section_parameters           
-            # Y_out = np.array([(b/2), (b/2), -(b/2), -(b/2), (b/2)]
-            # Z_out = np.array([(h/2), -(h/2), -(h/2), (h/2), (h/2)]
-            Y_out = np.array([(b/2), (b/2),  (b/2), 0, -(b/2), -(b/2), -(b/2), 0]) + offset_y
-            Z_out = np.array([(h/2), 0, -(h/2), -(h/2), -(h/2), 0, (h/2), (h/2)]) + offset_z
+            b, h, b_in, h_in, offset_y, offset_z = self.section_parameters
+            Y_out = np.array([(b/2), (b/2),  (b/2), 0, -(b/2), -(b/2), -(b/2), 0]) - offset_y
+            Z_out = np.array([(h/2), 0, -(h/2), -(h/2), -(h/2), 0, (h/2), (h/2)]) - offset_z
             outer_points = list(zip(Y_out, Z_out))
 
             if b_in != 0:
-                Y_in = np.array([(b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]) + offset_y
-                Z_in = np.array([(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]) + offset_z
+                Y_in = np.array([(b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]) - offset_y
+                Z_in = np.array([(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]) - offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
         elif self.section_label == "Circular section": # Beam: Circular section
             
-            N = 24# element.cross_section.division_number
             d_out, thickness, offset_y, offset_z = self.section_parameters
             if thickness == 0:
                 d_in = 0
@@ -950,13 +970,13 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
 
-            Y_out = (d_out/2)*cossine + offset_y 
-            Z_out = (d_out/2)*sine + offset_z
+            Y_out = (d_out/2)*cossine - offset_y 
+            Z_out = (d_out/2)*sine - offset_z
             outer_points = list(zip(Y_out, Z_out))
                         
             if d_in != 0.:
-                Y_in = (d_in/2)*cossine + offset_y
-                Z_in = (d_in/2)*sine + offset_z
+                Y_in = (d_in/2)*cossine - offset_y
+                Z_in = (d_in/2)*sine - offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
         elif self.section_label == 'C-section': # Beam: C-section
@@ -965,8 +985,8 @@ class CrossSection:
             Yp_out = [0, w2, w2, tw, tw, w1, w1, 0]
             Zp_out = [-(h/2), -(h/2), -((h/2)-t2), -((h/2)-t2), ((h/2)-t1), ((h/2)-t1), (h/2), (h/2)]
 
-            Y_out = np.array(Yp_out) + offset_y
-            Z_out = np.array(Zp_out) + offset_z
+            Y_out = np.array(Yp_out) - offset_y
+            Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
 
         elif self.section_label == 'I-section': # Beam: I-section
@@ -975,8 +995,8 @@ class CrossSection:
             Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
             Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t2, -(h/2)+t2, -(h/2), -(h/2), -(h/2)+t2, -(h/2)+t2, (h/2)-t1, (h/2)-t1, (h/2)]
             
-            Y_out = np.array(Yp_out) + offset_y
-            Z_out = np.array(Zp_out) + offset_z
+            Y_out = np.array(Yp_out) - offset_y
+            Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
     
         elif self.section_label == 'T-section': # Beam: T-section
@@ -985,14 +1005,12 @@ class CrossSection:
             Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
             Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2), -(h/2), (h/2)-t1, (h/2)-t1, (h/2)]
 
-            Y_out = np.array(Yp_out) + offset_y
-            Z_out = np.array(Zp_out) + offset_z
+            Y_out = np.array(Yp_out) - offset_y
+            Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
         
         elif self.section_label == "Expansion joint section" : #
-    
-            N = 32 # temporary number of divisions for pipe sections
-    
+        
             if self.expansion_joint_plot_key == "major":
               r_out = self.outer_radius*1.25 
             
@@ -1009,18 +1027,16 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
             
-            Y_out = r_out*cossine + self.offset_y
-            Z_out = r_out*sine + self.offset_z
-            Y_in = r_in*cossine + self.offset_y
-            Z_in = r_in*sine + self.offset_z
+            Y_out = r_out*cossine - self.offset_y
+            Z_out = r_out*sine - self.offset_z
+            Y_in = r_in*cossine - self.offset_y
+            Z_in = r_in*sine - self.offset_z
             
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
 
         elif self.section_label == "Valve section" : #
     
-            N = 32 # temporary number of divisions for pipe sections
-
             d_out = self.outer_diameter_to_plot
             d_in = self.inner_diameter_to_plot
             # d_in = d_out - 2*self.thickness
@@ -1034,14 +1050,14 @@ class CrossSection:
             sine = np.sin(theta)
             cossine = np.cos(theta)
             
-            Y_out = (d_out/2)*cossine + self.offset_y
-            Z_out = (d_out/2)*sine + self.offset_z
-            Y_in = (d_in/2)*cossine + self.offset_y
-            Z_in = (d_in/2)*sine + self.offset_z
+            Y_out = (d_out/2)*cossine - self.offset_y
+            Z_out = (d_out/2)*sine - self.offset_z
+            Y_in = (d_in/2)*cossine - self.offset_y
+            Z_in = (d_in/2)*sine - self.offset_z
 
             if self.insulation_thickness != float(0):
-                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine + self.offset_y
-                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine + self.offset_z
+                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine - self.offset_y
+                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine - self.offset_z
 
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
@@ -1058,54 +1074,56 @@ class CrossSection:
 
         if inner_points == []:
             Y_in, Z_in = 0, 0
-            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label, length])
+            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label])
         else:
-            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label, length])        
+            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label])        
         
         return outer_points, inner_points, max_min
 
-def get_circular_section_points(parameters, section_label):
-    """" This method returns """
-    N = 32 # temporary number of divisions for circular sections
-    
-    if section_label == "Expansion joint section":
+    def get_circular_section_points(self, parameters, section_label):
+        """" 
+        This method returns 
+        """
+        N = self.poligon_side_number
+        
+        if section_label == "Expansion joint section":
 
-        d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
+            d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
 
-        if key == "major":
-            d_out *= 1.25 
-        elif key == "minor":
-            d_out *= 1.1            
+            if key == "major":
+                d_out *= 1.25
+            elif key == "minor":
+                d_out *= 1.1        
+            else:
+                d_out *= 1.4
+
         else:
-            d_out *= 1.4
-            
-    else:
 
-        d_out, d_in, offset_y, offset_z, insulation_thickness = parameters
-    
-    r_out = d_out/2
-    r_in = d_in/2
-    
-    d_theta = 2*np.pi/N
-    theta = -np.arange(0, 2*np.pi, d_theta)
-    sine = np.sin(theta)
-    cossine = np.cos(theta)
-    
-    Y_out = r_out*cossine + offset_y
-    Z_out = r_out*sine + offset_z
-    Y_in = r_in*cossine + offset_y
-    Z_in = r_in*sine + offset_z
+            d_out, d_in, offset_y, offset_z, insulation_thickness = parameters
+        
+        r_out = d_out/2
+        r_in = d_in/2
 
-    if insulation_thickness != float(0):
-        Y_out = (r_out + insulation_thickness)*cossine + offset_y
-        Z_out = (r_out + insulation_thickness)*sine + offset_z
+        d_theta = 2*np.pi/N
+        theta = -np.arange(0, 2*np.pi, d_theta)
+        sine = np.sin(theta)
+        cossine = np.cos(theta)
+        
+        Y_out = r_out*cossine - offset_y
+        Z_out = r_out*sine - offset_z
+        Y_in = r_in*cossine - offset_y
+        Z_in = r_in*sine - offset_z
 
-    outer_points = list(zip(Y_out, Z_out))
-    inner_points = list(zip(Y_in, Z_in))
+        if insulation_thickness != float(0):
+            Y_out = (r_out + insulation_thickness)*cossine - offset_y
+            Z_out = (r_out + insulation_thickness)*sine - offset_z
 
-    max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), section_label])
-    
-    return outer_points, inner_points, max_min
+        outer_points = list(zip(Y_out, Z_out))
+        inner_points = list(zip(Y_in, Z_in))
+
+        max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), section_label])
+        
+        return outer_points, inner_points, max_min
 
 def get_points_to_plot_section(section_label, section_parameters):   
     

@@ -1,13 +1,12 @@
-from PyQt5.QtWidgets import QMessageBox, QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
-import matplotlib.pyplot as plt
-import numpy as np
+from pathlib import Path
+
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -54,10 +53,11 @@ class SnaptoCursor(object):
 class Plot_TL_NR_Input(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plot_TL_NR_Input.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plot_TL_NR_Input.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -122,7 +122,7 @@ class Plot_TL_NR_Input(QDialog):
 
         self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
         self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)
-        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
+        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox')
 
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
@@ -131,7 +131,7 @@ class Plot_TL_NR_Input(QDialog):
         self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
 
         self.writeNodes(self.opv.getListPickedPoints())
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -226,27 +226,49 @@ class Plot_TL_NR_Input(QDialog):
 
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
-        self.import_name = basename(self.import_path)
+        self.import_name = os.basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     
     def ImportResults(self):
         try:
-            skiprows = int(self.lineEdit_skiprows.text())  
-            self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
-            self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
-            self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            title = "Information"
-            message = "The results have been imported."
-            PrintMessageInput([title, message, window_title2])
-        except Exception as e:
-            title = "ERROR WHILE LOADING TABLE"
-            message = [str(e) + " It is recommended to skip the header rows."] 
-            PrintMessageInput([title, message[0], window_title1])
+            message = ""
+            run = True
+            skiprows = int(self.spinBox_skiprows.text())
+            maximum_lines_to_skip = 100
+ 
+            while run:
+                try:
+                    self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
+                    self.spinBox_skiprows.setValue(int(skiprows))
+                    run = False
+                except:
+                    skiprows += 1
+                    if skiprows>=maximum_lines_to_skip:
+                        run = False
+                        title = "Error while loading data from file"
+                        message = "The maximum number of rows to skip has been reached and no valid data has "
+                        message += "been found. Please, verify the data in the imported file to proceed."
+                        message += "Maximum number of header rows: 100"
+
+            if skiprows<maximum_lines_to_skip:
+                self.legend_imported = "imported data: "+ os.basename(self.import_path).split(".")[0]
+                self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
+                title = "Information"
+                message = "The results have been imported."
+                PrintMessageInput([title, message, window_title2])
+                return
+
+        except Exception as log_error:
+            title = "Error while loading data from file"
+            message = str(log_error)
             return
+        
+        if message != "":
+            PrintMessageInput([title, message, window_title1])
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
-        self.save_name = basename(self.save_path)
+        self.save_name = os.basename(self.save_path)
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
     
     def ExportResults(self):
@@ -386,11 +408,11 @@ class Plot_TL_NR_Input(QDialog):
 
         if self.imported_data is None:
             first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
         else:    
             first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2)
             second_plot, = plt.plot(self.imported_data[:,0], self.imported_data[:,1], color=[0,0,1], linewidth=2, linestyle="--")
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
         
         plt.gca().add_artist(_legends)
 

@@ -1,21 +1,21 @@
-import os
-from os.path import basename
-from pulse.processing.solution_acoustic import relative_error
-from PyQt5.QtWidgets import QLineEdit, QFileDialog, QDialog, QTreeWidget, QToolButton, QSpinBox, QWidget, QRadioButton, QCheckBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
+import os
+import numpy as np
 import configparser
 import numpy as np
 import matplotlib.pyplot as plt
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.preprocessing.perforated_plate import PerforatedPlate
-from pulse.utils import get_new_path, remove_bc_from_file
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from pulse.utils import get_new_path, remove_bc_from_file
 
 window_title_1 = "ERROR"
 window_title_2 = "WARNING"
@@ -56,10 +56,11 @@ class SnaptoCursor(object):
 class PerforatedPlateInput(QDialog):
     def __init__(self, project, opv, valve_ids=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/perforatedPlateInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Acoustic/perforatedPlateInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -237,7 +238,7 @@ class PerforatedPlateInput(QDialog):
 
         self.update()
         self.load_elements_info()
-        self.exec_()
+        self.exec()
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_perforated_plate.currentIndex()
@@ -616,7 +617,7 @@ class PerforatedPlateInput(QDialog):
             if self.tabWidget_dimensionless.currentIndex()==0:
                 if self.check_svalues():
                     return True
-        print("passei aqui!")
+        
         self.dict_inputs['single hole'] = self.flag_single_hole
 
         self.perforated_plate = PerforatedPlate(self.dict_inputs['hole diameter'], 
@@ -918,7 +919,7 @@ class PerforatedPlateInput(QDialog):
 
         legend_label = "Response at element {}".format(self.plot_select_element)
         first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-        _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+        _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
 
         plt.gca().add_artist(_legends)
 
@@ -1083,7 +1084,7 @@ class PerforatedPlateInput(QDialog):
                             if _element_id not in valve_elements:
                                 cross = self.structural_elements[_element_id].cross_section
                                 element_type = self.structural_elements[_element_id].element_type
-                                if element_type in ['pipe_1', 'pipe_2']:
+                                if element_type == 'pipe_1':
                                     if cross:
                                         self.project.set_cross_section_by_elements(valve_elements, cross)
                                         self.project.add_cross_sections_expansion_joints_valves_in_file(valve_elements)
@@ -1100,11 +1101,11 @@ class PerforatedPlateInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationPerforatedPlate.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationPerforatedPlate.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon) 
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -1133,7 +1134,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.force_to_close)
 
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

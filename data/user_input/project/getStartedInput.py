@@ -1,27 +1,31 @@
-import os
-from os.path import basename
-from PyQt5.QtWidgets import QDialog, QPushButton, QLabel
-from pulse.utils import remove_bc_from_file
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
+import os
 import configparser
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
+def get_icons_path(filename):
+    path = f"data/icons/{filename}"
+    if os.path.exists(path):
+        return str(Path(path))
+
 class GetStartedInput(QDialog):
     def __init__(self, project, opv, config, inputUi, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/getStarted.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.load_icon = QIcon(icons_path + 'loadProject.png')
-        self.new_icon = QIcon(icons_path + 'add.png')
-        self.reset_icon = QIcon(icons_path + 'refresh.png')
+        uic.loadUi(Path('data/user_input/ui/Project/getStarted.ui'), self)
+
+        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.load_icon = QIcon(get_icons_path('loadProject.png'))
+        self.new_icon = QIcon(get_icons_path('add.png'))
+        self.reset_icon = QIcon(get_icons_path('refresh.png'))
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -80,15 +84,7 @@ class GetStartedInput(QDialog):
         self.project_path_labels.append(self.project5_path_label)
         
         self.initial_actions()
-        self.exec_()
-
-    def createFont(self):
-        self.font = QFont()
-        self.font.setFamily("Arial")
-        self.font.setPointSize(9)
-        self.font.setWeight(75)
-        self.font.setBold(False)
-        self.font.setItalic(False)
+        self.exec()
 
     def update_buttons_visibility(self):
         self.project_dir = []
@@ -107,13 +103,20 @@ class GetStartedInput(QDialog):
             # self.project_buttons[i].setText(text)
             # self.project_buttons[i].setStyleSheet("text-align:right;")
             self.project_path_labels[i].setText(str(self.recentProjectsList[i][1]))
-            self.project_path_labels[i].setFont(self.font)
-            self.project_path_labels[i].setStyleSheet("color:rgb(0,0,255);")
+            stylesheet =    """ QLabel{ 
+                                        border-radius: 6px; 
+                                        border-color: rgb(150, 150, 150); 
+                                        border-style: ridge; 
+                                        border-width: 2px; 
+                                        color: rgb(0, 0, 255); 
+                                        background-color: rgb(240, 240, 240); 
+                                        font: 50 9pt "MS Shell Dlg 2" 
+                                        }
+                            """
+            self.project_path_labels[i].setStyleSheet(stylesheet)
 
     def initial_actions(self):
-        self.createFont()
         self.update_buttons_visibility()
-        
         self.project_buttons[0].clicked.connect(lambda: self.loadRecentProject(self.project_dir[0]))
         self.project_buttons[1].clicked.connect(lambda: self.loadRecentProject(self.project_dir[1]))
         self.project_buttons[2].clicked.connect(lambda: self.loadRecentProject(self.project_dir[2]))
@@ -162,8 +165,9 @@ class GetStartedInput(QDialog):
         message = "Dear user, do you want to proceed with the 'Recent Projects' list clean-up and resetting?\n\n"
         message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
         message += "\nClose buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
-        
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
         if read._doNotRun:
             return
 

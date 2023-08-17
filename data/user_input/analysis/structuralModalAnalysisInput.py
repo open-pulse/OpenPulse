@@ -1,10 +1,9 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QComboBox, QPushButton
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
+import numpy as np
+from pathlib import Path
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from math import pi
@@ -15,10 +14,11 @@ window_title2 = "WARNING MESSAGE"
 class StructuralModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Analysis/Structural/structuralModalAnalysisInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/analysis_/structural_/modal_analysis_input.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.lineEdit_number_modes = self.findChild(QLineEdit, 'lineEdit_number_modes')
@@ -34,7 +34,7 @@ class StructuralModalAnalysisInput(QDialog):
         self.pushButton_2.clicked.connect(self.confirm)
 
         self.complete = False
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

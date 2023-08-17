@@ -1,16 +1,14 @@
-from re import M
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QTreeWidget, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QToolButton, QMessageBox, QRadioButton
-from os.path import basename
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5 import uic, QtCore
-import configparser
-from collections import defaultdict
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5 import uic
+from pathlib import Path
+
 import os
 import numpy as np
+import configparser
+from collections import defaultdict
 import matplotlib.pyplot as plt
-from numpy.core.numeric import False_  
 
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.cross_section import CrossSection
@@ -19,7 +17,6 @@ from pulse.utils import create_new_folder, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
-
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
@@ -50,12 +47,12 @@ class ClickableLineEdit(QLineEdit):
 class ExpansionJointInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/expansionJointInput.ui', self)
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/expansionJointInput.ui'), self)
         
-        clicked = QtCore.pyqtSignal()
+        clicked = pyqtSignal()
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -223,7 +220,7 @@ class ExpansionJointInput(QDialog):
         self.load_expansion_joint_by_line_info()
         self.load_expansion_joint_by_elements_info()
         self.update_tabs()
-        self.exec_()
+        self.exec()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -743,21 +740,6 @@ class ExpansionJointInput(QDialog):
                 changed = True
               
         return changed
-       
-    def _get_list_of_values_from_string(self, input_string, are_values_int=True):
-        
-        input_string = input_string[1:-1].split(',')
-        list_values = []
-        
-        if are_values_int:
-            for value in input_string:
-                list_values.append(int(value))
-        else:
-            for value in input_string:
-                list_values.append(float(value))
-
-        return list_values
-
 
     def load_table(self, lineEdit, stiffness_label, direct_load=False):
         window_title = "ERROR"
@@ -1174,7 +1156,9 @@ class ExpansionJointInput(QDialog):
         message += f"added to the line {line_id}?\n\n\n"
         message += "Press the Continue button to proceed with removal or press \n"
         message += "Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._doNotRun:
             return
@@ -1204,7 +1188,8 @@ class ExpansionJointInput(QDialog):
         message += f"{selected_group}\n"
         message += "\n\nPress the Continue button to proceed with removal or press \n"
         message += "Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
             return
@@ -1256,7 +1241,8 @@ class ExpansionJointInput(QDialog):
         title = "Remove all expansion joints added to the model"
         message = "Are you really sure you want to remove all expansion joints from the model?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         # if read._doNotRun:
         #     return
@@ -1382,7 +1368,9 @@ class ExpansionJointInput(QDialog):
         for table in list_tables:
             message += f"{table}\n"
         message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
 
         if read._doNotRun:
             return
@@ -1398,10 +1386,11 @@ class ExpansionJointInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, selection, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Info/getExpansionJointInformationInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui/Model/Info/getExpansionJointInformationInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -1421,7 +1410,7 @@ class GetInformationOfGroup(QDialog):
         
         self.update_header_labels()
         self.update_treeWidget_joint_parameters_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

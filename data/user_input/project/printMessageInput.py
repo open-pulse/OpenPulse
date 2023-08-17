@@ -1,21 +1,24 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QLabel, QFrame
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 from threading import Thread
 
 class PrintMessageInput(QDialog):
-    def __init__(self, text_info, opv=None, fontsizes=[13,12], *args, **kwargs):
+    def __init__(self, text_info, opv=None, fontsizes=[13,12], alignment=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Messages/printMessages.ui', self)
+
+        uic.loadUi(Path('data/user_input/ui/plots_/messages_/printMessages.ui'), self)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.message_close)
 
         self.frame_message = self.findChild(QFrame, 'frame_message')
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -24,6 +27,8 @@ class PrintMessageInput(QDialog):
             opv.setInputObject(self)
 
         self.title_fontsize, self.message_fontsize = fontsizes
+
+        self.alignment = alignment
 
         self._label_title = self.findChild(QLabel, '_label_title')
         self._label_message = self.findChild(QLabel, '_label_message')
@@ -34,7 +39,16 @@ class PrintMessageInput(QDialog):
         self._label_title.setFont(self.font_title)
         self._label_message.setFont(self.font_message)
         self._label_message.setWordWrap(True)
+        self._label_message.setMargin(20)
 
+        try:
+            if alignment is None:
+                self._label_message.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            else:
+                self._label_message.setAlignment(alignment | Qt.AlignVCenter)
+        except:
+            self._label_message.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        
         self.text_info = text_info
         message = self.preprocess_big_strings(self.text_info[1])
 
@@ -44,10 +58,10 @@ class PrintMessageInput(QDialog):
         elif 200 <= len(message) < 400:
             height = 400
             width = 600
-        elif 400 <= len(message) < 800:
+        elif 400 <= len(message) < 1000:
             height = 600
             width = 600
-        elif len(message) >= 800:
+        elif len(message) >= 1000:
             height = 800
             width = 600
 
@@ -77,7 +91,7 @@ class PrintMessageInput(QDialog):
         if len(text_info)>2:
             self.setWindowTitle(text_info[2])
 
-        self.exec_()
+        self.exec()
 
     def message_close(self):
         self.close()

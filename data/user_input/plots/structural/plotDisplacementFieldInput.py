@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QTreeWidgetItem, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
 
 import numpy as np
 
@@ -12,34 +12,37 @@ class PlotDisplacementFieldInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotDisplacementFieldInput.ui', self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plotDisplacementFieldInput.ui'), self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
-
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.project = project
-        self.frequencies = project.frequencies
         
+        self._reset_variables()
+        self._define_qt_variables()
+        self._create_connections()
+        self.load_frequencies_vector()
+
+    def _reset_variables(self):
+        self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
 
+    def _define_qt_variables(self):
         self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
-        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
         self.pushButton = self.findChild(QPushButton, 'pushButton')
-        self.pushButton.clicked.connect(self.check_selected_frequency)
+        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
 
+    def _create_connections(self):
+        self.pushButton.clicked.connect(self.check_selected_frequency)
         self.treeWidget.itemClicked.connect(self.on_click_item)
         self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
-
-        self.load()
-
-        self.exec_()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -62,12 +65,19 @@ class PlotDisplacementFieldInput(QDialog):
             
         self.close()
 
-    def load(self):
+    def load_frequencies_vector(self):
+
+        if self.project.analysis_ID == 7:
+            self.frequency = 0
+            return
+
         for frequency in self.frequencies:
             new = QTreeWidgetItem([str(frequency)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget.addTopLevelItem(new)
+
+        self.exec()
 
     def on_click_item(self, item):
         self.lineEdit.setText(item.text(0))

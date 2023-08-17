@@ -36,7 +36,7 @@
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
+     <family>MS Shell Dlg 2</family>
      <pointsize>10</pointsize>
      <weight>50</weight>
      <italic>false</italic>
@@ -76,8 +76,8 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>11</pointsize>
       <weight>50</weight>
       <bold>false</bold>
      </font>
@@ -115,8 +115,8 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
-      <pointsize>13</pointsize>
+      <family>MS Shell Dlg 2</family>
+      <pointsize>11</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -129,7 +129,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QToolButton" name="toolButton_repository">
+   <widget class="QPushButton" name="pushButton_repository">
     <property name="geometry">
      <rect>
       <x>144</x>
@@ -152,21 +152,20 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>11</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+    </property>
     <property name="text">
      <string>OpenPulse repository @GitHub</string>
-    </property>
-    <property name="autoRaise">
-     <bool>false</bool>
-    </property>
-    <property name="arrowType">
-     <enum>Qt::NoArrow</enum>
     </property>
    </widget>
   </widget>
@@ -244,7 +243,7 @@
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
+     <family>MS Shell Dlg 2</family>
      <pointsize>10</pointsize>
      <weight>50</weight>
      <italic>false</italic>

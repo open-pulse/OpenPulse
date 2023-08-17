@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QFileDialog, QDialog, QRadioButton, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 import os
 import configparser
 from shutil import copytree, rmtree
@@ -15,10 +17,11 @@ window_title_2 = "WARNING MESSAGE"
 class SetProjectAttributesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/setProjectAttributesInput.ui', self)
 
-        icons_path = 'pulse\\data\\icons\\'
-        self.icon = QIcon(icons_path + 'add.png')
+        uic.loadUi(Path('data/user_input/ui/Project/setProjectAttributesInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.project = project
@@ -83,7 +86,7 @@ class SetProjectAttributesInput(QDialog):
             self.lineEdit_new_project_folder.setDisabled(True)
             self.toolButton_search_project_folder.setDisabled(True)
 
-        self.exec_()
+        self.exec()
 
     def update_texts_and_controls(self):
         if self.radioButton_projectName.isChecked():
