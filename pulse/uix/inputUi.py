@@ -11,7 +11,7 @@ from data.user_input.project.setProjectAttributesInput import SetProjectAttribut
 from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
 from data.user_input.model.setup.structural.material_input import MaterialInput
-from data.user_input.model.setup.acoustic.fluidInput import FluidInput
+from data.user_input.model.setup.acoustic.fluid_input import FluidInput
 from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput

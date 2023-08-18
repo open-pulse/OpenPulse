@@ -12,7 +12,7 @@ from collections import defaultdict
 
 from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
-from data.user_input.model.setup.acoustic.fluidInput import FluidInput
+from data.user_input.model.setup.acoustic.fluid_input import FluidInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 

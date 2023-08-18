@@ -240,11 +240,11 @@
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="alignment">
@@ -327,11 +327,11 @@
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="text">
@@ -505,11 +505,11 @@
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -665,11 +665,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -730,11 +730,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="text">
@@ -792,11 +792,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -858,11 +858,11 @@ background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="alignment">
@@ -920,11 +920,11 @@ background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="alignment">
@@ -1021,11 +1021,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="alignment">
@@ -1212,11 +1212,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -1252,11 +1252,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -1330,19 +1330,18 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>true</italic>
-          <bold>true</bold>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
          </font>
         </property>
         <property name="whatsThis">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 0, 255);
-background-color: rgb(255, 255, 255);</string>
+         <string notr="true"/>
         </property>
         <property name="maxVisibleItems">
          <number>100</number>
@@ -1603,11 +1602,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -1643,11 +1642,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -1686,11 +1685,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -1812,11 +1811,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -1902,11 +1901,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -2087,11 +2086,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -2160,11 +2159,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -2253,11 +2252,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -2349,11 +2348,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -2618,11 +2617,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -2661,11 +2660,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -2726,19 +2725,18 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>true</italic>
-          <bold>true</bold>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
          </font>
         </property>
         <property name="whatsThis">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 0, 255);
-background-color: rgb(255, 255, 255);</string>
+         <string notr="true"/>
         </property>
         <property name="maxVisibleItems">
          <number>100</number>
@@ -2866,11 +2864,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -2903,11 +2901,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3046,11 +3044,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3194,11 +3192,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3228,11 +3226,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3370,11 +3368,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3404,11 +3402,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3516,11 +3514,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3553,11 +3551,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3615,11 +3613,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -3750,11 +3748,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="styleSheet">
@@ -3793,11 +3791,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="styleSheet">
@@ -3983,11 +3981,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4020,11 +4018,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4166,11 +4164,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4314,11 +4312,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>11</pointsize>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4351,11 +4349,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4496,11 +4494,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4533,11 +4531,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4648,11 +4646,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4685,11 +4683,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4750,11 +4748,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -4812,11 +4810,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="styleSheet">
@@ -4885,11 +4883,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="styleSheet">
@@ -5182,38 +5180,6 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
     </attribute>
     <column>
      <property name="text">
-      <string>Name</string>
-     </property>
-     <property name="font">
-      <font>
-       <family>MS Shell Dlg 2</family>
-       <pointsize>11</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="textAlignment">
-      <set>AlignCenter</set>
-     </property>
-     <property name="background">
-      <color>
-       <red>255</red>
-       <green>255</green>
-       <blue>255</blue>
-      </color>
-     </property>
-     <property name="foreground">
-      <brush brushstyle="SolidPattern">
-       <color alpha="255">
-        <red>0</red>
-        <green>0</green>
-        <blue>0</blue>
-       </color>
-      </brush>
-     </property>
-    </column>
-    <column>
-     <property name="text">
       <string>ID</string>
      </property>
      <property name="font">
@@ -5239,7 +5205,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
     </column>
     <column>
      <property name="text">
-      <string>Color</string>
+      <string>Name</string>
      </property>
      <property name="font">
       <font>
@@ -5251,6 +5217,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
      </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
+     </property>
+     <property name="background">
+      <color>
+       <red>255</red>
+       <green>255</green>
+       <blue>255</blue>
+      </color>
      </property>
      <property name="foreground">
       <brush brushstyle="SolidPattern">
@@ -5315,6 +5288,31 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
     <column>
      <property name="text">
       <string>Impedance [kg/m²s]</string>
+     </property>
+     <property name="font">
+      <font>
+       <family>MS Shell Dlg 2</family>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
+     </property>
+     <property name="foreground">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Color</string>
      </property>
      <property name="font">
       <font>
@@ -5521,19 +5519,18 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>
@@ -5568,19 +5565,18 @@ color: rgb(0, 0, 255);</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>
