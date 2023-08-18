@@ -23,15 +23,14 @@ def getColorRGB(color):
     return list(map(int, tokens))
 
 class MaterialInput(QDialog):
-    def __init__(   self, project, opv,  cache_selected_lines=[], *args, **kwargs):
+    def __init__(   self, project, opv, cache_selected_lines=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/materialInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/material_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
-        
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
@@ -45,7 +44,19 @@ class MaterialInput(QDialog):
 
         self.material_path = project.get_material_list_path()
         self.cache_selected_lines = cache_selected_lines
-        
+
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+
+        self._reset_variables()
+        self._define_qt_variables()
+        self._create_connections()
+        self.create_lists_of_lineEdits()
+        self.loadList()
+        self._loading_info_at_start()    
+        self.exec()
+
+
+    def _reset_variables(self):
         self.clicked_item = None
         self.material = None
         self.flagAll = False
@@ -60,25 +71,12 @@ class MaterialInput(QDialog):
         self.temp_material_id = ""
         self.temp_material_color = ""
         self.dict_inputs = {}
-        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
 
-        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
-        self.treeWidget.setColumnWidth(0, 120)
-        self.treeWidget.setColumnWidth(1, 10)
-        self.treeWidget.setColumnWidth(2, 120)
-        self.treeWidget.setColumnWidth(3, 170)
-        self.treeWidget.setColumnWidth(4, 70)
-        self.treeWidget.setColumnWidth(5, 210)
-        self.treeWidget.setColumnWidth(6, 10)
-        self.treeWidget.itemClicked.connect(self.on_click_item)
-        self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-        self.tabWidget_material = self.findChild(QTabWidget, 'tabWidget_material')
-        self.tabWidget_material.currentChanged.connect(self.tabEvent_)
-        self.currentTab_ = self.tabWidget_material.currentIndex()
-        self.tab_edit_material = self.tabWidget_material.findChild(QWidget, "tab_edit_material")
-        self.tab_remove_material = self.tabWidget_material.findChild(QWidget, "tab_remove_material")
-
+    def _define_qt_variables(self):
+        # QComboBox
+        self.comboBox_material_id = self.findChild(QComboBox, 'comboBox_material_id')
+        # QLineEdit
         self.lineEdit_name = self.findChild(QLineEdit, 'lineEdit_name')
         self.lineEdit_density = self.findChild(QLineEdit, 'lineEdit_density')
         self.lineEdit_youngModulus = self.findChild(QLineEdit, 'lineEdit_youngModulus')
@@ -87,7 +85,6 @@ class MaterialInput(QDialog):
         self.lineEdit_color = self.findChild(QLineEdit, 'lineEdit_color')
         self.lineEdit_color.setDisabled(True)
         self.lineEdit_color.setStyleSheet("color: rgb(0,0,255); background-color: rbg(255,255,255)")
-
         self.lineEdit_name_edit = self.findChild(QLineEdit, 'lineEdit_name_edit')
         self.lineEdit_id_edit = self.findChild(QLineEdit, 'lineEdit_id_edit')
         self.lineEdit_density_edit = self.findChild(QLineEdit, 'lineEdit_density_edit')
@@ -99,7 +96,6 @@ class MaterialInput(QDialog):
         self.lineEdit_name_edit.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
         self.lineEdit_id_edit.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
         self.lineEdit_color_edit.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
-
         self.lineEdit_name_remove = self.findChild(QLineEdit, 'lineEdit_name_remove')
         self.lineEdit_id_remove = self.findChild(QLineEdit, 'lineEdit_id_remove')
         self.lineEdit_density_remove = self.findChild(QLineEdit, 'lineEdit_density_remove')
@@ -107,7 +103,6 @@ class MaterialInput(QDialog):
         self.lineEdit_poisson_remove = self.findChild(QLineEdit, 'lineEdit_poisson_remove')
         self.lineEdit_thermal_expansion_coefficient_remove = self.findChild(QLineEdit, 'lineEdit_thermal_expansion_coefficient_remove')
         self.lineEdit_color_remove = self.findChild(QLineEdit, 'lineEdit_color_remove')
-        #
         self.lineEdit_name_remove.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
         self.lineEdit_id_remove.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
         self.lineEdit_density_remove.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
@@ -115,17 +110,60 @@ class MaterialInput(QDialog):
         self.lineEdit_poisson_remove.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
         self.lineEdit_thermal_expansion_coefficient_remove.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
         self.lineEdit_color_remove.setStyleSheet("color: rgb(0,0,0); background-color: rbg(255,255,255)")
-        #
-        self.create_lists_of_lineEdit()
-
-        self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
-        self.radioButton_all.toggled.connect(self.radioButtonEvent)
-        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
-
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_selected_material_name = self.findChild(QLineEdit, 'lineEdit_selected_material_name')
+        # QPushButton
+        self.pushButton_pickColor_add = self.findChild(QPushButton, 'pushButton_pickColor_add')
+        self.pushButton_pickColor_edit = self.findChild(QPushButton, 'pushButton_pickColor_edit')
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_confirm_add_material = self.findChild(QPushButton, 'pushButton_confirm_add_material')
+        self.pushButton_reset_entries_add_material = self.findChild(QPushButton, 'pushButton_reset_entries_add_material')
+        self.pushButton_confirm_material_edition = self.findChild(QPushButton, 'pushButton_confirm_material_edition')
+        self.pushButton_confirm_material_removal = self.findChild(QPushButton, 'pushButton_confirm_material_removal')
+        self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
+        self.pushButton_pickColor_edit.setDisabled(True)
+        self.pushButton_confirm_material_edition.setDisabled(True)
+        self.pushButton_confirm_material_removal.setDisabled(True)
+        # QRadioButton
+        self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
+        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
+        self.flagAll = self.radioButton_all.isChecked()
+        self.flagSelectedLines = self.radioButton_selected_lines.isChecked()
+        # QTabWidget
+        self.tabWidget_material = self.findChild(QTabWidget, 'tabWidget_material')
+        self.tab_edit_material = self.tabWidget_material.findChild(QWidget, "tab_edit_material")
+        self.tab_remove_material = self.tabWidget_material.findChild(QWidget, "tab_remove_material")
+        self.currentTab_ = self.tabWidget_material.currentIndex()
+        # QTreeWidget
+        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
+        widths = [120, 10, 120, 170, 70, 210, 10]
+        for i, width in enumerate(widths):
+            self.treeWidget.setColumnWidth(i, width)
 
+
+    def _create_connections(self):
+        #
+        self.comboBox_material_id.currentIndexChanged.connect(self.get_comboBox_index)
+        #
+        self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
+        self.pushButton_confirm_material_removal.clicked.connect(self.confirm_material_removal)
+        self.pushButton_confirm_material_edition.clicked.connect(self.check_edit_material)
+        self.pushButton_reset_entries_add_material.clicked.connect(self.reset_add_texts)
+        self.pushButton_confirm_add_material.clicked.connect(self.check_add_material)
+        self.pushButton_confirm.clicked.connect(self.confirm_material_attribution)
+        self.pushButton_pickColor_edit.clicked.connect(self.pick_color_edit)
+        self.pushButton_pickColor_add.clicked.connect(self.pick_color_add)
+        #
+        self.radioButton_all.toggled.connect(self.radioButtonEvent)
+        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
+        #
+        self.tabWidget_material.currentChanged.connect(self.tabEvent_)
+        #
+        self.treeWidget.itemClicked.connect(self.on_click_item)
+        self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
+
+
+    def _loading_info_at_start(self):
         if self.cache_selected_lines != []:
             self.lines_ids = self.cache_selected_lines
 
@@ -136,82 +174,10 @@ class MaterialInput(QDialog):
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
-            self.radioButton_all.setChecked(True)
+            self.radioButton_all.setChecked(True) 
 
-        self.pushButton_pickColor_add = self.findChild(QPushButton, 'pushButton_pickColor_add')
-        self.pushButton_pickColor_add.clicked.connect(self.pick_color_add)
-        
-        self.pushButton_pickColor_edit = self.findChild(QPushButton, 'pushButton_pickColor_edit')
-        self.pushButton_pickColor_edit.clicked.connect(self.pick_color_edit)
-        self.pushButton_pickColor_edit.setDisabled(True)
 
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.confirm_material_attribution)
-
-        self.pushButton_confirm_add_material = self.findChild(QPushButton, 'pushButton_confirm_add_material')
-        self.pushButton_confirm_add_material.clicked.connect(self.check_add_material)
-
-        self.pushButton_reset_entries_add_material = self.findChild(QPushButton, 'pushButton_reset_entries_add_material')
-        self.pushButton_reset_entries_add_material.clicked.connect(self.reset_add_texts)
-        
-        self.pushButton_confirm_material_edition = self.findChild(QPushButton, 'pushButton_confirm_material_edition')
-        self.pushButton_confirm_material_edition.clicked.connect(self.check_edit_material)
-        self.pushButton_confirm_material_edition.setDisabled(True)
-
-        self.pushButton_confirm_material_removal = self.findChild(QPushButton, 'pushButton_confirm_material_removal')
-        self.pushButton_confirm_material_removal.clicked.connect(self.confirm_material_removal)
-        self.pushButton_confirm_material_removal.setDisabled(True)
-
-        self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
-        self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
-
-        self.flagAll = self.radioButton_all.isChecked()
-        self.flagSelectedLines = self.radioButton_selected_lines.isChecked()
-
-        self.loadList()
-        self.comboBox_material_id = self.findChild(QComboBox, 'comboBox_material_id')    
-        self.comboBox_material_id.currentIndexChanged.connect(self.get_comboBox_index)   
-    
-        self.exec()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_material_attribution()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_ID.setText(text)
-
-    def update(self):
-        self.lines_ids = self.opv.getListPickedLines()
-        if self.lines_ids != []:
-            self.write_ids(self.lines_ids)
-            self.radioButton_selected_lines.setChecked(True)
-            self.lineEdit_selected_ID.setEnabled(True)
-        else:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all.setChecked(True)
-            self.lineEdit_selected_ID.setEnabled(False)
-
-    def tabEvent_(self):
-        self.currentTab_ = self.tabWidget_material.currentIndex()
-        if self.currentTab_ == 0:
-            self.adding = True
-            self.editing = False
-        elif self.currentTab_ == 1:
-            self.adding = False
-            self.editing = True
-            if self.clicked_item is not None:
-                self.selected_material_to_edit()
-        elif self.currentTab_ == 2:
-            if self.clicked_item is not None:
-                self.selected_material_to_remove()
-
-    def create_lists_of_lineEdit(self):
+    def create_lists_of_lineEdits(self):
         #
         self.list_add_lineEdit = [  self.lineEdit_name,
                                     self.lineEdit_color,
@@ -236,6 +202,50 @@ class MaterialInput(QDialog):
                                         self.lineEdit_poisson_remove,
                                         self.lineEdit_thermal_expansion_coefficient_remove   ]  
 
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.confirm_material_attribution()
+        elif event.key() == Qt.Key_Delete:
+            self.confirm_material_removal()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
+
+
+    def write_ids(self, list_ids):
+        text = ""
+        for _id in list_ids:
+            text += "{}, ".format(_id)
+        self.lineEdit_selected_ID.setText(text)
+
+
+    def update(self):
+        self.lines_ids = self.opv.getListPickedLines()
+        if self.lines_ids != []:
+            self.write_ids(self.lines_ids)
+            self.radioButton_selected_lines.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(True)
+        else:
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(False)
+
+
+    def tabEvent_(self):
+        self.currentTab_ = self.tabWidget_material.currentIndex()
+        if self.currentTab_ == 0:
+            self.adding = True
+            self.editing = False
+        elif self.currentTab_ == 1:
+            self.adding = False
+            self.editing = True
+            if self.clicked_item is not None:
+                self.selected_material_to_edit()
+        elif self.currentTab_ == 2:
+            if self.clicked_item is not None:
+                self.selected_material_to_remove()
+
+
     def pick_color_add(self):
 
         read = PickColorInput()
@@ -253,6 +263,7 @@ class MaterialInput(QDialog):
                 self.lineEdit_color.setText("")
                 PrintMessageInput([self.title, self.message, window_title])
 
+
     def pick_color_edit(self):
         
         read = PickColorInput()
@@ -269,6 +280,7 @@ class MaterialInput(QDialog):
             if self.check_color_input(self.lineEdit_color_edit):
                 self.lineEdit_color_edit.setText("")
                 PrintMessageInput([self.title, self.message, window_title])
+
 
     def confirm_material_attribution(self):
 
@@ -319,6 +331,7 @@ class MaterialInput(QDialog):
             PrintMessageInput([self.title, self.message, window_title])
             return
 
+
     def loadList(self):
 
         self.list_names = []
@@ -361,6 +374,7 @@ class MaterialInput(QDialog):
         self.update_material_id_selector()
         self.lineEdit_selected_material_name.setText("")
 
+
     def update_material_id_selector(self):
 
         font = QFont()
@@ -384,9 +398,11 @@ class MaterialInput(QDialog):
 
         self.get_comboBox_index()
 
+
     def get_comboBox_index(self):
         index = self.comboBox_material_id.currentIndex()
         self.material_id = self.available_indexes[index] 
+
 
     def check_add_material(self):
 
@@ -403,6 +419,7 @@ class MaterialInput(QDialog):
 
         if self.check_add_edit(parameters):
             PrintMessageInput([self.title, self.message, window_title])  
+
 
     def check_edit_material(self):
 
@@ -465,6 +482,7 @@ class MaterialInput(QDialog):
             except Exception as error_log:
                 self.message = message_invalid + "\n\n" + str(error_log)
                 return True
+
 
     def check_add_edit(self, parameters):
 
@@ -621,6 +639,7 @@ class MaterialInput(QDialog):
 
         return False
 
+
     def selected_material_to_edit(self):
 
         if self.clicked_item is None:
@@ -655,6 +674,7 @@ class MaterialInput(QDialog):
 
         return False
 
+
     def on_click_item(self, item):
         self.clicked_item = item
         if self.currentTab_ == 0:       
@@ -667,10 +687,12 @@ class MaterialInput(QDialog):
         self.pushButton_confirm_material_removal.setDisabled(False)
         self.lineEdit_selected_material_name.setText(item.text(0))
 
+
     def on_doubleclick_item(self, item):
         self.clicked_item = item
         self.confirm_material_attribution()
     
+
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagSelectedLines = self.radioButton_selected_lines.isChecked()
@@ -683,6 +705,7 @@ class MaterialInput(QDialog):
         elif self.flagAll:
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
+
 
     def selected_material_to_remove(self):
         try:
@@ -713,6 +736,7 @@ class MaterialInput(QDialog):
             return True
 
         return False
+
 
     def confirm_material_removal(self):
 
@@ -753,6 +777,7 @@ class MaterialInput(QDialog):
             PrintMessageInput([self.title, self.message, window_title])
             return
 
+
     def reset_library_to_default(self):
 
         title = "Resetting of materials library"
@@ -791,13 +816,16 @@ class MaterialInput(QDialog):
             self.reset_edit_texts() 
             self.reset_remove_texts() 
     
+
     def reset_add_texts(self):
         for lineEdit in self.list_add_lineEdit:
             lineEdit.setText("")
 
+
     def reset_edit_texts(self):
         for lineEdit in self.list_edit_lineEdit:
             lineEdit.setText("")
+
 
     def reset_remove_texts(self):
         for lineEdit in self.list_remove_lineEdit:
