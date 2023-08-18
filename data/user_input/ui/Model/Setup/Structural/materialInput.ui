@@ -78,7 +78,7 @@
     <property name="geometry">
      <rect>
       <x>64</x>
-      <y>6</y>
+      <y>8</y>
       <width>669</width>
       <height>245</height>
      </rect>
@@ -103,7 +103,7 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -122,11 +122,11 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -137,7 +137,7 @@
       <property name="geometry">
        <rect>
         <x>162</x>
-        <y>108</y>
+        <y>100</y>
         <width>173</width>
         <height>20</height>
        </rect>
@@ -148,14 +148,17 @@
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Young Modulus [GPa]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Young Modulus [GPa]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_poisson">
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -174,11 +177,11 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -189,20 +192,30 @@
       <property name="geometry">
        <rect>
         <x>24</x>
-        <y>48</y>
+        <y>32</y>
         <width>120</width>
         <height>20</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Material name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Material name</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_density">
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -221,11 +234,11 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -236,7 +249,7 @@
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -255,11 +268,11 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -270,33 +283,39 @@
       <property name="geometry">
        <rect>
         <x>24</x>
-        <y>108</y>
+        <y>100</y>
         <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Material ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Material ID</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="poisson_label">
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>48</y>
+        <y>32</y>
         <width>69</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Poisson&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Poisson</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_youngModulus">
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -315,11 +334,11 @@
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -330,13 +349,23 @@
       <property name="geometry">
        <rect>
         <x>174</x>
-        <y>48</y>
+        <y>32</y>
         <width>149</width>
         <height>20</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Density [kg/m³]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Density [kg/m³]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_confirm_add_material">
@@ -346,7 +375,7 @@
       <property name="geometry">
        <rect>
         <x>202</x>
-        <y>172</y>
+        <y>166</y>
         <width>260</width>
         <height>35</height>
        </rect>
@@ -387,7 +416,7 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
-       <string>Add New Material</string>
+       <string>Add new material</string>
       </property>
       <property name="shortcut">
        <string>Shift+A</string>
@@ -405,36 +434,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QLabel" name="Add_new_mat_label">
-      <property name="geometry">
-       <rect>
-        <x>176</x>
-        <y>10</y>
-        <width>309</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>9</pointsize>
-        <italic>true</italic>
-       </font>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-style:normal;&quot;&gt;Add a new Material to the list:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
      <widget class="QLineEdit" name="lineEdit_thermal_expansion_coefficient">
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -453,11 +457,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -468,39 +472,48 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>108</y>
+        <y>100</y>
         <width>113</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Color [r, g, b]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Color</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="coefficient_mK">
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>48</y>
+        <y>32</y>
         <width>152</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;coefficient [m/K]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>coefficient [m/K]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="thermal_expansion_label">
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>28</y>
+        <y>12</y>
         <width>152</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Thermal expansion&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Thermal expansion</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_reset_entries_add_material">
@@ -510,7 +523,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>8</x>
-        <y>178</y>
+        <y>172</y>
         <width>120</width>
         <height>30</height>
        </rect>
@@ -573,7 +586,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>474</x>
-        <y>128</y>
+        <y>120</y>
         <width>90</width>
         <height>26</height>
        </rect>
@@ -612,18 +625,18 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
        </font>
       </property>
       <property name="whatsThis">
@@ -671,7 +684,7 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -690,11 +703,11 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -705,20 +718,23 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>28</y>
+        <y>12</y>
         <width>152</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Thermal expansion&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Thermal expansion</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_thermal_expansion_coefficient_edit">
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -737,11 +753,11 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -752,20 +768,23 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>174</x>
-        <y>48</y>
+        <y>32</y>
         <width>149</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Density [kg/m³]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Density [kg/m³]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_youngModulus_edit">
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -784,11 +803,11 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -799,7 +818,7 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>162</x>
-        <y>108</y>
+        <y>100</y>
         <width>173</width>
         <height>20</height>
        </rect>
@@ -810,7 +829,10 @@ background-color: rgb(255, 255, 255);</string>
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Young Modulus [GPa]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Young Modulus [GPa]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_name_edit">
@@ -820,7 +842,7 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -839,11 +861,11 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -854,7 +876,7 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -873,11 +895,11 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -888,20 +910,23 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>48</y>
+        <y>32</y>
         <width>152</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;coefficient [m/K]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>coefficient [m/K]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_color_edit">
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -920,11 +945,11 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -938,7 +963,7 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -957,11 +982,11 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -972,26 +997,32 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>48</y>
+        <y>32</y>
         <width>69</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Poisson&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Poisson</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="color_label_3">
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>108</y>
+        <y>100</y>
         <width>113</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Color [r, g, b]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Color</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_confirm_material_edition">
@@ -1001,7 +1032,7 @@ background-color: rgb(255, 255, 255);</string>
       <property name="geometry">
        <rect>
         <x>202</x>
-        <y>172</y>
+        <y>166</y>
         <width>260</width>
         <height>35</height>
        </rect>
@@ -1039,10 +1070,11 @@ background-color: rgb(255, 255, 255);</string>
       <property name="styleSheet">
        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(150, 150, 150); background-color: rgb(220, 220, 220); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
-       <string>Confirm Material edition</string>
+       <string>Confirm material edition</string>
       </property>
       <property name="shortcut">
        <string>Shift+A</string>
@@ -1060,35 +1092,14 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QLabel" name="Add_new_mat_label_2">
-      <property name="geometry">
-       <rect>
-        <x>164</x>
-        <y>6</y>
-        <width>329</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>11</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-style:normal;&quot;&gt;Edit a selected Material from list:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
      <widget class="QPushButton" name="pushButton_pickColor_edit">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>474</x>
-        <y>128</y>
+        <y>120</y>
         <width>90</width>
         <height>26</height>
        </rect>
@@ -1117,7 +1128,8 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="styleSheet">
        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(150, 150, 150); background-color: rgb(220, 220, 220); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
        <string>Pick color</string>
@@ -1127,26 +1139,32 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>24</x>
-        <y>48</y>
+        <y>32</y>
         <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Material name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Material name</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="ID_label_2">
       <property name="geometry">
        <rect>
         <x>24</x>
-        <y>108</y>
+        <y>100</y>
         <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Material ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Material ID</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </widget>
@@ -1154,30 +1172,6 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
      <attribute name="title">
       <string>Delete</string>
      </attribute>
-     <widget class="QLabel" name="Edit_mat_label_2">
-      <property name="geometry">
-       <rect>
-        <x>146</x>
-        <y>8</y>
-        <width>369</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>11</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-style:normal;&quot;&gt;Remove a selected Material from list:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
      <widget class="QPushButton" name="pushButton_confirm_material_removal">
       <property name="enabled">
        <bool>true</bool>
@@ -1185,7 +1179,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>202</x>
-        <y>172</y>
+        <y>166</y>
         <width>260</width>
         <height>35</height>
        </rect>
@@ -1223,10 +1217,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="styleSheet">
        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(150, 150, 150); background-color: rgb(220, 220, 220); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
-       <string>Confirm Material removal</string>
+       <string>Confirm material removal</string>
       </property>
       <property name="shortcut">
        <string>Shift+A</string>
@@ -1248,13 +1243,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>28</y>
+        <y>12</y>
         <width>152</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Thermal expansion&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Thermal expansion</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_color_remove">
@@ -1264,7 +1262,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -1283,11 +1281,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -1301,7 +1299,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -1320,11 +1318,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -1335,13 +1333,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>48</y>
+        <y>32</y>
         <width>152</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;coefficient [m/K]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>coefficient [m/K]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_id_remove">
@@ -1351,7 +1352,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -1370,11 +1371,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -1388,7 +1389,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -1407,11 +1408,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -1422,13 +1423,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>174</x>
-        <y>48</y>
+        <y>32</y>
         <width>149</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Density [kg/m³]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Density [kg/m³]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_density_remove">
@@ -1438,7 +1442,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -1457,11 +1461,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -1475,7 +1479,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>128</y>
+        <y>120</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -1494,11 +1498,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -1512,7 +1516,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>68</y>
+        <y>52</y>
         <width>113</width>
         <height>26</height>
        </rect>
@@ -1531,11 +1535,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
+        <family>MS Shell Dlg 2</family>
         <pointsize>11</pointsize>
-        <weight>75</weight>
+        <weight>50</weight>
         <italic>false</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="alignment">
@@ -1546,7 +1550,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <property name="geometry">
        <rect>
         <x>162</x>
-        <y>108</y>
+        <y>100</y>
         <width>173</width>
         <height>20</height>
        </rect>
@@ -1557,59 +1561,74 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Young Modulus [GPa]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Young Modulus [GPa]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="color_label_4">
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>108</y>
+        <y>100</y>
         <width>113</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Color [r, g, b]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Color</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="poisson_label_5">
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>48</y>
+        <y>32</y>
         <width>69</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Poisson&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Poisson</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="ID_label_3">
       <property name="geometry">
        <rect>
         <x>24</x>
-        <y>108</y>
+        <y>100</y>
         <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Material ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Material ID</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="Name_label_3">
       <property name="geometry">
        <rect>
         <x>24</x>
-        <y>48</y>
+        <y>32</y>
         <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Material name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Material name</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </widget>
@@ -1665,7 +1684,7 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
       </property>
       <property name="text">
-       <string>Reset Material Library</string>
+       <string>Reset material library</string>
       </property>
       <property name="shortcut">
        <string>Shift+A</string>
@@ -1747,28 +1766,28 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
    <widget class="QRadioButton" name="radioButton_selected_lines">
     <property name="geometry">
      <rect>
-      <x>648</x>
+      <x>634</x>
       <y>12</y>
-      <width>135</width>
-      <height>25</height>
+      <width>147</width>
+      <height>26</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>135</width>
-      <height>25</height>
+      <width>140</width>
+      <height>26</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>135</width>
-      <height>25</height>
+      <width>160</width>
+      <height>26</height>
      </size>
     </property>
     <property name="font">
      <font>
       <family>MS Shell Dlg 2</family>
-      <pointsize>12</pointsize>
+      <pointsize>11</pointsize>
       <weight>50</weight>
       <italic>false</italic>
       <bold>false</bold>
@@ -1785,28 +1804,28 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
    <widget class="QRadioButton" name="radioButton_all">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>514</x>
       <y>12</y>
       <width>110</width>
-      <height>25</height>
+      <height>26</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>110</width>
-      <height>25</height>
+      <height>26</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>110</width>
-      <height>25</height>
+      <height>26</height>
      </size>
     </property>
     <property name="font">
      <font>
       <family>MS Shell Dlg 2</family>
-      <pointsize>12</pointsize>
+      <pointsize>11</pointsize>
       <weight>50</weight>
       <italic>false</italic>
       <bold>false</bold>
@@ -1832,7 +1851,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
     <property name="font">
      <font>
       <family>MS Shell Dlg 2</family>
-      <pointsize>12</pointsize>
+      <pointsize>11</pointsize>
       <weight>50</weight>
       <bold>false</bold>
      </font>
@@ -1873,11 +1892,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>11</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
      </font>
     </property>
     <property name="focusPolicy">
@@ -1920,11 +1939,11 @@ color: rgb(0, 0, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
+      <family>MS Shell Dlg 2</family>
       <pointsize>11</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
      </font>
     </property>
     <property name="focusPolicy">
@@ -1953,7 +1972,7 @@ color: rgb(0, 0, 255);</string>
     <property name="font">
      <font>
       <family>MS Shell Dlg 2</family>
-      <pointsize>12</pointsize>
+      <pointsize>11</pointsize>
       <weight>50</weight>
       <bold>false</bold>
      </font>
@@ -2109,7 +2128,7 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
     </property>
     <property name="text">
-     <string>Confirm the Material attribution</string>
+     <string>Confirm the material attribution</string>
     </property>
     <property name="shortcut">
      <string>Shift+C</string>

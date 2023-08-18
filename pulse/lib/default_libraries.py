@@ -69,16 +69,16 @@ def default_material_library(path):
     config['API 5L-A'] = { 
                             'Name': 'API 5L-A',
                             'Identifier': 8,
-                            'Color': '[255,255,255]', #White color
+                            'Color': '[75,255,135]',
                             'Density': 7833.44,
                             'Young Modulus': 202.7,
                             'Poisson': 0.292,
                             'Thermal expansion coefficient': 1.2e-5 }
 
     config['API 5L-A25'] = { 
-                            'Name': 'API 5L-25A',
+                            'Name': 'API 5L-A25',
                             'Identifier': 9,
-                            'Color': '[255,255,255]', #White color
+                            'Color': '[105,105,255]',
                             'Density': 7833.44,
                             'Young Modulus': 203.4,
                             'Poisson': 0.292,
@@ -87,7 +87,7 @@ def default_material_library(path):
     config['API 5L-B'] = { 
                             'Name': 'API 5L-B',
                             'Identifier': 10,
-                            'Color': '[255,255,255]', #White color
+                            'Color': '[220,110,255]',
                             'Density': 7833.44,
                             'Young Modulus': 202.7,
                             'Poisson': 0.292,
@@ -96,7 +96,7 @@ def default_material_library(path):
     config['API 5L-X42/X80'] = { 
                                 'Name': 'API 5L-X42/X80',
                                 'Identifier': 11,
-                                'Color': '[255,255,255]', #White color
+                                'Color': '[255,82,82]',
                                 'Density': 7833.44,
                                 'Young Modulus': 202.7,
                                 'Poisson': 0.292,

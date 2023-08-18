@@ -8,7 +8,7 @@ import numpy as np
 import configparser
 
 from pulse.preprocessing.fluid import Fluid
-from pulse.default_libraries import default_fluid_library
+from pulse.lib.default_libraries import default_fluid_library
 from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
@@ -196,6 +196,7 @@ class FluidInput(QDialog):
         
         self.pushButton_pickColor_edit = self.findChild(QPushButton, 'pushButton_pickColor_edit')
         self.pushButton_pickColor_edit.clicked.connect(self.pick_color_edit)
+        self.pushButton_pickColor_edit.setDisabled(True)
 
         self.pushButton_confirm_add_fluid = self.findChild(QPushButton, 'pushButton_confirm_add_fluid')
         self.pushButton_confirm_add_fluid.clicked.connect(self.check_add_fluid)
@@ -214,9 +215,11 @@ class FluidInput(QDialog):
 
         self.pushButton_confirm_fluid_edition = self.findChild(QPushButton, 'pushButton_confirm_fluid_edition')
         self.pushButton_confirm_fluid_edition.clicked.connect(self.check_edit_fluid)
+        self.pushButton_confirm_fluid_edition.setDisabled(True)
 
         self.pushButton_confirm_fluid_removal = self.findChild(QPushButton, 'pushButton_confirm_fluid_removal')
         self.pushButton_confirm_fluid_removal.clicked.connect(self.confirm_fluid_removal)
+        self.pushButton_confirm_fluid_removal.setDisabled(True)
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.confirm_fluid_attribution)
@@ -302,8 +305,13 @@ class FluidInput(QDialog):
     def pick_color_add_user_defined(self):
         read = PickColorInput()
         if read.complete:
-            str_color = str(read.color).replace(" ", "")#[1:-1]
+            #
+            color = tuple(read.color)
+            str_color = str(read.color).replace(" ", "")
+            #
             self.lineEdit_color.setText(str_color)
+            self.lineEdit_color.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
+            #
             if self.check_add_input_fluid_color():
                 self.lineEdit_color.setText("")
         return read.complete
@@ -311,9 +319,14 @@ class FluidInput(QDialog):
     def pick_color_add_refprop(self):
         read = PickColorInput()
         if read.complete:
-            str_color = str(read.color).replace(" ", "")#[1:-1]
+            #
+            color = tuple(read.color)
+            str_color = str(read.color).replace(" ", "")
+            #
             self.lineEdit_color_rp.setText(str_color)
+            self.lineEdit_color_rp.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
             self.refprop_fluid = True
+            #
             if self.check_add_input_fluid_color():
                 self.lineEdit_color_rp.setText("")
             self.refprop_fluid = False
@@ -322,8 +335,13 @@ class FluidInput(QDialog):
     def pick_color_edit(self):
         read = PickColorInput()
         if read.complete:
-            str_color = str(read.color).replace(" ", "")#[1:-1]
+            #
+            color = tuple(read.color)
+            str_color = str(read.color).replace(" ", "")
+            #
             self.lineEdit_color_edit.setText(str_color)
+            self.lineEdit_color_edit.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
+            #
             if self.check_edit_input_fluid_color():
                 self.lineEdit_color_edit.setText("")
 
@@ -1330,6 +1348,9 @@ class FluidInput(QDialog):
             self.tabWidget_add.setCurrentIndex(0)
 
         self.lineEdit_selected_fluid_name.setText(fluid_name)
+        self.pushButton_pickColor_edit.setDisabled(False)
+        self.pushButton_confirm_fluid_edition.setDisabled(False)
+        self.pushButton_confirm_fluid_removal.setDisabled(False)
 
     def on_doubleclick_item(self, item):
         self.clicked_item = item

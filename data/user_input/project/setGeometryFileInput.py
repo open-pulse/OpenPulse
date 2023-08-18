@@ -11,7 +11,6 @@ import numpy as np
 
 from pulse.utils import get_new_path
 from pulse.project import Project
-from pulse.default_libraries import default_material_library, default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"

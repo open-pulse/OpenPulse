@@ -10,7 +10,7 @@ from shutil import copyfile
 from time import time
 
 from pulse.project import Project
-from pulse.default_libraries import default_material_library, default_fluid_library
+from pulse.lib.default_libraries import default_material_library, default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from pulse.utils import get_new_path

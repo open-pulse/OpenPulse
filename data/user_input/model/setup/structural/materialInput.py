@@ -8,7 +8,7 @@ import configparser
 import numpy as np
 
 from pulse.preprocessing.material import Material
-from pulse.default_libraries import default_material_library
+from pulse.lib.default_libraries import default_material_library
 from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
@@ -143,6 +143,7 @@ class MaterialInput(QDialog):
         
         self.pushButton_pickColor_edit = self.findChild(QPushButton, 'pushButton_pickColor_edit')
         self.pushButton_pickColor_edit.clicked.connect(self.pick_color_edit)
+        self.pushButton_pickColor_edit.setDisabled(True)
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.confirm_material_attribution)
@@ -155,9 +156,11 @@ class MaterialInput(QDialog):
         
         self.pushButton_confirm_material_edition = self.findChild(QPushButton, 'pushButton_confirm_material_edition')
         self.pushButton_confirm_material_edition.clicked.connect(self.check_edit_material)
+        self.pushButton_confirm_material_edition.setDisabled(True)
 
         self.pushButton_confirm_material_removal = self.findChild(QPushButton, 'pushButton_confirm_material_removal')
         self.pushButton_confirm_material_removal.clicked.connect(self.confirm_material_removal)
+        self.pushButton_confirm_material_removal.setDisabled(True)
 
         self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
@@ -234,23 +237,35 @@ class MaterialInput(QDialog):
                                         self.lineEdit_thermal_expansion_coefficient_remove   ]  
 
     def pick_color_add(self):
+
         read = PickColorInput()
         self.adding = True
         self.editing = False
         if read.complete:
-            str_color = str(read.color).replace(" ", "")#[1:-1]
+            #
+            color = tuple(read.color)
+            str_color = str(read.color).replace(" ", "")
+            #
             self.lineEdit_color.setText(str_color)
+            self.lineEdit_color.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
+            #
             if self.check_color_input(self.lineEdit_color):
                 self.lineEdit_color.setText("")
                 PrintMessageInput([self.title, self.message, window_title])
 
     def pick_color_edit(self):
+        
         read = PickColorInput()
         self.adding = False
         self.editing = True
         if read.complete:
-            str_color = str(read.color).replace(" ", "")#[1:-1]
+            #
+            color = tuple(read.color)
+            str_color = str(read.color).replace(" ", "")
+            #
             self.lineEdit_color_edit.setText(str_color)
+            self.lineEdit_color_edit.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
+            #
             if self.check_color_input(self.lineEdit_color_edit):
                 self.lineEdit_color_edit.setText("")
                 PrintMessageInput([self.title, self.message, window_title])
@@ -273,12 +288,13 @@ class MaterialInput(QDialog):
             thermal_expansion_coefficient = float(self.clicked_item.text(5))
             color = self.clicked_item.text(6)
             
-            new_material = Material(name, density,
-                                            poisson_ratio=poisson, 
-                                            young_modulus=young, 
-                                            identifier=identifier, 
-                                            thermal_expansion_coefficient=thermal_expansion_coefficient, 
-                                            color=color)
+            new_material = Material(name, 
+                                    density,
+                                    poisson_ratio = poisson, 
+                                    young_modulus = young, 
+                                    identifier = identifier, 
+                                    thermal_expansion_coefficient = thermal_expansion_coefficient, 
+                                    color = color)
             self.material = new_material
             
             if self.flagSelectedLines:
@@ -419,6 +435,7 @@ class MaterialInput(QDialog):
         message_empty = "An empty entry was detected at the 'Color [r,g,b]' input field. \nYou should to select a color to proceed."
         message_invalid = "Insert a valid material Color in 'r, g, b' format. \nThe r, g and b values must be inside [0, 255] interval."
         color_string = lineEdit_color.text()
+
         if color_string == "":
             self.message = message_empty
             return True
@@ -429,7 +446,7 @@ class MaterialInput(QDialog):
 
                 colorRGB = getColorRGB(color)
                 message_color = " The RGB color {} was already used.\n Please, input a different color.".format(colorRGB)
-                if len(colorRGB)!=3:
+                if len(colorRGB) != 3:
                     self.message = message_invalid
                     return True
 
@@ -614,6 +631,11 @@ class MaterialInput(QDialog):
         
         try:
 
+            self.editing = True
+            self.temp_material_name = self.clicked_item.text(0)
+            self.temp_material_id = self.clicked_item.text(1)
+            self.temp_material_color = self.clicked_item.text(6)
+
             self.lineEdit_name_edit.setText(self.clicked_item.text(0))
             self.lineEdit_id_edit.setText(self.clicked_item.text(1))
             self.lineEdit_density_edit.setText(self.clicked_item.text(2))
@@ -621,12 +643,9 @@ class MaterialInput(QDialog):
             self.lineEdit_poisson_edit.setText(self.clicked_item.text(4))
             self.lineEdit_thermal_expansion_coefficient_edit.setText(self.clicked_item.text(5))
             self.lineEdit_color_edit.setText(self.clicked_item.text(6))
-            
-            self.temp_material_name = self.clicked_item.text(0)
-            self.temp_material_id = self.clicked_item.text(1)
-            self.temp_material_color = self.clicked_item.text(6)
-            
-            self.editing = True
+
+            color = tuple(getColorRGB(self.temp_material_color))
+            self.lineEdit_color_edit.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
 
         except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE MATERIAL LIST DATA"
@@ -637,13 +656,15 @@ class MaterialInput(QDialog):
         return False
 
     def on_click_item(self, item):
-
         self.clicked_item = item
         if self.currentTab_ == 0:       
             self.tabWidget_material.setCurrentIndex(1)
         self.selected_material_to_edit()
         self.selected_material_to_remove()
 
+        self.pushButton_pickColor_edit.setDisabled(False)
+        self.pushButton_confirm_material_edition.setDisabled(False)
+        self.pushButton_confirm_material_removal.setDisabled(False)
         self.lineEdit_selected_material_name.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
@@ -682,6 +703,9 @@ class MaterialInput(QDialog):
                 self.lineEdit_thermal_expansion_coefficient_remove.setText(self.clicked_item.text(5))
                 self.lineEdit_color_remove.setText(self.clicked_item.text(6))
 
+                color = tuple(getColorRGB(self.clicked_item.text(6)))
+                self.lineEdit_color_remove.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
+
         except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE MATERIAL LIST DATA"
             self.message = str(error_log)
@@ -711,7 +735,6 @@ class MaterialInput(QDialog):
                 for line_id, entity in self.dict_tag_to_entity.items():
                     if entity.material is not None:
                         if entity.material.name == self.lineEdit_name_remove.text():
-                            print(entity.material.identifier, entity.tag)
                             self.project.set_material_by_lines(line_id, None)
 
                 self.treeWidget.clear()
