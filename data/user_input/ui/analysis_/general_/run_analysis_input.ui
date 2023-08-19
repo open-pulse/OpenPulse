@@ -108,9 +108,9 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>12</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="text">
@@ -175,7 +175,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600; color:#0000ff;&quot;&gt;Solution in progress…&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Solution in progress…</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

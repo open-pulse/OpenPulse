@@ -42,15 +42,15 @@ from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
 from data.user_input.analysis.runAnalysisInput import RunAnalysisInput
 #
-from data.user_input.plots.structural.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
-from data.user_input.plots.structural.plotDisplacementFieldInput import PlotDisplacementFieldInput
-from data.user_input.plots.structural.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
+from data.user_input.plots.structural.plot_structural_mode_shape_input import PlotStructuralModeShapeInput
+from data.user_input.plots.structural.plot_displacement_field_input import PlotDisplacementFieldInput
+from data.user_input.plots.structural.plot_structural_frequency_response_input import PlotStructuralFrequencyResponseInput
 from data.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
 from data.user_input.plots.structural.plot_reactions import PlotReactions
 from data.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
 from data.user_input.plots.structural.plot_stress_field import PlotStressField
 from data.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressFieldForStaticAnalysis
-from data.user_input.plots.structural.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
+from data.user_input.plots.structural.plot_stress_frequency_response_input import PlotStressFrequencyResponseInput
 from data.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
 from data.user_input.plots.acoustic.plot_acoustic_mode_shape_input import PlotAcousticModeShapeInput
@@ -61,7 +61,7 @@ from data.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import Pl
 from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
-from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
+from data.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
 from data.user_input.plots.render.rendererUserPreferencesInput import RendererUserPreferencesInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput

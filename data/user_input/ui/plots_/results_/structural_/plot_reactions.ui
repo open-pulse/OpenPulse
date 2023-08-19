@@ -41,6 +41,21 @@
    <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout_13">
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="topMargin">
+    <number>4</number>
+   </property>
+   <property name="rightMargin">
+    <number>4</number>
+   </property>
+   <property name="bottomMargin">
+    <number>4</number>
+   </property>
+   <property name="spacing">
+    <number>4</number>
+   </property>
    <item row="0" column="0">
     <widget class="QFrame" name="frame">
      <property name="minimumSize">
@@ -85,10 +100,10 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>13</pointsize>
-          <weight>75</weight>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="frameShape">
@@ -208,9 +223,9 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>11</pointsize>
-             <weight>75</weight>
+             <weight>50</weight>
              <italic>false</italic>
-             <bold>true</bold>
+             <bold>false</bold>
             </font>
            </property>
            <property name="text">
@@ -507,7 +522,7 @@
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255); color: rgb(0, 0, 255);</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>
@@ -551,9 +566,9 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="currentIndex">
@@ -582,7 +597,7 @@
              <font>
               <family>Arial</family>
               <pointsize>10</pointsize>
-              <italic>true</italic>
+              <italic>false</italic>
              </font>
             </property>
             <property name="indentation">
@@ -596,9 +611,10 @@
               <font>
                <family>MS Shell Dlg 2</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>false</italic>
-               <bold>true</bold>
+               <bold>false</bold>
+               <kerning>false</kerning>
               </font>
              </property>
              <property name="textAlignment">
@@ -613,9 +629,10 @@
               <font>
                <family>MS Shell Dlg 2</family>
                <pointsize>10</pointsize>
-               <weight>75</weight>
+               <weight>50</weight>
                <italic>false</italic>
-               <bold>true</bold>
+               <bold>false</bold>
+               <kerning>false</kerning>
               </font>
              </property>
              <property name="textAlignment">
@@ -637,9 +654,9 @@
              <font>
               <family>MS Shell Dlg 2</family>
               <pointsize>11</pointsize>
-              <weight>75</weight>
+              <weight>50</weight>
               <italic>false</italic>
-              <bold>true</bold>
+              <bold>false</bold>
              </font>
             </property>
             <property name="currentIndex">
@@ -669,7 +686,7 @@
                   <family>Arial</family>
                   <pointsize>9</pointsize>
                   <weight>50</weight>
-                  <italic>true</italic>
+                  <italic>false</italic>
                   <bold>false</bold>
                  </font>
                 </property>
@@ -684,9 +701,10 @@
                   <font>
                    <family>MS Shell Dlg 2</family>
                    <pointsize>10</pointsize>
-                   <weight>75</weight>
+                   <weight>50</weight>
                    <italic>false</italic>
-                   <bold>true</bold>
+                   <bold>false</bold>
+                   <kerning>false</kerning>
                   </font>
                  </property>
                  <property name="textAlignment">
@@ -701,9 +719,10 @@
                   <font>
                    <family>MS Shell Dlg 2</family>
                    <pointsize>10</pointsize>
-                   <weight>75</weight>
+                   <weight>50</weight>
                    <italic>false</italic>
-                   <bold>true</bold>
+                   <bold>false</bold>
+                   <kerning>false</kerning>
                   </font>
                  </property>
                  <property name="textAlignment">
@@ -753,9 +772,10 @@
                   <font>
                    <family>MS Shell Dlg 2</family>
                    <pointsize>10</pointsize>
-                   <weight>75</weight>
+                   <weight>50</weight>
                    <italic>false</italic>
-                   <bold>true</bold>
+                   <bold>false</bold>
+                   <kerning>false</kerning>
                   </font>
                  </property>
                  <property name="textAlignment">
@@ -770,9 +790,10 @@
                   <font>
                    <family>MS Shell Dlg 2</family>
                    <pointsize>10</pointsize>
-                   <weight>75</weight>
+                   <weight>50</weight>
                    <italic>false</italic>
-                   <bold>true</bold>
+                   <bold>false</bold>
+                   <kerning>false</kerning>
                   </font>
                  </property>
                  <property name="textAlignment">
@@ -849,9 +870,9 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>12</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="frameShape">
@@ -922,115 +943,6 @@
          <property name="verticalSpacing">
           <number>2</number>
          </property>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="pushButton_ResetPlot">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <italic>false</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
-           </property>
-           <property name="text">
-            <string>Reset plot</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QFrame" name="frame_6">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="sizeIncrement">
-            <size>
-             <width>0</width>
-             <height>110</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::Box</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="QCheckBox" name="checkBox_cursor">
-              <property name="minimumSize">
-               <size>
-                <width>72</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>72</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>10</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Cursor</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QFrame" name="frame_20">
            <property name="frameShape">
@@ -1062,13 +974,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tab_plot">
          <attribute name="title">
@@ -1200,8 +1112,8 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                      <property name="font">
                       <font>
                        <pointsize>11</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
+                       <weight>50</weight>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="frameShape">
@@ -1281,9 +1193,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1306,9 +1218,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1331,9 +1243,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1359,9 +1271,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1384,9 +1296,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1409,9 +1321,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1518,9 +1430,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>11</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="frameShape">
@@ -1612,9 +1524,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1649,9 +1561,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1677,9 +1589,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <font>
                        <family>MS Shell Dlg 2</family>
                        <pointsize>10</pointsize>
-                       <weight>75</weight>
+                       <weight>50</weight>
                        <italic>false</italic>
-                       <bold>true</bold>
+                       <bold>false</bold>
                       </font>
                      </property>
                      <property name="text">
@@ -1698,6 +1610,12 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </item>
           <item row="1" column="0">
            <widget class="QFrame" name="frame_12">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>48</height>
+             </size>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -1781,11 +1699,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            <widget class="QTabWidget" name="tabWidget_2">
             <property name="font">
              <font>
-              <family>Arial</family>
+              <family>MS Shell Dlg 2</family>
               <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
              </font>
             </property>
             <property name="currentIndex">
@@ -1845,11 +1763,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    </property>
                    <property name="font">
                     <font>
-                     <family>Arial</family>
+                     <family>MS Shell Dlg 2</family>
                      <pointsize>11</pointsize>
-                     <weight>75</weight>
+                     <weight>50</weight>
                      <italic>false</italic>
-                     <bold>true</bold>
+                     <bold>false</bold>
                     </font>
                    </property>
                    <property name="text">
@@ -1879,11 +1797,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    </property>
                    <property name="font">
                     <font>
-                     <family>Arial</family>
+                     <family>MS Shell Dlg 2</family>
                      <pointsize>11</pointsize>
-                     <weight>75</weight>
+                     <weight>50</weight>
                      <italic>false</italic>
-                     <bold>true</bold>
+                     <bold>false</bold>
                     </font>
                    </property>
                    <property name="text">
@@ -1910,10 +1828,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    </property>
                    <property name="font">
                     <font>
-                     <pointsize>11</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
+                     <pointsize>10</pointsize>
+                     <weight>50</weight>
+                     <italic>false</italic>
+                     <bold>false</bold>
                     </font>
                    </property>
                    <property name="layoutDirection">
@@ -1945,7 +1863,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                     <font>
                      <pointsize>8</pointsize>
                      <weight>50</weight>
-                     <italic>true</italic>
+                     <italic>false</italic>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2204,9 +2122,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                     <font>
                      <family>MS Shell Dlg 2</family>
                      <pointsize>11</pointsize>
-                     <weight>75</weight>
+                     <weight>50</weight>
                      <italic>false</italic>
-                     <bold>true</bold>
+                     <bold>false</bold>
                     </font>
                    </property>
                    <property name="text">
@@ -2235,7 +2153,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                     <font>
                      <pointsize>8</pointsize>
                      <weight>50</weight>
-                     <italic>true</italic>
+                     <italic>false</italic>
                      <bold>false</bold>
                     </font>
                    </property>
@@ -2359,10 +2277,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>10</pointsize>
-                     <weight>75</weight>
+                     <pointsize>11</pointsize>
+                     <weight>50</weight>
                      <italic>false</italic>
-                     <bold>true</bold>
+                     <bold>false</bold>
                     </font>
                    </property>
                    <property name="text">
@@ -2473,6 +2391,356 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                </widget>
               </item>
              </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Advanced controls</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QFrame" name="frame_32">
+            <property name="minimumSize">
+             <size>
+              <width>85</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>240</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="sizeIncrement">
+             <size>
+              <width>0</width>
+              <height>110</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_32">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_12">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Cursor setup</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QFrame" name="frame_33">
+            <property name="minimumSize">
+             <size>
+              <width>85</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>240</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="sizeIncrement">
+             <size>
+              <width>0</width>
+              <height>110</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_33">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_13">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Other controls</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QFrame" name="frame_30">
+            <property name="minimumSize">
+             <size>
+              <width>85</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>240</width>
+              <height>240</height>
+             </size>
+            </property>
+            <property name="sizeIncrement">
+             <size>
+              <width>0</width>
+              <height>110</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_31">
+             <property name="leftMargin">
+              <number>8</number>
+             </property>
+             <property name="topMargin">
+              <number>4</number>
+             </property>
+             <property name="rightMargin">
+              <number>4</number>
+             </property>
+             <property name="bottomMargin">
+              <number>4</number>
+             </property>
+             <property name="horizontalSpacing">
+              <number>4</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>8</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="radioButton_disable_cursors">
+               <property name="minimumSize">
+                <size>
+                 <width>75</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>200</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>11</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Disable cursors</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QCheckBox" name="checkBox_legends">
+               <property name="minimumSize">
+                <size>
+                 <width>75</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>200</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>11</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Enable legends</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QRadioButton" name="radioButton_cross_cursor">
+               <property name="minimumSize">
+                <size>
+                 <width>75</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>200</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>11</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Enable cross cursor</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QRadioButton" name="radioButton_harmonic_cursor">
+               <property name="minimumSize">
+                <size>
+                 <width>75</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>200</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>11</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Enable harmonic cursor</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QFrame" name="frame_6">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QPushButton" name="pushButton_ResetPlot">
+             <property name="geometry">
+              <rect>
+               <x>64</x>
+               <y>70</y>
+               <width>85</width>
+               <height>30</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>85</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>85</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>MS Shell Dlg 2</family>
+               <pointsize>11</pointsize>
+               <weight>75</weight>
+               <italic>false</italic>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+             </property>
+             <property name="text">
+              <string>Reset plot</string>
+             </property>
             </widget>
            </widget>
           </item>
