@@ -1033,11 +1033,11 @@ class FluidInput(QDialog):
             dynamic_viscosity = None
             list_empty_inputs = []
 
-            name = self.clicked_item.text(0)
-            identifier = int(self.clicked_item.text(1))
-            color = self.clicked_item.text(2)
-            fluid_density = float(self.clicked_item.text(3))
-            speed_of_sound = float(self.clicked_item.text(4))
+            identifier = int(self.clicked_item.text(0))
+            name = self.clicked_item.text(1)
+            fluid_density = float(self.clicked_item.text(2))
+            speed_of_sound = float(self.clicked_item.text(3))
+            color = self.clicked_item.text(5)
             
             title = "Empty entries in fluid properties"
             message = "Please, it is necessary update the fluid properties or select another fluid in the list " 

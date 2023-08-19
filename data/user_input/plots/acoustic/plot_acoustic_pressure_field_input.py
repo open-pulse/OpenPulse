@@ -12,7 +12,7 @@ class PlotAcousticPressureFieldInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plotAcousticPressureFieldInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plot_acoustic_pressure_field_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

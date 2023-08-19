@@ -6,12 +6,11 @@ from pathlib import Path
 
 import os
 import numpy as np
-from os.path import basename
 import pandas as pd
 import openpyxl
-import matplotlib
 import matplotlib.pyplot as plt
 
+from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
 
@@ -22,46 +21,6 @@ def get_icons_path(filename):
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
-
-class SnaptoCursor(object):
-    def __init__(self, ax, x, y, show_cursor):
-
-        self.ax = ax
-        self.x = x
-        self.y = y
-        self.show_cursor = show_cursor
-
-        if show_cursor:
-                
-            self.vl = self.ax.axvline(x=np.min(x), ymin=np.min(y), color='k', alpha=0.3, label='_nolegend_')  # the vertical line
-            self.hl = self.ax.axhline(color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
-            self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
-            # self.marker.set_label("x: %1.2f // y: %4.2e" % (self.x[0], self.y[0]))
-            # plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-
-    def mouse_move(self, event):
-        if self.show_cursor:   
-
-            if not event.inaxes: return
-            x, y = event.xdata, event.ydata
-            if x>=np.max(self.x): return
-
-            indx = np.searchsorted(self.x, [x])[0]
-            
-            x = self.x[indx]
-            y = self.y[indx]
-            self.vl.set_xdata(x)
-            self.hl.set_ydata(y)
-            self.marker.set_data([x],[y])
-            self.marker.set_label("x: %1.2f // y: %4.2e" % (x, y))
-            plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-    
-            self.ax.figure.canvas.draw_idle()
 
 
 class PlotStructuralFrequencyResponseInput(QDialog):
@@ -241,7 +200,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             _path = os.path.dirname(self.imported_path)
 
         self.imported_path, _ = QFileDialog.getOpenFileName(None, 'Open file', _path, 'Files (*.csv; *.dat; *.txt; *.xlsx; *.xls)')
-        self.import_name = basename(self.imported_path)
+        self.import_name = os.path.basename(self.imported_path)
         self.lineEdit_ImportResultsPath.setText(self.imported_path)
         
         if self.imported_path != "":
@@ -309,7 +268,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                         message += "Maximum number of header rows: 100"
 
             # if skiprows<maximum_lines_to_skip:
-            #     self.legend_imported = "imported data: "+ basename(self.imported_path).split(".")[0]
+            #     self.legend_imported = "imported data: "+ os.path.basename(self.imported_path).split(".")[0]
             #     self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
             #     title = "Information"
             #     message = "The results have been imported."
@@ -366,7 +325,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         """
         """
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
-        self.save_name = basename(self.save_path)
+        self.save_name = os.path.basename(self.save_path)
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
 
 
@@ -479,6 +438,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     def plot(self):
         """
         """
+        plt.ion()
         self.fig = plt.figure(figsize=[10,8])
         self.ax = self.fig.add_subplot(1,1,1)
 
@@ -529,9 +489,8 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         self.ax.set_title(title, fontsize = 12, fontweight = 'bold')
         self.ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
-   
-        #self.use_cursor = Cursor(self.ax)
-        self.cursor = SnaptoCursor(self.ax, frequencies, response, self.use_cursor)
+
+        self.cursor = AdvancedCursor(self.ax, frequencies, response, self.use_cursor)
         self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
         self.fig.show()

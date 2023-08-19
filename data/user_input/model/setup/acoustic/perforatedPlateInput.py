@@ -11,6 +11,7 @@ import configparser
 import numpy as np
 import matplotlib.pyplot as plt
 
+from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -20,38 +21,6 @@ from pulse.utils import get_new_path, remove_bc_from_file
 window_title_1 = "ERROR"
 window_title_2 = "WARNING"
 
-class SnaptoCursor(object):
-    def __init__(self, ax, x, y, show_cursor):
-
-        self.ax = ax
-        self.x = x
-        self.y = y
-        self.show_cursor = show_cursor
-
-        if show_cursor:
-                
-            self.vl = self.ax.axvline(x=x[0], color='k', alpha=0.3, label='_nolegend_')  # the vertical line
-            self.hl = self.ax.axhline(y=y[0], color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
-            self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
-
-    def mouse_move(self, event):
-        if self.show_cursor:   
-
-            if not event.inaxes: return
-            x, y = event.xdata, event.ydata
-            if x>=np.max(self.x): return
-
-            indx = np.searchsorted(self.x, [x])[0]
-            
-            x = self.x[indx]
-            y = self.y[indx]
-            self.vl.set_xdata(x)
-            self.hl.set_ydata(y)
-            self.marker.set_data([x],[y])
-            self.marker.set_label("x: %1.2f // y: %4.2e" % (x, y))
-            plt.legend(handles=[self.marker], loc='lower right', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-    
-            self.ax.figure.canvas.draw_idle()
 
 class PerforatedPlateInput(QDialog):
     def __init__(self, project, opv, valve_ids=[], *args, **kwargs):
@@ -62,7 +31,6 @@ class PerforatedPlateInput(QDialog):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
-
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
@@ -898,7 +866,9 @@ class PerforatedPlateInput(QDialog):
         self.plot()
 
     def plot(self):
-        
+        """
+        """
+        plt.ion()
         fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
 
@@ -914,9 +884,6 @@ class PerforatedPlateInput(QDialog):
             ax.set_ylabel(("Absortion coefficient [-]"), fontsize = 14, fontweight = 'bold')
             ax.set_ylim(0,1)
 
-        cursor = SnaptoCursor(ax, frequencies, response, True)
-        plt.connect('motion_notify_event', cursor.mouse_move)
-
         legend_label = "Response at element {}".format(self.plot_select_element)
         first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
         _legends = plt.legend(handles=[first_plot], labels=[legend_label])#, loc='upper right')
@@ -925,6 +892,9 @@ class PerforatedPlateInput(QDialog):
 
         ax.set_title(('PERFORATED PLATE'), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
+
+        cursor = AdvancedCursor(ax, frequencies, response, True)
+        plt.connect('motion_notify_event', cursor.mouse_move)
 
         plt.show()
 

@@ -53,11 +53,11 @@ from data.user_input.plots.structural.plot_stress_field_for_static_analysis impo
 from data.user_input.plots.structural.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
 from data.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
-from data.user_input.plots.acoustic.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
-from data.user_input.plots.acoustic.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
-from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from data.user_input.plots.acoustic.plot_acoustic_mode_shape_input import PlotAcousticModeShapeInput
+from data.user_input.plots.acoustic.plot_acoustic_pressure_field_input import PlotAcousticPressureFieldInput
+from data.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponseInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
-from data.user_input.plots.acoustic.plotAcousticDeltaPressureInput import Plot_Acoustic_Delta_Pressures_Input
+from data.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
 from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
@@ -402,7 +402,7 @@ class InputUi:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  Plot_Acoustic_Delta_Pressures_Input, self.project, self.opv, 
+            self.processInput(  PlotAcousticDeltaPressuresInput, self.project, self.opv, 
                                 self.analysis_method_label, solution  )
 
     def plot_TL_NR(self):

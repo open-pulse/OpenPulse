@@ -9,50 +9,13 @@ import numpy as np
 from os.path import basename
 import matplotlib.pyplot as plt
 
+from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_structural_data import get_reactions
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title_1 = "ERROR"
 window_title_2 = "WARNING"
 window_title_3 = "INFORMATION"
-
-class SnaptoCursor(object):
-    def __init__(self, ax, x, y, show_cursor):
-
-        self.ax = ax
-        self.x = x
-        self.y = y
-        self.show_cursor = show_cursor
-
-        if show_cursor:  
-            self.vl = self.ax.axvline(x=x[0], color='k', alpha=0.3, label='_nolegend_')  # the vertical line
-            self.hl = self.ax.axhline(y=y[0], color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
-            self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
-            # self.marker.set_label("x: %1.2f // y: %4.2e" % (self.x[0], self.y[0]))
-            # plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-
-    def mouse_move(self, event):
-        if self.show_cursor:   
-
-            if not event.inaxes: 
-                return
-
-            x, y = event.xdata, event.ydata
- 
-            if x>=np.max(self.x): 
-                return
-
-            indx = np.searchsorted(self.x, [x])[0]
-            
-            x = self.x[indx]
-            y = self.y[indx]
-            self.vl.set_xdata(x)
-            self.hl.set_ydata(y)
-            self.marker.set_data([x],[y])
-            self.marker.set_label("x: %1.2f // y: %4.2e" % (x, y))
-            plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-    
-            self.ax.figure.canvas.draw_idle()
 
 
 class PlotReactions(QDialog):
@@ -444,7 +407,9 @@ class PlotReactions(QDialog):
         PrintMessageInput([title, message, window_title_2])
  
     def plot(self):
-
+        """
+        """
+        plt.ion()
         self.fig = plt.figure(figsize=[12,7])
         ax = self.fig.add_subplot(1,1,1)
 
@@ -508,8 +473,7 @@ class PlotReactions(QDialog):
         ax.set_title(title, fontsize = 12, fontweight = 'bold')
         ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
 
-        #self.cursor = Cursor(ax)
-        self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)
+        self.cursor = AdvancedCursor(ax, frequencies, response, self.use_cursor)
         self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
         plt.show()

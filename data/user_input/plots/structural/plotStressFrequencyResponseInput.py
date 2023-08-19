@@ -9,46 +9,13 @@ from os.path import basename
 import matplotlib.pyplot as plt
 import numpy as np
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
+from data.user_input.project.printMessageInput import PrintMessageInput
 
-class SnaptoCursor(object):
-    def __init__(self, ax, x, y, show_cursor):
 
-        self.ax = ax
-        self.x = x
-        self.y = y
-        self.show_cursor = show_cursor
-
-        if show_cursor:
-                
-            self.vl = self.ax.axvline(x=x[0], color='k', alpha=0.3, label='_nolegend_')  # the vertical line
-            self.hl = self.ax.axhline(color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
-            self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
-            # self.marker.set_label("x: %1.2f // y: %4.2e" % (self.x[0], self.y[0]))
-            # plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-
-    def mouse_move(self, event):
-        if self.show_cursor:   
-
-            if not event.inaxes: return
-            x, y = event.xdata, event.ydata
-            if x>=np.max(self.x): return
-
-            indx = np.searchsorted(self.x, [x])[0]
-            
-            x = self.x[indx]
-            y = self.y[indx]
-            self.vl.set_xdata(x)
-            self.hl.set_ydata(y)
-            self.marker.set_data([x],[y])
-            self.marker.set_label("x: %1.2f // y: %4.2e" % (x, y))
-            plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-    
-            self.ax.figure.canvas.draw_idle()
-
-window_title_1 = "ERROR"
-window_title_2 = "WARNING"
+error_title = "ERROR"
+warning_title = "WARNING"
 
 class PlotStressFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, *args, **kwargs):
@@ -180,7 +147,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.imported_data = None
         title = "Information"
         message = "The plot data has been reseted."
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([title, message, warning_title])
     
     def writeElements(self, list_elements_ids):
         text = ""
@@ -235,11 +202,11 @@ class PlotStressFrequencyResponseInput(QDialog):
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
             title = "Information"
             message = "The results has been imported."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([title, message, warning_title])
         except Exception as log_error:
             title = "Error while loading table"
             message = str(log_error) + " It is recommended to skip the header rows."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([title, message, error_title])
             return
 
     def choose_path_export_results(self):
@@ -268,12 +235,12 @@ class PlotStressFrequencyResponseInput(QDialog):
             else:
                 title = "Empty folder input field detected"
                 message = "Plese, choose a folder before trying export the results!"
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([title, message, warning_title])
                 return
         else:
             title = "Empty file name input field"
             message = "Inform a file name before trying export the results!"  
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([title, message, warning_title])
             return
         
         if self.check(export=True):
@@ -293,7 +260,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
         title = "Information"
         message = "The results have been exported."
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([title, message, warning_title])
 
     def get_stress_data(self):
         
@@ -305,7 +272,9 @@ class PlotStressFrequencyResponseInput(QDialog):
             self.update_damping = False
 
     def plot(self):
-
+        """
+        """
+        plt.ion()
         self.fig = plt.figure(figsize=[12,7])
         ax = self.fig.add_subplot(1,1,1)
 
@@ -318,10 +287,6 @@ class PlotStressFrequencyResponseInput(QDialog):
             ax.set_ylabel(("Stress - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
         elif self.plotImag:
             ax.set_ylabel(("Stress - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-
-        #cursor = Cursor(ax)
-        self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)
-        self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
         legend_label = "{} stress at element {}".format(self.stress_label, self.elementID)
         if self.imported_data is None:
@@ -362,4 +327,8 @@ class PlotStressFrequencyResponseInput(QDialog):
 
         ax.set_title(title, fontsize = 12, fontweight = 'bold')
         ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
+
+        self.cursor = AdvancedCursor(ax, frequencies, response, self.use_cursor)
+        self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
+
         self.fig.show()
