@@ -122,9 +122,10 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>12</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
+          <kerning>false</kerning>
          </font>
         </property>
         <property name="text">
@@ -291,21 +292,22 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <widget class="QCheckBox" name="checkBox_self_weight_load">
            <property name="minimumSize">
             <size>
-             <width>212</width>
+             <width>200</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>212</width>
+             <width>240</width>
              <height>26</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+             <kerning>false</kerning>
             </font>
            </property>
            <property name="text">
@@ -359,21 +361,22 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <widget class="QCheckBox" name="checkBox_external_nodal_loads">
            <property name="minimumSize">
             <size>
-             <width>212</width>
+             <width>200</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>212</width>
+             <width>240</width>
              <height>26</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+             <kerning>false</kerning>
             </font>
            </property>
            <property name="text">
@@ -427,21 +430,22 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <widget class="QCheckBox" name="checkBox_internal_pressure_load">
            <property name="minimumSize">
             <size>
-             <width>212</width>
+             <width>200</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>212</width>
+             <width>240</width>
              <height>26</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+             <kerning>false</kerning>
             </font>
            </property>
            <property name="text">
@@ -495,21 +499,22 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <widget class="QCheckBox" name="checkBox_distributed_element">
            <property name="minimumSize">
             <size>
-             <width>212</width>
+             <width>200</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>212</width>
+             <width>240</width>
              <height>26</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+             <kerning>false</kerning>
             </font>
            </property>
            <property name="text">

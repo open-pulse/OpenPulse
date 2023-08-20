@@ -40,7 +40,6 @@ class PlotReactions(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
-
         self.analysisMethod = analysisMethod
         self.frequencies = project.frequencies
         
@@ -49,6 +48,7 @@ class PlotReactions(QDialog):
         self._create_connections()
         self.load_nodes_info()
         self.exec()
+
 
     def _reset_variables(self):
         #
@@ -62,96 +62,89 @@ class PlotReactions(QDialog):
             self.dict_reactions_at_springs, 
             self.dict_reactions_at_dampers   ] = reactions
 
+
     def _define_qt_variables(self):
         
-        #QCheckBox objects
-        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.use_cursor = self.checkBox_cursor.isChecked()
-        
-        #QLineEdit objects
+        # QCheckBox
+        self.checkBox_legends = self.findChild(QCheckBox, 'checkBox_legends')
+        self.checkBox_skiprows = self.findChild(QCheckBox, "checkBox_skiprows")
+        # QFrame
+        self.frame_vertical_lines = self.findChild(QFrame, 'frame_vertical_lines')
+        # QLineEdit
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
         self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')  
-        
-        #QPushButton objects
+        # QPushButton
+        self.pushButton_ChooseFolderImport = self.findChild(QPushButton, 'pushButton_ChooseFolderImport')
+        self.pushButton_ChooseFolderExport = self.findChild(QPushButton, 'pushButton_ChooseFolderExport')
+        self.pushButton_ExportResults = self.findChild(QPushButton, 'pushButton_ExportResults')
         self.pushButton_ResetPlot = self.findChild(QPushButton, 'pushButton_ResetPlot')
         self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
         self.pushButton_plot_reactions_frequency_response = self.findChild(QPushButton, 'pushButton_plot_reactions_frequency_response')
-
-        #QRadioButton objects
+        # QRadioButton
         self.radioButton_Fx = self.findChild(QRadioButton, 'radioButton_Fx')
         self.radioButton_Fy = self.findChild(QRadioButton, 'radioButton_Fy')
         self.radioButton_Fz = self.findChild(QRadioButton, 'radioButton_Fz')
         self.radioButton_Mx = self.findChild(QRadioButton, 'radioButton_Mx')
         self.radioButton_My = self.findChild(QRadioButton, 'radioButton_My')
         self.radioButton_Mz = self.findChild(QRadioButton, 'radioButton_Mz')
-        self.Fx = self.radioButton_Fx.isChecked()
-        self.Fy = self.radioButton_Fy.isChecked()
-        self.Fz = self.radioButton_Fz.isChecked()
-        self.Mx = self.radioButton_Mx.isChecked()
-        self.My = self.radioButton_My.isChecked()
-        self.Mz = self.radioButton_Mz.isChecked()
-
-        self.list_radioButtons = [  self.radioButton_Fx, self.radioButton_Fy, self.radioButton_Fz,
-                                    self.radioButton_Mx, self.radioButton_My, self.radioButton_Mz   ]
-
         self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
         self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
         self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
-        self.plotAbs = self.radioButton_plotAbs.isChecked()
-        self.plotReal = self.radioButton_plotReal.isChecked()
-        self.plotImag = self.radioButton_plotImag.isChecked()
-
         self.radioButton_Absolute = self.findChild(QRadioButton, 'radioButton_Absolute')
         self.radioButton_Real_Imaginary = self.findChild(QRadioButton, 'radioButton_Real_Imaginary')
-        self.radioButton_Absolute.clicked.connect(self.radioButtonEvent_save_data)
-        self.radioButton_Real_Imaginary.clicked.connect(self.radioButtonEvent_save_data)
-        self.save_Absolute = self.radioButton_Absolute.isChecked()
-        self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
-        
-        #QTabWidget objects
+        self.radioButton_disable_cursors = self.findChild(QRadioButton, 'radioButton_disable_cursors')
+        self.radioButton_cross_cursor = self.findChild(QRadioButton, 'radioButton_cross_cursor')
+        self.radioButton_harmonic_cursor = self.findChild(QRadioButton, 'radioButton_harmonic_cursor')
+        self.list_radioButtons = [  self.radioButton_Fx, self.radioButton_Fy, self.radioButton_Fz,
+                                    self.radioButton_Mx, self.radioButton_My, self.radioButton_Mz   ]
+        # QSpinBox
+        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox_skiprows')
+        self.spinBox_vertical_lines = self.findChild(QSpinBox, 'spinBox_vertical_lines')
+        # QTabWidget
         self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
-        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
-
         self.tabWidget_reactions = self.findChild(QTabWidget, "tabWidget_reactions")
+        self.tabWidget_springs_dampers = self.findChild(QTabWidget, "tabWidget_springs_dampers")
+        # QWidget
+        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
         self.tab_constrained_dofs = self.tabWidget_reactions.findChild(QWidget, "tab_constrained_dofs")
         self.tab_external_springs_dampers = self.tabWidget_reactions.findChild(QWidget, "tab_external_springs_dampers")
-
-        self.tabWidget_springs_dampers = self.findChild(QTabWidget, "tabWidget_springs_dampers")
         self.tab_nodes_with_springs = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_springs")
         self.tab_nodes_with_dampers = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_dampers")
-        
-        #QPushButton objects
-        self.pushButton_ChooseFolderImport = self.findChild(QPushButton, 'pushButton_ChooseFolderImport')
-        self.pushButton_ChooseFolderExport = self.findChild(QPushButton, 'pushButton_ChooseFolderExport')
-        self.pushButton_ExportResults = self.findChild(QPushButton, 'pushButton_ExportResults')
-        
-        #QTreeWidget objects
+        # QTreeWidget
         self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
         self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
         self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
-
         self.treeWidget_reactions_at_dampers = self.findChild(QTreeWidget, 'treeWidget_reactions_at_dampers')
         self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
         self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
-
         self.treeWidget_reactions_at_constrained_dofs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_constrained_dofs')
         self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
         self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
 
+
     def _create_connections(self):
-        self.checkBox_cursor.clicked.connect(self.update_cursor)
+        #
         self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)  
         self.pushButton_plot_reactions_frequency_response.clicked.connect(self.check)
         self.pushButton_ResetPlot.clicked.connect(self.reset_imported_data)
+        self.pushButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.pushButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
+        self.pushButton_ExportResults.clicked.connect(self.ExportResults)
+        #
         self.radioButton_plotAbs.clicked.connect(self.radioButtonEvent_YAxis)
         self.radioButton_plotReal.clicked.connect(self.radioButtonEvent_YAxis)
         self.radioButton_plotImag.clicked.connect(self.radioButtonEvent_YAxis)
-        self.pushButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
-        self.pushButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
-        self.pushButton_ExportResults.clicked.connect(self.ExportResults)   
+        self.radioButton_disable_cursors.clicked.connect(self.update_cursor_controls)
+        self.radioButton_cross_cursor.clicked.connect(self.update_cursor_controls)
+        self.radioButton_harmonic_cursor.clicked.connect(self.update_cursor_controls)
+        self.radioButton_Absolute.clicked.connect(self.radioButtonEvent_save_data)
+        self.radioButton_Real_Imaginary.clicked.connect(self.radioButtonEvent_save_data)
+        self.radioButtonEvent_YAxis()
+        self.radioButtonEvent_save_data()
+        self.update_cursor_controls()
+        #
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.treeWidget_reactions_at_dampers.itemClicked.connect(self.on_click_item)
@@ -159,8 +152,17 @@ class PlotReactions(QDialog):
         self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_constrained_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-    def update_cursor(self):
-        self.use_cursor = self.checkBox_cursor.isChecked()
+
+    def update_cursor_controls(self):
+        if self.radioButton_disable_cursors.isChecked():
+            self.checkBox_legends.setChecked(False)
+            self.checkBox_legends.setDisabled(True)
+            self.frame_vertical_lines.setDisabled(True)
+        else:
+            self.checkBox_legends.setDisabled(False)
+            if self.radioButton_harmonic_cursor.isChecked():
+                self.frame_vertical_lines.setDisabled(False)
+
 
     def reset_imported_data(self):
         self.imported_data = None
@@ -203,7 +205,7 @@ class PlotReactions(QDialog):
     
     def ImportResults(self):
         try:
-            skiprows = int(self.lineEdit_skiprows.text())
+            skiprows = self.spinBox_skiprows.value()
             self.imported_data = np.loadtxt(self.import_path, delimiter=",",skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
@@ -473,7 +475,24 @@ class PlotReactions(QDialog):
         ax.set_title(title, fontsize = 12, fontweight = 'bold')
         ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
 
-        self.cursor = AdvancedCursor(ax, frequencies, response, self.use_cursor)
-        self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
+        if not self.radioButton_disable_cursors.isChecked():
+            show_legend = self.checkBox_legends.isChecked()
+            number_vertLines = self.spinBox_vertical_lines.value()
+            if self.radioButton_harmonic_cursor.isChecked():
+                self.cursor = AdvancedCursor(   ax, 
+                                                frequencies, 
+                                                response, 
+                                                False, 
+                                                number_vertLines=number_vertLines, 
+                                                show_legend=show_legend   )
+            else:
+                self.cursor = AdvancedCursor(   ax, 
+                                                frequencies, 
+                                                response, 
+                                                False, 
+                                                number_vertLines=1, 
+                                                show_legend=show_legend   )
+
+            self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
         plt.show()
