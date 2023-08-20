@@ -27,7 +27,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_structural_frequency_response_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_structural_frequency_response.ui'), self)
 
         self.icon = QIcon(get_icons_path('pulse.png'))
         self.search_icon = QIcon(get_icons_path('searchFile.png'))

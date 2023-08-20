@@ -12,7 +12,7 @@ class PlotDisplacementFieldInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_displacement_field_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_displacement_field_for_harmonic_analysis.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -21,28 +21,35 @@ class PlotDisplacementFieldInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
-        self.opv.setInputObject(self)
         self.project = project
+        self.opv.setInputObject(self)
         
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.load_frequencies_vector()
+        self.exec()
+
 
     def _reset_variables(self):
         self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
 
+
     def _define_qt_variables(self):
-        self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
-        self.pushButton = self.findChild(QPushButton, 'pushButton')
-        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
+        self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
+        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.radioButton_real = self.findChild(QRadioButton, 'radiButton_real')
+        self.radioButton_absolute = self.findChild(QRadioButton, 'radiButton_absolute')
+        self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
+
 
     def _create_connections(self):
-        self.pushButton.clicked.connect(self.check_selected_frequency)
-        self.treeWidget.itemClicked.connect(self.on_click_item)
-        self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.pushButton_plot.clicked.connect(self.check_selected_frequency)
+        self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
+        self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -50,8 +57,9 @@ class PlotDisplacementFieldInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
+
     def check_selected_frequency(self):
-        if self.lineEdit.text() == "":
+        if self.lineEdit_selected_frequency.text() == "":
             window_title = "WARNING"
             title = "Additional action required to plot the results"
             message = "You should select a frequency from the available list \n\n"
@@ -59,29 +67,24 @@ class PlotDisplacementFieldInput(QDialog):
             PrintMessageInput([title, message, window_title])
             return
         else:
-            frequency_selected = float(self.lineEdit.text())
+            frequency_selected = float(self.lineEdit_selected_frequency.text())
             if frequency_selected in self.frequencies:
                 self.frequency = self.frequency_to_index[frequency_selected]
-            
         self.close()
 
+
     def load_frequencies_vector(self):
-
-        if self.project.analysis_ID == 7:
-            self.frequency = 0
-            return
-
-        for frequency in self.frequencies:
-            new = QTreeWidgetItem([str(frequency)])
+        for index, frequency in enumerate(self.frequencies):
+            new = QTreeWidgetItem([str(index+1), str(frequency)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget.addTopLevelItem(new)
+            self.treeWidget_frequencies.addTopLevelItem(new)
 
-        self.exec()
 
     def on_click_item(self, item):
-        self.lineEdit.setText(item.text(0))
+        self.lineEdit_selected_frequency.setText(item.text(1))
+
 
     def on_doubleclick_item(self, item):
-        self.lineEdit.setText(item.text(0))
+        self.lineEdit_selected_frequency.setText(item.text(1))
         self.check_selected_frequency()

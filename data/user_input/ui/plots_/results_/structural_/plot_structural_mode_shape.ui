@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Plot acoustic pressure field</string>
+   <string>Plot mode shapes</string>
   </property>
   <property name="whatsThis">
    <string/>
@@ -92,7 +92,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Select the frequency to be plotted:</string>
+         <string>Select the mode shape to be plotted:</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -193,7 +193,7 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_selected_frequency">
+          <widget class="QLineEdit" name="lineEdit_natural_frequency">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -211,11 +211,11 @@
            </property>
            <property name="font">
             <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
             </font>
            </property>
            <property name="styleSheet">
@@ -275,7 +275,7 @@ color: rgb(0, 0, 255);</string>
           <number>0</number>
          </property>
          <item row="0" column="0">
-          <widget class="QTreeWidget" name="treeWidget_frequencies">
+          <widget class="QTreeWidget" name="treeWidget">
            <property name="minimumSize">
             <size>
              <width>310</width>
@@ -302,12 +302,15 @@ color: rgb(0, 0, 255);</string>
            </property>
            <column>
             <property name="text">
-             <string>Index</string>
+             <string>Mode</string>
             </property>
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
               <pointsize>10</pointsize>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
              </font>
             </property>
             <property name="textAlignment">
@@ -316,7 +319,7 @@ color: rgb(0, 0, 255);</string>
            </column>
            <column>
             <property name="text">
-             <string notr="true">Frequency [Hz]</string>
+             <string notr="true">Natural frequency [Hz]</string>
             </property>
             <property name="font">
              <font>
@@ -385,7 +388,7 @@ color: rgb(0, 0, 255);</string>
           <number>0</number>
          </property>
          <item row="0" column="0">
-          <widget class="QPushButton" name="pushButton_plot">
+          <widget class="QPushButton" name="pushButton">
            <property name="minimumSize">
             <size>
              <width>252</width>
@@ -413,7 +416,7 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
            </property>
            <property name="text">
-            <string>Plot the pressure field</string>
+            <string>Plot the mode shape</string>
            </property>
           </widget>
          </item>

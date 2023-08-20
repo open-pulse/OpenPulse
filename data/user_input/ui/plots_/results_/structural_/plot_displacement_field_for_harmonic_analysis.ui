@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Plot acoustic pressure field</string>
+   <string>Plot displacement field</string>
   </property>
   <property name="whatsThis">
    <string/>
@@ -220,7 +220,11 @@
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+color: rgb(0, 0, 255)
+</string>
+           </property>
+           <property name="text">
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -278,13 +282,13 @@ color: rgb(0, 0, 255);</string>
           <widget class="QTreeWidget" name="treeWidget_frequencies">
            <property name="minimumSize">
             <size>
-             <width>310</width>
+             <width>280</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>310</width>
+             <width>280</width>
              <height>415</height>
             </size>
            </property>
@@ -413,7 +417,7 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
            </property>
            <property name="text">
-            <string>Plot the pressure field</string>
+            <string>Plot the displacement field</string>
            </property>
           </widget>
          </item>
@@ -448,7 +452,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>0</number>
          </property>
          <item row="0" column="2">
-          <widget class="QRadioButton" name="radioButton_last_node">
+          <widget class="QRadioButton" name="radioButton_absolute">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -483,7 +487,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QRadioButton" name="radioButton_first_node">
+          <widget class="QRadioButton" name="radioButton_real">
            <property name="enabled">
             <bool>true</bool>
            </property>

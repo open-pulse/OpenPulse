@@ -22,7 +22,7 @@ class PlotReactions(QDialog):
     def __init__(self, project, opv, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_reactions.ui'), self)
+        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_reactions_for_harmonic_analysis.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

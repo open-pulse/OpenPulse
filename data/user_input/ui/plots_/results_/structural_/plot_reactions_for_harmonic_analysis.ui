@@ -2743,7 +2743,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    </font>
                   </property>
                   <property name="text">
-                   <string>Enable legends</string>
+                   <string>Show legends</string>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
