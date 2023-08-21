@@ -159,7 +159,10 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
           <number>0</number>
          </property>
          <item row="0" column="1">
@@ -205,7 +208,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>120</width>
              <height>30</height>
             </size>
            </property>
@@ -448,7 +451,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>0</number>
          </property>
          <item row="0" column="2">
-          <widget class="QRadioButton" name="radioButton_last_node">
+          <widget class="QRadioButton" name="radioButton_absolute">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -483,7 +486,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QRadioButton" name="radioButton_first_node">
+          <widget class="QRadioButton" name="radioButton_real_part">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -600,7 +603,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <number>0</number>
            </property>
            <property name="text">
-            <string>Color scalling setup:</string>
+            <string>Color scaling setup:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

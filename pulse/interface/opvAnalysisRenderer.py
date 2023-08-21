@@ -25,6 +25,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv = opv
         self.setUsePicker(False)
 
+        self._absolute = False
         self._magnificationFactor = 1
         self._currentFrequencyIndex = 0
         self._cacheFrequencyIndex = None
@@ -178,21 +179,23 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._animationFrames.clear()
         self._cacheFrequencyIndex = None
         
-    def showDisplacement(self, frequency_index):
+    def showDisplacementField(self, frequency_index, absolute=False):
         self.cache_plot_state(displacement=True)
-        self._currentFrequencyIndex = frequency_index 
+        self._currentFrequencyIndex = frequency_index
+        self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
         self.opvTubes = self.opvDeformedTubes
-        self._currentPlot = self.computeDisplacement
+        self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
-    def showStressField(self, frequency_index):
+    def showStressField(self, frequency_index, absolute=False):
         self.cache_plot_state(stress=True)
-        self._currentFrequencyIndex = frequency_index 
+        self._currentFrequencyIndex = frequency_index
+        self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
@@ -203,13 +206,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
-    def showPressureField(self, frequency_index):
+    def showPressureField(self, frequency_index, absolute=False):
         self.cache_plot_state(pressure=True)
-        self._currentFrequencyIndex = frequency_index 
+        self._currentFrequencyIndex = frequency_index
+        self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_pressure(self._currentFrequencyIndex)
+
         self.opvTubes = self.opvPressureTubes
         self._currentPlot = self.computePressureField
         self.last_frequency_index = frequency_index
@@ -219,10 +224,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         solution = self.project.get_structural_solution()
         self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
 
-    def computeDisplacement(self, frequency_index, phase_step=0):
-
+    def computeDisplacementField(self, frequency_index, phase_step):
+        
+        absolute = self._absolute
         preprocessor = self.project.preprocessor
-        solution = self.project.get_structural_solution()    
+        solution = self.project.get_structural_solution()
 
         _, _, u_def, self._magnificationFactor, self.min_max_rDisp_values_current = get_structural_response(preprocessor, 
                                                                                                             solution, 
@@ -244,12 +250,13 @@ class opvAnalysisRenderer(vtkRendererBase):
         solution = self.project.stresses_values_for_color_table
         self.stress_min, self.stress_max = get_min_max_stresses_values(solution)
         
-    def computeStressField(self, frequency, phase_step=0):
+    def computeStressField(self, frequency, phase_step):
 
+        absolute = self._absolute
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
 
-        *args, self._magnificationFactor, _ = get_structural_response(  preprocessor, 
+        *args, self._magnificationFactor, _ = get_structural_response(  preprocessor,
                                                                         solution, 
                                                                         frequency,
                                                                         phase_step=phase_step,
@@ -271,19 +278,22 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def get_min_max_values_to_pressure(self, frequency_index):
         solution = self.project.get_acoustic_solution()
-        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
+        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, 
+                                                                               frequency_index, 
+                                                                               absolute=self._absolute)
 
-    def computePressureField(self, frequency, phase_step, real_part=True):
+    def computePressureField(self, frequency, phase_step):
 
         preprocessor = self.project.preprocessor
         solution = self.project.get_acoustic_solution()
         self._currentFrequencyIndex = frequency
-        self._colorScalling = 'real part' if real_part else 'absolute'
+        self._colorScalling = 'absolute' if self._absolute else 'real part'
 
         *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  preprocessor, 
                                                                                                     solution, 
                                                                                                     frequency, 
-                                                                                                    phase_step=phase_step  )
+                                                                                                    phase_step=phase_step,
+                                                                                                    absolute=self._absolute  )
         
         self.opvPressureTubes.build()
         min_max_values_all = [self.pressure_min, self.pressure_max]

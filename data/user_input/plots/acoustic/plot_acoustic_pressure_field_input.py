@@ -40,22 +40,22 @@ class PlotAcousticPressureFieldInput(QDialog):
     def _define_qt_variables(self):
         self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
         self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
-        self.radioButton_real = self.findChild(QRadioButton, 'radiButton_real')
-        self.radioButton_absolute = self.findChild(QRadioButton, 'radiButton_absolute')
+        self.radioButton_real_part = self.findChild(QRadioButton, 'radioButton_real_part')
+        self.radioButton_absolute = self.findChild(QRadioButton, 'radioButton_absolute')
         self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
 
 
     def _create_connections(self):
         self.pushButton_plot.clicked.connect(self.check_selected_frequency)
+        self.radioButton_absolute.clicked.connect(self.radioButtonEvent)
+        self.radioButton_real_part.clicked.connect(self.radioButtonEvent)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
 
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+    def radioButtonEvent(self):
+        if self.lineEdit_selected_frequency.text() != "":
             self.check_selected_frequency()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
 
 
     def check_selected_frequency(self):
@@ -69,8 +69,8 @@ class PlotAcousticPressureFieldInput(QDialog):
         else:
             frequency_selected = float(self.lineEdit_selected_frequency.text())
             self.frequency = self.frequency_to_index[frequency_selected]
-            self.opv.changeAndPlotAnalysis(self.frequency, pressure_field_plot=True)
-        self.close()
+            absolute = self.radioButton_absolute.isChecked()
+            self.opv.plot_pressure_field(self.frequency, absolute=absolute)
 
 
     def load_frequencies_vector(self):
@@ -88,3 +88,10 @@ class PlotAcousticPressureFieldInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))
         self.check_selected_frequency()
+
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.check_selected_frequency()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

@@ -4,7 +4,7 @@ from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from math import pi
 N_div = 20
 
-# this is temporary, and will be changed a lot
+
 def get_structural_frf(preprocessor, solution, node, dof, absolute=False, real=False, imaginary=False):
     position = preprocessor.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
     if absolute:
@@ -16,6 +16,7 @@ def get_structural_frf(preprocessor, solution, node, dof, absolute=False, real=F
     else:
         results = solution[position]
     return results
+
 
 def get_max_min_values_of_resultant_displacements(solution, column, new_scf=None, Normalize=True):
     
@@ -29,7 +30,7 @@ def get_max_min_values_of_resultant_displacements(solution, column, new_scf=None
     
     r_min = 1
     r_max = 0
-    thetas = np.arange(0, N_div+1, 1)*(2*pi)
+    thetas = np.arange(0, N_div+1, 1)*(2*pi/N_div)
     for theta in thetas:
         factor = np.cos(theta + _phases)
         r_xyz = ((u_x*factor[:, 0])**2 + (u_y*factor[:, 1])**2 + (u_z*factor[:, 2])**2)**(1/2)
@@ -43,6 +44,7 @@ def get_max_min_values_of_resultant_displacements(solution, column, new_scf=None
             r_max = max_r_xyz
  
     return r_min, r_max
+
 
 def get_structural_response(preprocessor, solution, column, phase_step=None, r_max=None,
                             new_scf=None, Normalize=True, ):
@@ -104,8 +106,11 @@ def get_structural_response(preprocessor, solution, column, phase_step=None, r_m
 
     return connect, coord_def, r_xyz_plot, magnif_factor, min_max_values
 
+
 def get_reactions(preprocessor, reactions, node, dof, absolute=False, real=False, imaginary=False):
-    #reactions: dictionary with all reactions and global dofs are the keys of dictionary
+    """ This function returns a dictionary containing global dofs 
+        as its keys and the reactions as its values. 
+    """
     key = preprocessor.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
     if absolute:
         results = np.abs(reactions[key])
@@ -117,6 +122,7 @@ def get_reactions(preprocessor, reactions, node, dof, absolute=False, real=False
         results = reactions[key]
     return results
 
+
 def get_stress_spectrum_data(stresses, element_id, stress_key, absolute = False, real = False, imaginary = False):
     if absolute:
         return np.abs(np.array(stresses[element_id][stress_key,:]))
@@ -127,6 +133,7 @@ def get_stress_spectrum_data(stresses, element_id, stress_key, absolute = False,
     else:
         return np.array(stresses[element_id][stress_key,:])
 
+
 def get_min_max_stresses_values(data):
 
     if isinstance(data, dict):
@@ -136,7 +143,7 @@ def get_min_max_stresses_values(data):
     phase = np.angle(values)
     stress_min = 1
     stress_max = 0
-    thetas = np.arange(0, N_div+1, 1)*(2*pi)
+    thetas = np.arange(0, N_div+1, 1)*(2*pi/N_div)
     for theta in thetas:
         stresses = _stresses*np.cos(theta + phase)
         
@@ -149,6 +156,7 @@ def get_min_max_stresses_values(data):
             stress_max = _stress_max
 
     return stress_min, stress_max 
+
 
 def get_stresses_to_plot(data, phase_step=None):
     if isinstance(data, dict):
@@ -163,6 +171,7 @@ def get_stresses_to_plot(data, phase_step=None):
     min_max_values = [min(stresses), max(stresses)]
 
     return stresses_data, min_max_values
+
 
 # def get_internal_loads_data(preprocessor, column, absolute=False, real=False, imaginary=False):
 

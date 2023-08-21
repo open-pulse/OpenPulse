@@ -18,17 +18,20 @@ def get_acoustic_frf(preprocessor, solution, node, absolute=False, real=False, i
         results = 20*np.log10(np.abs(results/(np.sqrt(2)*p_ref)))
     return results
 
-def get_max_min_values_of_pressures(solution, column):
+def get_max_min_values_of_pressures(solution, column, absolute=False):
     
     _pressures = np.abs(solution.T[column])
     _phases = np.angle(solution.T)[column]
     
     p_min = 1
     p_max = 0
-    thetas = np.arange(0, N_div+1, 1)*(2*pi)
+    thetas = np.arange(0, N_div+1, 1)*(2*pi/N_div)
 
     for theta in thetas:
         pressures = _pressures*np.cos(theta + _phases)
+        
+        if absolute:
+            pressures = np.abs(pressures)
 
         p_min_i = min(pressures)
         p_max_i = max(pressures)
@@ -40,12 +43,12 @@ def get_max_min_values_of_pressures(solution, column):
    
     return p_min, p_max
 
-def get_acoustic_response(preprocessor, solution, column, phase_step=None, real_part=True):
+def get_acoustic_response(preprocessor, solution, column, phase_step=None, absolute=True):
     
-    # if real_part:
-    #     data = np.real(solution.T)
-    # else:
+    # if absolute:
     #     data = np.abs(solution.T)
+    # else:
+    #     data = np.real(solution.T)
     
     data = np.abs(solution.T)
 
@@ -59,6 +62,9 @@ def get_acoustic_response(preprocessor, solution, column, phase_step=None, real_
 
     pressures_plot = _pressures*np.cos(phase_step + _phases)
     
+    if absolute:
+        pressures_plot = np.abs(pressures_plot)
+
     coord = preprocessor.nodal_coordinates_matrix
     connect = preprocessor.connectivity_matrix
 

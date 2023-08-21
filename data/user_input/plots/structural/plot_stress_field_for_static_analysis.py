@@ -104,7 +104,7 @@ class PlotStressFieldForStaticAnalysis(QDialog):
         self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
                                                 np.max(list(self.stress_field.values())), 
                                                 self.stress_label )
-        self.opv.changeAndPlotAnalysis(self.selected_index, stress_field_plot=True)
+        self.opv.plot_stress_field(self.selected_index, absolute=False)
         
 
     def check(self):

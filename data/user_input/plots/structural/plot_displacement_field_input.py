@@ -40,22 +40,26 @@ class PlotDisplacementFieldInput(QDialog):
     def _define_qt_variables(self):
         self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
         self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
-        self.radioButton_real = self.findChild(QRadioButton, 'radiButton_real')
-        self.radioButton_absolute = self.findChild(QRadioButton, 'radiButton_absolute')
+        self.radioButton_absolute = self.findChild(QRadioButton, 'radioButton_absolute')
+        self.radioButton_real_part_ux = self.findChild(QRadioButton, 'radioButton_real_part_ux')
+        self.radioButton_real_part_uy = self.findChild(QRadioButton, 'radioButton_real_part_uy')
+        self.radioButton_real_part_uz = self.findChild(QRadioButton, 'radioButton_real_part_uz')
         self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
 
 
     def _create_connections(self):
         self.pushButton_plot.clicked.connect(self.check_selected_frequency)
+        self.radioButton_real_part_ux.clicked.connect(self.radioButton_event)
+        self.radioButton_real_part_uy.clicked.connect(self.radioButton_event)
+        self.radioButton_real_part_uz.clicked.connect(self.radioButton_event)
+        self.radioButton_absolute.clicked.connect(self.radioButton_event)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
 
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+    def radioButton_event(self):
+        if self.lineEdit_selected_frequency.text() != "":
             self.check_selected_frequency()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
 
 
     def check_selected_frequency(self):
@@ -70,7 +74,7 @@ class PlotDisplacementFieldInput(QDialog):
             frequency_selected = float(self.lineEdit_selected_frequency.text())
             if frequency_selected in self.frequencies:
                 self.frequency = self.frequency_to_index[frequency_selected]
-        self.close()
+                self.opv.plot_displacement_field(self.frequency, absolute=True)
 
 
     def load_frequencies_vector(self):
@@ -88,3 +92,10 @@ class PlotDisplacementFieldInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))
         self.check_selected_frequency()
+
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.check_selected_frequency()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

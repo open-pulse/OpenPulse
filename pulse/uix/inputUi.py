@@ -354,10 +354,7 @@ class InputUi:
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             if solution is None:
                 return
-            plot = self.processInput(PlotDisplacementFieldInput, self.project, self.opv)
-            if plot.frequency is None:
-                return
-            self.opv.changeAndPlotAnalysis(plot.frequency)
+            self.processInput(PlotDisplacementFieldInput, self.project, self.opv)
 
     def plotAcousticModeShapes(self):
         self.project.plot_pressure_field = True

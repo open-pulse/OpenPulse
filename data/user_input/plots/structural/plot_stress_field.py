@@ -121,6 +121,7 @@ class PlotStressField(QDialog):
             #     PrintMessageInput([title, message, window_title])
             #     return
 
+
     def get_stress_data(self):
 
         self.stress_label = self.labels[self.mask][0]
@@ -136,7 +137,8 @@ class PlotStressField(QDialog):
         self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
                                                 np.max(list(self.stress_field.values())), 
                                                 self.stress_label )
-        self.opv.changeAndPlotAnalysis(self.selected_index, stress_field_plot=True)
+        self.opv.plot_stress_field(self.selected_index, absolute=False)
+
 
     def load(self):
         for frequency in self.frequencies:
@@ -144,12 +146,15 @@ class PlotStressField(QDialog):
             new.setTextAlignment(0, Qt.AlignCenter)
             self.treeWidget_list_frequencies.addTopLevelItem(new)
 
+
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))
+
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))
         self.check()
+
 
     def confirm_button(self):
         self.check()
