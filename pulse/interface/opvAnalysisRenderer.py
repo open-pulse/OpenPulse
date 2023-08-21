@@ -194,15 +194,16 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
-    def showStressField(self, frequency_index, absolute=False):
+    def showStressField(self, frequency_index, scaling_setup):
         self.cache_plot_state(stress=True)
         self._currentFrequencyIndex = frequency_index
-        self._absolute = absolute
+        self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_stresses() 
-            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
+                                                               scaling_setup)
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
@@ -256,7 +257,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         
     def computeStressField(self, frequency, phase_step):
 
-        absolute = self._absolute
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
 
@@ -264,7 +264,8 @@ class opvAnalysisRenderer(vtkRendererBase):
                                                                         solution, 
                                                                         frequency,
                                                                         phase_step = phase_step,
-                                                                        r_max = self.rDisp_max  )
+                                                                        r_max = self.rDisp_max,
+                                                                        scaling_setup = self._scaling_setup  )
         self.opvDeformedTubes.build()
         
         _stresses = self.project.stresses_values_for_color_table
