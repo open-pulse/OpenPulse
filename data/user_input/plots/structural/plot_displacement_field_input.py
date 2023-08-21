@@ -27,8 +27,8 @@ class PlotDisplacementFieldInput(QDialog):
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
-        self.load_frequencies_vector()
-        self.exec()
+        if self.load_frequencies_vector():
+            self.exec()
 
 
     def _reset_variables(self):
@@ -74,15 +74,36 @@ class PlotDisplacementFieldInput(QDialog):
             frequency_selected = float(self.lineEdit_selected_frequency.text())
             if frequency_selected in self.frequencies:
                 self.frequency = self.frequency_to_index[frequency_selected]
-                self.opv.plot_displacement_field(self.frequency, absolute=True)
+                scaling_setup = {   "absolute" : self.radioButton_absolute.isChecked(),
+                                    "real_ux" : self.radioButton_real_part_ux.isChecked(),
+                                    "real_uy" : self.radioButton_real_part_uy.isChecked(),
+                                    "real_uz" : self.radioButton_real_part_uz.isChecked()   }
+                self.opv.plot_displacement_field(self.frequency, scaling_setup)
 
 
     def load_frequencies_vector(self):
-        for index, frequency in enumerate(self.frequencies):
-            new = QTreeWidgetItem([str(index+1), str(frequency)])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_frequencies.addTopLevelItem(new)
+
+        if self.project.analysis_ID == 7:
+            self.plot_displacement_for_static_analysis()
+            return False
+    
+        else:
+    
+            for index, frequency in enumerate(self.frequencies):
+                new = QTreeWidgetItem([str(index+1), str(frequency)])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_frequencies.addTopLevelItem(new)
+            return True
+
+
+    def plot_displacement_for_static_analysis(self):
+        self.frequency = 0
+        scaling_setup = {   "absolute" : self.radioButton_absolute.isChecked(),
+                            "real_ux" : self.radioButton_real_part_ux.isChecked(),
+                            "real_uy" : self.radioButton_real_part_uy.isChecked(),
+                            "real_uz" : self.radioButton_real_part_uz.isChecked()   }
+        self.opv.plot_displacement_field(self.frequency, scaling_setup)
 
 
     def on_click_item(self, item):

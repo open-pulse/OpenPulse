@@ -26,6 +26,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.setUsePicker(False)
 
         self._absolute = False
+        self._scaling_setup = dict()
         self._magnificationFactor = 1
         self._currentFrequencyIndex = 0
         self._cacheFrequencyIndex = None
@@ -179,14 +180,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._animationFrames.clear()
         self._cacheFrequencyIndex = None
         
-    def showDisplacementField(self, frequency_index, absolute=False):
+    def showDisplacementField(self, frequency_index, scaling_setup):
         self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index
-        self._absolute = absolute
+        self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
-            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
+                                                               scaling_setup)
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
@@ -220,21 +222,23 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index
         self._plotOnce(0)
 
-    def get_min_max_values_to_resultant_displacements(self, frequency_index):
+    def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_setup):
         solution = self.project.get_structural_solution()
-        self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
+        self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, 
+                                                                                       frequency_index,
+                                                                                       scaling_setup)
 
     def computeDisplacementField(self, frequency_index, phase_step):
-        
-        absolute = self._absolute
+
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
 
         _, _, u_def, self._magnificationFactor, self.min_max_rDisp_values_current = get_structural_response(preprocessor, 
                                                                                                             solution, 
                                                                                                             frequency_index, 
-                                                                                                            phase_step=phase_step,
-                                                                                                            r_max=self.rDisp_max)
+                                                                                                            phase_step = phase_step,
+                                                                                                            r_max = self.rDisp_max,
+                                                                                                            scaling_setup = self._scaling_setup)
         
         self.opvDeformedTubes.build()
         min_max_values_all = [self.rDisp_min, self.rDisp_max]
@@ -259,8 +263,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         *args, self._magnificationFactor, _ = get_structural_response(  preprocessor,
                                                                         solution, 
                                                                         frequency,
-                                                                        phase_step=phase_step,
-                                                                        r_max=self.rDisp_max  )
+                                                                        phase_step = phase_step,
+                                                                        r_max = self.rDisp_max  )
         self.opvDeformedTubes.build()
         
         _stresses = self.project.stresses_values_for_color_table

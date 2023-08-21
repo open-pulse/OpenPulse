@@ -165,11 +165,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
-    def plot_displacement_field(self, frequency_indice, absolute=False):
+    def plot_displacement_field(self, frequency_indice, scaling_setup):
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
         self.opvAnalysisRenderer.showDisplacementField(frequency_indice, 
-                                                       absolute=absolute)
+                                                       scaling_setup)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #

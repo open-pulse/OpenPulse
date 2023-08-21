@@ -85,7 +85,11 @@ class PlotStructuralModeShapeInput(QDialog):
             self.project.analysis_type_label = "Structural Modal Analysis"
             frequency = self.selected_natural_frequency
             self.mode_index = self.natural_frequencies.index(frequency)
-            self.opv.plot_displacement_field(self.mode_index, absolute=True)
+            scaling_setup = {   "absolute" : self.radioButton_absolute.isChecked(),
+                                "real_ux" : self.radioButton_real_part_ux.isChecked(),
+                                "real_uy" : self.radioButton_real_part_uy.isChecked(),
+                                "real_uz" : self.radioButton_real_part_uz.isChecked()   }
+            self.opv.plot_displacement_field(self.mode_index, scaling_setup)
 
         if message != "":
             PrintMessageInput(self.text_data)
