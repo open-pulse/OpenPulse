@@ -6,12 +6,9 @@ from pathlib import Path
 
 import os
 import numpy as np
-import pandas as pd
-import openpyxl
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 
-from data.user_input.plots.mpl_canvas import MplCanvas
+from data.user_input.plots.general.mpl_canvas import MplCanvas
 from pulse.tools.advanced_cursor import AdvancedCursor
 
 def get_icons_path(filename):

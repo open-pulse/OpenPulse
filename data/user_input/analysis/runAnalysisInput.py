@@ -77,9 +77,11 @@ class RunAnalysisInput(QDialog):
 
 
     def _define_and_config_qt_variables(self):
+        self.frame_message = self.findChild(QFrame, 'frame_message')
         self.label_title = self.findChild(QLabel, 'label_title')
         self.label_message = self.findChild(QLabel, 'label_message')
         self.label_message.setWordWrap(True)
+        self.label_message.setMargin(10)
         self.config_title_font()
         self.config_message_font()
 
@@ -314,30 +316,4 @@ class RunAnalysisInput(QDialog):
 
         text += "Press ESC to continue..."
         self.label_message.setText(text)
-
-
-    # def check_log_times(self):
-    #     #
-    #     if self.project.time_to_load_or_create_project is None:
-    #         self.project.time_to_load_or_create_project = 0
-    #     #
-    #     if self.project.time_to_process_cross_sections is None:
-    #         self.project.time_to_process_cross_sections = 0
-    #     #
-    #     if self.project.time_to_preprocess_model is None:
-    #         self.project.time_to_preprocess_model = 0
-    #     #
-    #     if self.project.time_to_solve_acoustic_model is None:
-    #         self.project.time_to_solve_acoustic_model = 0
-    #     #
-    #     if self.project.time_to_solve_structural_model is None:
-    #         self.project.time_to_solve_structural_model = 0
-    #     #
-    #     if self.project.time_to_solve_model is None:
-    #         self.project.time_to_solve_model = 0
-    #     #
-    #     if self.project.time_to_postprocess is None:
-    #         self.project.time_to_postprocess = 0
-    #     #
-    #     if self.project.total_time is None:
-    #         self.project.total_time = 0
+        self.adjustSize()

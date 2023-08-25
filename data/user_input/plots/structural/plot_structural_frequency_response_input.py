@@ -11,7 +11,7 @@ import openpyxl
 
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.plots.frequency_response_plotter import FrequencyResponsePlotter
+from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -88,6 +88,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.pushButton_search_file_to_import = self.findChild(QPushButton, 'pushButton_search_file_to_import')
         self.pushButton_choose_folder_export = self.findChild(QPushButton, 'pushButton_choose_folder_export')
         self.pushButton_export_results = self.findChild(QPushButton, 'pushButton_export_results')
+        self.pushButton_reset_filename = self.findChild(QPushButton, 'pushButton_reset_filename')
         self.pushButton_search_file_to_import.setIcon(self.search_icon)
         self.pushButton_choose_folder_export.setIcon(self.search_icon)
         # RadioButton
@@ -121,8 +122,13 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
         self.pushButton_search_file_to_import.clicked.connect(self.choose_path_import_results)
         self.pushButton_choose_folder_export.clicked.connect(self.choose_path_export_results)
-        self.pushButton_export_results.clicked.connect(self.ExportResults)
+        self.pushButton_export_results.clicked.connect(self.export_results)
         self.pushButton_plot_frequency_response.clicked.connect(self.check_inputs_and_plot)
+        self.pushButton_reset_filename.clicked.connect(self.reset_filename)
+
+    def reset_filename(self):
+        self.lineEdit_file_name.setText("")
+        self.lineEdit_file_name.setFocus()
 
     def update_skiprows_visibility(self):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
@@ -164,7 +170,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         
         if self.imported_path != "":
             if os.path.exists(self.imported_path):
-                self.ImportResults()
+                self.import_results()
                 self.update_treeWidget_info()
 
     def get_data_index(self):
@@ -178,7 +184,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                 index += 1
         return key
 
-    def ImportResults(self):
+    def import_results(self):
         try:
             message = ""
             run = True
@@ -327,7 +333,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         return False
 
-    def ExportResults(self):
+    def export_results(self):
         
         if self.lineEdit_file_name.text() != "":
             if self.save_path != "":
