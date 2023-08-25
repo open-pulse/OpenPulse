@@ -82,7 +82,7 @@ class FrequencyResponsePlotter(QDialog):
     def _update_comboBox(self):
         self.aux_bool = self.radioButton_plotReal.isChecked() + self.radioButton_plotImag.isChecked()
         if self.aux_bool:
-            self.comboBox_plot_type.setCurrentIndex(1)
+            self.comboBox_plot_type.setCurrentIndex(2)
             self.comboBox_plot_type.setDisabled(True)
         else:
             self.comboBox_plot_type.setCurrentIndex(0)
@@ -159,15 +159,14 @@ class FrequencyResponsePlotter(QDialog):
             self.current_plot = 1
 
             if self.y_data is not None:
-                mask = self.y_data < 0
+                self.mask_x = self.x_data <= 0
+                self.mask_y = self.y_data <= 0
                 if self.aux_bool:
                     _plot = self.call_lin_lin_plot()
-                elif float(0) in self.y_data:
-                    _plot = self.call_lin_lin_plot()
-                elif True in mask:
-                    _plot = self.call_lin_lin_plot()
+                elif True in (self.mask_x + self.mask_y):
+                    _plot = self.get_plot_considering_invalid_log_values()
                 elif "log-log" in self.plot_type:
-                    _plot = self.call_log_log_plot()            
+                    _plot = self.call_log_log_plot()
                 elif "log-y" in self.plot_type:
                     _plot = self.call_semilog_y_plot()
                 else:
@@ -197,6 +196,22 @@ class FrequencyResponsePlotter(QDialog):
                 self.ax.grid()
             self.mpl_canvas_frequency_plot.draw()
 
+    def call_semilog_y_plot(self, first_index=0):
+        _plot, = self.ax.semilogy(  self.x_data[first_index:], 
+                                    self.y_data[first_index:], 
+                                    linewidth = 1,
+                                    color = self.color, 
+                                    linestyle = self.linestyle  )
+        return _plot
+    
+    def call_semilog_x_plot(self, first_index=0):
+        _plot, = self.ax.semilogx(  self.x_data[first_index:], 
+                                    self.y_data[first_index:], 
+                                    linewidth = 1,
+                                    color = self.color, 
+                                    linestyle = self.linestyle  )
+        return _plot
+
     def call_lin_lin_plot(self):
         _plot, = self.ax.plot(  self.x_data, 
                                 self.y_data, 
@@ -205,22 +220,34 @@ class FrequencyResponsePlotter(QDialog):
                                 linestyle = self.linestyle  )
         return _plot
 
-    def call_semilog_y_plot(self):
-        _plot, = self.ax.semilogy(  self.x_data, 
-                                    self.y_data, 
-                                    linewidth = 1,
-                                    color = self.color, 
-                                    linestyle = self.linestyle  )
-        return _plot
-    
-    def call_log_log_plot(self):
-        _plot, = self.ax.loglog(self.x_data, 
-                                self.y_data, 
+    def call_log_log_plot(self, first_index=0):
+        _plot, = self.ax.loglog(self.x_data[first_index:], 
+                                self.y_data[first_index:], 
                                 linewidth = 1,
                                 color = self.color, 
                                 linestyle = self.linestyle  )
         return _plot
     
+    def get_plot_considering_invalid_log_values(self):
+        if "log-log" in self.plot_type:
+            if True in self.mask_y[1:] or True in self.mask_x[1:]:
+                _plot = self.call_lin_lin_plot()
+            else:
+                _plot = self.call_log_log_plot(first_index=1)
+        elif "log-x" in self.plot_type:
+            if True in self.mask_x[1:]:
+                _plot = self.call_lin_lin_plot()
+            else:
+                _plot = self.call_semilog_x_plot(first_index=1)
+        elif "log-y" in self.plot_type:
+            if True in self.mask_y[1:]:
+                _plot = self.call_lin_lin_plot()
+            else:
+                _plot = self.call_semilog_y_plot(first_index=1)    
+        else:
+            _plot = self.call_lin_lin_plot()
+        return _plot
+
     def call_cursor(self):
 
         show_cursor = not self.radioButton_disable_cursors.isChecked()

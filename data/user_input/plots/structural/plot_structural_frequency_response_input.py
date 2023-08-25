@@ -158,7 +158,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         else:
             _path = os.path.dirname(self.imported_path)
 
-        self.imported_path, _ = QFileDialog.getOpenFileName(None, 'Open file', _path, 'Files (*.csv; *.dat; *.txt; *.xlsx; *.xls)')
+        self.imported_path, _ = QFileDialog.getOpenFileName(None, 'Open file', _path, 'Files (*.csv *.dat *.txt *.xlsx *.xls)')
         self.import_name = os.path.basename(self.imported_path)
         self.lineEdit_import_results_path.setText(self.imported_path)
         
@@ -244,7 +244,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             for i, (id, data) in enumerate(self.imported_results.items()):
                 # Creates the QCheckButtons to control data to be plotted
                 self.ids_to_checkBox[id] = QCheckBox()
-                self.ids_to_checkBox[id].setStyleSheet("margin-left:30%; margin-right:50%;")
+                self.ids_to_checkBox[id].setStyleSheet("margin-left:40%; margin-right:50%;")
 
                 if id in self.checkButtons_state.keys():
                     self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])

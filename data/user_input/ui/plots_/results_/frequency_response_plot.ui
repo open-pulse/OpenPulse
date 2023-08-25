@@ -1146,6 +1146,11 @@
                        </item>
                        <item>
                         <property name="text">
+                         <string> log-x</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
                          <string> lin-lin</string>
                         </property>
                        </item>
