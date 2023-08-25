@@ -196,7 +196,7 @@ class VolumeVelocityInput(QDialog):
             
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
 
-            if imported_file.shape[1]<2:
+            if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
                 PrintMessageInput([title, message, window_title_1])
@@ -204,7 +204,7 @@ class VolumeVelocityInput(QDialog):
         
             imported_values = imported_file[:,1]
 
-            if imported_file.shape[1]>=2:
+            if imported_file.shape[1] >= 3:
 
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]

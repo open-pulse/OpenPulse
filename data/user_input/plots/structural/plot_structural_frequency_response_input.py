@@ -8,11 +8,10 @@ import os
 import numpy as np
 import pandas as pd
 import openpyxl
-import matplotlib.pyplot as plt
 
-from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.plots.frequency_response_plotter import FrequencyResponsePlotter
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -21,7 +20,6 @@ def get_icons_path(filename):
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
-
 
 class PlotStructuralFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
@@ -56,7 +54,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.writeNodes(self.list_node_IDs)
         self.exec()
 
-
     def _reset_variables(self):
         self.userPath = os.path.expanduser('~')
         self.imported_path = ""
@@ -64,30 +61,35 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.node_ID = 0
         self.imported_data = None
         self.localDof = None
-        self.imported_results = {}
-        self.ids_to_checkBox = {}
-        self.checkButtons_state = {}
-
+        self.imported_results = dict()
+        self.ids_to_checkBox = dict()
+        self.checkButtons_state = dict()
+        self.colors = [ [0,0,0],
+                        [0,1,0],
+                        [1,1,0],
+                        [0,1,1],
+                        [1,0,1],
+                        [0.75,0.75,0.75],
+                        [0.5, 0.5, 0.5],
+                        [0.25, 0.25, 0.25],
+                        [0,0,1] ]
 
     def _define_and_configure_Qt_variables(self):
         # CheckBox
-        self.checkBox_legends = self.findChild(QCheckBox, 'checkBox_legends')
         self.checkBox_skiprows = self.findChild(QCheckBox, "checkBox_skiprows")
-        # QFrame
-        self.frame_vertical_lines = self.findChild(QFrame, 'frame_vertical_lines')
         # LineEdit
-        self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-        self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
-        self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
-        self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
-        self.lineEdit_ImportResultsPath.setDisabled(True)
+        self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
+        self.lineEdit_file_name = self.findChild(QLineEdit, 'lineEdit_file_name')
+        self.lineEdit_import_results_path = self.findChild(QLineEdit, 'lineEdit_import_results_path')
+        self.lineEdit_save_results_path = self.findChild(QLineEdit, 'lineEdit_save_results_path')
+        self.lineEdit_import_results_path.setDisabled(True)
         # PushButton
         self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
         self.pushButton_search_file_to_import = self.findChild(QPushButton, 'pushButton_search_file_to_import')
+        self.pushButton_choose_folder_export = self.findChild(QPushButton, 'pushButton_choose_folder_export')
+        self.pushButton_export_results = self.findChild(QPushButton, 'pushButton_export_results')
         self.pushButton_search_file_to_import.setIcon(self.search_icon)
-        self.pushButton_ChooseFolderExport = self.findChild(QPushButton, 'pushButton_ChooseFolderExport')
-        self.pushButton_ExportResults = self.findChild(QPushButton, 'pushButton_ExportResults')
-        self.pushButton_ResetPlot = self.findChild(QPushButton, 'pushButton_ResetPlot')
+        self.pushButton_choose_folder_export.setIcon(self.search_icon)
         # RadioButton
         self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
         self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
@@ -95,20 +97,11 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.radioButton_rx = self.findChild(QRadioButton, 'radioButton_rx')
         self.radioButton_ry = self.findChild(QRadioButton, 'radioButton_ry')
         self.radioButton_rz = self.findChild(QRadioButton, 'radioButton_rz')
-        self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
-        self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
-        self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
-        self.radioButton_Absolute = self.findChild(QRadioButton, 'radioButton_Absolute')
-        self.radioButton_Real_Imaginary = self.findChild(QRadioButton, 'radioButton_Real_Imaginary')
-        self.radioButton_NoneDiff = self.findChild(QRadioButton, 'radioButton_NoneDiff')
-        self.radioButton_SingleDiff = self.findChild(QRadioButton, 'radioButton_SingleDiff')
-        self.radioButton_DoubleDiff = self.findChild(QRadioButton, 'radioButton_DoubleDiff')
-        self.radioButton_disable_cursors = self.findChild(QRadioButton, 'radioButton_disable_cursors')
-        self.radioButton_cross_cursor = self.findChild(QRadioButton, 'radioButton_cross_cursor')
-        self.radioButton_harmonic_cursor = self.findChild(QRadioButton, 'radioButton_harmonic_cursor')
+        self.radioButton_none_diff = self.findChild(QRadioButton, 'radioButton_none_diff')
+        self.radioButton_single_diff = self.findChild(QRadioButton, 'radioButton_single_diff')
+        self.radioButton_double_diff = self.findChild(QRadioButton, 'radioButton_double_diff')
         # SpinBox
         self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox_skiprows')
-        self.spinBox_vertical_lines = self.findChild(QSpinBox, 'spinBox_vertical_lines')
         # TabWidget
         self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
         self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
@@ -124,65 +117,40 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         for i, width in enumerate(widths_2):
             self.treeWidget_import_sheet_files.setColumnWidth(i, width)
 
-
     def _create_connections(self):
-        #
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
-        #
         self.pushButton_search_file_to_import.clicked.connect(self.choose_path_import_results)
-        self.pushButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
-        self.pushButton_ExportResults.clicked.connect(self.ExportResults)
-        self.pushButton_ResetPlot.clicked.connect(self.reset_imported_data)
-        # self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)
+        self.pushButton_choose_folder_export.clicked.connect(self.choose_path_export_results)
+        self.pushButton_export_results.clicked.connect(self.ExportResults)
         self.pushButton_plot_frequency_response.clicked.connect(self.check_inputs_and_plot)
-        #
-        self.radioButton_disable_cursors.clicked.connect(self.update_cursor_controls)
-        self.radioButton_cross_cursor.clicked.connect(self.update_cursor_controls)
-        self.radioButton_harmonic_cursor.clicked.connect(self.update_cursor_controls)
-        self.radioButton_Absolute.clicked.connect(self.radioButtonEvent_save_data)
-        self.radioButton_Real_Imaginary.clicked.connect(self.radioButtonEvent_save_data)
-        self.save_Absolute = self.radioButton_Absolute.isChecked()
-        self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
-        self.update_cursor_controls()
-
 
     def update_skiprows_visibility(self):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
 
-
     def reset_imported_data(self):
         self._reset_variables()
         self.update_treeWidget_info()
-        self.lineEdit_ImportResultsPath.setText("")
+        self.lineEdit_import_results_path.setText("")
         title = "Information"
         message = "The plot data has been reseted."
         PrintMessageInput([title, message, window_title2])
-
     
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text)
-
+        self.lineEdit_node_id.setText(text)
 
     def update(self):
         self.list_node_IDs = self.opv.getListPickedPoints()
         if self.list_node_IDs != []:
             self.writeNodes(self.list_node_IDs)
 
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.check_inputs_and_plot()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-
-    def radioButtonEvent_save_data(self):
-        self.save_Absolute = self.radioButton_Absolute.isChecked()
-        self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
-
 
     def choose_path_import_results(self):
         if self.imported_path == "":
@@ -192,24 +160,12 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         self.imported_path, _ = QFileDialog.getOpenFileName(None, 'Open file', _path, 'Files (*.csv; *.dat; *.txt; *.xlsx; *.xls)')
         self.import_name = os.path.basename(self.imported_path)
-        self.lineEdit_ImportResultsPath.setText(self.imported_path)
+        self.lineEdit_import_results_path.setText(self.imported_path)
         
         if self.imported_path != "":
             if os.path.exists(self.imported_path):
                 self.ImportResults()
                 self.update_treeWidget_info()
-
-
-    def update_cursor_controls(self):
-        if self.radioButton_disable_cursors.isChecked():
-            self.checkBox_legends.setChecked(False)
-            self.checkBox_legends.setDisabled(True)
-            self.frame_vertical_lines.setDisabled(True)
-        else:
-            self.checkBox_legends.setDisabled(False)
-            if self.radioButton_harmonic_cursor.isChecked():
-                self.frame_vertical_lines.setDisabled(False)
-
 
     def get_data_index(self):
         index = 1
@@ -221,7 +177,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             else:
                 index += 1
         return key
-
 
     def ImportResults(self):
         try:
@@ -238,7 +193,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                     sufix = Path(self.imported_path).suffix
                     filename = os.path.basename(self.imported_path)
                     if sufix in [".txt", ".dat", ".csv"]:
-                        loaded_data = np.loadtxt(self.imported_path, delimiter=",", skiprows=skiprows)
+                        loaded_data = np.loadtxt(self.imported_path, 
+                                                 delimiter = ",", 
+                                                 skiprows = skiprows)
                         key = self.get_data_index()
                         self.imported_results[key] = {  "data" : loaded_data,
                                                         "filename" : filename,
@@ -248,7 +205,10 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                         wb = openpyxl.load_workbook(self.imported_path)
                         sheetnames = wb.sheetnames
                         for sheetname in sheetnames:
-                            sheet_data = pd.read_excel(self.imported_path, sheet_name=sheetname, header=skiprows, usecols=[0,1,2]).to_numpy()
+                            sheet_data = pd.read_excel(self.imported_path, 
+                                                       sheet_name = sheetname, 
+                                                       header = skiprows, 
+                                                       usecols = [0,1,2]).to_numpy()
                             key = self.get_data_index()
                             self.imported_results[key] = {  "data" : sheet_data,
                                                             "filename" : filename,
@@ -260,20 +220,12 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
                 except:
                     skiprows += 1
-                    if skiprows>=maximum_lines_to_skip:
+                    if skiprows >= maximum_lines_to_skip:
                         run = False
                         title = "Error while loading data from file"
                         message = "The maximum number of rows to skip has been reached and no valid data has "
                         message += "been found. Please, verify the data in the imported file to proceed."
                         message += "Maximum number of header rows: 100"
-
-            # if skiprows<maximum_lines_to_skip:
-            #     self.legend_imported = "imported data: "+ os.path.basename(self.imported_path).split(".")[0]
-            #     self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            #     title = "Information"
-            #     message = "The results have been imported."
-            #     PrintMessageInput([title, message, window_title2])
-            #     return
 
         except Exception as log_error:
             title = "Error while loading data from file"
@@ -282,7 +234,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         
         if message != "":
             PrintMessageInput([title, message, window_title1])
-
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
@@ -309,30 +260,27 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
                 for i in range(5):
                     _item.setTextAlignment(i, Qt.AlignCenter)
-            
 
     def cache_checkButtons_state(self):
         self.checkButtons_state = {}
         for key, check in self.ids_to_checkBox.items():
             self.checkButtons_state[key] = check.isChecked()
 
-
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
         self.save_name = os.path.basename(self.save_path)
-        self.lineEdit_SaveResultsPath.setText(str(self.save_path))
-
+        self.lineEdit_save_results_path.setText(str(self.save_path))
 
     def check_inputs_and_plot(self, export=False):
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        lineEdit_node_id = self.lineEdit_node_id.text()
+        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_node_id, single_ID=True)
         if stop:
             return True
 
         self.localDof = None
-        if self.radioButton_SingleDiff.isChecked():
+        if self.radioButton_single_diff.isChecked():
             _unit_label = "m/s"
-        elif self.radioButton_DoubleDiff.isChecked():
+        elif self.radioButton_double_diff.isChecked():
             _unit_label = "m/s²"
         else:
             _unit_label = "m"    
@@ -367,22 +315,21 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.localdof_label = "Rz"
             self.unit_label = _unit_label
 
-        if self.radioButton_SingleDiff.isChecked():
+        if self.radioButton_single_diff.isChecked():
             _unit_label = "rad/s"
-        elif self.radioButton_DoubleDiff.isChecked():
+        elif self.radioButton_double_diff.isChecked():
             _unit_label = "rad/s²"
         else:
             _unit_label = "rad"
 
         if not export:
-            self.plot()
+            self.call_plotter()
 
         return False
 
-
     def ExportResults(self):
         
-        if self.lineEdit_FileName.text() != "":
+        if self.lineEdit_file_name.text() != "":
             if self.save_path != "":
                 self.export_path_folder = self.save_path + "/"
             else:
@@ -400,63 +347,60 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             return
 
         freq = self.frequencies
-        self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
+        self.export_path = self.export_path_folder + self.lineEdit_file_name.text() + ".dat"
         response = self.get_response()
-
-        if self.save_Absolute:
-            header = ("Frequency[Hz], Real part [{}], Imaginary part [{}], Absolute [{}]").format(self.unit_label, self.unit_label, self.unit_label)
-            data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
-        elif self.save_Real_Imaginary:
-            header = ("Frequency[Hz], Real part [{}], Imaginary part [{}]").format(self.unit_label, self.unit_label)
-            data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
+        
+        header = ("Frequency[Hz], Real part [{}], Imaginary part [{}], Absolute [{}]").format(self.unit_label, self.unit_label, self.unit_label)
+        data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T      
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
         title = "Information"
         message = "The results have been exported."
         PrintMessageInput([title, message, window_title2])
 
-
     def get_response(self):
         response = get_structural_frf(self.preprocessor, self.solution, self.node_ID, self.localDof)
-        if self.radioButton_SingleDiff.isChecked():
+        if self.radioButton_single_diff.isChecked():
             output_data = response*(1j*2*np.pi)*self.frequencies
-        elif self.radioButton_DoubleDiff.isChecked():
+        elif self.radioButton_double_diff.isChecked():
             output_data = response*((1j*2*np.pi*self.frequencies)**2)
         else:
             output_data = response
         return output_data
 
+    def call_plotter(self):
+        self.join_model_data()
+        self.join_imported_data()
+        self.plotter = FrequencyResponsePlotter()
+        self.plotter._set_data_to_plot(self.data_to_plot)
 
-    def plot(self):
-        """
-        """
-        plt.ion()
-        self.fig = plt.figure(figsize=[8,6])
-        self.ax = self.fig.add_subplot(1,1,1)
-
-        frequencies = self.frequencies
-        response = self.get_response()
-
-        list_plots = []
-        list_legends = []
-        colors = [  [0,0,0], [0,0,1], [0,1,0], [1,1,0], [0,1,1],
-                    [1,0,1], [0.75,0.75,0.75], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]  ]
-        
+    def join_model_data(self):
+        self.data_to_plot = dict()
+        self.title = "Structural frequency response - {}".format(self.analysisMethod)
         legend_label = "Response {} at node {}".format(self.localdof_label, self.node_ID)
-        plot_model = self.call_plotter(frequencies, response)
-        list_plots.append(plot_model)
-        list_legends.append(legend_label)
+        self.data_to_plot[0] = {   "type" : "model results",
+                                    "x_data" : self.frequencies,
+                                    "y_data" : self.get_response(),
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : "Nodal response",
+                                    "legend" : legend_label,
+                                    "unit" : self.unit_label,
+                                    "title" : self.title,
+                                    "color" : [0,0,1],
+                                    "linestyle" : "-"   }
+
+    def join_imported_data(self):
         j = 0
         for id, checkBox in self.ids_to_checkBox.items():
+            temp_dict = dict()
             if checkBox.isChecked():
 
-                if id < len(colors):
-                    color = colors[j]
+                if id < len(self.colors):
+                    color = self.colors[j]
                     j += 1
                 else:
                     color = np.random.randint(0,255,3)/255
 
-                # legend_label = f"Signal #{id}"
                 data = self.imported_results[id]["data"]
                 x_values = data[:, 0]
                 y_values = data[:, 1] + 1j*data[:, 2]
@@ -467,68 +411,15 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                 else:
                     legend_label = self.imported_results[id]["filename"]
 
-                plot_imported = self.call_plotter(x_values, y_values, color=color, linestyle="--")
-                list_plots.append(plot_imported)
-                list_legends.append(legend_label)
+                temp_dict = {   "type" : "imported_data",
+                                "x_data" : x_values,
+                                "y_data" : y_values,
+                                "x_label" : "Frequency [Hz]",
+                                "y_label" : "Nodal response",
+                                "legend" : legend_label,
+                                "unit" : self.unit_label,
+                                "title" : self.title,
+                                "color" : color,
+                                "linestyle" : "--"   }
 
-        _legends = plt.legend(handles=list_plots, labels=list_legends)
-        plt.gca().add_artist(_legends)
-
-        if self.analysisMethod is None:
-            title = "NODAL RESPONSE"
-        else:
-            title = f"STRUCTURAL FREQUENCY RESPONSE - {self.analysisMethod.upper()}"
-
-        self.ax.set_title(title, fontsize = 12, fontweight = 'bold')
-        self.ax.set_xlabel('Frequency [Hz]', fontsize = 12, fontweight = 'bold')
-
-        if not self.radioButton_disable_cursors.isChecked():
-            show_legend = self.checkBox_legends.isChecked()
-            number_vertLines = self.spinBox_vertical_lines.value()
-            if self.radioButton_harmonic_cursor.isChecked():
-                self.cursor = AdvancedCursor(   self.ax, 
-                                                frequencies, 
-                                                self.y_values, 
-                                                False, 
-                                                number_vertLines=number_vertLines, 
-                                                show_legend=show_legend   )
-            else:
-                self.cursor = AdvancedCursor(   self.ax, 
-                                                frequencies, 
-                                                self.y_values, 
-                                                False, 
-                                                number_vertLines=1, 
-                                                show_legend=show_legend   )
-
-            self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
-
-        self.fig.show()
-
-
-    def call_plotter(self, x_values, y_values, color=[1, 0, 0], linestyle="-"):
-        """
-        """
-        if self.radioButton_plotAbs.isChecked():
-            self.y_values = np.abs(y_values)
-            self.ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 12, fontweight = 'bold')
-
-            if not float(0) in y_values:
-                self.ax.set_yscale('log')
-                        
-        elif self.radioButton_plotReal.isChecked():
-            self.y_values = np.real(y_values)
-            self.ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 12, fontweight = 'bold')
-        
-        elif self.radioButton_plotImag.isChecked():
-            self.y_values = np.imag(y_values)
-            self.ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 12, fontweight = 'bold')
-
-        aux_bool = self.radioButton_plotReal.isChecked() + self.radioButton_plotImag.isChecked()
-        if float(0) in y_values or aux_bool:
-            if float(0) in y_values[1:] or aux_bool:
-                _plot, = plt.plot(x_values, y_values, color=color, linewidth=2, linestyle=linestyle)
-            else:
-                _plot, = plt.semilogy(x_values[1:], y_values[1:], color=color, linewidth=2, linestyle=linestyle)
-        else: 
-            _plot, = plt.semilogy(x_values, y_values, color=color, linewidth=2, linestyle=linestyle)
-        return _plot
+                self.data_to_plot[id] = temp_dict

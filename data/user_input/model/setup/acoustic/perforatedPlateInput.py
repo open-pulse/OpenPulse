@@ -400,7 +400,7 @@ class PerforatedPlateInput(QDialog):
             PrintMessageInput([title, message, window_title_1])
             return
         
-        if imported_file.shape[1]<2:
+        if imported_file.shape[1] < 3:
             title = "Dimensionless impedance input error"
             message = "The imported table has insufficient number of columns. The spectrum \ndata " 
             message += "must have frequencies, real and imaginary columns."
@@ -411,7 +411,7 @@ class PerforatedPlateInput(QDialog):
             
             self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-            if imported_file.shape[1]>2:
+            if imported_file.shape[1] >= 3:
 
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]

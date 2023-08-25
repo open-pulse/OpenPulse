@@ -439,14 +439,14 @@ class ElasticNodalLinksInput(QDialog):
             lineEdit.setText(self.path_imported_table)                        
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         
-            if imported_file.shape[1]<2:
+            if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The imported \n"
                 message += "data must have two columns of values."
                 PrintMessageInput([title, message, window_title])
                 lineEdit.setFocus()
                 return None, None
 
-            if imported_file.shape[1]>=2:
+            if imported_file.shape[1] >= 3:
                 self.imported_values = imported_file[:,1]
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
