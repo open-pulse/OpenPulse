@@ -18,7 +18,7 @@ class AboutOpenPulseInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('data/user_input/ui/Project/aboutOpenPulseInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Project/aboutOpenPulseInput.ui'), self)
 
         self.icon = QIcon(get_icons_path('pulse.png'))
         self.load_icon = QIcon(get_icons_path('loadProject.png'))

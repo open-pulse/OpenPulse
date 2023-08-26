@@ -701,96 +701,59 @@
                 <property name="spacing">
                  <number>4</number>
                 </property>
-                <item row="1" column="0">
-                 <widget class="QRadioButton" name="radioButton_single_diff">
-                  <property name="minimumSize">
-                   <size>
-                    <width>162</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>162</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>MS Shell Dlg 2</family>
-                    <pointsize>11</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Single differentiate</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="0">
-                 <widget class="QRadioButton" name="radioButton_none_diff">
-                  <property name="minimumSize">
-                   <size>
-                    <width>162</width>
-                    <height>26</height>
-                   </size>
+                 <widget class="QFrame" name="frame_31">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
                   </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>162</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>MS Shell Dlg 2</family>
-                    <pointsize>11</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>None</string>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>30</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QRadioButton" name="radioButton_double_diff">
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="pushButton_plot_frequency_response_2">
                   <property name="minimumSize">
                    <size>
-                    <width>162</width>
-                    <height>26</height>
+                    <width>120</width>
+                    <height>32</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>162</width>
-                    <height>26</height>
+                    <width>320</width>
+                    <height>32</height>
                    </size>
                   </property>
                   <property name="font">
                    <font>
                     <family>MS Shell Dlg 2</family>
                     <pointsize>11</pointsize>
-                    <weight>50</weight>
+                    <weight>75</weight>
                     <italic>false</italic>
-                    <bold>false</bold>
+                    <bold>true</bold>
                    </font>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+                  </property>
                   <property name="text">
-                   <string>Double differentiate</string>
+                   <string>  Export results  </string>
+                  </property>
+                  <property name="flat">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QFrame" name="frame_32">
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Raised</enum>
                   </property>
                  </widget>
                 </item>

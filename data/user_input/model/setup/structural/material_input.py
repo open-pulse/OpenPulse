@@ -26,7 +26,7 @@ class MaterialInput(QDialog):
     def __init__(   self, project, opv, cache_selected_lines=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/material_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/material_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

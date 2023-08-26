@@ -18,7 +18,7 @@ class DecouplingRotationDOFsInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/decouplingRotationDOFsInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/decouplingRotationDOFsInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -284,7 +284,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, decoupled_DOFs_bool, decoupled_DOFs_labels, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Info/getInformationRotationDecouplingInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Info/getInformationRotationDecouplingInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

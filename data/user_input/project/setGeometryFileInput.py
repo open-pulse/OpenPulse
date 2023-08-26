@@ -20,7 +20,7 @@ class SetGeometryFileInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Project/setGeometryFileInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Project/setGeometryFileInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

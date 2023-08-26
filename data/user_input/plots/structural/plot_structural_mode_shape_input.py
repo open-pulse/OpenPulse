@@ -16,7 +16,7 @@ class PlotStructuralModeShapeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_structural_mode_shape.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_structural_mode_shape.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

@@ -20,7 +20,7 @@ class GetStartedInput(QDialog):
     def __init__(self, project, opv, config, inputUi, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Project/getStarted.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Project/getStarted.ui'), self)
 
         self.icon = QIcon(get_icons_path('pulse.png'))
         self.load_icon = QIcon(get_icons_path('loadProject.png'))

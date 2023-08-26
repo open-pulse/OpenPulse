@@ -26,7 +26,7 @@ class PerforatedPlateInput(QDialog):
     def __init__(self, project, opv, valve_ids=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Acoustic/perforatedPlateInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/perforatedPlateInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -1071,7 +1071,7 @@ class PerforatedPlateInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationPerforatedPlate.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationPerforatedPlate.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

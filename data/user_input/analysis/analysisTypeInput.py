@@ -30,7 +30,7 @@ class AnalysisTypeInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-        uic.loadUi(Path('data/user_input/ui/analysis_/general_/analysis_type_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/analysis_/general_/analysis_type_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

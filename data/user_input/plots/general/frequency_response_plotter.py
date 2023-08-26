@@ -8,6 +8,7 @@ import os
 import numpy as np
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 
+from data.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 from data.user_input.plots.general.mpl_canvas import MplCanvas
 from pulse.tools.advanced_cursor import AdvancedCursor
 
@@ -20,7 +21,7 @@ class FrequencyResponsePlotter(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/frequency_response_plot.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/frequency_response_plot.ui'), self)
 
         self.icon = QIcon(get_icons_path('pulse.png'))
         self.search_icon = QIcon(get_icons_path('searchFile.png'))
@@ -47,15 +48,18 @@ class FrequencyResponsePlotter(QDialog):
         # QCheckBox
         self.checkBox_grid = self.findChild(QCheckBox, 'checkBox_grid')
         self.checkBox_legends = self.findChild(QCheckBox, 'checkBox_legends')
+        self.checkBox_decibel_scale = self.findChild(QCheckBox, 'checkBox_decibel_scale')
         self.checkBox_cursor_legends = self.findChild(QCheckBox, 'checkBox_cursor_legends')
         # QComboBox
         self.comboBox_plot_type = self.findChild(QComboBox, 'comboBox_plot_type')
         # QFrame
         self.frame_vertical_lines = self.findChild(QFrame, 'frame_vertical_lines') 
+        # QPushButton
+        self.pushButton_import_data = self.findChild(QPushButton, 'pushButton_import_data')
         # QRadioButton
-        self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
-        self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
-        self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
+        self.radioButton_absolute = self.findChild(QRadioButton, 'radioButton_absolute')
+        self.radioButton_real = self.findChild(QRadioButton, 'radioButton_real')
+        self.radioButton_imaginary = self.findChild(QRadioButton, 'radioButton_imaginary')
         self.radioButton_disable_cursors = self.findChild(QRadioButton, 'radioButton_disable_cursors')
         self.radioButton_cross_cursor = self.findChild(QRadioButton, 'radioButton_cross_cursor')
         self.radioButton_harmonic_cursor = self.findChild(QRadioButton, 'radioButton_harmonic_cursor')
@@ -67,17 +71,21 @@ class FrequencyResponsePlotter(QDialog):
         self.checkBox_grid.stateChanged.connect(self.plot_data_in_freq_domain)
         self.checkBox_legends.stateChanged.connect(self.plot_data_in_freq_domain)
         self.checkBox_cursor_legends.stateChanged.connect(self.plot_data_in_freq_domain)
-        self.radioButton_plotReal.clicked.connect(self._update_comboBox)
-        self.radioButton_plotImag.clicked.connect(self._update_comboBox)
-        self.radioButton_plotAbs.clicked.connect(self._update_comboBox)
+        self.radioButton_real.clicked.connect(self._update_comboBox)
+        self.radioButton_imaginary.clicked.connect(self._update_comboBox)
+        self.radioButton_absolute.clicked.connect(self._update_comboBox)
         self.radioButton_disable_cursors.clicked.connect(self.update_cursor_controls)
         self.radioButton_cross_cursor.clicked.connect(self.update_cursor_controls)
         self.radioButton_harmonic_cursor.clicked.connect(self.update_cursor_controls)
+        self.pushButton_import_data.clicked.connect(self.import_file)
         self._update_comboBox()
         self.update_cursor_controls()
 
+    def import_file(self):
+        read = ImportDataToCompare()
+
     def _update_comboBox(self):
-        self.aux_bool = self.radioButton_plotReal.isChecked() + self.radioButton_plotImag.isChecked()
+        self.aux_bool = self.radioButton_real.isChecked() + self.radioButton_imaginary.isChecked()
         if self.aux_bool:
             self.comboBox_plot_type.setCurrentIndex(2)
             self.comboBox_plot_type.setDisabled(True)
@@ -128,37 +136,51 @@ class FrequencyResponsePlotter(QDialog):
         if "title" in data.keys():
             self.title = data["title"]
 
-    def get_y_axis_data(self, data):
-        if self.radioButton_plotReal.isChecked():
-            return np.real(data)
-        elif self.radioButton_plotImag.isChecked():
-            return np.imag(data)
+    def det_scaled_data(self, data):
+        if self.checkBox_decibel_scale.isChecked():
+            if "Pa" in self.unit:
+                return 20*np.log10((np.abs(data)/2e-5))
+            else:
+                return 20*np.log10(np.abs(data))
         else:
-            return np.abs(data)
+            return data
 
+    def get_y_axis_data(self, data):
+        out_data = self.det_scaled_data(data)
+        if self.radioButton_real.isChecked():
+            return np.real(out_data)
+        elif self.radioButton_imaginary.isChecked():
+            return np.imag(out_data)
+        else:
+            return np.abs(out_data)
+    
     def get_y_axis_label(self, label):
-        if self.radioButton_plotReal.isChecked():
+        
+        if self.radioButton_real.isChecked():
             type_label = "real"
-        elif self.radioButton_plotImag.isChecked():
+        elif self.radioButton_imaginary.isChecked():
             type_label = "imaginary"
         else:
             type_label = "absolute"
-        return f"{label} - {type_label} [{self.unit}]"
+
+        if self.checkBox_decibel_scale.isChecked():
+            return f"{label} - {type_label} [dB]"
+        else:
+            return f"{label} - {type_label} [{self.unit}]"
 
     def plot_data_in_freq_domain(self):
 
         self.ax.cla()
         self.legends = []
         self.plots = []
+        decibel_key = self.checkBox_decibel_scale.isChecked()
 
         for key, data in self.data_to_plot.items():
             self.load_data_to_plot(data)
-            self.current_plot = 1
-
             if self.y_data is not None:
                 self.mask_x = self.x_data <= 0
                 self.mask_y = self.y_data <= 0
-                if self.aux_bool:
+                if self.aux_bool or decibel_key:
                     _plot = self.call_lin_lin_plot()
                 elif True in (self.mask_x + self.mask_y):
                     _plot = self.get_plot_considering_invalid_log_values()

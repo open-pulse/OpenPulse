@@ -15,7 +15,7 @@ class CappedEndInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/cappedEndInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/cappedEndInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -459,12 +459,12 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         if label == "Elements":
-            uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationInput.ui'), self)
+            uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationInput.ui'), self)
             self.flagElements = True
             self.flagLines = False
 
         elif label == "Lines":
-            uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationAndRemoveInput.ui'), self)
+            uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationAndRemoveInput.ui'), self)
             self.flagLines = True
             self.flagElements = False
             self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')

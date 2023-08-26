@@ -26,7 +26,7 @@ class RunAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/analysis_/general_/run_analysis_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/analysis_/general_/run_analysis_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -81,7 +81,7 @@ class RunAnalysisInput(QDialog):
         self.label_title = self.findChild(QLabel, 'label_title')
         self.label_message = self.findChild(QLabel, 'label_message')
         self.label_message.setWordWrap(True)
-        self.label_message.setMargin(10)
+        self.label_message.setMargin(16)
         self.config_title_font()
         self.config_message_font()
 

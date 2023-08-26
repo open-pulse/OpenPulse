@@ -12,6 +12,7 @@ import openpyxl
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from data.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -25,7 +26,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_structural_frequency_response.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_structural_frequency_response.ui'), self)
 
         self.icon = QIcon(get_icons_path('pulse.png'))
         self.search_icon = QIcon(get_icons_path('searchFile.png'))
@@ -50,7 +51,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self._reset_variables()
         self._define_and_configure_Qt_variables()
         self._create_connections()
-        self.update_skiprows_visibility()
         self.writeNodes(self.list_node_IDs)
         self.exec()
 
@@ -125,6 +125,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.pushButton_export_results.clicked.connect(self.export_results)
         self.pushButton_plot_frequency_response.clicked.connect(self.check_inputs_and_plot)
         self.pushButton_reset_filename.clicked.connect(self.reset_filename)
+        self.update_skiprows_visibility()
 
     def reset_filename(self):
         self.lineEdit_file_name.setText("")

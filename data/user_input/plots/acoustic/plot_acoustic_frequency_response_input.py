@@ -6,12 +6,13 @@ from pathlib import Path
 
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-from os.path import basename
+import pandas as pd
+import openpyxl
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.tools.advanced_cursor import AdvancedCursor
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -21,7 +22,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/acoustic_/plot_acoustic_frequency_response_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/acoustic_/plot_acoustic_frequency_response_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -59,13 +60,12 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
     def _define_qt_variables(self):
         # QCheckBox
-        self.checkBox_legends = self.findChild(QCheckBox, 'checkBox_legends')
         self.checkBox_dB = self.findChild(QCheckBox, 'checkBox_dB')
         # QLineEdit
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
         self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
-        self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+        self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
         # QPushButton
         self.pushButton_ChooseFolderImport = self.findChild(QPushButton, 'pushButton_ChooseFolderImport')
         self.pushButton_ChooseFolderExport = self.findChild(QPushButton, 'pushButton_ChooseFolderExport')
@@ -79,9 +79,6 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
         self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
         self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
-        self.radioButton_disable_cursors = self.findChild(QRadioButton, 'radioButton_disable_cursors')
-        self.radioButton_cross_cursor = self.findChild(QRadioButton, 'radioButton_cross_cursor')
-        self.radioButton_harmonic_cursor = self.findChild(QRadioButton, 'radioButton_harmonic_cursor')
         self.plotAbs = self.radioButton_plotAbs.isChecked()
         self.plotReal = self.radioButton_plotReal.isChecked()
         self.plotImag = self.radioButton_plotImag.isChecked()
@@ -108,10 +105,6 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.radioButton_plotImag.clicked.connect(self.radioButtonEvent_YAxis)
         self.radioButton_Absolute.clicked.connect(self.radioButtonEvent_save_data)
         self.radioButton_Real_Imaginary.clicked.connect(self.radioButtonEvent_save_data)
-        self.radioButton_disable_cursors.clicked.connect(self.update_cursor_controls)
-        self.radioButton_cross_cursor.clicked.connect(self.update_cursor_controls)
-        self.radioButton_harmonic_cursor.clicked.connect(self.update_cursor_controls)
-        self.update_cursor_controls()
         #
         self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults) 
 
@@ -127,7 +120,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text)
+        self.lineEdit_node_id.setText(text)
 
 
     def update(self):
@@ -154,48 +147,60 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
 
-    def update_cursor_controls(self):
-        if self.radioButton_disable_cursors.isChecked():
-            self.checkBox_legends.setChecked(False)
-            self.checkBox_legends.setDisabled(True)
-        else:
-            self.checkBox_legends.setDisabled(False)
-
-
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
-        self.import_name = basename(self.import_path)
+        self.import_name = os.path.basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
 
 
-    def ImportResults(self):
+    def import_results(self):
         try:
             message = ""
             run = True
-            skiprows = int(self.spinBox_skiprows.text())
+            if self.checkBox_skiprows.isChecked():
+                skiprows = self.spinBox_skiprows.value()
+            else:
+                skiprows = 0
             maximum_lines_to_skip = 100
- 
+            
             while run:
                 try:
-                    self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
+                    sufix = Path(self.imported_path).suffix
+                    filename = os.path.basename(self.imported_path)
+                    if sufix in [".txt", ".dat", ".csv"]:
+                        loaded_data = np.loadtxt(self.imported_path, 
+                                                 delimiter = ",", 
+                                                 skiprows = skiprows)
+                        key = self.get_data_index()
+                        self.imported_results[key] = {  "data" : loaded_data,
+                                                        "filename" : filename,
+                                                        "extension" : sufix  }
+
+                    elif sufix in [".xls", ".xlsx"]:
+                        wb = openpyxl.load_workbook(self.imported_path)
+                        sheetnames = wb.sheetnames
+                        for sheetname in sheetnames:
+                            sheet_data = pd.read_excel(self.imported_path, 
+                                                       sheet_name = sheetname, 
+                                                       header = skiprows, 
+                                                       usecols = [0,1,2]).to_numpy()
+                            key = self.get_data_index()
+                            self.imported_results[key] = {  "data" : sheet_data,
+                                                            "filename" : filename,
+                                                            "sheetname" : sheetname,
+                                                            "extension" : sufix  }
+
                     self.spinBox_skiprows.setValue(int(skiprows))
                     run = False
+
                 except:
                     skiprows += 1
-                    if skiprows>=maximum_lines_to_skip:
+                    if skiprows >= maximum_lines_to_skip:
                         run = False
                         title = "Error while loading data from file"
                         message = "The maximum number of rows to skip has been reached and no valid data has "
                         message += "been found. Please, verify the data in the imported file to proceed."
                         message += "Maximum number of header rows: 100"
-
-            if skiprows<maximum_lines_to_skip:
-                self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
-                self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-                title = "Information"
-                message = "The results have been imported."
-                PrintMessageInput([title, message, window_title2])
-                return
 
         except Exception as log_error:
             title = "Error while loading data from file"
@@ -208,14 +213,14 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
-        self.save_name = basename(self.save_path)
+        self.save_name = os.path.basename(self.save_path)
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
 
 
     def check(self, export=False):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        lineEdit_node_id = self.lineEdit_node_id.text()
+        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_node_id, single_ID=True)
         if stop:
             return True
                 
@@ -263,95 +268,152 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         PrintMessageInput([title, message, window_title2])
 
 
-    def dB(self, data):
-        p_ref = 20e-6 
-        return 20*np.log10(data/p_ref)
+    # def dB(self, data):
+    #     p_ref = 20e-6 
+    #     return 20*np.log10(data/p_ref)
 
 
-    def plot(self):
-        """
-        """
-        plt.ion()
-        # self.fig = plt.figure(figsize=[12,7])
-        # ax = self.fig.add_subplot(1,1,1)
-        self.fig, ax = plt.subplots(figsize=(8, 6))
+    # def plot(self):
+    #     """
+    #     """
+    #     plt.ion()
+    #     # self.fig = plt.figure(figsize=[12,7])
+    #     # ax = self.fig.add_subplot(1,1,1)
+    #     self.fig, ax = plt.subplots(figsize=(8, 6))
 
-        frequencies = self.frequencies
-        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
+    #     frequencies = self.frequencies
+    #     response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
 
-        if complex(0) in response:
-            response += np.ones(len(response), dtype=float)*(1e-12)
+    #     if complex(0) in response:
+    #         response += np.ones(len(response), dtype=float)*(1e-12)
 
-        if self.scale_dB :
-            if self.plotAbs:
-                response = self.dB(response)
-                ax.set_ylabel("Acoustic Response - Absolute [dB]", fontsize = 14, fontweight = 'bold')
-            else:
-                if self.plotReal:
-                    ax.set_ylabel("Acoustic Response - Real [Pa]", fontsize = 14, fontweight = 'bold')
-                elif self.plotImag:
-                    ax.set_ylabel("Acoustic Response - Imaginary [Pa]", fontsize = 14, fontweight = 'bold')
-                title = "Plot Information"
-                message = "The dB scalling can only be applied with the absolute \nY-axis representation, therefore, it will be ignored."
-                PrintMessageInput([title, message, window_title2])
-        else:
-            if self.plotAbs:
-                ax.set_ylabel("Acoustic Response - Absolute [Pa]", fontsize = 14, fontweight = 'bold')
-            elif self.plotReal:
-                ax.set_ylabel("Acoustic Response - Real [Pa]", fontsize = 14, fontweight = 'bold')
-            elif self.plotImag:
-                ax.set_ylabel("Acoustic Response - Imaginary [Pa]", fontsize = 14, fontweight = 'bold')
+    #     if self.scale_dB :
+    #         if self.plotAbs:
+    #             response = self.dB(response)
+    #             ax.set_ylabel("Acoustic Response - Absolute [dB]", fontsize = 14, fontweight = 'bold')
+    #         else:
+    #             if self.plotReal:
+    #                 ax.set_ylabel("Acoustic Response - Real [Pa]", fontsize = 14, fontweight = 'bold')
+    #             elif self.plotImag:
+    #                 ax.set_ylabel("Acoustic Response - Imaginary [Pa]", fontsize = 14, fontweight = 'bold')
+    #             title = "Plot Information"
+    #             message = "The dB scalling can only be applied with the absolute \nY-axis representation, therefore, it will be ignored."
+    #             PrintMessageInput([title, message, window_title2])
+    #     else:
+    #         if self.plotAbs:
+    #             ax.set_ylabel("Acoustic Response - Absolute [Pa]", fontsize = 14, fontweight = 'bold')
+    #         elif self.plotReal:
+    #             ax.set_ylabel("Acoustic Response - Real [Pa]", fontsize = 14, fontweight = 'bold')
+    #         elif self.plotImag:
+    #             ax.set_ylabel("Acoustic Response - Imaginary [Pa]", fontsize = 14, fontweight = 'bold')
 
-        legend_label = "Acoustic Pressure at node {}".format(self.node_ID)
+    #     legend_label = "Acoustic Pressure at node {}".format(self.node_ID)
         
-        if self.imported_data is None:
+    #     if self.imported_data is None:
 
-            response += np.ones(len(response), dtype=float)*(1e-12)
+    #         response += np.ones(len(response), dtype=float)*(1e-12)
 
-            if self.plotAbs and not self.scale_dB and not complex(0) in response:
-                first_plot, = ax.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            else:
-                first_plot, = ax.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = ax.legend(handles=[first_plot], labels=[legend_label])
+    #         if self.plotAbs and not self.scale_dB and not complex(0) in response:
+    #             first_plot, = ax.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+    #         else:
+    #             first_plot, = ax.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+    #         _legends = ax.legend(handles=[first_plot], labels=[legend_label])
 
-        else:
+    #     else:
 
-            data = self.imported_data
-            imported_Xvalues = data[:,0]
+    #         data = self.imported_data
+    #         imported_Xvalues = data[:,0]
             
-            if self.plotAbs:
-                imported_Yvalues = np.abs(data[:,1] + 1j*data[:,2])
-                if complex(0) in imported_Yvalues:
-                    imported_Yvalues += np.ones(len(imported_Yvalues), dtype=float)*(1e-12)
+    #         if self.plotAbs:
+    #             imported_Yvalues = np.abs(data[:,1] + 1j*data[:,2])
+    #             if complex(0) in imported_Yvalues:
+    #                 imported_Yvalues += np.ones(len(imported_Yvalues), dtype=float)*(1e-12)
 
-                if self.scale_dB :
-                    imported_Yvalues = self.dB(imported_Yvalues)
-            elif self.plotReal:
-                imported_Yvalues = data[:,1]
-            elif self.plotImag:
-                imported_Yvalues = data[:,2]
+    #             if self.scale_dB :
+    #                 imported_Yvalues = self.dB(imported_Yvalues)
+    #         elif self.plotReal:
+    #             imported_Yvalues = data[:,1]
+    #         elif self.plotImag:
+    #             imported_Yvalues = data[:,2]
 
-            if self.plotAbs and not self.scale_dB and not complex(0) in response:
-                first_plot, = ax.semilogy(frequencies, response, color=[1,0,0], linewidth=2)
-                second_plot, = ax.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")            
-            else:
-                first_plot, = ax.plot(frequencies, response, color=[1,0,0], linewidth=2)
-                second_plot, = ax.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
+    #         if self.plotAbs and not self.scale_dB and not complex(0) in response:
+    #             first_plot, = ax.semilogy(frequencies, response, color=[1,0,0], linewidth=2)
+    #             second_plot, = ax.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")            
+    #         else:
+    #             first_plot, = ax.plot(frequencies, response, color=[1,0,0], linewidth=2)
+    #             second_plot, = ax.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
 
-            _legends = ax.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
+    #         _legends = ax.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported])#, loc='upper right')
 
-        plt.gca().add_artist(_legends)
+    #     plt.gca().add_artist(_legends)
 
-        ax.set_title(('ACOUSTIC FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 12, fontweight = 'bold')
-        ax.set_xlabel(('Frequency [Hz]'), fontsize = 11, fontweight = 'bold')
+    #     ax.set_title(('ACOUSTIC FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 12, fontweight = 'bold')
+    #     ax.set_xlabel(('Frequency [Hz]'), fontsize = 11, fontweight = 'bold')
 
-        if not self.radioButton_disable_cursors.isChecked():
-            show_legend = self.checkBox_legends.isChecked()
-            if self.radioButton_harmonic_cursor.isChecked():
-                self.cursor = AdvancedCursor(ax, frequencies, response, False, number_vertLines=12, show_legend=show_legend)
-            else:
-                self.cursor = AdvancedCursor(ax, frequencies, response, False, number_vertLines=1 , show_legend=show_legend)
+    #     if not self.radioButton_disable_cursors.isChecked():
+    #         show_legend = self.checkBox_legends.isChecked()
+    #         if self.radioButton_harmonic_cursor.isChecked():
+    #             self.cursor = AdvancedCursor(ax, frequencies, response, False, number_vertLines=12, show_legend=show_legend)
+    #         else:
+    #             self.cursor = AdvancedCursor(ax, frequencies, response, False, number_vertLines=1 , show_legend=show_legend)
 
-            self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
+    #         self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
         
-        self.fig.show()
+    #     self.fig.show()
+
+
+    def call_plotter(self):
+        self.join_model_data()
+        self.join_imported_data()
+        self.plotter = FrequencyResponsePlotter()
+        self.plotter._set_data_to_plot(self.data_to_plot)
+
+    def join_model_data(self):
+        self.data_to_plot = dict()
+        self.title = "Structural frequency response - {}".format(self.analysisMethod)
+        legend_label = "Response {} at node {}".format(self.localdof_label, self.node_ID)
+        self.data_to_plot[0] = {   "type" : "model results",
+                                    "x_data" : self.frequencies,
+                                    "y_data" : self.get_response(),
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : "Nodal response",
+                                    "legend" : legend_label,
+                                    "unit" : self.unit_label,
+                                    "title" : self.title,
+                                    "color" : [0,0,1],
+                                    "linestyle" : "-"   }
+
+    def join_imported_data(self):
+        j = 0
+        for id, checkBox in self.ids_to_checkBox.items():
+            temp_dict = dict()
+            if checkBox.isChecked():
+
+                if id < len(self.colors):
+                    color = self.colors[j]
+                    j += 1
+                else:
+                    color = np.random.randint(0,255,3)/255
+
+                data = self.imported_results[id]["data"]
+                x_values = data[:, 0]
+                y_values = data[:, 1] + 1j*data[:, 2]
+
+                if "sheetname" in self.imported_results[id].keys():
+                    sheetname = self.imported_results[id]["sheetname"]
+                    legend_label = f"{sheetname}"
+                else:
+                    legend_label = self.imported_results[id]["filename"]
+
+                temp_dict = {   "type" : "imported_data",
+                                "x_data" : x_values,
+                                "y_data" : y_values,
+                                "x_label" : "Frequency [Hz]",
+                                "y_label" : "Nodal response",
+                                "legend" : legend_label,
+                                "unit" : self.unit_label,
+                                "title" : self.title,
+                                "color" : color,
+                                "linestyle" : "--"   }
+
+                self.data_to_plot[id] = temp_dict

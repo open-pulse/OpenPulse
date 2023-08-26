@@ -11,7 +11,7 @@ class PlotStaticAnalysisReactions(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_reactions_for_static_analysis.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_reactions_for_static_analysis.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

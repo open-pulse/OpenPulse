@@ -13,7 +13,7 @@ class GetStandardCrossSection(QDialog):
     def __init__(self, section_data=None, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/standard_cross_section_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/standard_cross_section_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

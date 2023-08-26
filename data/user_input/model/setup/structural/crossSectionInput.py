@@ -24,7 +24,7 @@ class CrossSectionInput(QDialog):
                     *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/cross_section_inputs.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/cross_section_inputs.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

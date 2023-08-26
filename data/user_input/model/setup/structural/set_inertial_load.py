@@ -12,7 +12,7 @@ class SetInertialLoad(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/inertial_load_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/inertial_load_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

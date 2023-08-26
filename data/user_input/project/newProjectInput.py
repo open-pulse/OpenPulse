@@ -22,7 +22,7 @@ class NewProjectInput(QDialog):
     def __init__(self, project, opv, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Project/newProjectInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Project/newProjectInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
