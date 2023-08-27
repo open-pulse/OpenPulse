@@ -8,8 +8,10 @@ import os
 import numpy as np
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 
+from data.user_input.data_handler.export_model_results import ExportModelResults
 from data.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 from data.user_input.plots.general.mpl_canvas import MplCanvas
+
 from pulse.tools.advanced_cursor import AdvancedCursor
 
 def get_icons_path(filename):
@@ -40,9 +42,19 @@ class FrequencyResponsePlotter(QDialog):
         self._layout = None
         self.x_data = None
         self.y_data = None
+        self.importer = None
         self.title = ""
         self.font_weight = "normal"
         self.data_to_plot = dict()
+        self.colors = [ [0,0,1],
+                        [0,0,0],
+                        [0,1,0],
+                        [1,1,0],
+                        [0,1,1],
+                        [1,0,1],
+                        [0.75,0.75,0.75],
+                        [0.5, 0.5, 0.5],
+                        [0.25, 0.25, 0.25] ]
 
     def _define_qt_variables(self):
         # QCheckBox
@@ -52,6 +64,7 @@ class FrequencyResponsePlotter(QDialog):
         self.checkBox_cursor_legends = self.findChild(QCheckBox, 'checkBox_cursor_legends')
         # QComboBox
         self.comboBox_plot_type = self.findChild(QComboBox, 'comboBox_plot_type')
+        self.comboBox_differentiate_data = self.findChild(QComboBox, 'comboBox_differentiate_data')
         # QFrame
         self.frame_vertical_lines = self.findChild(QFrame, 'frame_vertical_lines') 
         # QPushButton
@@ -63,14 +76,20 @@ class FrequencyResponsePlotter(QDialog):
         self.radioButton_disable_cursors = self.findChild(QRadioButton, 'radioButton_disable_cursors')
         self.radioButton_cross_cursor = self.findChild(QRadioButton, 'radioButton_cross_cursor')
         self.radioButton_harmonic_cursor = self.findChild(QRadioButton, 'radioButton_harmonic_cursor')
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        # self.radioButton_none_diff = self.findChild(QRadioButton, 'radioButton_none_diff')
+        # self.radioButton_single_diff = self.findChild(QRadioButton, 'radioButton_single_diff')
+        # self.radioButton_double_diff = self.findChild(QRadioButton, 'radioButton_double_diff')
         # QWidget
         self.widget_plot = self.findChild(QWidget, 'widget_plot')
 
     def _create_connections(self):
-        self.comboBox_plot_type.currentIndexChanged.connect(self._update_plot_type)
         self.checkBox_grid.stateChanged.connect(self.plot_data_in_freq_domain)
         self.checkBox_legends.stateChanged.connect(self.plot_data_in_freq_domain)
         self.checkBox_cursor_legends.stateChanged.connect(self.plot_data_in_freq_domain)
+        self.checkBox_decibel_scale.stateChanged.connect(self._update_comboBox)
+        self.comboBox_plot_type.currentIndexChanged.connect(self._update_plot_type)
+        self.comboBox_differentiate_data.currentIndexChanged.connect(self.plot_data_in_freq_domain)
         self.radioButton_real.clicked.connect(self._update_comboBox)
         self.radioButton_imaginary.clicked.connect(self._update_comboBox)
         self.radioButton_absolute.clicked.connect(self._update_comboBox)
@@ -78,14 +97,21 @@ class FrequencyResponsePlotter(QDialog):
         self.radioButton_cross_cursor.clicked.connect(self.update_cursor_controls)
         self.radioButton_harmonic_cursor.clicked.connect(self.update_cursor_controls)
         self.pushButton_import_data.clicked.connect(self.import_file)
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self._update_comboBox()
         self.update_cursor_controls()
 
     def import_file(self):
-        read = ImportDataToCompare()
+        if self.importer is None:
+            self.importer = ImportDataToCompare(self)
+        else:
+            self.importer.exec()
 
     def _update_comboBox(self):
-        self.aux_bool = self.radioButton_real.isChecked() + self.radioButton_imaginary.isChecked()
+        aux_real = self.radioButton_real.isChecked()
+        aux_imag = self.radioButton_imaginary.isChecked()
+        aux_decibel = self.checkBox_decibel_scale.isChecked()
+        self.aux_bool = aux_real + aux_imag + aux_decibel
         if self.aux_bool:
             self.comboBox_plot_type.setCurrentIndex(2)
             self.comboBox_plot_type.setDisabled(True)
@@ -114,6 +140,11 @@ class FrequencyResponsePlotter(QDialog):
         self.mpl_canvas_frequency_plot = MplCanvas(self, width=8, height=6, dpi=110)
         self.ax = self.mpl_canvas_frequency_plot.axes
         self.fig = self.mpl_canvas_frequency_plot.fig
+    
+    def call_data_exporter(self):
+        data = self.data_to_plot["model", 0]
+        self.exporter = ExportModelResults()
+        self.exporter._set_data_to_export(data)
 
     def load_data_to_plot(self, data):
         if "x_data" in data.keys():
@@ -121,7 +152,8 @@ class FrequencyResponsePlotter(QDialog):
         if "y_data" in data.keys():
             self.y_data = self.get_y_axis_data(data["y_data"])
         if "unit" in data.keys():
-            self.unit = data["unit"]
+            if data["unit"] != "":
+                self.unit = data["unit"]
         if "x_label" in data.keys():
             self.x_label = data["x_label"]
         if "y_label" in data.keys():
@@ -139,14 +171,15 @@ class FrequencyResponsePlotter(QDialog):
     def det_scaled_data(self, data):
         if self.checkBox_decibel_scale.isChecked():
             if "Pa" in self.unit:
-                return 20*np.log10((np.abs(data)/2e-5))
+                return 10*np.log10(((data/2e-5)**2))
             else:
-                return 20*np.log10(np.abs(data))
+                return 10*np.log10(data**2)
         else:
             return data
 
     def get_y_axis_data(self, data):
-        out_data = self.det_scaled_data(data)
+        _data = self.process_differentiation(data)
+        out_data = self.det_scaled_data(_data)
         if self.radioButton_real.isChecked():
             return np.real(out_data)
         elif self.radioButton_imaginary.isChecked():
@@ -163,10 +196,31 @@ class FrequencyResponsePlotter(QDialog):
         else:
             type_label = "absolute"
 
+        unit = self.get_unit_considering_differentiation()
         if self.checkBox_decibel_scale.isChecked():
             return f"{label} - {type_label} [dB]"
         else:
-            return f"{label} - {type_label} [{self.unit}]"
+            return f"{label} - {type_label} [{unit}]"
+
+    def process_differentiation(self, data):
+        frequencies = self.x_data
+        index = self.comboBox_differentiate_data.currentIndex()
+        if index == 0:
+            output_data = data
+        elif index == 1:
+            output_data = data*(1j*2*np.pi)*frequencies
+        else:
+            output_data = data*((1j*2*np.pi*frequencies)**2)           
+        return output_data
+    
+    def get_unit_considering_differentiation(self):
+        index = self.comboBox_differentiate_data.currentIndex()
+        if index == 0:
+            return self.unit
+        elif index == 1:
+            return self.unit + "/s"
+        else:
+            return self.unit + "/s²"
 
     def plot_data_in_freq_domain(self):
 
@@ -209,7 +263,8 @@ class FrequencyResponsePlotter(QDialog):
             self.call_cursor()
             self.ax.set_xlabel(self.x_label, fontsize = 11, fontweight = self.font_weight)
             self.ax.set_ylabel(self.y_label, fontsize = 11, fontweight = self.font_weight)
-            self.ax.set_title(self.title, fontsize = 12, fontweight = self.font_weight)
+            if self.title != "":
+                self.ax.set_title(self.title, fontsize = 12, fontweight = self.font_weight)
 
             if self.checkBox_grid.isChecked():
                 self.ax.grid()
@@ -288,6 +343,6 @@ class FrequencyResponsePlotter(QDialog):
 
     def _set_data_to_plot(self, data):
         if isinstance(data, dict):
-            self.data_to_plot = data
+            self.data_to_plot["model", 0] = data
             self.plot_data_in_freq_domain()
             self.exec()

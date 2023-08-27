@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>700</height>
+    <height>740</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1000</width>
-    <height>700</height>
+    <height>740</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -131,12 +131,15 @@
          <property name="bottomMargin">
           <number>4</number>
          </property>
-         <item row="4" column="0">
-          <widget class="QFrame" name="frame_11">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
+         <item row="3" column="0">
+          <widget class="QFrame" name="frame_22">
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>48</height>
+             <height>42</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -151,7 +154,7 @@
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-           <layout class="QGridLayout" name="gridLayout_8">
+           <layout class="QGridLayout" name="gridLayout_24">
             <property name="leftMargin">
              <number>2</number>
             </property>
@@ -167,20 +170,20 @@
             <property name="spacing">
              <number>2</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QPushButton" name="pushButton_reset">
+            <item row="0" column="1">
+             <widget class="QPushButton" name="pushButton_import_data">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>0</width>
                 <height>30</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>110</width>
+                <width>260</width>
                 <height>30</height>
                </size>
               </property>
@@ -200,7 +203,27 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
 QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(150, 150, 150); background-color: rgb(200, 200, 200); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
               </property>
               <property name="text">
-               <string> Reset plot </string>
+               <string>  Import data  </string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QFrame" name="frame_adj_left">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QFrame" name="frame_adj_right">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
               </property>
              </widget>
             </item>
@@ -254,6 +277,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                </property>
                <property name="bottomMargin">
                 <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>2</number>
                </property>
                <item row="0" column="0">
                 <widget class="QFrame" name="frame_13">
@@ -393,7 +419,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                     <property name="maximumSize">
                      <size>
                       <width>16777215</width>
-                      <height>38</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="font">
@@ -414,13 +440,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                       <number>2</number>
                      </property>
                      <property name="topMargin">
-                      <number>2</number>
+                      <number>0</number>
                      </property>
                      <property name="rightMargin">
                       <number>2</number>
                      </property>
                      <property name="bottomMargin">
-                      <number>2</number>
+                      <number>0</number>
                      </property>
                      <property name="horizontalSpacing">
                       <number>4</number>
@@ -531,6 +557,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   </item>
                   <item row="1" column="0">
                    <widget class="QFrame" name="frame_legends_2">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -589,6 +621,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   </item>
                   <item row="2" column="0">
                    <widget class="QFrame" name="frame_legends_3">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -656,7 +694,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>160</height>
+                <height>200</height>
                </size>
               </property>
               <property name="frameShape">
@@ -677,6 +715,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                </property>
                <property name="bottomMargin">
                 <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>2</number>
                </property>
                <item row="0" column="0">
                 <widget class="QFrame" name="frame_8">
@@ -786,7 +827,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  <property name="maximumSize">
                   <size>
                    <width>220</width>
-                   <height>120</height>
+                   <height>180</height>
                   </size>
                  </property>
                  <property name="sizeIncrement">
@@ -821,142 +862,400 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                    <number>4</number>
                   </property>
                   <item row="2" column="0">
-                   <widget class="QRadioButton" name="radioButton_real">
-                    <property name="minimumSize">
-                     <size>
-                      <width>140</width>
-                      <height>0</height>
-                     </size>
-                    </property>
+                   <widget class="QFrame" name="frame_20">
                     <property name="maximumSize">
                      <size>
-                      <width>140</width>
-                      <height>26</height>
+                      <width>16777215</width>
+                      <height>28</height>
                      </size>
                     </property>
-                    <property name="font">
-                     <font>
-                      <family>MS Shell Dlg 2</family>
-                      <pointsize>10</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
                     </property>
-                    <property name="text">
-                     <string>Real part</string>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
                     </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_y_data</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QRadioButton" name="radioButton_absolute">
-                    <property name="minimumSize">
-                     <size>
-                      <width>140</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>140</width>
-                      <height>26</height>
-                     </size>
-                    </property>
-                    <property name="font">
-                     <font>
-                      <family>MS Shell Dlg 2</family>
-                      <pointsize>10</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
-                    <property name="text">
-                     <string>Absolute</string>
-                    </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>30</width>
-                      <height>30</height>
-                     </size>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_y_data</string>
-                    </attribute>
+                    <layout class="QGridLayout" name="gridLayout_26">
+                     <property name="leftMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <item row="0" column="0">
+                      <widget class="QRadioButton" name="radioButton_real">
+                       <property name="minimumSize">
+                        <size>
+                         <width>140</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>140</width>
+                         <height>26</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>MS Shell Dlg 2</family>
+                         <pointsize>10</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Real part</string>
+                       </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup_y_data</string>
+                       </attribute>
+                      </widget>
+                     </item>
+                    </layout>
                    </widget>
                   </item>
                   <item row="3" column="0">
-                   <widget class="QRadioButton" name="radioButton_imaginary">
-                    <property name="minimumSize">
-                     <size>
-                      <width>140</width>
-                      <height>0</height>
-                     </size>
-                    </property>
+                   <widget class="QFrame" name="frame_25">
                     <property name="maximumSize">
                      <size>
-                      <width>140</width>
-                      <height>26</height>
+                      <width>16777215</width>
+                      <height>28</height>
                      </size>
                     </property>
-                    <property name="font">
-                     <font>
-                      <family>MS Shell Dlg 2</family>
-                      <pointsize>10</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
                     </property>
-                    <property name="text">
-                     <string>Imaginary part</string>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
                     </property>
-                    <attribute name="buttonGroup">
-                     <string notr="true">buttonGroup_y_data</string>
-                    </attribute>
+                    <layout class="QGridLayout" name="gridLayout_27">
+                     <property name="leftMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <item row="0" column="0">
+                      <widget class="QRadioButton" name="radioButton_imaginary">
+                       <property name="minimumSize">
+                        <size>
+                         <width>140</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>140</width>
+                         <height>26</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>MS Shell Dlg 2</family>
+                         <pointsize>10</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Imaginary part</string>
+                       </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup_y_data</string>
+                       </attribute>
+                      </widget>
+                     </item>
+                    </layout>
                    </widget>
                   </item>
                   <item row="4" column="0">
-                   <widget class="QCheckBox" name="checkBox_decibel_scale">
-                    <property name="minimumSize">
-                     <size>
-                      <width>140</width>
-                      <height>0</height>
-                     </size>
-                    </property>
+                   <widget class="QFrame" name="frame_26">
                     <property name="maximumSize">
                      <size>
-                      <width>140</width>
-                      <height>26</height>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_28">
+                     <property name="leftMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <item row="0" column="0">
+                      <widget class="QCheckBox" name="checkBox_decibel_scale">
+                       <property name="minimumSize">
+                        <size>
+                         <width>140</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>140</width>
+                         <height>26</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>MS Shell Dlg 2</family>
+                         <pointsize>10</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Decibel scale</string>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>30</width>
+                         <height>30</height>
+                        </size>
+                       </property>
+                       <property name="checked">
+                        <bool>false</bool>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QFrame" name="frame_10">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_25">
+                     <property name="leftMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <item row="0" column="0">
+                      <widget class="QRadioButton" name="radioButton_absolute">
+                       <property name="minimumSize">
+                        <size>
+                         <width>140</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>140</width>
+                         <height>26</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>MS Shell Dlg 2</family>
+                         <pointsize>10</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Absolute</string>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>30</width>
+                         <height>30</height>
+                        </size>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup_y_data</string>
+                       </attribute>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QFrame" name="frame_27">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="font">
                      <font>
-                      <family>MS Shell Dlg 2</family>
                       <pointsize>10</pointsize>
                       <weight>50</weight>
-                      <italic>false</italic>
                       <bold>false</bold>
                      </font>
                     </property>
-                    <property name="text">
-                     <string>Decibel scale</string>
+                    <property name="frameShape">
+                     <enum>QFrame::NoFrame</enum>
                     </property>
-                    <property name="iconSize">
-                     <size>
-                      <width>30</width>
-                      <height>30</height>
-                     </size>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
                     </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
+                    <layout class="QGridLayout" name="gridLayout_29">
+                     <property name="leftMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>2</number>
+                     </property>
+                     <property name="horizontalSpacing">
+                      <number>4</number>
+                     </property>
+                     <property name="verticalSpacing">
+                      <number>2</number>
+                     </property>
+                     <item row="0" column="2">
+                      <widget class="QFrame" name="frame_28">
+                       <property name="frameShape">
+                        <enum>QFrame::NoFrame</enum>
+                       </property>
+                       <property name="frameShadow">
+                        <enum>QFrame::Raised</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_4">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>26</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <pointsize>10</pointsize>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Differentiate:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QComboBox" name="comboBox_differentiate_data">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>80</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>100</width>
+                         <height>26</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>MS Shell Dlg 2</family>
+                         <pointsize>10</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true"/>
+                       </property>
+                       <item>
+                        <property name="text">
+                         <string> none</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string> single</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string> double</string>
+                        </property>
+                       </item>
+                      </widget>
+                     </item>
+                    </layout>
                    </widget>
                   </item>
                  </layout>
@@ -997,6 +1296,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                </property>
                <property name="bottomMargin">
                 <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>2</number>
                </property>
                <item row="0" column="0">
                 <widget class="QFrame" name="frame_32">
@@ -1116,6 +1418,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   </property>
                   <item row="3" column="0">
                    <widget class="QFrame" name="frame_15">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -1149,7 +1457,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                        <property name="maximumSize">
                         <size>
                          <width>200</width>
-                         <height>26</height>
+                         <height>28</height>
                         </size>
                        </property>
                        <property name="font">
@@ -1177,6 +1485,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   </item>
                   <item row="1" column="0">
                    <widget class="QFrame" name="frame_17">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -1238,6 +1552,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   </item>
                   <item row="2" column="0">
                    <widget class="QFrame" name="frame_16">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -1271,7 +1591,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                        <property name="maximumSize">
                         <size>
                          <width>200</width>
-                         <height>26</height>
+                         <height>28</height>
                         </size>
                        </property>
                        <property name="font">
@@ -1299,6 +1619,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   </item>
                   <item row="0" column="0">
                    <widget class="QFrame" name="frame_legends">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -1357,6 +1683,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   </item>
                   <item row="4" column="0">
                    <widget class="QFrame" name="frame_vertical_lines">
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>28</height>
+                     </size>
+                    </property>
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
@@ -1468,11 +1800,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QFrame" name="frame_22">
+          <widget class="QFrame" name="frame_11">
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>48</height>
+             <height>44</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -1487,7 +1819,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-           <layout class="QGridLayout" name="gridLayout_24">
+           <layout class="QGridLayout" name="gridLayout_8">
             <property name="leftMargin">
              <number>2</number>
             </property>
@@ -1504,7 +1836,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <number>2</number>
             </property>
             <item row="0" column="1">
-             <widget class="QPushButton" name="pushButton_import_data">
+             <widget class="QPushButton" name="pushButton_export_data">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -1536,7 +1868,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
 QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(150, 150, 150); background-color: rgb(200, 200, 200); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
               </property>
               <property name="text">
-               <string> Import data </string>
+               <string>  Export data  </string>
               </property>
              </widget>
             </item>
@@ -1630,7 +1962,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_cursor"/>
   <buttongroup name="buttonGroup_y_data"/>
+  <buttongroup name="buttonGroup_cursor"/>
  </buttongroups>
 </ui>

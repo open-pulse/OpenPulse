@@ -20,7 +20,7 @@ window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
 
 class ImportDataToCompare(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/data_handler/import_data_to_compare.ui'), self)
@@ -31,7 +31,9 @@ class ImportDataToCompare(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Import data to compare")
-
+        
+        self.plotter = plotter
+        
         self._reset_variables()
         self._define_and_configure_Qt_variables()
         self._create_connections()
@@ -44,6 +46,15 @@ class ImportDataToCompare(QDialog):
         self.imported_results = dict()
         self.ids_to_checkBox = dict()
         self.checkButtons_state = dict()
+        self.colors = [ [0,0,0],
+                        [0,1,0],
+                        [1,1,0],
+                        [0,1,1],
+                        [1,0,1],
+                        [0.75,0.75,0.75],
+                        [0.5, 0.5, 0.5],
+                        [0.25, 0.25, 0.25],
+                        [0,0,1] ]
 
     def _define_and_configure_Qt_variables(self):
         # CheckBox
@@ -52,8 +63,9 @@ class ImportDataToCompare(QDialog):
         self.lineEdit_import_results_path = self.findChild(QLineEdit, 'lineEdit_import_results_path')
         self.lineEdit_import_results_path.setDisabled(True)
         # PushButton
-        self.pushButton_search_file_to_import = self.findChild(QPushButton, 'pushButton_search_file_to_import')
+        self.pushButton_add_imported_data_to_plot = self.findChild(QPushButton, 'pushButton_add_imported_data_to_plot')
         self.pushButton_reset_imported_data = self.findChild(QPushButton, 'pushButton_reset_imported_data')
+        self.pushButton_search_file_to_import = self.findChild(QPushButton, 'pushButton_search_file_to_import')
         self.pushButton_search_file_to_import.setIcon(self.search_icon)
         # SpinBox
         self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox_skiprows')
@@ -73,6 +85,7 @@ class ImportDataToCompare(QDialog):
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
         self.pushButton_search_file_to_import.clicked.connect(self.choose_path_import_results)
         self.pushButton_reset_imported_data.clicked.connect(self.reset_imported_data)
+        self.pushButton_add_imported_data_to_plot.clicked.connect(self.add_imported_data_to_plot)
         self.update_skiprows_visibility()
         
     def update_skiprows_visibility(self):
@@ -180,12 +193,48 @@ class ImportDataToCompare(QDialog):
         index = 1
         run = True
         while run:
-            if index not in self.imported_results.keys():
+            if index in self.plotter.data_to_plot.keys():
+                index += 1
+            else:
                 key = index
                 run = False
-            else:
-                index += 1
+                
         return key
+    
+    def join_imported_data(self):
+        j = 0
+        for id, checkBox in self.ids_to_checkBox.items():
+            temp_dict = dict()
+            if checkBox.isChecked():
+
+                if id < len(self.colors):
+                    color = self.colors[j]
+                    j += 1
+                else:
+                    color = np.random.randint(0,255,3)/255
+
+                data = self.imported_results[id]["data"]
+                x_values = data[:, 0]
+                y_values = data[:, 1] + 1j*data[:, 2]
+
+                if "sheetname" in self.imported_results[id].keys():
+                    sheetname = self.imported_results[id]["sheetname"]
+                    legend_label = f"{sheetname}"
+                else:
+                    legend_label = self.imported_results[id]["filename"]
+
+                temp_dict = {   "type" : "imported_data",
+                                "x_data" : x_values,
+                                "y_data" : y_values,
+                                "x_label" : "Frequency [Hz]",
+                                "y_label" : "Nodal response",
+                                "legend" : legend_label,
+                                "unit" : "",
+                                "title" : "",
+                                "color" : color,
+                                "linestyle" : "--"   }
+
+                self.plotter.data_to_plot[id] = temp_dict
 
     def cache_checkButtons_state(self):
         self.checkButtons_state = dict()
@@ -193,11 +242,14 @@ class ImportDataToCompare(QDialog):
             self.checkButtons_state[key] = check.isChecked()
 
     def reset_imported_data(self):
-        self.ids_to_checkBox = dict()
-        self.imported_results = dict()
         self.lineEdit_import_results_path.setText("")
         self.treeWidget_import_sheet_files.clear()
         self.treeWidget_import_text_files.clear()
+        self._reset_variables()
+
+    def add_imported_data_to_plot(self):
+        self.join_imported_data()
+        self.plotter.plot_data_in_freq_domain()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
