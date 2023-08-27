@@ -8,8 +8,8 @@ import os
 import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_structural_frf
-from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from data.user_input.data_handler.export_model_results import ExportModelResults
+from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -20,7 +20,7 @@ window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
 
 class PlotStructuralFrequencyResponseInput(QDialog):
-    def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_structural_frequency_response.ui'), self)
@@ -33,36 +33,30 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
-        self.nodes = project.preprocessor.nodes
-        self.frequencies = project.frequencies
-        self.analysisMethod = analysisMethod
-        self.solution = solution
-
         self.list_node_IDs = self.opv.getListPickedPoints()
+
+        self.nodes = project.preprocessor.nodes
+        self.analysisMethod = project.analysis_method_label
+        self.frequencies = project.frequencies
+        self.solution = project.get_structural_solution()
 
         self._load_icons()
         self._reset_variables()
-        self._define_and_configure_Qt_variables()
+        self._define_qt_variables()
         self._create_connections()
         self.writeNodes(self.list_node_IDs)
         self.exec()
 
-    def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.setWindowIcon(self.pulse_icon)
-
     def _reset_variables(self):
-        self.userPath = os.path.expanduser('~')
-        self.imported_data = None
-        self.imported_results = dict()
         self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
 
-    def _define_and_configure_Qt_variables(self):
+    def _define_qt_variables(self):
         # LineEdit
         self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
         # PushButton
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
         self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
+        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
+        self.pushButton_call_data_exporter.setIcon(self.export_icon)
         # RadioButton
         self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
         self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
@@ -75,6 +69,11 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
     
+    def _load_icons(self):
+        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
+        self.setWindowIcon(self.pulse_icon)
+
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
@@ -105,6 +104,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         lineEdit_node_id = self.lineEdit_node_id.text()
         stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_node_id, single_ID=True)
         if stop:
+            self.lineEdit_node_id.setFocus()
             return True
 
         if self.radioButton_ux.isChecked():

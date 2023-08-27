@@ -11,11 +11,11 @@ def get_acoustic_frf(preprocessor, solution, node, absolute=False, real=False, i
         results = np.real(solution[position])
     elif imag:
         results = np.imag(solution[position])
+    elif dB:
+        p_ref = 20e-6
+        results = 20*np.log10(np.abs(solution[position]/(np.sqrt(2)*p_ref)))
     else:
         results = solution[position]
-    if dB:
-        p_ref = 20e-6
-        results = 20*np.log10(np.abs(results/(np.sqrt(2)*p_ref)))
     return results
 
 def get_max_min_values_of_pressures(solution, column, absolute=False):

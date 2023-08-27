@@ -383,16 +383,14 @@ class InputUi:
             if self.analysis_ID == 7:
                 self.processInput(PlotNodalResultsForStaticAnalysis, self.project, self.opv, solution)
             else:
-                self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv, 
-                                    self.analysis_method_label, solution  )
+                self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv)
 
     def plotAcousticFrequencyResponse(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv, 
-                                self.analysis_method_label, solution )
+            self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv)
 
     def plotAcousticDeltaPressures(self):
         if self.analysis_ID in [3,5,6]:

@@ -170,10 +170,11 @@ class FrequencyResponsePlotter(QDialog):
 
     def det_scaled_data(self, data):
         if self.checkBox_decibel_scale.isChecked():
+            data2 = np.real(data*np.conjugate(data))
             if "Pa" in self.unit:
-                return 10*np.log10(((data/2e-5)**2))
+                return 10*np.log10(data2/((2e-5)**2))
             else:
-                return 10*np.log10(data**2)
+                return 10*np.log10(data2**2)
         else:
             return data
 
