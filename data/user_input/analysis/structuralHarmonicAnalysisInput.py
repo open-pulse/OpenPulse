@@ -23,7 +23,7 @@ class StructuralHarmonicAnalysisInput(QDialog):
     def _define_and_connect_qt_variables(self):
         self.comboBox = self.findChild(QComboBox, 'comboBox')
         self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_title.setText("Harmonic Analysis - Structural")
+        self.label_title.setText("  Harmonic Analysis - Structural  ")
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)
 

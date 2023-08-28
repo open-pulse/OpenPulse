@@ -23,7 +23,7 @@ class CoupledHarmonicAnalysisInput(QDialog):
         self.index = self.comboBox.currentIndex()
 
         self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_title.setText("Harmonic Analysis - Coupled")
+        self.label_title.setText("  Harmonic Analysis - Coupled  ")
 
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)
