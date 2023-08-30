@@ -53,7 +53,6 @@ class RunAnalysisInput(QDialog):
             LoadingScreen('SOLUTION IN PROGRESS', 'Post-processing the obtained results', target=self.post_process_results)
             self.timer.start(200)
             self.exec()
-            # self.show()
             self.check_warnings()
 
 
@@ -62,7 +61,7 @@ class RunAnalysisInput(QDialog):
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        # self.setWindowModality(Qt.WindowModal)
 
 
     def _reset_variables(self):
@@ -76,12 +75,17 @@ class RunAnalysisInput(QDialog):
 
 
     def _define_and_config_qt_variables(self):
+        # QFrame
         self.frame_message = self.findChild(QFrame, 'frame_message')
         self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
+        # QLabel
         self.label_title = self.findChild(QLabel, 'label_title')
         self.label_message = self.findChild(QLabel, 'label_message')
+        # QProgressBar
         self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
+        # QTimer
         self.timer = QTimer()
+        #
         self.timer.timeout.connect(self.update_progress_bar)
         self.label_message.setWordWrap(True)
         self.label_message.setMargin(16)
@@ -329,7 +333,7 @@ class RunAnalysisInput(QDialog):
         self.adjustSize()
 
     def update_progress_bar(self):
-
+        self.timer.stop()
         t0 = time()
         dt = 0
         duration = 3
