@@ -49,7 +49,7 @@ class AboutOpenPulseInput(QDialog):
         self.label_main_info = self.findChild(QLabel, 'label_main_info')
         self.label_main_info.setText(main_info)
         
-        self.pushButton_repository = self.findChild(QToolButton, 'pushButton_repository')
+        self.pushButton_repository = self.findChild(QPushButton, 'pushButton_repository')
         self.pushButton_repository.clicked.connect(self.open_gitHub_repository)
 
         self.exec()

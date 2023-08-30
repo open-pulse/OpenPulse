@@ -28,14 +28,9 @@ class RunAnalysisInput(QDialog):
 
         uic.loadUi(Path('data/user_input/ui_files/analysis_/general_/run_analysis_input.ui'), self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        # self.setWindowModality(Qt.WindowModal)
-
         self.project = project
 
+        self._load_icons()
         self._reset_variables()
         self._load_analysis_info()
         self._define_and_config_qt_variables()
@@ -56,9 +51,20 @@ class RunAnalysisInput(QDialog):
             self.project.preprocessor.stop_processing = False
         else:
             LoadingScreen('SOLUTION IN PROGRESS', 'Post-processing the obtained results', target=self.post_process_results)
+            self.timer.start(200)
             self.exec()
+            # self.show()
             self.check_warnings()
-    
+
+
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+
     def _reset_variables(self):
         self.solution_acoustic = None
         self.solution_structural = None
@@ -69,21 +75,33 @@ class RunAnalysisInput(QDialog):
         self.solve = None
 
 
+    def _define_and_config_qt_variables(self):
+        self.frame_message = self.findChild(QFrame, 'frame_message')
+        self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
+        self.label_title = self.findChild(QLabel, 'label_title')
+        self.label_message = self.findChild(QLabel, 'label_message')
+        self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_progress_bar)
+        self.label_message.setWordWrap(True)
+        self.label_message.setMargin(16)
+        self.config_title_font()
+        self.config_message_font()
+
+
+    def config_title_font(self):
+        self.label_message.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
+
+
+    def config_message_font(self):
+        self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
+
+
     def _load_analysis_info(self):
         self.analysis_ID = self.project.analysis_ID
         self.analysis_type_label = self.project.analysis_type_label
         self.frequencies = self.project.frequencies
         self.modes = self.project.modes
-
-
-    def _define_and_config_qt_variables(self):
-        self.frame_message = self.findChild(QFrame, 'frame_message')
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_message = self.findChild(QLabel, 'label_message')
-        self.label_message.setWordWrap(True)
-        self.label_message.setMargin(16)
-        self.config_title_font()
-        self.config_message_font()
 
 
     def pre_non_linear_convergence_plot(self):
@@ -291,14 +309,6 @@ class RunAnalysisInput(QDialog):
             self.project.set_structural_reactions([ {}, {}, {} ])
 
 
-    def config_title_font(self):
-        self.label_message.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
-
-
-    def config_message_font(self):
-        self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
-
-
     def print_final_log(self):
 
         text = "Solution finished!\n\n"
@@ -317,3 +327,16 @@ class RunAnalysisInput(QDialog):
         text += "Press ESC to continue..."
         self.label_message.setText(text)
         self.adjustSize()
+
+    def update_progress_bar(self):
+
+        t0 = time()
+        dt = 0
+        duration = 3
+        while dt <= duration:
+            sleep(0.1)
+            dt = time() - t0
+            value = int(100*(dt/3))
+            self.progress_bar_timer.setValue(value)
+
+        self.close()
