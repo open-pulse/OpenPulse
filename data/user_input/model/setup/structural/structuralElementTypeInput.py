@@ -15,7 +15,7 @@ class StructuralElementTypeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/structuralElementTypeInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/structuralElementTypeInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -363,7 +363,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, key, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

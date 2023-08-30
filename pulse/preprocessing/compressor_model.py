@@ -35,12 +35,14 @@ def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
     fig = plt.figure(figsize=[12,7])
     ax_ = fig.add_subplot(1,1,1)
+
     if _absolute:
         y = np.abs(y)
-    ax_.plot(x, y, color=[1,0,0], linewidth=2, label=label)
-    ax_.set_xlabel(x_label, fontsize = 14, fontweight = 'bold')
-    ax_.set_ylabel(y_label, fontsize = 14, fontweight = 'bold')
-    ax_.set_title(title, fontsize=16, fontweight = 'bold')
+
+    ax_.plot(x, y, color=[1,0,0], linewidth = 2, label = label)
+    ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
+    ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+    ax_.set_title(title, fontsize = 12, fontweight = 'bold')
     plt.grid()
     plt.show() 
 

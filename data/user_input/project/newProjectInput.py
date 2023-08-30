@@ -10,7 +10,7 @@ from shutil import copyfile
 from time import time
 
 from pulse.project import Project
-from pulse.default_libraries import default_material_library, default_fluid_library
+from pulse.lib.default_libraries import default_material_library, default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from pulse.utils import get_new_path
@@ -22,7 +22,7 @@ class NewProjectInput(QDialog):
     def __init__(self, project, opv, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Project/newProjectInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Project/newProjectInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

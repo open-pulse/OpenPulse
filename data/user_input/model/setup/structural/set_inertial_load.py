@@ -12,13 +12,13 @@ class SetInertialLoad(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/inertial_load_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/inertial_load_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)        
+        self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Set inertial load")
 
         self.project = project
@@ -55,9 +55,9 @@ class SetInertialLoad(QDialog):
     def change_input_fields_visibility(self):
         #
         _bool = not self.checkBox_stiffening_effect.isChecked()
-        self.lineEdit_acceleration_x_axis.setDisabled(_bool)
-        self.lineEdit_acceleration_y_axis.setDisabled(_bool)
-        self.lineEdit_acceleration_z_axis.setDisabled(_bool)
+        # self.lineEdit_acceleration_x_axis.setDisabled(_bool)
+        # self.lineEdit_acceleration_y_axis.setDisabled(_bool)
+        # self.lineEdit_acceleration_z_axis.setDisabled(_bool)
 
     def check_gravity_values(self):
         #

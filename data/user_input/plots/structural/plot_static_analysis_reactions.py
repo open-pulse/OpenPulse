@@ -1,34 +1,17 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
-from pathlib import Path
-
-import os
-import numpy as np
-from os.path import basename
-import matplotlib.pyplot as plt
-
-from pulse.postprocessing.plot_structural_data import get_reactions
-from data.user_input.project.printMessageInput import PrintMessageInput
-
-window_title_1 = "ERROR"
-window_title_2 = "WARNING"
-window_title_3 = "INFORMATION"
-
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
 from pathlib import Path
 
 import numpy as np
 
+
 class PlotStaticAnalysisReactions(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/reactions_plot.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_reactions_for_static_analysis.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -50,6 +33,7 @@ class PlotStaticAnalysisReactions(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self.exec()
+
 
     def _define_qt_variables(self):
         #
@@ -95,6 +79,7 @@ class PlotStaticAnalysisReactions(QDialog):
         self._config_lineEdits()
         self._tabWidgets_visibility()
 
+
     def _create_connections(self):
         self.pushButton_reset.clicked.connect(self._reset_lineEdits)
         self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
@@ -104,68 +89,67 @@ class PlotStaticAnalysisReactions(QDialog):
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
+
     def _config_lineEdits(self):
         for lineEdit in self.lineEdits:
             lineEdit.setDisabled(True)
             lineEdit.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)")
+
 
     def _tabWidgets_visibility(self):
         self.tabWidget_springs_dampers.removeTab(1)
         if len(self.dict_reactions_at_springs) == 0:
             self.tabWidget_reactions.removeTab(1)
 
+
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
             lineEdit.setText("")
 
+
     def _update_lineEdit(self, node_id):
 
-        reactions = []
+        reactions = [None, None, None, None, None, None]
+        self._reset_lineEdits()
         node = self.project.preprocessor.nodes[node_id]
 
         if self.tabWidget_reactions.currentIndex() == 0:
             dict_reactions = self.dict_reactions_at_constrained_dofs
             for dof_index, value in dict_reactions.items():
-                if dof_index in node.global_dof:
-                    reactions.append(value)
-                else:
-                    reactions.append(complex(0))
-
-            if len(reactions) != 0:
-                mask = self.get_constrained_dofs_mask(node)
+                global_dofs = list(node.global_dof)
+                if dof_index in global_dofs:
+                    i = global_dofs.index(dof_index)
+                    reactions[i] = value
+            mask = self.get_constrained_dofs_mask(node)
 
         else:
 
             if self.tabWidget_springs_dampers.currentIndex() == 0:
                 dict_reactions = self.dict_reactions_at_springs
                 for dof_index, value in dict_reactions.items():
-                    if dof_index in node.global_dof:
-                        reactions.append(value)
-                    else:
-                        reactions.append(complex(0))
-
-                if len(reactions) != 0:
-                    mask = self.get_lumped_stiffness_mask(node)
+                    global_dofs = list(node.global_dof)
+                    if dof_index in global_dofs:
+                        i = global_dofs.index(dof_index)
+                        reactions[i] = value
+                mask = self.get_lumped_stiffness_mask(node)
 
             else:
 
                 dict_reactions = self.dict_reactions_at_dampers
                 for dof_index, value in dict_reactions.items():
-                    if dof_index in node.global_dof:
-                        reactions.append(value)
-                    else:
-                        reactions.append(complex(0))
-
-                if len(reactions) != 0:
-                    mask = self.get_lumped_dampings_mask(node)           
+                    global_dofs = list(node.global_dof)
+                    if dof_index in global_dofs:
+                        i = global_dofs.index(dof_index)
+                        reactions[i] = value
+                mask = self.get_lumped_dampings_mask(node)           
         
         try:
 
             if True in list(mask):
-                reactions = np.real(reactions).flatten()
                 for ind, lineEdit in enumerate(self.lineEdits[1:]):
                     if mask[ind]:
-                        lineEdit.setText("{:.6e}".format(reactions[ind]))
+                        value = float(np.real(reactions[ind]))
+                        lineEdit.setText("{:.6e}".format(value))
 
         except Exception as log_error:
             print(str(log_error))
@@ -190,6 +174,7 @@ class PlotStaticAnalysisReactions(QDialog):
         elif list(mask).count(True) == 1:
             text = "[{}]".format(temp[0])
         return text
+
 
     def _load_nodes_info(self):
         
@@ -216,6 +201,7 @@ class PlotStaticAnalysisReactions(QDialog):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
 
+
     def get_constrained_dofs_mask(self, node):
         constrained_dofs_mask = [False, False, False, False, False, False]
         for index, value in enumerate(node.prescribed_dofs):
@@ -225,20 +211,25 @@ class PlotStaticAnalysisReactions(QDialog):
             elif isinstance(value, np.ndarray):
                 constrained_dofs_mask[index] = False
         return constrained_dofs_mask
-        
+
+
     def get_lumped_dampings_mask(self, node):
         return [False if bc is None else True for bc in node.lumped_dampings]
-        
+
+
     def get_lumped_stiffness_mask(self, node):
         return [False if bc is None else True for bc in node.lumped_stiffness]
+
 
     def on_click_item(self, item):
         self.lineEdit_node_id.setText(item.text(0))
         self.plot_reactions()
 
+
     def on_doubleclick_item(self, item):
         self.lineEdit_node_id.setText(item.text(0))
         self.plot_reactions()
+
 
     def plot_reactions(self):
         try:

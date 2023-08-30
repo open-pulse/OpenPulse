@@ -9,7 +9,7 @@ class CoupledHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/analysis_/general_/harmonic_analysis_method_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/analysis_/general_/harmonic_analysis_method_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -23,7 +23,7 @@ class CoupledHarmonicAnalysisInput(QDialog):
         self.index = self.comboBox.currentIndex()
 
         self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_title.setText("Harmonic Analysis - Coupled")
+        self.label_title.setText("  Harmonic Analysis - Coupled  ")
 
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)

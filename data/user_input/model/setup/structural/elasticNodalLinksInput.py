@@ -21,7 +21,7 @@ class ElasticNodalLinksInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/elasticNodalLinksInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/elasticNodalLinksInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -439,14 +439,14 @@ class ElasticNodalLinksInput(QDialog):
             lineEdit.setText(self.path_imported_table)                        
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         
-            if imported_file.shape[1]<2:
+            if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The imported \n"
                 message += "data must have two columns of values."
                 PrintMessageInput([title, message, window_title])
                 lineEdit.setFocus()
                 return None, None
 
-            if imported_file.shape[1]>=2:
+            if imported_file.shape[1] >= 3:
                 self.imported_values = imported_file[:,1]
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
@@ -1036,7 +1036,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, selected_link, label, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Info/getGroupInformationInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

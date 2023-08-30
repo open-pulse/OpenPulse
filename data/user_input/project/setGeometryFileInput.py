@@ -11,7 +11,6 @@ import numpy as np
 
 from pulse.utils import get_new_path
 from pulse.project import Project
-from pulse.default_libraries import default_material_library, default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
@@ -21,7 +20,7 @@ class SetGeometryFileInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Project/setGeometryFileInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Project/setGeometryFileInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

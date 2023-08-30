@@ -47,7 +47,7 @@ class ClickableLineEdit(QLineEdit):
 class ExpansionJointInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/expansionJointInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/expansionJointInput.ui'), self)
         
         clicked = pyqtSignal()
 
@@ -758,7 +758,7 @@ class ExpansionJointInput(QDialog):
             lineEdit.setText(self.path_imported_table)   
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
                 
-            if imported_file.shape[1]<2:
+            if imported_file.shape[1] < 3:
                 title = f"Error while loading {stiffness_label} table"
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
@@ -767,7 +767,7 @@ class ExpansionJointInput(QDialog):
         
             imported_values = imported_file[:,1]
 
-            if imported_file.shape[1]>=2:
+            if imported_file.shape[1] >= 3:
 
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
@@ -1387,7 +1387,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, selection, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Info/getExpansionJointInformationInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Info/getExpansionJointInformationInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

@@ -10,8 +10,8 @@ from data.user_input.project.editImportedGeometryInput import EditImportedGeomet
 from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
 from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
-from data.user_input.model.setup.structural.materialInput import MaterialInput
-from data.user_input.model.setup.acoustic.fluidInput import FluidInput
+from data.user_input.model.setup.structural.material_input import MaterialInput
+from data.user_input.model.setup.acoustic.fluid_input import FluidInput
 from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
@@ -42,26 +42,26 @@ from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
 from data.user_input.analysis.runAnalysisInput import RunAnalysisInput
 #
-from data.user_input.plots.structural.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
-from data.user_input.plots.structural.plotDisplacementFieldInput import PlotDisplacementFieldInput
-from data.user_input.plots.structural.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
+from data.user_input.plots.structural.plot_structural_mode_shape_input import PlotStructuralModeShapeInput
+from data.user_input.plots.structural.plot_displacement_field_input import PlotDisplacementFieldInput
+from data.user_input.plots.structural.plot_structural_frequency_response_input import PlotStructuralFrequencyResponseInput
 from data.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
 from data.user_input.plots.structural.plot_reactions import PlotReactions
 from data.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
 from data.user_input.plots.structural.plot_stress_field import PlotStressField
 from data.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressFieldForStaticAnalysis
-from data.user_input.plots.structural.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
+from data.user_input.plots.structural.plot_stress_frequency_response_input import PlotStressFrequencyResponseInput
 from data.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
-from data.user_input.plots.acoustic.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
-from data.user_input.plots.acoustic.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
-from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from data.user_input.plots.acoustic.plot_acoustic_mode_shape_input import PlotAcousticModeShapeInput
+from data.user_input.plots.acoustic.plot_acoustic_pressure_field_input import PlotAcousticPressureFieldInput
+from data.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponseInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
-from data.user_input.plots.acoustic.plotAcousticDeltaPressureInput import Plot_Acoustic_Delta_Pressures_Input
+from data.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
 from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
-from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
+from data.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
 from data.user_input.plots.render.rendererUserPreferencesInput import RendererUserPreferencesInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
@@ -354,10 +354,7 @@ class InputUi:
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             if solution is None:
                 return
-            plot = self.processInput(PlotDisplacementFieldInput, self.project, self.opv)
-            if plot.frequency is None:
-                return
-            self.opv.changeAndPlotAnalysis(plot.frequency)
+            self.processInput(PlotDisplacementFieldInput, self.project, self.opv)
 
     def plotAcousticModeShapes(self):
         self.project.plot_pressure_field = True
@@ -386,23 +383,21 @@ class InputUi:
             if self.analysis_ID == 7:
                 self.processInput(PlotNodalResultsForStaticAnalysis, self.project, self.opv, solution)
             else:
-                self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv, 
-                                    self.analysis_method_label, solution  )
+                self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv)
 
     def plotAcousticFrequencyResponse(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv, 
-                                self.analysis_method_label, solution )
+            self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv)
 
     def plotAcousticDeltaPressures(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  Plot_Acoustic_Delta_Pressures_Input, self.project, self.opv, 
+            self.processInput(  PlotAcousticDeltaPressuresInput, self.project, self.opv, 
                                 self.analysis_method_label, solution  )
 
     def plot_TL_NR(self):

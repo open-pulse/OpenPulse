@@ -17,7 +17,7 @@ class DOFInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super(DOFInput, self).__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/dofInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/dofInput.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -318,7 +318,7 @@ class DOFInput(QDialog):
             lineEdit.setText(self.path_imported_table)         
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         
-            if imported_file.shape[1]<2:
+            if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum \n"
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([title, message, window_title])
@@ -327,7 +327,7 @@ class DOFInput(QDialog):
 
             self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-            if imported_file.shape[1]>2:
+            if imported_file.shape[1] >= 3:
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]

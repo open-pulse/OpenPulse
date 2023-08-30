@@ -11,7 +11,7 @@ class PlotStressFieldForStaticAnalysis(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/results_/structural_/plot_stress_field_for_static_analysis.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_stress_field_for_static_analysis.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -104,7 +104,8 @@ class PlotStressFieldForStaticAnalysis(QDialog):
         self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
                                                 np.max(list(self.stress_field.values())), 
                                                 self.stress_label )
-        self.opv.changeAndPlotAnalysis(self.selected_index, stress_field_plot=True)
+        scaling_setup = {}
+        self.opv.plot_stress_field(self.selected_index, scaling_setup)
         
 
     def check(self):

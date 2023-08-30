@@ -10,7 +10,7 @@ class PrintMessageInput(QDialog):
     def __init__(self, text_info, opv=None, fontsizes=[13,12], alignment=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/plots_/messages_/printMessages.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/messages_/printMessages.ui'), self)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.message_close)

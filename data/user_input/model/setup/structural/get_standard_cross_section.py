@@ -13,7 +13,7 @@ class GetStandardCrossSection(QDialog):
     def __init__(self, section_data=None, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui/Model/Setup/Structural/standard_cross_section_input.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/standard_cross_section_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -186,11 +186,15 @@ class GetStandardCrossSection(QDialog):
                         item = self.treeWidget_section_data.topLevelItem(index)
                         for i in range(7):
                             item.setForeground(i, QBrush(QColor(255,0,0)))
-                            item.setBackground(i, QBrush(QColor(200,200,200)))
+                            item.setBackground(i, QBrush(QColor(220,220,220)))
+                        self.treeWidget_section_data.setCurrentItem(item)
+                        self.treeWidget_section_data.setFocus()
 
                 if key == "stainless steel pipe" and self.radioButton_stainless_steel.isChecked():
                     for index in indexes:
                         item = self.treeWidget_section_data.topLevelItem(index)
                         for i in range(7):
                             item.setForeground(i, QBrush(QColor(255,0,0)))
-                            item.setBackground(i, QBrush(QColor(200,200,200)))
+                            item.setBackground(i, QBrush(QColor(220,220,220)))
+                        self.treeWidget_section_data.setCurrentItem(item)
+                        self.treeWidget_section_data.setFocus()
