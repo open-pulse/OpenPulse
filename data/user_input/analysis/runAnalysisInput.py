@@ -17,7 +17,8 @@ from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.loadingScreen import LoadingScreen
+from data.user_input.project.loading_screen import LoadingScreen
+
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
@@ -35,22 +36,37 @@ class RunAnalysisInput(QDialog):
         self._load_analysis_info()
         self._define_and_config_qt_variables()
 
-        LoadingScreen('SOLUTION IN PROGRESS', 'Processing the cross-sections',  target=self.process_cross_sections, project=project)
+        LoadingScreen(title = 'Solution in progress', 
+                      message = 'Processing the cross-sections',  
+                      target = self.process_cross_sections, 
+                      project = project)
+        
         if self.project.preprocessor.stop_processing:
             self.project.preprocessor.stop_processing = False
             return
 
-        LoadingScreen('SOLUTION IN PROGRESS', 'Preparing the model to solve', target=self.preparing_mathematical_model_to_solve)  
+        LoadingScreen(title = 'Solution in progress', 
+                      message = 'Preparing the model to solve', 
+                      target = self.preparing_mathematical_model_to_solve)
+
         self.pre_non_linear_convergence_plot()
 
-        LoadingScreen('SOLUTION IN PROGRESS', 'Solving the analysis',  target=self.process_analysis, project=project)
+        LoadingScreen(title = 'Solution in progress', 
+                      message = 'Solving the analysis',  
+                      target = self.process_analysis, 
+                      project = project)
+
         self.post_non_linear_convergence_plot()  
 
         if self.project.preprocessor.stop_processing:
             self.reset_all_results()
             self.project.preprocessor.stop_processing = False
         else:
-            LoadingScreen('SOLUTION IN PROGRESS', 'Post-processing the obtained results', target=self.post_process_results)
+
+            LoadingScreen(title = 'Solution in progress', 
+                          message = 'Post-processing the obtained results', 
+                          target = self.post_process_results)
+            
             self.timer.start(200)
             self.exec()
             self.check_warnings()

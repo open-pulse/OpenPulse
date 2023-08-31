@@ -11,7 +11,7 @@ from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-from data.user_input.project.loadingScreen import LoadingScreen
+from data.user_input.project.loading_screen import LoadingScreen
 
 import numpy as np
 import configparser
@@ -124,7 +124,9 @@ class Project:
         # def callback():
         if self.initial_load_project_actions(project_file_path):
             self.load_project_files()
-        # LoadingScreen('Loading Project', target=callback)
+        # LoadingScreen(title = 'Loading Project', 
+        #               message = "Loading project files",
+        #               target=callback)
         self.preprocessor.check_disconnected_lines(self.file._element_size)
 
     def initial_load_project_actions(self, project_file_path):

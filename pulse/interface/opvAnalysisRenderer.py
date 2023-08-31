@@ -1,5 +1,5 @@
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.loadingScreen import LoadingScreen
+from data.user_input.project.loading_screen import LoadingScreen
 import vtk
 import numpy as np
 from math import pi
@@ -394,7 +394,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         else:
             message = "The animation frames calculation is in progress..."
         
-        LoadingScreen(title, message, target=cache_callback)
+        LoadingScreen(title = title, 
+                      message = message, 
+                      target = cache_callback)
 
     def pauseAnimation(self):
         self.playingAnimation = False

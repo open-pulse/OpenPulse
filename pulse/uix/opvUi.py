@@ -7,7 +7,7 @@ import vtk
 from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
 from pulse.interface.opvGeometryRenderer import opvGeometryRenderer
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
-from data.user_input.project.loadingScreen import LoadingScreen
+from data.user_input.project.loading_screen import LoadingScreen
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -85,7 +85,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.plot()
         self.opvAnalysisRenderer.plot()
         self.opvGeometryRenderer.plot()
-        # LoadingScreen('Updating Plot', target=callback)
+        # LoadingScreen(title = 'Processing model',
+        #               message = "Updating render",
+        #               target = callback)
 
     def changePlotToRawGeometry(self):
         
