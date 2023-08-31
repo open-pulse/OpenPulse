@@ -8,3 +8,4 @@ ctREFPROP
 pandas
 openpyxl
 h5py
+gmsh
