@@ -34,9 +34,6 @@ class RadiationImpedanceInput(QDialog):
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
 
-        self.userPath = os.path.expanduser('~')
-        self.new_load_path_table = ""
-        self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
         self.nodes = project.preprocessor.nodes
