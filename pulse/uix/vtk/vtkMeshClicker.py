@@ -249,12 +249,9 @@ class vtkMeshClicker(vtkInteractorStyleArcballCamera):
         pickedElements = self.pickElements(x0, y0, x1, y1)
         pickedEntities = self.pickEntities(pickedElements)
 
-        # give preference to points selection
-        if len(pickedPoints) == 1:
-            if len(pickedElements) == 1 or len(pickedEntities) == 1:
-                pickedElements.clear()
-                pickedEntities.clear()
-            
+        tolerance = 10  # pixels
+        box_selection = (abs(x0-x1) >= tolerance) or (abs(y0-y1) >= tolerance)
+        self.selectionPriority(pickedPoints, pickedElements, pickedEntities, box_selection)
 
         # add or remove selection with control, shift and alt
         if controlPressed:
@@ -275,6 +272,15 @@ class vtkMeshClicker(vtkInteractorStyleArcballCamera):
             self.__selectedEntities = pickedEntities
 
         self.InvokeEvent('SelectionChangedEvent')
+
+    def selectionPriority(self, picked_points, picked_elements, picked_entities, box_selection=False):
+        if box_selection:
+            return
+
+        # give preference to points selection
+        if len(picked_points) != 1 and len(picked_elements) == 1:
+                picked_elements.clear()
+                picked_entities.clear()
 
     #
     def pickPoints(self, x0, y0, x1, y1, tolerance=10):
