@@ -6,7 +6,7 @@ from collections import defaultdict
 import os
 
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
-from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
+from pulse.uix.vtk.vtkGeometryClicker import vtkGeometryClicker
 from pulse.uix.vtk.colorTable import ColorTable
 
 from pulse.interface.tubeActor import TubeActor
@@ -26,7 +26,7 @@ class opvGeometryRenderer(vtkRendererBase):
     '''
 
     def __init__(self, project, opv):
-        super().__init__(vtkMeshClicker(self))
+        super().__init__(vtkGeometryClicker(self))
 
         self.project = project 
         self.opv = opv
