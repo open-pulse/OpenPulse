@@ -52,8 +52,8 @@ class BeamXaxisRotationInput(QDialog):
 
         self.lineEdit_xaxis_rotation_increment_angle = self.findChild(QLineEdit, "lineEdit_xaxis_rotation_increment_angle")
         self.lineEdit_xaxis_rotation_actual_angle = self.findChild(QLineEdit, "lineEdit_xaxis_rotation_actual_angle")
-        self.lineEdit_xaxis_rotation_increment_angle.setDisabled(True)
-        self.lineEdit_xaxis_rotation_actual_angle.setDisabled(False)
+        self.lineEdit_xaxis_rotation_increment_angle.setDisabled(False)
+        self.lineEdit_xaxis_rotation_actual_angle.setDisabled(True)
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_entity')
@@ -320,12 +320,12 @@ class GetInformationOfGroup(QDialog):
         # self.lines_removed = False
 
         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-        self.treeWidget_group_info.headerItem().setText(0, "LINE")
-        self.treeWidget_group_info.headerItem().setText(1, "ANGLE [degrees]")
+        self.treeWidget_group_info.headerItem().setText(0, "Line")
+        self.treeWidget_group_info.headerItem().setText(1, "Angle [degrees]")
         self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
         
-        self.treeWidget_group_info.setColumnWidth(0, 120)
+        self.treeWidget_group_info.setColumnWidth(0, 130)
         self.treeWidget_group_info.setColumnWidth(1, 140)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
