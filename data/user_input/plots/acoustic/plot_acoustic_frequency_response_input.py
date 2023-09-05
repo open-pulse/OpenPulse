@@ -107,15 +107,15 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         return response
 
     def join_model_data(self):
-        if float(0) in self.frequencies:
-            shift = 1
-        else:
-            shift = 0
+        # if float(0) in self.frequencies:
+        #     shift = 1
+        # else:
+        #     shift = 0
         self.model_results = dict()
         self.title = "Acoustic frequency response - {}".format(self.analysis_method)
         legend_label = "Acoustic pressure at node {}".format(self.node_ID)
-        self.model_results = {  "x_data" : self.frequencies[shift:],
-                                "y_data" : self.get_response()[shift:],
+        self.model_results = {  "x_data" : self.frequencies,
+                                "y_data" : self.get_response(),
                                 "x_label" : "Frequency [Hz]",
                                 "y_label" : "Nodal response",
                                 "title" : self.title,
@@ -127,6 +127,6 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.call_plotter()
         elif event.key() == Qt.Key_Escape:
             self.close()
