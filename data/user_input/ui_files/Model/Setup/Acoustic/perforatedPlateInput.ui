@@ -39,7 +39,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</normaloff>../../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</iconset>
+    <normaloff>../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</normaloff>../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</iconset>
   </property>
   <property name="whatsThis">
    <string/>
@@ -99,7 +99,7 @@
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>12</pointsize>
        <weight>75</weight>
        <italic>false</italic>
@@ -158,11 +158,11 @@
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="currentIndex">
@@ -176,19 +176,24 @@
        <property name="geometry">
         <rect>
          <x>118</x>
-         <y>432</y>
+         <y>426</y>
          <width>150</width>
          <height>30</height>
         </rect>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>12</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
        </property>
        <property name="text">
         <string>Confirm</string>
@@ -198,10 +203,18 @@
        <property name="geometry">
         <rect>
          <x>6</x>
-         <y>34</y>
+         <y>28</y>
          <width>375</width>
          <height>375</height>
         </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
        </property>
        <property name="currentIndex">
         <number>0</number>
@@ -216,11 +229,17 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>22</x>
-           <y>310</y>
-           <width>167</width>
-           <height>17</height>
+           <x>126</x>
+           <y>302</y>
+           <width>123</width>
+           <height>28</height>
           </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>28</height>
+          </size>
          </property>
          <property name="text">
           <string>Single hole</string>
@@ -232,10 +251,10 @@
         <widget class="QLabel" name="label_17">
          <property name="geometry">
           <rect>
-           <x>322</x>
+           <x>312</x>
            <y>138</y>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -247,21 +266,21 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -274,10 +293,10 @@
         <widget class="QLineEdit" name="lineEdit_HoleDiameter">
          <property name="geometry">
           <rect>
-           <x>194</x>
+           <x>204</x>
            <y>138</y>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -288,14 +307,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>120</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="palette">
@@ -413,8 +432,8 @@
           <rect>
            <x>16</x>
            <y>138</y>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -425,38 +444,38 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
           <string>Hole diameter:</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
         <widget class="QLabel" name="label_14">
          <property name="geometry">
           <rect>
-           <x>322</x>
+           <x>312</x>
            <y>180</y>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -468,21 +487,21 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -497,8 +516,8 @@
           <rect>
            <x>16</x>
            <y>180</y>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -509,38 +528,38 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
           <string>Plate thickness:</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_thickness">
          <property name="geometry">
           <rect>
-           <x>194</x>
+           <x>204</x>
            <y>180</y>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -551,14 +570,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>120</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="palette">
@@ -674,10 +693,10 @@
         <widget class="QLabel" name="label_15">
          <property name="geometry">
           <rect>
-           <x>322</x>
+           <x>312</x>
            <y>222</y>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -689,21 +708,21 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -716,10 +735,10 @@
         <widget class="QLineEdit" name="lineEdit_porosity">
          <property name="geometry">
           <rect>
-           <x>194</x>
+           <x>204</x>
            <y>222</y>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -730,14 +749,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>120</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="palette">
@@ -855,8 +874,8 @@
           <rect>
            <x>16</x>
            <y>222</y>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -867,38 +886,38 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
           <string>Area porosity:</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
         <widget class="QLabel" name="label_16">
          <property name="geometry">
           <rect>
-           <x>322</x>
+           <x>312</x>
            <y>264</y>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -910,21 +929,21 @@
          <property name="minimumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>35</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -939,8 +958,8 @@
           <rect>
            <x>16</x>
            <y>264</y>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -951,38 +970,38 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>170</width>
-           <height>26</height>
+           <width>180</width>
+           <height>28</height>
           </size>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <family>MS Shell Dlg 2</family>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
           <string>Discharge coefficient:</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_discharge">
          <property name="geometry">
           <rect>
-           <x>194</x>
+           <x>204</x>
            <y>264</y>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -993,14 +1012,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>120</width>
-           <height>26</height>
+           <width>100</width>
+           <height>28</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>120</width>
-           <height>26</height>
+           <height>28</height>
           </size>
          </property>
          <property name="palette">
@@ -1140,99 +1159,107 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QRadioButton" name="radioButton_common_pipe_section">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>76</y>
-            <width>260</width>
-            <height>25</height>
-           </rect>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>4</number>
           </property>
-          <property name="minimumSize">
-           <size>
-            <width>260</width>
-            <height>25</height>
-           </size>
+          <property name="topMargin">
+           <number>4</number>
           </property>
-          <property name="maximumSize">
-           <size>
-            <width>260</width>
-            <height>25</height>
-           </size>
+          <property name="rightMargin">
+           <number>4</number>
           </property>
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
+          <property name="bottomMargin">
+           <number>4</number>
           </property>
-          <property name="text">
-           <string>Common pipe section</string>
+          <property name="spacing">
+           <number>4</number>
           </property>
-         </widget>
-         <widget class="QRadioButton" name="radioButton_OpenPulse">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>8</y>
-            <width>260</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>260</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>260</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>OpenPulse's Model Formulation</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QRadioButton" name="radioButton_melling">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>42</y>
-            <width>260</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>260</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>260</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>11</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Melling's Model Formulation</string>
-          </property>
-         </widget>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="radioButton_OpenPulse">
+            <property name="minimumSize">
+             <size>
+              <width>260</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>270</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>OpenPulse's Model Formulation</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="radioButton_melling">
+            <property name="minimumSize">
+             <size>
+              <width>260</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>270</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Melling's Model Formulation</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="radioButton_common_pipe_section">
+            <property name="minimumSize">
+             <size>
+              <width>260</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>270</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Common pipe section</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
        <widget class="QWidget" name="tab_advanced">
@@ -1986,7 +2013,7 @@ impedance</string>
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>351</width>
+           <width>352</width>
            <height>81</height>
           </rect>
          </property>
@@ -2514,6 +2541,12 @@ discharge coefficient:</string>
          <height>110</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
        </property>
@@ -2546,11 +2579,11 @@ discharge coefficient:</string>
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
             </font>
            </property>
            <property name="text">
@@ -2577,11 +2610,11 @@ discharge coefficient:</string>
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
             </font>
            </property>
            <property name="text">
@@ -2623,11 +2656,11 @@ discharge coefficient:</string>
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="frameShape">
@@ -2637,11 +2670,7 @@ discharge coefficient:</string>
          <enum>QFrame::Sunken</enum>
         </property>
         <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:11pt; font-weight:600; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Y-axis plot controls&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Y-axis plot controls</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -2690,6 +2719,12 @@ p, li { white-space: pre-wrap; }
          <height>110</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
        </property>
@@ -2722,11 +2757,11 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
             </font>
            </property>
            <property name="text">
@@ -2759,11 +2794,11 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
+             <family>MS Shell Dlg 2</family>
              <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
             </font>
            </property>
            <property name="text">
@@ -2805,11 +2840,11 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>75</weight>
+          <weight>50</weight>
           <italic>false</italic>
-          <bold>true</bold>
+          <bold>false</bold>
          </font>
         </property>
         <property name="frameShape">
@@ -2819,11 +2854,7 @@ p, li { white-space: pre-wrap; }
          <enum>QFrame::Sunken</enum>
         </property>
         <property name="text">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:11pt; font-weight:600; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Select a parameter:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Select a parameter</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -2846,7 +2877,7 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>52</x>
-         <y>448</y>
+         <y>444</y>
          <width>282</width>
          <height>30</height>
         </rect>
@@ -2865,12 +2896,17 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>12</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
        </property>
        <property name="text">
         <string>Plot parameter</string>
@@ -2887,11 +2923,11 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
-         <weight>75</weight>
+         <weight>50</weight>
          <italic>false</italic>
-         <bold>true</bold>
+         <bold>false</bold>
         </font>
        </property>
        <property name="frameShape">
@@ -2931,11 +2967,11 @@ perfurated plate parameter:</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>9</pointsize>
-         <weight>75</weight>
+         <weight>50</weight>
          <italic>false</italic>
-         <bold>true</bold>
+         <bold>false</bold>
         </font>
        </property>
        <property name="indentation">
@@ -2959,11 +2995,11 @@ perfurated plate parameter:</string>
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
-          <weight>75</weight>
-          <italic>true</italic>
-          <bold>true</bold>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
          </font>
         </property>
         <property name="textAlignment">
@@ -2976,11 +3012,11 @@ perfurated plate parameter:</string>
         </property>
         <property name="font">
          <font>
-          <family>Arial</family>
+          <family>MS Shell Dlg 2</family>
           <pointsize>10</pointsize>
-          <weight>75</weight>
-          <italic>true</italic>
-          <bold>true</bold>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
          </font>
         </property>
         <property name="textAlignment">
@@ -2991,32 +3027,37 @@ perfurated plate parameter:</string>
       <widget class="QPushButton" name="pushButton_get_information_plot">
        <property name="geometry">
         <rect>
-         <x>260</x>
-         <y>180</y>
-         <width>90</width>
+         <x>242</x>
+         <y>178</y>
+         <width>110</width>
          <height>32</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>90</width>
+         <width>110</width>
          <height>32</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>90</width>
+         <width>110</width>
          <height>32</height>
         </size>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
-         <pointsize>11</pointsize>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
        </property>
        <property name="text">
         <string>See details</string>
@@ -3025,9 +3066,9 @@ perfurated plate parameter:</string>
       <widget class="QLabel" name="label_3">
        <property name="geometry">
         <rect>
-         <x>30</x>
+         <x>16</x>
          <y>274</y>
-         <width>181</width>
+         <width>195</width>
          <height>25</height>
         </rect>
        </property>
@@ -3045,11 +3086,11 @@ perfurated plate parameter:</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
-         <weight>75</weight>
+         <weight>50</weight>
          <italic>false</italic>
-         <bold>true</bold>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
@@ -3102,9 +3143,9 @@ perfurated plate parameter:</string>
       <widget class="QLabel" name="label_4">
        <property name="geometry">
         <rect>
-         <x>14</x>
+         <x>10</x>
          <y>222</y>
-         <width>147</width>
+         <width>183</width>
          <height>25</height>
         </rect>
        </property>
@@ -3122,7 +3163,7 @@ perfurated plate parameter:</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
          <weight>75</weight>
          <italic>false</italic>
@@ -3152,9 +3193,9 @@ perfurated plate parameter:</string>
       <widget class="QLabel" name="label_elementID_plot">
        <property name="geometry">
         <rect>
-         <x>167</x>
+         <x>193</x>
          <y>222</y>
-         <width>193</width>
+         <width>167</width>
          <height>25</height>
         </rect>
        </property>
@@ -3172,11 +3213,11 @@ perfurated plate parameter:</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>11</pointsize>
-         <weight>75</weight>
+         <weight>50</weight>
          <italic>false</italic>
-         <bold>true</bold>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
@@ -3346,12 +3387,17 @@ perfurated plate:</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>12</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
        </property>
        <property name="text">
         <string>Remove</string>
@@ -3360,32 +3406,37 @@ perfurated plate:</string>
       <widget class="QPushButton" name="pushButton_get_information_remove">
        <property name="geometry">
         <rect>
-         <x>268</x>
-         <y>382</y>
-         <width>90</width>
+         <x>246</x>
+         <y>380</y>
+         <width>110</width>
          <height>32</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>90</width>
+         <width>110</width>
          <height>32</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>90</width>
+         <width>110</width>
          <height>32</height>
         </size>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
-         <pointsize>11</pointsize>
+         <family>MS Shell Dlg 2</family>
+         <pointsize>10</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 10pt &quot;MS Shell Dlg 2&quot;}</string>
        </property>
        <property name="text">
         <string>See details</string>
@@ -3414,15 +3465,17 @@ perfurated plate:</string>
        </property>
        <property name="font">
         <font>
-         <family>Arial</family>
+         <family>MS Shell Dlg 2</family>
          <pointsize>12</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(125, 255, 245);</string>
+        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 12pt &quot;MS Shell Dlg 2&quot;}</string>
        </property>
        <property name="text">
         <string>Reset</string>
@@ -3454,7 +3507,7 @@ perfurated plate:</string>
        </property>
        <property name="font">
         <font>
-         <pointsize>12</pointsize>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -3489,11 +3542,11 @@ perfurated plate:</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
+       <family>MS Shell Dlg 2</family>
        <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="focusPolicy">
@@ -3512,9 +3565,9 @@ perfurated plate:</string>
     <widget class="QLabel" name="label_selection">
      <property name="geometry">
       <rect>
-       <x>52</x>
+       <x>34</x>
        <y>16</y>
-       <width>113</width>
+       <width>131</width>
        <height>26</height>
       </rect>
      </property>
@@ -3532,18 +3585,18 @@ perfurated plate:</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
+       <family>MS Shell Dlg 2</family>
+       <pointsize>11</pointsize>
+       <weight>50</weight>
        <italic>false</italic>
-       <bold>true</bold>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
-      <string>Elements IDs:</string>
+      <string>Elements IDs: </string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </widget>

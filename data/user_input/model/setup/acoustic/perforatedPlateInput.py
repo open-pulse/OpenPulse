@@ -7,8 +7,6 @@ from pathlib import Path
 
 import os
 import numpy as np
-import configparser
-import numpy as np
 import matplotlib.pyplot as plt
 
 from pulse.tools.advanced_cursor import AdvancedCursor
@@ -42,8 +40,6 @@ class PerforatedPlateInput(QDialog):
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
         
-        self.userPath = os.path.expanduser('~')
-        self.project_folder_path = project.project_folder_path
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.perforated_plate_tables_folder_path = get_new_path(self.acoustic_folder_path, "perforated_plate_files") 
 
@@ -58,155 +54,133 @@ class PerforatedPlateInput(QDialog):
             self.elements_id = self.valve_ids
             self.lineEdit_elementID.setDisabled(True)
 
+        self.elements_info_path = project.file._element_info_path
+
+        self._reset_variables()
+        self._define_qt_variables()
+        self._create_connections()
+        self.update()
+        self.load_elements_info()
+        self.exec()
+
+    def _reset_variables(self):
         self.inputs_from_node = False
         self.table_to_save = False
         self.complete = False
-
         self.type_label = None
         self.basename = None
         self.imported_values = None
         self.imported_filename = None
-
-        self.elements_info_path = project.file._element_info_path
+        self.user_impedance = None
+        self.new_load_path_table = ''
         self.dict_label = "PERFORATED PLATE || {}"
         self.tol = 1e-6
-
+        self.userPath = os.path.expanduser('~')
+        #
         self.dict_inputs = {}
+        self.dict_inputs['type'] = 0
         self.dict_inputs['dimensionless impedance'] = None
 
-        # Elements selection
-        # self.currentTab = 0
-        self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_elementID')
+    def _define_qt_variables(self):
+        #
+        # QCheckBox
+        self.checkBox_remove_valve_structural_effects = self.findChild(QCheckBox, 'checkBox_remove_valve_structural_effects')
+        self.checkBox_single_hole = self.findChild(QCheckBox, 'checkBox_single_hole')
+        self.checkBox_bias = self.findChild(QCheckBox, 'checkBox_bias')
+        self.checkBox_nonlinear = self.findChild(QCheckBox, 'checkBox_nonlinear')
+        self.checkBox_dimensionless = self.findChild(QCheckBox, 'checkBox_dimensionless')
+        # QLabel
         self.label_selection = self.findChild(QLabel, 'label_selection')
-
-        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        self.pushButton_reset.clicked.connect(self.remove_all_perforated_plate)
-
-        # Tabs
-        self.tabWidget_perforated_plate = self.findChild(QTabWidget, 'tabWidget_perforated_plate')
-        self.tabWidget_perforated_plate.currentChanged.connect(self.tabEvent_)
-        self.currentTab_ = self.tabWidget_perforated_plate.currentIndex()
-        self.tab_setup = self.tabWidget_perforated_plate.findChild(QWidget, 'tab_setup')
-        self.tab_preview = self.tabWidget_perforated_plate.findChild(QWidget, 'tab_preview')
-        self.tab_remove = self.tabWidget_perforated_plate.findChild(QWidget, 'tab_remove')
-
-        # Setup tab
-        self.radioButton_OpenPulse = self.findChild(QRadioButton, 'radioButton_OpenPulse')
-        self.radioButton_OpenPulse.toggled.connect(self.radioButtonEvent_setup)
-        
-        self.radioButton_melling = self.findChild(QRadioButton, 'radioButton_melling')
-        self.radioButton_melling.toggled.connect(self.radioButtonEvent_setup)
-
-        self.radioButton_common_pipe_section = self.findChild(QRadioButton, 'radioButton_common_pipe_section')
-        self.radioButton_common_pipe_section.toggled.connect(self.radioButtonEvent_setup)
-
-        self.flag_OpenPulse = self.radioButton_OpenPulse.isChecked()
-        self.flag_melling = self.radioButton_melling.isChecked()
-        self.dict_inputs['type'] = 0
-
+        self.label_nonlinDischarge = self.findChild(QLabel, 'label_nonlinDischarge')
+        self.label_bias = self.findChild(QLabel, 'label_bias')
+        self.label_correction = self.findChild(QLabel, 'label_correction')
+        self.label_dimensionless = self.findChild(QLabel, 'label_dimensionless')
+        self.label_elementID_plot = self.findChild(QLabel, 'label_elementID_plot')
+        # QLineEdit
+        self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_elementID')
+        self.lineEdit_nonlinDischarge = self.findChild(QLineEdit, 'lineEdit_nonlinDischarge')
+        self.lineEdit_correction = self.findChild(QLineEdit, 'lineEdit_correction')
+        self.lineEdit_impedance_real = self.findChild(QLineEdit, 'lineEdit_impedance_real')
+        self.lineEdit_impedance_imag = self.findChild(QLineEdit, 'lineEdit_impedance_imag')
+        self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
+        self.lineEdit_specify_elementID = self.findChild(QLineEdit, 'lineEdit_specify_elementID')
+        self.lineEdit_bias = self.findChild(QLineEdit, 'lineEdit_bias')
         self.lineEdit_HoleDiameter = self.findChild(QLineEdit, 'lineEdit_HoleDiameter')
         self.lineEdit_thickness = self.findChild(QLineEdit, 'lineEdit_thickness')
         self.lineEdit_porosity = self.findChild(QLineEdit, 'lineEdit_porosity')
         self.lineEdit_discharge = self.findChild(QLineEdit, 'lineEdit_discharge')
-
-        self.checkBox_single_hole = self.findChild(QCheckBox, 'checkBox_single_hole')
-        self.checkBox_single_hole.toggled.connect(self.checkBoxEvent_single_hole)
-        self.flag_single_hole = self.checkBox_single_hole.isChecked()
-
-        self.checkBox_nonlinear = self.findChild(QCheckBox, 'checkBox_nonlinear')
-        self.checkBox_nonlinear.toggled.connect(self.checkBoxEvent_nonlinear)
-        self.flag_nonlinear = self.checkBox_nonlinear.isChecked()
-        self.lineEdit_nonlinDischarge = self.findChild(QLineEdit, 'lineEdit_nonlinDischarge')
-        self.label_nonlinDischarge = self.findChild(QLabel, 'label_nonlinDischarge')
-        self.lineEdit_correction = self.findChild(QLineEdit, 'lineEdit_correction')
-        self.label_correction = self.findChild(QLabel, 'label_correction')
-        
-        self.checkBox_bias = self.findChild(QCheckBox, 'checkBox_bias')
-        self.checkBox_bias.toggled.connect(self.checkBoxEvent_bias)
-        self.checkBoxEvent_bias()
-        self.lineEdit_bias = self.findChild(QLineEdit, 'lineEdit_bias')
-        self.label_bias = self.findChild(QLabel, 'label_bias')
-
-        self.checkBox_dimensionless = self.findChild(QCheckBox, 'checkBox_dimensionless')
-        self.checkBox_dimensionless.toggled.connect(self.checkBoxEvent_dimensionless)
-        self.flag_dimensionless = self.checkBox_dimensionless.isChecked()
-        self.label_dimensionless = self.findChild(QLabel, 'label_dimensionless')
-
-        # User defined tab
+        # QPushButton
+        self.pushButton_plot_parameter = self.findChild(QPushButton, 'pushButton_plot_parameter')
+        self.pushButton_get_information_remove = self.findChild(QPushButton, 'pushButton_get_information_remove')
+        self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
+        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_load_table = self.findChild(QPushButton, 'pushButton_load_table')
+        self.pushButton_get_information_plot = self.findChild(QPushButton, 'pushButton_get_information_plot')
+        # QRadioButton
+        self.radioButton_OpenPulse = self.findChild(QRadioButton, 'radioButton_OpenPulse')        
+        self.radioButton_melling = self.findChild(QRadioButton, 'radioButton_melling')
+        self.radioButton_common_pipe_section = self.findChild(QRadioButton, 'radioButton_common_pipe_section')
+        self.radioButton_impedance = self.findChild(QRadioButton, 'radioButton_impedance')
+        self.radioButton_absortion = self.findChild(QRadioButton, 'radioButton_absortion')
+        self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
+        self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
+        # QSpinBox
+        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox')
+        # QTabWidget
+        self.tabWidget_perforated_plate = self.findChild(QTabWidget, 'tabWidget_perforated_plate')
+        self.tabWidget_setup = self.tabWidget_perforated_plate.findChild(QTabWidget, 'tabWidget_setup')
         self.tabWidget_dimensionless = self.findChild(QTabWidget, "tabWidget_dimensionless")
+        # QTreeWidget
+        self.treeWidget_perforated_plate_plot = self.findChild(QTreeWidget, 'treeWidget_perforated_plate_plot')
+        self.treeWidget_perforated_plate_remove = self.findChild(QTreeWidget, 'treeWidget_perforated_plate_remove')
+        self.treeWidget_perforated_plate_plot.setColumnWidth(0, 80)
+        self.treeWidget_perforated_plate_remove.setColumnWidth(0, 80)
+        # QWidget
+        self.tab_setup = self.tabWidget_perforated_plate.findChild(QWidget, 'tab_setup')
+        self.tab_preview = self.tabWidget_perforated_plate.findChild(QWidget, 'tab_preview')
+        self.tab_remove = self.tabWidget_perforated_plate.findChild(QWidget, 'tab_remove')
+        self.tab_main = self.tabWidget_setup.findChild(QWidget, 'tab_main')
+        self.tab_advanced = self.tabWidget_setup.findChild(QWidget, 'tab_advanced')
         self.tab_constant_value = self.tabWidget_dimensionless.findChild(QWidget, "tab_constant_value")
         self.tab_table_values = self.tabWidget_dimensionless.findChild(QWidget, "tab_table_values")
 
-        self.lineEdit_impedance_real = self.findChild(QLineEdit, 'lineEdit_impedance_real')
-        self.lineEdit_impedance_imag = self.findChild(QLineEdit, 'lineEdit_impedance_imag')
-        self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
-        self.user_impedance = None
-        self.new_load_path_table = ''
-
-        self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
-        self.toolButton_load_table.clicked.connect(self.load_dimensionless_impedance_table)
-
-        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
-        
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+    def _create_connections(self):
+        #
+        self.checkBox_bias.toggled.connect(self.checkBoxEvent_bias)
+        self.checkBox_nonlinear.toggled.connect(self.checkBoxEvent_nonlinear)
+        self.checkBox_dimensionless.toggled.connect(self.checkBoxEvent_dimensionless)
+        #
         self.pushButton_confirm.clicked.connect(self.confirm_perforated_plate_attribution)
-
-        # Preview tab
-        self.treeWidget_perforated_plate_plot = self.findChild(QTreeWidget, 'treeWidget_perforated_plate_plot')
-        self.treeWidget_perforated_plate_plot.setColumnWidth(0, 80)
-
-        self.pushButton_get_information_plot = self.findChild(QPushButton, 'pushButton_get_information_plot')
+        self.pushButton_get_information_remove.clicked.connect(self.get_information_of_group)
+        self.pushButton_remove.clicked.connect(self.remove_perforated_plate_by_group)
+        self.pushButton_reset.clicked.connect(self.remove_all_perforated_plate)
+        self.pushButton_plot_parameter.clicked.connect(self.pushButton_plot)
         self.pushButton_get_information_plot.clicked.connect(self.get_information_of_group)
-        
+        #
+        self.radioButton_impedance.toggled.connect(self.radioButtonEvent_preview)
+        self.radioButton_absortion.toggled.connect(self.radioButtonEvent_preview)
+        self.radioButton_plotReal.toggled.connect(self.radioButtonEvent_preview)
+        self.radioButton_plotImag.toggled.connect(self.radioButtonEvent_preview)
+        self.radioButton_OpenPulse.toggled.connect(self.radioButtonEvent_setup)
+        self.radioButton_melling.toggled.connect(self.radioButtonEvent_setup)
+        self.radioButton_common_pipe_section.toggled.connect(self.radioButtonEvent_setup)
+        #
+        self.tabWidget_perforated_plate.currentChanged.connect(self.tabEvent_)
+        #
+        self.toolButton_load_table.clicked.connect(self.load_dimensionless_impedance_table)
+        #        
         self.treeWidget_perforated_plate_plot.itemClicked.connect(self.on_click_item_plot)
         self.treeWidget_perforated_plate_plot.itemDoubleClicked.connect(self.on_doubleclick_item_plot)
-
-        self.label_elementID_plot = self.findChild(QLabel, 'label_elementID_plot')
-
-        self.lineEdit_specify_elementID = self.findChild(QLineEdit, 'lineEdit_specify_elementID')
-
-        self.radioButton_impedance = self.findChild(QRadioButton, 'radioButton_impedance')
-        self.radioButton_impedance.toggled.connect(self.radioButtonEvent_preview)
-
-        self.radioButton_absortion = self.findChild(QRadioButton, 'radioButton_absortion')
-        self.radioButton_absortion.toggled.connect(self.radioButtonEvent_preview)
-
-        self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
-        self.radioButton_plotReal.toggled.connect(self.radioButtonEvent_preview)
-
-        self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
-        self.radioButton_plotImag.toggled.connect(self.radioButtonEvent_preview)
-
-        self.pushButton_plot_parameter = self.findChild(QPushButton, 'pushButton_plot_parameter')
-        self.pushButton_plot_parameter.clicked.connect(self.pushButton_plot)
-
+        self.treeWidget_perforated_plate_remove.itemClicked.connect(self.on_click_item)
+        self.treeWidget_perforated_plate_remove.itemDoubleClicked.connect(self.on_doubleclick_item_remove)
+        #
         self.flag_impedance = self.radioButton_impedance.isChecked()
         self.flag_absortion = self.radioButton_absortion.isChecked()
         self.flag_plotReal = self.radioButton_plotReal.isChecked()
         self.flag_plotImag = self.radioButton_plotImag.isChecked()
+        self.checkBoxEvent_bias()
 
-        # Remove tab
-        self.tabWidget_perforated_plate = self.findChild(QTabWidget, 'tabWidget_perforated_plate')
-        self.tabWidget_setup = self.tabWidget_perforated_plate.findChild(QTabWidget, 'tabWidget_setup')
-        self.tab_main = self.tabWidget_setup.findChild(QWidget, 'tab_main')
-        self.tab_advanced = self.tabWidget_setup.findChild(QWidget, 'tab_advanced')
-        self.treeWidget_perforated_plate_remove = self.findChild(QTreeWidget, 'treeWidget_perforated_plate_remove')
-        self.treeWidget_perforated_plate_remove.setColumnWidth(0, 80)
-
-        self.pushButton_get_information_remove = self.findChild(QPushButton, 'pushButton_get_information_remove')
-        self.pushButton_get_information_remove.clicked.connect(self.get_information_of_group)
-
-        self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
-        self.pushButton_remove.clicked.connect(self.remove_perforated_plate_by_group)
-        
-        self.treeWidget_perforated_plate_remove.itemClicked.connect(self.on_click_item)
-        self.treeWidget_perforated_plate_remove.itemDoubleClicked.connect(self.on_doubleclick_item_remove)
-
-        self.checkBox_remove_valve_structural_effects = self.findChild(QCheckBox, 'checkBox_remove_valve_structural_effects')
-
-        self.update()
-        self.load_elements_info()
-        self.exec()
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_perforated_plate.currentIndex()
@@ -227,13 +201,9 @@ class PerforatedPlateInput(QDialog):
                 self.lineEdit_elementID.setText('')
             else:
                 self.on_click_item(items[0])
-
-    def checkBoxEvent_single_hole(self):
-        self.flag_single_hole = self.checkBox_single_hole.isChecked()
     
     def checkBoxEvent_nonlinear(self):
-        self.flag_nonlinear = self.checkBox_nonlinear.isChecked()
-        if self.flag_nonlinear:
+        if self.checkBox_nonlinear.isChecked():
             self.lineEdit_nonlinDischarge.setDisabled(False)
             self.label_nonlinDischarge.setDisabled(False)
             self.lineEdit_correction.setDisabled(False)
@@ -254,8 +224,7 @@ class PerforatedPlateInput(QDialog):
             self.label_bias.setDisabled(True)
 
     def checkBoxEvent_dimensionless(self):
-        self.flag_dimensionless = self.checkBox_dimensionless.isChecked()
-        if self.flag_dimensionless:
+        if self.checkBox_dimensionless.isChecked():
             self.tabWidget_dimensionless.setDisabled(False)
             self.label_dimensionless.setDisabled(False)
             self.lineEdit_load_table_path.setDisabled(False)
@@ -267,8 +236,6 @@ class PerforatedPlateInput(QDialog):
             self.toolButton_load_table.setDisabled(True)
  
     def radioButtonEvent_setup(self):
-        self.flag_OpenPulse = self.radioButton_OpenPulse.isChecked()
-        self.flag_melling = self.radioButton_melling.isChecked()
         self.flag_common_pipe_section = self.radioButton_common_pipe_section.isChecked()
         self.lineEdit_thickness.setDisabled(False)
         self.lineEdit_porosity.setDisabled(False)
@@ -277,7 +244,7 @@ class PerforatedPlateInput(QDialog):
         self.checkBox_single_hole.setDisabled(False)
         self.tabWidget_setup.removeTab(1)
 
-        if self.flag_OpenPulse:
+        if self.radioButton_OpenPulse.isChecked():
 
             self.checkBox_nonlinear.setDisabled(False)
             self.checkBoxEvent_nonlinear()
@@ -290,7 +257,7 @@ class PerforatedPlateInput(QDialog):
             self.tabWidget_setup.addTab(self.tab_advanced, "Advanced")
             self.dict_inputs['type'] = 0
 
-        elif self.flag_melling:
+        elif self.radioButton_melling.isChecked():
             
             self.dict_inputs['type'] = 1
 
@@ -392,7 +359,7 @@ class PerforatedPlateInput(QDialog):
             return
 
         try:
-            skiprows = int(self.lineEdit_skiprows.text())                
+            skiprows = int(self.spinBox_skiprows.text())                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",", skiprows=skiprows)
         except Exception as log_error:
             title = "Dimensionless impedance input error"
@@ -550,7 +517,7 @@ class PerforatedPlateInput(QDialog):
                     return True
                 self.dict_inputs['discharge coefficient'] = self.value
 
-            self.dict_inputs['nonlinear effects'] = self.flag_nonlinear
+            self.dict_inputs['nonlinear effects'] = self.checkBox_nonlinear.isChecked()
 
             # Check nonlinear discharge coefficient
             if self.check_input_parameters(self.lineEdit_nonlinDischarge.text(), 'nonlinear discharge coefficient'):
@@ -586,7 +553,7 @@ class PerforatedPlateInput(QDialog):
                 if self.check_svalues():
                     return True
         
-        self.dict_inputs['single hole'] = self.flag_single_hole
+        self.dict_inputs['single hole'] = self.checkBox_single_hole.isChecked()
 
         self.perforated_plate = PerforatedPlate(self.dict_inputs['hole diameter'], 
                                                 self.dict_inputs['plate thickness'],
