@@ -33,6 +33,8 @@ def offset_to_tdc(input_array, tdc):
 
 def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
+    plt.ion()
+
     fig = plt.figure(figsize=[12,7])
     ax_ = fig.add_subplot(1,1,1)
 
