@@ -65,17 +65,14 @@ class CompressorModel:
            isentropic_exponent,                # Compressed gas isentropic exponent
            pressure_at_suction,                # Pressure at suction
            temperature_at_suction,             # Temperature at suction
-           acting_label  ] = parameters       # Compressor is double effect (bool)
+           acting_label  ] = parameters        # Active cylinder(s) key (int)
 
         if acting_label == 0:
-            self.double_acting = True
-            self.active_cylinder = None
+            self.active_cylinder = 'both ends'
         elif acting_label == 1:
-            self.double_acting = False
-            self.active_cylinder = 'HEAD END'
+            self.active_cylinder = 'head end'
         elif acting_label == 2:
-            self.double_acting = False
-            self.active_cylinder = 'CRANK END'
+            self.active_cylinder = 'crank end'
 
         self.D = bore_diameter
         self.r = stroke/2
@@ -141,15 +138,15 @@ class CompressorModel:
                 
         if capacity is None:
             if self.cap is None:
-                self.cap = self.process_capacity(capacity=self.capacity)
+                self.cap = self.process_capacity(capacity = self.capacity)
             capacity = self.cap
 
         open_suc = [False]*N
         open_disch = [False]*N
 
-        if not self.double_acting and self.active_cylinder != 'HEAD END' and not aux_process and not plot_pv:
+        if self.active_cylinder not in ['head end', 'both ends'] and not aux_process and not plot_pv:
             p = np.zeros(N) 
-            print('Cylinder does not have Head End Pressure.')
+            print('Cylinder does not have head end pressure.')
         else:
             x = self.recip_x(tdc=0)
             p, vol = [], []
@@ -216,15 +213,21 @@ class CompressorModel:
         if tdc == None:
             tdc = self.tdc1
 
-        if not self.double_acting and self.active_cylinder != 'CRANK END':
-            print('Cylinder does not have Crank End Pressure.')
+        if self.active_cylinder not in ['crank end', 'both ends']:
+            print('Cylinder does not have crank end pressure.')
 
         if plot_pv:
-            vol, pressure = self.p_head_end(tdc=(tdc-np.pi), capacity=capacity, full_output=full_output, plot_pv=plot_pv)
+            vol, pressure = self.p_head_end(tdc = tdc - np.pi, 
+                                            capacity = capacity, 
+                                            full_output = full_output, 
+                                            plot_pv = plot_pv)
             vol = list(np.array(vol)*(self.D**2 - self.rod_diam**2)/self.D**2)
             return vol, pressure
         else:
-            pressure = self.p_head_end(tdc=(tdc-np.pi), capacity=capacity, full_output=full_output, plot_pv=plot_pv)
+            pressure = self.p_head_end(tdc = tdc - np.pi, 
+                                       capacity = capacity, 
+                                       full_output = full_output, 
+                                       plot_pv = plot_pv)
             return pressure
 
     def flow_head_end(self, tdc=None, capacity=None, aux_process=False):
@@ -234,8 +237,8 @@ class CompressorModel:
         if tdc == None:
             tdc = self.tdc1
 
-        if not self.double_acting and self.active_cylinder != 'HEAD END' and not aux_process:
-            print('Cylinder does not have Head End Pressure.')
+        if self.active_cylinder not in ['head end', 'both ends'] and not aux_process:
+            print('Cylinder does not have head end pressure.')
             return { 'in_flow': np.zeros(N+1),
                      'out_flow': np.zeros(N+1) }
         else:
@@ -264,8 +267,8 @@ class CompressorModel:
         if tdc is None:
             tdc = self.tdc1
 
-        if not self.double_acting and self.active_cylinder != 'CRANK END':
-            print('Cylinder does not have Crank End Pressure.')
+        if self.active_cylinder not in ['crank end', 'both ends']:
+            print('Cylinder does not have crank end pressure.')
             return { 'in_flow': np.zeros(N+1),
                      'out_flow': np.zeros(N+1) }
         else:
@@ -293,7 +296,7 @@ class CompressorModel:
 
     def process_sum_of_volumetric_flow_rate(self, key, capacity=None):
 
-        if self.double_acting:
+        if self.active_cylinder == 'both ends':
 
             if self.number_of_cylinders == 1:
                 flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
@@ -301,7 +304,7 @@ class CompressorModel:
                 flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
                 flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
 
-        elif self.active_cylinder == 'HEAD END':
+        elif self.active_cylinder == 'head end':
 
             if self.number_of_cylinders == 1:
                 flow_rate = self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
@@ -309,7 +312,7 @@ class CompressorModel:
                 flow_rate = self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
                 flow_rate += self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
 
-        elif self.active_cylinder == 'CRANK END':
+        elif self.active_cylinder == 'crank end':
 
             if self.number_of_cylinders == 1:
                 flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
@@ -478,7 +481,7 @@ class CompressorModel:
 
         x_label = "Time [s]"
         y_label = "Volume [m³]"
-        title = "VOLUME vs TIME PLOT"
+        title = "Volume vs Time"
         plot(time, volume, x_label, y_label, title)
 
     def plot_volumetric_flow_rate_at_suction_time(self):
@@ -489,7 +492,7 @@ class CompressorModel:
         time = np.arange(0, T+dt, dt)
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
-        title = "TIME PLOT OF VOLUMETRIC FLOW RATE AT SUCTION"
+        title = "Volumetric flow rate at suction"
         plot(time, flow_rate, x_label, y_label, title)
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
@@ -500,7 +503,7 @@ class CompressorModel:
         time = np.arange(0, T+dt, dt)
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
-        title = "TIME PLOT OF VOLUMETRIC FLOW RATE AT DISCHARGE"
+        title = "Volumetric flow rate at discharge"
         plot(time, flow_rate, x_label, y_label, title)
     
     def plot_rod_pressure_load_frequency(self, revolutions):
@@ -514,21 +517,21 @@ class CompressorModel:
 
         x_label = "Frequency [Hz]"
         y_label = "Rod pressure load [kN]"
-        title = "FREQUENCY PLOT OF ROD PRESSURE LOAD"
+        title = "Rod pressure load"
         plot(freq, rod_pressure_load, x_label, y_label, title, _absolute=True)  
 
     def plot_volumetric_flow_rate_at_suction_frequency(self, revolutions):
         freq, flow_rate = self.process_FFT_of_volumetric_flow_rate(revolutions, 'in_flow')
         x_label = "Frequency [Hz]"
         y_label = "Volumetric head flow rate [m³/s]"
-        title = "FREQUENCY PLOT OF VOLUMETRIC FLOW RATE AT SUCTION"
+        title = "Volumetric flow rate at suction"
         plot(freq, flow_rate, x_label, y_label, title, _absolute=True)  
 
     def plot_volumetric_flow_rate_at_discharge_frequency(self, revolutions):
         freq, flow_rate = self.process_FFT_of_volumetric_flow_rate(revolutions, 'out_flow')
         x_label = "Frequency [Hz]"
         y_label = "Volumetric crank flow rate [m³/s]"
-        title = "FREQUENCY PLOT OF VOLUMETRIC FLOW RATE AT DISCHARGE"
+        title = "Volumetric flow rate at discharge"
         plot(freq, flow_rate, x_label, y_label, title, _absolute=True)  
 
     def plot_head_end_pressure_vs_angle(self):
@@ -540,7 +543,7 @@ class CompressorModel:
 
         x_label = "Crank angle [degree]"
         y_label = "Pressure [kgf/cm²]"
-        title = "HEAD END PRESSURE vs ANGLE"
+        title = "Head end pressure vs Angle"
         plot(angle, pressure, x_label, y_label, title)
 
     def plot_head_end_volume_vs_angle(self):
@@ -552,7 +555,7 @@ class CompressorModel:
 
         x_label = "Crank angle [degree]"
         y_label = "Volume [m³]"
-        title = "HEAD END VOLUME vs ANGLE"
+        title = "Head end volume vs Angle"
         plot(angle, volume, x_label, y_label, title)
 
     def plot_crank_end_pressure_vs_angle(self):
@@ -564,7 +567,7 @@ class CompressorModel:
 
         x_label = "Crank angle [degree]"
         y_label = "Pressure [kgf/cm²]"
-        title = "CRANK END PRESSURE vs ANGLE"
+        title = "Crank end pressure vs Angle"
         plot(angle, pressure, x_label, y_label, title)
 
     def plot_crank_end_volume_vs_angle(self):
@@ -576,13 +579,13 @@ class CompressorModel:
 
         x_label = "Crank angle [degree]"
         y_label = "Volume [m³]"
-        title = "CRANK END VOLUME vs ANGLE"
+        title = "Crank end volume vs Angle"
         plot(angle, volume, x_label, y_label, title)
 
     def plot_convergence(self, x, y):
         x_label = "Iteration"
         y_label = "Ratio"
-        title = "CONVERGENTCE PLOT"
+        title = "Convergence plot"
         plot(x, y, x_label, y_label, title)
 
 

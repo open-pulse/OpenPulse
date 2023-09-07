@@ -36,7 +36,7 @@ from data.user_input.model.setup.acoustic.specificimpedanceInput import Specific
 from data.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
 from data.user_input.model.setup.acoustic.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
-from data.user_input.model.setup.acoustic.compressorModelinput2 import CompressorModelInput
+from data.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 #
 from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
@@ -264,8 +264,6 @@ class InputUi:
 
     def add_compressor_excitation(self):
         self.processInput(CompressorModelInput, self.project, self.opv)
-        # self.opv.updateRendererMesh()                                
-
 
     def analysisTypeInput(self):
 

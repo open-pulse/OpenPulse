@@ -4,12 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-import configparser
-import numpy as np
-import matplotlib.pyplot as plt  
-from collections import defaultdict
-
 from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
 from data.user_input.model.setup.acoustic.fluid_input import FluidInput
@@ -26,7 +20,7 @@ class CompressorModelInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/compressorModelInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/compressor_model_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -60,9 +54,7 @@ class CompressorModelInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self.writeNodes(self.opv.getListPickedPoints())
-        self.spinBox_event_number_of_cylinders()
         self.load_compressor_excitation_tables_info()
-        
         self.exec()
 
     def _define_qt_variables(self):
@@ -177,6 +169,7 @@ class CompressorModelInput(QDialog):
         self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)        
         self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)
         self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
+        self.spinBox_event_number_of_cylinders()
         #
         self.tabWidget_compressor.currentChanged.connect(self.tabEvent)
         self.treeWidget_compressor_excitation.itemClicked.connect(self.on_click_item)
@@ -600,7 +593,6 @@ class CompressorModelInput(QDialog):
 
         self.parameters['compression stage'] = self.compression_stage_index
         self.parameters['number of cylinders'] = self.number_of_cylinders
-        
         self.parameters['acting label'] = self.comboBox_cylinder_acting.currentIndex()
 
         if self.number_of_cylinders > 1:    
