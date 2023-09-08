@@ -429,9 +429,13 @@ class InputUi:
         if solution is None:
             return
         if self.analysis_ID == 7:
-            self.processInput(PlotStressesForStaticAnalysis, self.project, self.opv)
+            self.processInput(PlotStressesForStaticAnalysis, 
+                              self.project, 
+                              self.opv)
         elif self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotStressFrequencyResponseInput, self.project, self.opv, self.analysis_method_label)
+            self.processInput(PlotStressFrequencyResponseInput, 
+                              self.project, 
+                              self.opv)
 
     def plotReactionsFrequencyResponse(self):
         if self.analysis_ID in [0, 1, 5, 6]:

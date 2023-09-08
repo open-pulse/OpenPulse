@@ -16,20 +16,12 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-window_title_1 = "ERROR"
-window_title_2 = "WARNING"
-window_title_3 = "INFORMATION"
-
 
 class PlotReactions(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_reactions_for_harmonic_analysis.ui'), self)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)

@@ -15,9 +15,6 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
-
 
 class PlotAcousticDeltaPressuresInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
