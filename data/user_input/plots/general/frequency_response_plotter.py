@@ -25,18 +25,17 @@ class FrequencyResponsePlotter(QDialog):
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/frequency_response_plot.ui'), self)
 
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Frequency response plotter")
-
+        self._config_window()
+        self._load_icons()
         self._reset_variables()
         self._initialize_canvas()
         self._define_qt_variables()
         self._create_connections()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Frequency response plotter")
 
     def _reset_variables(self):
         self.imported_dB = False
@@ -56,6 +55,11 @@ class FrequencyResponsePlotter(QDialog):
                         [0.75,0.75,0.75],
                         [0.5, 0.5, 0.5],
                         [0.25, 0.25, 0.25] ]
+
+    def _load_icons(self):
+        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.search_icon = QIcon(get_icons_path('searchFile.png'))
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
         # QCheckBox

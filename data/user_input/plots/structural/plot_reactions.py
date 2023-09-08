@@ -16,15 +16,11 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-
 class PlotReactions(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_reactions_for_harmonic_analysis.ui'), self)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
         
         self.opv = opv
         self.opv.setInputObject(self)
@@ -35,23 +31,28 @@ class PlotReactions(QDialog):
         self.before_run = project.get_pre_solution_model_checks()
         self.frequencies = project.frequencies
         
-        self._reset_variables()
+        self._config_window()
         self._load_icons()
+        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.load_nodes_info()
         self.exec()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+    def _load_icons(self):
+        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+        self.setWindowIcon(self.pulse_icon)
 
     def _reset_variables(self):
         #
         [   self.dict_reactions_at_constrained_dofs, 
             self.dict_reactions_at_springs, 
             self.dict_reactions_at_dampers   ] = self.project.get_structural_reactions()
-
-    def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
-        self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
         # QLineEdit

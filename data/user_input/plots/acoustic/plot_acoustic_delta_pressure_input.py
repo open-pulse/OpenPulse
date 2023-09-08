@@ -15,15 +15,11 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-
 class PlotAcousticDeltaPressuresInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/acoustic_/plot_acoustic_delta_pressures_input.ui'), self)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -36,6 +32,7 @@ class PlotAcousticDeltaPressuresInput(QDialog):
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
 
+        self._config_window()
         self._load_icons()
         self._reset_variables()
         self._define_qt_variables()
@@ -43,13 +40,17 @@ class PlotAcousticDeltaPressuresInput(QDialog):
         self.writeNodes(self.opv.getListPickedPoints())
         self.exec()
 
-    def _reset_variables(self):
-        self.unit_label = "Pa"
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
         self.setWindowIcon(self.pulse_icon)
+
+    def _reset_variables(self):
+        self.unit_label = "Pa"
 
     def _define_qt_variables(self):
         # QLineEdit

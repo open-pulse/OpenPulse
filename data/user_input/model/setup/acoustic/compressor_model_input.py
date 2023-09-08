@@ -24,13 +24,6 @@ class CompressorModelInput(QDialog):
 
         uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/compressor_model_input.ui'), self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon) 
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
         self.opv = opv
         self.opv.setInputObject(self)
         self.node_id = self.opv.getListPickedPoints()
@@ -45,6 +38,25 @@ class CompressorModelInput(QDialog):
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
 
+        self._config_window()
+        self._load_icons()
+        self._reset_variables()
+        self._define_qt_variables()
+        self._create_connections()
+        self.writeNodes(self.opv.getListPickedPoints())
+        self.load_compressor_excitation_tables_info()
+        self.exec()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
+
+    def _reset_variables(self):
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
@@ -52,12 +64,6 @@ class CompressorModelInput(QDialog):
         self.remove_message = True
         self.table_name = None
         self.not_update_event = False
-
-        self._define_qt_variables()
-        self._create_connections()
-        self.writeNodes(self.opv.getListPickedPoints())
-        self.load_compressor_excitation_tables_info()
-        self.exec()
 
     def _define_qt_variables(self):
         # QComboBox

@@ -11,7 +11,6 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from data.user_input.data_handler.export_model_results import ExportModelResults
 from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
@@ -22,9 +21,6 @@ class Plot_TL_NR_Input(QDialog):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/acoustic_/plot_TL_NR_input.ui'), self)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -41,20 +37,25 @@ class Plot_TL_NR_Input(QDialog):
         self.elements = self.preprocessor.acoustic_elements
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
 
-        self._reset_variables()
+        self._config_window()
         self._load_icons()
+        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.writeNodes(self.opv.getListPickedPoints())
         self.exec()
 
-    def _reset_variables(self):
-        self.unit_label = "dB"
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
         self.setWindowIcon(self.pulse_icon)
+
+    def _reset_variables(self):
+        self.unit_label = "dB"
 
     def _define_qt_variables(self):
         # QComboBox

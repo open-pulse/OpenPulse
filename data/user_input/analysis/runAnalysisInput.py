@@ -26,6 +26,7 @@ class RunAnalysisInput(QDialog):
 
         self.project = project
 
+        self._config_window()
         self._load_icons()
         self._reset_variables()
         self._load_analysis_info()
@@ -67,12 +68,14 @@ class RunAnalysisInput(QDialog):
             self.exec()
             self.check_warnings()
 
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
     def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
     def _reset_variables(self):
         self.solution_acoustic = None

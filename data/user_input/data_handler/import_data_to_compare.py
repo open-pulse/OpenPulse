@@ -16,28 +16,30 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
-
 class ImportDataToCompare(QDialog):
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/data_handler/import_data_to_compare.ui'), self)
 
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Import data to compare")
-        
         self.plotter = plotter
-        
+
+        self._config_window()
+        self._load_icons()
         self._reset_variables()
         self._define_and_configure_Qt_variables()
         self._create_connections()
         self.exec()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Import data to compare")
+
+    def _load_icons(self):
+        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.search_icon = QIcon(get_icons_path('searchFile.png'))
+        self.setWindowIcon(self.icon)
 
     def _reset_variables(self):
         self.userPath = os.path.expanduser('~')
@@ -156,12 +158,13 @@ class ImportDataToCompare(QDialog):
                         message += "Maximum number of header rows: 100"
 
         except Exception as log_error:
+            window_title = "ERROR MESSAGE"
             title = "Error while loading data from file"
             message = str(log_error)
             return
         
         if message != "":
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title])
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
