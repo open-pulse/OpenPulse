@@ -20,10 +20,10 @@ window_title2 = "WARNING MESSAGE"
 
 
 class PlotAcousticDeltaPressuresInput(QDialog):
-    def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/acoustic_/plot_acoustic_delta_pressures_input2.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/plots_/results_/acoustic_/plot_acoustic_delta_pressures_input.ui'), self)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -32,16 +32,12 @@ class PlotAcousticDeltaPressuresInput(QDialog):
         self.opv.setInputObject(self)
 
         self.projec = project
-        self.analysisMethod = analysisMethod
-        self.solution = solution
+        self.analysis_method = project.analysis_method_label
+        self.frequencies = project.frequencies
+        self.solution = project.get_acoustic_solution()
 
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
-        self.elements = self.preprocessor.acoustic_elements
-        self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
-        self.nodes = project.preprocessor.nodes
-        self.analysis_method = project.analysis_method_label
-        self.frequencies = project.frequencies
 
         self._load_icons()
         self._reset_variables()
@@ -121,18 +117,6 @@ class PlotAcousticDeltaPressuresInput(QDialog):
             self.lineEdit_output_node_id.setFocus()
             return True
 
-    def get_minor_outer_diameter_from_node(self, node):
-        data = self.dict_elements_diameter[node]
-        inner_diameter = []
-        density = []
-        speed_of_sound = []
-        for (index, _, int_dia) in data:
-            inner_diameter.append(int_dia)
-            density.append(self.elements[index].fluid.density)
-            speed_of_sound.append(self.elements[index].speed_of_sound_corrected())
-        ind = inner_diameter.index(min(inner_diameter))
-        return inner_diameter[ind], density[ind], speed_of_sound[ind]
-
     def get_delta_pressures(self):
 
         P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
@@ -141,7 +125,8 @@ class PlotAcousticDeltaPressuresInput(QDialog):
         delta_pressure = P_input - P_output
         
         if complex(0) in delta_pressure:
-            zero_shift = 1*1e-12 #this value is summed to delta pressures to avoid zero values in log and dB plots
+            # the zero_shift constant is summed to delta pressures to avoid zero values in log type plots
+            zero_shift = 1*1e-12 
             delta_pressure += zero_shift 
         return delta_pressure
 

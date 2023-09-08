@@ -194,7 +194,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        </font>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_setup">
        <attribute name="title">

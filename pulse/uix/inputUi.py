@@ -395,16 +395,18 @@ class InputUi:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  PlotAcousticDeltaPressuresInput, self.project, self.opv, 
-                                self.analysis_method_label, solution  )
+            self.processInput(  PlotAcousticDeltaPressuresInput, 
+                                self.project, 
+                                self.opv  )
 
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  Plot_TL_NR_Input, self.project, self.opv, 
-                                self.analysis_method_label, solution  )
+            self.processInput(  Plot_TL_NR_Input, 
+                                self.project, 
+                                self.opv  )
 
     def plotPerforatedPlateConvergenceDataLog(self):
         if self.project.perforated_plate_dataLog:

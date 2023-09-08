@@ -2,23 +2,18 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5 import uic
-import numpy as np
 from pathlib import Path
-import configparser
 
 from time import time, sleep
-from threading import Thread
 
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 from pulse.processing.solution_acoustic import SolutionAcoustic
-from pulse.postprocessing.save_data import SaveData
-from pulse.postprocessing.read_data import ReadData
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.loading_screen import LoadingScreen
-
+from pulse.postprocessing.save_data import SaveData
+from pulse.postprocessing.read_data import ReadData
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
@@ -34,7 +29,8 @@ class RunAnalysisInput(QDialog):
         self._load_icons()
         self._reset_variables()
         self._load_analysis_info()
-        self._define_and_config_qt_variables()
+        self._define_qt_variables()
+        self._create_connections()
 
         LoadingScreen(title = 'Solution in progress', 
                       message = 'Processing the cross-sections',  
@@ -71,14 +67,12 @@ class RunAnalysisInput(QDialog):
             self.exec()
             self.check_warnings()
 
-
     def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        # self.setWindowModality(Qt.WindowModal)
-
+        self.setWindowModality(Qt.WindowModal)
 
     def _reset_variables(self):
         self.solution_acoustic = None
@@ -89,8 +83,7 @@ class RunAnalysisInput(QDialog):
         self.complete = False
         self.solve = None
 
-
-    def _define_and_config_qt_variables(self):
+    def _define_qt_variables(self):
         # QFrame
         self.frame_message = self.findChild(QFrame, 'frame_message')
         self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
@@ -101,28 +94,22 @@ class RunAnalysisInput(QDialog):
         self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
         # QTimer
         self.timer = QTimer()
-        #
+
+    def _create_connections(self):
         self.timer.timeout.connect(self.update_progress_bar)
+        self.config_title_and_message()
+
+    def config_title_and_message(self):
         self.label_message.setWordWrap(True)
         self.label_message.setMargin(16)
-        self.config_title_font()
-        self.config_message_font()
-
-
-    def config_title_font(self):
-        self.label_message.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
-
-
-    def config_message_font(self):
+        self.label_title.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
         self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
-
 
     def _load_analysis_info(self):
         self.analysis_ID = self.project.analysis_ID
         self.analysis_type_label = self.project.analysis_type_label
         self.frequencies = self.project.frequencies
         self.modes = self.project.modes
-
 
     def pre_non_linear_convergence_plot(self):
         if isinstance(self.solve, SolutionAcoustic):
@@ -135,14 +122,12 @@ class RunAnalysisInput(QDialog):
                     plt.ion()
                     plt.show()
 
-    
     def post_non_linear_convergence_plot(self):
         if isinstance(self.solve, SolutionAcoustic):
             if self.analysis_ID in [3,5,6]:
                 if self.solve.non_linear:
                     self.anime._stop()
 
-    
     def process_cross_sections(self):
 
         t0 = time()
@@ -150,7 +135,6 @@ class RunAnalysisInput(QDialog):
         self.project.process_cross_sections_mapping()
         self.project.time_to_process_cross_sections = time() - t0
 
-    
     def preparing_mathematical_model_to_solve(self):
 
         t0 = time()
@@ -184,8 +168,7 @@ class RunAnalysisInput(QDialog):
             self.solve = self.project.get_structural_solve()
 
         self.project.time_to_preprocess_model = time() - t0
-       
-    
+
     def process_analysis(self):
         
         t0 = time()
@@ -243,7 +226,6 @@ class RunAnalysisInput(QDialog):
                 if self.solve.non_linear:
                     sleep(2)
 
-
     def post_process_results(self): 
 
         t0 = time()
@@ -293,23 +275,6 @@ class RunAnalysisInput(QDialog):
         self.print_final_log()
         self.complete = True
 
-
-    def check_warnings(self):
-        # WARNINGS REACHED DURING SOLUTION
-        title = self.analysis_type_label
-        message = ""
-        if self.analysis_type_label == "Harmonic Analysis - Structural":
-            if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
-                message = self.solve.warning_ModeSup_prescribedDOFs
-            if self.solve.flag_Clump and self.analysis_ID==1:
-                message = self.solve.warning_Clump[0]
-        if self.analysis_type_label == "Modal Analysis - Structural":
-            if self.solve.flag_Modal_prescribed_NonNull_DOFs:
-                message = self.solve.warning_Modal_prescribedDOFs[0] 
-        if message != "":
-            PrintMessageInput([title, message, window_title_2])
-
-
     def reset_all_results(self):
 
         self.solution_structural = None
@@ -328,7 +293,6 @@ class RunAnalysisInput(QDialog):
             self.project.set_structural_solution(None)
             self.project.set_structural_reactions([ {}, {}, {} ])
 
-
     def print_final_log(self):
 
         text = "Solution finished!\n\n"
@@ -342,9 +306,9 @@ class RunAnalysisInput(QDialog):
         else:
             text += "Time to solve the model: {} [s]\n".format(round(self.project.time_to_solve_model, 4))
         text += "Time elapsed in post-processing: {} [s]\n\n".format(round(self.project.time_to_postprocess, 4))
-        text += "Total time elapsed: {} [s]\n\n\n".format(round(self.project.total_time, 4))
+        text += "Total time elapsed: {} [s]".format(round(self.project.total_time, 4))
 
-        text += "Press ESC to continue..."
+        # text += "Press ESC to continue..."
         self.label_message.setText(text)
         self.adjustSize()
 
@@ -352,11 +316,30 @@ class RunAnalysisInput(QDialog):
         self.timer.stop()
         t0 = time()
         dt = 0
-        duration = 3
+        duration = 2
         while dt <= duration:
             sleep(0.1)
             dt = time() - t0
-            value = int(100*(dt/3))
+            value = int(100*(dt/duration))
             self.progress_bar_timer.setValue(value)
-
         self.close()
+
+    def check_warnings(self):
+        # WARNINGS REACHED DURING SOLUTION
+        title = self.analysis_type_label
+        message = ""
+        if self.analysis_type_label == "Harmonic Analysis - Structural":
+            if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
+                message = self.solve.warning_ModeSup_prescribedDOFs
+            if self.solve.flag_Clump and self.analysis_ID==1:
+                message = self.solve.warning_Clump[0]
+        if self.analysis_type_label == "Modal Analysis - Structural":
+            if self.solve.flag_Modal_prescribed_NonNull_DOFs:
+                message = self.solve.warning_Modal_prescribedDOFs[0] 
+        if message != "":
+            PrintMessageInput([title, message, window_title_2])
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.timer.stop()
+            self.close()

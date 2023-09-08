@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+import numpy as np
+
 from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
 from data.user_input.model.setup.acoustic.fluid_input import FluidInput

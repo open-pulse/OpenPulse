@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>380</height>
+    <width>340</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,14 +21,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>480</width>
-    <height>380</height>
+    <width>340</width>
+    <height>240</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>480</width>
-    <height>380</height>
+    <width>340</width>
+    <height>240</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -60,7 +60,7 @@
     <widget class="QFrame" name="frame_title">
      <property name="minimumSize">
       <size>
-       <width>450</width>
+       <width>320</width>
        <height>48</height>
       </size>
      </property>
@@ -99,7 +99,7 @@
        <widget class="QLabel" name="Title">
         <property name="minimumSize">
          <size>
-          <width>410</width>
+          <width>300</width>
           <height>30</height>
          </size>
         </property>
@@ -136,8 +136,8 @@
     <widget class="QFrame" name="frame_main">
      <property name="minimumSize">
       <size>
-       <width>450</width>
-       <height>320</height>
+       <width>320</width>
+       <height>180</height>
       </size>
      </property>
      <property name="maximumSize">
@@ -152,1652 +152,466 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QGridLayout" name="gridLayout_7">
       <property name="leftMargin">
-       <number>2</number>
+       <number>4</number>
       </property>
       <property name="topMargin">
-       <number>2</number>
+       <number>4</number>
       </property>
       <property name="rightMargin">
-       <number>2</number>
+       <number>4</number>
       </property>
       <property name="bottomMargin">
-       <number>2</number>
+       <number>4</number>
       </property>
       <property name="spacing">
-       <number>2</number>
+       <number>4</number>
       </property>
+      <item row="2" column="0">
+       <widget class="QFrame" name="frame_4">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="pushButton_call_data_exporter">
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+           </property>
+           <property name="text">
+            <string>Export data</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="pushButton_plot_frequency_response">
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+           </property>
+           <property name="text">
+            <string>Plot data</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QFrame" name="frame_8">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QFrame" name="frame_7">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QFrame" name="frame_13">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
       <item row="0" column="0">
-       <widget class="QTabWidget" name="tabWidget_plot_results">
-        <property name="minimumSize">
-         <size>
-          <width>430</width>
-          <height>280</height>
-         </size>
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>450</width>
-          <height>280</height>
-         </size>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
-        <property name="font">
-         <font>
-          <family>MS Shell Dlg 2</family>
-          <pointsize>11</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="pushButton_flip_nodes_1">
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Press to flip nodes.</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="Input_NodeID">
+           <property name="minimumSize">
+            <size>
+             <width>130</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>140</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Input Node ID:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_input_node_id">
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QFrame" name="frame_11">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QFrame" name="frame_12">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
         </property>
-        <property name="currentIndex">
-         <number>0</number>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
-        <widget class="QWidget" name="tab_plot">
-         <attribute name="title">
-          <string>Plot</string>
-         </attribute>
-         <widget class="QPushButton" name="pushButton_plot_delta_pressure">
-          <property name="geometry">
-           <rect>
-            <x>82</x>
-            <y>202</y>
-            <width>281</width>
-            <height>30</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>281</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>281</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>MS Shell Dlg 2</family>
-            <pointsize>11</pointsize>
-            <weight>75</weight>
-            <italic>false</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
+         <item row="0" column="2">
+          <widget class="QLineEdit" name="lineEdit_output_node_id">
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="Output_NodeID">
+           <property name="minimumSize">
+            <size>
+             <width>130</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>140</width>
+             <height>28</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Output Node ID:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="pushButton_flip_nodes_2">
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>40</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>Press to flip nodes.</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-          </property>
-          <property name="text">
-           <string>Plot Delta Pressure Spectrum</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_flipNodes">
-          <property name="geometry">
-           <rect>
-            <x>332</x>
-            <y>124</y>
-            <width>80</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>80</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>80</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>MS Shell Dlg 2</family>
-            <pointsize>11</pointsize>
-            <weight>75</weight>
-            <italic>false</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-          </property>
-          <property name="text">
-           <string>Flip 
-nodes</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_outputNodeID">
-          <property name="geometry">
-           <rect>
-            <x>240</x>
-            <y>156</y>
-            <width>70</width>
-            <height>28</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>70</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>70</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial</family>
-            <pointsize>11</pointsize>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-         <widget class="QLabel" name="Input_NodeID">
-          <property name="geometry">
-           <rect>
-            <x>92</x>
-            <y>114</y>
-            <width>140</width>
-            <height>28</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>140</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>140</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>MS Shell Dlg 2</family>
-            <pointsize>11</pointsize>
-            <weight>50</weight>
-            <italic>false</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Input Node ID:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-         <widget class="QLabel" name="Output_NodeID">
-          <property name="geometry">
-           <rect>
-            <x>92</x>
-            <y>156</y>
-            <width>140</width>
-            <height>28</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>140</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>140</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>MS Shell Dlg 2</family>
-            <pointsize>11</pointsize>
-            <weight>50</weight>
-            <italic>false</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Output Node ID:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_inputNodeID">
-          <property name="geometry">
-           <rect>
-            <x>240</x>
-            <y>114</y>
-            <width>70</width>
-            <height>28</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>70</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>70</width>
-            <height>28</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial</family>
-            <pointsize>11</pointsize>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-         <widget class="QWidget" name="layoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>26</x>
-            <y>12</y>
-            <width>402</width>
-            <height>88</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
-            <widget class="QFrame" name="frame_scales">
-             <property name="minimumSize">
-              <size>
-               <width>400</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::Box</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Sunken</enum>
-             </property>
-             <widget class="QRadioButton" name="radioButton_linear_scale">
-              <property name="geometry">
-               <rect>
-                <x>262</x>
-                <y>8</y>
-                <width>128</width>
-                <height>22</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>128</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>128</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Linear scale</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">buttonGroup_2</string>
-              </attribute>
-             </widget>
-             <widget class="QRadioButton" name="radioButton_log_scale">
-              <property name="geometry">
-               <rect>
-                <x>140</x>
-                <y>8</y>
-                <width>100</width>
-                <height>22</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Log scale</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">buttonGroup_2</string>
-              </attribute>
-             </widget>
-             <widget class="QRadioButton" name="radioButton_dB_scale">
-              <property name="geometry">
-               <rect>
-                <x>20</x>
-                <y>8</y>
-                <width>100</width>
-                <height>22</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>dB scale</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">buttonGroup_2</string>
-              </attribute>
-             </widget>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QFrame" name="frame_plot_type">
-             <property name="minimumSize">
-              <size>
-               <width>400</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::Box</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Sunken</enum>
-             </property>
-             <widget class="QRadioButton" name="radioButton_real_part">
-              <property name="geometry">
-               <rect>
-                <x>140</x>
-                <y>8</y>
-                <width>100</width>
-                <height>22</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Real part</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">buttonGroup</string>
-              </attribute>
-             </widget>
-             <widget class="QRadioButton" name="radioButton_imaginary_part">
-              <property name="geometry">
-               <rect>
-                <x>262</x>
-                <y>8</y>
-                <width>128</width>
-                <height>22</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>128</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>128</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Imaginary part</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">buttonGroup</string>
-              </attribute>
-             </widget>
-             <widget class="QRadioButton" name="radioButton_magnitude">
-              <property name="geometry">
-               <rect>
-                <x>20</x>
-                <y>8</y>
-                <width>100</width>
-                <height>22</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>22</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Magnitude</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>30</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">buttonGroup</string>
-              </attribute>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-        <widget class="QWidget" name="tab_export_import">
-         <attribute name="title">
-          <string>Import / Export results</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <property name="leftMargin">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
-          </property>
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <item row="0" column="0">
-           <widget class="QTabWidget" name="tabWidget_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>425</width>
-              <height>172</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>425</width>
-              <height>172</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>MS Shell Dlg 2</family>
-              <pointsize>11</pointsize>
-              <weight>50</weight>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <widget class="QWidget" name="tab_3">
-             <attribute name="title">
-              <string>Export</string>
-             </attribute>
-             <widget class="QPushButton" name="pushButton_ExportResults">
-              <property name="geometry">
-               <rect>
-                <x>134</x>
-                <y>100</y>
-                <width>152</width>
-                <height>30</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>152</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>152</width>
-                <height>30</height>
-               </size>
-              </property>
-              <property name="sizeIncrement">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-              </property>
-              <property name="text">
-               <string>Export results</string>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="lineEdit_SaveResultsPath">
-              <property name="geometry">
-               <rect>
-                <x>126</x>
-                <y>58</y>
-                <width>221</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-             <widget class="QPushButton" name="pushButton_ChooseFolderExport">
-              <property name="geometry">
-               <rect>
-                <x>350</x>
-                <y>58</y>
-                <width>65</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>65</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>65</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-              </property>
-              <property name="text">
-               <string>Search</string>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="lineEdit_FileName">
-              <property name="geometry">
-               <rect>
-                <x>126</x>
-                <y>16</y>
-                <width>221</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>10</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_6">
-              <property name="geometry">
-               <rect>
-                <x>2</x>
-                <y>16</y>
-                <width>120</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>120</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Insert a name:</string>
-              </property>
-              <property name="scaledContents">
-               <bool>false</bool>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_5">
-              <property name="geometry">
-               <rect>
-                <x>2</x>
-                <y>58</y>
-                <width>120</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>120</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Choose a folder:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="tab_4">
-             <attribute name="title">
-              <string>Import</string>
-             </attribute>
-             <widget class="QPushButton" name="pushButton_AddImportedPlot">
-              <property name="geometry">
-               <rect>
-                <x>54</x>
-                <y>100</y>
-                <width>306</width>
-                <height>30</height>
-               </rect>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-              </property>
-              <property name="text">
-               <string>Add imported results to the main plot</string>
-              </property>
-             </widget>
-             <widget class="QSpinBox" name="spinBox">
-              <property name="geometry">
-               <rect>
-                <x>254</x>
-                <y>58</y>
-                <width>42</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-              <property name="maximum">
-               <number>10</number>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_9">
-              <property name="geometry">
-               <rect>
-                <x>93</x>
-                <y>58</y>
-                <width>160</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>160</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>160</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>11</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Header rows to skip:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_4">
-              <property name="geometry">
-               <rect>
-                <x>12</x>
-                <y>16</y>
-                <width>100</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>11</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Load results:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="lineEdit_ImportResultsPath">
-              <property name="geometry">
-               <rect>
-                <x>112</x>
-                <y>16</y>
-                <width>229</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>25</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-             <widget class="QPushButton" name="pushButton_ChooseFolderImport">
-              <property name="geometry">
-               <rect>
-                <x>344</x>
-                <y>16</y>
-                <width>60</width>
-                <height>25</height>
-               </rect>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>60</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-              </property>
-              <property name="text">
-               <string>Search</string>
-              </property>
-             </widget>
-            </widget>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab">
-         <attribute name="title">
-          <string>Advanced controls</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="0">
-           <widget class="QFrame" name="frame_7">
-            <property name="minimumSize">
-             <size>
-              <width>85</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>240</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="sizeIncrement">
-             <size>
-              <width>0</width>
-              <height>110</height>
-             </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_7">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_2">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Cursor setup</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QFrame" name="frame_8">
-            <property name="minimumSize">
-             <size>
-              <width>85</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>240</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="sizeIncrement">
-             <size>
-              <width>0</width>
-              <height>110</height>
-             </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_8">
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_7">
-               <property name="font">
-                <font>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Other controls</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QFrame" name="frame_6">
-            <property name="minimumSize">
-             <size>
-              <width>85</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>240</width>
-              <height>240</height>
-             </size>
-            </property>
-            <property name="sizeIncrement">
-             <size>
-              <width>0</width>
-              <height>110</height>
-             </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_6">
-             <property name="leftMargin">
-              <number>8</number>
-             </property>
-             <property name="topMargin">
-              <number>4</number>
-             </property>
-             <property name="rightMargin">
-              <number>4</number>
-             </property>
-             <property name="bottomMargin">
-              <number>4</number>
-             </property>
-             <property name="horizontalSpacing">
-              <number>4</number>
-             </property>
-             <property name="verticalSpacing">
-              <number>8</number>
-             </property>
-             <item row="0" column="0">
-              <widget class="QFrame" name="frame_5">
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_13">
-                <property name="leftMargin">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>2</number>
-                </property>
-                <property name="rightMargin">
-                 <number>2</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>2</number>
-                </property>
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <item row="0" column="0">
-                 <widget class="QCheckBox" name="checkBox_legends">
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>200</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>11</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Show legends</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QFrame" name="frame_4">
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_12">
-                <property name="leftMargin">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>2</number>
-                </property>
-                <property name="rightMargin">
-                 <number>2</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>2</number>
-                </property>
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <item row="0" column="0">
-                 <widget class="QRadioButton" name="radioButton_disable_cursors">
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>200</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>11</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Disable cursors</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QFrame" name="frame">
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_10">
-                <property name="leftMargin">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>2</number>
-                </property>
-                <property name="rightMargin">
-                 <number>2</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>2</number>
-                </property>
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <item row="0" column="0">
-                 <widget class="QRadioButton" name="radioButton_harmonic_cursor">
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>200</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>11</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Enable harmonic cursor</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QFrame" name="frame_vertical_lines">
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_39">
-                <property name="leftMargin">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>2</number>
-                </property>
-                <property name="rightMargin">
-                 <number>2</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>2</number>
-                </property>
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_14">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="baseSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Vertical lines: </string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QSpinBox" name="spinBox_vertical_lines">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                  <property name="minimum">
-                   <number>2</number>
-                  </property>
-                  <property name="maximum">
-                   <number>20</number>
-                  </property>
-                  <property name="value">
-                   <number>12</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QFrame" name="frame_3">
-               <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QGridLayout" name="gridLayout_11">
-                <property name="leftMargin">
-                 <number>2</number>
-                </property>
-                <property name="topMargin">
-                 <number>2</number>
-                </property>
-                <property name="rightMargin">
-                 <number>2</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>2</number>
-                </property>
-                <property name="spacing">
-                 <number>2</number>
-                </property>
-                <item row="0" column="0">
-                 <widget class="QRadioButton" name="radioButton_cross_cursor">
-                  <property name="minimumSize">
-                   <size>
-                    <width>75</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>200</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>11</pointsize>
-                    <weight>50</weight>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Enable cross cursor</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QFrame" name="frame_2">
-            <property name="frameShape">
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_14">
-             <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_ResetPlot">
-               <property name="minimumSize">
-                <size>
-                 <width>85</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>85</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>MS Shell Dlg 2</family>
-                 <pointsize>11</pointsize>
-                 <weight>75</weight>
-                 <italic>false</italic>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-               </property>
-               <property name="text">
-                <string>Reset plot</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QFrame" name="frame_9">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QFrame" name="frame_10">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -1807,8 +621,4 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_2"/>
- </buttongroups>
 </ui>
