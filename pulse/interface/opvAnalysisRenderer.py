@@ -1,9 +1,7 @@
-from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.loading_screen import LoadingScreen
 import vtk
 import numpy as np
 from math import pi
-from time import sleep
 # import imageio
 # import os
 
