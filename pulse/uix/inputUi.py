@@ -435,7 +435,7 @@ class InputUi:
 
     def plotReactionsFrequencyResponse(self):
         if self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotReactions, self.project, self.opv, self.analysis_method_label)
+            self.processInput(PlotReactions, self.project, self.opv)
         elif self.analysis_ID == 7:
             self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
 
