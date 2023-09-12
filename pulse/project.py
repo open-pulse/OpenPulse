@@ -135,7 +135,8 @@ class Project:
             self.file.load(project_file_path)
     
             self.empty_geometry = True
-            if os.path.exists(self.file._geometry_path):
+            if self.file._geometry_path.exists():
+                print("exists")
                 self.empty_geometry = False
                 if self.check_mesh_setup():
                     self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
@@ -144,6 +145,7 @@ class Project:
                         self.file.create_entity_file(self.preprocessor.all_lines)                   
                 return True
             else:
+                print("isto non ecxiste")
                 return False
             
         except Exception as log_error:

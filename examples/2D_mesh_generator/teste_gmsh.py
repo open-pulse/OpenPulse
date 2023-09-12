@@ -69,7 +69,7 @@ class Mesher:
     def load_file(self, path, size=None):
         size = self.size if size is None else size
         gmsh.initialize('', False)
-        gmsh.open(path)
+        gmsh.open(str(path))
         gmsh.option.setNumber('Mesh.CharacteristicLengthMin', size)
         gmsh.option.setNumber('Mesh.CharacteristicLengthMax', size)
         gmsh.model.mesh.generate()

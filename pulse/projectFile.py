@@ -13,6 +13,7 @@ from math import pi
 
 from collections import defaultdict
 from shutil import copyfile, rmtree
+from pathlib import Path
 
 window_title = "ERROR"
 
@@ -174,9 +175,9 @@ class ProjectFile:
 
     def load(self, project_file_path):
 
-        self.project_file_path = project_file_path.replace('/', '\\')
+        self.project_file_path = Path(project_file_path)
         self._project_path = os.path.dirname(self.project_file_path)
-                
+
         config = configparser.ConfigParser()
         config.read(project_file_path)
 

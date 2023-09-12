@@ -273,7 +273,7 @@ class Preprocessor:
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.open(path)
+        gmsh.open(str(path))
 
     def _set_gmsh_options(self, element_size, tolerance=1e-6):
         """
@@ -3458,7 +3458,7 @@ class Preprocessor:
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal", 0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.open(geometry_path)
+        gmsh.open(str(geometry_path))
 
         for line in lines:
             gmsh.model.occ.remove([[1, line]], recursive=True)
