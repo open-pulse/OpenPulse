@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
+from pathlib import Path
 import numpy as np
 
 from pulse.utils import remove_bc_from_file
@@ -16,10 +14,11 @@ window_title2 = "WARNING"
 class CappedEndInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/cappedEndInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/cappedEndInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -132,7 +131,7 @@ class CappedEndInput(QDialog):
         self.load_elements_info()
         self.update_buttons_()
         self.tabEvent_()
-        self.exec_()
+        self.exec()
 
     def update_buttons_(self):
         self.pushButton_get_information_elem.setDisabled(True)
@@ -452,19 +451,20 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, values, label, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
         if label == "Elements":
-            uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
+            uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationInput.ui'), self)
             self.flagElements = True
             self.flagLines = False
 
         elif label == "Lines":
-            uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationAndRemoveInput.ui', self)
+            uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationAndRemoveInput.ui'), self)
             self.flagLines = True
             self.flagElements = False
             self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
@@ -492,7 +492,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

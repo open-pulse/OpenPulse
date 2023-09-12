@@ -55,11 +55,12 @@ class EditImportedGeometryInput(QDialog):
         message = "Do you really want to confirm the current geometry edition?\n\n"
         message += "\n\nPress the Confirm and save button to proceed with the edtion and save the modified geometry "
         message += "into the project file, otherwise, press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput( title, 
-                                            message, 
-                                            leftButton_label='Cancel', 
-                                            rightButton_label='Confirm and save', 
-                                            rightButton_size=220 )
+        
+        buttons_config = {"left_button_label" : "Cancel", 
+                          "right_button_label" : "Confirm and save", 
+                          "right_button_size" : 220}
+
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
             gmsh.finalize()

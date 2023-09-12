@@ -7,7 +7,7 @@ import vtk
 from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
 from pulse.interface.opvGeometryRenderer import opvGeometryRenderer
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
-from data.user_input.project.loadingScreen import LoadingScreen
+from data.user_input.project.loading_screen import LoadingScreen
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -85,7 +85,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.plot()
         self.opvAnalysisRenderer.plot()
         self.opvGeometryRenderer.plot()
-        # LoadingScreen('Updating Plot', target=callback)
+        # LoadingScreen(title = 'Processing model',
+        #               message = "Updating render",
+        #               target = callback)
 
     def changePlotToRawGeometry(self):
         
@@ -165,25 +167,38 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
-
-    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False): 
-        # we call it so many times in so many different files that 
-        # i will just continue my code from here and we organize all 
-        # these in the future.
-
+    def plot_displacement_field(self, frequency_indice, scaling_setup):
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-
-        if pressure_field_plot:
-            self.opvAnalysisRenderer.showPressureField(frequency_indice)
-        elif stress_field_plot:
-            self.opvAnalysisRenderer.showStressField(frequency_indice)
-        else:
-            self.opvAnalysisRenderer.showDisplacement(frequency_indice)
-        
+        self.opvAnalysisRenderer.showDisplacementField(frequency_indice, 
+                                                       scaling_setup)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
+        #
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
 
+    def plot_stress_field(self, frequency_indice, scaling_setup): 
+        self.setRenderer(self.opvAnalysisRenderer)
+        self.opvAnalysisRenderer.updateHud()
+        self.opvAnalysisRenderer.showStressField(frequency_indice, 
+                                                   scaling_setup)
+        self._updateAxes()
+        self.opvAnalysisRenderer._renderer.ResetCamera()
+        #
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
+
+    def plot_pressure_field(self, frequency_indice, absolute=False): 
+        self.setRenderer(self.opvAnalysisRenderer)
+        self.opvAnalysisRenderer.updateHud()
+        self.opvAnalysisRenderer.showPressureField(frequency_indice, 
+                                                   absolute=absolute)
+        self._updateAxes()
+        self.opvAnalysisRenderer._renderer.ResetCamera()
+        #
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
@@ -214,8 +229,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         renderer.setInUse(True)
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
-
-
 
     def setCameraView(self, view=6):
         if (self.opvRenderer.getInUse()):

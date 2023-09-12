@@ -11,7 +11,7 @@ from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-from data.user_input.project.loadingScreen import LoadingScreen
+from data.user_input.project.loading_screen import LoadingScreen
 
 import numpy as np
 import configparser
@@ -25,7 +25,7 @@ window_title = "ERROR"
 class Project:
     def __init__(self):
         self.file = ProjectFile() 
-        self.preprocessor = Preprocessor(self.file)
+        self.preprocessor = Preprocessor(self)
          
         self.reset()
 
@@ -37,7 +37,7 @@ class Project:
         self.analysis_ID = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
-        self.global_damping = [0,0,0,0]
+        self.global_damping = [0, 0, 0, 0]
         self.preferences = {}
         self.modes = 0
         self.frequencies = None
@@ -58,6 +58,10 @@ class Project:
         self.setup_analysis_complete = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
+        self.weight_load = True
+        self.internal_pressure_load = True
+        self.external_nodal_loads = True
+        self.element_distributed_load = True
 
         self.time_to_load_or_create_project = 0
         self.time_to_checking_entries = 0
@@ -120,7 +124,9 @@ class Project:
         # def callback():
         if self.initial_load_project_actions(project_file_path):
             self.load_project_files()
-        # LoadingScreen('Loading Project', target=callback)
+        # LoadingScreen(title = 'Loading Project', 
+        #               message = "Loading project files",
+        #               target=callback)
         self.preprocessor.check_disconnected_lines(self.file._element_size)
 
     def initial_load_project_actions(self, project_file_path):
@@ -218,7 +224,8 @@ class Project:
         title = "Adittional confirmation required to proceed"
         message = "Do you really want to remove the selected lines and edit current geometry file?\n\n\n"
         message += "Press the 'Proceed' button to proceed with line removal otherwise press 'Cancel' or 'Close' buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
             return False
@@ -239,6 +246,8 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
         self.load_analysis_file()
+        self.load_visibility_preferences()
+        self.load_inertia_load_setup()
 
     def update_node_ids_in_file_after_remesh(self, dict_mapped_indexes, dict_non_mapped_indexes):
         self.file.modify_node_ids_in_acoustic_bc_file(dict_mapped_indexes, dict_non_mapped_indexes)
@@ -580,8 +589,8 @@ class Project:
 
     def process_cross_sections_mapping(self):  
 
-        label_etypes = ['pipe_1', 'pipe_2', 'valve']
-        indexes = [0, 1, 2]
+        label_etypes = ['pipe_1', 'valve']
+        indexes = [0, 1]
         
         dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
@@ -634,7 +643,7 @@ class Project:
                                     "insulation_thickness" : vals[6], 
                                     "insulation_density" : vals[7] }
     
-            if el_type in ['pipe_1', 'pipe_2']:
+            if el_type == 'pipe_1':
                 pipe_section_info = {   "section_type_label" : "Pipe section",
                                         "section_parameters" : section_parameters   }   
                 cross_section = CrossSection(pipe_section_info=pipe_section_info)                             
@@ -657,8 +666,8 @@ class Project:
         '''This methods returns a dictionary of multiples cross-sections associated to 
             the line of interest.        
         '''
-        label_etypes = ['pipe_1', 'pipe_2']
-        indexes = [0, 1]
+        label_etypes = ['pipe_1']
+        indexes = [0]
         dict_etype_index = dict(zip(label_etypes,indexes))
 
         dict_multiple_cross_sections = defaultdict(list)
@@ -881,7 +890,15 @@ class Project:
                 self.load_radiation_impedance_bc_by_node(key, RadImp)
 
     def load_analysis_file(self):
-        self.f_min, self.f_max, self.f_step, self.global_damping, self.preferences = self.file.load_analysis_file()
+        self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
+
+    def load_visibility_preferences(self):
+        self.preferences = self.file.load_visibility_preferences_file()
+
+    def load_inertia_load_setup(self):
+        gravity, stiffening_effect = self.file.load_inertia_load_setup()
+        self.preprocessor.set_inertia_load(gravity)
+        self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
     def load_frequencies_from_table(self):
         self.f_min, self.f_max, self.f_step = self.file.f_min, self.file.f_max, self.file.f_step
@@ -1617,6 +1634,12 @@ class Project:
             self.f_min, self.f_max, self.f_step = min_, max_, step_
             self.file.add_frequency_in_file(min_, max_, step_)
         self.frequencies = frequencies
+    
+    def set_static_analysis_setup(self, analysis_setup):
+        [self.weight_load, 
+         self.internal_pressure_load,
+         self.external_nodal_loads,
+         self.element_distributed_load] = analysis_setup
 
     def load_prescribed_dofs_bc_by_node(self, node_id, data):
         self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
@@ -1760,33 +1783,43 @@ class Project:
             self.file.add_fluid_in_file(line, fluid)
 
     def set_acoustic_pressure_bc_by_node(self, node_ids, data, imported_table):
-        label = ["acoustic pressure"] 
-        for node_id in node_ids:
-            if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data) :
-                return
-            self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label) 
+        label = ["acoustic pressure"]
+        if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
+            return
+        # for node_id in node_ids:
+        self.file.add_acoustic_bc_in_file(node_ids, data, imported_table, label) 
     
     def set_volume_velocity_bc_by_node(self, node_ids, data, imported_table):
-        label = ["volume velocity"] 
-        for node_id in node_ids:
-            if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
-                return True
-            self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)
-        return False    
+        label = ["volume velocity"]
+        if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
+            return True
+        self.file.add_acoustic_bc_in_file(node_ids, data, imported_table, label)
+        return False
+        # for node_id in node_ids:
+        #     if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
+        #         return True
+        #     self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)
+        # return False
     
     def set_specific_impedance_bc_by_node(self, node_ids, data, imported_table):
-        label = ["specific impedance"] 
-        for node_id in node_ids: 
-            if self.preprocessor.set_specific_impedance_bc_by_node(node_id, data):
-                return 
-            self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)   
+        label = ["specific impedance"]
+        if self.preprocessor.set_specific_impedance_bc_by_node(node_ids, data):
+            return
+        self.file.add_acoustic_bc_in_file(node_ids, data, imported_table, label) 
+        # for node_id in node_ids: 
+        #     if self.preprocessor.set_specific_impedance_bc_by_node(node_id, data):
+        #         return 
+        #     self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)   
 
     def set_radiation_impedance_bc_by_node(self, node_ids, values):
         label = ["radiation impedance"] 
-        for node_id in node_ids:    
-            if self.preprocessor.set_radiation_impedance_bc_by_node(node_id, values):
-                return
-            self.file.add_acoustic_bc_in_file([node_id], [values, None], False, label) 
+        if self.preprocessor.set_radiation_impedance_bc_by_node(node_ids, values):
+            return
+        self.file.add_acoustic_bc_in_file(node_ids, [values, None], False, label)
+        # for node_id in node_ids:    
+        #     if self.preprocessor.set_radiation_impedance_bc_by_node(node_id, values):
+        #         return
+        #     self.file.add_acoustic_bc_in_file([node_id], [values, None], False, label)
     
     def set_compressor_excitation_bc_by_node(self, node_ids, data, table_index, connection_info):
         label = [f"compressor excitation - {table_index}"]
@@ -1794,7 +1827,7 @@ class Project:
             if self.preprocessor.set_compressor_excitation_bc_by_node([node_id], data, connection_info):
                 return True
             self.file.add_acoustic_bc_in_file([node_id], data, True, label)
-        return False 
+        return False
 
     def remove_acoustic_pressure_table_files(self, node_ids):
         str_key = "acoustic pressure"
@@ -1893,7 +1926,12 @@ class Project:
             lines = [lines]
         self.preprocessor.set_structural_element_force_offset_by_lines(lines, force_offset)
         self._set_structural_element_force_offset_to_lines(lines, force_offset)
-        self.file.modify_structural_element_force_offset_in_file(lines, force_offset) 
+        self.file.modify_structural_element_force_offset_in_file(lines, force_offset)
+
+    def set_inertia_load_setup(self, gravity, stiffening_effect=False):
+        self.preprocessor.set_inertia_load(gravity)
+        self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
+        self.file.add_inertia_load_setup_to_file(gravity, stiffening_effect)
 
     def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
         if isinstance(lines, int):
@@ -2024,8 +2062,9 @@ class Project:
     def get_post_solution_model_checks(self, opv=None):
         return AfterRun(self, opv)
 
-    def set_damping(self, value):
+    def set_structural_damping(self, value):
         self.global_damping = value
+        self.preprocessor.set_structural_damping(value)
         self.file.add_damping_in_file(value)
 
     def get_damping(self):
@@ -2081,15 +2120,15 @@ class Project:
         if self.analysis_ID is None:
             return self.analysis_ID
         analysis = self.analysis_ID
-        if analysis >=0 and analysis <= 6:
-            if (analysis in [3,5,6] and self.plot_pressure_field) or self.plot_stress_field:
+        if analysis >=0 and analysis <= 7:
+            if (analysis in [3, 5, 6] and self.plot_pressure_field) or self.plot_stress_field:
                 return "Pa"
-            elif analysis in [5,6] and not self.plot_pressure_field:
+            elif analysis in [5, 6] and not self.plot_pressure_field:
                 return "m"            
-            elif analysis in [0,1]:
+            elif analysis in [0, 1, 7]:
                 return "m"
             else:
-                return "-"  
+                return "-"
 
     def set_stresses_values_for_color_table(self, values):
         self.stresses_values_for_color_table = values

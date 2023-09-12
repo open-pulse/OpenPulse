@@ -1,6 +1,7 @@
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
+from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
@@ -314,6 +315,7 @@ class ProjectFile:
 
     #Frequency Setup Analysis
     def load_analysis_file(self):
+
         f_min = 0
         f_max = 0
         f_step = 0
@@ -340,6 +342,17 @@ class ProjectFile:
                 alpha_h = config['Global damping setup']['alpha_h']
                 beta_h = config['Global damping setup']['beta_h']
         
+        global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
+
+        return float(f_min), float(f_max), float(f_step), global_damping
+
+    def load_visibility_preferences_file(self):
+
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        config = configparser.ConfigParser()
+        config.read(temp_project_base_file_path)
+        sections = config.sections()
+
         preferences = {}
         if "User interface preferences" in sections:
 
@@ -400,10 +413,7 @@ class ProjectFile:
                             'mopt_logo' : bool(int(mopt_logo)),
                             'reference_scale' : bool(int(reference_scale)) }
         
-        global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
-
-        return float(f_min), float(f_max), float(f_step), global_damping, preferences
-
+        return preferences
 
     def add_frequency_in_file(self, min_, max_, step_):
         min_ = str(min_)
@@ -463,6 +473,38 @@ class ProjectFile:
         
         self.write_data_in_file(temp_project_base_file_path, config)
         
+    def add_inertia_load_setup_to_file(self, gravity, stiffening_effect):
+        
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        config = configparser.ConfigParser()
+        config.read(temp_project_base_file_path)
+
+        key_effect = int(stiffening_effect)
+
+        config['Inertia load setup'] = {'gravity' : list(gravity),
+                                        'stiffening_effect' : key_effect}
+
+        self.write_data_in_file(temp_project_base_file_path, config)
+
+    def load_inertia_load_setup(self):
+
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        config = configparser.ConfigParser()
+        config.read(temp_project_base_file_path)
+        sections = config.sections()
+        
+        gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
+        key_stiffening = 0
+        
+        if 'Inertia load setup' in sections:
+            section = config['Inertia load setup']
+            if 'gravity' in section.keys():
+                gravity = get_list_of_values_from_string(section['gravity'], int_values=False)
+            if 'stiffening_effect' in section.keys():
+                key_stiffening = int(section['stiffening_effect'])
+
+        return np.array(gravity, dtype=float), bool(key_stiffening)
+
     def create_entity_file(self, entities):
 
         config = configparser.ConfigParser()
@@ -556,7 +598,7 @@ class ProjectFile:
                 if 'structural element type' in entityFile[entity].keys():
                     
                     structural_element_type = entityFile[entity]['structural element type']
-                    if structural_element_type in ['pipe_1', 'pipe_2']:
+                    if structural_element_type == 'pipe_1':
 
                         if 'variable section parameters' in entityFile[entity].keys():
                             if line_prefix not in variable_section_line_ids:
@@ -800,7 +842,7 @@ class ProjectFile:
                     if 'structural element type' in entityFile[line_id].keys():
                         structural_element_type = entityFile[line_id]['structural element type']
             
-                if structural_element_type in ['pipe_1', 'pipe_2']:
+                if structural_element_type == 'pipe_1':
 
                     if 'outer diameter' in entityFile[entity].keys():
                         outerDiameter = entityFile[entity]['outer diameter']
@@ -1514,8 +1556,6 @@ class ProjectFile:
                 index_etype = int(vals[6])
                 if index_etype == 0:
                     etype = 'pipe_1'
-                else:
-                    etype = 'pipe_2'
                 
                 config[section_key] = { 'structural element type' : etype,
                                         'outer diameter': f'{vals[0]}',

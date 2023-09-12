@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import  QDialog, QLabel, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QWidget
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 import configparser
 
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -15,10 +15,11 @@ window_title2 = "WARNING MESSAGE"
 class BeamXaxisRotationInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/beamXaxisRotationInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/beamXaxisRotationInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -51,8 +52,8 @@ class BeamXaxisRotationInput(QDialog):
 
         self.lineEdit_xaxis_rotation_increment_angle = self.findChild(QLineEdit, "lineEdit_xaxis_rotation_increment_angle")
         self.lineEdit_xaxis_rotation_actual_angle = self.findChild(QLineEdit, "lineEdit_xaxis_rotation_actual_angle")
-        self.lineEdit_xaxis_rotation_increment_angle.setDisabled(True)
-        self.lineEdit_xaxis_rotation_actual_angle.setDisabled(False)
+        self.lineEdit_xaxis_rotation_increment_angle.setDisabled(False)
+        self.lineEdit_xaxis_rotation_actual_angle.setDisabled(True)
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_entity')
@@ -109,7 +110,7 @@ class BeamXaxisRotationInput(QDialog):
             self.lineEdit_selected_ID.setDisabled(True)
 
         self.load_beam_xaxis_rotation_info()
-        self.exec_()
+        self.exec()
     
     def write_ids(self, list_ids):
         text = ""
@@ -270,9 +271,12 @@ class BeamXaxisRotationInput(QDialog):
         title = "Remove all x-axis rotations attributed to the model"
         message = "Are you really sure you want to remove all x-axis rotations associated to beam elements?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
         if read._doNotRun:
             return
+
         if read._continue:
             if len(self.project.preprocessor.dict_beam_xaxis_rotating_angle_to_lines) > 0:
                 for line in self.project.preprocessor.all_lines:
@@ -300,11 +304,13 @@ class BeamXaxisRotationInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, key, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
@@ -314,18 +320,18 @@ class GetInformationOfGroup(QDialog):
         # self.lines_removed = False
 
         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-        self.treeWidget_group_info.headerItem().setText(0, "LINE")
-        self.treeWidget_group_info.headerItem().setText(1, "ANGLE [degrees]")
+        self.treeWidget_group_info.headerItem().setText(0, "Line")
+        self.treeWidget_group_info.headerItem().setText(1, "Angle [degrees]")
         self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
         
-        self.treeWidget_group_info.setColumnWidth(0, 120)
+        self.treeWidget_group_info.setColumnWidth(0, 130)
         self.treeWidget_group_info.setColumnWidth(1, 140)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

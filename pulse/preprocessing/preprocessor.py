@@ -26,8 +26,9 @@ class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self, file):
-        self.file = file
+    def __init__(self, project):
+        self.project = project
+        self.file = project.file
         self.reset_variables()
 
     def reset_variables(self):
@@ -116,6 +117,8 @@ class Preprocessor:
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
         self.camera_rotation_center = [0, 0, 0]
+        self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
+        self.global_damping = [0, 0, 0, 0]
 
     def set_element_size(self, element_size):
         self.element_size = element_size
@@ -1056,7 +1059,7 @@ class Preprocessor:
         elements : list
             Structural elements indexes.
             
-        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve']
+        element_type : str, ['pipe_1', 'beam_1', 'expansion_joint', 'valve']
             Structural element type to be attributed to the listed elements.
             
         remove : bool, optional
@@ -1264,7 +1267,7 @@ class Preprocessor:
         line : list
             Entities tag.
             
-        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve']
+        element_type : str, ['pipe_1', 'beam_1', 'expansion_joint', 'valve']
             Structural element type to be attributed to elements.
             
         remove : bool, optional
@@ -1882,6 +1885,9 @@ class Preprocessor:
         except Exception as _error:
             print(str(_error))
 
+    def modify_stress_stiffening_effect(self, _bool):
+        self.stress_stiffening_enabled = _bool
+
     def set_stress_stiffening_by_line(self, lines, pressures, remove=False):
         """
         This method .
@@ -1940,7 +1946,8 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        self.stress_stiffening_enabled = True
+
+        self.modify_stress_stiffening_effect(True)
         
         for element in slicer(self.structural_elements, elements):
             element.external_pressure = pressures[0]
@@ -2587,6 +2594,9 @@ class Preprocessor:
             PrintMessageInput([title, message, window_title_1])
             return True  
 
+    def set_inertia_load(self, gravity):
+        self.gravity_vector = gravity
+
     def get_radius(self):
         """
         This method updates and returns the ????.
@@ -2625,7 +2635,7 @@ class Preprocessor:
         # list_pipe_gdofs = []  
         pipe_gdofs = {}
         for element in self.structural_elements.values():
-            if element.element_type in ['pipe_1', 'pipe_2', 'expansion_joint', 'valve']:
+            if element.element_type in ['pipe_1', 'expansion_joint', 'valve']:
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
                 pipe_gdofs[gdofs_node_first] = gdofs_node_first 
@@ -2737,6 +2747,9 @@ class Preprocessor:
         else:
             CompressorModel(list_parameters)
         
+    def set_structural_damping(self, value):
+        self.global_damping = value
+
     def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
         """
         This method returns the ordered global degrees of freedom of two nodes.
@@ -2774,14 +2787,13 @@ class Preprocessor:
 
     def get_nodes_and_elements_with_expansion(self, ratio=10):
         title = "Incomplete model setup"
-        message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' or 'pipe_2' elements"
-        message += "before continue"
+        message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
         self.nodes_with_cross_section_transition = {}
         for node, neigh_elements in self.elements_connected_to_node.items():
             check_complete = False
             if len(neigh_elements) == 2:
 
-                if neigh_elements[0].element_type in ["pipe_1", "pipe_2"]:
+                if neigh_elements[0].element_type == "pipe_1":
                     if neigh_elements[0].cross_section is None:
                         PrintMessageInput([title, message, window_title_1])
                         return
@@ -2789,7 +2801,7 @@ class Preprocessor:
                         check_complete = True
                         diameter_first = neigh_elements[0].cross_section.outer_diameter
                         
-                if neigh_elements[1].element_type in ["pipe_1", "pipe_2"]:
+                if neigh_elements[1].element_type == "pipe_1":
                     if neigh_elements[1].cross_section is None:
                         PrintMessageInput([title, message, window_title_1])
                         return
@@ -3308,7 +3320,6 @@ class Preprocessor:
                                                 None : 0    }
 
         structural_etype_to_number_elements = { "pipe_1" : 0, 
-                                                "pipe_2" : 0, 
                                                 "beam_1" : 0, 
                                                 "expansion_joint" : 0, 
                                                 "valve" : 0, 
@@ -3456,66 +3467,17 @@ class Preprocessor:
         gmsh.write(geometry_path)
         gmsh.finalize()
 
-    #TODO: remove the following methods if they are not necessary anymore
+    def update_nodal_solution_info(self, nodal_solution):
+        """ This method sets the static nodal solution for 
+            stress stiffening analysis.
+        Parameters
+        ----------
+        nodal_solution: complex array of values
+        """
 
-    # def get_beam_nodes_and_indexes(self, list_beam_elements):
-    #     """
-    #     This method returns the global indexes of the nodes associated to structural beam elements.
+        for node in self.nodes.values():  
+            global_indexes = node.global_dof
+            node.static_nodal_solution_gcs = nodal_solution[global_indexes, 0]
 
-    #     Returns
-    #     ----------
-    #     list
-    #         Nodes global indexes associated to beam element.
-    #     """
-    #     list_beam_nodes = []
-    #     list_node_ids = []
-    #     # print(len(list_beam_elements))
-    #     self.get_nodes_connected_to_beam_and_pipe()#list_beam_elements)
-    #     # list(self.nodes_with_multiples_neighbors.keys())
-        
-    #     # for element in self.structural_elements.values():
-    #     for element in list_beam_elements:
-    #         # if element.element_type in ['beam_1']:
-            
-    #         node_first = element.first_node
-    #         node_last = element.last_node
-            
-    #         if node_first not in list_beam_nodes:
-    #             list_beam_nodes.append(node_first)
-    #             list_node_ids.append(node_first.global_index)
-            
-    #         if node_last not in list_beam_nodes:
-    #             list_beam_nodes.append(node_last)
-    #             list_node_ids.append(node_last.global_index)
-                        
-    #         if node_first in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'First node: {node_first.external_index}')
-    #             list_beam_nodes.remove(node_first)
-    #             list_node_ids.remove(node_first.global_index)
-
-    #         if node_last in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'Last node: {node_last.external_index}')
-    #             list_beam_nodes.remove(node_last) 
-    #             list_node_ids.remove(node_last.global_index) 
-
-    #     print(len(list_node_ids))
-    #     return list_node_ids
-
-    # def get_nodes_connected_to_beam_and_pipe(self):
-    #     list_nodes_with_multiples_neighbors = list(self.nodes_with_multiples_neighbors.keys())
-    #     self.dict_node_to_multiple_element_types = defaultdict(list)
-    #     self.nodes_connected_to_beam_and_pipe = []
-    #     for element in self.structural_elements.values():#list_beam_elements:
-    #         first_node = element.first_node
-    #         last_node = element.last_node
-    #         if first_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[first_node].append(element.element_type)
-    #         if last_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[last_node].append(element.element_type)
-    #     for node, element_types in self.dict_node_to_multiple_element_types.items():
-    #         if "beam_1" in element_types:
-    #             if ("pipe_1" or "pipe_2") in element_types:
-    #                 print(f"Node to remove: {node.external_index}")
-    #                 # print(element_types)
-    #                 self.nodes_connected_to_beam_and_pipe.append(node)
-    #     print(len(self.nodes_connected_to_beam_and_pipe))
+        for element in self.structural_elements.values():
+            element.static_analysis_evaluated = True

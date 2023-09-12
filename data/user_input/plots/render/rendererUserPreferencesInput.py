@@ -1,24 +1,26 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialog, QTabWidget, QLabel, QCheckBox, QRadioButton, QWidget, QSlider, QPushButton
-from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.model.setup.pickColorInput import PickColorInput
-from PyQt5.QtGui import QIcon
-from PyQt5 import uic
-
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
+from PyQt5 import uic
+from pathlib import Path
+
 import numpy as np
 
+from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.model.setup.pickColorInput import PickColorInput
 from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
 
 class RendererUserPreferencesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Render/rendererUserPreferencesInput2.ui', self)
+
+        uic.loadUi(Path('data/user_input/ui_files/plots_/render_/rendererUserPreferencesInput2.ui'), self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.project = project

@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QPushButton, QLabel, QFrame
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QRect, QSize
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
+from pathlib import Path
+
 import os
 import configparser
 from time import time
@@ -16,10 +18,11 @@ window_title_2 = "WARNING"
 class SetMeshPropertiesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/setMeshPropertiesInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui_files/Project/setMeshPropertiesInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.project = project
@@ -49,7 +52,7 @@ class SetMeshPropertiesInput(QDialog):
         self._define_Qt_variables()
         self._create_actions()
         self.check_geometry_and_mesh_before()
-        self.exec_()
+        self.exec()
 
     def _define_Qt_variables(self):
         self.label_new_element_size = self.findChild(QLabel, 'label_new_element_size')
@@ -147,7 +150,8 @@ class SetMeshPropertiesInput(QDialog):
             message = message[:-2]
             message += ".\n\nPress the Return button if you want to change the element size and process remapping once, press the "
             message += "Remove button to remove unmapped boundary conditions or press Close button to abort the mesh operation."
-            read = CallDoubleConfirmationInput(title, message, leftButton_label = 'Remove', rightButton_label = 'Return')
+            buttons_config = {"left_button_label" : "Remove", "right_button_label" : "Return"}
+            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
             
             if read._doNotRun:
                 self.undo_mesh_actions()

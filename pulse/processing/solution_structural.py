@@ -32,6 +32,8 @@ class SolutionStructural:
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
         self.K_exp_joint, self.M_exp_joint, self.Kr_exp_joint, self.Mr_exp_joint = self.assembly.get_expansion_joint_global_matrices()
 
+        self.cache_K = self.K.copy()
+
         self.nodes_connected_to_springs = self.assembly.nodes_connected_to_springs
         self.nodes_with_lumped_masses = self.assembly.nodes_with_lumped_masses
         self.nodes_connected_to_dampers = self.assembly.nodes_connected_to_dampers
@@ -49,7 +51,9 @@ class SolutionStructural:
         self.reset_stress_stiffening = False
 
     def update_global_matrices(self):
-        self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices() 
+        self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
+        # print(np.max(np.abs(self.cache_K - self.K)))
+        # print(np.max(np.abs(self.K)))
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
         """
@@ -81,7 +85,14 @@ class SolutionStructural:
         return full_solution
 
 
-    def get_combined_loads(self, global_damping, static_analysis=False):
+    def get_loads_for_stress_stiffening(self):
+        """ This method returns the loads relative to internal pressure only for
+            stress stiffening analysis.
+        """
+        return self.assembly.get_global_loads_for_stress_stiffening()
+
+
+    def get_combined_loads(self, static_analysis=False):
         """
         This method adds the effects of prescribed displacement and rotation into global loads vector.
 
@@ -95,18 +106,19 @@ class SolutionStructural:
         array
             Force and moment global loads. Each column corresponds to a frequency of analysis.
         """
-        # t0 = time()
-        alphaV, betaV, alphaH, betaH = global_damping
+
+        unprescribed_indexes = self.unprescribed_indexes
+        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
 
         F = self.assembly.get_global_loads(static_analysis=static_analysis)
 
         if static_analysis:
-            return F
+            _frequencies = np.array([0.], dtype=float)
+        else:
+            _frequencies = self.frequencies       
 
-        unprescribed_indexes = self.unprescribed_indexes
-
+        cols = len(_frequencies)
         rows = len(unprescribed_indexes)
-        cols = len(self.frequencies)
         F_eq = np.zeros((rows,cols), dtype=complex)
         
         if np.sum(self.array_prescribed_values) != 0:
@@ -118,22 +130,22 @@ class SolutionStructural:
             Kr = (self.Kr.toarray())[unprescribed_indexes, :]
             _Mr = (self.Mr.toarray())[unprescribed_indexes, :] + (self.Mr_exp_joint.toarray())[unprescribed_indexes, :]
             
-            for i, freq in enumerate(self.frequencies):
+            for i, freq in enumerate(_frequencies):
                 
-                _Kr = Kr + (self.Kr_exp_joint[i].toarray())[unprescribed_indexes, :] 
-
-                Kr_lump_i = (self.Kr_lump[i].toarray())[unprescribed_indexes, :]
-                Mr_lump_i = (self.Mr_lump[i].toarray())[unprescribed_indexes, :]
-                Cr_lump_i = (self.Cr_lump[i].toarray())[unprescribed_indexes, :]
-
+                _Kr = Kr + (self.Kr_exp_joint[i].toarray())[unprescribed_indexes, :]
                 Kr_add = np.sum(_Kr*self.array_prescribed_values[:,i], axis=1)
                 Mr_add = np.sum(_Mr*self.array_prescribed_values[:,i], axis=1)
                 
                 if self.nodes_connected_to_springs != []:
+                    Kr_lump_i = (self.Kr_lump[i].toarray())[unprescribed_indexes, :]
                     Kr_add_lump = np.sum(Kr_lump_i*self.array_prescribed_values[:,i], axis=1)
+
                 if self.nodes_with_lumped_masses != []:
+                    Mr_lump_i = (self.Mr_lump[i].toarray())[unprescribed_indexes, :]
                     Mr_add_lump = np.sum(Mr_lump_i*self.array_prescribed_values[:,i], axis=1)
+
                 if self.nodes_connected_to_dampers != []:
+                    Cr_lump_i = (self.Cr_lump[i].toarray())[unprescribed_indexes, :]
                     Cr_add_lump = np.sum(Cr_lump_i*self.array_prescribed_values[:,i], axis=1)
 
                 omega = 2*np.pi*freq
@@ -142,9 +154,6 @@ class SolutionStructural:
                 F_Cadd = 1j*((betaH + omega*betaV)*Kr_add + (alphaH + omega*alphaV)*Mr_add)
                 F_Cadd_lump = 1j*omega*Cr_add_lump
                 F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
-
-        # dt = time()-t0
-        # print("Time elapsed: {}[s]".format(dt))
 
         F_combined = F - F_eq
 
@@ -188,15 +197,15 @@ class SolutionStructural:
         """
 
         if K==[] and M==[]:
+
             if self.preprocessor.stress_stiffening_enabled:
-                self.static_analysis_for_stress_stiffening([0,0,0,0])
+                static_solution = self.static_analysis()
+                self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+                self.update_global_matrices()
   
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
             Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
-            # else:
-            #     #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
-            #     Kadd_lump = self.K + self.K_exp_joint[0]
-            #     Madd_lump = self.M + self.M_exp_joint
+            ##Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
         else:
             Kadd_lump = K
             Madd_lump = M
@@ -226,7 +235,7 @@ class SolutionStructural:
         return natural_frequencies, modal_shape
 
 
-    def direct_method(self, global_damping):
+    def direct_method(self):
         """
         This method evaluates the harmonic analysis through direct method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.
 
@@ -241,21 +250,19 @@ class SolutionStructural:
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
 
-        alphaV, betaV, alphaH, betaH = global_damping
-        
-        # t0 = time()
-        F = self.get_combined_loads(global_damping)
-        # dt = time() - t0
-        # print("Time elapsed: {}[s]".format(dt))
+        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
+
+        if self.preprocessor.stress_stiffening_enabled:
+            static_solution = self.static_analysis()
+            self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+            self.update_global_matrices()
 
         rows = self.K.shape[0]
         cols = len(self.frequencies)
 
-        if self.preprocessor.stress_stiffening_enabled:
-            self.static_analysis_for_stress_stiffening(global_damping)
-
+        F = self.get_combined_loads()
         solution = np.zeros((rows, cols), dtype=complex)
-    
+        
         for i, freq in enumerate(self.frequencies):
 
             omega = 2*np.pi*freq
@@ -281,7 +288,7 @@ class SolutionStructural:
         return self.solution
 
 
-    def mode_superposition(self, modes, global_damping, F_loaded=None, fastest=True):
+    def mode_superposition(self, modes, fastest=True):
         """
         This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.
 
@@ -303,6 +310,7 @@ class SolutionStructural:
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
+        global_damping = self.preprocessor.global_damping
         alphaV, betaV, alphaH, betaH = global_damping
 
         if np.sum(self.prescribed_values)>0:
@@ -313,7 +321,10 @@ class SolutionStructural:
         else:
             F = self.assembly.get_global_loads(loads_matrix3D=fastest)
             if self.preprocessor.stress_stiffening_enabled:
-                self.static_analysis_for_stress_stiffening(global_damping)
+                static_solution = self.static_analysis()
+                self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+                self.update_global_matrices()
+            
             # Kadd_lump = self.K + self.K_lump[0]
             # Madd_lump = self.M + self.M_lump[0]
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
@@ -373,7 +384,7 @@ class SolutionStructural:
 
         return self.solution
 
-    def static_analysis_for_stress_stiffening(self, global_damping):
+    def static_analysis(self):
         """
         This method evaluates the static analysis through the direct method. This method is evaluated whenever stress stiffening effects are enabled.
         Parameters
@@ -386,11 +397,9 @@ class SolutionStructural:
             Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
         """
        
-        # t0 = time()
-        alphaV, betaV, alphaH, betaH = global_damping
-        F = self.get_combined_loads(global_damping, static_analysis=True)
-        # dt = time() - t0
-        # print("Time elapsed: {}[s]".format(dt))
+        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
+        # F = self.assembly.get_global_loads_for_static_analysis()
+        F = self.get_combined_loads(static_analysis=True)
 
         rows = self.K.shape[0]
         cols = 1
@@ -398,32 +407,21 @@ class SolutionStructural:
         
         omega = 0
 
-        # F_K = (self.K + self.K_lump[0])
-        # F_M =  (-(omega**2))*(self.M + self.M_lump[0])
-        # F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)
-
         F_K = (self.K + self.K_exp_joint[0] + self.K_lump[0])
         F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[0])
-        F_C = 1j*(( betaH + omega*betaV )*(self.K + self.K_exp_joint[0]) + ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
+        F_C = 1j*(( betaH + omega*betaV )*(self.K + self.K_exp_joint[0]) + 
+                  ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
         
         F_Clump = 1j*omega*self.C_lump[0]
-        
         A = F_K + F_M + F_C + F_Clump
 
         solution[:,0] = spsolve(A, F[:,0])
+        self.solution = self._reinsert_prescribed_dofs(solution)
 
-        static_solution_all_dofs = self._reinsert_prescribed_dofs(solution)
-        self.update_nodal_solution_info(np.real(static_solution_all_dofs))
-        self.update_global_matrices()
-  
-    def update_nodal_solution_info(self, nodal_solution):
-        for node in self.preprocessor.nodes.values():  
-            global_indexes = node.global_dof
-            node.static_nodal_solution_gcs = nodal_solution[global_indexes, 0]
-        for element in self.preprocessor.structural_elements.values():
-            element.static_analysis_evaluated = True
+        return self.solution
 
-    def get_reactions_at_fixed_nodes(self, global_damping_values=(0,0,0,0)):
+
+    def get_reactions_at_fixed_nodes(self):
         """
         This method evaluates reaction forces and moments at fixed nodes.
 
@@ -438,7 +436,7 @@ class SolutionStructural:
             Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.
         """
 
-        alphaH, betaH, alphaV, betaV = global_damping_values
+        alphaH, betaH, alphaV, betaV = self.preprocessor.global_damping
         load_reactions = {}
         if self.solution is not None:    
 
@@ -546,7 +544,7 @@ class SolutionStructural:
             return dict_reactions_at_springs, dict_reactions_at_dampers
 
 
-    def stress_calculate(self, global_damping, pressure_external = 0, damping_flag = False, _real_values=False):
+    def stress_calculate(self, pressure_external = 0, damping_flag = False, _real_values=False):
         """
         This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
 
@@ -577,7 +575,7 @@ class SolutionStructural:
         """
         self.stress_field_dict = {}
         if damping_flag:
-            _, betaH, _, betaV = global_damping
+            _, betaH, _, betaV = self.preprocessor.global_damping
         else:
             betaH = betaV = 0
         elements = self.preprocessor.structural_elements.values()
@@ -590,15 +588,16 @@ class SolutionStructural:
             if element.element_type in ['beam_1', 'expansion_joint', 'valve']:
                 element.stress = np.zeros((7, len(self.frequencies)))
             
-            elif element.element_type in ['pipe_1', 'pipe_2']:
+            elif element.element_type == 'pipe_1':
                 # Internal Loads
                 structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
+
                 if self.solution is None:
                     window_title = "ERROR"
                     title = "Empty solution"
                     message = "A strutural analysis must be performed to obtain the stress field."
                     PrintMessageInput([title, message, window_title])
-                    return
+                    return {}
 
                 u = self.solution[structural_dofs, :]
                 Dab = element._Dab
@@ -613,7 +612,7 @@ class SolutionStructural:
                 normal = Dab @ Bab @ T @ rot @ u
                 shear = Dts @ Bts @ T @ rot @ u
 
-                element.internal_load = np.multiply(np.r_[normal, shear],damping)
+                element.internal_load = np.multiply(np.r_[normal, shear], damping)
                 # Stress
                 do = element.cross_section.outer_diameter
                 di = element.cross_section.inner_diameter
@@ -632,16 +631,16 @@ class SolutionStructural:
                     p = np.zeros((2, len(self.frequencies)))
                 pm = np.sum(p,axis=0)/2
 
-                if element.wall_formutation_type == "thick wall":
+                if element.wall_formulation == "thick_wall":
                     hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
                     radial_stress =  -2*nu*(pm*di**2 - p0*do**2)/(do**2 - di**2)
-                if element.wall_formutation_type == "thin wall":
+                if element.wall_formulation == "thin_wall":
                     hoop_stress = pm
                     radial_stress = -nu*pi*(do/(do-di) - 1)
                    
                 stress_data = np.c_[element.internal_load[0]/area - radial_stress,
-                                    element.internal_load[2] * ro/Iy,
-                                    element.internal_load[1] * ro/Iz,
+                                    element.internal_load[1] * ro/Iy,
+                                    element.internal_load[2] * ro/Iz,
                                     hoop_stress,
                                     element.internal_load[3] * ro/J,
                                     element.internal_load[4]/area,

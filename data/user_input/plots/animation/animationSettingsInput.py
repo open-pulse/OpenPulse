@@ -1,28 +1,33 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialog, QTabWidget, QLabel, QCheckBox, QSpinBox, QPushButton, QWidget, QFileDialog, QComboBox
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt
+from PyQt5 import uic
+from pathlib import Path
+
 import os
+import numpy as np
 from os.path import basename
+
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_new_path
-from PyQt5.QtGui import QIcon
-from PyQt5 import uic
-from PyQt5.QtCore import Qt
-import numpy as np
 
-from PyQt5 import uic
+def get_icons_path(filename):
+    path = f"data/icons/{filename}"
+    if os.path.exists(path):
+        return str(Path(path))
 
 class AnimationSettingsInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Animation/animationSettingsInput.ui', self)
+
+        uic.loadUi(Path('data/user_input/ui_files/plots_/animation_/animationSettingsInput.ui'), self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        icons_path = 'data\\icons\\'
-        self.icon_pulse = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon_pulse)
-
-        self.icon_animate = QIcon(icons_path + 'play_pause.png')
+        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.icon_animate = QIcon(get_icons_path('play_pause.png'))
+        self.setWindowIcon(self.icon)
 
         self.project = project
         self.opv = opv

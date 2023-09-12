@@ -7,7 +7,7 @@ logging.basicConfig(format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)
 logger = logging.getLogger(__name__)
 
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.loadingScreen import LoadingScreen
+from data.user_input.project.loading_screen import LoadingScreen
 import vtk
 import numpy as np
 from math import pi
@@ -33,6 +33,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv = opv
         self.setUsePicker(False)
 
+        self._absolute = False
+        self._scaling_setup = dict()
         self._magnificationFactor = 1
         self._currentFrequencyIndex = 0
         self._cacheFrequencyIndex = None
@@ -186,57 +188,66 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._animationFrames.clear()
         self._cacheFrequencyIndex = None
         
-    def showDisplacement(self, frequency_index):
+    def showDisplacementField(self, frequency_index, scaling_setup):
         self.cache_plot_state(displacement=True)
-        self._currentFrequencyIndex = frequency_index 
+        self._currentFrequencyIndex = frequency_index
+        self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
-            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
+                                                               scaling_setup)
         self.opvTubes = self.opvDeformedTubes
-        self._currentPlot = self.computeDisplacement
+        self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
-    def showStressField(self, frequency_index):
+    def showStressField(self, frequency_index, scaling_setup):
         self.cache_plot_state(stress=True)
-        self._currentFrequencyIndex = frequency_index 
+        self._currentFrequencyIndex = frequency_index
+        self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_stresses() 
-            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
+                                                               scaling_setup)
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
-    def showPressureField(self, frequency_index):
+    def showPressureField(self, frequency_index, absolute=False):
         self.cache_plot_state(pressure=True)
-        self._currentFrequencyIndex = frequency_index 
+        self._currentFrequencyIndex = frequency_index
+        self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_pressure(self._currentFrequencyIndex)
+
         self.opvTubes = self.opvPressureTubes
         self._currentPlot = self.computePressureField
         self.last_frequency_index = frequency_index
         self._plotOnce(0)
 
-    def get_min_max_values_to_resultant_displacements(self, frequency_index):
+    def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_setup):
         solution = self.project.get_structural_solution()
-        self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
+        self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, 
+                                                                                       frequency_index,
+                                                                                       scaling_setup)
 
-    def computeDisplacement(self, frequency, phase_step=0):
+    def computeDisplacementField(self, frequency_index, phase_step):
 
         preprocessor = self.project.preprocessor
-        solution = self.project.get_structural_solution()    
+        solution = self.project.get_structural_solution()
 
         _, _, u_def, self._magnificationFactor, self.min_max_rDisp_values_current = get_structural_response(preprocessor, 
                                                                                                             solution, 
-                                                                                                            frequency, 
-                                                                                                            phase_step=phase_step,
-                                                                                                            r_max=self.rDisp_max)
+                                                                                                            frequency_index, 
+                                                                                                            phase_step = phase_step,
+                                                                                                            r_max = self.rDisp_max,
+                                                                                                            scaling_setup = self._scaling_setup)
         
         self.opvDeformedTubes.build()
         min_max_values_all = [self.rDisp_min, self.rDisp_max]
@@ -252,16 +263,17 @@ class opvAnalysisRenderer(vtkRendererBase):
         solution = self.project.stresses_values_for_color_table
         self.stress_min, self.stress_max = get_min_max_stresses_values(solution)
         
-    def computeStressField(self, frequency, phase_step=0):
+    def computeStressField(self, frequency, phase_step):
 
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
 
-        *args, self._magnificationFactor, _ = get_structural_response(  preprocessor, 
+        *args, self._magnificationFactor, _ = get_structural_response(  preprocessor,
                                                                         solution, 
                                                                         frequency,
-                                                                        phase_step=phase_step,
-                                                                        r_max=self.rDisp_max  )
+                                                                        phase_step = phase_step,
+                                                                        r_max = self.rDisp_max,
+                                                                        scaling_setup = self._scaling_setup  )
         self.opvDeformedTubes.build()
         
         _stresses = self.project.stresses_values_for_color_table
@@ -279,19 +291,22 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def get_min_max_values_to_pressure(self, frequency_index):
         solution = self.project.get_acoustic_solution()
-        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
+        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, 
+                                                                               frequency_index, 
+                                                                               absolute=self._absolute)
 
-    def computePressureField(self, frequency, phase_step, real_part=True):
+    def computePressureField(self, frequency, phase_step):
 
         preprocessor = self.project.preprocessor
         solution = self.project.get_acoustic_solution()
         self._currentFrequencyIndex = frequency
-        self._colorScalling = 'real part' if real_part else 'absolute'
+        self._colorScalling = 'absolute' if self._absolute else 'real part'
 
         *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  preprocessor, 
                                                                                                     solution, 
                                                                                                     frequency, 
-                                                                                                    phase_step=phase_step  )
+                                                                                                    phase_step=phase_step,
+                                                                                                    absolute=self._absolute  )
         
         self.opvPressureTubes.build()
         min_max_values_all = [self.pressure_min, self.pressure_max]
@@ -387,7 +402,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         else:
             message = "The animation frames calculation is in progress..."
         
-        LoadingScreen(title, message, target=cache_callback)
+        LoadingScreen(title = title, 
+                      message = message, 
+                      target = cache_callback)
 
     def pauseAnimation(self):
         self.playingAnimation = False
@@ -499,7 +516,8 @@ class opvAnalysisRenderer(vtkRendererBase):
             text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
         else:
             frequencies = self.project.get_frequencies()
-            text += self.project.analysis_method_label + "\n"
+            if self.project.analysis_method_label is not None:
+                text += self.project.analysis_method_label + "\n"
             text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
 
         if not self.project.plot_pressure_field:
@@ -509,15 +527,13 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def update_min_max_stresses_text(self):
                 
-        min_stress = self.project.min_stress
-        max_stress = self.project.max_stress
         stress_label = self.project.stress_label
 
         text = ""
         if self.min_max_stresses_values_current is not None:
-            [max_stress, min_stress] = self.min_max_stresses_values_current
-            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
+            [min_stress, max_stress] = self.min_max_stresses_values_current
             text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_label, min_stress)
+            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
         
         width, height = self._renderer.GetSize()
                 

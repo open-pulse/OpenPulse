@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QRadioButton, QPushButton
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
+
 import os
 import configparser
 from shutil import copyfile
@@ -9,7 +11,6 @@ import numpy as np
 
 from pulse.utils import get_new_path
 from pulse.project import Project
-from pulse.default_libraries import default_material_library, default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
@@ -18,10 +19,11 @@ window_title2 = "WARNING MESSAGE"
 class SetGeometryFileInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Project/setGeometryFileInput.ui', self)
 
-        icons_path = 'pulse\\data\\icons\\'
-        self.icon = QIcon(icons_path + 'add.png')
+        uic.loadUi(Path('data/user_input/ui_files/Project/setGeometryFileInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.project = project
@@ -78,7 +80,7 @@ class SetGeometryFileInput(QDialog):
         self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
         self.pushButton_cancel.clicked.connect(self.cancel)
 
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

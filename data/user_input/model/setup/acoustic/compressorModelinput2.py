@@ -1,18 +1,18 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QCheckBox, QSpinBox
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
-from collections import defaultdict
+from pathlib import Path
+
 import os
+import configparser
 import numpy as np
 import matplotlib.pyplot as plt  
+from collections import defaultdict
 
 from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
-from data.user_input.model.setup.acoustic.fluidInput import FluidInput
+from data.user_input.model.setup.acoustic.fluid_input import FluidInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
@@ -25,11 +25,12 @@ kgf_cm2_to_Pa = 9.80665e4
 class CompressorModelInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/compressorModelInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/compressorModelInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon) 
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -198,7 +199,7 @@ class CompressorModelInput(QDialog):
         self.spinBox_event_number_of_cylinders()
         self.load_compressor_excitation_tables_info()
         
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter:
@@ -1098,7 +1099,8 @@ class CompressorModelInput(QDialog):
                 message += f"{node.external_index}\n"
             message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
             message += "\nClose buttons to abort the current operation."
-            read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
             if read._doNotRun:
                 return

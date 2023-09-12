@@ -95,7 +95,7 @@ class StructuralElement:
     index : int
         Element index.
 
-    element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve'], optional
+    element_type : str, ['pipe_1', 'beam_1', 'expansion_joint', 'valve'], optional
         Element type
         Default is 'pipe_1'.
 
@@ -122,7 +122,7 @@ class StructuralElement:
         self.index = index
 
         self.element_type = kwargs.get('element_type', 'pipe_1')
-        self.wall_formulation = kwargs.get('wall_formulation', 'thick_wall')
+        self.wall_formulation = kwargs.get('wall_formulation', 'thin_wall')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
@@ -134,7 +134,6 @@ class StructuralElement:
 
         self.capped_end = kwargs.get('capped_end', False)
         self.stress_intensification = kwargs.get('stress_intensification', True)
-        self.wall_formutation_type = kwargs.get('wall_formutation_type', "thick wall")
         self.force_offset = True
 
         self.section_rotation_xyz_undeformed = None
@@ -301,7 +300,7 @@ class StructuralElement:
         """
         self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()
         Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
-        if self.element_type in ['pipe_1','pipe_2']:
+        if self.element_type == 'pipe_1':
             if self.variable_section:
                 stiffness = Rt @ self.stiffness_matrix_pipes_variable_section() @ R
                 mass = Rt @ self.mass_matrix_pipes_variable_section() @ R
@@ -365,7 +364,7 @@ class StructuralElement:
         """
         R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
-        if self.element_type in ['pipe_1','pipe_2']:
+        if self.element_type == 'pipe_1':
             if self.variable_section:
                 return Rt @ self.stiffness_matrix_pipes_variable_section() @ R
             else:
@@ -394,7 +393,7 @@ class StructuralElement:
         """
         R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
-        if self.element_type in ['pipe_1','pipe_2']:
+        if self.element_type == 'pipe_1':
             if self.variable_section:
                 return Rt @ self.mass_matrix_pipes_variable_section() @ R
             else:
@@ -416,7 +415,7 @@ class StructuralElement:
             Force vector in the global coordinate system.
         """
         Rt = self.transpose_rotation_matrix
-        return Rt @ self.force_vector()
+        return Rt @ self.get_distributed_load()
 
     def _element_rotation_matrix(self):
         """
@@ -494,14 +493,8 @@ class StructuralElement:
             Qz = 0
             Iyz = 0
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            Qy = self.cross_section.first_moment_area_y
-            Qz = self.cross_section.first_moment_area_z
-            Iyz = self.cross_section.second_moment_area_yz
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            print('Only pipe_1 and pipe_2 element types are allowed.')
-            pass
+            print('Only pipe_1 element types are allowed.')
             
         # Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -545,10 +538,10 @@ class StructuralElement:
             Te = (E*A/L)*(Ue[6] - Ue[0]) - Fp_x
             K_geo = (Te/L)*mat_K_geo
 
-            # if self.index in [12]:
-            #     # print("\nElement 12:")
-            #     # print("UX(11):", self.first_node.static_nodal_solution_gcs[0])
-            #     # print("UX(12):", self.last_node.static_nodal_solution_gcs[0])
+            # if self.index in [12, 13, 14, 15]:
+            #     print("\nElement 12:")
+            #     print(f"UX(first): {self.first_node.static_nodal_solution_gcs[0]}")
+            #     print(f"UX(last): {self.last_node.static_nodal_solution_gcs[0]}")
             #     print(f"Te: {Te}")
 
         for point, weigth in zip(points, weigths):
@@ -617,14 +610,8 @@ class StructuralElement:
             Qz = 0
             Iyz = 0
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            Qy = self.cross_section.first_moment_area_y
-            Qz = self.cross_section.first_moment_area_z
-            Iyz = self.cross_section.second_moment_area_yz
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            print('Only pipe_1 and pipe_2 element types are allowed.')
-            pass
+            print('Only pipe_1 element types are allowed.')
 
         # Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -769,14 +756,8 @@ class StructuralElement:
                 Qz = 0
                 Iyz = 0
                 # principal_axis = section.principal_axis
-            elif self.element_type == 'pipe_2':
-                Qy = section.first_moment_area_y
-                Qz = section.first_moment_area_z
-                Iyz = section.second_moment_area_yz
-                # principal_axis = np.eye(DOF_PER_ELEMENT)
             else:
-                print('Only pipe_1 and pipe_2 element types are allowed.')
-                pass
+                print('Only pipe_1 element types are allowed.')
                 
             key = 1
             # Variables related to prestress effect
@@ -904,14 +885,8 @@ class StructuralElement:
                 Qz = 0
                 Iyz = 0
                 # principal_axis = section.principal_axis
-            elif self.element_type == 'pipe_2':
-                Qy = section.first_moment_area_y
-                Qz = section.first_moment_area_z
-                Iyz = section.second_moment_area_yz
-                # principal_axis = np.eye(DOF_PER_ELEMENT)
             else:
-                print('Only pipe_1 and pipe_2 element types are allowed.')
-                pass
+                print('Only pipe_1 element types are allowed.')
             
             #Fluid/Insulation inertia effects
             Gis = rho_insulation*np.array([[Ais, 0, 0],[0, Ais, 0],[0, 0, Ais]], dtype='float64') 
@@ -1033,7 +1008,7 @@ class StructuralElement:
         self.transf_mat_OffsetShear_right = Sc@Of
 
 
-    def force_vector(self):
+    def get_distributed_load(self):
         """
         This method returns the element load vector in the local coordinate system. The loads are forces and moments according to the degree of freedom.
 
@@ -1045,8 +1020,16 @@ class StructuralElement:
         Raises
         ------
         TypeError
-            Only pipe_1 and pipe_2 element types are allowed.
+            Only pipe_1 element type is allowed.
         """
+
+        _R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        _Rt = self.transpose_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        
+        # convert the loads to the local coordinates
+        eload_lcs =  _R @ self.loaded_forces @ _Rt               
+        eload_lcs = eload_lcs.reshape(-1, 1)
+
         ## Numerical integration by Gauss quadrature
         L = self.length
         integrations_points = 2
@@ -1056,17 +1039,16 @@ class StructuralElement:
         det_jacobian = L / 2
 
         Fe = 0
+        aux_eyes = np.eye( DOF_PER_NODE_STRUCTURAL, dtype=float)
         for point, weigth in zip(points, weigths):
             phi, _ = shape_function(point)
-            N = np.c_[phi[0] * np.eye( DOF_PER_NODE_STRUCTURAL ), phi[1] * np.eye( DOF_PER_NODE_STRUCTURAL )] 
-            Fe += (N.T @ self.loaded_forces.T) * det_jacobian * weigth
+            N = np.c_[phi[0]*aux_eyes, phi[1]*aux_eyes] 
+            Fe += (N.T @ eload_lcs) * det_jacobian * weigth
         
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+            return np.zeros((DOF_PER_ELEMENT, 1), dtype=float)
         
         if self.force_offset:
             if self.variable_section:
@@ -1107,15 +1089,19 @@ class StructuralElement:
         else:
             capped_end = 0
 
-        if self.element_type in ['pipe_1', 'pipe_2']:
+        if self.element_type == 'pipe_1':
             stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
-            if self.wall_formutation_type == "thick wall": 
+            if self.wall_formulation == "thick_wall": 
                 force = A * (capped_end - 2*nu)* stress_axial
-            elif self.wall_formutation_type == "thin wall":
+            elif self.wall_formulation == "thin_wall":
                 force = A * (capped_end*stress_axial - nu*pressures*(Do/(Do-Di) - 1))
+            else:
+                raise TypeError('Only thin and thick wall formulation types are allowable.')
+            
         elif self.element_type in ['expansion_joint','valve']:
             nu = 0
             force = (capped_end - 2*nu)* A *pressures
+            
         else:
             return np.zeros((rows, cols))
 
@@ -1126,10 +1112,10 @@ class StructuralElement:
         
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type in ['pipe_2', 'expansion_joint', 'valve']:
+        elif self.element_type in ['expansion_joint', 'valve']:
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+            raise TypeError(f'Invalid element type: {self.element_type}')
         
         if self.force_offset:
             if self.variable_section:
@@ -1138,6 +1124,7 @@ class StructuralElement:
                 return R.T @ principal_axis.T @ aux
         else:
             return R.T @ aux
+
 
     def force_vector_stress_stiffening(self, vector_gcs=True):
         """
@@ -1159,7 +1146,7 @@ class StructuralElement:
         P_in = self.internal_pressure
         P_out = self.external_pressure
         
-        if self.element_type in ['pipe_1', 'pipe_2', 'valve']:
+        if self.element_type in ['pipe_1', 'valve']:
             axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
         else:
             return aux
@@ -1171,10 +1158,8 @@ class StructuralElement:
 
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+            raise TypeError(f'Invalid element type: {self.element_type}')
 
         aux[0], aux[6] = -1, 1
         R = self.element_rotation_matrix
@@ -1188,11 +1173,78 @@ class StructuralElement:
             aux = 1
             capped_end = 0
 
-        if self.wall_formutation_type == "thick wall":
+        if self.wall_formulation == "thick_wall":
             return (capped_end - 2*nu) * axial_stress * A * aux
-        elif self.wall_formutation_type == "thin wall":
+        elif self.wall_formulation == "thin_wall":
             return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
-            
+        else:
+            raise TypeError('Only thin and thick wall formulation types are allowable.')
+    
+
+    def get_self_weighted_load(self, gravity_vector):
+        """
+        This method returns the self-weighted loads for static analysis.
+        Returns
+        -------
+        Fe_sw : array
+            Load vector due to self-weight in the global coordinate system.
+        """
+ 
+        if np.sum(gravity_vector) == 0:
+            return np.zeros((12,1), dtype=float)
+        #
+        g = gravity_vector
+        rho = self.material.density
+        A = self.cross_section.area
+        #
+        A_fluid = A_ins = 0.
+        rho_fluid = rho_ins = 0.
+        if self.element_type in ["pipe_1", "valve"]:
+            A_ins = self.cross_section.area_insulation
+            rho_ins = self.cross_section.insulation_density
+            if self.fluid is not None and self.adding_mass_effect:
+                rho_fluid = self.fluid.density
+                A_fluid = self.cross_section.area_fluid
+        
+        eload = (rho*A + rho_fluid*A_fluid + rho_ins*A_ins)*g
+
+        _R = self.element_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        _Rt = self.transpose_rotation_matrix[0:DOF_PER_NODE_STRUCTURAL, 0:DOF_PER_NODE_STRUCTURAL]
+        
+        # convert the loads to the local coordinates
+        eload_lcs =  _R @ eload @ _Rt               
+        eload_lcs = eload_lcs.reshape(-1, 1)
+
+        ## Numerical integration by Gauss quadrature
+        L = self.length
+        integrations_points = 2
+        points, weigths = gauss_quadrature(integrations_points)
+
+        #Determinant of Jacobian (linear 1D trasform)
+        det_jacobian = L / 2
+
+        Fe_sw = 0.
+        aux_eyes = np.eye(DOF_PER_NODE_STRUCTURAL, dtype=float)
+
+        for point, weigth in zip(points, weigths):
+            phi, _ = shape_function(point)
+            N = np.c_[phi[0] * aux_eyes, phi[1] * aux_eyes]
+            Fe_sw += (N.T @ eload_lcs) * det_jacobian * weigth
+        
+        if self.element_type == 'pipe_1':
+            principal_axis = self.cross_section.principal_axis
+        else:
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+
+        if self.force_offset:
+            if self.variable_section:
+                return self.transf_mat_OffsetShear_left @ Fe_sw
+            else:
+                return principal_axis.T @ Fe_sw
+        else:
+            return Fe_sw
+
+        
     def stiffness_matrix_beam(self):
         """
         This method returns the beam element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is suitable for any beam cross section data.

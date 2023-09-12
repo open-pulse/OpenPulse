@@ -1,10 +1,8 @@
-from types import prepare_class
-from PyQt5.QtWidgets import  QDialog, QWidget, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QCheckBox, QFrame
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5 import uic
-import configparser
+from pathlib import Path
 
 from PyQt5.uic.uiparser import QtWidgets
 
@@ -16,10 +14,11 @@ window_title2 = "WARNING MESSAGE"
 class StructuralElementTypeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/structuralElementTypeInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Structural/structuralElementTypeInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -116,7 +115,7 @@ class StructuralElementTypeInput(QDialog):
 
         self.update()
         self.load_element_type_info()
-        self.exec_()
+        self.exec()
 
     def checkBox_Event(self):
         self.capped_end_effect = self.checkBox_capped_end.isChecked()
@@ -170,10 +169,8 @@ class StructuralElementTypeInput(QDialog):
                 _element_type = entity.structural_element_type
                 if _element_type == 'pipe_1':
                     self.comboBox.setCurrentIndex(0)
-                elif _element_type == 'pipe_2':
-                    self.comboBox.setCurrentIndex(1)
                 elif _element_type == 'beam_1':
-                    self.comboBox.setCurrentIndex(2)
+                    self.comboBox.setCurrentIndex(1)
                 
                 _wall_formulation = entity.structural_element_wall_formulation
                 if _wall_formulation == 'thick_wall':
@@ -259,13 +256,13 @@ class StructuralElementTypeInput(QDialog):
         for tag in tags:
             initial_etype = self.dict_tag_to_entity[tag].structural_element_type
             
-            if initial_etype in ['pipe_1', 'pipe_2', None] and final_etype in ['beam_1']:
+            if initial_etype in ['pipe_1', None] and final_etype in ['beam_1']:
                 
                 self.update_cross_section = True
                 self.pipe_to_beam = True
                 self.list_lines_to_update_cross_section.append(tag)
 
-            elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1', 'pipe_2']:
+            elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1']:
                 
                 self.update_cross_section = True
                 self.beam_to_pipe = True
@@ -291,9 +288,9 @@ class StructuralElementTypeInput(QDialog):
         # final_etype = self.element_type
         # for tag in tags:
         #     initial_etype = self.dict_tag_to_entity[tag].structural_element_type
-        #     if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
+        #     if initial_etype in ['pipe_1'] and final_etype in ['beam_1']:
         #         self.project.set_cross_section_by_line(tag, None)
-        #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
+        #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1']:
         #         self.project.set_cross_section_by_line(tag, None)
 
     def selectionChange(self, index):
@@ -301,8 +298,6 @@ class StructuralElementTypeInput(QDialog):
         if self.index == 0:
             self.element_type = 'pipe_1'
         elif self.index == 1:
-            self.element_type = 'pipe_2'
-        elif self.index ==2:
             self.element_type = 'beam_1'
         
         if self.index in [2]:
@@ -333,9 +328,10 @@ class StructuralElementTypeInput(QDialog):
             self.check_element_type_changes()
             lines = self.preprocessor.all_lines
             print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
+
         self.project.set_structural_element_type_by_lines(lines, self.element_type)
     
-        if self.element_type in ['pipe_1', 'pipe_2']:
+        if self.element_type == 'pipe_1':
             self.project.set_capped_end_by_lines(lines, self.capped_end_effect)
             self.project.set_structural_element_wall_formulation_by_lines(lines, self.wall_formulation)
         else:
@@ -367,13 +363,14 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, key, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui_files/Model/Info/getGroupInformationInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-
-        uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
         self.project = project
         self.key = key
@@ -393,7 +390,7 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.load_group_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

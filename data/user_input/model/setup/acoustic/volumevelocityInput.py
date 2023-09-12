@@ -1,9 +1,11 @@
-import os
-import numpy as np
-from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget, QSpinBox
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pathlib import Path
+
+import os
+import numpy as np
 
 from pulse.utils import get_new_path, remove_bc_from_file
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -15,10 +17,11 @@ window_title_2 = "WARNING"
 class VolumeVelocityInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/volumevelocityInput.ui', self)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/volumevelocityInput.ui'), self)
+
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -79,7 +82,7 @@ class VolumeVelocityInput(QDialog):
         
         self.update()
         self.load_nodes_info()
-        self.exec_()
+        self.exec()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -193,7 +196,7 @@ class VolumeVelocityInput(QDialog):
             
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
 
-            if imported_file.shape[1]<2:
+            if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
                 PrintMessageInput([title, message, window_title_1])
@@ -201,7 +204,7 @@ class VolumeVelocityInput(QDialog):
         
             imported_values = imported_file[:,1]
 
-            if imported_file.shape[1]>=2:
+            if imported_file.shape[1] >= 3:
 
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
@@ -348,7 +351,8 @@ class VolumeVelocityInput(QDialog):
                 message += f"{node.external_index}\n"
             message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
             message += "\nClose buttons to abort the current operation."
-            read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
             if read._doNotRun:
                 return

@@ -1,6 +1,7 @@
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QSize, QEvent
-from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel, QStatusBar, QSizeGrip
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from pathlib import Path
 
 from pulse.uix.menu.Menu import Menu
 from pulse.uix.inputUi import InputUi
@@ -14,6 +15,11 @@ import os
 
 from pulse.uix.menu import *
 # from pulse.uix.menu.widgets import *
+
+def get_icons_path(filename):
+    path = f"data/icons/{filename}"
+    if os.path.exists(path):
+        return str(Path(path))
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -52,19 +58,18 @@ class MainWindow(QMainWindow):
                 # self.opv_widget.changePlotToMesh()
 
     def _loadIcons(self):
-        icons_path = 'data\\icons\\'
-        self.pulse_icon = QIcon(icons_path + 'pulse.png')
-        self.new_icon = QIcon(icons_path + 'add.png')
-        self.open_icon = QIcon(icons_path + 'upload.png')
-        self.reset_icon = QIcon(icons_path + 'refresh.png')
-        self.saveImage_icon = QIcon(icons_path + 'save_image.png')
-        self.exit_icon = QIcon(icons_path + 'exit.png')
-        self.playpause_icon = QIcon(icons_path + 'play_pause.png')
-        self.element_and_lines_with_cross_sections_icon = QIcon(icons_path + 'cross_section_representation.png')
-        self.lines_only_icon = QIcon(icons_path + 'lines_only.png')
-        self.elements_and_nodes_icon = QIcon(icons_path + 'elements_and_nodes.png')
-        self.elements_only_icon = QIcon(icons_path + 'elements_only.png')
-        self.nodes_only_icon = QIcon(icons_path + 'nodes_only.png')
+        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.new_icon = QIcon(get_icons_path('add.png'))
+        self.open_icon = QIcon(get_icons_path('upload.png'))
+        self.reset_icon = QIcon(get_icons_path('refresh.png'))
+        self.saveImage_icon = QIcon(get_icons_path('save_image.png'))
+        self.exit_icon = QIcon(get_icons_path('exit.png'))
+        self.playpause_icon = QIcon(get_icons_path('play_pause.png'))
+        self.element_and_lines_with_cross_sections_icon = QIcon(get_icons_path('cross_section_representation.png'))
+        self.lines_only_icon = QIcon(get_icons_path('lines_only.png'))
+        self.elements_and_nodes_icon = QIcon(get_icons_path('elements_and_nodes.png'))
+        self.elements_only_icon = QIcon(get_icons_path('elements_only.png'))
+        self.nodes_only_icon = QIcon(get_icons_path('nodes_only.png'))
         
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
@@ -334,7 +339,7 @@ class MainWindow(QMainWindow):
         self.plotSressField_action = QAction('&Plot Stress Field', self)        
         # self.plotSressField_action.setShortcut('')
         self.plotSressField_action.setStatusTip('Plot Stress Field')
-        self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
+        self.plotSressField_action.triggered.connect(self.getInputWidget().plot_stress_field)
 
         self.plotSressFrequencyResponse_action = QAction('&Plot Stress Frequency Response', self)        
         # self.plotSressFrequencyResponse_action.setShortcut('')
@@ -849,9 +854,12 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         title = "OpenPulse stop execution requested"
-        message = "Do you really want to stop the OpenPulse processing and close \nthe current project setup?\n\n\n"
-        message += "Note: The current project setup progress has already \nbeen saved in the project files."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label="No", rightButton_label="Yes")
+        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+
+        buttons_config = {"left_button_label" : "No", 
+                          "right_button_label" : "Yes",
+                          "right_toolTip" : "The current project setup progress has already been saved in the project files."}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._stop:
             event.ignore()
