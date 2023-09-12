@@ -136,7 +136,6 @@ class Project:
     
             self.empty_geometry = True
             if self.file._geometry_path.exists():
-                print("exists")
                 self.empty_geometry = False
                 if self.check_mesh_setup():
                     self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
