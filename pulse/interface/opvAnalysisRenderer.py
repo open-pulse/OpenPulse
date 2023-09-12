@@ -1,11 +1,3 @@
-import logging
-
-logging.basicConfig(format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S',
-    level=logging.DEBUG)
-
-logger = logging.getLogger(__name__)
-
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.loading_screen import LoadingScreen
 import vtk
