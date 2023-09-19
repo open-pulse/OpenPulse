@@ -70,6 +70,13 @@ class MainWindow(QMainWindow):
         self.elements_and_nodes_icon = QIcon(get_icons_path('elements_and_nodes.png'))
         self.elements_only_icon = QIcon(get_icons_path('elements_only.png'))
         self.nodes_only_icon = QIcon(get_icons_path('nodes_only.png'))
+        self.view_top_icon = QIcon(get_icons_path('top.png'))
+        self.view_bottom_icon = QIcon(get_icons_path('bottom.png'))
+        self.view_left_icon = QIcon(get_icons_path('left.png'))
+        self.view_right_icon = QIcon(get_icons_path('right.png'))
+        self.view_front_icon = QIcon(get_icons_path('front.png'))
+        self.view_back_icon = QIcon(get_icons_path('back.png'))
+        self.view_isometric_icon = QIcon(get_icons_path('isometric.png'))
         
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
@@ -396,31 +403,31 @@ class MainWindow(QMainWindow):
         self.show_nodes_action.triggered.connect(self.hide_show_nodes)
 
         # Views
-        self.cameraTop_action = QAction('&Top View', self)
+        self.cameraTop_action = QAction(self.view_top_icon, '&Top View', self)
         self.cameraTop_action.setShortcut('Ctrl+Shift+1')
         self.cameraTop_action.triggered.connect(self.cameraTop_call)
 
-        self.cameraBottom_action = QAction('&Bottom View', self)
+        self.cameraBottom_action = QAction(self.view_bottom_icon, '&Bottom View', self)
         self.cameraBottom_action.setShortcut('Ctrl+Shift+2')
         self.cameraBottom_action.triggered.connect(self.cameraBottom_call)
 
-        self.cameraLeft_action = QAction('&Left View', self)
+        self.cameraLeft_action = QAction(self.view_left_icon, '&Left View', self)
         self.cameraLeft_action.setShortcut('Ctrl+Shift+3')
         self.cameraLeft_action.triggered.connect(self.cameraLeft_call)
 
-        self.cameraRight_action = QAction('&Right View', self)
+        self.cameraRight_action = QAction(self.view_right_icon, '&Right View', self)
         self.cameraRight_action.setShortcut('Ctrl+Shift+4')
         self.cameraRight_action.triggered.connect(self.cameraRight_call)
 
-        self.cameraFront_action = QAction('&Front View', self)
+        self.cameraFront_action = QAction(self.view_front_icon, '&Front View', self)
         self.cameraFront_action.setShortcut('Ctrl+Shift+5')
         self.cameraFront_action.triggered.connect(self.cameraFront_call)
 
-        self.cameraBack_action = QAction('&Back View', self)
+        self.cameraBack_action = QAction(self.view_back_icon, '&Back View', self)
         self.cameraBack_action.setShortcut('Ctrl+Shift+6')
         self.cameraBack_action.triggered.connect(self.cameraBack_call)
 
-        self.cameraIsometric_action = QAction('&Isometric View', self)
+        self.cameraIsometric_action = QAction(self.view_isometric_icon, '&Isometric View', self)
         self.cameraIsometric_action.setShortcut('Ctrl+Shift+7')
         self.cameraIsometric_action.triggered.connect(self.cameraIsometric_call)
 
