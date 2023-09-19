@@ -32,7 +32,7 @@ class AdvancedCursor(object):
     def mouse_move(self, event):
 
         dt = time() - self.t0
-        if dt > 0.2:
+        if dt > 0.05:
 
             if not event.inaxes: 
                 return
