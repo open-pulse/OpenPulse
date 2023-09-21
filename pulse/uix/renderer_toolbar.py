@@ -47,7 +47,7 @@ class RendererToolbar(QToolBar):
         self.view_front_action.triggered.connect(self.view_front_callback)
         self.view_front_action.setShortcut("Ctrl+Shift+5")
 
-        view_orthogonal_icon = QIcon(str(Path("data/icons/orthogonal.png")))
+        view_orthogonal_icon = QIcon(str(Path("data/icons/isometric.png")))
         self.view_orthogonal_action = QAction(view_orthogonal_icon, "Orthogonal View", self)
         self.view_orthogonal_action.triggered.connect(self.view_orthogonal_callback)
         self.view_orthogonal_action.setShortcut("Ctrl+Shift+7")
