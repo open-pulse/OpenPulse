@@ -278,9 +278,8 @@ class vtkMeshClicker(vtkInteractorStyleArcballCamera):
             return
 
         # give preference to points selection
-        if len(picked_points) != 1 and len(picked_elements) == 1:
-                picked_elements.clear()
-                picked_entities.clear()
+        if len(picked_points) == 1 and len(picked_elements) == 1:
+            picked_elements.clear()
 
     #
     def pickPoints(self, x0, y0, x1, y1, tolerance=10):
