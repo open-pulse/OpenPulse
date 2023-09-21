@@ -8,6 +8,7 @@ from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
+from pulse.uix.renderer_toolbar import RendererToolbar
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 import sys
@@ -36,6 +37,7 @@ class MainWindow(QMainWindow):
         self._createProjectToolBar()
         self._createAnimationToolBar()
         self._createHideShowToolBar()
+        self._createViewsToolBar()
         self.set_enable_menuBar(False)
         self._createStatusBar()
         self.show()
@@ -746,6 +748,10 @@ class MainWindow(QMainWindow):
         # self.toolbar_animation.addSeparator()
         self.toolbar_animation.addWidget(self.label_animation_controls)
         self.toolbar_animation.addAction(self.playPauseAnimaton_action)
+
+    def _createViewsToolBar(self):
+        self.views_toolbar = RendererToolbar(self)
+        self.addToolBar(self.views_toolbar)
 
     def _createBasicLayout(self):
         self.menu_widget = Menu(self)
