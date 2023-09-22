@@ -22,7 +22,7 @@ class RawLinesActor(vtkActorBase):
         gmsh.option.setNumber("General.Terminal", 0)
         gmsh.option.setNumber("General.Verbosity", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFactor", 0.02)
-        gmsh.open(path)
+        gmsh.open(str(path))
         gmsh.model.mesh.generate(dim=2)
 
         indexes, coords, _ = gmsh.model.mesh.getNodes(includeBoundary=True)

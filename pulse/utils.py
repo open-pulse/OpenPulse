@@ -9,6 +9,7 @@ import os
 import sys
 import gmsh
 from scipy.spatial.transform import Rotation
+from pathlib import Path
 
 def split_sequence(sequence, size):
     ''' 
@@ -558,11 +559,8 @@ def sparse_is_equal(a, b):
         return diference.nnz == 0
 
 def get_new_path(path, name):
-    if "\\" in path:
-        new_path = '{}\\{}'.format(path, name)
-    elif "/" in path:
-        new_path = '{}/{}'.format(path, name)
-    return new_path
+    path = Path(path)
+    return path / name
 
 def get_edited_filename(path):
     new_path = ""

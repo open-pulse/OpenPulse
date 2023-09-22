@@ -38,11 +38,11 @@ class Config:
                     config.remove_option(section_name, pName)
                     self.recentProjects.pop(pName)
                     count -= 1
-            config[section_name][project_name] = project_path
+            config[section_name][project_name] = str(project_path)
         else:
-            config[section_name] = {project_name: project_path}
+            config[section_name] = {project_name: str(project_path)}
 
-        self.recentProjects[project_name] = project_path
+        self.recentProjects[project_name] = str(project_path)
 
         with open(self.configFileName, 'w') as configfile:
             config.write(configfile)

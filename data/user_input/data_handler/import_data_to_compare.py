@@ -196,7 +196,7 @@ class ImportDataToCompare(QDialog):
         index = 1
         run = True
         while run:
-            if index in self.plotter.data_to_plot.keys():
+            if index in self.plotter.data_to_plot.keys() or index in self.imported_results.keys():
                 index += 1
             else:
                 key = index
