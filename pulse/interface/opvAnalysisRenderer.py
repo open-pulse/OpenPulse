@@ -63,11 +63,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider = None
         self.logoWidget = None
         self.stressesTextProperty = vtk.vtkTextProperty()
-        self._createPlayer()
+
+        # self._createPlayer()
         self.reset_min_max_values()
         self.cache_plot_state()
         self.updateHud()
-        
         self._animationFrames = []
 
     def update_phase_steps_attribute(self):

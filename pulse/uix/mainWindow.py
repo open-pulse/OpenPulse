@@ -758,11 +758,13 @@ class MainWindow(QMainWindow):
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
 
+
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
 
         working_area.addWidget(self.menu_widget)
         working_area.addWidget(self.opv_widget)
+        self.opv_widget.opvAnalysisRenderer._createPlayer()
         working_area.setSizes([100,400])
 
     def newProject_call(self):

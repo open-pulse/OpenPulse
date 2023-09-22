@@ -131,7 +131,8 @@ class SymbolsActorBase(vtkActorBase):
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().SetOpacity(0.9)
         self._actor.GetProperty().BackfaceCullingOff()
-    
+        self._actor.SetUseBounds(False)
+
     def _createArrays(self):
         self._sources = vtk.vtkIntArray()
         self._positions = vtk.vtkPoints()

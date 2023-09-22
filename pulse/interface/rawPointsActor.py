@@ -4,7 +4,7 @@ from time import time
 
 from pulse.interface.vtkActorBase import vtkActorBase
 from pulse.utils import split_sequence, unwrap
-from libs.gmsh import gmsh
+import gmsh
 
 
 class RawPointsActor(vtkActorBase):
@@ -22,7 +22,7 @@ class RawPointsActor(vtkActorBase):
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal", 0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.open(path)
+        gmsh.open(str(path))
         gmsh.model.mesh.generate(dim=2)
 
         indexes, coords, _ = gmsh.model.mesh.getNodes(includeBoundary=True)

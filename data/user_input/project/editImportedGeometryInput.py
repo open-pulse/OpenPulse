@@ -42,7 +42,7 @@ class EditImportedGeometryInput(QDialog):
         except:
             pass
 
-        gmsh.open(self.geometry_path)
+        gmsh.open(str(self.geometry_path))
         # gmsh.option.setString("General.OCCTargetUnit", "m")
 
         gmsh.model.occ.synchronize()
