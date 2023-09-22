@@ -1,24 +1,23 @@
-from PyQt5.QtWidgets import QProgressBar, QLabel
 from pulse.utils import *
+#
+from pulse.projectFile import ProjectFile
+from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.preprocessor import Preprocessor
+from pulse.preprocessing.cross_section import CrossSection
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
-from pulse.preprocessing.entity import Entity
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.projectFile import ProjectFile
 from data.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
+#
 from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
+from data.user_input.project.loading_screen import LoadingScreen
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-from data.user_input.project.loading_screen import LoadingScreen
-
+#
+import os
 import numpy as np
-import configparser
-from time import time
 from shutil import rmtree
 from collections import defaultdict
-import os
 
 window_title = "ERROR"
 

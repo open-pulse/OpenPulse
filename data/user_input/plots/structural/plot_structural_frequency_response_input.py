@@ -5,7 +5,6 @@ from PyQt5 import uic
 from pathlib import Path
 
 import os
-import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from data.user_input.data_handler.export_model_results import ExportModelResults
@@ -16,17 +15,11 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
-
 class PlotStructuralFrequencyResponseInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/structural_/plot_structural_frequency_response.ui'), self)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -40,6 +33,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.frequencies = project.frequencies
         self.solution = project.get_structural_solution()
 
+        self._config_window()
         self._load_icons()
         self._reset_variables()
         self._define_qt_variables()
@@ -47,8 +41,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.writeNodes(self.list_node_IDs)
         self.exec()
 
-    def _reset_variables(self):
-        self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def _define_qt_variables(self):
         # LineEdit
@@ -64,6 +59,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.radioButton_rx = self.findChild(QRadioButton, 'radioButton_rx')
         self.radioButton_ry = self.findChild(QRadioButton, 'radioButton_ry')
         self.radioButton_rz = self.findChild(QRadioButton, 'radioButton_rz')
+
+    def _reset_variables(self):
+        self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
 
     def _create_connections(self):
         self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)

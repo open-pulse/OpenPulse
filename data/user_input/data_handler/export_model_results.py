@@ -6,8 +6,6 @@ from pathlib import Path
 
 import os
 import numpy as np
-import pandas as pd
-import openpyxl
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
@@ -16,23 +14,22 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
-
 class ExportModelResults(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(Path('data/user_input/ui_files/data_handler/export_model_results.ui'), self)
-        
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Import data to compare")
 
+        self._config_window()
         self._load_icons()
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Import data to compare")
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
@@ -92,17 +89,17 @@ class ExportModelResults(QDialog):
         self.lineEdit_save_results_path.setText(str(self.save_path))
 
     def _export_results(self):
-        
+        window_title = "ERROR MESSAGE"
         if self.lineEdit_file_name.text() != "":
             if self.save_path == "":
                 title = "None folder selected"
                 message = "Plese, choose a folder before trying export the results."
-                PrintMessageInput([title, message, window_title1])
+                PrintMessageInput([title, message, window_title])
                 return
         else:
             title = "Empty file name"
             message = "Inform a file name before trying export the results."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title])
             return
 
         file_name = self.lineEdit_file_name.text() + ".dat"
@@ -119,10 +116,11 @@ class ExportModelResults(QDialog):
         data_to_export = np.array([x_data, np.real(y_data), np.imag(y_data), np.abs(y_data)]).T      
    
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-
+        
+        window_title = "WARNING MESSAGE"
         title = "Information"
         message = "The results have been exported."
-        PrintMessageInput([title, message, window_title2])
+        PrintMessageInput([title, message, window_title])
         self.close()
 
     def keyPressEvent(self, event):

@@ -25,20 +25,25 @@ class FrequencyResponsePlotter(QDialog):
 
         uic.loadUi(Path('data/user_input/ui_files/plots_/results_/frequency_response_plot.ui'), self)
 
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Frequency response plotter")
-
+        self._config_window()
+        self._load_icons()
         self._reset_variables()
         self._initialize_canvas()
         self._define_qt_variables()
         self._create_connections()
 
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Frequency response plotter")
+
+    def _load_icons(self):
+        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.search_icon = QIcon(get_icons_path('searchFile.png'))
+        self.setWindowIcon(self.icon)
+
     def _reset_variables(self):
+        self.imported_dB = False
         self._layout = None
         self.x_data = None
         self.y_data = None
@@ -115,6 +120,7 @@ class FrequencyResponsePlotter(QDialog):
         aux_real = self.radioButton_real.isChecked()
         aux_imag = self.radioButton_imaginary.isChecked()
         aux_decibel = self.radioButton_decibel_scale.isChecked()
+
         self.aux_bool = aux_real + aux_imag + aux_decibel
         if self.aux_bool:
             self.comboBox_plot_type.setDisabled(True)
@@ -127,6 +133,8 @@ class FrequencyResponsePlotter(QDialog):
             self.plot_data_in_freq_domain()
         
     def _update_plot_type(self):
+        # if self.not_update:
+        #     return
         self.plot_type = self.comboBox_plot_type.currentText()
         self.plot_data_in_freq_domain()
 
@@ -151,6 +159,16 @@ class FrequencyResponsePlotter(QDialog):
         self.exporter = ExportModelResults()
         self.exporter._set_data_to_export(data)
 
+    def imported_dB_data(self):
+        self.imported_dB = True
+        self.comboBox_plot_type.setCurrentIndex(2)
+        self.comboBox_plot_type.setDisabled(True)
+        self.radioButton_absolute.setDisabled(True)
+        self.radioButton_real.setDisabled(True)
+        self.radioButton_real.setChecked(True)
+        self.radioButton_imaginary.setDisabled(True)
+        self.radioButton_decibel_scale.setDisabled(True)
+
     def load_data_to_plot(self, data):
         if "x_data" in data.keys():
             self.x_data = data["x_data"]
@@ -159,6 +177,8 @@ class FrequencyResponsePlotter(QDialog):
         if "unit" in data.keys():
             if data["unit"] != "":
                 self.unit = data["unit"]
+                # if self.unit == "dB":
+                #     self.imported_dB_data()
         if "x_label" in data.keys():
             self.x_label = data["x_label"]
         if "y_label" in data.keys():
@@ -207,6 +227,9 @@ class FrequencyResponsePlotter(QDialog):
             type_label = "imaginary"
         else:
             type_label = "absolute"
+
+        if self.imported_dB:
+            return f"{label} [dB]"
 
         unit = self.get_unit_considering_differentiation()
         if self.radioButton_decibel_scale.isChecked():
@@ -270,6 +293,7 @@ class FrequencyResponsePlotter(QDialog):
                     self.widget_plot.setLayout(self._layout)
 
         if len(self.plots) != 0:
+
             if self.checkBox_legends.isChecked():
                 self.ax.legend(handles=self.plots, labels=self.legends)
                 
@@ -279,11 +303,12 @@ class FrequencyResponsePlotter(QDialog):
             
             if self.title != "":
                 self.ax.set_title(self.title, fontsize = 12, fontweight = self.font_weight)
-            
+
             if self.checkBox_grid.isChecked():
                 self.ax.grid()
 
             self.mpl_canvas_frequency_plot.draw()
+            return
 
     def call_semilog_y_plot(self, first_index=0):
         _plot, = self.ax.semilogy(  self.x_data[first_index:], 

@@ -4,11 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-import configparser
 import numpy as np
-import matplotlib.pyplot as plt  
-from collections import defaultdict
 
 from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
@@ -26,14 +22,7 @@ class CompressorModelInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/compressorModelInput.ui'), self)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon) 
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/compressor_model_input.ui'), self)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -49,6 +38,25 @@ class CompressorModelInput(QDialog):
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
 
+        self._config_window()
+        self._load_icons()
+        self._reset_variables()
+        self._define_qt_variables()
+        self._create_connections()
+        self.writeNodes(self.opv.getListPickedPoints())
+        self.load_compressor_excitation_tables_info()
+        self.exec()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
+
+    def _reset_variables(self):
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
@@ -57,18 +65,22 @@ class CompressorModelInput(QDialog):
         self.table_name = None
         self.not_update_event = False
 
+    def _define_qt_variables(self):
+        # QComboBox
+        self.comboBox_cylinder_acting = self.findChild(QComboBox, 'comboBox_cylinder_acting')
+        self.comboBox_frequency_resolution = self.findChild(QComboBox, 'comboBox_frequency_resolution')
+        self.comboBox_compressors_tables = self.findChild(QComboBox, 'comboBox_compressors_tables')
+        self.comboBox_stage = self.findChild(QComboBox, 'comboBox_stage')
+        # QLineEdit
         self.lineEdit_selected_node_ID = self.findChild(QLineEdit, 'lineEdit_selected_node_ID')
         self.lineEdit_suction_node_ID = self.findChild(QLineEdit, 'lineEdit_suction_node_ID')
         self.lineEdit_discharge_node_ID = self.findChild(QLineEdit, 'lineEdit_discharge_node_ID')
-
         self.lineEdit_frequency_resolution = self.findChild(QLineEdit, 'lineEdit_frequency_resolution')
         self.lineEdit_number_of_revolutions = self.findChild(QLineEdit, 'lineEdit_number_of_revolutions')
-
         self.lineEdit_bore_diameter = self.findChild(QLineEdit, 'lineEdit_bore_diameter')
         self.lineEdit_stroke = self.findChild(QLineEdit, 'lineEdit_stroke')
         self.lineEdit_connecting_rod_length = self.findChild(QLineEdit, 'lineEdit_connecting_rod_length')
         self.lineEdit_rod_diameter = self.findChild(QLineEdit, 'lineEdit_rod_diameter')
-
         self.lineEdit_pressure_ratio = self.findChild(QLineEdit, 'lineEdit_pressure_ratio')
         self.lineEdit_clearance = self.findChild(QLineEdit, 'lineEdit_clearance')
         self.lineEdit_TDC_crank_angle_1 = self.findChild(QLineEdit, 'lineEdit_TDC_crank_angle_1')
@@ -80,126 +92,95 @@ class CompressorModelInput(QDialog):
         self.lineEdit_pressure_at_suction = self.findChild(QLineEdit, 'lineEdit_pressure_at_suction')
         self.lineEdit_temperature_at_suction = self.findChild(QLineEdit, 'lineEdit_temperature_at_suction')
         self.lineEdit_selection_info = self.findChild(QLineEdit, 'lineEdit_selection_info')
-
+        self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
+        self.lineEdit_table_name_info = self.findChild(QLineEdit, 'lineEdit_table_name_info')
+        # QPushButton
+        self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
+        self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
+        self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
+        self.pushButton_plot_PV_diagram_crank_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_crank_end')
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_time')
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
+        self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_frequency')
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_frequency')
+        self.pushButton_plot_pressure_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_head_end_angle')
+        self.pushButton_plot_volume_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_volume_head_end_angle')
+        self.pushButton_plot_pressure_crank_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_crank_end_angle')
+        self.pushButton_plot_volume_crank_end_angle = self.findChild(QPushButton, 'pushButton_plot_volume_crank_end_angle')
+        self.pushButton_process_aquisition_parameters = self.findChild(QPushButton, 'pushButton_process_aquisition_parameters')
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_remove_table = self.findChild(QPushButton, 'pushButton_remove_table')
+        self.pushButton_reset_node = self.findChild(QPushButton, 'pushButton_reset_node')
+        self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
+        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
+        # QRadioButton
         self.radioButton_both_cylinders = self.findChild(QRadioButton, 'radioButton_both_cylinders')
         self.radioButton_head_end_cylinder = self.findChild(QRadioButton, 'radioButton_head_end_cylinder')
         self.radioButton_crank_end_cylinder = self.findChild(QRadioButton, 'radioButton_crank_end_cylinder')
-
-        self.radioButton_both_cylinders.clicked.connect(self.radioButtonEvent_compression_setup)
-        self.radioButton_head_end_cylinder.clicked.connect(self.radioButtonEvent_compression_setup)
-        self.radioButton_crank_end_cylinder.clicked.connect(self.radioButtonEvent_compression_setup)
-
         self.radioButton_connected_at_suction_and_discharge = self.findChild(QRadioButton, 'radioButton_connected_at_suction_and_discharge')
         self.radioButton_connected_at_suction = self.findChild(QRadioButton, 'radioButton_connected_at_suction')
         self.radioButton_connected_at_discharge = self.findChild(QRadioButton, 'radioButton_connected_at_discharge')
-
-        self.radioButton_connected_at_suction_and_discharge.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
-        self.radioButton_connected_at_suction.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
-        self.radioButton_connected_at_discharge.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
-        self.connection_at_suction_and_discharge = self.radioButton_connected_at_suction_and_discharge.isChecked()
-
-        self.radioButtonEvent_compression_setup()
-        self.radioButtonEvent_connections_compressor_to_pipelines()
-
-        self.comboBox_frequency_resolution = self.findChild(QComboBox, 'comboBox_frequency_resolution')
-        self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
-
-        self.comboBox_compressors_tables = self.findChild(QComboBox, 'comboBox_compressors_tables')
-        self.comboBox_compressors_tables.setVisible(False)
-        self.comboBox_compressors_tables.currentIndexChanged.connect(self.comboBox_event_update)
-
-        self.comboBox_stage = self.findChild(QComboBox, 'comboBox_stage')
-        self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
-        self.comboBox_event_stage()
-
+        # QSpinBox
         self.spinBox_number_of_points = self.findChild(QSpinBox, 'spinBox_number_of_points')
-        self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)
-
         self.spinBox_max_frequency = self.findChild(QSpinBox, 'spinBox_max_frequency')
-        self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)
-
         self.spinBox_number_of_cylinders = self.findChild(QSpinBox, 'spinBox_number_of_cylinders')
-        self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
-
-        self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
-        self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
-
-        self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
-        self.pushButton_reset_entries.clicked.connect(self.reset_entries)
-
-        self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
-        self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
-
-        self.pushButton_plot_PV_diagram_crank_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_crank_end')
-        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
-
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_time')
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(self.plot_volumetric_flow_rate_at_suction_time)
-
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
-
-        self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
-        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
-
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_frequency')
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
-
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_frequency')
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
-
-        self.pushButton_plot_pressure_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_head_end_angle')
-        self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
-
-        self.pushButton_plot_volume_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_volume_head_end_angle')
-        self.pushButton_plot_volume_head_end_angle.clicked.connect(self.plot_volume_head_end_angle)
-
-        self.pushButton_plot_pressure_crank_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_crank_end_angle')
-        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
-
-        self.pushButton_plot_volume_crank_end_angle = self.findChild(QPushButton, 'pushButton_plot_volume_crank_end_angle')
-        self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
-
-        self.pushButton_process_aquisition_parameters = self.findChild(QPushButton, 'pushButton_process_aquisition_parameters')
-        self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
-        
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.process_all_inputs)
-
-        self.pushButton_remove_table = self.findChild(QPushButton, 'pushButton_remove_table')
-        self.pushButton_remove_table.clicked.connect(self.remove_table)
-
-        self.pushButton_reset_node = self.findChild(QPushButton, 'pushButton_reset_node')
-        self.pushButton_reset_node.clicked.connect(self.reset_node)
-
-        self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
-        self.pushButton_reset_all.clicked.connect(self.reset_all)
-
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        self.pushButton_close.clicked.connect(self.force_to_close)
-
+        # QTabWidget
         self.tabWidget_compressor = self.findChild(QTabWidget, 'tabWidget_compressor')
-        self.tabWidget_compressor.currentChanged.connect(self.tabEvent)
+        # QWidget
         self.tab_setup = self.findChild(QWidget, "tab_setup")
         self.tab_inputs = self.findChild(QWidget, "tab_inputs")
         self.tab_plots = self.findChild(QWidget, "tab_plots")
         self.tab_remove = self.findChild(QWidget, "tab_remove")
-
+        # QTreeWidget
         self.treeWidget_compressor_excitation = self.findChild(QTreeWidget, 'treeWidget_compressor_excitation')
         self.treeWidget_compressor_excitation.setColumnWidth(0, 70)
         # self.treeWidget_compressor_excitation.setColumnWidth(1, 140)
-        self.treeWidget_compressor_excitation.itemClicked.connect(self.on_click_item)
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
-        self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
-        self.lineEdit_table_name_info = self.findChild(QLineEdit, 'lineEdit_table_name_info')
-
-        self.writeNodes(self.opv.getListPickedPoints())
+    def _create_connections(self):
+        self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
+        self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
+        self.comboBox_compressors_tables.currentIndexChanged.connect(self.comboBox_event_update)
+        self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
+        self.comboBox_compressors_tables.setVisible(False)
+        self.comboBox_event_stage()
+        self.update_compressing_cylinders_setup()
+        #
+        self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
+        self.pushButton_reset_entries.clicked.connect(self.reset_entries)
+        self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
+        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(self.plot_volumetric_flow_rate_at_suction_time)
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
+        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
+        self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
+        self.pushButton_plot_volume_head_end_angle.clicked.connect(self.plot_volume_head_end_angle)
+        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
+        self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
+        self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
+        self.pushButton_confirm.clicked.connect(self.process_all_inputs)
+        self.pushButton_remove_table.clicked.connect(self.remove_table)
+        self.pushButton_reset_node.clicked.connect(self.reset_node)
+        self.pushButton_reset_all.clicked.connect(self.reset_all)
+        self.pushButton_close.clicked.connect(self.force_to_close)
+        #
+        self.radioButton_connected_at_suction_and_discharge.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
+        self.radioButton_connected_at_suction.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
+        self.radioButton_connected_at_discharge.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
+        self.connection_at_suction_and_discharge = self.radioButton_connected_at_suction_and_discharge.isChecked()
+        self.radioButtonEvent_connections_compressor_to_pipelines()
+        #
+        self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)        
+        self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)
+        self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
         self.spinBox_event_number_of_cylinders()
-        self.load_compressor_excitation_tables_info()
-        
-        self.exec()
+        #
+        self.tabWidget_compressor.currentChanged.connect(self.tabEvent)
+        self.treeWidget_compressor_excitation.itemClicked.connect(self.on_click_item)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter:
@@ -222,12 +203,7 @@ class CompressorModelInput(QDialog):
             self.lineEdit_discharge_node_ID.setText(temp_text_suction)   
 
     def update_compressing_cylinders_setup(self):
-        self.both_cylinders = self.radioButton_both_cylinders.isChecked()
-        self.head_end_cylinder = self.radioButton_head_end_cylinder.isChecked()
-        self.crank_end_cylinder = self.radioButton_crank_end_cylinder.isChecked()
 
-        self.single_acting = False
-        self.double_acting = False
         self.pushButton_plot_PV_diagram_head_end.setDisabled(False)
         self.pushButton_plot_PV_diagram_crank_end.setDisabled(False)
         self.pushButton_plot_pressure_head_end_angle.setDisabled(False)
@@ -235,23 +211,16 @@ class CompressorModelInput(QDialog):
         self.pushButton_plot_volume_head_end_angle.setDisabled(False)
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
-        if self.both_cylinders:
-            self.double_acting = True
-
-        if self.head_end_cylinder:
+        if self.comboBox_cylinder_acting.currentIndex() == 1:
             self.pushButton_plot_PV_diagram_crank_end.setDisabled(True)
             self.pushButton_plot_pressure_crank_end_angle.setDisabled(True)
             self.pushButton_plot_volume_crank_end_angle.setDisabled(True)
-            self.single_acting = True
 
-        if self.crank_end_cylinder:
+        if self.comboBox_cylinder_acting.currentIndex() == 2:
             self.pushButton_plot_PV_diagram_head_end.setDisabled(True)
             self.pushButton_plot_pressure_head_end_angle.setDisabled(True)
             self.pushButton_plot_volume_head_end_angle.setDisabled(True)
-            self.single_acting = True
 
-    def radioButtonEvent_compression_setup(self):
-        self.update_compressing_cylinders_setup()
 
     def radioButtonEvent_connections_compressor_to_pipelines(self):
         self.connection_at_suction_and_discharge = self.radioButton_connected_at_suction_and_discharge.isChecked()
@@ -423,14 +392,8 @@ class CompressorModelInput(QDialog):
             self.lineEdit_temperature_at_suction.setText(str(compressor_info["temperature at suction"]))
                
         if "acting label" in compressor_info.keys():
-            acting_key = float(compressor_info["acting label"])
-            if acting_key == 0:
-                self.radioButton_both_cylinders.setChecked(True)
-            else:
-                if acting_key == 1:
-                    self.radioButton_head_end_cylinder.setChecked(True)
-                elif acting_key == 2:
-                    self.radioButton_crank_end_cylinder.setChecked(True)
+            acting_key = int(compressor_info["acting label"])
+            self.comboBox_cylinder_acting.setCurrentIndex(acting_key)
 
         if "number of cylinders" in compressor_info.keys():
             if compressor_info["number of cylinders"] == 1:
@@ -440,8 +403,7 @@ class CompressorModelInput(QDialog):
                 if "TDC crank angle 2" in compressor_info.keys():
                     if isinstance(compressor_info["TDC crank angle 2"], float):
                         self.lineEdit_TDC_crank_angle_2.setText(str(compressor_info["TDC crank angle 2"]))
-                    # if "None" not in compressor_info["TDC crank angle 2"]:
-                    #     self.lineEdit_TDC_crank_angle_2.setText(str(compressor_info["TDC crank angle 2"]))
+
         if "points per revolution" in compressor_info.keys():
             self.spinBox_number_of_points.setValue(int(compressor_info["points per revolution"]))
 
@@ -473,7 +435,7 @@ class CompressorModelInput(QDialog):
         self.comboBox_compressors_tables.setVisible(False)
         self.radioButton_connected_at_suction_and_discharge.setDisabled(False)
 
-    def check_nodeID(self, lineEdit, export=False):
+    def check_node_id(self, lineEdit):
         
         lineEdit_nodeID = lineEdit.text()
         self.stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
@@ -491,13 +453,13 @@ class CompressorModelInput(QDialog):
         if check_nodes:
             if self.connection_at_suction_and_discharge:
 
-                if self.check_nodeID(self.lineEdit_suction_node_ID):
+                if self.check_node_id(self.lineEdit_suction_node_ID):
                     self.lineEdit_suction_node_ID.setFocus()
                     return True
 
                 self.suction_node_ID = self.node_ID
                 
-                if self.check_nodeID(self.lineEdit_discharge_node_ID):
+                if self.check_node_id(self.lineEdit_discharge_node_ID):
                     self.lineEdit_discharge_node_ID.setFocus()
                     return True
 
@@ -510,14 +472,14 @@ class CompressorModelInput(QDialog):
                     return True
 
             if self.connection_at_suction:
-                if self.check_nodeID(self.lineEdit_suction_node_ID):
+                if self.check_node_id(self.lineEdit_suction_node_ID):
                     self.lineEdit_suction_node_ID.setFocus()
                     return True
               
                 self.suction_node_ID = self.node_ID
 
             if self.connection_at_discharge:
-                if self.check_nodeID(self.lineEdit_discharge_node_ID):
+                if self.check_node_id(self.lineEdit_discharge_node_ID):
                     self.lineEdit_discharge_node_ID.setFocus()
                     return True
 
@@ -639,15 +601,7 @@ class CompressorModelInput(QDialog):
 
         self.parameters['compression stage'] = self.compression_stage_index
         self.parameters['number of cylinders'] = self.number_of_cylinders
-        
-        if self.double_acting:
-            self.parameters['acting label'] = 0
-        elif self.single_acting:
-            if self.head_end_cylinder:
-                cylinder_label = 1 #'HEAD END'
-            elif self.crank_end_cylinder:
-                cylinder_label = 2 #'CRANK END'
-            self.parameters['acting label'] = cylinder_label
+        self.parameters['acting label'] = self.comboBox_cylinder_acting.currentIndex()
 
         if self.number_of_cylinders > 1:    
             if self.check_input_parameters(self.lineEdit_TDC_crank_angle_2, "TOP DEAD CENTER CRANCK ANGLE 2"):
@@ -673,14 +627,8 @@ class CompressorModelInput(QDialog):
         self.T_discharge = self.compressor.T_disc
         self.P_discharge = self.parameters['pressure ratio']*self.P_suction
         
-        self.compressor.active_cylinder = self.parameters['acting label']
         if self.parameters['TDC crank angle 2'] is not None:   
             self.compressor.tdc2 = self.parameters['TDC crank angle 2']*np.pi/180
-
-        # if 'cylinder label' in self.parameters.keys():
-        #     self.compressor.active_cylinder = self.parameters['cylinder label']
-        # if 'TDC crank angle 2' in self.parameters.keys():
-        #     self.compressor.tdc2 = self.parameters['TDC crank angle 2']*np.pi/180
 
         return False
     

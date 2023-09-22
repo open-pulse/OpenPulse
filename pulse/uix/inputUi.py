@@ -36,7 +36,7 @@ from data.user_input.model.setup.acoustic.specificimpedanceInput import Specific
 from data.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
 from data.user_input.model.setup.acoustic.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
-from data.user_input.model.setup.acoustic.compressorModelinput2 import CompressorModelInput
+from data.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 #
 from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
@@ -264,8 +264,6 @@ class InputUi:
 
     def add_compressor_excitation(self):
         self.processInput(CompressorModelInput, self.project, self.opv)
-        # self.opv.updateRendererMesh()                                
-
 
     def analysisTypeInput(self):
 
@@ -397,16 +395,18 @@ class InputUi:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  PlotAcousticDeltaPressuresInput, self.project, self.opv, 
-                                self.analysis_method_label, solution  )
+            self.processInput(  PlotAcousticDeltaPressuresInput, 
+                                self.project, 
+                                self.opv  )
 
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            self.processInput(  Plot_TL_NR_Input, self.project, self.opv, 
-                                self.analysis_method_label, solution  )
+            self.processInput(  Plot_TL_NR_Input, 
+                                self.project, 
+                                self.opv  )
 
     def plotPerforatedPlateConvergenceDataLog(self):
         if self.project.perforated_plate_dataLog:
@@ -429,13 +429,17 @@ class InputUi:
         if solution is None:
             return
         if self.analysis_ID == 7:
-            self.processInput(PlotStressesForStaticAnalysis, self.project, self.opv)
+            self.processInput(PlotStressesForStaticAnalysis, 
+                              self.project, 
+                              self.opv)
         elif self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotStressFrequencyResponseInput, self.project, self.opv, self.analysis_method_label)
+            self.processInput(PlotStressFrequencyResponseInput, 
+                              self.project, 
+                              self.opv)
 
     def plotReactionsFrequencyResponse(self):
         if self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotReactions, self.project, self.opv, self.analysis_method_label)
+            self.processInput(PlotReactions, self.project, self.opv)
         elif self.analysis_ID == 7:
             self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
 
