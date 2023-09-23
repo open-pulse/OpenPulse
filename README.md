@@ -116,7 +116,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer;
    [Andre F. Fernandes](https://www.linkedin.com/in/andrefernandes2001/) - Computer Scientist; 
    [José L. Souza](https://www.linkedin.com/in/jos%C3%A9-luiz-de-souza-8669b5114/) - Computer Scientist;
-   [Eduardo Hülse](https://www.linkedin.com/in/eduardo-h%C3%BClse-5854501a7/) - Tests and support.
+   [Eduardo Hülse](https://www.linkedin.com/in/eduardo-h%C3%BClse-5854501a7/) - Tests and support;
    [Danilo Espindola](https://www.linkedin.com/in/danilo-espindola-7b47a626b/) - Tests and support.
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true) 
