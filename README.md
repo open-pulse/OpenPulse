@@ -100,7 +100,7 @@ and then ```envpulse/Scripts/activate```.
 
 ## EEA Forum Acusticum 2023 - 10th Convention of the European Acoustics Association 
 
-- [EAA Forum Acusticum 2023](https://appfa2023.silsystem.solutions/atti/000870.pdf/).
+- [EAA Forum Acusticum 2023](https://appfa2023.silsystem.solutions/)
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
