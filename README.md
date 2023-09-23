@@ -98,10 +98,9 @@ and then ```envpulse/Scripts/activate```.
 
 - [FIA2020/2022](https://fia2020.com.br/anais/index.php#topo).
 
-## Next events 
+## EEA Forum Acusticum 2023 - 10th Convention of the European Acoustics Association 
 
-- [EAA Forum Acusticum 2023]([https://www.fa2023.org/](https://appfa2023.silsystem.solutions/atti/000865.pdf
-)).
+- [EAA Forum Acusticum 2023](https://appfa2023.silsystem.solutions/atti/000870.pdf/).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
