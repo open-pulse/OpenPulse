@@ -100,7 +100,8 @@ and then ```envpulse/Scripts/activate```.
 
 ## Next events 
 
-- [EAA Forum Acusticum 2023](https://www.fa2023.org/).
+- [EAA Forum Acusticum 2023]([https://www.fa2023.org/](https://appfa2023.silsystem.solutions/atti/000865.pdf
+)).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
