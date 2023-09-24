@@ -30,15 +30,25 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - **Install Python 3.7.7** ([download](https://www.python.org/downloads/release/python-377/)).
 
 - **Install OpenPulse**.
-Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). So, enter the command: 
+Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). Start by installing the
+poetry library using the command:
 ```
-pip install -r requirements.txt
+pip install poetry
 ```
+
+then enter the following command to install all dependencies:
+
+```
+poetry install
+```
+
+Note: if some warning was logged repeat the command 'poetry install' before trying to run OpenPulse.
+
 
 - **Run OpenPulse**.
 In the same folder, enter the following command in the terminal:
 ```
-python pulse.py
+poetry run python pulse
 ```
 
 ## Requirements
@@ -98,9 +108,9 @@ and then ```envpulse/Scripts/activate```.
 
 - [FIA2020/2022](https://fia2020.com.br/anais/index.php#topo).
 
-## Next events 
+## EEA Forum Acusticum 2023 - 10th Convention of the European Acoustics Association 
 
-- [EAA Forum Acusticum 2023](https://www.fa2023.org/).
+- [Vargas \& Silva, 2023](https://appfa2023.silsystem.solutions/).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
@@ -116,7 +126,8 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer;
    [Andre F. Fernandes](https://www.linkedin.com/in/andrefernandes2001/) - Computer Scientist; 
    [José L. Souza](https://www.linkedin.com/in/jos%C3%A9-luiz-de-souza-8669b5114/) - Computer Scientist;
-   [Eduardo Hülse](https://www.linkedin.com/in/eduardo-h%C3%BClse-5854501a7/) - Tests and support.
+   [Eduardo Hülse](https://www.linkedin.com/in/eduardo-h%C3%BClse-5854501a7/) - Tests and support;
+   [Danilo Espindola](https://www.linkedin.com/in/danilo-espindola-7b47a626b/) - Tests and support.
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true) 
 
