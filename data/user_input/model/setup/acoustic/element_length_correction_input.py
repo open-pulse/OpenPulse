@@ -16,7 +16,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/elementLengthCorrectionInput.ui'), self)
+        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/Acoustic/element_length_correction_input.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -67,7 +67,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
         self.tabWidget_element_length_correction = self.findChild(QTabWidget, 'tabWidget_element_length_correction')
         self.tabWidget_element_length_correction.currentChanged.connect(self.tabEvent_)
-        self.currentTab_ = self.tabWidget_element_length_correction.currentIndex()
 
         self.pushButton_remove_by_group_confirm = self.findChild(QPushButton, 'pushButton_remove_by_group_confirm')
         self.pushButton_remove_by_group_confirm.clicked.connect(self.remove_element_length_correction_by_group)
@@ -88,12 +87,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.exec()
 
     def tabEvent_(self):
-        self.currentTab_ = self.tabWidget_element_length_correction.currentIndex()
-        if self.currentTab_ == 0:
-            text = "Elements IDs:"
+        index = self.tabWidget_element_length_correction.currentIndex()
+        if index == 0:
+            text = "Element IDs:"
             self.write_ids(self.elements_id)
-        elif self.currentTab_ == 1: 
-            text = "Group:"
+        elif index == 1: 
+            text = "Group ID:"
             self.lineEdit_elementID.setText("")
         self.label_selection.setText(text)
 
@@ -212,10 +211,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_elementID.setText(item.text(0))
-        if self.currentTab_remove == 0:
-            self.remove_element_length_correction_by_group()
-        elif self.currentTab_remove == 1:
-            self.check_remove_element_length_correction()
+        self.remove_element_length_correction_by_group()
 
     def remove_function(self, key):
         section = key

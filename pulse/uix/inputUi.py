@@ -34,7 +34,7 @@ from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticP
 from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
 from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
 from data.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
-from data.user_input.model.setup.acoustic.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
+from data.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from data.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 #
