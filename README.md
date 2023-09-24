@@ -30,12 +30,14 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - **Install Python 3.7.7** ([download](https://www.python.org/downloads/release/python-377/)).
 
 - **Install OpenPulse**.
-Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). Firstly, install the
+Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). Start by installing the
 poetry library using the command:
 ```
 pip install poetry
 ```
-then enter the following command to install all dependencies:  
+
+then enter the following command to install all dependencies:
+
 ```
 poetry install
 ```
