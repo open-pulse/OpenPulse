@@ -39,6 +39,7 @@ then enter the following command to install all dependencies:
 ```
 poetry install
 ```
+
 Note: if some warning was logged repeat the command 'poetry install' before trying to run OpenPulse.
 
 
