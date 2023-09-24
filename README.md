@@ -34,14 +34,13 @@ Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In
 poetry library using the command:
 ```
 pip install poetry
-
+```
 then enter the following command to install all dependencies:  
-
+```
 poetry install
-
+```
 Note: if some warning was logged repeat the command 'poetry install' before trying to run OpenPulse.
 
-```
 
 - **Run OpenPulse**.
 In the same folder, enter the following command in the terminal:
