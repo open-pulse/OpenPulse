@@ -802,19 +802,15 @@ class ProjectFile:
                 else:
                     self.dict_acoustic_element_type[int(entity)] = 'undamped'
 
-            # if 'compressor info' in entityFile[entity].keys():
-            #     str_compressor_info = entityFile[entity]['compressor info']
-            #     _data = get_list_of_values_from_string(str_compressor_info, int_values=False)
-            #     self.compressor_info[int(entity)] = {   "temperature (suction)" : _data[0],
-            #                                             "pressure (suction)" : _data[1],
-            #                                             "temperature (discharge)" : _data[2],
-            #                                             "pressure (discharge)" : _data[3],
-            #                                             "line_id" : int(_data[4]),
-            #                                             "node_id" : int(_data[5]),
-            #                                             "isentropic exponent" : _data[6],
-            #                                             "pressure ratio" : _data[7],
-            #                                             "molar mass" : _data[8],
-            #                                             "connection type" : int(_data[9])   }
+            if 'compressor info' in entityFile[entity].keys():
+                str_compressor_info = entityFile[entity]['compressor info']
+                _data = get_list_of_values_from_string(str_compressor_info, int_values=False)
+                self.compressor_info[int(entity)] = {   "temperature (suction)" : _data[0],
+                                                        "pressure (suction)" : _data[1],
+                                                        "line_id" : int(_data[2]),
+                                                        "node_id" : int(_data[3]),
+                                                        "pressure ratio" : _data[4],
+                                                        "connection type" : int(_data[5])   }
                                            
             str_joint_parameters = ""
             if 'expansion joint parameters' in entityFile[entity].keys():

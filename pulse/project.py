@@ -1769,7 +1769,7 @@ class Project:
         self.file.add_fluid_in_file(lines, fluid)
 
     def set_compressor_info_by_lines(self, lines, compressor_info={}):
-        # self.file.modify_compressor_info_in_file(lines, compressor_info=compressor_info)
+        self.file.modify_compressor_info_in_file(lines, compressor_info=compressor_info)
         self._set_compressor_info_to_selected_lines(lines, compressor_info=compressor_info)
 
     def reset_compressor_info_by_node(self, node_id):

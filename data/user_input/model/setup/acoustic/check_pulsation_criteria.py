@@ -266,7 +266,7 @@ class CheckPulsationCriteriaInput(QDialog):
         speed_of_sound = fluid.speed_of_sound
         line_pressure = fluid.pressure
         inner_diameter = entity.cross_section.inner_diameter
-        return speed_of_sound, line_pressure/(9.80665*1e4), 1000*inner_diameter
+        return speed_of_sound, line_pressure/1e5, 1000*inner_diameter
     
     def get_line_pressure(self):
         if len(self.line_ids) == 1:

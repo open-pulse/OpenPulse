@@ -74,6 +74,15 @@ class CompressorModelInput(QDialog):
         self.comboBox_stage = self.findChild(QComboBox, 'comboBox_stage')
         self.comboBox_suction_pressure_units = self.findChild(QComboBox, 'comboBox_suction_pressure_units')
         self.comboBox_suction_temperature_units = self.findChild(QComboBox, 'comboBox_suction_temperature_units')
+        # QLabel
+        self.label_molar_mass = self.findChild(QLabel, 'label_molar_mass')
+        self.label_molar_mass_unit = self.findChild(QLabel, 'label_molar_mass_unit')
+        self.label_isentropic_exp = self.findChild(QLabel, 'label_isentropic_exp')
+        self.label_isentropic_exp_unit = self.findChild(QLabel, 'label_isentropic_exp_unit')
+        self.label_molar_mass.setVisible(False)
+        self.label_molar_mass_unit.setVisible(False)
+        self.label_isentropic_exp.setVisible(False)
+        self.label_isentropic_exp_unit.setVisible(False)  
         # QLineEdit
         self.lineEdit_selected_node_ID = self.findChild(QLineEdit, 'lineEdit_selected_node_ID')
         self.lineEdit_suction_node_ID = self.findChild(QLineEdit, 'lineEdit_suction_node_ID')
@@ -97,6 +106,8 @@ class CompressorModelInput(QDialog):
         self.lineEdit_selection_info = self.findChild(QLineEdit, 'lineEdit_selection_info')
         self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
         self.lineEdit_table_name_info = self.findChild(QLineEdit, 'lineEdit_table_name_info')
+        self.lineEdit_molar_mass.setVisible(False)
+        self.lineEdit_isentropic_exponent.setVisible(False)
         # QPushButton
         self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
         self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
@@ -423,6 +434,15 @@ class CompressorModelInput(QDialog):
         self.lineEdit_frequency_resolution.setText(str(df))
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
         self.spinBox_max_frequency.setValue(int(f_max))
+
+        self.label_molar_mass.setVisible(True)
+        self.label_molar_mass_unit.setVisible(True)
+        self.label_isentropic_exp.setVisible(True)
+        self.label_isentropic_exp_unit.setVisible(True)
+        self.lineEdit_molar_mass.setVisible(True)
+        self.lineEdit_isentropic_exponent.setVisible(True)
+        self.lineEdit_molar_mass.setDisabled(True)
+        self.lineEdit_isentropic_exponent.setDisabled(True)
 
     def reset_entries(self):
         self.comboBox_compressors_tables.clear()
@@ -1083,6 +1103,7 @@ class CompressorModelInput(QDialog):
         self.opv.updateRendererMesh()
 
     def reset_all(self):
+        print(len(self.preprocessor.nodes_with_compressor_excitation))
         if len(self.preprocessor.nodes_with_compressor_excitation) > 0:
             title = f"Removal of all compressor excitations"
             message = "Do you really want to remove all compressor excitations \napplied to the following nodes?\n\n"

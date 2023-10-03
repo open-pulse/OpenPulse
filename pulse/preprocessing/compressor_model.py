@@ -146,8 +146,8 @@ class CompressorModel:
         self.T_disc = (self.T_suc)*(self.p_ratio**((self.k-1)/self.k))
         self.rho_disc = (self.p_suc*self.p_ratio)/(self.R*self.T_disc)
 
-        print(self.k, self.molar_mass, self.R, self.rho_suc)
-        print(self.T_disc, self.rho_disc)
+        # print(self.k, self.molar_mass, self.R, self.rho_suc)
+        # print(self.T_disc, self.rho_disc)
 
 
     def recip_v(self, tdc=None):

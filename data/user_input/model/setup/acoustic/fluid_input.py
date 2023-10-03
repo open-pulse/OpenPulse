@@ -12,7 +12,7 @@ from pulse.lib.default_libraries import default_fluid_library
 from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
+from data.user_input.model.setup.acoustic.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.utils import *
 
 window_title1 = "ERROR MESSAGE"
@@ -1057,7 +1057,7 @@ class FluidInput(QDialog):
                 # self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
             
             self.project.set_fluid_by_lines(lines, self.fluid)
-            self.update_compressor_info()
+            # self.update_compressor_info()
             self.project.set_compressor_info_by_lines(lines, compressor_info=self.compressor_thermodynamic_state)
 
             self.complete = True
@@ -1077,7 +1077,7 @@ class FluidInput(QDialog):
                 if self.REFPROP.complete:
                     self.compressor_thermodynamic_state["temperature (discharge)"] = round(self.fluid_data_REFPROP["temperature"], 4)
                     self.compressor_thermodynamic_state["molar mass"] = self.fluid_data_REFPROP["molar mass"]
-                    print(self.fluid_data_REFPROP["molar mass"])
+
 
     def loadList(self):
 

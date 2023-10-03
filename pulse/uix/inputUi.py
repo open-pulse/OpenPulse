@@ -29,7 +29,7 @@ from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXa
 from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
-from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
+from data.user_input.model.setup.acoustic.set_fluid_composition_input import SetFluidCompositionInput
 from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
 from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
 from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput

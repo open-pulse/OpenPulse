@@ -1183,7 +1183,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>19</string>
+            <string>19.65</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -1191,7 +1191,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="10" column="3">
-          <widget class="QLabel" name="label_36">
+          <widget class="QLabel" name="label_molar_mass_unit">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1222,7 +1222,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="9" column="1">
-          <widget class="QLabel" name="label_46">
+          <widget class="QLabel" name="label_isentropic_exp">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1253,7 +1253,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="9" column="3">
-          <widget class="QLabel" name="label_48">
+          <widget class="QLabel" name="label_isentropic_exp_unit">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1346,7 +1346,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="10" column="1">
-          <widget class="QLabel" name="label_35">
+          <widget class="QLabel" name="label_molar_mass">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -1834,7 +1834,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>0.3</string>
+            <string>0.33</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -1989,7 +1989,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>0.2</string>
+            <string>0.135</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -2144,7 +2144,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>0.8</string>
+            <string>1.0227272</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -2175,7 +2175,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>1.9</string>
+            <string>1.90788804</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -2268,7 +2268,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>5</string>
+            <string>16</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -2296,7 +2296,7 @@ background-color: rgb(255, 255, 255);</string>
             </font>
            </property>
            <property name="text">
-            <string>1</string>
+            <string>0.78</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
