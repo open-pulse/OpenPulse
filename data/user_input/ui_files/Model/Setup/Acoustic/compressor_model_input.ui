@@ -1283,37 +1283,6 @@ background-color: rgb(255, 255, 255);</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="3">
-          <widget class="QLabel" name="label_43">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>12</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[kgf/cm²] &lt;span style=&quot; vertical-align:sub;&quot;&gt;abs&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="9" column="2">
           <widget class="QLineEdit" name="lineEdit_isentropic_exponent">
            <property name="minimumSize">
@@ -1338,7 +1307,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>1.40</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -1431,7 +1400,7 @@ background-color: rgb(255, 255, 255);</string>
             <enum>Qt::StrongFocus</enum>
            </property>
            <property name="text">
-            <string>2.01568</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -1497,37 +1466,6 @@ background-color: rgb(255, 255, 255);</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="3">
-          <widget class="QLabel" name="label_45">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>12</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>[ºC]</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -2383,6 +2321,34 @@ background-color: rgb(255, 255, 255);</string>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
+          </widget>
+         </item>
+         <item row="11" column="3">
+          <widget class="QComboBox" name="comboBox_suction_pressure_units">
+           <item>
+            <property name="text">
+             <string> kgf/cm²</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>    bar</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="12" column="3">
+          <widget class="QComboBox" name="comboBox_suction_temperature_units">
+           <item>
+            <property name="text">
+             <string>    ºC</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>      K</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>

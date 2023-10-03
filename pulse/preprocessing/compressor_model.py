@@ -18,6 +18,9 @@ Assumptions:
 
 '''
 
+kgf_cm2_to_Pa = 9.80665e4
+bar_to_Pa = 1e5
+
 def offset_to_tdc(input_array, tdc):
 
     while tdc < 0:
@@ -52,6 +55,23 @@ class CompressorModel:
 
     def __init__( self, parameters, **kwargs):
 
+        # [  bore_diameter,                      # Cylinder bore diameter [m]
+        #    stroke,                             # Length of compressor full stroke [m]
+        #    rod_length,                         # Connecting rod length [m]
+        #    rod_diameter,                       # Rod diameter [m]
+        #    pressure_ratio,                     # Compressor pressure ratio Pd/Ps
+        #    clearance,                          # Clearance volume as percentage of full volume (%)
+        #    TDC_crank_angle_1,                  # Crank angle (degrees) at which piston is at top dead center
+        #    rotational_speed,                   # Compressor rotation speed (rpm)
+        #    capacity,                           # Capacity of compression stage (%)
+        #    molar_mass,                         # Molar mass [kg/kmol]
+        #    isentropic_exponent,                # Compressed gas isentropic exponent
+        #    pressure_at_suction,                # Pressure at suction
+        #    pressure_unit,
+        #    temperature_at_suction,             # Temperature at suction
+        #    temperature_unit,
+        #    acting_label  ] = parameters        # Active cylinder(s) key (int)
+
         [  bore_diameter,                      # Cylinder bore diameter [m]
            stroke,                             # Length of compressor full stroke [m]
            rod_length,                         # Connecting rod length [m]
@@ -61,11 +81,17 @@ class CompressorModel:
            TDC_crank_angle_1,                  # Crank angle (degrees) at which piston is at top dead center
            rotational_speed,                   # Compressor rotation speed (rpm)
            capacity,                           # Capacity of compression stage (%)
-           molar_mass,                         # Molar mass [kg/kmol]
-           isentropic_exponent,                # Compressed gas isentropic exponent
            pressure_at_suction,                # Pressure at suction
+           pressure_unit,
            temperature_at_suction,             # Temperature at suction
+           temperature_unit,
            acting_label  ] = parameters        # Active cylinder(s) key (int)
+        
+        self.number_points = kwargs.get('number_points', 1000)
+        self.max_frequency = kwargs.get('max_frequency', 250)
+        self.number_of_cylinders = kwargs.get('number_of_cylinders', 1)
+        self.tdc2 = np.pi/2
+        self.cap = None
 
         if acting_label == 0:
             self.active_cylinder = 'both ends'
@@ -83,27 +109,46 @@ class CompressorModel:
         self.tdc1 = TDC_crank_angle_1*np.pi/180
         self.rpm = rotational_speed
         self.capacity = capacity/100
-        self.k = isentropic_exponent
-        self.molar_mass = molar_mass
-        self.p_suc = pressure_at_suction
-        self.T_suc = temperature_at_suction          
+
+        if pressure_unit == "kgf/cm2":
+            self.p_suc = pressure_at_suction*kgf_cm2_to_Pa
+        else:
+            self.p_suc = pressure_at_suction*bar_to_Pa
+        
+        if temperature_unit == "°C":
+            self.T_suc = temperature_at_suction + 273.15
+        else:
+            self.T_suc = temperature_at_suction
+
         self.area_head_end = np.pi*(bore_diameter**2)/4
         self.area_crank_end = np.pi*((bore_diameter**2)-(rod_diameter**2))/4
-        self.vr = (self.p_suc)**(-1/self.k)       # Volume ratio considering isentropic compression
 
+    def set_fluid_properties_and_update_state(self, isentropic_exponent, molar_mass):
+        """ 
+            This method sets the process fluid properties and updates the thermodynamic 
+            fluid properties for suction and discharge states.
+
+        Parameters:
+        -----------
+        isentropic_exponent: float number
+        molar_mass: a float number in kg/kmol units.
+        
+        """
+
+        self.k = isentropic_exponent            # Compressed gas isentropic exponent
+        self.molar_mass = molar_mass            # Molar mass [kg/kmol]
+
+        self.vr = (self.p_suc)**(-1/self.k)     # Volume ratio considering isentropic compression
         self.Ru = 8314.4621                     # Universal ideal gas constant [J/kmol.K]
         self.R = self.Ru/self.molar_mass        # Gas constant [J/kg.K]
-        self.rho_suc = self.p_suc*(9.80665e4)/(self.R*(self.T_suc+273.15))
-        
-        self.T_disc = (self.T_suc+273.15)*(self.p_ratio**((self.k-1)/self.k))
-        self.rho_disc = (self.p_suc*(9.80665e4)*self.p_ratio)/(self.R*self.T_disc)
-  
-        self.number_points = kwargs.get('number_points', 1000)
-        self.max_frequency = kwargs.get('max_frequency', 250)
-        
-        self.number_of_cylinders = kwargs.get('number_of_cylinders', 1)
-        self.tdc2 = np.pi/2
-        self.cap = None
+        self.rho_suc = self.p_suc/(self.R*self.T_suc)
+
+        self.T_disc = (self.T_suc)*(self.p_ratio**((self.k-1)/self.k))
+        self.rho_disc = (self.p_suc*self.p_ratio)/(self.R*self.T_disc)
+
+        print(self.k, self.molar_mass, self.R, self.rho_suc)
+        print(self.T_disc, self.rho_disc)
+
 
     def recip_v(self, tdc=None):
         N = self.number_points + 1
@@ -299,10 +344,13 @@ class CompressorModel:
         if self.active_cylinder == 'both ends':
 
             if self.number_of_cylinders == 1:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate += self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
             else:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
-                flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] 
+                flow_rate += self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key] 
+                flow_rate += self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
 
         elif self.active_cylinder == 'head end':
 
@@ -602,8 +650,6 @@ if __name__ == "__main__":
                     0,              # Crank angle (degrees) at which piston is at top dead center
                     360,            # Compressor rotation speed (rpm)
                     cap,             # Capacity of compression stage (%)
-                    1.4,            # Compressed gas isentropic exponent
-                    2.01568,        # Molar mass [kg/kmol]
                     19,             # Pressure at suction [kgf/cm²]
                     45,             # Temperature at suction [°C]
                     True ]          # Compressor is double effect (bool)
@@ -611,6 +657,7 @@ if __name__ == "__main__":
     cylinder = CompressorModel(parameters)
     cylinder.number_of_cylinders = 1
     cylinder.number_points = 2000
+    cylinder.set_fluid_properties_and_update_state(1.4, 2.01568)
     rho_suc = cylinder.rho_suc
     # cylinder.plot_rod_pressure_load_frequency(6)
     # cylinder.plot_PV_diagram_head_end()

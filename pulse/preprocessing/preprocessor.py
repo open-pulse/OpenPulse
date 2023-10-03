@@ -686,12 +686,17 @@ class Preprocessor:
 
             if node_id in self.dict_first_node_to_element_index.keys():
                 element_id = self.dict_first_node_to_element_index[node_id]
-                line_id = self.elements_to_line[element_id[0]]
+                for _id in element_id:
+                    line_id = self.elements_to_line[_id]
+                    if line_id not in line_ids:
+                        line_ids.append(line_id)
             
-            elif node_id in self.dict_last_node_to_element_index.keys():
+            if node_id in self.dict_last_node_to_element_index.keys():
                 element_id = self.dict_last_node_to_element_index[node_id]
-                line_id = self.elements_to_line[element_id[0]]
-            line_ids.append(line_id)  
+                for _id in element_id:
+                    line_id = self.elements_to_line[_id]
+                    if line_id not in line_ids:
+                        line_ids.append(line_id)
 
         return line_ids
          

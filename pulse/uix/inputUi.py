@@ -37,6 +37,7 @@ from data.user_input.model.setup.acoustic.radiationImpedanceInput import Radiati
 from data.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from data.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
+from data.user_input.model.setup.acoustic.check_pulsation_criteria import CheckPulsationCriteriaInput
 #
 from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
@@ -264,6 +265,9 @@ class InputUi:
 
     def add_compressor_excitation(self):
         self.processInput(CompressorModelInput, self.project, self.opv)
+
+    def check_pulsation_criteria(self):
+        self.processInput(CheckPulsationCriteriaInput, self.project, self.opv)
 
     def analysisTypeInput(self):
 

@@ -758,7 +758,6 @@ class MainWindow(QMainWindow):
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
 
-
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
 

@@ -141,24 +141,7 @@ class FluidInput(QDialog):
         self.lineEdit_dynamic_viscosity_edit = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_edit')
         self.lineEdit_temperature_edit = self.findChild(QLineEdit, 'lineEdit_temperature_edit')
         self.lineEdit_pressure_edit = self.findChild(QLineEdit, 'lineEdit_pressure_edit')
-        #       
-        self.lineEdit_name_remove = self.findChild(QLineEdit, 'lineEdit_name_remove')
-        self.lineEdit_id_remove = self.findChild(QLineEdit, 'lineEdit_id_remove')
-        self.lineEdit_color_remove = self.findChild(QLineEdit, 'lineEdit_color_remove')
-        self.lineEdit_fluid_density_remove = self.findChild(QLineEdit, 'lineEdit_fluid_density_remove')
-        self.lineEdit_speed_of_sound_remove = self.findChild(QLineEdit, 'lineEdit_speed_of_sound_remove')
-        self.lineEdit_impedance_remove = self.findChild(QLineEdit, 'lineEdit_impedance_remove')
-        self.lineEdit_isentropic_exponent_remove = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent_remove')
-        self.lineEdit_thermal_conductivity_remove = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_remove')
-        self.lineEdit_specific_heat_Cp_remove = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_remove')
-        self.lineEdit_dynamic_viscosity_remove = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_remove') 
-        self.lineEdit_temperature_remove = self.findChild(QLineEdit, 'lineEdit_temperature_remove')
-        self.lineEdit_pressure_remove = self.findChild(QLineEdit, 'lineEdit_pressure_remove')   
-        # self.lineEdit_name.editingFinished.connect(self.check_add_input_fluid_name)
-        # self.lineEdit_id.editingFinished.connect(self.check_add_input_fluid_id)
-        # self.lineEdit_color.editingFinished.connect(self.check_add_input_fluid_color)
-        # self.lineEdit_speed_of_sound.textEdited.connect(self.update_impedance_lineEdit)
-        # self.lineEdit_fluid_density.textEdited.connect(self.update_impedance_lineEdit)
+        #
         self.lineEdit_color.setDisabled(True)
         self.lineEdit_color_rp.setDisabled(True)
         self.lineEdit_color_edit.setDisabled(True)
@@ -171,16 +154,13 @@ class FluidInput(QDialog):
         self.pushButton_reset_entries_add_fluid = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid')
         self.pushButton_call_refprop = self.findChild(QPushButton, 'pushButton_call_refprop')
         self.pushButton_confirm_fluid_edition = self.findChild(QPushButton, 'pushButton_confirm_fluid_edition')
-        self.pushButton_confirm_fluid_removal = self.findChild(QPushButton, 'pushButton_confirm_fluid_removal')
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
         self.pushButton_edit_fluid_in_refprop = self.findChild(QPushButton, 'pushButton_edit_fluid_in_refprop')
         # self.pushButton_reset_entries_add_fluid_rp = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid_rp')
         # self.pushButton_reset_entries_add_fluid_rp.clicked.connect(self.reset_add_texts_rp)
-        self.pushButton_edit_fluid_in_refprop.setVisible(False)
         self.pushButton_pickColor_edit.setDisabled(True)
         self.pushButton_confirm_fluid_edition.setDisabled(True)
-        self.pushButton_confirm_fluid_removal.setDisabled(True)
         # QRadioButton
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
@@ -188,20 +168,22 @@ class FluidInput(QDialog):
         self.flagSelection = self.radioButton_selected_lines.isChecked()
         # QTabWidget
         self.tabWidget_fluid = self.findChild(QTabWidget, 'tabWidget_fluid')
-        # self.tabWidget_fluid.currentChanged.connect(self.tab_event_update)
         self.tabWidget_add = self.findChild(QTabWidget, 'tabWidget_add')
-        self.tab_user_defined = self.tabWidget_add.findChild(QWidget, 'tab_user_defined')
-        self.tab_refprop_button = self.tabWidget_add.findChild(QWidget, 'tab_refprop_button')
-        self.tab_refprop_all_entries = self.tabWidget_add.findChild(QWidget, 'tab_refprop_all_entries')
-        self.tabWidget_add.removeTab(2)
+        self.tabWidget_edit = self.findChild(QTabWidget, 'tabWidget_edit')
+        self.tabWidget_add.setTabVisible(2, False)
+        self.tabWidget_edit.setTabVisible(1, False)
+        self.tabWidget_fluid.setTabVisible(2, False)
         # QTreeWidget
         self.treeWidget_fluids = self.findChild(QTreeWidget, 'treeWidget_fluids')
-        # header = self.treeWidget_fluids.headerItem()
         widhts = [50, 140, 170, 180, 172, 80]
         for col_index, width in enumerate(widhts):
             self.treeWidget_fluids.setColumnWidth(col_index, width)
         for col_index in [6, 7, 8, 9]:
             self.treeWidget_fluids.hideColumn(col_index)
+        # QWidget
+        self.tab_user_defined = self.tabWidget_add.findChild(QWidget, 'tab_user_defined')
+        self.tab_refprop_button = self.tabWidget_add.findChild(QWidget, 'tab_refprop_button')
+        self.tab_refprop_all_entries = self.tabWidget_add.findChild(QWidget, 'tab_refprop_all_entries')        
 
 
     def _create_connections(self):
@@ -223,7 +205,6 @@ class FluidInput(QDialog):
         self.pushButton_confirm_add_fluid_rp.clicked.connect(self.check_add_fluid_refprop)
         self.pushButton_reset_entries_add_fluid.clicked.connect(self.reset_add_texts)
         self.pushButton_confirm_fluid_edition.clicked.connect(self.check_edit_fluid)
-        self.pushButton_confirm_fluid_removal.clicked.connect(self.confirm_fluid_removal)
         self.pushButton_confirm.clicked.connect(self.confirm_fluid_attribution)
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
         self.pushButton_edit_fluid_in_refprop.clicked.connect(self.edit_REFPROP_fluid)
@@ -247,20 +228,26 @@ class FluidInput(QDialog):
 
 
     def edit_REFPROP_fluid(self):
-        self.REFPROP = SetFluidCompositionInput(self.project, self.opv, selected_fluid_to_edit=self.selected_REFPROP_fluid, compressor_info=self.compressor_thermodynamic_state)
+        self.REFPROP = SetFluidCompositionInput(self.project, 
+                                                self.opv, 
+                                                selected_fluid_to_edit=self.selected_REFPROP_fluid, 
+                                                compressor_info=self.compressor_thermodynamic_state)
         self.after_getting_fluid_properties_from_REFPROP()
 
 
     def call_refprop_interface(self):
-        self.REFPROP = SetFluidCompositionInput(self.project, self.opv, compressor_info=self.compressor_thermodynamic_state)
+        self.REFPROP = SetFluidCompositionInput(self.project, 
+                                                self.opv, 
+                                                compressor_info=self.compressor_thermodynamic_state)
         self.after_getting_fluid_properties_from_REFPROP()
 
 
     def after_getting_fluid_properties_from_REFPROP(self):
         if self.REFPROP.complete:
-            self.tabWidget_add.removeTab(1)
-            self.tabWidget_add.addTab(self.tab_refprop_all_entries, "REFPROP")
-            self.tabWidget_add.setCurrentIndex(1)
+            self.tabWidget_add.setTabVisible(1, False)
+            self.tabWidget_add.setTabVisible(2, True)
+            # self.tabWidget_add.addTab(self.tab_refprop_all_entries, "REFPROP")
+            self.tabWidget_add.setCurrentIndex(2)
             self.fluid_data_REFPROP = self.REFPROP.fluid_properties
             self.fluid_setup = self.REFPROP.fluid_setup
             for index, key in enumerate(self.fluid_data_keys):
@@ -400,49 +387,15 @@ class FluidInput(QDialog):
                                     self.lineEdit_dynamic_viscosity_edit,
                                     self.lineEdit_temperature_edit,
                                     self.lineEdit_pressure_edit ]  
-        
-        self.list_remove_lineEdit = [   self.lineEdit_id_remove,
-                                        self.lineEdit_name_remove,
-                                        self.lineEdit_fluid_density_remove,
-                                        self.lineEdit_speed_of_sound_remove,
-                                        self.lineEdit_impedance_remove,
-                                        self.lineEdit_color_remove,
-                                        self.lineEdit_isentropic_exponent_remove,
-                                        self.lineEdit_thermal_conductivity_remove,
-                                        self.lineEdit_specific_heat_Cp_remove,
-                                        self.lineEdit_dynamic_viscosity_remove,
-                                        self.lineEdit_temperature_remove,
-                                        self.lineEdit_pressure_remove ]  
-
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.compressor_thermodynamic_state == {}:
-                self.confirm_fluid_attribution()
-            else:
-                title = "Aditional action required"
-                message = "Press the 'Attribute fluid' button to proceed with fluid assignment."
-                PrintMessageInput([title, message, window_title2])
-        elif event.key() == Qt.Key_Delete:
-            self.confirm_fluid_removal()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
 
 
     def check_compressor_inputs(self):
         if self.compressor_thermodynamic_state:
 
-            # width = 800
-            # height = 720
-
-            # self.setMinimumWidth(width)
-            # self.setMinimumHeight(height)
-            # self.setMaximumWidth(width)
-            # self.setMaximumHeight(height)
-
-            self.tabWidget_fluid.removeTab(1)
-            self.tabWidget_fluid.removeTab(1)
-            self.tabWidget_fluid.removeTab(1)
+            self.tabWidget_fluid.setTabVisible(1, False)
+            self.tabWidget_add.setTabVisible(0, False)
+            self.tabWidget_add.setTabVisible(2, False)
+            self.tabWidget_add.setCurrentIndex(1)
 
             # self.pushButton_confirm_add_fluid.setText("Attribute fluid")
             # self.pushButton_confirm_add_fluid_rp.setText("Attribute fluid")
@@ -454,18 +407,19 @@ class FluidInput(QDialog):
             self.radioButton_all.setDisabled(True)
 
             self.line_id_comp = self.compressor_thermodynamic_state['line_id']
-            self.node_id_comp = self.compressor_thermodynamic_state['node_id']
+            # self.node_id_comp = self.compressor_thermodynamic_state['node_id']
+            self.write_lines([self.line_id_comp])
+            self.lineEdit_selected_ID.setDisabled(True)
 
             self.connection_type_comp = self.compressor_thermodynamic_state['connection type']
             self.connection_label = "discharge" if self.connection_type_comp else "suction"
-
-            self.temperature_comp = self.compressor_thermodynamic_state[f'temperature ({self.connection_label})']
-            self.pressure_comp = self.compressor_thermodynamic_state[f'pressure ({self.connection_label})']
-            
             self.setWindowTitle(f"Set a fluid thermodynamic state at the compressor {self.connection_label}")
 
-            self.write_lines([self.line_id_comp])
-            self.lineEdit_selected_ID.setDisabled(True)
+            self.temperature_comp = self.compressor_thermodynamic_state[f'temperature (suction)']
+            self.pressure_comp = self.compressor_thermodynamic_state[f'pressure (suction)']
+            
+            # self.suction_temperature = self.compressor_thermodynamic_state[f'temperature (suction)']
+            # self.suction_pressure = self.compressor_thermodynamic_state[f'pressure (suction)']
 
             self.update_compressor_fluid_temperature_and_pressure()
 
@@ -1015,7 +969,6 @@ class FluidInput(QDialog):
 
     def confirm_fluid_attribution(self):
 
-
         if self.clicked_item is None:
             title = "Empty fluid selection"
             message = "Select a fluid in the list before trying to attribute a fluid to the lines."
@@ -1124,7 +1077,7 @@ class FluidInput(QDialog):
                 if self.REFPROP.complete:
                     self.compressor_thermodynamic_state["temperature (discharge)"] = round(self.fluid_data_REFPROP["temperature"], 4)
                     self.compressor_thermodynamic_state["molar mass"] = self.fluid_data_REFPROP["molar mass"]
-        
+                    print(self.fluid_data_REFPROP["molar mass"])
 
     def loadList(self):
 
@@ -1215,7 +1168,6 @@ class FluidInput(QDialog):
 
         self.update_fluid_id_selector()
         self.lineEdit_selected_fluid_name.setText("")
-        self.pushButton_edit_fluid_in_refprop.setVisible(False)
         
 
     def update_fluid_id_selector(self):
@@ -1341,8 +1293,14 @@ class FluidInput(QDialog):
 
 
     def on_click_item(self, item):
+
+        self.clicked_item = item
+
         self.lineEdit_selected_fluid_name.setText("")
         self.pushButton_confirm.setVisible(False)
+        self.pushButton_call_refprop.setDisabled(False)
+        self.pushButton_edit_fluid_in_refprop.setDisabled(True)
+
         if self.compressor_thermodynamic_state:
             if str(round(self.temperature_comp,4)) != item.text(10):
                 return
@@ -1351,34 +1309,34 @@ class FluidInput(QDialog):
         else:
             if self.tabWidget_fluid.currentIndex() == 0:
                 self.tabWidget_fluid.setCurrentIndex(1)
-        self.pushButton_confirm.setVisible(True)
-        self.pushButton_edit_fluid_in_refprop.setVisible(False)
-        self.clicked_item = item
+            if self.tabWidget_edit.currentIndex() == 1:
+                self.tabWidget_edit.setCurrentIndex(0)
 
+        self.pushButton_confirm.setVisible(True)
+        
         self.selected_fluid_to_edit()
-        self.selected_fluid_to_remove()
         
         # N = len(self.list_edit_lineEdit)
         # for i in range(N):
         #     self.list_edit_lineEdit[i].setText(item.text(i))
-        #     self.list_remove_lineEdit[i].setText(item.text(i))
         # self.temp_fluid_color = item.text(2)   
 
-        fluid_name = item.text(0)
-        self.tabWidget_add.removeTab(1)
-        self.tabWidget_add.addTab(self.tab_refprop_button, "REFPROP")
+        fluid_name = item.text(1)
+        self.lineEdit_selected_fluid_name.setText(fluid_name)
 
         if fluid_name in self.fluid_name_to_REFPROP_data.keys():
-            self.tabWidget_add.setCurrentIndex(1)
-            self.pushButton_edit_fluid_in_refprop.setVisible(True)
+            self.tabWidget_fluid.setTabVisible(1, True)
+            self.tabWidget_fluid.setCurrentIndex(1)
+            self.tabWidget_edit.setTabVisible(1, True)
+            self.tabWidget_edit.setCurrentIndex(1)
+            self.pushButton_call_refprop.setDisabled(True)
+            self.pushButton_edit_fluid_in_refprop.setDisabled(False)
             self.selected_REFPROP_fluid = self.fluid_name_to_REFPROP_data[fluid_name]   
         else:
             self.tabWidget_add.setCurrentIndex(0)
 
-        self.lineEdit_selected_fluid_name.setText(fluid_name)
         self.pushButton_pickColor_edit.setDisabled(False)
         self.pushButton_confirm_fluid_edition.setDisabled(False)
-        self.pushButton_confirm_fluid_removal.setDisabled(False)
 
 
     def on_doubleclick_item(self, item):
@@ -1417,63 +1375,33 @@ class FluidInput(QDialog):
         return False
     
 
-    def selected_fluid_to_remove(self):
-        try:
-
-            if self.clicked_item is None:
-                self.title = "NO FLUID SELECTION"
-                self.message = "Select a fluid in the list to be removed."
-                PrintMessageInput([self.title, self.message, window_title2])
-                return True
-            
-            else:
-
-                N = len(self.list_edit_lineEdit)
-                for i in range(N):
-                    self.list_remove_lineEdit[i].setText(self.clicked_item.text(i))
-
-                color = tuple(getColorRGB(self.clicked_item.text(5)))
-                self.lineEdit_color_remove.setStyleSheet(f"background-color: rgb{color}; color: rgb{color}")
-
-        except Exception as error_log:
-            self.title = "ERROR WHILE LOADING THE FLUID LIST DATA"
-            self.message = str(error_log)
-            PrintMessageInput([self.title, self.message, window_title1])
-            return True
-
-        return False
-
-
     def confirm_fluid_removal(self):
+
         self.adding = False
         self.editing = False
+
+        if self.clicked_item is None:
+            return
         try:
-
-            if self.lineEdit_name_remove.text() == "":
-                title = "Empty fluid selection"
-                message = "Please, select a fluid in the list before confirm the removal."
-                PrintMessageInput([title, message, window_title2])
-                self.hightlight()
-                return
-
-            else:
-                config = configparser.ConfigParser()
-                config.read(self.fluid_path)
-                config.remove_section(self.lineEdit_name_remove.text())
+            selected_name = self.clicked_item.text(1)
+            config = configparser.ConfigParser()
+            config.read(self.fluid_path)
+            if selected_name in config.sections():
+                config.remove_section(selected_name)
                 with open(self.fluid_path, 'w') as config_file:
                     config.write(config_file)
 
-                for line_id, entity in self.dict_tag_to_entity.items():
-                    if entity.fluid is not None:
-                        if entity.fluid.name == self.lineEdit_name_remove.text():
-                            self.project.set_fluid_by_lines(line_id, None)
-                            self.project.set_compressor_info_by_lines(line_id, compressor_info={})
+            for line_id, entity in self.dict_tag_to_entity.items():
+                if entity.fluid is not None:
+                    if entity.fluid.name == selected_name:
+                        self.project.set_fluid_by_lines(line_id, None)
+                        self.project.set_compressor_info_by_lines(line_id, compressor_info={})
 
-                self.treeWidget_fluids.clear()
-                self.clicked_item = None
-                self.loadList()
-                self.reset_remove_texts() 
-                self.remove_hightlight()
+            self.treeWidget_fluids.clear()
+            self.clicked_item = None
+            self.loadList()
+            self.reset_add_texts()
+            self.reset_edit_texts()
 
         except Exception as log_error:
             title = "Error with the material removal"
@@ -1516,8 +1444,7 @@ class FluidInput(QDialog):
             self.treeWidget_fluids.clear()
             self.loadList()
             self.reset_add_texts()
-            self.reset_edit_texts() 
-            self.reset_remove_texts()
+            self.reset_edit_texts()
             self.opv.updateRendererMesh()
 
 
@@ -1537,14 +1464,23 @@ class FluidInput(QDialog):
     def reset_edit_texts(self):
         for lineEdit in self.list_edit_lineEdit:
             lineEdit.setText("")
-
-
-    def reset_remove_texts(self):
-        for lineEdit in self.list_remove_lineEdit:
-            lineEdit.setText("")
+        self.lineEdit_color_edit.setStyleSheet("")
 
 
     # def tab_event_update(self):
     #     self.reset_add_texts()
     #     self.reset_edit_texts()
-    #     self.reset_remove_texts()
+
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            if self.compressor_thermodynamic_state == {}:
+                self.confirm_fluid_attribution()
+            else:
+                title = "Aditional action required"
+                message = "Press the 'Attribute fluid' button to proceed with fluid assignment."
+                PrintMessageInput([title, message, window_title2])
+        elif event.key() == Qt.Key_Delete:
+            self.confirm_fluid_removal()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
