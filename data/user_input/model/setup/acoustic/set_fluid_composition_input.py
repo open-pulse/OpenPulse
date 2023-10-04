@@ -191,14 +191,18 @@ class SetFluidCompositionInput(QDialog):
         self.P_suction = self.compressor_info[f'pressure (suction)']
         self.p_ratio =  self.compressor_info['pressure ratio']
         self.P_discharge = self.p_ratio*self.P_suction
+
+        if self.connection_label == "suction":
+            self.lineEdit_pressure_disch.setVisible(False)
+            self.lineEdit_temperature_disch.setVisible(False)
+            self.label_discharge.setVisible(False)
     
         self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
-        self.lineEdit_pressure.setText(str(round(self.P_suction, 4)))
-        self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 4)))
-    
-        # self.line_id_comp = self.compressor_info['line_id']
-        # self.node_id_comp = self.compressor_info['node_id']
-
+        self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
+        self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
+        self.lineEdit_temperature_disch.setText("---")
+        self.lineEdit_temperature_disch.setToolTip("The temperature at discharge will be calculated after the fluid definition.")
+        
 
     def update_selected_fluid(self):
         if self.selected_fluid_to_edit:
@@ -244,7 +248,43 @@ class SetFluidCompositionInput(QDialog):
             self.label_remaining_composition.setText("")
             self.label_remaining_composition.setVisible(False)
             self.label_title_remaining_fraction.setVisible(False)
+            if self.compressor_info:
+                temperature_K = self.T_suction
+                pressure_Pa = self.P_suction
+                self.get_specific_fluid_property(   self.isentropic_label,
+                                                    temperature_K,
+                                                    pressure_Pa   )
+
+    def get_specific_fluid_property(self, key_prop, temperature_K, pressure_Pa):
         
+        units = self.RefProp.GETENUMdll(0, "MASS BASE SI").iEnum
+
+        fluids_string = ""
+        molar_fractions = []
+        for _, _fraction, file_name in self.fluid_to_composition.values():
+            fluids_string += file_name + ";"
+            molar_fractions.append(_fraction)
+        fluids_string = fluids_string[:-1]
+
+        read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+                                        temperature_K, pressure_Pa, molar_fractions )
+
+        if read.herr:
+            return
+        
+        if key_prop == "M":
+            fluid_property = 1000*read.Output[0]   
+        else:
+            fluid_property = read.Output[0]
+
+        if key_prop == self.isentropic_label:
+            _k = fluid_property 
+            self.T_discharge = (self.T_suction)*(self.p_ratio**((_k-1)/_k))
+            self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
+        
+        return fluid_property
+
+
     def create_font(self, size):
         self.font = QFont()
         self.font.setPointSize(size)

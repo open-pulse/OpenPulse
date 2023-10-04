@@ -258,13 +258,13 @@
              <widget class="QLineEdit" name="lineEdit_nozzle_id">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -312,13 +312,13 @@
              <widget class="QLineEdit" name="lineEdit_speed_of_sound">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -336,13 +336,13 @@
              <widget class="QComboBox" name="comboBox_line_ids">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -372,13 +372,13 @@
              <widget class="QLineEdit" name="lineEdit_internal_diameter">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -426,13 +426,13 @@
              <widget class="QLineEdit" name="lineEdit_line_pressure">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -550,8 +550,8 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
+             <weight>50</weight>
+             <bold>false</bold>
             </font>
            </property>
            <property name="frameShape">
@@ -615,8 +615,8 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
+             <weight>50</weight>
+             <bold>false</bold>
             </font>
            </property>
            <property name="frameShape">
@@ -774,13 +774,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <widget class="QLineEdit" name="lineEdit_compressor_node_id">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -798,13 +798,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <widget class="QLineEdit" name="lineEdit_unfiltered_criteria">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -837,13 +837,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <widget class="QLineEdit" name="lineEdit_pressure_ratio">
               <property name="minimumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>72</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>

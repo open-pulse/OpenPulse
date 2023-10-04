@@ -78,11 +78,7 @@ class CompressorModelInput(QDialog):
         self.label_molar_mass = self.findChild(QLabel, 'label_molar_mass')
         self.label_molar_mass_unit = self.findChild(QLabel, 'label_molar_mass_unit')
         self.label_isentropic_exp = self.findChild(QLabel, 'label_isentropic_exp')
-        self.label_isentropic_exp_unit = self.findChild(QLabel, 'label_isentropic_exp_unit')
-        self.label_molar_mass.setVisible(False)
-        self.label_molar_mass_unit.setVisible(False)
-        self.label_isentropic_exp.setVisible(False)
-        self.label_isentropic_exp_unit.setVisible(False)  
+        self.label_isentropic_exp_unit = self.findChild(QLabel, 'label_isentropic_exp_unit') 
         # QLineEdit
         self.lineEdit_selected_node_ID = self.findChild(QLineEdit, 'lineEdit_selected_node_ID')
         self.lineEdit_suction_node_ID = self.findChild(QLineEdit, 'lineEdit_suction_node_ID')
@@ -106,8 +102,6 @@ class CompressorModelInput(QDialog):
         self.lineEdit_selection_info = self.findChild(QLineEdit, 'lineEdit_selection_info')
         self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
         self.lineEdit_table_name_info = self.findChild(QLineEdit, 'lineEdit_table_name_info')
-        self.lineEdit_molar_mass.setVisible(False)
-        self.lineEdit_isentropic_exponent.setVisible(False)
         # QPushButton
         self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
         self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
@@ -116,6 +110,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_plot_volumetric_flow_rate_at_suction_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_time')
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
         self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
+        self.pushButton_plot_rod_pressure_load_time = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_time')
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_frequency')
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_frequency')
         self.pushButton_plot_pressure_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_head_end_angle')
@@ -169,6 +164,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(self.plot_volumetric_flow_rate_at_suction_time)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
         self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
+        self.pushButton_plot_rod_pressure_load_time.clicked.connect(self.plot_rod_pressure_load_time)
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
         self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
@@ -404,7 +400,7 @@ class CompressorModelInput(QDialog):
             self.lineEdit_molar_mass.setText(str(compressor_info["molar mass"]))
         if "pressure at suction" in compressor_info.keys():
             self.lineEdit_pressure_at_suction.setText(str(compressor_info["pressure at suction"]))
-        if compressor_info["pressure unit"] == "kgf/cm2":
+        if compressor_info["pressure unit"] == "kgf/cm²":
             self.comboBox_suction_pressure_units.setCurrentIndex(0)
         else:
             self.comboBox_suction_pressure_units.setCurrentIndex(1)
@@ -435,14 +431,8 @@ class CompressorModelInput(QDialog):
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
         self.spinBox_max_frequency.setValue(int(f_max))
 
-        self.label_molar_mass.setVisible(True)
-        self.label_molar_mass_unit.setVisible(True)
-        self.label_isentropic_exp.setVisible(True)
-        self.label_isentropic_exp_unit.setVisible(True)
-        self.lineEdit_molar_mass.setVisible(True)
-        self.lineEdit_isentropic_exponent.setVisible(True)
-        self.lineEdit_molar_mass.setDisabled(True)
-        self.lineEdit_isentropic_exponent.setDisabled(True)
+        # self.lineEdit_molar_mass.setDisabled(True)
+        # self.lineEdit_isentropic_exponent.setDisabled(True)
 
     def reset_entries(self):
         self.comboBox_compressors_tables.clear()
@@ -609,17 +599,17 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['capacity'] = self.value
 
-        # if self.check_input_parameters(self.lineEdit_molar_mass, "MOLAR MASS"):
-        #     self.lineEdit_molar_mass.setFocus()
-        #     return True
-        # else:
-        #     self.parameters['molar mass'] = self.value
+        if self.check_input_parameters(self.lineEdit_molar_mass, "MOLAR MASS"):
+            self.lineEdit_molar_mass.setFocus()
+            return True
+        else:
+            self.parameters['molar mass'] = self.value
 
-        # if self.check_input_parameters(self.lineEdit_isentropic_exponent, "ISENTROPIC EXPONENT"):
-        #     self.lineEdit_isentropic_exponent.setFocus()
-        #     return True
-        # else:
-        #     self.parameters['isentropic exponent'] = self.value
+        if self.check_input_parameters(self.lineEdit_isentropic_exponent, "ISENTROPIC EXPONENT"):
+            self.lineEdit_isentropic_exponent.setFocus()
+            return True
+        else:
+            self.parameters['isentropic exponent'] = self.value
 
         if self.check_input_parameters(self.lineEdit_pressure_at_suction, "PRESSURE AT SUCTION"):
             self.lineEdit_pressure_at_suction.setFocus()
@@ -628,7 +618,7 @@ class CompressorModelInput(QDialog):
             self.parameters['pressure at suction'] = self.value
 
         if self.comboBox_suction_pressure_units.currentIndex() == 0:
-            self.parameters['pressure unit'] = "kgf/cm2"
+            self.parameters['pressure unit'] = "kgf/cm²"
         elif self.comboBox_suction_pressure_units.currentIndex() == 1:
             self.parameters['pressure unit'] = "bar"
 
@@ -657,12 +647,12 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['TDC crank angle 2'] = None
 
-        list_parameters = []
-        for key, parameter in self.parameters.items():
-            if key not in ['cylinder label', 'compression stage', 'number of cylinders', 'TDC crank angle 2']:
-                list_parameters.append(parameter)
+        # list_parameters = []
+        # for key, parameter in self.parameters.items():
+        #     if key not in ['cylinder label', 'compression stage', 'number of cylinders', 'TDC crank angle 2']:
+        #         list_parameters.append(parameter)
 
-        self.compressor = CompressorModel(list_parameters)
+        self.compressor = CompressorModel(self.parameters)
         self.compressor.number_of_cylinders = self.parameters['number of cylinders']
 
         if self.comboBox_suction_pressure_units.currentIndex() == 0:
@@ -678,7 +668,7 @@ class CompressorModelInput(QDialog):
         if self.parameters['TDC crank angle 2'] is not None:   
             self.compressor.tdc2 = self.parameters['TDC crank angle 2']*np.pi/180
 
-        self.P_discharge = self.parameters['pressure ratio']*self.P_suction
+        # self.P_discharge = self.parameters['pressure ratio']*self.P_suction
         
         return False
     
@@ -961,6 +951,11 @@ class CompressorModelInput(QDialog):
     def plot_rod_pressure_load_frequency(self):
         self.process_aquisition_parameters()
         self.compressor.plot_rod_pressure_load_frequency(self.N_rev)
+        return
+
+    def plot_rod_pressure_load_time(self):
+        self.process_aquisition_parameters()
+        self.compressor.plot_rod_pressure_load_time(self.N_rev)
         return
 
     def plot_volumetric_flow_rate_at_suction_frequency(self):
