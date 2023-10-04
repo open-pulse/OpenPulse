@@ -80,7 +80,8 @@ class CompressorModel:
         self.L = parameters['connecting rod length']            # Length of compressor full stroke [m]
         self.rod_diam = parameters['rod diameter']              # Rod diameter [m]
         self.p_ratio = parameters['pressure ratio']             # Compressor pressure ratio Pd/Ps
-        self.c = parameters['clearance']/100                    # Clearance volume as percentage of full volume (%)
+        self.c_HE = parameters['clearance (HE)']/100            # Clearance volume as percentage of full volume (%)
+        self.c_CE = parameters['clearance (CE)']/100            # Clearance volume as percentage of full volume (%)
         self.tdc1 = parameters['TDC crank angle 1']*np.pi/180   # Crank angle (degrees) at which piston is at top dead center
         self.rpm = parameters['rotational speed']               # Compressor rotation speed (rpm)
         self.capacity = parameters['capacity']/100              # Capacity of compression stage (%)
@@ -167,7 +168,13 @@ class CompressorModel:
         x = r * np.cos(t-tdc) + np.sqrt(l**2 - r**2*np.sin(t-tdc)**2) - x_mean
         return x 
 
-    def p_head_end(self, tdc=None, capacity=None, full_output=False, plot_pv=False, aux_process=False):
+    def p_head_end( self,
+                    label = "HE",
+                    tdc=None, 
+                    capacity=None, 
+                    full_output=False, 
+                    plot_pv=False, 
+                    aux_process=False):
 
         N = self.number_points + 1
         ang = np.linspace(0, 2*np.pi, N)
@@ -191,23 +198,30 @@ class CompressorModel:
             p, vol = [], []
             p0 = self.p_ratio
             p_aux = p0
-            l0 = self.c*(2*self.r)
+
+            if label == "HE":
+                l0 = self.c_HE*(2*self.r) # clearance height head end
+            elif label == "CE":
+                l0 = self.c_CE*(2*self.r) # clearance height crank end
+            else:
+                l0 = ((self.c_HE+self.c_CE)/2)*(2*self.r) # average clearance height
+
             i = 0
             #EXPANSION CYCLE
             while p_aux > 1 and i < N:
-                p_aux = p0*(l0 / (l0 + x[0]-x[i]))**self.k
+                p_aux = p0*(l0 / (l0 + x[0] - x[i]))**self.k
                 if p_aux < 1:
                     p_aux = 1
                     open_suc[i] = True
                 p.append(p_aux*self.p_suc)
-                vol.append(self.area_head_end*(l0 + x[0]-x[i]))
+                vol.append(self.area_head_end*(l0 + x[0] - x[i]))
                 i += 1
 
             if i < N:
                 #SUCTION CYCLE
                 while i <= (N-1)/2:
                     p.append(1*self.p_suc)
-                    vol.append(self.area_head_end*(l0 + x[0]-x[i]))
+                    vol.append(self.area_head_end*(l0 + x[0] - x[i]))
                     open_suc[i] = True
                     i += 1
 
@@ -247,7 +261,11 @@ class CompressorModel:
         else:
             return p
 
-    def p_crank_end(self, tdc=None, capacity=None, full_output=False, plot_pv=False):
+    def p_crank_end(self, 
+                    tdc=None, 
+                    capacity=None, 
+                    full_output=False, 
+                    plot_pv=False):
 
         if tdc == None:
             tdc = self.tdc1
@@ -256,8 +274,9 @@ class CompressorModel:
             print('Cylinder does not have crank end pressure.')
 
         if plot_pv:
-            vol, pressure = self.p_head_end(tdc = tdc - np.pi, 
-                                            capacity = capacity, 
+            vol, pressure = self.p_head_end(label = "CE",
+                                            tdc = tdc - np.pi, 
+                                            capacity = capacity,
                                             full_output = full_output, 
                                             plot_pv = plot_pv)
             vol = list(np.array(vol)*(self.D**2 - self.rod_diam**2)/self.D**2)
@@ -585,6 +604,17 @@ class CompressorModel:
         y_label = "Rod pressure load [kN]"
         title = "Rod pressure load"
         plot(time, rod_pressure_load_time, x_label, y_label, title, _absolute=True) 
+
+    def plot_piston_position_time(self):
+        x = self.recip_x(tdc=0)
+        Trev = 60/self.rpm
+        N = len(x)
+        time = np.linspace(0, Trev, N)
+        x_label = "Time [s]"
+        y_label = "Piston position [m]"
+        title = "Piston position during a complete cycle"
+        plot(time, x, x_label, y_label, title, _absolute=False) 
+
 
     def plot_volumetric_flow_rate_at_suction_frequency(self, revolutions):
         freq, flow_rate = self.process_FFT_of_volumetric_flow_rate(revolutions, 'in_flow')

@@ -90,7 +90,8 @@ class CompressorModelInput(QDialog):
         self.lineEdit_connecting_rod_length = self.findChild(QLineEdit, 'lineEdit_connecting_rod_length')
         self.lineEdit_rod_diameter = self.findChild(QLineEdit, 'lineEdit_rod_diameter')
         self.lineEdit_pressure_ratio = self.findChild(QLineEdit, 'lineEdit_pressure_ratio')
-        self.lineEdit_clearance = self.findChild(QLineEdit, 'lineEdit_clearance')
+        self.lineEdit_clearance_head_end = self.findChild(QLineEdit, 'lineEdit_clearance_head_end')
+        self.lineEdit_clearance_crank_end = self.findChild(QLineEdit, 'lineEdit_clearance_crank_end')
         self.lineEdit_TDC_crank_angle_1 = self.findChild(QLineEdit, 'lineEdit_TDC_crank_angle_1')
         self.lineEdit_TDC_crank_angle_2 = self.findChild(QLineEdit, 'lineEdit_TDC_crank_angle_2')
         self.lineEdit_rotational_speed = self.findChild(QLineEdit, 'lineEdit_rotational_speed')
@@ -107,6 +108,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
         self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
         self.pushButton_plot_PV_diagram_crank_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_crank_end')
+        self.pushButton_plot_piston_position_time = self.findChild(QPushButton, 'pushButton_plot_piston_position_time')
         self.pushButton_plot_volumetric_flow_rate_at_suction_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_time')
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
         self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
@@ -165,6 +167,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
         self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
         self.pushButton_plot_rod_pressure_load_time.clicked.connect(self.plot_rod_pressure_load_time)
+        self.pushButton_plot_piston_position_time.clicked.connect(self.plot_piston_position_time)
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
         self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
@@ -386,8 +389,10 @@ class CompressorModelInput(QDialog):
             self.lineEdit_rod_diameter.setText(str(compressor_info["rod diameter"]))
         if "pressure ratio" in compressor_info.keys():
             self.lineEdit_pressure_ratio.setText(str(compressor_info["pressure ratio"]))
-        if "clearance" in compressor_info.keys():
-            self.lineEdit_clearance.setText(str(compressor_info["clearance"]))
+        if "clearance (HE)" in compressor_info.keys():
+            self.lineEdit_clearance_head_end.setText(str(compressor_info["clearance (HE)"]))
+        if "clearance (CE)" in compressor_info.keys():
+            self.lineEdit_clearance_crank_end.setText(str(compressor_info["clearance (CE)"]))
         if "TDC crank angle 1" in compressor_info.keys():
             self.lineEdit_TDC_crank_angle_1.setText(str(compressor_info["TDC crank angle 1"]))
         if "rotational speed" in compressor_info.keys():
@@ -447,7 +452,8 @@ class CompressorModelInput(QDialog):
         self.lineEdit_connecting_rod_length.setText("")
         self.lineEdit_rod_diameter.setText("")
         self.lineEdit_pressure_ratio.setText("")
-        self.lineEdit_clearance.setText("")
+        self.lineEdit_clearance_head_end.setText("")
+        self.lineEdit_clearance_crank_end.setText("")
         self.lineEdit_TDC_crank_angle_1.setText("")
         self.lineEdit_rotational_speed.setText("")
         self.lineEdit_capacity.setText("")
@@ -569,11 +575,17 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['pressure ratio'] = self.value
     
-        if self.check_input_parameters(self.lineEdit_clearance, "CLEARANCE"):
-            self.lineEdit_clearance.setFocus()
+        if self.check_input_parameters(self.lineEdit_clearance_head_end, "CLEARANCE (HE)"):
+            self.lineEdit_clearance_head_end.setFocus()
             return True
         else:
-            self.parameters['clearance'] = self.value
+            self.parameters['clearance (HE)'] = self.value
+        
+        if self.check_input_parameters(self.lineEdit_clearance_crank_end, "CLEARANCE (CE)"):
+            self.lineEdit_clearance_crank_end.setFocus()
+            return True
+        else:
+            self.parameters['clearance (CE)'] = self.value
     
         if self.check_input_parameters(self.lineEdit_TDC_crank_angle_1, "TOP DEAD CENTER CRANCK ANGLE 1"):
             self.lineEdit_TDC_crank_angle_1.setFocus()
@@ -957,6 +969,10 @@ class CompressorModelInput(QDialog):
         self.process_aquisition_parameters()
         self.compressor.plot_rod_pressure_load_time(self.N_rev)
         return
+    
+    def plot_piston_position_time(self):
+        self.process_aquisition_parameters()
+        self.compressor.plot_piston_position_time()
 
     def plot_volumetric_flow_rate_at_suction_frequency(self):
         self.process_aquisition_parameters()
