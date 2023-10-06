@@ -108,7 +108,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
         self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
         self.pushButton_plot_PV_diagram_crank_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_crank_end')
-        self.pushButton_plot_piston_position_time = self.findChild(QPushButton, 'pushButton_plot_piston_position_time')
+        self.pushButton_plot_piston_position_and_velocity_time = self.findChild(QPushButton, 'pushButton_plot_piston_position_and_velocity_time')
         self.pushButton_plot_volumetric_flow_rate_at_suction_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_time')
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
         self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
@@ -167,7 +167,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
         self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
         self.pushButton_plot_rod_pressure_load_time.clicked.connect(self.plot_rod_pressure_load_time)
-        self.pushButton_plot_piston_position_time.clicked.connect(self.plot_piston_position_time)
+        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(self.plot_piston_position_and_velocity_time)
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
         self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
@@ -970,9 +970,13 @@ class CompressorModelInput(QDialog):
         self.compressor.plot_rod_pressure_load_time(self.N_rev)
         return
     
-    def plot_piston_position_time(self):
+    def plot_piston_position_and_velocity_time(self):
         self.process_aquisition_parameters()
-        self.compressor.plot_piston_position_time()
+        self.compressor.plot_piston_position_and_velocity(domain="time")
+
+    def plot_piston_position_and_velocity_angle(self):
+        self.process_aquisition_parameters()
+        self.compressor.plot_piston_position_and_velocity(domain="angle")
 
     def plot_volumetric_flow_rate_at_suction_frequency(self):
         self.process_aquisition_parameters()

@@ -3314,7 +3314,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </widget>
                      </item>
                      <item row="0" column="0">
-                      <widget class="QPushButton" name="pushButton_plot_piston_position_time">
+                      <widget class="QPushButton" name="pushButton_plot_piston_position_and_velocity_time">
                        <property name="minimumSize">
                         <size>
                          <width>200</width>
@@ -3342,7 +3342,8 @@ QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-sty
 QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
                        </property>
                        <property name="text">
-                        <string>Piston position</string>
+                        <string>Piston position and 
+velocity</string>
                        </property>
                       </widget>
                      </item>

@@ -202,7 +202,7 @@ class CheckPulsationCriteriaInput(QDialog):
         # NOTE: Pcf is the maximum allowable unfiltered peak-to-peak pulsation level, as a 
         # percentage of average absolute line pressure at the compressor cylinder flange.
 
-        legend_label = "Unfiltered criteria: {}".format(self.unfiltered_criteria)
+        legend_label = "Unfiltered criteria: {}%".format(round(self.unfiltered_criteria,2))
         self.model_results["criteria"] = {  "x_data" : self.frequencies,
                                             "y_data" : P_cf,
                                             "x_label" : "Frequency [Hz]",
@@ -225,7 +225,7 @@ class CheckPulsationCriteriaInput(QDialog):
         pulsation_ratio = acoustic_pressure/self.absolute_line_pressure
 
         self.model_results = dict()
-        self.title = "Maximum Allowable Pulsation Limits at and Beyond Line-side Nozzles of Pulsation Suppression Devices"
+        self.title = "Maximum Allowable Pulsation Limits at and Beyond Line-side Nozzles\n of Pulsation Suppression Devices"
         legend_label = "Acoustic pressure at node {}".format(self.node_id)
         self.model_results["ratio"] = { "x_data" : self.frequencies,
                                         "y_data" : 100*pulsation_ratio,
