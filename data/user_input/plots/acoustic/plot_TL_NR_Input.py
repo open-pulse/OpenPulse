@@ -128,25 +128,30 @@ class Plot_TL_NR_Input(QDialog):
 
     def get_TL_NR(self):
         
-        P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
-        P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
+        P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
+        P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
+        # data = np.array([P_in, P_out]).T
+        # np.savetxt("pressoes_TL", data, delimiter=",")
         
         # the zero_shift constant is summed to avoid zero values either in P_input2 or P_output2 variables
         zero_shift = 1e-12
-        P_input2 = 0.5*np.real(P_input*np.conjugate(P_input)) + zero_shift
-        P_output2 = 0.5*np.real(P_output*np.conjugate(P_output)) + zero_shift
+        Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
+        Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
 
         d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
         d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_ID)
-        
-        if self.comboBox_processing_selector.currentIndex() == 0:
-            alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
-            TL = -10*np.log10(alpha_T)
+        A_in = np.pi*(d_in**2)/4
+        A_out = np.pi*(d_out**2)/4
+
+        index = self.comboBox_processing_selector.currentIndex()
+        if index == 0:
+            W_in = Prms_in2*A_in/(rho_in*c0_in)
+            W_out = Prms_out2*A_out/(rho_out*c0_out)
+            TL = 10*np.log10(W_in/W_out)
             return TL
             
-        if self.comboBox_processing_selector.currentIndex() == 1:
-            delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
-            NR = 10*np.log10(delta)
+        if index == 1:
+            NR = 10*np.log10(Prms_in2/Prms_out2)
             return NR
 
     def join_model_data(self):

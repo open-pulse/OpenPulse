@@ -168,6 +168,7 @@ class FrequencyResponsePlotter(QDialog):
         self.radioButton_real.setChecked(True)
         self.radioButton_imaginary.setDisabled(True)
         self.radioButton_decibel_scale.setDisabled(True)
+        self.comboBox_differentiate_data.setDisabled(True)
 
     def load_data_to_plot(self, data):
         if "x_data" in data.keys():

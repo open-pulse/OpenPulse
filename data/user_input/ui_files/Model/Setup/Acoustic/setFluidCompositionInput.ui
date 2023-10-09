@@ -703,13 +703,13 @@ background-color: rgb(255, 255, 255);</string>
         <widget class="QComboBox" name="comboBox_pressure_units">
          <property name="minimumSize">
           <size>
-           <width>70</width>
+           <width>80</width>
            <height>36</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>70</width>
+           <width>80</width>
            <height>36</height>
           </size>
          </property>
@@ -760,13 +760,13 @@ background-color: rgb(255, 255, 255);</string>
         <widget class="QComboBox" name="comboBox_temperature_units">
          <property name="minimumSize">
           <size>
-           <width>70</width>
+           <width>80</width>
            <height>36</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>70</width>
+           <width>80</width>
            <height>36</height>
           </size>
          </property>
