@@ -627,9 +627,8 @@ class SetFluidCompositionInput(QDialog):
         self.unit_temperature = temperature_unit_labels[index_temperature]
 
     def unit_pressure_update(self, comboBox_pressure_units):
-        pressure_unit_labels = ["Pa", "kPa", "bar", "psi"]
-        index_pressure = comboBox_pressure_units.currentIndex()
-        self.unit_pressure = pressure_unit_labels[index_pressure]
+        self.unit_pressure = comboBox_pressure_units.currentText()
+        self.unit_pressure = self.unit_pressure.replace(" ", "")
 
     def check_input_values_with_units(self, lineEdit_temperature, lineEdit_pressure):
 
@@ -656,11 +655,17 @@ class SetFluidCompositionInput(QDialog):
 
         if self.unit_pressure == "kPa":
             _pressure_value *= 1e3
-        elif self.unit_pressure == "bar":
+        elif self.unit_pressure == "atm":
             _pressure_value *= 101325
+        elif self.unit_pressure == "bar":
+            _pressure_value *= 1e5
+        elif self.unit_pressure == "kgf/cm²":
+            _pressure_value *= 9.80665e4
         elif self.unit_pressure == "psi":
             _pressure_value *= 6894.75729
-       
+        elif self.unit_pressure == "ksi":
+            _pressure_value *= 6.89475729e6
+
         if _pressure_value < 0:
             title = "Invalid entry to the pressure"
             message = "The typed value at pressure input field reaches a negative value in Pascal scale."
@@ -692,12 +697,19 @@ class SetFluidCompositionInput(QDialog):
                     temperature -= 273.15
                 elif self.unit_temperature == "°F":
                     temperature = (temperature - 273.15)*(9/5) + 32
+
                 if self.unit_pressure == "kPa":
-                    pressure *= 1e-3
+                    pressure /= 1e3
+                elif self.unit_pressure == "atm":
+                    pressure /= 101325
                 elif self.unit_pressure == "bar":
-                    pressure *= 1e-5
+                    pressure /= 1e5
+                elif self.unit_pressure == "kgf/cm²":
+                    pressure /= 9.80665e4
                 elif self.unit_pressure == "psi":
                     pressure /= 6894.75729
+                elif self.unit_pressure == "ksi":
+                    pressure /= 6.89475729e6
                 
                 if self.errors_by_fluid_state:
                     if self.errors_by_fluid_state[index] != 0:

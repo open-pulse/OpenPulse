@@ -8,7 +8,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
             (self._getVolumeVelocity()      ,   loadSymbol('data/symbols/volumeVelocity.obj')),
             (self._getSpecificImpedance()   ,   loadSymbol('data/symbols/specificImpedance.obj')),
             (self._getRadiationImpedance()  ,   loadSymbol('data/symbols/radiationImpedance.obj')),
-            (self._getCompressor()          ,   loadSymbol('data/symbols/compressor_head.obj')),
+            (self._getCompressor()          ,   loadSymbol('data/symbols/compressor_suction.obj')),
         ]
     
     # def _createSequence(self):
