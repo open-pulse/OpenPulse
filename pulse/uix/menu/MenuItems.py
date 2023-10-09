@@ -686,6 +686,11 @@ class MenuItems(QTreeWidget):
         self.modify_model_setup_items_access(False)
 
         if True:
+            self.item_child_analisysSetup.setDisabled(True)
+            self.item_child_runAnalysis.setDisabled(True)
+            # self.item_top_analysis.setHidden(True)
+            self.item_top_resultsViewer_structural.setHidden(True)
+            self.item_top_resultsViewer_acoustic.setHidden(True)
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotDisplacementField.setDisabled(True)
             self.item_child_plotStructuralFrequencyResponse.setDisabled(True)
@@ -695,15 +700,11 @@ class MenuItems(QTreeWidget):
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticPressureField.setDisabled(True)
             self.item_child_plotAcousticDeltaPressures.setDisabled(True)
+            self.item_child_check_pulsation_criteria.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
             self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
             self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
-            self.item_child_analisysSetup.setDisabled(True)
-            self.item_child_runAnalysis.setDisabled(True)
-            # self.item_top_analysis.setHidden(True)
-            self.item_top_resultsViewer_structural.setHidden(True)
-            self.item_top_resultsViewer_acoustic.setHidden(True)
-        
+                    
         if self.project.analysis_ID in [None, 2, 4]:
             self.item_child_analisysSetup.setDisabled(True)
         else:
@@ -748,21 +749,25 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plotAcousticDeltaPressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
-                self.item_child_check_pulsation_criteria.setDisabled(False)
+                if self.project.preprocessor.nodes_with_compressor_excitation != []:
+                    self.item_child_check_pulsation_criteria.setDisabled(False)
             
             elif self.project.analysis_ID in [5, 6]:
                 if self.project.perforated_plate_dataLog:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
+
+                self.item_child_plotDisplacementField.setDisabled(False)
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
-                self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotStressField.setDisabled(False)
                 self.item_child_plotStressFrequencyResponse.setDisabled(False)
-                self.item_child_plotDisplacementField.setDisabled(False)
+                self.item_child_plotReactionsFrequencyResponse.setDisabled(False)  
+
+                self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plotAcousticDeltaPressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
-                self.item_child_check_pulsation_criteria.setDisabled(False)
-                self.item_child_plotReactionsFrequencyResponse.setDisabled(False)  
+                if self.project.preprocessor.nodes_with_compressor_excitation != []:
+                    self.item_child_check_pulsation_criteria.setDisabled(False)
             
             elif self.project.analysis_ID == 7:
                 self.item_child_plotDisplacementField.setDisabled(False)
