@@ -127,15 +127,11 @@ class Plot_TL_NR_Input(QDialog):
         return inner_diameter[ind], density[ind], speed_of_sound[ind]
 
     def get_TL_NR(self):
-        
-        P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
+
         P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
-        # data = np.array([P_in, P_out]).T
-        # np.savetxt("pressoes_TL", data, delimiter=",")
         
         # the zero_shift constant is summed to avoid zero values either in P_input2 or P_output2 variables
         zero_shift = 1e-12
-        Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
         Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
 
         d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
@@ -145,12 +141,18 @@ class Plot_TL_NR_Input(QDialog):
 
         index = self.comboBox_processing_selector.currentIndex()
         if index == 0:
-            W_in = Prms_in2*A_in/(rho_in*c0_in)
-            W_out = Prms_out2*A_out/(rho_out*c0_out)
-            TL = 10*np.log10(W_in/W_out)
+            Q = 1
+            u_n = Q/A_in
+            P_in = u_n*rho_in*c0_in/2
+            Prms_in2 = (P_in/np.sqrt(2))**2
+            W_in = 10*np.log10(Prms_in2*A_in/(rho_in*c0_in))
+            W_out = 10*np.log10(Prms_out2*A_out/(rho_out*c0_out))
+            TL = W_in - W_out
             return TL
-            
+
         if index == 1:
+            P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
+            Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
             NR = 10*np.log10(Prms_in2/Prms_out2)
             return NR
 
