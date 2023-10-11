@@ -99,8 +99,14 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv)
-        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True)
+
+        # origin = np.array([1, 0.5, 0.5])
+        # normal = np.array([1, 1, 0])
+        # hidden = self.calculate_hidden_by_plane(origin, normal)
+        hidden = set()
+
+        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv, hidden_elements=hidden)
+        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True, hidden_elements=hidden)
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
@@ -111,7 +117,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         # plt(self.opvSymbols)
 
         self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
-    
+
+    def calculate_hidden_by_plane(self, plane_origin, plane_normal):
+        hidden = set()
+        for i, element in self.project.get_structural_elements().items():
+            element_vector = element.element_center_coordinates - plane_origin
+            if np.dot(element_vector, plane_normal) > 0:
+                hidden.add(i)
+        return hidden
+
     def reset(self):
         self._renderer.RemoveAllViewProps()
         self._style.clear()

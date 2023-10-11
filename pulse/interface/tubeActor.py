@@ -142,7 +142,9 @@ class TubeActor(vtkActorBase):
         c = vtk.vtkUnsignedCharArray()
         c.DeepCopy(self._colors)
         for key, element in self.elements.items():
-            index = self._key_index[key]
+            index = self._key_index.get(key, None)
+            if index is None:
+                continue
             color = self.colorTable.get_color(element)
             c.SetTuple(index, color)
 
