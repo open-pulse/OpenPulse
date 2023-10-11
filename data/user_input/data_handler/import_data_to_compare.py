@@ -109,8 +109,12 @@ class ImportDataToCompare(QDialog):
                 self.update_treeWidget_info()
 
     def import_results(self):
+        
         try:
+
+            window_title = "ERROR MESSAGE"
             message = ""
+
             run = True
             if self.checkBox_skiprows.isChecked():
                 skiprows = self.spinBox_skiprows.value()
@@ -135,10 +139,18 @@ class ImportDataToCompare(QDialog):
                         wb = openpyxl.load_workbook(self.imported_path)
                         sheetnames = wb.sheetnames
                         for sheetname in sheetnames:
-                            sheet_data = pd.read_excel(self.imported_path, 
-                                                       sheet_name = sheetname, 
-                                                       header = skiprows, 
-                                                       usecols = [0,1,2]).to_numpy()
+
+                            try:
+                                sheet_data = pd.read_excel(self.imported_path, 
+                                                        sheet_name = sheetname, 
+                                                        header = skiprows, 
+                                                        usecols = [0,1,2]).to_numpy()
+                            except:
+                                sheet_data = pd.read_excel(self.imported_path, 
+                                                        sheet_name = sheetname, 
+                                                        header = skiprows, 
+                                                        usecols = [0,1]).to_numpy()
+
                             key = self.get_data_index()
                             self.imported_results[key] = {  "data" : sheet_data,
                                                             "filename" : filename,
@@ -158,7 +170,6 @@ class ImportDataToCompare(QDialog):
                         message += "Maximum number of header rows: 100"
 
         except Exception as log_error:
-            window_title = "ERROR MESSAGE"
             title = "Error while loading data from file"
             message = str(log_error)
             return
@@ -217,8 +228,12 @@ class ImportDataToCompare(QDialog):
                     color = np.random.randint(0,255,3)/255
 
                 data = self.imported_results[id]["data"]
+                cols = data.shape[1]
                 x_values = data[:, 0]
-                y_values = data[:, 1] + 1j*data[:, 2]
+                if cols == 2:
+                    y_values = data[:, 1]
+                else:
+                    y_values = data[:, 1] + 1j*data[:, 2]
 
                 if "sheetname" in self.imported_results[id].keys():
                     sheetname = self.imported_results[id]["sheetname"]
