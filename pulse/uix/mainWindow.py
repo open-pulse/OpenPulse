@@ -365,6 +365,11 @@ class MainWindow(QMainWindow):
         self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
         self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponse)
 
+        self.plotAcousticFrequencyResponseFunction = QAction('&Plot Acoustic Frequency Response Function', self)        
+        # self.plotAcousticFrequencyResponseFunction.setShortcut('')
+        self.plotAcousticFrequencyResponseFunction.setStatusTip('Plot Acoustic Frequency Response Function')
+        self.plotAcousticFrequencyResponseFunction.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponseFunction)
+
         self.plotAcousticDeltaPressures = QAction('&Plot Acoustic Delta Pressures', self)        
         # self.plotAcousticDeltaPressures.setShortcut('')
         self.plotAcousticDeltaPressures.setStatusTip('Plot Acoustic Delta Pressures')
@@ -531,6 +536,7 @@ class MainWindow(QMainWindow):
         #acoustic
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
+        self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponseFunction)
         self.resultsViewerMenu.addAction(self.plotAcousticDeltaPressures)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
         #animation

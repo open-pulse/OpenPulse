@@ -10,6 +10,7 @@ import numpy as np
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from data.user_input.data_handler.export_model_results import ExportModelResults
 from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from data.user_input.project.print_message_input import PrintMessageInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -36,6 +37,7 @@ class Plot_TL_NR_Input(QDialog):
 
         self.elements = self.preprocessor.acoustic_elements
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
+        self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
 
         self._config_window()
         self._load_icons()
@@ -64,9 +66,10 @@ class Plot_TL_NR_Input(QDialog):
         self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')   
         self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
         # QPushButton
+        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
         self.pushButton_flip_nodes_1 = self.findChild(QPushButton, 'pushButton_flip_nodes_1')
         self.pushButton_flip_nodes_2 = self.findChild(QPushButton, 'pushButton_flip_nodes_2')
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
+        self.pushButton_help = self.findChild(QPushButton, 'pushButton_help')
         self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
         self.pushButton_flip_nodes_1.setIcon(self.update_icon)
         self.pushButton_flip_nodes_2.setIcon(self.update_icon)
@@ -74,9 +77,10 @@ class Plot_TL_NR_Input(QDialog):
     def _create_connections(self):
         self.comboBox_processing_selector.currentIndexChanged.connect(self.update_flip_buttons)
         self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
+        self.pushButton_help.clicked.connect(self.call_help)
         self.pushButton_flip_nodes_1.clicked.connect(self.flip_nodes)
         self.pushButton_flip_nodes_2.clicked.connect(self.flip_nodes)
+        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
         self.update_flip_buttons()
 
     def update_flip_buttons(self):
@@ -88,6 +92,24 @@ class Plot_TL_NR_Input(QDialog):
             self.pushButton_flip_nodes_1.setDisabled(False)
             self.pushButton_flip_nodes_2.setDisabled(False)
 
+    def call_help(self):
+        window_title = "Help"
+        if self.comboBox_processing_selector.currentIndex() == 0:
+            title = "Required data to process the Transmission Loss"
+            message = "Dear user, to determine the Transmission Loss (TL) of a filter or duct it is necessary to "
+            message += "select the input node ID where the indicent wave is applied (usually by a volume velocity "
+            message += "source) and the output node ID with a anechoic termination. An anechoic termination also "
+            message += "should be applied at the input node ID to avoid wave reflections caused by the source itself."
+            message += "\n\nInput node ID: incident plane wave (volume velocity + anechoic impedance)"
+            message += "\nOutput node ID: outlet of filter or duct with an anechoic impedance\n"
+        else:
+            title = "Required data to process the Noise Reduction"
+            message = "Dear user, to determine the Noise Reduction (NR) it is necessary to select the input "
+            message += "node ID at inlet of the duct or filter and the node ID at the end termination. "
+            message += "By definition, the NR represents the sound pressure level differece between the "
+            message += "input and output of a duct or filter and it does not require a anechoic termination."
+        PrintMessageInput([window_title, title, message])
+
     def flip_nodes(self):
         temp_text_input = self.lineEdit_input_node_id.text()
         temp_text_output = self.lineEdit_output_node_id.text()
@@ -95,22 +117,44 @@ class Plot_TL_NR_Input(QDialog):
         self.lineEdit_output_node_id.setText(temp_text_input) 
 
     def update(self):
+        selected_ids = self.opv.getListPickedPoints()
+        self.check_nodes_information(selected_ids)
+
+    def check_nodes_information(self, picked_nodes=None):
+        
+        if picked_nodes is None:
+            selected_ids = []
+            if self.lineEdit_input_node_id.text() != "":
+                input_node_id = self.lineEdit_input_node_id.text()
+                selected_ids.append(int(input_node_id))
+            if self.lineEdit_output_node_id.text() != "":
+                output_node_id = self.lineEdit_output_node_id.text()
+                selected_ids.append(int(output_node_id))
+        else:
+            selected_ids = self.opv.getListPickedPoints()
+        
         self.input_node_ID = None
         self.output_node_ID = None
         self.lineEdit_input_node_id.setText("")
         self.lineEdit_output_node_id.setText("")
-        selected_ids = self.opv.getListPickedPoints()
-        for node_id in selected_ids:
-            node = self.preprocessor.nodes[node_id]
-            if node in self.preprocessor.nodes_with_volume_velocity:
-                self.input_volume_velocity = np.real(node.volume_velocity)
-                self.input_node_ID = node_id
-                self.lineEdit_input_node_id.setText(str(node_id))
-            if node in self.preprocessor.nodes_with_radiation_impedance:
-                if node not in self.preprocessor.nodes_with_volume_velocity:
-                    self.output_node_ID = node_id
-                    self.lineEdit_output_node_id.setText(str(node_id))
 
+        if self.comboBox_processing_selector.currentIndex() == 0:
+            for node_id in selected_ids:
+                neigh_elements = self.neighboor_elements(node_id)
+                if len(neigh_elements) == 1:
+                    node = self.preprocessor.nodes[node_id]
+                    if node in self.preprocessor.nodes_with_volume_velocity:
+                        self.input_volume_velocity = np.real(node.volume_velocity)
+                        self.input_node_ID = node_id
+                        self.lineEdit_input_node_id.setText(str(node_id))
+                    if node in self.preprocessor.nodes_with_radiation_impedance:
+                        if node not in self.preprocessor.nodes_with_volume_velocity:
+                            self.output_node_ID = node_id
+                            self.lineEdit_output_node_id.setText(str(node_id))
+                else:
+                    return True
+
+        
     def check_inputs(self):
 
         lineEdit_input = self.lineEdit_input_node_id.text()
@@ -125,11 +169,16 @@ class Plot_TL_NR_Input(QDialog):
             self.lineEdit_output_node_id.setFocus()
             return True
         
+        if self.check_nodes_information():
+            return True
+
         if self.comboBox_processing_selector.currentIndex() == 0:
             self.y_label = "Transmission loss"
 
         if self.comboBox_processing_selector.currentIndex() == 1:
             self.y_label = "Noise reduction"
+
+
 
     def get_minor_outer_diameter_from_node(self, node):
         data = self.dict_elements_diameter[node]
@@ -160,7 +209,7 @@ class Plot_TL_NR_Input(QDialog):
         if index == 0:
             Q = self.input_volume_velocity
             u_n = Q/A_in
-            P_in = u_n*rho_in*c0_in/2
+            P_in = u_n*rho_in*c0_in/1
             Prms_in2 = (P_in/np.sqrt(2))**2
             W_in = 10*np.log10(Prms_in2*A_in/(rho_in*c0_in))
             W_out = 10*np.log10(Prms_out2*A_out/(rho_out*c0_out))
@@ -207,6 +256,6 @@ class Plot_TL_NR_Input(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.call_plotter()
         elif event.key() == Qt.Key_Escape:
             self.close()
