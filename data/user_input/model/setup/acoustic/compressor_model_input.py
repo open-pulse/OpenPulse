@@ -967,7 +967,7 @@ class CompressorModelInput(QDialog):
 
     def plot_rod_pressure_load_time(self):
         self.process_aquisition_parameters()
-        self.compressor.plot_rod_pressure_load_time(self.N_rev)
+        self.compressor.plot_rod_pressure_load_time()
         return
     
     def plot_piston_position_and_velocity_time(self):
