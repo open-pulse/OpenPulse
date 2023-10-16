@@ -23,6 +23,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv = opv
         self.setUsePicker(False)
 
+        self.hidden_elements = set()
+
         self._absolute = False
         self._scaling_setup = dict()
         self._magnificationFactor = 1
@@ -100,13 +102,8 @@ class opvAnalysisRenderer(vtkRendererBase):
     def plot(self):
         self.reset()
 
-        # origin = np.array([1, 0.5, 0.5])
-        # normal = np.array([1, 1, 0])
-        # hidden = self.calculate_hidden_by_plane(origin, normal)
-        hidden = set()
-
-        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv, hidden_elements=hidden)
-        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True, hidden_elements=hidden)
+        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv, hidden_elements=self.hidden_elements)
+        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True, hidden_elements=self.hidden_elements)
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
