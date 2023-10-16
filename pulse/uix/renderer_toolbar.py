@@ -52,6 +52,12 @@ class RendererToolbar(QToolBar):
         self.isometric_view_action.triggered.connect(self.isometric_view_callback)
         self.isometric_view_action.setShortcut("Ctrl+Shift+7")
 
+        clipping_plane_icon = QIcon(str(Path("data/icons/clipping_plane_icon.png")))
+        self.clipping_plane_action = QAction(clipping_plane_icon, "Clipping Plane", self)
+        self.clipping_plane_action.triggered.connect(self.clipping_plane_callback)
+        # self.clipping_plane_action.setShortcut("Ctrl+Shift+7")
+
+
     def configure_layout(self):
         self.addSeparator()
         self.addAction(self.top_view_action)
@@ -61,6 +67,8 @@ class RendererToolbar(QToolBar):
         self.addAction(self.front_view_action)
         self.addAction(self.back_view_action)
         self.addAction(self.isometric_view_action)
+        self.addSeparator()
+        self.addAction(self.clipping_plane_action)
 
     # Callbacks
     def top_view_callback(self):
@@ -83,3 +91,6 @@ class RendererToolbar(QToolBar):
 
     def isometric_view_callback(self):
         self.main_window.cameraIsometric_call()
+
+    def clipping_plane_callback(self):
+        self.main_window.inputWidget.set_clipping_plane()

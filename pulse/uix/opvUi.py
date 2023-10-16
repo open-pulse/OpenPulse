@@ -350,72 +350,76 @@ class OPVUi(QVTKRenderWindowInteractor):
         writer.SetFileName(path)
         writer.SetInputConnection(imageFilter.GetOutputPort())
         writer.Write()
-    
-    def configure_clipping_plane(self):
-        pass
+
+    def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+        self.opvAnalysisRenderer.configure_clipping_plane(x, y, z, rx, ry, rz)
 
     def apply_clipping_plane(self, x, y, z, rx, ry, rz):
-        plane_origin = self._calculate_relative_position([x, y, z])
-        plane_normal = self._calculate_normal_vector([rx, ry, rz])
-        hidden = self.calculate_hidden_by_plane(plane_origin, plane_normal)
-        self.opvAnalysisRenderer.hidden_elements = hidden
-        self.opvAnalysisRenderer.plot()
-        self.opvAnalysisRenderer._plotOnce(0)
+        self.opvAnalysisRenderer.apply_clipping_plane(x, y, z, rx, ry, rz)
 
-    def calculate_hidden_by_plane(self, plane_origin, plane_normal):
-        hidden = set()
-        for i, element in self.project.get_structural_elements().items():
-            element_vector = element.element_center_coordinates - plane_origin
-            if np.dot(element_vector, plane_normal) > 0:
-                hidden.add(i)
-        return hidden
+    def dismiss_clipping_plane(self):
+        self.opvAnalysisRenderer.dismiss_clipping_plane()
+    #     plane_origin = self._calculate_relative_position([x, y, z])
+    #     plane_normal = self._calculate_normal_vector([rx, ry, rz])
+    #     hidden = self.calculate_hidden_by_plane(plane_origin, plane_normal)
+    #     self.opvAnalysisRenderer.hidden_elements = hidden
+    #     self.opvAnalysisRenderer.plot()
+    #     self.opvAnalysisRenderer._plotOnce(0)
 
-    def _calculate_relative_position(self, position):
-        def lerp(a, b, t):
-           return a + (b - a) * t
+    # def calculate_hidden_by_plane(self, plane_origin, plane_normal):
+    #     hidden = set()
+    #     for i, element in self.project.get_structural_elements().items():
+    #         element_vector = element.element_center_coordinates - plane_origin
+    #         if np.dot(element_vector, plane_normal) > 0:
+    #             hidden.add(i)
+    #     return hidden
+
+    # def _calculate_relative_position(self, position):
+    #     def lerp(a, b, t):
+    #        return a + (b - a) * t
         
-        bounds = self.opvRenderer.getBounds()
-        x = lerp(bounds[0], bounds[1], position[0] / 100)
-        y = lerp(bounds[2], bounds[3], position[1] / 100)
-        z = lerp(bounds[4], bounds[5], position[2] / 100)
-        return np.array([x, y, z])
+    #     bounds = self.opvRenderer.getBounds()
+    #     x = lerp(bounds[0], bounds[1], position[0] / 100)
+    #     y = lerp(bounds[2], bounds[3], position[1] / 100)
+    #     z = lerp(bounds[4], bounds[5], position[2] / 100)
+    #     return np.array([x, y, z])
     
-    def _calculate_normal_vector(self, orientation):
-        orientation = np.array(orientation) * np.pi / 180
-        rx, ry, rz = self._rotation_matrices(*orientation)
+    # def _calculate_normal_vector(self, orientation):
+    #     orientation = np.array(orientation) * np.pi / 180
+    #     rx, ry, rz = self._rotation_matrices(*orientation)
 
-        normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
-        return normal[:3]
+    #     normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
+    #     return normal[:3]
 
-    def _rotation_matrices(self, ax, ay, az):
-        sin = np.sin([ax, ay, az])
-        cos = np.cos([ax, ay, az])
+    # def _rotation_matrices(self, ax, ay, az):
+    #     sin = np.sin([ax, ay, az])
+    #     cos = np.cos([ax, ay, az])
 
-        rx = np.array(
-            [
-                [1, 0, 0, 0],
-                [0, cos[0], -sin[0], 0],
-                [0, sin[0], cos[0], 0],
-                [0, 0, 0, 1],
-            ]
-        )
+    #     rx = np.array(
+    #         [
+    #             [1, 0, 0, 0],
+    #             [0, cos[0], -sin[0], 0],
+    #             [0, sin[0], cos[0], 0],
+    #             [0, 0, 0, 1],
+    #         ]
+    #     )
 
-        ry = np.array(
-            [
-                [cos[1], 0, sin[1], 0],
-                [0, 1, 0, 0],
-                [-sin[1], 0, cos[1], 0],
-                [0, 0, 0, 1],
-            ]
-        )
+    #     ry = np.array(
+    #         [
+    #             [cos[1], 0, sin[1], 0],
+    #             [0, 1, 0, 0],
+    #             [-sin[1], 0, cos[1], 0],
+    #             [0, 0, 0, 1],
+    #         ]
+    #     )
 
-        rz = np.array(
-            [
-                [cos[2], -sin[2], 0, 0],
-                [sin[2], cos[2], 0, 0],
-                [0, 0, 1, 0],
-                [0, 0, 0, 1],
-            ]
-        )
+    #     rz = np.array(
+    #         [
+    #             [cos[2], -sin[2], 0, 0],
+    #             [sin[2], cos[2], 0, 0],
+    #             [0, 0, 1, 0],
+    #             [0, 0, 0, 1],
+    #         ]
+    #     )
 
-        return rx, ry, rz
+    #     return rx, ry, rz

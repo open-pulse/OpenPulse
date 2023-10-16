@@ -11,7 +11,7 @@ from pulse.uix.config import Config
 from pulse.uix.renderer_toolbar import RendererToolbar
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
-from pulse.interface.clip_plane_widget import ClipPlaneWidget
+from pulse.uix.clip_plane_widget import ClipPlaneWidget
 
 import sys
 import os
@@ -45,8 +45,6 @@ class MainWindow(QMainWindow):
         self.show()
         self.loadRecentProject()
         self.installEventFilter(self)
-
-        self.inputWidget.set_clipping_plane()
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.ShortcutOverride:
