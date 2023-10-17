@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QGridLayout, QLabel, QProxyStyle, QSlider, QDialog
+from pathlib import Path
 
 
 class ClipPlaneWidget(QDialog):
@@ -12,13 +13,14 @@ class ClipPlaneWidget(QDialog):
     def __init__(self, parent):
         super().__init__()
         self.configure_window()
+        self.load_icons()
         self.create_sliders()
         # self.exec()
 
     def configure_window(self):
         self.setWindowTitle("Clip Plane")
         self.setGeometry(200, 200, 400, 350)
-
+        
         self.setWindowFlags(
             Qt.Window
             | Qt.CustomizeWindowHint
@@ -30,6 +32,10 @@ class ClipPlaneWidget(QDialog):
         )
         self.setWindowModality(Qt.WindowModal)
 
+    def load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
 
     def create_sliders(self):
         #
