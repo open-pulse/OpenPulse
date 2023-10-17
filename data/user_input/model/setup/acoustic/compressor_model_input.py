@@ -124,6 +124,11 @@ class CompressorModelInput(QDialog):
         self.pushButton_reset_node = self.findChild(QPushButton, 'pushButton_reset_node')
         self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
+        #
+        self.pushButton_reset_entries.setCursor(Qt.PointingHandCursor)
+        self.pushButton_process_aquisition_parameters.setCursor(Qt.PointingHandCursor)
+        self.pushButton_confirm.setCursor(Qt.PointingHandCursor)
+        #
         # QRadioButton
         #
         # QSpinBox
@@ -627,7 +632,7 @@ class CompressorModelInput(QDialog):
         self.parameters['acting label'] = self.comboBox_cylinder_acting.currentIndex()
 
         if self.number_of_cylinders > 1:
-            self.parameters['TDC crank angle 2'] = self.spinBox_tdc1_crank_angle.value()
+            self.parameters['TDC crank angle 2'] = self.spinBox_tdc2_crank_angle.value()
         else:
             self.parameters['TDC crank angle 2'] = None
 
