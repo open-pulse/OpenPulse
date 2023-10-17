@@ -14,3 +14,9 @@ test.py
 dist/
 build/
 envpulse/
+
+# C extensions
+*.so
+*.dat
+*.ini
+*.json
