@@ -143,7 +143,6 @@ class Project:
                         self.file.create_entity_file(self.preprocessor.all_lines)                   
                 return True
             else:
-                print("isto non ecxiste")
                 return False
             
         except Exception as log_error:
