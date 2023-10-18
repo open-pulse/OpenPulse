@@ -8,6 +8,8 @@ from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
+#
+from pulse.uix.animation_toolbar import AnimationToolbar
 from pulse.uix.renderer_toolbar import RendererToolbar
 from pulse.uix.renderer_selector_toolbar import RendererSelectorToolbar
 
@@ -37,7 +39,7 @@ class MainWindow(QMainWindow):
         self._createActions()
         self._createMenuBar()
         self._createProjectToolBar()
-        self._createRenderSelectorToolBar()
+        self._createRendererSelectorToolBar()
         self._createViewsToolBar()
         self._createHideShowToolBar()
         self._createAnimationToolBar()
@@ -744,24 +746,10 @@ class MainWindow(QMainWindow):
         # widget_structural_symbols.resize(_width, widget_structural_symbols.height())
 
     def _createAnimationToolBar(self):
-
-        label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
-        # radioButton_font = self._getFont(9, bold=True, italic=True, family_type="Arial")
-
-        self.toolbar_animation = QToolBar("Animation toolbar")
-        self.toolbar_animation.setIconSize(QSize(30,30))
-        self.toolbar_animation.setMovable(True)
+        self.toolbar_animation = AnimationToolbar(self)
         self.addToolBar(self.toolbar_animation)
 
-        self.label_animation_controls = QLabel(' Animation controls:  ', self)
-        self.label_animation_controls.setFont(label_font)
-
-        # self.toolbar_animation.addSeparator()
-        self.toolbar_animation.addWidget(self.label_animation_controls)
-        self.toolbar_animation.addAction(self.playPauseAnimaton_action)
-        self.toolbar_animation.addSeparator()
-
-    def _createRenderSelectorToolBar(self):
+    def _createRendererSelectorToolBar(self):
         self.renderer_selector_toolbar = RendererSelectorToolbar(self)
         self.addToolBar(self.renderer_selector_toolbar)
 
