@@ -17,37 +17,37 @@ class RendererToolbar(QToolBar):
         self.setFloatable(True)
 
     def create_actions(self):
-        top_view_icon = QIcon(str(Path("data/icons/top.png")))
+        top_view_icon = QIcon(str(Path("data/icons/views/top.png")))
         self.top_view_action = QAction(top_view_icon, "Top view", self)
         self.top_view_action.triggered.connect(self.top_view_callback)
         self.top_view_action.setShortcut("Ctrl+Shift+1")
 
-        bottom_view_icon = QIcon(str(Path("data/icons/bottom.png")))
+        bottom_view_icon = QIcon(str(Path("data/icons/views/bottom.png")))
         self.bottom_view_action = QAction(bottom_view_icon, "Bottom view", self)
         self.bottom_view_action.triggered.connect(self.bottom_view_callback)
         self.bottom_view_action.setShortcut("Ctrl+Shift+2")
 
-        right_view_icon = QIcon(str(Path("data/icons/right.png")))
+        right_view_icon = QIcon(str(Path("data/icons/views/right.png")))
         self.right_view_action = QAction(right_view_icon, "Right view", self)
         self.right_view_action.triggered.connect(self.right_view_callback)
         self.right_view_action.setShortcut("Ctrl+Shift+4")
 
-        left_view_icon = QIcon(str(Path("data/icons/left.png")))
+        left_view_icon = QIcon(str(Path("data/icons/views/left.png")))
         self.left_view_action = QAction(left_view_icon, "Left view", self)
         self.left_view_action.triggered.connect(self.left_view_callback)
         self.left_view_action.setShortcut("Ctrl+Shift+3")
 
-        back_view_icon = QIcon(str(Path("data/icons/back.png")))
+        back_view_icon = QIcon(str(Path("data/icons/views/back.png")))
         self.back_view_action = QAction(back_view_icon, "Back view", self)
         self.back_view_action.triggered.connect(self.back_view_callback)
         self.back_view_action.setShortcut("Ctrl+Shift+6")
 
-        front_view_icon = QIcon(str(Path("data/icons/front.png")))
+        front_view_icon = QIcon(str(Path("data/icons/views/front.png")))
         self.front_view_action = QAction(front_view_icon, "Front view", self)
         self.front_view_action.triggered.connect(self.front_view_callback)
         self.front_view_action.setShortcut("Ctrl+Shift+5")
 
-        isometric_view_icon = QIcon(str(Path("data/icons/isometric.png")))
+        isometric_view_icon = QIcon(str(Path("data/icons/views/isometric.png")))
         self.isometric_view_action = QAction(isometric_view_icon, "Isometric view", self)
         self.isometric_view_action.triggered.connect(self.isometric_view_callback)
         self.isometric_view_action.setShortcut("Ctrl+Shift+7")

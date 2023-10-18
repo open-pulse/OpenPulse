@@ -9,6 +9,8 @@ from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
 from pulse.uix.renderer_toolbar import RendererToolbar
+from pulse.uix.renderer_selector_toolbar import RendererSelectorToolbar
+
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 import sys
@@ -35,9 +37,10 @@ class MainWindow(QMainWindow):
         self._createActions()
         self._createMenuBar()
         self._createProjectToolBar()
-        self._createAnimationToolBar()
-        self._createHideShowToolBar()
+        self._createRenderSelectorToolBar()
         self._createViewsToolBar()
+        self._createHideShowToolBar()
+        self._createAnimationToolBar()
         self.set_enable_menuBar(False)
         self._createStatusBar()
         self.show()
@@ -597,6 +600,8 @@ class MainWindow(QMainWindow):
         #
         self.toolbar_animation.setEnabled(_bool)
         self.toolbar_hide_show.setEnabled(_bool)
+        self.renderer_selector_toolbar.setEnabled(_bool)
+        self.views_toolbar.setEnabled(_bool)
 
     def _getFont(self, fontSize, bold=False, italic=False, family_type="Arial"):
         font = QFont()
@@ -754,6 +759,11 @@ class MainWindow(QMainWindow):
         # self.toolbar_animation.addSeparator()
         self.toolbar_animation.addWidget(self.label_animation_controls)
         self.toolbar_animation.addAction(self.playPauseAnimaton_action)
+        self.toolbar_animation.addSeparator()
+
+    def _createRenderSelectorToolBar(self):
+        self.renderer_selector_toolbar = RendererSelectorToolbar(self)
+        self.addToolBar(self.renderer_selector_toolbar)
 
     def _createViewsToolBar(self):
         self.views_toolbar = RendererToolbar(self)
