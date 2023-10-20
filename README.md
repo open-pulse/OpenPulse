@@ -27,7 +27,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 ## Installing
 
-- **Install Python 3.9.0** ([download](https://www.python.org/downloads/release/python-390/)).
+- **Install Python 3.9.0 or later** ([download](https://www.python.org/downloads/release/python-390/)).
 
 - **Install OpenPulse**.
 Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). Start by installing the
