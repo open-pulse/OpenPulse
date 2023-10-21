@@ -52,133 +52,159 @@ class TubeActor(vtkActorBase):
             self._actor.GetProperty().SetLighting(True)
         self.__transparent = value
 
-    def source(self):
-        # data = vtk.vtkPolyData()
-        # points = vtk.vtkPoints()
+    # def source(self):
+    #     # data = vtk.vtkPolyData()
+    #     # points = vtk.vtkPoints()
 
-        # # colors = vtk.vtkUnsignedCharArray()
-        # # colors.SetNumberOfComponents(3)
-        # # colors.Allocate(len(self.elements))
+    #     # # colors = vtk.vtkUnsignedCharArray()
+    #     # # colors.SetNumberOfComponents(3)
+    #     # # colors.Allocate(len(self.elements))
 
-        # normals = vtk.vtkDoubleArray()
-        # normals.SetNumberOfComponents(3)
-        # # normals.SetNumberOfTuples(len(self.elements))
+    #     # normals = vtk.vtkDoubleArray()
+    #     # normals.SetNumberOfComponents(3)
+    #     # # normals.SetNumberOfTuples(len(self.elements))
         
-        # for i, element in self.elements.items():
-        #     x,y,z = element.first_node.coordinates
-        #     self._colors.InsertNextTuple3(255, 0, 0)
-        #     normals.InsertNextTuple3(1, 0, 0)
-        #     points.InsertNextPoint(x,y,z)
+    #     # for i, element in self.elements.items():
+    #     #     x,y,z = element.first_node.coordinates
+    #     #     self._colors.InsertNextTuple3(255, 0, 0)
+    #     #     normals.InsertNextTuple3(1, 0, 0)
+    #     #     points.InsertNextPoint(x,y,z)
 
-        # # points.InsertNextPoint(0, 0, 0)
-        # # for i in range(500):
-        # #     points.InsertNextPoint(i, 0, 0)
-        # #     points.InsertNextPoint(0, i, 0)
+    #     # # points.InsertNextPoint(0, 0, 0)
+    #     # # for i in range(500):
+    #     # #     points.InsertNextPoint(i, 0, 0)
+    #     # #     points.InsertNextPoint(0, i, 0)
 
-        # self._point_data.SetPoints(points)
-        # self._point_data.GetPointData().SetScalars(self._colors)
-        # self._point_data.GetPointData().SetVectors(normals)
+    #     # self._point_data.SetPoints(points)
+    #     # self._point_data.GetPointData().SetScalars(self._colors)
+    #     # self._point_data.GetPointData().SetVectors(normals)
 
-        # source = vtk.vtkSphereSource()
-        # source.SetRadius(0.01)
-        # source.Update()
+    #     # source = vtk.vtkSphereSource()
+    #     # source.SetRadius(0.01)
+    #     # source.Update()
 
-        # # bla = vtk.vtkVertexGlyphFilter()
-        # # bla.SetInputData(data)
-        # # bla.Update()
+    #     # # bla = vtk.vtkVertexGlyphFilter()
+    #     # # bla.SetInputData(data)
+    #     # # bla.Update()
 
-        # glyph = vtk.vtkGlyph3D()
-        # glyph.SetInputData(data)
-        # glyph.SetSourceData(source.GetOutput())
-        # glyph.SetColorModeToColorByScalar()
-        # glyph.SetVectorModeToUseNormal()
-        # glyph.ScalingOff()
-        # glyph.Update()
+    #     # glyph = vtk.vtkGlyph3D()
+    #     # glyph.SetInputData(data)
+    #     # glyph.SetSourceData(source.GetOutput())
+    #     # glyph.SetColorModeToColorByScalar()
+    #     # glyph.SetVectorModeToUseNormal()
+    #     # glyph.ScalingOff()
+    #     # glyph.Update()
 
-        # self._data = glyph.GetOutput()
+    #     # self._data = glyph.GetOutput()
 
 
-        points = vtk.vtkPoints()
-        sources = vtk.vtkIntArray()
-        sources.SetName('sources')
-        sources.SetNumberOfComponents(1)
-        rotations = vtk.vtkDoubleArray()
-        rotations.SetNumberOfComponents(3)
-        rotations.SetName('rotations')
+    #     points = vtk.vtkPoints()
+    #     sources = vtk.vtkUnsignedLongLongArray()
+    #     sources.SetName('abadabadu')
+    #     sources.SetNumberOfComponents(1)
+    #     rotations = vtk.vtkDoubleArray()
+    #     rotations.SetNumberOfComponents(3)
+    #     rotations.SetName('rotations')
 
+    #     visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
+    #     self._key_index  = {j:i for i,j in enumerate(visible_elements)}
+
+    #     self.updateBff()
+    #     cache = dict()
+    #     counter = 0
+    #     # t0 = time()
+
+
+    #     glyph = vtk.vtkGlyph3D()
+    #     for i, element in visible_elements.items():
+            
+    #         radius = None
+    #         max_min = None
+            
+    #         x,y,z = element.first_node.coordinates
+    #         points.InsertNextPoint(x,y,z)
+
+    #         normal = element.last_node.coordinates - element.first_node.coordinates
+            
+    #         # section_rotation_xyz = element.section_rotation_xyz_undeformed
+
+    #         rotations.InsertNextTuple(normal)
+    #         self._colors.InsertNextTuple((255,255,255))
+
+    #         if element.valve_parameters:
+    #             radius = element.valve_diameters[element.index][1]/2
+    #         elif element.perforated_plate:
+    #             radius = element.perforated_plate.hole_diameter/2     
+            
+    #         if element.cross_section_points:
+    #             max_min = element.cross_section_points[2]
+
+    #         key = (radius, max_min)
+    #         if key not in cache:                
+    #             cache[key] = counter
+    #             source = self.createTubeSection(element)
+    #             glyph.SetSourceData(counter, source)
+    #             counter += 1
+    #         # sources.InsertNextValue(i % 7)
+    #         sources.InsertNextValue(cache[key])
+    #         # sources.InsertNextTuple1(cache[key])
+    #         # sources.InsertNextTuple3(cache[key], cache[key], cache[key])
+    #         # sources.InsertNextTuple3(0, 1, 0)
+
+    #     # sources.Fill(0)
+    #     # sources.FillComponent(1, 255)
+
+    #     # dt = time() - t0  
+    #     # print(f"tubeActor - elapsed time: {dt}s")
+    #     self.point_data.SetPoints(points)
+    #     self.point_data.GetPointData().AddArray(sources)
+    #     self.point_data.GetPointData().SetNormals(rotations)
+    #     # self.point_data.GetPointData().SetScalars(self._colors)
+
+    #     # glyph.SetInputArrayToProcess(
+    #     #     2, 0, 0, 0, "sources"
+    #     # )
+
+    #     glyph.SetInputData(self.point_data)
+    #     glyph.SetInputArrayToProcess(0, 0, 0, 0, "abadabadu")
+    #     # glyph.SetInputArrayToProcess(3, 0, 0, 0, "abadabadu")
+
+
+    #     # glyph.SetColorModeToColorByScalar()
+    #     glyph.SetIndexModeToScalar()
+
+    #     glyph.ScalingOff()
+    #     glyph.Update()
+    #     self._data = glyph.GetOutput()
+
+
+    def source(self):
         visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
         self._key_index  = {j:i for i,j in enumerate(visible_elements)}
 
-        self.updateBff()
-        cache = dict()
-        counter = 0
-        # t0 = time()
-
-        print(sources.GetSize())
-
-        glyph = vtk.vtkGlyph3D()
-        for i, element in visible_elements.items():
-            
-            radius = None
-            max_min = None
-            
+        append_polydata = vtk.vtkAppendPolyData()
+        for i, element in visible_elements.items():            
             x,y,z = element.first_node.coordinates
-            points.InsertNextPoint(x,y,z)
-
-            normal = element.last_node.coordinates - element.first_node.coordinates
-            
-            # section_rotation_xyz = element.section_rotation_xyz_undeformed
-
-            rotations.InsertNextTuple(normal)
+            section_rotation_xyz = element.section_rotation_xyz_undeformed
             self._colors.InsertNextTuple((255,255,255))
 
-            if element.valve_parameters:
-                radius = element.valve_diameters[element.index][1]/2
-            elif element.perforated_plate:
-                radius = element.perforated_plate.hole_diameter/2     
-            
-            if element.cross_section_points:
-                max_min = element.cross_section_points[2]
+            source = self.createTubeSection(element)
+            transform = vtk.vtkTransform()
+            transform.Translate((x,y,z))
+            transform.RotateX(section_rotation_xyz[0])
+            transform.RotateZ(section_rotation_xyz[2])
+            transform.RotateY(section_rotation_xyz[1])
+            transform.Update()
 
-            key = (radius, max_min)
-            if key not in cache:                
-                cache[key] = counter
-                source = self.createTubeSection(element)
-                glyph.SetSourceData(counter, source)
-                counter += 1
-            sources.InsertNextTuple1(cache[key])
+            transform_filter = vtk.vtkTransformFilter()
+            transform_filter.SetInputData(source)
+            transform_filter.SetTransform(transform)
+            transform_filter.Update()
 
-
-        print(len(visible_elements), sources.GetNumberOfValues(), points.GetNumberOfPoints())
-
-        # dt = time() - t0  
-        # print(f"tubeActor - elapsed time: {dt}s")
-        self.point_data.SetPoints(points)
-        self.point_data.GetPointData().SetScalars(sources)
-        self.point_data.GetPointData().SetNormals(rotations)
-        # self.point_data.GetPointData().SetScalars(self._colors)
-        self.point_data.GetPointData().SetActiveScalars("sources")
-
-        # glyph.SetInputArrayToProcess(
-        #     2, 0, 0, 0, "sources"
-        # )
-
-        glyph.SetInputData(self.point_data)
-
-
-
-
-        # glyph.SetSourceData(source.GetOutput())
-        glyph.SetIndexModeToScalar()
-        # glyph.SetIndexModeToVector()
-        glyph.SetColorModeToColorByScalar()
-        glyph.SetVectorModeToUseNormal()
-        # glyph.SetScaleFactor(0.1)
-        # glyph.SetColorModeToColorByScale()
-        glyph.ScalingOff()
-        glyph.Update()
-
-        self._data = glyph.GetOutput()
+            append_polydata.AddInputData(transform_filter.GetOutput())
+        
+        append_polydata.Update()
+        self._data = append_polydata.GetOutput()
 
 
     def map(self):
