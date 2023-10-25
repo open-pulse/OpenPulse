@@ -18,7 +18,8 @@ class TubeActor(vtkActorBase):
         self.hidden_elements = kwargs.get('hidden_elements', set())
         self.pressure_plot = kwargs.get('pressure_plot', False)
         
-        self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
+        # self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
+        self._key_indexes = dict()
 
         self.transparent = True
         self.bff = 1  # bug fix factor 
@@ -29,7 +30,7 @@ class TubeActor(vtkActorBase):
         self.colorTable = None
         self._colors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
-        self._colors.Allocate(len(self.elements))
+        self._colors.Allocate(len(self.elements) * 60)
 
 
     @property
@@ -52,143 +53,24 @@ class TubeActor(vtkActorBase):
             self._actor.GetProperty().SetLighting(True)
         self.__transparent = value
 
-    # def source(self):
-    #     # data = vtk.vtkPolyData()
-    #     # points = vtk.vtkPoints()
-
-    #     # # colors = vtk.vtkUnsignedCharArray()
-    #     # # colors.SetNumberOfComponents(3)
-    #     # # colors.Allocate(len(self.elements))
-
-    #     # normals = vtk.vtkDoubleArray()
-    #     # normals.SetNumberOfComponents(3)
-    #     # # normals.SetNumberOfTuples(len(self.elements))
-        
-    #     # for i, element in self.elements.items():
-    #     #     x,y,z = element.first_node.coordinates
-    #     #     self._colors.InsertNextTuple3(255, 0, 0)
-    #     #     normals.InsertNextTuple3(1, 0, 0)
-    #     #     points.InsertNextPoint(x,y,z)
-
-    #     # # points.InsertNextPoint(0, 0, 0)
-    #     # # for i in range(500):
-    #     # #     points.InsertNextPoint(i, 0, 0)
-    #     # #     points.InsertNextPoint(0, i, 0)
-
-    #     # self._point_data.SetPoints(points)
-    #     # self._point_data.GetPointData().SetScalars(self._colors)
-    #     # self._point_data.GetPointData().SetVectors(normals)
-
-    #     # source = vtk.vtkSphereSource()
-    #     # source.SetRadius(0.01)
-    #     # source.Update()
-
-    #     # # bla = vtk.vtkVertexGlyphFilter()
-    #     # # bla.SetInputData(data)
-    #     # # bla.Update()
-
-    #     # glyph = vtk.vtkGlyph3D()
-    #     # glyph.SetInputData(data)
-    #     # glyph.SetSourceData(source.GetOutput())
-    #     # glyph.SetColorModeToColorByScalar()
-    #     # glyph.SetVectorModeToUseNormal()
-    #     # glyph.ScalingOff()
-    #     # glyph.Update()
-
-    #     # self._data = glyph.GetOutput()
-
-
-    #     points = vtk.vtkPoints()
-    #     sources = vtk.vtkUnsignedLongLongArray()
-    #     sources.SetName('abadabadu')
-    #     sources.SetNumberOfComponents(1)
-    #     rotations = vtk.vtkDoubleArray()
-    #     rotations.SetNumberOfComponents(3)
-    #     rotations.SetName('rotations')
-
-    #     visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
-    #     self._key_index  = {j:i for i,j in enumerate(visible_elements)}
-
-    #     self.updateBff()
-    #     cache = dict()
-    #     counter = 0
-    #     # t0 = time()
-
-
-    #     glyph = vtk.vtkGlyph3D()
-    #     for i, element in visible_elements.items():
-            
-    #         radius = None
-    #         max_min = None
-            
-    #         x,y,z = element.first_node.coordinates
-    #         points.InsertNextPoint(x,y,z)
-
-    #         normal = element.last_node.coordinates - element.first_node.coordinates
-            
-    #         # section_rotation_xyz = element.section_rotation_xyz_undeformed
-
-    #         rotations.InsertNextTuple(normal)
-    #         self._colors.InsertNextTuple((255,255,255))
-
-    #         if element.valve_parameters:
-    #             radius = element.valve_diameters[element.index][1]/2
-    #         elif element.perforated_plate:
-    #             radius = element.perforated_plate.hole_diameter/2     
-            
-    #         if element.cross_section_points:
-    #             max_min = element.cross_section_points[2]
-
-    #         key = (radius, max_min)
-    #         if key not in cache:                
-    #             cache[key] = counter
-    #             source = self.createTubeSection(element)
-    #             glyph.SetSourceData(counter, source)
-    #             counter += 1
-    #         # sources.InsertNextValue(i % 7)
-    #         sources.InsertNextValue(cache[key])
-    #         # sources.InsertNextTuple1(cache[key])
-    #         # sources.InsertNextTuple3(cache[key], cache[key], cache[key])
-    #         # sources.InsertNextTuple3(0, 1, 0)
-
-    #     # sources.Fill(0)
-    #     # sources.FillComponent(1, 255)
-
-    #     # dt = time() - t0  
-    #     # print(f"tubeActor - elapsed time: {dt}s")
-    #     self.point_data.SetPoints(points)
-    #     self.point_data.GetPointData().AddArray(sources)
-    #     self.point_data.GetPointData().SetNormals(rotations)
-    #     # self.point_data.GetPointData().SetScalars(self._colors)
-
-    #     # glyph.SetInputArrayToProcess(
-    #     #     2, 0, 0, 0, "sources"
-    #     # )
-
-    #     glyph.SetInputData(self.point_data)
-    #     glyph.SetInputArrayToProcess(0, 0, 0, 0, "abadabadu")
-    #     # glyph.SetInputArrayToProcess(3, 0, 0, 0, "abadabadu")
-
-
-    #     # glyph.SetColorModeToColorByScalar()
-    #     glyph.SetIndexModeToScalar()
-
-    #     glyph.ScalingOff()
-    #     glyph.Update()
-    #     self._data = glyph.GetOutput()
-
-
     def source(self):
         visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
-        self._key_index  = {j:i for i,j in enumerate(visible_elements)}
+        # self._key_index  = {j:i for i,j in enumerate(visible_elements)}
+        self._key_indexes.clear()
 
+        total_points_appended = 0 
         append_polydata = vtk.vtkAppendPolyData()
         for i, element in visible_elements.items():            
             x,y,z = element.first_node.coordinates
             section_rotation_xyz = element.section_rotation_xyz_undeformed
-            self._colors.InsertNextTuple((255,255,255))
 
             source = self.createTubeSection(element)
+            self._key_indexes[i] = range(total_points_appended, total_points_appended + source.GetNumberOfPoints())
+            total_points_appended += source.GetNumberOfPoints()
+
+            for _ in range(source.GetNumberOfPoints()):
+                self._colors.InsertNextTuple((255,255,255))
+
             transform = vtk.vtkTransform()
             transform.Translate((x,y,z))
             transform.RotateX(section_rotation_xyz[0])
@@ -228,15 +110,23 @@ class TubeActor(vtkActorBase):
         # self._actor.GetProperty().SetPointSize(6)
 
     def setColor(self, color, keys=None):
-        return 
         c = vtk.vtkUnsignedCharArray()
         c.DeepCopy(self._colors)
         keys = keys if keys else self.elements.keys()
-        
-        for key in keys:
-            index = self._key_index.get(key)
-            if index is not None:
-                c.SetTuple(index, color)
+
+        all_indexes = []
+        if keys is not None:
+            for key in keys:
+                indexes = self._key_indexes.get(key, list())
+                all_indexes.extend(list(indexes))
+
+        for index in all_indexes:
+            c.SetTuple(index, color)
+
+        # for key in keys:
+        #     index = self._key_index.get(key)
+        #     if index is not None:
+        #         c.SetTuple(index, color)
 
         # for key in keys:
         #     index = self._key_index[key]
@@ -247,45 +137,21 @@ class TubeActor(vtkActorBase):
         self._mapper.Update()
     
     def setColorTable(self, colorTable):
-        return
         self.colorTable = colorTable
 
-        c = vtk.vtkUnsignedCharArray()
-        c.DeepCopy(self._colors)
         for key, element in self.elements.items():
-            index = self._key_index.get(key, None)
-            if index is None:
-                continue
             color = self.colorTable.get_color(element)
-            c.SetTuple(index, color)
-
-        self._data.GetPointData().SetScalars(c)
-        self._colors = c
+            self.setColor(color, keys=[key])
 
     def updateBff(self):
-        # At some stage of VTK creation of the Actor (and I can't properly say where),
-        # the library destroys small or big structures. This factor is a random number, found 
-        # empirically that strechs a lot the structure, and shrink it again when
-        # everything is done. 
-
-        # max representable: outer_diameter = 22
-        # min representable: outer_diameter = 0.02
-
-        min_ = 0
-        max_ = 0        
-
-        for element in self.elements.values():
-            if element.cross_section is None:
-                continue
-            rad = element.cross_section.outer_diameter / 2
-            min_ = min(rad, min_) if min_ else rad
-            max_ = max(rad, max_)
-                        
-        avg = (min_ + max_) / 2
-        self.bff = (5 / avg / 2) if avg else 5
+        '''
+        This is actually not needed anymore in this class.
+        But this function probably is called in a lot of places,
+        so i think it is a bit safer to keep constant bff = 1.
+        '''
         self.bff = 1
 
-    def createTubeSection(self, element):
+    def createTubeSection(self, element) -> vtk.vtkPolyData:
         extruderFilter = vtk.vtkLinearExtrusionFilter()
         polygon = self.createSectionPolygon(element)
         size = element.length
@@ -382,3 +248,30 @@ class TubeActor(vtkActorBase):
             outerData.SetPolys(edges)
             source.AddInputData(outerData)
             return source
+ 
+    def apply_cut(self, origin, normal):
+        if self._data is None:
+            return
+
+        plane = vtk.vtkPlane()
+        plane.SetOrigin(origin)
+        plane.SetNormal(normal)
+
+        clipper = vtk.vtkExtractPolyDataGeometry()
+        clipper.SetInputData(self._data)
+        clipper.SetImplicitFunction(plane)
+        clipper.Update()
+        self.clipped_data = clipper.GetOutput()
+
+        mapper = self._mapper
+        mapper.InterpolateScalarsBeforeMappingOn()
+        mapper.SetInputData(self.clipped_data)
+        mapper.Modified()
+
+    def disable_cut(self):
+        if self._data is None:
+            return
+        self.clipped_data = self._data
+        mapper = self._mapper
+        mapper.SetInputData(self._data)
+        mapper.Modified()

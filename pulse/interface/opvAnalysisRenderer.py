@@ -11,10 +11,11 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_m
 from pulse.uix.vtk.colorTable import ColorTable
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
-from pulse.interface.tubeActor import TubeActor
+# from pulse.interface.tubeActor import TubeActor
 # from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 from pulse.interface.cutting_plane_actor import CuttingPlaneActor
+from pulse.interface.tubeInlineActor import TubeActor
 
 class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -41,6 +42,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.animationIndex = 0
         self.delayCounter = 0
         self.increment = 1
+
+        self.cutting_plane_active = False
 
         #default values to the number of frames and cycles
         self.number_frames = 40
@@ -584,16 +587,14 @@ class opvAnalysisRenderer(vtkRendererBase):
     def apply_clipping_plane(self, x, y, z, rx, ry, rz):
         plane_origin = self._calculate_relative_position([x, y, z])
         plane_normal = self._calculate_normal_vector([rx, ry, rz])
-        hidden = self.calculate_hidden_by_plane(plane_origin, plane_normal)
-        self.hidden_elements = hidden
-        self.plot()
-        self._plotOnce(0)
+        self.opvPressureTubes.apply_cut(plane_origin, plane_normal)
+        self.plane_actor.VisibilityOff()
+        self.update()
     
     def dismiss_clipping_plane(self):
-        self.hidden_elements = set()
-        self.plot()
-        self.updateHud()
-        self._plotOnce(0)
+        self.opvPressureTubes.disable_cut()
+        self.plane_actor.VisibilityOff()
+        self.update()
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()

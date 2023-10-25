@@ -128,10 +128,6 @@ class TubeActor(vtkActorBase):
             if index is not None:
                 c.SetTuple(index, color)
 
-        # for key in keys:
-        #     index = self._key_index[key]
-        #     c.SetTuple(index, color)
-
         self._data.GetPointData().SetScalars(c)
         self._colors = c
         self._mapper.Update()
