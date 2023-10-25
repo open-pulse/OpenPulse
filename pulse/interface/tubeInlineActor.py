@@ -257,9 +257,9 @@ class TubeActor(vtkActorBase):
         plane.SetOrigin(origin)
         plane.SetNormal(normal)
 
-        clipper = vtk.vtkExtractPolyDataGeometry()
+        clipper = vtk.vtkClipPolyData()
         clipper.SetInputData(self._data)
-        clipper.SetImplicitFunction(plane)
+        clipper.SetClipFunction(plane)
         clipper.Update()
         self.clipped_data = clipper.GetOutput()
 
