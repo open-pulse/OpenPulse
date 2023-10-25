@@ -280,8 +280,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.colorbar.SetLookupTable(colorTable)
 
         self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(True)
-        self.opvPressureTubes.getActor().SetVisibility(False)
 
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
@@ -290,6 +288,11 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(True)
             self.opvClippablePressureTubes.getActor().SetVisibility(False)
+        else:
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+            self.opvDeformedTubes.getActor().SetVisibility(True)
+            self.opvPressureTubes.getActor().SetVisibility(False)
 
         
     def get_min_max_values_to_stresses(self):
@@ -319,8 +322,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.colorbar.SetLookupTable(colorTable)
         
         self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(True)
-        self.opvPressureTubes.getActor().SetVisibility(False)
 
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
@@ -329,6 +330,12 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(True)
             self.opvClippablePressureTubes.getActor().SetVisibility(False)
+        else:
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+            self.opvDeformedTubes.getActor().SetVisibility(True)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+
 
 
     def get_min_max_values_to_pressure(self, frequency_index):
@@ -357,8 +364,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.colorbar.SetLookupTable(colorTable)
         
         self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(False)
-        self.opvPressureTubes.getActor().SetVisibility(True)
 
         if self.clipping_plane_active:
             self.opvClippablePressureTubes.build()
@@ -367,6 +372,12 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(False)
             self.opvClippablePressureTubes.getActor().SetVisibility(True)
+        else:
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(True)
+
 
     def _createSlider(self):
 
@@ -635,12 +646,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.plane_normal is None:
             return
 
-        self._plotOnce(self._currentPhase)
+        if self.first_configuration:
+            self._plotOnce(self._currentPhase)
+            self.first_configuration = False 
+
         self.opvClippablePressureTubes.apply_cut(self.plane_origin, self.plane_normal)
         self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
-        self.first_configuration = True
     
     def dismiss_clipping_plane(self):                
         self.plane_origin = None
@@ -652,6 +665,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.update()
         self.first_configuration = True
         self.clipping_plane_active = False
+        self._plotOnce(self._currentPhase)
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
@@ -676,7 +690,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         rx, ry, rz = self._rotation_matrices(*orientation)
 
         normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
-        return normal[:3]
+        return -normal[:3]
 
     def _rotation_matrices(self, ax, ay, az):
         sin = np.sin([ax, ay, az])
