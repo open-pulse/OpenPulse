@@ -44,6 +44,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.increment = 1
 
         self.cutting_plane_active = False
+        self.first_configuration = True
 
         #default values to the number of frames and cycles
         self.number_frames = 40
@@ -578,9 +579,16 @@ class opvAnalysisRenderer(vtkRendererBase):
         pass
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+        # Show the whole tube in the first
+        # interaction with the plane
+        if self.first_configuration:
+            self.dismiss_clipping_plane()
+            self.first_configuration = False
+
         plane_origin = self._calculate_relative_position([x, y, z])
         self.plane_actor.SetPosition(plane_origin)
         self.plane_actor.SetOrientation(rx, ry, rz)
+        self.plane_actor.GetProperty().SetOpacity(0.9)
         self.plane_actor.VisibilityOn()
         self.update()
 
@@ -588,13 +596,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         plane_origin = self._calculate_relative_position([x, y, z])
         plane_normal = self._calculate_normal_vector([rx, ry, rz])
         self.opvPressureTubes.apply_cut(plane_origin, plane_normal)
-        self.plane_actor.VisibilityOff()
+        self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+        self.first_configuration = True
     
     def dismiss_clipping_plane(self):
         self.opvPressureTubes.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
+        self.first_configuration = True
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
