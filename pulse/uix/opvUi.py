@@ -354,8 +354,8 @@ class OPVUi(QVTKRenderWindowInteractor):
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
         self.opvAnalysisRenderer.configure_clipping_plane(x, y, z, rx, ry, rz)
 
-    def apply_clipping_plane(self, x, y, z, rx, ry, rz):
-        self.opvAnalysisRenderer.apply_clipping_plane(x, y, z, rx, ry, rz)
+    def apply_clipping_plane(self, *args, **kwargs):
+        self.opvAnalysisRenderer.apply_clipping_plane()
 
     def dismiss_clipping_plane(self):
         self.opvAnalysisRenderer.dismiss_clipping_plane()

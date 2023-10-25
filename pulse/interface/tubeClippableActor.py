@@ -239,7 +239,6 @@ class TubeActor(vtkActorBase):
             return delaunay
 
         else:
-            
             # prevents bugs on the outer section
             for i in range(number_outer_points):
                 outerPolygon.GetPointIds().InsertNextId(i)

@@ -13,9 +13,10 @@ from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 # from pulse.interface.tubeActor import TubeActor
 # from pulse.interface.symbolsActor import SymbolsActor
-from pulse.interface.tubeDeformedActor import TubeDeformedActor
+# from pulse.interface.tubeDeformedActor import TubeDeformedActor
 from pulse.interface.cutting_plane_actor import CuttingPlaneActor
-from pulse.interface.tubeInlineActor import TubeActor
+from pulse.interface.tubeClippableActor import TubeActor
+from pulse.interface.tubeClippableDeformedActor import TubeDeformedActor
 
 class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -45,6 +46,8 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.cutting_plane_active = False
         self.first_configuration = True
+        self.plane_origin = None
+        self.plane_normal = None
 
         #default values to the number of frames and cycles
         self.number_frames = 40
@@ -124,6 +127,9 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
+        if self.cutting_plane_active:
+            self.apply_clipping_plane()
+
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
         for i, element in self.project.get_structural_elements().items():
@@ -190,6 +196,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         
     def _plotOnce(self, phase_step):
         self._currentPlot(self._currentFrequencyIndex, phase_step)
+        if self.cutting_plane_active:
+            self.apply_clipping_plane()
         self.updateAll()
 
     def reset_plot_data(self):
@@ -582,29 +590,42 @@ class opvAnalysisRenderer(vtkRendererBase):
         # Show the whole tube in the first
         # interaction with the plane
         if self.first_configuration:
-            self.dismiss_clipping_plane()
+            self.opvPressureTubes.disable_cut()
+            self.opvDeformedTubes.disable_cut()
             self.first_configuration = False
 
-        plane_origin = self._calculate_relative_position([x, y, z])
-        self.plane_actor.SetPosition(plane_origin)
+        self.plane_origin = self._calculate_relative_position([x, y, z])
+        self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
+        self.plane_actor.SetPosition(self.plane_origin)
         self.plane_actor.SetOrientation(rx, ry, rz)
         self.plane_actor.GetProperty().SetOpacity(0.9)
         self.plane_actor.VisibilityOn()
         self.update()
+        self.cutting_plane_active = True
 
-    def apply_clipping_plane(self, x, y, z, rx, ry, rz):
-        plane_origin = self._calculate_relative_position([x, y, z])
-        plane_normal = self._calculate_normal_vector([rx, ry, rz])
-        self.opvPressureTubes.apply_cut(plane_origin, plane_normal)
+    def apply_clipping_plane(self):
+        if self.plane_origin is None:
+            return
+
+        if self.plane_normal is None:
+            return
+
+        self.opvPressureTubes.apply_cut(self.plane_origin, self.plane_normal)
+        self.opvDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
         self.first_configuration = True
     
     def dismiss_clipping_plane(self):
+        self.plane_origin = None
+        self.plane_normal = None
+    
         self.opvPressureTubes.disable_cut()
+        self.opvDeformedTubes.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
         self.first_configuration = True
+        self.cutting_plane_active = False
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
