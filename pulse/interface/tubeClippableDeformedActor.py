@@ -4,10 +4,10 @@ from time import time
 from scipy.spatial.transform import Rotation
 from time import time
 
-from pulse.interface.tubeClippableActor import TubeActor
+from pulse.interface.tubeClippableActor import TubeClippableActor
 from pulse.uix.vtk.colorTable import ColorTable
 
-class TubeDeformedActor(TubeActor):
+class TubeClippableDeformedActor(TubeClippableActor):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(project, opv, *args, **kwargs)
         self.transparent = False

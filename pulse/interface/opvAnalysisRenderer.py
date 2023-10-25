@@ -11,12 +11,12 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_m
 from pulse.uix.vtk.colorTable import ColorTable
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
-# from pulse.interface.tubeActor import TubeActor
 # from pulse.interface.symbolsActor import SymbolsActor
-# from pulse.interface.tubeDeformedActor import TubeDeformedActor
 from pulse.interface.cutting_plane_actor import CuttingPlaneActor
-from pulse.interface.tubeClippableActor import TubeActor
-from pulse.interface.tubeClippableDeformedActor import TubeDeformedActor
+from pulse.interface.tubeActor import TubeActor
+from pulse.interface.tubeDeformedActor import TubeDeformedActor
+from pulse.interface.tubeClippableActor import TubeClippableActor
+from pulse.interface.tubeClippableDeformedActor import TubeClippableDeformedActor
 
 class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -32,6 +32,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._scaling_setup = dict()
         self._magnificationFactor = 1
         self._currentFrequencyIndex = 0
+        self._currentPhase = 0
         self._cacheFrequencyIndex = None
         self.last_frequency_index = None
         
@@ -44,7 +45,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.delayCounter = 0
         self.increment = 1
 
-        self.cutting_plane_active = False
+        self.clipping_plane_active = False
         self.first_configuration = True
         self.plane_origin = None
         self.plane_normal = None
@@ -109,9 +110,13 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def plot(self):
         self.reset()
-
+    
         self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv, hidden_elements=self.hidden_elements)
         self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True, hidden_elements=self.hidden_elements)
+
+        self.opvClippableDeformedTubes = TubeClippableDeformedActor(self.project, self.opv, hidden_elements=self.hidden_elements)
+        self.opvClippablePressureTubes = TubeClippableActor(self.project, self.opv, pressure_plot=True, hidden_elements=self.hidden_elements)
+
         self.plane_actor = CuttingPlaneActor()
         self.plane_actor.VisibilityOff()
         self.plane_actor.SetScale(3, 3, 3)
@@ -122,13 +127,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
+        plt(self.opvClippableDeformedTubes)
+        plt(self.opvClippablePressureTubes)
         # plt(self.opvSymbols)
         self._renderer.AddActor(self.plane_actor)
 
         self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
-
-        if self.cutting_plane_active:
-            self.apply_clipping_plane()
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
@@ -195,9 +199,8 @@ class opvAnalysisRenderer(vtkRendererBase):
                 self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
+        self._currentPhase = phase_step
         self._currentPlot(self._currentFrequencyIndex, phase_step)
-        if self.cutting_plane_active:
-            self.apply_clipping_plane()
         self.updateAll()
 
     def reset_plot_data(self):
@@ -209,6 +212,7 @@ class opvAnalysisRenderer(vtkRendererBase):
     def showDisplacementField(self, frequency_index, scaling_setup):
         self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index
+        self._currentPhase = 0
         self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
@@ -218,11 +222,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
-        self._plotOnce(0)
+        self._plotOnce(self._currentPhase)
 
     def showStressField(self, frequency_index, scaling_setup):
         self.cache_plot_state(stress=True)
         self._currentFrequencyIndex = frequency_index
+        self._currentPhase = 0
         self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
@@ -233,11 +238,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
-        self._plotOnce(0)
+        self._plotOnce(self._currentPhase)
 
     def showPressureField(self, frequency_index, absolute=False):
         self.cache_plot_state(pressure=True)
         self._currentFrequencyIndex = frequency_index
+        self._currentPhase = 0
         self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
@@ -247,7 +253,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvTubes = self.opvPressureTubes
         self._currentPlot = self.computePressureField
         self.last_frequency_index = frequency_index
-        self._plotOnce(0)
+        self._plotOnce(self._currentPhase)
 
     def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_setup):
         solution = self.project.get_structural_solution()
@@ -276,6 +282,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider.SetEnabled(True)
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
+
+        if self.clipping_plane_active:
+            self.opvClippableDeformedTubes.build()
+            self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+            self.opvClippableDeformedTubes.getActor().SetVisibility(True)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+
         
     def get_min_max_values_to_stresses(self):
         solution = self.project.stresses_values_for_color_table
@@ -307,6 +322,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
 
+        if self.clipping_plane_active:
+            self.opvClippableDeformedTubes.build()
+            self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+            self.opvClippableDeformedTubes.getActor().SetVisibility(True)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+
+
     def get_min_max_values_to_pressure(self, frequency_index):
         solution = self.project.get_acoustic_solution()
         self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, 
@@ -335,6 +359,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider.SetEnabled(True)
         self.opvDeformedTubes.getActor().SetVisibility(False)
         self.opvPressureTubes.getActor().SetVisibility(True)
+
+        if self.clipping_plane_active:
+            self.opvClippablePressureTubes.build()
+            self.opvClippablePressureTubes.setColorTable(colorTable)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(True)
 
     def _createSlider(self):
 
@@ -587,13 +619,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         pass
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
-        # Show the whole tube in the first
-        # interaction with the plane
-        if self.first_configuration:
-            self.opvPressureTubes.disable_cut()
-            self.opvDeformedTubes.disable_cut()
-            self.first_configuration = False
-
+        self.clipping_plane_active = True
         self.plane_origin = self._calculate_relative_position([x, y, z])
         self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
         self.plane_actor.SetPosition(self.plane_origin)
@@ -601,7 +627,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.plane_actor.GetProperty().SetOpacity(0.9)
         self.plane_actor.VisibilityOn()
         self.update()
-        self.cutting_plane_active = True
 
     def apply_clipping_plane(self):
         if self.plane_origin is None:
@@ -610,22 +635,23 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.plane_normal is None:
             return
 
-        self.opvPressureTubes.apply_cut(self.plane_origin, self.plane_normal)
-        self.opvDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
+        self._plotOnce(self._currentPhase)
+        self.opvClippablePressureTubes.apply_cut(self.plane_origin, self.plane_normal)
+        self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
         self.first_configuration = True
     
-    def dismiss_clipping_plane(self):
+    def dismiss_clipping_plane(self):                
         self.plane_origin = None
         self.plane_normal = None
     
-        self.opvPressureTubes.disable_cut()
-        self.opvDeformedTubes.disable_cut()
+        self.opvClippablePressureTubes.disable_cut()
+        self.opvClippableDeformedTubes.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
         self.first_configuration = True
-        self.cutting_plane_active = False
+        self.clipping_plane_active = False
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()

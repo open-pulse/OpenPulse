@@ -6,7 +6,7 @@ from scipy.spatial.transform import Rotation
 from pulse.interface.vtkActorBase import vtkActorBase
 
 
-class TubeActor(vtkActorBase):
+class TubeClippableActor(vtkActorBase):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__()
 
