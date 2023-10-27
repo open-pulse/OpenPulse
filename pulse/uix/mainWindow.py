@@ -13,15 +13,13 @@ from pulse.uix.renderer_toolbar import RendererToolbar
 from pulse.uix.renderer_selector_toolbar import RendererSelectorToolbar
 from pulse.uix.hide_show_controls_toolbar import HideShowControlsToolbar
 from pulse.uix.animation_toolbar import AnimationToolbar
-
-
+#
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-
+#
 import sys
 import os
-
+#
 from pulse.uix.menu import *
-# from pulse.uix.menu.widgets import *
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

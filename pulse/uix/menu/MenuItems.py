@@ -823,7 +823,6 @@ class MenuItems(QTreeWidget):
             self.item_child_plotReactionsFrequencyResponse.setText(0, 'Plot Reactions Frequency Response')
             self.item_child_plotStressFrequencyResponse.setText(0, 'Plot Stress Frequency Response')
 
-
     def update_structural_analysis_visibility_items(self):
         self.item_top_structuralModelSetup.setHidden(False)
         self.item_top_acousticModelSetup.setHidden(True)

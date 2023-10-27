@@ -2100,16 +2100,16 @@ QPushButton:disabled{border-radius: 4px; border-color: rgb(150, 150, 150); borde
                    <set>Qt::AlignCenter</set>
                   </property>
                   <property name="minimum">
-                   <number>100</number>
+                   <number>60</number>
                   </property>
                   <property name="maximum">
                    <number>10000</number>
                   </property>
                   <property name="singleStep">
-                   <number>100</number>
+                   <number>1</number>
                   </property>
                   <property name="value">
-                   <number>100</number>
+                   <number>1023</number>
                   </property>
                  </widget>
                 </item>

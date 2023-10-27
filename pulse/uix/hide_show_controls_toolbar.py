@@ -111,18 +111,6 @@ class HideShowControlsToolbar(QToolBar):
         widget_acoustic_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
         widget_structural_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
 
-        # widths = []
-        # widths.append(widget_hide_selection.width())
-        # widths.append(widget_show_all.width())
-        # widths.append(widget_acoustic_symbols.width())
-        # widths.append(widget_structural_symbols.width())
-        # _width = max(widths)+10
-
-        # widget_hide_selection.resize(_width, widget_hide_selection.height())
-        # widget_show_all.resize(_width, widget_show_all.height())
-        # widget_acoustic_symbols.resize(_width, widget_acoustic_symbols.height())
-        # widget_structural_symbols.resize(_width, widget_structural_symbols.height())
-
     def update_frames(self):
         self.main_window.opv_widget.opvAnalysisRenderer._numberFramesHasChanged(True)
 
