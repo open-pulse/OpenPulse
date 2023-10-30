@@ -190,6 +190,7 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.animationIndex += 1
                             
             _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
+            self._currentPhase = _phase_deg
             self.slider.GetRepresentation().SetValue(_phase_deg)
             cached = self._animationFrames[i]
             self.opvTubes._data.DeepCopy(cached)
@@ -449,6 +450,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.playingAnimation:
             return
         
+        if self.clipping_plane_active:
+            return
+
         if self._cacheFrequencyIndex == self._currentFrequencyIndex and not self.number_frames_changed:
             self.playingAnimation = True
             return
@@ -630,6 +634,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         pass
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+        if self.playingAnimation:
+            self.pauseAnimation()
+
         self.clipping_plane_active = True
         self.plane_origin = self._calculate_relative_position([x, y, z])
         self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
@@ -645,6 +652,9 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         if self.plane_normal is None:
             return
+
+        if self.playingAnimation:
+            self.pauseAnimation()
 
         if self.first_configuration:
             self._plotOnce(self._currentPhase)
