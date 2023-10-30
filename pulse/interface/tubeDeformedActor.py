@@ -8,8 +8,8 @@ from pulse.interface.tubeActor import TubeActor
 from pulse.uix.vtk.colorTable import ColorTable
 
 class TubeDeformedActor(TubeActor):
-    def __init__(self, project, opv):
-        super().__init__(project, opv)
+    def __init__(self, project, opv, *args, **kwargs):
+        super().__init__(project, opv, *args, **kwargs)
         self.transparent = False
 
     def source(self):
@@ -19,12 +19,15 @@ class TubeDeformedActor(TubeActor):
         rotations = vtk.vtkDoubleArray()
         rotations.SetNumberOfComponents(3)
         rotations.SetName('rotations')
+
+        visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
+        self._key_index  = {j:i for i,j in enumerate(visible_elements)}
    
         self.updateBff()
         cache = dict()
         counter = 0
         # t0 = time() 
-        for element in self.elements.values():
+        for element in visible_elements.values():
                         
             radius = None
             max_min = None

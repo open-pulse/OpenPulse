@@ -4,11 +4,12 @@ from pulse.interface.symbolsActor import SymbolsActorBase, SymbolTransform, load
 class AcousticNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
         return [
-            (self._getAcousticPressure()    ,   loadSymbol('data/symbols/acousticPressure.obj')),
-            (self._getVolumeVelocity()      ,   loadSymbol('data/symbols/volumeVelocity.obj')),
-            (self._getSpecificImpedance()   ,   loadSymbol('data/symbols/specificImpedance.obj')),
-            (self._getRadiationImpedance()  ,   loadSymbol('data/symbols/radiationImpedance.obj')),
-            (self._getCompressor()          ,   loadSymbol('data/symbols/compressor.obj')),
+            (self._getAcousticPressure()     ,   loadSymbol('data/symbols/acousticPressure.obj')),
+            (self._getVolumeVelocity()       ,   loadSymbol('data/symbols/volumeVelocity.obj')),
+            (self._getSpecificImpedance()    ,   loadSymbol('data/symbols/specificImpedance.obj')),
+            (self._getRadiationImpedance()   ,   loadSymbol('data/symbols/radiationImpedance.obj')),
+            (self._getCompressor_suction()   ,   loadSymbol('data/symbols/compressor_suction.obj')),
+            (self._getCompressor_discharge() ,   loadSymbol('data/symbols/compressor_discharge.obj')),
         ]
     
     # def _createSequence(self):
@@ -68,7 +69,51 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         
     def _getCompressor(self):
         src = 13
+        # rot = (0,0,0)
+        scl = (1,1,1)
+        # col = (255,10,10)
+
+        symbols = []
+        for node in self.preprocessor.nodes_with_compressor_excitation:
+            pos = node.coordinates
+            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
+                element = self.project.preprocessor.elements_connected_to_node[node]
+                # pos = element[0].element_center_coordinates
+                rot = element[0].section_rotation_xyz_undeformed
+                diameter = element[0].cross_section.outer_diameter
+                factor = (diameter + 0.06) / self.scaleFactor
+                scl = (factor, factor, factor)
+                for connection_type in node.dict_index_to_compressor_connection_info.values():
+                    if connection_type == "suction":
+                        col = (10,10,255)
+                    else:
+                        col = (255,10,10)
+                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+        return symbols    
+
+    def _getCompressor_suction(self):
+        src = 13
         rot = (0,0,0)
+        scl = (1,1,1)
+        col = (10,10,255)
+
+        symbols = []
+        for node in self.preprocessor.nodes_with_compressor_excitation:
+            pos = node.coordinates
+            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
+                element = self.project.preprocessor.elements_connected_to_node[node]
+                # pos = element[0].element_center_coordinates
+                rot = element[0].section_rotation_xyz_undeformed
+                diameter = element[0].cross_section.outer_diameter
+                factor = (diameter + 0.06) / self.scaleFactor
+                scl = (factor, factor, factor)
+                for connection_type in node.dict_index_to_compressor_connection_info.values():
+                    if connection_type == "suction":
+                        symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+        return symbols  
+
+    def _getCompressor_discharge(self):
+        src = 14
         scl = (1,1,1)
         col = (255,10,10)
 
@@ -77,12 +122,15 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
             pos = node.coordinates
             if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
                 element = self.project.preprocessor.elements_connected_to_node[node]
-                pos = element[0].element_center_coordinates
+                # pos = element[0].element_center_coordinates
                 rot = element[0].section_rotation_xyz_undeformed
-                scl = (0.5,0.5,0.5)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        return symbols    
-
+                diameter = element[0].cross_section.outer_diameter
+                factor = (diameter + 0.06) / self.scaleFactor
+                scl = (factor, factor, factor)
+                for connection_type in node.dict_index_to_compressor_connection_info.values():
+                    if connection_type == "discharge":
+                        symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+        return symbols  
 
 class AcousticElementsSymbolsActor(SymbolsActorBase):
     

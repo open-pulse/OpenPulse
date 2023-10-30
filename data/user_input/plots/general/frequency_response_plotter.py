@@ -168,6 +168,7 @@ class FrequencyResponsePlotter(QDialog):
         self.radioButton_real.setChecked(True)
         self.radioButton_imaginary.setDisabled(True)
         self.radioButton_decibel_scale.setDisabled(True)
+        self.comboBox_differentiate_data.setDisabled(True)
 
     def load_data_to_plot(self, data):
         if "x_data" in data.keys():
@@ -263,7 +264,7 @@ class FrequencyResponsePlotter(QDialog):
         self.legends = []
         self.plots = []
 
-        for key, data in self.data_to_plot.items():
+        for _, data in self.data_to_plot.items():
             self.load_data_to_plot(data)
             if self.y_data is not None:
                 self.mask_x = self.x_data <= 0
@@ -402,5 +403,11 @@ class FrequencyResponsePlotter(QDialog):
     def _set_data_to_plot(self, data):
         if isinstance(data, dict):
             self.data_to_plot["model", 0] = data
+            self.plot_data_in_freq_domain()
+            self.exec()
+
+    def _multiple_data_to_plot(self, data):
+        if isinstance(data, dict):
+            self.data_to_plot = data
             self.plot_data_in_freq_domain()
             self.exec()

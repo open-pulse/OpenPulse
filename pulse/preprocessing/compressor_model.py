@@ -1,22 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-'''
-COMPRESSOR MODEL                                     
-
-Objective: build an equivalent compressor excitation to the acoustic FE model
-
-Output: volumetric flow (acoustic volume velocity)
-
-Assumptions:
-
-1) Stead flow;
-2) Ideal gas behaviour;
-3) Compression and expansion cycles are isentropic processes;
-4) The suction and discharge pressures remains constant during suction and discharge cycles, respectively;
-5) No heat exchange in Suction and Discharge cycles; 
-
-'''
+kgf_cm2_to_Pa = 9.80665e4
+bar_to_Pa = 1e5
 
 def offset_to_tdc(input_array, tdc):
 
@@ -35,7 +21,7 @@ def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
     plt.ion()
 
-    fig = plt.figure(figsize=[12,7])
+    fig = plt.figure(figsize=[8,6])
     ax_ = fig.add_subplot(1,1,1)
 
     if _absolute:
@@ -48,62 +34,169 @@ def plot(x, y, x_label, y_label, title, label="", _absolute=False):
     plt.grid()
     plt.show() 
 
+def plot_2_yaxis(data_to_plot, title):
+
+    plt.ion()
+    fig = plt.figure(figsize=[8,6])
+    ax_1 = fig.add_subplot(1,1,1)
+    ax_2 = ax_1.twinx()
+    
+    if len(data_to_plot) == 2:
+        for key, data in data_to_plot.items():
+
+            if "axis" in data.keys():
+                axis_ = data["axis"]
+            if "x_data" in data.keys():
+                x_data = data["x_data"]
+            if"y_data" in data.keys():
+                y_data = data["y_data"]
+                if data["y_axis_absolute"]:
+                    y_data = np.abs(y_data)
+            if "x_label" in data.keys():
+                x_label = data["x_label"]
+            if "y_label" in data.keys():
+                y_label = data["y_label"]
+            if "legend_label" in data.keys():
+                legend_label = data["legend_label"]
+            if "color" in data.keys():
+                color = data["color"]
+            if "linewidth" in data.keys():
+                linewidth = data["linewidth"]
+            if "linestyle" in data.keys():
+                linestyle = data["linestyle"]
+
+            ax_1.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
+            plots = []
+            legends = []
+            if axis_ == "left":
+                plot_1, = ax_1.plot(x_data, y_data, color=color, linewidth=linewidth, linestyle=linestyle, label=legend_label)
+                ax_1.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+                plots.append(plot_1)
+                legends.append(legend_label)
+            else:
+                plot_2, = ax_2.plot(x_data, y_data, color=color, linewidth=linewidth, linestyle=linestyle, label=legend_label)
+                ax_2.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+                plots.append(plot_2)
+                legends.append(legend_label)
+
+        ax_1.set_title(title, fontsize = 12, fontweight = 'bold')
+        ax_1.grid()
+        ax_2.grid()
+        fig.legend(bbox_to_anchor=(1,1), bbox_transform=ax_1.transAxes)
+        # ax_1.legend()
+        # ax_2.legend()
+        # plt.legend(plots, legends, labelcolor="linecolor")
+        plt.show() 
+
 class CompressorModel:
+
+    '''
+    COMPRESSOR MODEL                                     
+
+    This class contains a simplified reciprocating compressor model for calculating
+    the excitation to the acoustic FE model. The main output data is the volumetric 
+    flow in m³/s units which is dealt as an equivalent acoustic volume velocity source.
+
+    Assumptions:
+
+    1) Stead flow;
+    2) Ideal gas behaviour;
+    3) Compression and expansion cycles are isentropic processes;
+    4) The suction and discharge pressures remains constant during suction and discharge cycles, respectively;
+    5) No heat exchange in suction and discharge cycles; 
+
+    '''
 
     def __init__( self, parameters, **kwargs):
 
-        [  bore_diameter,                      # Cylinder bore diameter [m]
-           stroke,                             # Length of compressor full stroke [m]
-           rod_length,                         # Connecting rod length [m]
-           rod_diameter,                       # Rod diameter [m]
-           pressure_ratio,                     # Compressor pressure ratio Pd/Ps
-           clearance,                          # Clearance volume as percentage of full volume (%)
-           TDC_crank_angle_1,                  # Crank angle (degrees) at which piston is at top dead center
-           rotational_speed,                   # Compressor rotation speed (rpm)
-           capacity,                           # Capacity of compression stage (%)
-           molar_mass,                         # Molar mass [kg/kmol]
-           isentropic_exponent,                # Compressed gas isentropic exponent
-           pressure_at_suction,                # Pressure at suction
-           temperature_at_suction,             # Temperature at suction
-           acting_label  ] = parameters        # Active cylinder(s) key (int)
-
-        if acting_label == 0:
-            self.active_cylinder = 'both ends'
-        elif acting_label == 1:
-            self.active_cylinder = 'head end'
-        elif acting_label == 2:
-            self.active_cylinder = 'crank end'
-
-        self.D = bore_diameter
-        self.r = stroke/2
-        self.L = rod_length
-        self.rod_diam = rod_diameter
-        self.p_ratio = pressure_ratio
-        self.c = clearance/100
-        self.tdc1 = TDC_crank_angle_1*np.pi/180
-        self.rpm = rotational_speed
-        self.capacity = capacity/100
-        self.k = isentropic_exponent
-        self.molar_mass = molar_mass
-        self.p_suc = pressure_at_suction
-        self.T_suc = temperature_at_suction          
-        self.area_head_end = np.pi*(bore_diameter**2)/4
-        self.area_crank_end = np.pi*((bore_diameter**2)-(rod_diameter**2))/4
-        self.vr = (self.p_suc)**(-1/self.k)       # Volume ratio considering isentropic compression
-
-        self.Ru = 8314.4621                     # Universal ideal gas constant [J/kmol.K]
-        self.R = self.Ru/self.molar_mass        # Gas constant [J/kg.K]
-        self.rho_suc = self.p_suc*(9.80665e4)/(self.R*(self.T_suc+273.15))
-        
-        self.T_disc = (self.T_suc+273.15)*(self.p_ratio**((self.k-1)/self.k))
-        self.rho_disc = (self.p_suc*(9.80665e4)*self.p_ratio)/(self.R*self.T_disc)
-  
+        self._load_compressor_parameters(parameters)
         self.number_points = kwargs.get('number_points', 1000)
         self.max_frequency = kwargs.get('max_frequency', 250)
-        
         self.number_of_cylinders = kwargs.get('number_of_cylinders', 1)
+
+
+    def _load_compressor_parameters(self, parameters):
+        """
+        """
+
+        # self.D = bore_diameter
+        # self.r = stroke/2
+        # self.L = rod_length
+        # self.rod_diam = rod_diameter
+        # self.p_ratio = pressure_ratio
+        # self.c = clearance/100
+        # self.tdc1 = TDC_crank_angle_1*np.pi/180
+        # self.rpm = rotational_speed
+        # self.capacity = capacity/100     
+
+        self.D = parameters['bore diameter']                    # Cylinder bore diameter [m]
+        self.r = parameters['stroke']/2                         # Connecting rod length [m]
+        self.L = parameters['connecting rod length']            # Length of compressor full stroke [m]
+        self.rod_diam = parameters['rod diameter']              # Rod diameter [m]
+        self.p_ratio = parameters['pressure ratio']             # Compressor pressure ratio Pd/Ps
+        self.c_HE = parameters['clearance (HE)']/100            # Clearance volume as percentage of full volume (%)
+        self.c_CE = parameters['clearance (CE)']/100            # Clearance volume as percentage of full volume (%)
+        self.tdc1 = parameters['TDC crank angle 1']*np.pi/180   # Crank angle (degrees) at which piston is at top dead center
+        self.rpm = parameters['rotational speed']               # Compressor rotation speed (rpm)
+        self.capacity = parameters['capacity']/100              # Capacity of compression stage (%)
+        self.acting_label = parameters['acting label']          # Active cylinder(s) key (int)
+
+        if self.acting_label == 0:
+            self.active_cylinder = 'both ends'
+        elif self.acting_label == 1:
+            self.active_cylinder = 'head end'
+        elif self.acting_label == 2:
+            self.active_cylinder = 'crank end'
+
+        pressure_at_suction = parameters['pressure at suction']         # Pressure at suction
+        temperature_at_suction = parameters['temperature at suction']   # Temperature at suction
+        self.pressure_unit = parameters['pressure unit']                     # Pressure unit
+        self.temperature_unit = parameters['temperature unit']               # Temperature unit
+
+        if self.pressure_unit == "kgf/cm²":
+            self.p_suc = pressure_at_suction*kgf_cm2_to_Pa
+        else:
+            self.p_suc = pressure_at_suction*bar_to_Pa
+        
+        if self.temperature_unit == "°C":
+            self.T_suc = temperature_at_suction + 273.15
+        else:
+            self.T_suc = temperature_at_suction
+
+        self.area_head_end = np.pi*(self.D**2)/4
+        self.area_crank_end = np.pi*((self.D**2)-(self.rod_diam**2))/4
         self.tdc2 = np.pi/2
         self.cap = None
+
+        self.set_fluid_properties_and_update_state(parameters['isentropic exponent'],
+                                                   parameters['molar mass'])
+
+
+    def set_fluid_properties_and_update_state(self, isentropic_exponent, molar_mass):
+        """ 
+            This method sets the process fluid properties and updates the thermodynamic 
+            fluid properties for suction and discharge states.
+
+        Parameters:
+        -----------
+        isentropic_exponent: float number
+        molar_mass: a float number in kg/kmol units.
+        
+        """
+
+        self.k = isentropic_exponent            # Compressed gas isentropic exponent
+        self.molar_mass = molar_mass            # Molar mass [kg/kmol]
+
+        self.vr = (self.p_suc)**(-1/self.k)     # Volume ratio considering isentropic compression
+        self.Ru = 8314.4621                     # Universal ideal gas constant [J/kmol.K]
+        self.R = self.Ru/self.molar_mass        # Gas constant [J/kg.K]
+        self.rho_suc = self.p_suc/(self.R*self.T_suc)
+
+        self.T_disc = (self.T_suc)*(self.p_ratio**((self.k-1)/self.k))
+        self.rho_disc = (self.p_suc*self.p_ratio)/(self.R*self.T_disc)
+
+        # print(self.k, self.molar_mass, self.R, self.rho_suc)
+        # print(self.T_disc, self.rho_disc)
 
     def recip_v(self, tdc=None):
         N = self.number_points + 1
@@ -112,7 +205,7 @@ class CompressorModel:
         r = self.r
         l = self.L
         t = np.linspace(0, 2*np.pi, N)
-        v = -r * np.sin(t-tdc) - (r**2*np.sin(t-tdc)*np.cos(t-tdc))/np.sqrt(l**2 - r**2*np.sin(t-tdc)**2)
+        v = -(r * np.sin(t-tdc) + (r**2*np.sin(t-tdc)*np.cos(t-tdc))/np.sqrt(l**2 - r**2*np.sin(t-tdc)**2))
         v = v * self.rpm*(2*np.pi/60)
         return v
 
@@ -123,12 +216,19 @@ class CompressorModel:
         r = self.r
         l = self.L
         t = np.linspace(0, 2*np.pi, N)
-        self.theta = t
-        x_mean = np.sqrt(l**2 - r**2)
-        x = r * np.cos(t-tdc) + np.sqrt(l**2 - r**2*np.sin(t-tdc)**2) - x_mean
+        # self.theta = t
+        # x_mean = np.sqrt(l**2 - r**2)
+        x_max = l + r
+        x = (r * np.cos(t-tdc) + np.sqrt(l**2 - r**2*np.sin(t-tdc)**2)) - x_max
         return x 
 
-    def p_head_end(self, tdc=None, capacity=None, full_output=False, plot_pv=False, aux_process=False):
+    def p_head_end( self,
+                    label = "HE",
+                    tdc=None, 
+                    capacity=None, 
+                    full_output=False, 
+                    plot_pv=False, 
+                    aux_process=False):
 
         N = self.number_points + 1
         ang = np.linspace(0, 2*np.pi, N)
@@ -152,23 +252,30 @@ class CompressorModel:
             p, vol = [], []
             p0 = self.p_ratio
             p_aux = p0
-            l0 = self.c*(2*self.r)
+
+            if label == "HE":
+                l0 = self.c_HE*(2*self.r) # clearance height head end
+            elif label == "CE":
+                l0 = self.c_CE*(2*self.r) # clearance height crank end
+            else:
+                l0 = ((self.c_HE+self.c_CE)/2)*(2*self.r) # average clearance height
+
             i = 0
             #EXPANSION CYCLE
             while p_aux > 1 and i < N:
-                p_aux = p0*(l0 / (l0 + x[0]-x[i]))**self.k
+                p_aux = p0*(l0 / (l0 + (x[0] - x[i])))**self.k
                 if p_aux < 1:
                     p_aux = 1
                     open_suc[i] = True
                 p.append(p_aux*self.p_suc)
-                vol.append(self.area_head_end*(l0 + x[0]-x[i]))
+                vol.append(self.area_head_end*(l0 + (x[0] - x[i])))
                 i += 1
 
             if i < N:
                 #SUCTION CYCLE
                 while i <= (N-1)/2:
                     p.append(1*self.p_suc)
-                    vol.append(self.area_head_end*(l0 + x[0]-x[i]))
+                    vol.append(self.area_head_end*(l0 + (x[0] - x[i])))
                     open_suc[i] = True
                     i += 1
 
@@ -176,13 +283,13 @@ class CompressorModel:
                 p0 = 1
                 i0 = i
                 while p_aux < self.p_ratio and i < N:
-                    vol.append(self.area_head_end*(l0 + x[0] - x[i]))
+                    vol.append(self.area_head_end*(l0 + (x[0] - x[i])))
                     if (2*np.pi-ang[i])/np.pi > capacity:
                         p_aux = 1
                         open_suc[i] = True
                         i0 = i
                     else:
-                        p_aux = p0*((l0 + x[0] - x[i0])/(l0 + x[0] - x[i]))**self.k
+                        p_aux = p0*((l0 + x[0] - x[i0])/(l0 + (x[0] - x[i])))**self.k
                     if p_aux > self.p_ratio:
                         p_aux = self.p_ratio
                         open_disch[i] = True
@@ -192,7 +299,7 @@ class CompressorModel:
                 #DISCHARGE CYCLE
                 while i < N:
                     p.append(self.p_ratio*self.p_suc)
-                    vol.append(self.area_head_end*(l0 + x[0]-x[i]))
+                    vol.append(self.area_head_end*(l0 + (x[0] - x[i])))
                     open_disch[i] = True
                     i += 1
 
@@ -208,7 +315,11 @@ class CompressorModel:
         else:
             return p
 
-    def p_crank_end(self, tdc=None, capacity=None, full_output=False, plot_pv=False):
+    def p_crank_end(self, 
+                    tdc=None, 
+                    capacity=None, 
+                    full_output=False, 
+                    plot_pv=False):
 
         if tdc == None:
             tdc = self.tdc1
@@ -217,8 +328,9 @@ class CompressorModel:
             print('Cylinder does not have crank end pressure.')
 
         if plot_pv:
-            vol, pressure = self.p_head_end(tdc = tdc - np.pi, 
-                                            capacity = capacity, 
+            vol, pressure = self.p_head_end(label = "CE",
+                                            tdc = tdc - np.pi, 
+                                            capacity = capacity,
                                             full_output = full_output, 
                                             plot_pv = plot_pv)
             vol = list(np.array(vol)*(self.D**2 - self.rod_diam**2)/self.D**2)
@@ -242,9 +354,12 @@ class CompressorModel:
             return { 'in_flow': np.zeros(N+1),
                      'out_flow': np.zeros(N+1) }
         else:
-            _, open_suc, open_disch = self.p_head_end(tdc=0, capacity=capacity, full_output=True, aux_process=aux_process)
+            _, open_suc, open_disch = self.p_head_end(  tdc=0, 
+                                                        capacity=capacity, 
+                                                        full_output=True, 
+                                                        aux_process=aux_process  )
 
-            vel = self.recip_v(tdc=0)
+            vel = self.recip_v(tdc=None)
             flow_in = np.zeros(N+1)
             flow_out = np.zeros(N+1)
 
@@ -299,10 +414,13 @@ class CompressorModel:
         if self.active_cylinder == 'both ends':
 
             if self.number_of_cylinders == 1:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate += self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
             else:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
-                flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] 
+                flow_rate += self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key] 
+                flow_rate += self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
 
         elif self.active_cylinder == 'head end':
 
@@ -421,12 +539,17 @@ class CompressorModel:
             Xf = np.fft.fft(x_t)
         return Xf/N
 
-    def process_FFT_of_(self, values, revolutions):
+    def extend_signals(self, data, revolutions):
         Trev = 60/self.rpm
         T = revolutions*Trev
-        df = 1/T
-        values_time = np.tile(values[:-1], revolutions) # extending signals
+        values_time = np.tile(data[:-1], revolutions) # extending signals
+        return values_time, T
+
+    def process_FFT_of_(self, values, revolutions):
+
+        values_time, T = self.extend_signals(values, revolutions)
         values_freq = self.FFT_periodic(values_time)
+        df = 1/T
         
         size = len(values_freq)
         if np.remainder(size, 2)==0:
@@ -447,38 +570,44 @@ class CompressorModel:
     def plot_PV_diagram_head_end(self, plot_pv=True):
         vol, pressure = self.p_head_end(plot_pv=plot_pv)
 
+        if self.pressure_unit == "kgf/cm²":
+            pressure /= kgf_cm2_to_Pa
+        else:
+            pressure /= bar_to_Pa
+
         x_label = "Volume [m³]"
-        y_label = "Pressure [kgf/cm²]"
+        y_label = f"Pressure [{self.pressure_unit}]"
         title = "P-V RECIPROCATING COMPRESSOR DIAGRAM"
         plot(vol, pressure, x_label, y_label, title)
 
     def plot_PV_diagram_crank_end(self, plot_pv=True):
         vol, pressure = self.p_crank_end(plot_pv=plot_pv)
 
+        if self.pressure_unit == "kgf/cm²":
+            pressure /= kgf_cm2_to_Pa
+        else:
+            pressure /= bar_to_Pa
+
         x_label = "Volume [m³]"
-        y_label = "Pressure [kgf/cm²]"
+        y_label = f"Pressure [{self.pressure_unit}]"
         title = "P-V RECIPROCATING COMPRESSOR DIAGRAM"
         plot(vol, pressure, x_label, y_label, title)
 
     def plot_pressure_vs_time(self):
-        N = self.number_points
         _, pressure = self.p_head_end(plot_pv=True)
-        T = 60/self.rpm
-        dt = T/N
-        time = np.arange(0, T+dt, dt)
-
+        Trev = 60/self.rpm
+        N = len(pressure)
+        time = np.linspace(0, Trev, N)
         x_label = "Time [s]"
-        y_label = "Pressure [kgf/cm²]"
+        y_label = f"Pressure [{self.pressure_unit}]"
         title = "PRESSURE vs TIME PLOT"
         plot(time, pressure, x_label, y_label, title)
 
     def plot_volume_vs_time(self):
-        N = self.number_points
         volume, _ = self.p_head_end(plot_pv=True)
-        T = 60/self.rpm
-        dt = T/N
-        time = np.arange(0, T+dt, dt)
-
+        Trev = 60/self.rpm
+        N = len(volume)
+        time = np.linspace(0, Trev, N)
         x_label = "Time [s]"
         y_label = "Volume [m³]"
         title = "Volume vs Time"
@@ -486,10 +615,9 @@ class CompressorModel:
 
     def plot_volumetric_flow_rate_at_suction_time(self):
         flow_rate = self.process_sum_of_volumetric_flow_rate('in_flow')
-        N = self.number_points
-        T = 60/self.rpm
-        dt = T/N
-        time = np.arange(0, T+dt, dt)
+        Trev = 60/self.rpm
+        N = len(flow_rate)
+        time = np.linspace(0, Trev, N)
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
         title = "Volumetric flow rate at suction"
@@ -497,28 +625,82 @@ class CompressorModel:
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
         flow_rate = self.process_sum_of_volumetric_flow_rate('out_flow')
-        N = self.number_points
-        T = 60/self.rpm
-        dt = T/N
-        time = np.arange(0, T+dt, dt)
+        Trev = 60/self.rpm
+        N = len(flow_rate)
+        time = np.linspace(0, Trev, N)
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
         title = "Volumetric flow rate at discharge"
         plot(time, flow_rate, x_label, y_label, title)
     
     def plot_rod_pressure_load_frequency(self, revolutions):
-        pressure_head = self.p_head_end()*(9.80665e1)
-        pressure_crank = self.p_crank_end()*(9.80665e1)
+        pressure_head = self.p_head_end()
+        pressure_crank = self.p_crank_end()
+
         rod_pressure_load_time = (pressure_head*(self.D**2) - pressure_crank*((self.D**2) - (self.rod_diam**2)))*(np.pi/4)
 
         freq, rod_pressure_load = self.process_FFT_of_(rod_pressure_load_time, revolutions)
         freq = freq[freq <= self.max_frequency]
-        rod_pressure_load = rod_pressure_load[:len(freq)]
+        rod_pressure_load = rod_pressure_load[:len(freq)]/1000
 
         x_label = "Frequency [Hz]"
         y_label = "Rod pressure load [kN]"
         title = "Rod pressure load"
         plot(freq, rod_pressure_load, x_label, y_label, title, _absolute=True)  
+
+    def plot_rod_pressure_load_time(self, revolutions):
+        pressure_head = self.p_head_end()
+        pressure_crank = self.p_crank_end()
+        load_head = (pressure_head*(self.D**2))*(np.pi/4)
+        load_crank = -(pressure_crank*((self.D**2) - (self.rod_diam**2)))*(np.pi/4)
+        rod_pressure_load_time = (load_head + load_crank)/1000
+        Trev = 60/self.rpm
+        N = len(rod_pressure_load_time)
+        time = np.linspace(0, Trev, N)
+        x_label = "Time [s]"
+        y_label = "Rod pressure load [kN]"
+        title = "Rod pressure load"
+        plot(time, rod_pressure_load_time, x_label, y_label, title, _absolute=True) 
+
+    def plot_piston_position_and_velocity(self, domain="time"):
+        x = self.recip_x(tdc=None)
+        v = self.recip_v(tdc=None)
+        Trev = 60/self.rpm
+        N = len(x)
+        if domain == "time":
+            x_label = "Time [s]"
+            x_data = np.linspace(0, Trev, N)
+        else:
+            x_label = "Angle [deg]"
+            x_data = np.linspace(0, 360, N)
+
+        data = dict()
+        data["Piston position"] = { "axis" : "left",
+                                    "x_data" : x_data,
+                                    "y_data" : x,
+                                    "x_label" : x_label,
+                                    "y_label" : "Piston relative displacement [m]",
+                                    "legend_label" : "Piston position",
+                                    "color" : [0,0,0],
+                                    "linestyle" : "-",
+                                    "linewidth" : 2,
+                                    "y_axis_absolute" : False }
+
+        data["Piston velocity"] = { "axis" : "right",
+                                    "x_data" : x_data,
+                                    "y_data" : v,
+                                    "x_label" : x_label,
+                                    "y_label" : "Piston velocity [m/s]",
+                                    "legend_label" : "Piston velocity",
+                                    "color" : [0,0,1],
+                                    "linestyle" : "-",
+                                    "linewidth" : 2,
+                                    "y_axis_absolute" : False }
+
+        title = "Piston displacement and velocity during a complete cycle"
+
+        plot_2_yaxis(data, title)
+
 
     def plot_volumetric_flow_rate_at_suction_frequency(self, revolutions):
         freq, flow_rate = self.process_FFT_of_volumetric_flow_rate(revolutions, 'in_flow')
@@ -538,11 +720,16 @@ class CompressorModel:
         N = self.number_points
         _, pressure = self.p_head_end(plot_pv=True)
 
+        if self.pressure_unit == "kgf/cm²":
+            pressure /= kgf_cm2_to_Pa
+        else:
+            pressure /= bar_to_Pa
+
         d_theta = 360/N
         angle = np.arange(0, N+1, 1)*d_theta
 
         x_label = "Crank angle [degree]"
-        y_label = "Pressure [kgf/cm²]"
+        y_label = f"Pressure [{self.pressure_unit}]"
         title = "Head end pressure vs Angle"
         plot(angle, pressure, x_label, y_label, title)
 
@@ -562,11 +749,16 @@ class CompressorModel:
         N = self.number_points
         _, pressure = self.p_crank_end(plot_pv=True)
 
+        if self.pressure_unit == "kgf/cm²":
+            pressure /= kgf_cm2_to_Pa
+        else:
+            pressure /= bar_to_Pa
+
         d_theta = 360/N
         angle = np.arange(0, N+1, 1)*d_theta
 
         x_label = "Crank angle [degree]"
-        y_label = "Pressure [kgf/cm²]"
+        y_label = f"Pressure [{self.pressure_unit}]"
         title = "Crank end pressure vs Angle"
         plot(angle, pressure, x_label, y_label, title)
 
@@ -602,8 +794,6 @@ if __name__ == "__main__":
                     0,              # Crank angle (degrees) at which piston is at top dead center
                     360,            # Compressor rotation speed (rpm)
                     cap,             # Capacity of compression stage (%)
-                    1.4,            # Compressed gas isentropic exponent
-                    2.01568,        # Molar mass [kg/kmol]
                     19,             # Pressure at suction [kgf/cm²]
                     45,             # Temperature at suction [°C]
                     True ]          # Compressor is double effect (bool)
@@ -611,6 +801,7 @@ if __name__ == "__main__":
     cylinder = CompressorModel(parameters)
     cylinder.number_of_cylinders = 1
     cylinder.number_points = 2000
+    cylinder.set_fluid_properties_and_update_state(1.4, 2.01568)
     rho_suc = cylinder.rho_suc
     # cylinder.plot_rod_pressure_load_frequency(6)
     # cylinder.plot_PV_diagram_head_end()

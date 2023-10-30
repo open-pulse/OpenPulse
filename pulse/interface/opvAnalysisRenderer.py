@@ -11,9 +11,12 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_m
 from pulse.uix.vtk.colorTable import ColorTable
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
-from pulse.interface.tubeActor import TubeActor
 # from pulse.interface.symbolsActor import SymbolsActor
+from pulse.interface.cutting_plane_actor import CuttingPlaneActor
+from pulse.interface.tubeActor import TubeActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
+from pulse.interface.tubeClippableActor import TubeClippableActor
+from pulse.interface.tubeClippableDeformedActor import TubeClippableDeformedActor
 
 class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -23,10 +26,13 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv = opv
         self.setUsePicker(False)
 
+        self.hidden_elements = set()
+
         self._absolute = False
         self._scaling_setup = dict()
         self._magnificationFactor = 1
         self._currentFrequencyIndex = 0
+        self._currentPhase = 0
         self._cacheFrequencyIndex = None
         self.last_frequency_index = None
         
@@ -38,6 +44,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.animationIndex = 0
         self.delayCounter = 0
         self.increment = 1
+
+        self.clipping_plane_active = False
+        self.first_configuration = True
+        self.plane_origin = None
+        self.plane_normal = None
 
         #default values to the number of frames and cycles
         self.number_frames = 40
@@ -99,8 +110,16 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv)
-        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True)
+    
+        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv, hidden_elements=self.hidden_elements)
+        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True, hidden_elements=self.hidden_elements)
+
+        self.opvClippableDeformedTubes = TubeClippableDeformedActor(self.project, self.opv, hidden_elements=self.hidden_elements)
+        self.opvClippablePressureTubes = TubeClippableActor(self.project, self.opv, pressure_plot=True, hidden_elements=self.hidden_elements)
+
+        self.plane_actor = CuttingPlaneActor()
+        self.plane_actor.VisibilityOff()
+        self.plane_actor.SetScale(3, 3, 3)
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
@@ -108,10 +127,21 @@ class opvAnalysisRenderer(vtkRendererBase):
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
+        plt(self.opvClippableDeformedTubes)
+        plt(self.opvClippablePressureTubes)
         # plt(self.opvSymbols)
+        self._renderer.AddActor(self.plane_actor)
 
         self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
-    
+
+    def calculate_hidden_by_plane(self, plane_origin, plane_normal):
+        hidden = set()
+        for i, element in self.project.get_structural_elements().items():
+            element_vector = element.element_center_coordinates - plane_origin
+            if np.dot(element_vector, plane_normal) > 0:
+                hidden.add(i)
+        return hidden
+
     def reset(self):
         self._renderer.RemoveAllViewProps()
         self._style.clear()
@@ -160,6 +190,7 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.animationIndex += 1
                             
             _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
+            self._currentPhase = _phase_deg
             self.slider.GetRepresentation().SetValue(_phase_deg)
             cached = self._animationFrames[i]
             self.opvTubes._data.DeepCopy(cached)
@@ -169,6 +200,7 @@ class opvAnalysisRenderer(vtkRendererBase):
                 self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
+        self._currentPhase = phase_step
         self._currentPlot(self._currentFrequencyIndex, phase_step)
         self.updateAll()
 
@@ -181,6 +213,7 @@ class opvAnalysisRenderer(vtkRendererBase):
     def showDisplacementField(self, frequency_index, scaling_setup):
         self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index
+        self._currentPhase = 0
         self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
@@ -190,11 +223,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
-        self._plotOnce(0)
+        self._plotOnce(self._currentPhase)
 
     def showStressField(self, frequency_index, scaling_setup):
         self.cache_plot_state(stress=True)
         self._currentFrequencyIndex = frequency_index
+        self._currentPhase = 0
         self._scaling_setup = scaling_setup
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
@@ -205,11 +239,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
-        self._plotOnce(0)
+        self._plotOnce(self._currentPhase)
 
     def showPressureField(self, frequency_index, absolute=False):
         self.cache_plot_state(pressure=True)
         self._currentFrequencyIndex = frequency_index
+        self._currentPhase = 0
         self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
@@ -219,7 +254,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvTubes = self.opvPressureTubes
         self._currentPlot = self.computePressureField
         self.last_frequency_index = frequency_index
-        self._plotOnce(0)
+        self._plotOnce(self._currentPhase)
 
     def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_setup):
         solution = self.project.get_structural_solution()
@@ -246,8 +281,20 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.colorbar.SetLookupTable(colorTable)
 
         self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(True)
-        self.opvPressureTubes.getActor().SetVisibility(False)
+
+        if self.clipping_plane_active:
+            self.opvClippableDeformedTubes.build()
+            self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+            self.opvClippableDeformedTubes.getActor().SetVisibility(True)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+        else:
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+            self.opvDeformedTubes.getActor().SetVisibility(True)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+
         
     def get_min_max_values_to_stresses(self):
         solution = self.project.stresses_values_for_color_table
@@ -276,8 +323,21 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.colorbar.SetLookupTable(colorTable)
         
         self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(True)
-        self.opvPressureTubes.getActor().SetVisibility(False)
+
+        if self.clipping_plane_active:
+            self.opvClippableDeformedTubes.build()
+            self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+            self.opvClippableDeformedTubes.getActor().SetVisibility(True)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+        else:
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+            self.opvDeformedTubes.getActor().SetVisibility(True)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+
+
 
     def get_min_max_values_to_pressure(self, frequency_index):
         solution = self.project.get_acoustic_solution()
@@ -305,8 +365,20 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.colorbar.SetLookupTable(colorTable)
         
         self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(False)
-        self.opvPressureTubes.getActor().SetVisibility(True)
+
+        if self.clipping_plane_active:
+            self.opvClippablePressureTubes.build()
+            self.opvClippablePressureTubes.setColorTable(colorTable)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(False)
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(True)
+        else:
+            self.opvClippableDeformedTubes.getActor().SetVisibility(False)
+            self.opvClippablePressureTubes.getActor().SetVisibility(False)
+            self.opvDeformedTubes.getActor().SetVisibility(False)
+            self.opvPressureTubes.getActor().SetVisibility(True)
+
 
     def _createSlider(self):
 
@@ -378,6 +450,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.playingAnimation:
             return
         
+        if self.clipping_plane_active:
+            return
+
         if self._cacheFrequencyIndex == self._currentFrequencyIndex and not self.number_frames_changed:
             self.playingAnimation = True
             return
@@ -557,3 +632,105 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def setPlotRadius(self, plt):
         pass
+
+    def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+        if self.playingAnimation:
+            self.pauseAnimation()
+
+        self.clipping_plane_active = True
+        self.plane_origin = self._calculate_relative_position([x, y, z])
+        self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
+        self.plane_actor.SetPosition(self.plane_origin)
+        self.plane_actor.SetOrientation(rx, ry, rz)
+        self.plane_actor.GetProperty().SetOpacity(0.9)
+        self.plane_actor.VisibilityOn()
+        self.update()
+
+    def apply_clipping_plane(self):
+        if self.plane_origin is None:
+            return
+
+        if self.plane_normal is None:
+            return
+
+        if self.playingAnimation:
+            self.pauseAnimation()
+
+        if self.first_configuration:
+            self._plotOnce(self._currentPhase)
+            self.first_configuration = False 
+
+        self.opvClippablePressureTubes.apply_cut(self.plane_origin, self.plane_normal)
+        self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
+        self.plane_actor.GetProperty().SetOpacity(0.2)
+        self.update()
+    
+    def dismiss_clipping_plane(self):                
+        self.plane_origin = None
+        self.plane_normal = None
+    
+        self.opvClippablePressureTubes.disable_cut()
+        self.opvClippableDeformedTubes.disable_cut()
+        self.plane_actor.VisibilityOff()
+        self.update()
+        self.first_configuration = True
+        self.clipping_plane_active = False
+        self._plotOnce(self._currentPhase)
+
+    def calculate_hidden_by_plane(self, plane_origin, plane_normal):
+        hidden = set()
+        for i, element in self.project.get_structural_elements().items():
+            element_vector = element.element_center_coordinates - plane_origin
+            if np.dot(element_vector, plane_normal) > 0:
+                hidden.add(i)
+        return hidden
+
+    def _calculate_relative_position(self, position):
+        def lerp(a, b, t):
+           return a + (b - a) * t
+        
+        bounds = self.opv.opvRenderer.getBounds()
+        x = lerp(bounds[0], bounds[1], position[0] / 100)
+        y = lerp(bounds[2], bounds[3], position[1] / 100)
+        z = lerp(bounds[4], bounds[5], position[2] / 100)
+        return np.array([x, y, z])
+    
+    def _calculate_normal_vector(self, orientation):
+        orientation = np.array(orientation) * np.pi / 180
+        rx, ry, rz = self._rotation_matrices(*orientation)
+
+        normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
+        return -normal[:3]
+
+    def _rotation_matrices(self, ax, ay, az):
+        sin = np.sin([ax, ay, az])
+        cos = np.cos([ax, ay, az])
+
+        rx = np.array(
+            [
+                [1, 0, 0, 0],
+                [0, cos[0], -sin[0], 0],
+                [0, sin[0], cos[0], 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+        ry = np.array(
+            [
+                [cos[1], 0, sin[1], 0],
+                [0, 1, 0, 0],
+                [-sin[1], 0, cos[1], 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+        rz = np.array(
+            [
+                [cos[2], -sin[2], 0, 0],
+                [sin[2], cos[2], 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+        return rx, ry, rz

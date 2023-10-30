@@ -29,7 +29,7 @@ from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXa
 from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
-from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
+from data.user_input.model.setup.acoustic.set_fluid_composition_input import SetFluidCompositionInput
 from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
 from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
 from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
@@ -37,6 +37,7 @@ from data.user_input.model.setup.acoustic.radiationImpedanceInput import Radiati
 from data.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from data.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
+from data.user_input.model.setup.acoustic.check_pulsation_criteria import CheckPulsationCriteriaInput
 #
 from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
@@ -72,6 +73,7 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.entity import Entity
 from pulse.project import Project
+from pulse.uix.clip_plane_widget import ClipPlaneWidget
 #
 from time import time
 
@@ -101,7 +103,7 @@ class InputUi:
         try:
             self.beforeInput()
             read = workingClass(*args, **kwargs)
-            self.opv.setInputObject(None)
+            self.opv.setInputObject(read)
             return read
         except Exception as log_error:
             title = "Error detected in processInput method"
@@ -147,6 +149,16 @@ class InputUi:
     def reset_project(self):
         if not self.project.none_project_action:
             self.processInput(ResetProjectInput, self.project, self.opv)
+
+    def set_clipping_plane(self):
+        if not self.opv.opvAnalysisRenderer.getInUse():
+            return
+
+        clipping_plane = self.processInput(ClipPlaneWidget, self.opv)        
+        clipping_plane.value_changed.connect(self.opv.configure_clipping_plane)
+        clipping_plane.slider_released.connect(self.opv.apply_clipping_plane)
+        clipping_plane.exec()
+        self.opv.dismiss_clipping_plane()
             
     def set_project_attributes(self):
         self.processInput(SetProjectAttributesInput, self.project, self.opv)
@@ -264,6 +276,9 @@ class InputUi:
 
     def add_compressor_excitation(self):
         self.processInput(CompressorModelInput, self.project, self.opv)
+
+    def check_pulsation_criteria(self):
+        self.processInput(CheckPulsationCriteriaInput, self.project, self.opv)
 
     def analysisTypeInput(self):
 

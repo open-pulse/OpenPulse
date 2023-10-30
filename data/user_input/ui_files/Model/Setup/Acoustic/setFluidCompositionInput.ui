@@ -629,241 +629,426 @@ background-color: rgb(255, 255, 255);</string>
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_10">
+     <widget class="QFrame" name="frame_states">
       <property name="geometry">
        <rect>
-        <x>634</x>
-        <y>22</y>
-        <width>110</width>
-        <height>36</height>
+        <x>576</x>
+        <y>7</y>
+        <width>505</width>
+        <height>131</height>
        </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>110</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>110</width>
-        <height>36</height>
-       </size>
       </property>
       <property name="font">
        <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
+        <family>MS Shell Dlg 2</family>
        </font>
       </property>
-      <property name="text">
-       <string>Temperature:</string>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
       </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_temperature">
-      <property name="geometry">
-       <rect>
-        <x>750</x>
-        <y>22</y>
-        <width>120</width>
-        <height>36</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>120</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>120</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0, 0, 0);</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_pressure">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>750</x>
-        <y>78</y>
-        <width>120</width>
-        <height>36</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>120</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>120</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0, 0, 0);</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_9">
-      <property name="geometry">
-       <rect>
-        <x>654</x>
-        <y>78</y>
-        <width>90</width>
-        <height>36</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>90</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>90</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Pressure:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="comboBox_pressure_units">
-      <property name="geometry">
-       <rect>
-        <x>876</x>
-        <y>78</y>
-        <width>60</width>
-        <height>36</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>60</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>60</width>
-        <height>36</height>
-       </size>
-      </property>
-      <item>
-       <property name="text">
-        <string> Pa</string>
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="leftMargin">
+        <number>4</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string> kPa</string>
+       <property name="topMargin">
+        <number>4</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string> bar</string>
+       <property name="rightMargin">
+        <number>4</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string> psi</string>
+       <property name="bottomMargin">
+        <number>4</number>
        </property>
-      </item>
-     </widget>
-     <widget class="QComboBox" name="comboBox_temperature_units">
-      <property name="geometry">
-       <rect>
-        <x>876</x>
-        <y>22</y>
-        <width>60</width>
-        <height>36</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>60</width>
-        <height>36</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>60</width>
-        <height>36</height>
-       </size>
-      </property>
-      <item>
-       <property name="text">
-        <string>  K</string>
+       <property name="horizontalSpacing">
+        <number>8</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>  ºC</string>
+       <property name="verticalSpacing">
+        <number>4</number>
        </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>  ºF</string>
-       </property>
-      </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_10">
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>132</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Temperature:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4">
+        <widget class="QComboBox" name="comboBox_pressure_units">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <italic>false</italic>
+          </font>
+         </property>
+         <item>
+          <property name="text">
+           <string> Pa</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string> kPa</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string> atm</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string> bar</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string> kgf/cm²</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string> psi</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string> ksi</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QComboBox" name="comboBox_temperature_units">
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <italic>false</italic>
+          </font>
+         </property>
+         <item>
+          <property name="text">
+           <string>  K</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>  ºC</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>  ºF</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_discharge">
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Discharge</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="lineEdit_temperature">
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 0);</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="label_9">
+         <property name="minimumSize">
+          <size>
+           <width>90</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>132</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Pressure:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLineEdit" name="lineEdit_pressure">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 0);</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLineEdit" name="lineEdit_temperature_disch">
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 0);</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QFrame" name="frame_3">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_suction">
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Suction</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QLineEdit" name="lineEdit_pressure_disch">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>36</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 0);</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QFrame" name="frame_4">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_pretest">

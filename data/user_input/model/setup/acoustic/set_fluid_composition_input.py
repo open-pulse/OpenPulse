@@ -31,18 +31,38 @@ class SetFluidCompositionInput(QDialog):
         self.project = project
         self.opv = opv
         self.opv.setInputObject(self)
+
         self.selected_fluid_to_edit = selected_fluid_to_edit
         self.compressor_info = kwargs.get("compressor_info", {})
 
+        self._initialize_variables()
+        self._define_qt_variables()
+        self._create_connections()
+
+        if self.compressor_info:
+            self.check_compressor_inputs()
+
+        self.update_remainig_composition()
+        if self.default_library_gases():
+            return
+
+        self.load_default_gases_info()
+        self.update_selected_fluid()
+        self.exec()
+
+    def _initialize_variables(self):
         self.save_path = ""
         self.export_file_path = ""
         self.userPath = os.path.expanduser('~')
-        self.fluid_path = project.get_fluid_list_path()
+        self.fluid_path = self.project.get_fluid_list_path()
+
+        # self.isentropic_label = "ISENK"   # isentropic exponent (real gas)
+        self.isentropic_label = "CP/CV"     # isentropic expansion coefficient (ideal gas)
 
         self.map_properties = { "D" : "fluid density",
                                 "CP" : "specific heat Cp",
                                 "CV" : "specific heat Cv",
-                                "CP/CV" : "isentropic exponent",
+                                self.isentropic_label : "isentropic exponent",
                                 "W" : "speed of sound",
                                 "VIS" : "dynamic viscosity",
                                 "TCX" : "thermal conductivity",
@@ -65,19 +85,16 @@ class SetFluidCompositionInput(QDialog):
         self.complete = False
         self.state_index = None
 
+    def _define_qt_variables(self):
+        # QComboBox
+        self.comboBox_temperature_units = self.findChild(QComboBox, 'comboBox_temperature_units')
+        self.comboBox_pressure_units = self.findChild(QComboBox, 'comboBox_pressure_units')
+        self.comboBox_temperature_units_test = self.findChild(QComboBox, 'comboBox_temperature_units_test')
+        self.comboBox_pressure_units_test = self.findChild(QComboBox, 'comboBox_pressure_units_test')
+        # QLabel
         self.label_selected_fluid = self.findChild(QLabel, 'label_selected_fluid')
         self.label_title_remaining_fraction = self.findChild(QLabel, 'label_title_remaining_fraction')
         self.label_remaining_composition = self.findChild(QLabel, 'label_remaining_composition')
-        self.lineEdit_composition = self.findChild(QLineEdit, 'lineEdit_composition')
-        self.lineEdit_fluid_name = self.findChild(QLineEdit, 'lineEdit_fluid_name')
-
-        self.label_fluid_state_index = self.findChild(QLabel, 'label_fluid_state_index')
-        self.lineEdit_temperature = self.findChild(QLineEdit, 'lineEdit_temperature')
-        self.lineEdit_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
-
-        self.lineEdit_temperature_test = self.findChild(QLineEdit, 'lineEdit_temperature_test')
-        self.lineEdit_pressure_test = self.findChild(QLineEdit, 'lineEdit_pressure_test')
-
         self.label_fluid_temperature = self.findChild(QLabel, 'label_fluid_temperature')
         self.label_fluid_pressure = self.findChild(QLabel, 'label_fluid_pressure')
         self.label_temperature_unit = self.findChild(QLabel, 'label_temperature_unit')
@@ -89,109 +106,103 @@ class SetFluidCompositionInput(QDialog):
         self.label_fluid_speed_of_sound = self.findChild(QLabel, 'label_fluid_speed_of_sound')
         self.label_fluid_dynamic_viscosity = self.findChild(QLabel, 'label_fluid_dynamic_viscosity')
         self.label_fluid_thermal_conductivity = self.findChild(QLabel, 'label_fluid_thermal_conductivity')
-
-        self.comboBox_temperature_units = self.findChild(QComboBox, 'comboBox_temperature_units')
-        self.comboBox_pressure_units = self.findChild(QComboBox, 'comboBox_pressure_units')
-
-        self.comboBox_temperature_units_test = self.findChild(QComboBox, 'comboBox_temperature_units_test')
-        self.comboBox_pressure_units_test = self.findChild(QComboBox, 'comboBox_pressure_units_test')
-        self.comboBox_temperature_units_test.currentIndexChanged.connect(self.update_state_treeWidget_info)
-        self.comboBox_pressure_units_test.currentIndexChanged.connect(self.update_state_treeWidget_info)
-
+        self.label_discharge = self.findChild(QLabel, 'label_discharge')
+        self.label_suction = self.findChild(QLabel, 'label_suction')
+        self.label_discharge.setVisible(False)
+        self.label_suction.setVisible(False)
+        # QLineEdit
+        self.lineEdit_composition = self.findChild(QLineEdit, 'lineEdit_composition')
+        self.lineEdit_fluid_name = self.findChild(QLineEdit, 'lineEdit_fluid_name')
+        self.label_fluid_state_index = self.findChild(QLabel, 'label_fluid_state_index')
+        self.lineEdit_temperature = self.findChild(QLineEdit, 'lineEdit_temperature')
+        self.lineEdit_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
+        self.lineEdit_pressure_disch = self.findChild(QLineEdit, 'lineEdit_pressure_disch')
+        self.lineEdit_temperature_disch = self.findChild(QLineEdit, 'lineEdit_temperature_disch')
+        self.lineEdit_temperature_test = self.findChild(QLineEdit, 'lineEdit_temperature_test')
+        self.lineEdit_pressure_test = self.findChild(QLineEdit, 'lineEdit_pressure_test')
+        self.lineEdit_pressure_disch.setVisible(False)
+        self.lineEdit_temperature_disch.setVisible(False)
+        # QPushButton
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.get_fluid_properties)
         self.pushButton_reset_fluid = self.findChild(QPushButton, 'pushButton_reset_fluid')
-        self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
-
         self.pushButton_add_gas = self.findChild(QPushButton, 'pushButton_add_gas')
-        self.pushButton_add_gas.clicked.connect(self.add_selected_gas)
-    
         self.pushButton_remove_gas = self.findChild(QPushButton, 'pushButton_remove_gas')
-        self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
-
         self.pushButton_add_fluid_state = self.findChild(QPushButton, 'pushButton_add_fluid_state')
-        self.pushButton_add_fluid_state.clicked.connect(self.add_fluid_state)
-
         self.pushButton_remove_fluid_state = self.findChild(QPushButton, 'pushButton_remove_fluid_state')
-        self.pushButton_remove_fluid_state.clicked.connect(self.remove_fluid_state)
-
         self.pushButton_get_fluid_properties_info = self.findChild(QPushButton, 'pushButton_get_fluid_properties_info')
-        self.pushButton_get_fluid_properties_info.clicked.connect(self.get_fluid_properties_by_state)
-
         # self.pushButton_use_remaining_molar_fraction = self.findChild(QPushButton, 'pushButton_use_remaining_molar_fraction')
         # self.pushButton_use_remaining_molar_fraction.clicked.connect(self.use_remaining_molar_fraction)
-
+        # QTabWidget
         self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
-        self.tab_fluid_setup = self.tabWidget_general.findChild(QWidget, 'tab_main')
-        self.tab_pretest_analysis = self.tabWidget_general.findChild(QWidget, 'tab_export')
-
-        self.tabWidget_general.currentChanged.connect(self.update_state_treeWidget_info)
-        
+        # QTreeWidget        
         self.treeWidget_reference_gases = self.findChild(QTreeWidget, 'treeWidget_reference_gases')
-        self.treeWidget_reference_gases.itemClicked.connect(self.on_click_item_reference_gases)
-        self.treeWidget_new_gas = self.findChild(QTreeWidget, 'treeWidget_new_gas')
-        self.treeWidget_new_gas.itemClicked.connect(self.on_click_item_new_gas)
-        self.treeWidget_new_gas.setColumnWidth(0, 376)
-
-        self.treeWidget_new_gas.itemDoubleClicked.connect(self.on_double_click_item_new_gas)
-
+        self.treeWidget_new_gas = self.findChild(QTreeWidget, 'treeWidget_new_gas')        
         self.treeWidget_fluids_states = self.findChild(QTreeWidget, 'treeWidget_fluids_states')
+        self.treeWidget_new_gas.setColumnWidth(0, 376)
         self.treeWidget_fluids_states.setColumnWidth(0, 60)
         self.treeWidget_fluids_states.setColumnWidth(1, 120)
         self.treeWidget_fluids_states.setColumnWidth(2, 120)
+        # QWidget
+        self.tab_fluid_setup = self.tabWidget_general.findChild(QWidget, 'tab_main')
+        self.tab_pretest_analysis = self.tabWidget_general.findChild(QWidget, 'tab_export')
+
+    def _create_connections(self):
+        #
+        self.comboBox_temperature_units_test.currentIndexChanged.connect(self.update_state_treeWidget_info)
+        self.comboBox_pressure_units_test.currentIndexChanged.connect(self.update_state_treeWidget_info)
+        #
+        self.pushButton_add_gas.clicked.connect(self.add_selected_gas)
+        self.pushButton_add_fluid_state.clicked.connect(self.add_fluid_state)
+        self.pushButton_confirm.clicked.connect(self.get_fluid_properties)
+        self.pushButton_get_fluid_properties_info.clicked.connect(self.get_fluid_properties_by_state)
+        self.pushButton_remove_fluid_state.clicked.connect(self.remove_fluid_state)
+        self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
+        self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
+        #
+        self.tabWidget_general.currentChanged.connect(self.update_state_treeWidget_info)
+        self.treeWidget_new_gas.itemDoubleClicked.connect(self.on_double_click_item_new_gas)
         self.treeWidget_fluids_states.itemClicked.connect(self.on_click_item_fluid_state)
-        
-        if self.compressor_info:
-            self.check_compressor_inputs()
-
-        self.update_remainig_composition()
-        if self.default_library_gases():
-            return
-        self.load_default_gases_info()
-        self.update_selected_fluid()
-        self.exec()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.get_fluid_properties()
-        elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
-            self.remove_selected_gas()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+        self.treeWidget_new_gas.itemClicked.connect(self.on_click_item_new_gas)
+        self.treeWidget_reference_gases.itemClicked.connect(self.on_click_item_reference_gases)
 
     def check_compressor_inputs(self):
 
-        font = QFont()
-        font.setFamily("Arial")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        
-        self.lineEdit_temperature.setFont(font)
-        self.lineEdit_temperature.setStyleSheet("color: rgb(0, 0, 255);")
-        self.lineEdit_pressure.setFont(font)
-        self.lineEdit_pressure.setStyleSheet("color: rgb(0, 0, 255);")
+        self.comboBox_temperature_units.setDisabled(True)
+        self.comboBox_pressure_units.setDisabled(True)
+        self.label_discharge.setVisible(True)
+        self.label_suction.setVisible(True)
+        self.lineEdit_pressure_disch.setVisible(True)
+        self.lineEdit_temperature_disch.setVisible(True)
+        self.lineEdit_temperature.setDisabled(True)
+        self.lineEdit_temperature_disch.setDisabled(True)
+        self.lineEdit_pressure.setDisabled(True)
+        self.lineEdit_pressure_disch.setDisabled(True)
+        self.tabWidget_general.setTabVisible(1, False)
+    
+        self.lineEdit_temperature.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
+        self.lineEdit_pressure.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
+        self.lineEdit_temperature_disch.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
+        self.lineEdit_pressure_disch.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
 
         self.connection_type_comp = self.compressor_info['connection type']
         self.connection_label = "discharge" if self.connection_type_comp else "suction"
-        self.temperature_comp = self.compressor_info[f'temperature ({self.connection_label})']
-        self.pressure_comp = self.compressor_info[f'pressure ({self.connection_label})']
-       
-        self.line_id_comp = self.compressor_info['line_id']
-        self.node_id_comp = self.compressor_info['node_id']
-        self.isentropic_exponent_comp = self.compressor_info['isentropic exponent']
-        self.pressure_ratio_comp = self.compressor_info['pressure ratio']
-        self.molar_mass_comp = self.compressor_info['molar mass']
         
-        self.k = self.compressor_info['isentropic exponent']
+        self.T_suction = self.compressor_info[f'temperature (suction)']
+        self.P_suction = self.compressor_info[f'pressure (suction)']
         self.p_ratio =  self.compressor_info['pressure ratio']
-        self.T_suc = self.compressor_info[f'temperature (suction)']
-    
-        self.lineEdit_temperature.setText(str(round(self.temperature_comp,4)))
-        self.lineEdit_temperature.setDisabled(True)
+        self.P_discharge = self.p_ratio*self.P_suction
 
-        self.lineEdit_pressure.setText(str(round(self.pressure_comp,4)))
-        self.lineEdit_pressure.setDisabled(True)
+        if self.connection_label == "suction":
+            self.lineEdit_pressure_disch.setVisible(False)
+            self.lineEdit_temperature_disch.setVisible(False)
+            self.label_discharge.setVisible(False)
+    
+        self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
+        self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
+        self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
+        self.lineEdit_temperature_disch.setText("---")
+        self.lineEdit_temperature_disch.setToolTip("The temperature at discharge will be calculated after the fluid definition.")
+        
 
     def update_selected_fluid(self):
         if self.selected_fluid_to_edit:
@@ -237,7 +248,43 @@ class SetFluidCompositionInput(QDialog):
             self.label_remaining_composition.setText("")
             self.label_remaining_composition.setVisible(False)
             self.label_title_remaining_fraction.setVisible(False)
+            if self.compressor_info:
+                temperature_K = self.T_suction
+                pressure_Pa = self.P_suction
+                self.get_specific_fluid_property(   self.isentropic_label,
+                                                    temperature_K,
+                                                    pressure_Pa   )
+
+    def get_specific_fluid_property(self, key_prop, temperature_K, pressure_Pa):
         
+        units = self.RefProp.GETENUMdll(0, "MASS BASE SI").iEnum
+
+        fluids_string = ""
+        molar_fractions = []
+        for _, _fraction, file_name in self.fluid_to_composition.values():
+            fluids_string += file_name + ";"
+            molar_fractions.append(_fraction)
+        fluids_string = fluids_string[:-1]
+
+        read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+                                        temperature_K, pressure_Pa, molar_fractions )
+
+        if read.herr:
+            return
+        
+        if key_prop == "M":
+            fluid_property = 1000*read.Output[0]   
+        else:
+            fluid_property = read.Output[0]
+
+        if key_prop == self.isentropic_label:
+            _k = fluid_property 
+            self.T_discharge = (self.T_suction)*(self.p_ratio**((_k-1)/_k))
+            self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
+        
+        return fluid_property
+
+
     def create_font(self, size):
         self.font = QFont()
         self.font.setPointSize(size)
@@ -385,7 +432,8 @@ class SetFluidCompositionInput(QDialog):
 
                 self.unit_temperature_update(self.comboBox_temperature_units)
                 self.unit_pressure_update(self.comboBox_pressure_units)
-                values = self.check_input_values_with_units(self.lineEdit_temperature, self.lineEdit_pressure)
+                values = self.check_input_values_with_units(self.lineEdit_temperature, 
+                                                            self.lineEdit_pressure)
 
                 if values is None:
                     return
@@ -395,61 +443,80 @@ class SetFluidCompositionInput(QDialog):
                     self.fluid_properties["pressure"] = pressure_Pa
 
                 self.fluid_properties["fluid name"] = self.lineEdit_fluid_name.text()
-                # self.fluid_properties["id"] = ""
-                # self.fluid_properties["color"] = ""
                 
                 if self.compressor_info:
-                    if self.connection_label == "discharge":
-                        count = 0
-                        criteria = 100
-                        cache_temperatures = [temperature_K]
-                        while criteria > 0.001 and count <= 100:
-                            for key_prop in ["D", "CV", "CP", "CP/CV", "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
-                                read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
-                                                                temperature_K, pressure_Pa, molar_fractions )
 
-                                if read.herr:
-                                    self.errors[self.map_properties[key_prop]] = read.herr
-                                
-                                self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
+                    for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
 
-                                if key_prop == "CP/CV":
-                                    k_iter = read.Output[0]
-                            
-                            count += 1
-                            temperature_K_iter = self.T_suc*(self.p_ratio**((k_iter-1)/k_iter))
-                            cache_temperatures.append(temperature_K_iter)
-                            criteria = abs(cache_temperatures[-1]-cache_temperatures[-2])/((cache_temperatures[-1]+cache_temperatures[-2])/2)
-                            temperature_K = temperature_K_iter
-                            self.fluid_properties["temperature"] = temperature_K
-                            # print(count, k_iter, cache_temperatures[-1], cache_temperatures[-2], criteria)
-                    
-                    elif self.connection_label == "suction":
-                        for key_prop in ["D", "CV", "CP", "CP/CV", "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
-                            read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
-                                                            temperature_K, pressure_Pa, molar_fractions )
-
-                            if read.herr:
-                                self.errors[self.map_properties[key_prop]] = read.herr
-                            
-                            self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
-
-                else:
-
-                    for key_prop in ["D", "CV", "CP", "CP/CV", "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
                         read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                         temperature_K, pressure_Pa, molar_fractions )
 
                         if read.herr:
                             self.errors[self.map_properties[key_prop]] = read.herr
                         
-                        self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
+                        if key_prop == "M":
+                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]   
+                        else:
+                            self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
+                            if key_prop == self.isentropic_label:
+                                self.k = read.Output[0] 
+                    
+                    self.T_discharge = (self.T_suction)*(self.p_ratio**((self.k-1)/self.k))
+                    self.lineEdit_temperature_disch.setText(str(round(self.T_discharge,4)))
+                    temperature_K = self.T_discharge
+                    pressure_Pa = self.P_discharge
+
+                    if self.connection_label == "discharge":
+                        count = 0
+                        criteria = 100
+                        cache_temperatures = [temperature_K]
+                        while criteria > 0.001 and count <= 100:
+
+                            for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
+                                read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+                                                                temperature_K, pressure_Pa, molar_fractions )
+
+                                if read.herr:
+                                    self.errors[self.map_properties[key_prop]] = read.herr
+                                
+                                if key_prop == "M":
+                                    self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]   
+                                else:
+                                    self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
+
+                                if key_prop == self.isentropic_label:
+                                    k_iter = read.Output[0]
+                            
+                            count += 1
+                            temperature_K_iter = self.T_suction*(self.p_ratio**((k_iter-1)/k_iter))
+                            cache_temperatures.append(temperature_K_iter)
+                            criteria = abs(cache_temperatures[-1]-cache_temperatures[-2])/((cache_temperatures[-1]+cache_temperatures[-2])/2)
+                            temperature_K = temperature_K_iter
+                            self.fluid_properties["temperature"] = temperature_K
+                            # print(count, k_iter, cache_temperatures[-1], cache_temperatures[-2], criteria)
+                        
+                        self.fluid_properties["pressure"] = pressure_Pa
+
+                else:
+
+                    for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
+                        read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+                                                        temperature_K, pressure_Pa, molar_fractions )
+
+                        if read.herr:
+                            self.errors[self.map_properties[key_prop]] = read.herr
+                        
+                        if key_prop == "M":
+                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]    
+                        else:
+                            self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
                 self.fluid_properties["impedance"] = round(self.fluid_properties["fluid density"]*self.fluid_properties["speed of sound"],6)
                 self.fluid_setup = [fluids_string, molar_fractions]
                 
                 if self.process_errors():
                     return
+
                 self.complete = True
                 self.close()
                 # self.actions_to_finalize()
@@ -560,9 +627,8 @@ class SetFluidCompositionInput(QDialog):
         self.unit_temperature = temperature_unit_labels[index_temperature]
 
     def unit_pressure_update(self, comboBox_pressure_units):
-        pressure_unit_labels = ["Pa", "kPa", "bar", "psi"]
-        index_pressure = comboBox_pressure_units.currentIndex()
-        self.unit_pressure = pressure_unit_labels[index_pressure]
+        self.unit_pressure = comboBox_pressure_units.currentText()
+        self.unit_pressure = self.unit_pressure.replace(" ", "")
 
     def check_input_values_with_units(self, lineEdit_temperature, lineEdit_pressure):
 
@@ -589,11 +655,17 @@ class SetFluidCompositionInput(QDialog):
 
         if self.unit_pressure == "kPa":
             _pressure_value *= 1e3
-        elif self.unit_pressure == "bar":
+        elif self.unit_pressure == "atm":
             _pressure_value *= 101325
+        elif self.unit_pressure == "bar":
+            _pressure_value *= 1e5
+        elif self.unit_pressure == "kgf/cm²":
+            _pressure_value *= 9.80665e4
         elif self.unit_pressure == "psi":
             _pressure_value *= 6894.75729
-       
+        elif self.unit_pressure == "ksi":
+            _pressure_value *= 6.89475729e6
+
         if _pressure_value < 0:
             title = "Invalid entry to the pressure"
             message = "The typed value at pressure input field reaches a negative value in Pascal scale."
@@ -625,12 +697,19 @@ class SetFluidCompositionInput(QDialog):
                     temperature -= 273.15
                 elif self.unit_temperature == "°F":
                     temperature = (temperature - 273.15)*(9/5) + 32
+
                 if self.unit_pressure == "kPa":
-                    pressure *= 1e-3
+                    pressure /= 1e3
+                elif self.unit_pressure == "atm":
+                    pressure /= 101325
                 elif self.unit_pressure == "bar":
-                    pressure *= 1e-5
+                    pressure /= 1e5
+                elif self.unit_pressure == "kgf/cm²":
+                    pressure /= 9.80665e4
                 elif self.unit_pressure == "psi":
                     pressure /= 6894.75729
+                elif self.unit_pressure == "ksi":
+                    pressure /= 6.89475729e6
                 
                 if self.errors_by_fluid_state:
                     if self.errors_by_fluid_state[index] != 0:
@@ -681,7 +760,7 @@ class SetFluidCompositionInput(QDialog):
                 fluids_string = fluids_string[:-1]
                 
                 fluid_properties_by_state = {}
-                for key_prop in ["D", "CV", "CP", "CP/CV", "W", "VIS", "TCX"]:#, "PRANDTL", "TD", "KV"]:
+                for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX"]:#, "PRANDTL", "TD", "KV"]:
                     read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                     temperature_K, pressure_Pa, molar_fractions )
                     if index in self.errors_by_fluid_state.keys():
@@ -778,3 +857,11 @@ class SetFluidCompositionInput(QDialog):
             message += f"\n\n{str(log_error)}"
             PrintMessageInput([title, message, "ERROR"])
             return True
+        
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.get_fluid_properties()
+        elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
+            self.remove_selected_gas()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

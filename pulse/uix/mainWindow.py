@@ -11,6 +11,8 @@ from pulse.uix.config import Config
 from pulse.uix.renderer_toolbar import RendererToolbar
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
+from pulse.uix.clip_plane_widget import ClipPlaneWidget
+
 import sys
 import os
 
@@ -757,7 +759,6 @@ class MainWindow(QMainWindow):
         self.menu_widget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
-
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)

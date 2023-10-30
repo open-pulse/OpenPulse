@@ -42,7 +42,7 @@ class Plot_TL_NR_Input(QDialog):
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
-        self.writeNodes(self.opv.getListPickedPoints())
+        self.update()
         self.exec()
 
     def _config_window(self):
@@ -72,18 +72,21 @@ class Plot_TL_NR_Input(QDialog):
         self.pushButton_flip_nodes_2.setIcon(self.update_icon)
 
     def _create_connections(self):
+        self.comboBox_processing_selector.currentIndexChanged.connect(self.update_flip_buttons)
         self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
         self.pushButton_flip_nodes_1.clicked.connect(self.flip_nodes)
         self.pushButton_flip_nodes_2.clicked.connect(self.flip_nodes)
+        self.update_flip_buttons()
 
-    def writeNodes(self, list_node_ids):
-        if len(list_node_ids) == 2:
-            self.lineEdit_input_node_id.setText(str(list_node_ids[-2]))
-            self.lineEdit_output_node_id.setText(str(list_node_ids[-1]))
-        elif len(list_node_ids) == 1:
-            self.lineEdit_input_node_id.setText(str(list_node_ids[-1]))
-            self.lineEdit_output_node_id.setText("")
+    def update_flip_buttons(self):
+        index = self.comboBox_processing_selector.currentIndex()
+        if index == 0:
+            self.pushButton_flip_nodes_1.setDisabled(True)
+            self.pushButton_flip_nodes_2.setDisabled(True)
+        else:
+            self.pushButton_flip_nodes_1.setDisabled(False)
+            self.pushButton_flip_nodes_2.setDisabled(False)
 
     def flip_nodes(self):
         temp_text_input = self.lineEdit_input_node_id.text()
@@ -92,7 +95,21 @@ class Plot_TL_NR_Input(QDialog):
         self.lineEdit_output_node_id.setText(temp_text_input) 
 
     def update(self):
-        self.writeNodes(self.opv.getListPickedPoints())
+        self.input_node_ID = None
+        self.output_node_ID = None
+        self.lineEdit_input_node_id.setText("")
+        self.lineEdit_output_node_id.setText("")
+        selected_ids = self.opv.getListPickedPoints()
+        for node_id in selected_ids:
+            node = self.preprocessor.nodes[node_id]
+            if node in self.preprocessor.nodes_with_volume_velocity:
+                self.input_volume_velocity = np.real(node.volume_velocity)
+                self.input_node_ID = node_id
+                self.lineEdit_input_node_id.setText(str(node_id))
+            if node in self.preprocessor.nodes_with_radiation_impedance:
+                if node not in self.preprocessor.nodes_with_volume_velocity:
+                    self.output_node_ID = node_id
+                    self.lineEdit_output_node_id.setText(str(node_id))
 
     def check_inputs(self):
 
@@ -127,26 +144,33 @@ class Plot_TL_NR_Input(QDialog):
         return inner_diameter[ind], density[ind], speed_of_sound[ind]
 
     def get_TL_NR(self):
-        
-        P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
-        P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
+
+        P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
         
         # the zero_shift constant is summed to avoid zero values either in P_input2 or P_output2 variables
         zero_shift = 1e-12
-        P_input2 = 0.5*np.real(P_input*np.conjugate(P_input)) + zero_shift
-        P_output2 = 0.5*np.real(P_output*np.conjugate(P_output)) + zero_shift
+        Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
 
         d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
         d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_ID)
-        
-        if self.comboBox_processing_selector.currentIndex() == 0:
-            alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
-            TL = -10*np.log10(alpha_T)
+        A_in = np.pi*(d_in**2)/4
+        A_out = np.pi*(d_out**2)/4
+
+        index = self.comboBox_processing_selector.currentIndex()
+        if index == 0:
+            Q = self.input_volume_velocity
+            u_n = Q/A_in
+            P_in = u_n*rho_in*c0_in/2
+            Prms_in2 = (P_in/np.sqrt(2))**2
+            W_in = 10*np.log10(Prms_in2*A_in/(rho_in*c0_in))
+            W_out = 10*np.log10(Prms_out2*A_out/(rho_out*c0_out))
+            TL = W_in - W_out
             return TL
-            
-        if self.comboBox_processing_selector.currentIndex() == 1:
-            delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
-            NR = 10*np.log10(delta)
+
+        if index == 1:
+            P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
+            Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
+            NR = 10*np.log10(Prms_in2/Prms_out2)
             return NR
 
     def join_model_data(self):

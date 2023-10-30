@@ -17,6 +17,7 @@ window_title_2 = "WARNING MESSAGE"
 
 psi_to_Pa = 0.45359237*9.80665/((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
+bar_to_Pa = 1e5
 
 class CompressorModelInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
@@ -71,6 +72,13 @@ class CompressorModelInput(QDialog):
         self.comboBox_frequency_resolution = self.findChild(QComboBox, 'comboBox_frequency_resolution')
         self.comboBox_compressors_tables = self.findChild(QComboBox, 'comboBox_compressors_tables')
         self.comboBox_stage = self.findChild(QComboBox, 'comboBox_stage')
+        self.comboBox_suction_pressure_units = self.findChild(QComboBox, 'comboBox_suction_pressure_units')
+        self.comboBox_suction_temperature_units = self.findChild(QComboBox, 'comboBox_suction_temperature_units')
+        # QLabel
+        self.label_molar_mass = self.findChild(QLabel, 'label_molar_mass')
+        self.label_molar_mass_unit = self.findChild(QLabel, 'label_molar_mass_unit')
+        self.label_isentropic_exp = self.findChild(QLabel, 'label_isentropic_exp')
+        self.label_isentropic_exp_unit = self.findChild(QLabel, 'label_isentropic_exp_unit') 
         # QLineEdit
         self.lineEdit_selected_node_ID = self.findChild(QLineEdit, 'lineEdit_selected_node_ID')
         self.lineEdit_suction_node_ID = self.findChild(QLineEdit, 'lineEdit_suction_node_ID')
@@ -82,7 +90,8 @@ class CompressorModelInput(QDialog):
         self.lineEdit_connecting_rod_length = self.findChild(QLineEdit, 'lineEdit_connecting_rod_length')
         self.lineEdit_rod_diameter = self.findChild(QLineEdit, 'lineEdit_rod_diameter')
         self.lineEdit_pressure_ratio = self.findChild(QLineEdit, 'lineEdit_pressure_ratio')
-        self.lineEdit_clearance = self.findChild(QLineEdit, 'lineEdit_clearance')
+        self.lineEdit_clearance_head_end = self.findChild(QLineEdit, 'lineEdit_clearance_head_end')
+        self.lineEdit_clearance_crank_end = self.findChild(QLineEdit, 'lineEdit_clearance_crank_end')
         self.lineEdit_TDC_crank_angle_1 = self.findChild(QLineEdit, 'lineEdit_TDC_crank_angle_1')
         self.lineEdit_TDC_crank_angle_2 = self.findChild(QLineEdit, 'lineEdit_TDC_crank_angle_2')
         self.lineEdit_rotational_speed = self.findChild(QLineEdit, 'lineEdit_rotational_speed')
@@ -99,9 +108,11 @@ class CompressorModelInput(QDialog):
         self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
         self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
         self.pushButton_plot_PV_diagram_crank_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_crank_end')
+        self.pushButton_plot_piston_position_and_velocity_time = self.findChild(QPushButton, 'pushButton_plot_piston_position_and_velocity_time')
         self.pushButton_plot_volumetric_flow_rate_at_suction_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_time')
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
         self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
+        self.pushButton_plot_rod_pressure_load_time = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_time')
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_frequency')
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_frequency')
         self.pushButton_plot_pressure_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_head_end_angle')
@@ -155,6 +166,8 @@ class CompressorModelInput(QDialog):
         self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(self.plot_volumetric_flow_rate_at_suction_time)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
         self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
+        self.pushButton_plot_rod_pressure_load_time.clicked.connect(self.plot_rod_pressure_load_time)
+        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(self.plot_piston_position_and_velocity_time)
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
         self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
@@ -246,9 +259,11 @@ class CompressorModelInput(QDialog):
             self.writeNodes(list_node_ids)
             
     def writeNodes(self, list_node_ids):
+
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
+
         self.lineEdit_selected_node_ID.setText(text[:-2])
         if len(list_node_ids) == 2:
             self.lineEdit_suction_node_ID.setText(str(min(list_node_ids[-2:])))
@@ -307,7 +322,7 @@ class CompressorModelInput(QDialog):
                     table_file = open(load_path_table, "r")
                     lines = table_file.readlines()                
                     compressor_info = {}
-                    for str_line in lines[2:21]:
+                    for str_line in lines[2:23]:
                         if str_line[2:-1] != "":
                             key_value = str_line[2:-1].split(" = ")
                             try:
@@ -374,8 +389,10 @@ class CompressorModelInput(QDialog):
             self.lineEdit_rod_diameter.setText(str(compressor_info["rod diameter"]))
         if "pressure ratio" in compressor_info.keys():
             self.lineEdit_pressure_ratio.setText(str(compressor_info["pressure ratio"]))
-        if "clearance" in compressor_info.keys():
-            self.lineEdit_clearance.setText(str(compressor_info["clearance"]))
+        if "clearance (HE)" in compressor_info.keys():
+            self.lineEdit_clearance_head_end.setText(str(compressor_info["clearance (HE)"]))
+        if "clearance (CE)" in compressor_info.keys():
+            self.lineEdit_clearance_crank_end.setText(str(compressor_info["clearance (CE)"]))
         if "TDC crank angle 1" in compressor_info.keys():
             self.lineEdit_TDC_crank_angle_1.setText(str(compressor_info["TDC crank angle 1"]))
         if "rotational speed" in compressor_info.keys():
@@ -388,9 +405,16 @@ class CompressorModelInput(QDialog):
             self.lineEdit_molar_mass.setText(str(compressor_info["molar mass"]))
         if "pressure at suction" in compressor_info.keys():
             self.lineEdit_pressure_at_suction.setText(str(compressor_info["pressure at suction"]))
+        if compressor_info["pressure unit"] == "kgf/cm²":
+            self.comboBox_suction_pressure_units.setCurrentIndex(0)
+        else:
+            self.comboBox_suction_pressure_units.setCurrentIndex(1)
         if "temperature at suction" in compressor_info.keys():
             self.lineEdit_temperature_at_suction.setText(str(compressor_info["temperature at suction"]))
-               
+        if compressor_info["temperature unit"] == "°C":
+            self.comboBox_suction_temperature_units.setCurrentIndex(0)
+        else:
+            self.comboBox_suction_temperature_units.setCurrentIndex(1)
         if "acting label" in compressor_info.keys():
             acting_key = int(compressor_info["acting label"])
             self.comboBox_cylinder_acting.setCurrentIndex(acting_key)
@@ -412,16 +436,24 @@ class CompressorModelInput(QDialog):
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
         self.spinBox_max_frequency.setValue(int(f_max))
 
+        # self.lineEdit_molar_mass.setDisabled(True)
+        # self.lineEdit_isentropic_exponent.setDisabled(True)
+
     def reset_entries(self):
-        self.lineEdit_TDC_crank_angle_2.setText("90")
-        self.spinBox_number_of_cylinders.setValue(1)
+        self.comboBox_compressors_tables.clear()
+        self.comboBox_compressors_tables.setVisible(False)
+        self.comboBox_cylinder_acting.setCurrentIndex(0)
         self.comboBox_stage.setCurrentIndex(0)
+        self.comboBox_suction_pressure_units.setCurrentIndex(0)
+        self.comboBox_suction_temperature_units.setCurrentIndex(0)
+        self.lineEdit_TDC_crank_angle_2.setText("90")
         self.lineEdit_bore_diameter.setText("")
         self.lineEdit_stroke.setText("")
         self.lineEdit_connecting_rod_length.setText("")
         self.lineEdit_rod_diameter.setText("")
         self.lineEdit_pressure_ratio.setText("")
-        self.lineEdit_clearance.setText("")
+        self.lineEdit_clearance_head_end.setText("")
+        self.lineEdit_clearance_crank_end.setText("")
         self.lineEdit_TDC_crank_angle_1.setText("")
         self.lineEdit_rotational_speed.setText("")
         self.lineEdit_capacity.setText("")
@@ -429,11 +461,9 @@ class CompressorModelInput(QDialog):
         self.lineEdit_molar_mass.setText("")
         self.lineEdit_pressure_at_suction.setText("")
         self.lineEdit_temperature_at_suction.setText("")
-        self.radioButton_both_cylinders.setChecked(True)
-        self.table_name = None
-        self.comboBox_compressors_tables.clear()
-        self.comboBox_compressors_tables.setVisible(False)
         self.radioButton_connected_at_suction_and_discharge.setDisabled(False)
+        self.spinBox_number_of_cylinders.setValue(1)
+        self.table_name = None
 
     def check_node_id(self, lineEdit):
         
@@ -545,11 +575,17 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['pressure ratio'] = self.value
     
-        if self.check_input_parameters(self.lineEdit_clearance, "CLEARANCE"):
-            self.lineEdit_clearance.setFocus()
+        if self.check_input_parameters(self.lineEdit_clearance_head_end, "CLEARANCE (HE)"):
+            self.lineEdit_clearance_head_end.setFocus()
             return True
         else:
-            self.parameters['clearance'] = self.value
+            self.parameters['clearance (HE)'] = self.value
+        
+        if self.check_input_parameters(self.lineEdit_clearance_crank_end, "CLEARANCE (CE)"):
+            self.lineEdit_clearance_crank_end.setFocus()
+            return True
+        else:
+            self.parameters['clearance (CE)'] = self.value
     
         if self.check_input_parameters(self.lineEdit_TDC_crank_angle_1, "TOP DEAD CENTER CRANCK ANGLE 1"):
             self.lineEdit_TDC_crank_angle_1.setFocus()
@@ -593,11 +629,21 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['pressure at suction'] = self.value
 
+        if self.comboBox_suction_pressure_units.currentIndex() == 0:
+            self.parameters['pressure unit'] = "kgf/cm²"
+        elif self.comboBox_suction_pressure_units.currentIndex() == 1:
+            self.parameters['pressure unit'] = "bar"
+
         if self.check_input_parameters(self.lineEdit_temperature_at_suction, "TEMPERATURE AT SUCTION"):
             self.lineEdit_temperature_at_suction.setFocus()
             return True
         else:
             self.parameters['temperature at suction'] = self.value
+
+        if self.comboBox_suction_temperature_units.currentIndex() == 0:
+            self.parameters['temperature unit'] = "°C"
+        elif self.comboBox_suction_temperature_units.currentIndex() == 1:
+            self.parameters['temperature unit'] = "K"
 
         self.parameters['compression stage'] = self.compression_stage_index
         self.parameters['number of cylinders'] = self.number_of_cylinders
@@ -613,23 +659,29 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['TDC crank angle 2'] = None
 
-        list_parameters = []
-        for key, parameter in self.parameters.items():
-            if key not in ['cylinder label', 'compression stage', 'number of cylinders', 'TDC crank angle 2']:
-                list_parameters.append(parameter)
+        # list_parameters = []
+        # for key, parameter in self.parameters.items():
+        #     if key not in ['cylinder label', 'compression stage', 'number of cylinders', 'TDC crank angle 2']:
+        #         list_parameters.append(parameter)
 
-        self.compressor = CompressorModel(list_parameters)
+        self.compressor = CompressorModel(self.parameters)
         self.compressor.number_of_cylinders = self.parameters['number of cylinders']
 
-        self.T_suction = self.parameters['temperature at suction'] + 273.15
-        self.P_suction = self.parameters['pressure at suction']*kgf_cm2_to_Pa
+        if self.comboBox_suction_pressure_units.currentIndex() == 0:
+            self.P_suction = self.parameters['pressure at suction']*kgf_cm2_to_Pa
+        elif self.comboBox_suction_pressure_units.currentIndex() == 1:
+            self.P_suction = self.parameters['pressure at suction']*bar_to_Pa
         
-        self.T_discharge = self.compressor.T_disc
-        self.P_discharge = self.parameters['pressure ratio']*self.P_suction
-        
+        if self.comboBox_suction_temperature_units.currentIndex() == 0:
+            self.T_suction = self.parameters['temperature at suction'] + 273.15
+        elif self.comboBox_suction_temperature_units.currentIndex() == 1:
+            self.T_suction = self.parameters['temperature at suction']
+
         if self.parameters['TDC crank angle 2'] is not None:   
             self.compressor.tdc2 = self.parameters['TDC crank angle 2']*np.pi/180
 
+        # self.P_discharge = self.parameters['pressure ratio']*self.P_suction
+        
         return False
     
     def process_aquisition_parameters(self):
@@ -705,8 +757,8 @@ class CompressorModelInput(QDialog):
                 _run = False
             else:
                 table_index += 1 
-        self.size = table_index        
-        table_name = f"table{self.size}_node{node_id}_compressor_excitation_{label}.dat"
+        self.table_index = table_index        
+        table_name = f"table{self.table_index}_node{node_id}_compressor_excitation_{label}.dat"
         return table_name
 
     def check_existing_compressor_parameters_and_edit(self):
@@ -714,32 +766,28 @@ class CompressorModelInput(QDialog):
             self.remove_table()
 
     def process_all_inputs(self):
+
         if self.check_all_nodes():
             return
         if self.check_all_parameters():
             return
+
         self.process_aquisition_parameters()
         self.check_existing_compressor_parameters_and_edit()
 
         if self.connection_at_suction_and_discharge or self.connection_at_suction:
-            freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
-            table_name = self.get_table_name(self.suction_node_ID, 'suction')
-            data = [in_flow_rate, table_name]
-
+            
             line_suction_node_ID = self.preprocessor.get_line_from_node_id(self.suction_node_ID)
-
             compressor_info = { "temperature (suction)" : self.T_suction,
                                 "pressure (suction)" : self.P_suction,
-                                "temperature (discharge)" : self.T_discharge,
-                                "pressure (discharge)" : self.P_discharge,
                                 "line_id" : line_suction_node_ID[0],
                                 "node_id" : self.suction_node_ID,
-                                "isentropic exponent" : self.parameters['isentropic exponent'],
                                 "pressure ratio" : self.parameters['pressure ratio'],
-                                "molar mass" : self.parameters['molar mass'],
                                 "connection type" : 0 }
 
-            read = FluidInput(self.project, self.opv, compressor_thermodynamic_state=compressor_info) 
+            read = FluidInput(  self.project, 
+                                self.opv, 
+                                compressor_thermodynamic_state=compressor_info  ) 
             if not read.complete:
                 return
             else:
@@ -750,36 +798,42 @@ class CompressorModelInput(QDialog):
                         self.parameters['fluid properties source'] = "REFPROP"
                 else:
                     self.parameters['fluid properties source'] = "user-defined"
+
                 self.parameters['points per revolution'] = self.compressor.number_points
-           
+                self.compressor.set_fluid_properties_and_update_state(self.parameters['isentropic exponent'],
+                                                                      self.parameters['molar mass'])
+
+                # self.T_discharge = self.compressor.T_disc
+
+                freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
+                table_name = self.get_table_name(self.suction_node_ID, 'suction')
+                data = [in_flow_rate, table_name]
+
             self.project.remove_acoustic_pressure_table_files(self.suction_node_ID)
             self.project.remove_volume_velocity_table_files(self.suction_node_ID)
 
-            if self.project.set_compressor_excitation_bc_by_node([self.suction_node_ID], data, self.size, 'suction'):
+            if self.project.set_compressor_excitation_bc_by_node(   [self.suction_node_ID], 
+                                                                    data, 
+                                                                    self.table_index,
+                                                                    'suction'   ):
                 return
             else:
                 if self.save_table_values(freq, in_flow_rate, table_name):
                     return
                 
-        if self.connection_at_suction_and_discharge or self.connection_at_discharge:  
-            freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
-            table_name = self.get_table_name(self.discharge_node_ID, 'discharge')
-            data = [out_flow_rate, table_name]
+        if self.connection_at_suction_and_discharge or self.connection_at_discharge:
 
             line_discharge_node_ID = self.preprocessor.get_line_from_node_id(self.discharge_node_ID)
-
             compressor_info = { "temperature (suction)" : self.T_suction,
                                 "pressure (suction)" : self.P_suction,
-                                "temperature (discharge)" : self.T_discharge,
-                                "pressure (discharge)" : self.P_discharge,
                                 "line_id" : line_discharge_node_ID[0],
                                 "node_id" : self.discharge_node_ID,
-                                "isentropic exponent" : self.parameters['isentropic exponent'],
                                 "pressure ratio" : self.parameters['pressure ratio'],
-                                "molar mass" : self.parameters['molar mass'],
                                 "connection type" : 1 }
             
-            read = FluidInput(self.project, self.opv, compressor_thermodynamic_state=compressor_info)
+            read = FluidInput(  self.project, 
+                                self.opv, 
+                                compressor_thermodynamic_state=compressor_info  )
             if not read.complete:
                 return
             else:
@@ -790,11 +844,22 @@ class CompressorModelInput(QDialog):
                         self.parameters['fluid properties source'] = "REFPROP"
                 else:
                     self.parameters['fluid properties source'] = "user-defined"
-           
+    
+                self.parameters['points per revolution'] = self.compressor.number_points
+                self.compressor.set_fluid_properties_and_update_state(self.parameters['isentropic exponent'],
+                                                                      self.parameters['molar mass'])
+
+            freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
+            table_name = self.get_table_name(self.discharge_node_ID, 'discharge')
+            data = [out_flow_rate, table_name]
+
             self.project.remove_acoustic_pressure_table_files(self.discharge_node_ID)
             self.project.remove_volume_velocity_table_files(self.discharge_node_ID)
 
-            if self.project.set_compressor_excitation_bc_by_node([self.discharge_node_ID], data, self.size, 'discharge'):
+            if self.project.set_compressor_excitation_bc_by_node(   [self.discharge_node_ID], 
+                                                                    data, 
+                                                                    self.table_index, 
+                                                                    'discharge'   ):
                 return
             else:
                 if self.save_table_values(freq, out_flow_rate, table_name):
@@ -899,6 +964,19 @@ class CompressorModelInput(QDialog):
         self.process_aquisition_parameters()
         self.compressor.plot_rod_pressure_load_frequency(self.N_rev)
         return
+
+    def plot_rod_pressure_load_time(self):
+        self.process_aquisition_parameters()
+        self.compressor.plot_rod_pressure_load_time(self.N_rev)
+        return
+    
+    def plot_piston_position_and_velocity_time(self):
+        self.process_aquisition_parameters()
+        self.compressor.plot_piston_position_and_velocity(domain="time")
+
+    def plot_piston_position_and_velocity_angle(self):
+        self.process_aquisition_parameters()
+        self.compressor.plot_piston_position_and_velocity(domain="angle")
 
     def plot_volumetric_flow_rate_at_suction_frequency(self):
         self.process_aquisition_parameters()
@@ -1040,6 +1118,7 @@ class CompressorModelInput(QDialog):
         self.opv.updateRendererMesh()
 
     def reset_all(self):
+        print(len(self.preprocessor.nodes_with_compressor_excitation))
         if len(self.preprocessor.nodes_with_compressor_excitation) > 0:
             title = f"Removal of all compressor excitations"
             message = "Do you really want to remove all compressor excitations \napplied to the following nodes?\n\n"
