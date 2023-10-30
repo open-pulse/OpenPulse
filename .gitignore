@@ -20,3 +20,6 @@ envpulse/
 *.dat
 *.ini
 *.json
+
+# Local directory
+measured_data/
