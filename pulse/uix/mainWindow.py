@@ -142,15 +142,15 @@ class MainWindow(QMainWindow):
         self.entities_action.setStatusTip('Plot Lines')
         self.entities_action.triggered.connect(self.plot_entities)
 
-        self.mesh_action = QAction('&Plot Mesh', self)        
-        self.mesh_action.setShortcut('Ctrl+3')
-        self.mesh_action.setStatusTip('Plot Mesh')
-        self.mesh_action.triggered.connect(self.plot_mesh)
-
         self.entities_action_radius = QAction('&Plot Lines with Cross-section', self)        
-        self.entities_action_radius.setShortcut('Ctrl+4')
+        self.entities_action_radius.setShortcut('Ctrl+3')
         self.entities_action_radius.setStatusTip('Plot Lines with Cross-section')
         self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
+
+        self.mesh_action = QAction('&Plot Mesh', self)        
+        self.mesh_action.setShortcut('Ctrl+4')
+        self.mesh_action.setStatusTip('Plot Mesh')
+        self.mesh_action.triggered.connect(self.plot_mesh)
 
         self.section_action = QAction('&Plot Cross-section', self)
         self.section_action.setShortcut('Ctrl+5')
