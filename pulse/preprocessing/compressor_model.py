@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from pathlib import Path
+import os
 
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
@@ -212,6 +213,16 @@ class CompressorModel:
         d_theta = theta - tdc
         x = (r * np.cos(d_theta) + np.sqrt(l**2 - ((r*np.sin(d_theta))**2))) - x_max
         return theta, x 
+
+    def recip_x_theta(self, theta, deg=True, tdc=0):
+        r = self.r
+        l = self.L
+        x_max = l + r
+        if deg:
+            theta *= pi/180
+        d_theta = theta - tdc
+        x = (r * np.cos(d_theta) + np.sqrt(l**2 - ((r*np.sin(d_theta))**2))) - x_max
+        return theta, x
 
     def get_HE_clearance_volume(self):
         h_0 = self.c_HE*(2*self.r) # clearance height head end
@@ -645,6 +656,8 @@ class CompressorModel:
         plot2(volumes, pressures, x_label, y_label, title, labels, colors, linestyles)
 
     def plot_PV_diagram_head_end(self):
+        self.process_volumes_for_imported_data()
+        return
         volume_HE, pressure_HE, *args = self.process_volumes_and_pressures(acting_label="HE")
         if volume_HE is None:
             return
@@ -1000,6 +1013,59 @@ class CompressorModel:
         y_label = "Capacity parameter"
         title = "Convergence plot"
         plot(x, y, x_label, y_label, title)
+
+    def import_measured_PV_data(self, id_1, id_2, comp):
+
+        paths = list()
+        paths.append(Path(f"C:/Repositorios/OpenPulse/measured_data/unidades_C32313/Compressor_{comp}/PT_{id_1}_{id_2}/PT_{id_1}{comp}.txt"))
+        paths.append(Path(f"C:/Repositorios/OpenPulse/measured_data/unidades_C32313/Compressor_{comp}/PT_{id_1}_{id_2}/PT_{id_2}{comp}.txt"))
+        # paths.append(Path(f"C:/Repositorios/OpenPulse/measured_data/unidades_C32313/Compressor_A/PT_{id_1}_{id_2}/PT_{id_1}A_adiabatic.txt"))
+        # paths.append(Path(f"C:/Repositorios/OpenPulse/measured_data/unidades_C32313/Compressor_A/PT_{id_1}_{id_2}/PT_{id_2}A_adiabatic.txt"))
+
+        data = dict()
+        for i, path in enumerate(paths):
+            basename = os.path.basename(path)[:-4]
+            data[basename] = np.loadtxt(path, delimiter=";", skiprows=10)
+        
+        return data
+
+    def process_volumes_for_imported_data(self):
+
+        id_1 = 807
+        id_2 = 808
+        comp = "B"
+        phi = 0
+        data = self.import_measured_PV_data(id_1, id_2, comp)
+        
+        angle_HE = data[f"PT_{id_1}{comp}"][:, 0]
+        pressure_HE = data[f"PT_{id_1}{comp}"][:, 1]
+
+        _, A_HE, h0_HE = self.get_HE_clearance_volume()
+        _, x_piston_HE = self.recip_x_theta(angle_HE, tdc=phi)
+        volume_HE = (h0_HE - x_piston_HE)*A_HE
+
+        angle_CE = data[f"PT_{id_2}{comp}"][:, 0]
+        pressure_CE = data[f"PT_{id_2}{comp}"][:, 1]
+
+        _, A_CE, h0_CE = self.get_CE_clearance_volume()
+        _, x_piston_CE = self.recip_x_theta(angle_CE, tdc=phi+pi)
+        volume_CE = (h0_CE - x_piston_CE)*A_CE
+
+        # pressure_HE /= kgf_cm2_to_Pa
+        # pressure_CE /= kgf_cm2_to_Pa
+
+        x_label = "Volume [m³]"
+        y_label = f"Pressure [kgf/cm²]"
+        title = f"P-V diagram - compressor {comp}"
+        x_data = [volume_HE, volume_CE]
+        # x_data = [angle_HE, angle_CE]
+        y_data = [pressure_HE, pressure_CE]
+        labels = [f"Head End (PT_{id_1}{comp})", f"Crank End (PT_{id_2}{comp})"]
+        colors = [(1,0,0), (0,0,1)]
+        linestyles = ["-", "--"]
+
+        plot2(x_data, y_data, x_label, y_label, title, labels, colors, linestyles)
+
 
     # def offset_to_tdc(input_array, tdc):
 
