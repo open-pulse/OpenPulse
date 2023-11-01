@@ -74,6 +74,7 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.entity import Entity
 from pulse.project import Project
+from pulse.uix.clip_plane_widget import ClipPlaneWidget
 #
 from time import time
 
@@ -103,7 +104,7 @@ class InputUi:
         try:
             self.beforeInput()
             read = workingClass(*args, **kwargs)
-            self.opv.setInputObject(None)
+            self.opv.setInputObject(read)
             return read
         except Exception as log_error:
             title = "Error detected in processInput method"
@@ -149,6 +150,16 @@ class InputUi:
     def reset_project(self):
         if not self.project.none_project_action:
             self.processInput(ResetProjectInput, self.project, self.opv)
+
+    def set_clipping_plane(self):
+        if not self.opv.opvAnalysisRenderer.getInUse():
+            return
+
+        clipping_plane = self.processInput(ClipPlaneWidget, self.opv)        
+        clipping_plane.value_changed.connect(self.opv.configure_clipping_plane)
+        clipping_plane.slider_released.connect(self.opv.apply_clipping_plane)
+        clipping_plane.exec()
+        self.opv.dismiss_clipping_plane()
             
     def set_project_attributes(self):
         self.processInput(SetProjectAttributesInput, self.project, self.opv)

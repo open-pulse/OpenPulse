@@ -81,7 +81,23 @@ class vtkRendererBase(ABC):
 
     def changeBackgroundColor(self, color):
         self.background_color = color
-        self._renderer.SetBackground(color)
+
+        # I would preffer to use only two themes like
+        # we do inside Vibra.
+        # But this way is much more convenient and
+        # probably good enought
+        if self.background_color == (0,0,0):
+            self._renderer.GradientBackgroundOn()
+            self._renderer.SetBackground(0.06, 0.08, 0.12)
+            self._renderer.SetBackground2(color)
+        elif self.background_color == (1,1,1):
+            self._renderer.GradientBackgroundOn()
+            self._renderer.SetBackground(0.5, 0.5, 0.65)
+            self._renderer.SetBackground2(color)
+        else:
+            self._renderer.GradientBackgroundOff()
+            self._renderer.SetBackground(color)
+
         self.changeLogosToGetBetterContrast()
 
     def changeLogosToGetBetterContrast(self):

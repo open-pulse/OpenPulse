@@ -17,6 +17,22 @@ class RendererToolbar(QToolBar):
         self.setFloatable(True)
 
     def create_actions(self):
+        geometry_renderer_icon = QIcon(str(Path("data/icons/geometry.png")))
+        self.geometry_renderer_action = QAction(geometry_renderer_icon, "Geometry", self)
+        self.geometry_renderer_action.triggered.connect(self.geometry_renderer_callback)
+
+        lines_renderer_icon = QIcon(str(Path("data/icons/lines.png")))
+        self.lines_renderer_action = QAction(lines_renderer_icon, "Lines", self)
+        self.lines_renderer_action.triggered.connect(self.lines_renderer_callback)
+
+        lines_cross_section_renderer_icon = QIcon(str(Path("data/icons/lines_cross_section.png")))
+        self.lines_cross_section_renderer_action = QAction(lines_cross_section_renderer_icon, "Lines With Cross Section", self)
+        self.lines_cross_section_renderer_action.triggered.connect(self.lines_cross_section_renderer_callback)
+
+        mesh_renderer_icon = QIcon(str(Path("data/icons/mesh.png")))
+        self.mesh_renderer_action = QAction(mesh_renderer_icon, "Mesh", self)
+        self.mesh_renderer_action.triggered.connect(self.mesh_renderer_callback)
+
         top_view_icon = QIcon(str(Path("data/icons/views/top.png")))
         self.top_view_action = QAction(top_view_icon, "Top view", self)
         self.top_view_action.triggered.connect(self.top_view_callback)
@@ -52,7 +68,17 @@ class RendererToolbar(QToolBar):
         self.isometric_view_action.triggered.connect(self.isometric_view_callback)
         self.isometric_view_action.setShortcut("Ctrl+Shift+7")
 
+        clipping_plane_icon = QIcon(str(Path("data/icons/clipping_plane_icon.png")))
+        self.clipping_plane_action = QAction(clipping_plane_icon, "Clipping Plane", self)
+        self.clipping_plane_action.triggered.connect(self.clipping_plane_callback)
+        # self.clipping_plane_action.setShortcut("Ctrl+Shift+7")
+
+
     def configure_layout(self):
+        self.addAction(self.geometry_renderer_action)
+        self.addAction(self.lines_renderer_action)
+        self.addAction(self.lines_cross_section_renderer_action)
+        self.addAction(self.mesh_renderer_action)
         self.addSeparator()
         self.addAction(self.top_view_action)
         self.addAction(self.bottom_view_action)
@@ -61,6 +87,8 @@ class RendererToolbar(QToolBar):
         self.addAction(self.front_view_action)
         self.addAction(self.back_view_action)
         self.addAction(self.isometric_view_action)
+        self.addSeparator()
+        self.addAction(self.clipping_plane_action)
 
     # Callbacks
     def top_view_callback(self):
@@ -83,3 +111,18 @@ class RendererToolbar(QToolBar):
 
     def isometric_view_callback(self):
         self.main_window.cameraIsometric_call()
+
+    def clipping_plane_callback(self):
+        self.main_window.inputWidget.set_clipping_plane()
+
+    def geometry_renderer_callback(self):
+        self.main_window.plot_raw_geometry()
+
+    def lines_renderer_callback(self):
+        self.main_window.plot_entities()
+
+    def lines_cross_section_renderer_callback(self):
+        self.main_window.plot_entities_with_cross_section()
+
+    def mesh_renderer_callback(self):
+        self.main_window.plot_mesh()

@@ -10,12 +10,11 @@ from pulse.project import Project
 from pulse.uix.config import Config
 #
 from pulse.uix.renderer_toolbar import RendererToolbar
-from pulse.uix.renderer_selector_toolbar import RendererSelectorToolbar
 from pulse.uix.hide_show_controls_toolbar import HideShowControlsToolbar
 from pulse.uix.animation_toolbar import AnimationToolbar
 #
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-#
+
 import sys
 import os
 #
@@ -39,7 +38,7 @@ class MainWindow(QMainWindow):
         self._createActions()
         self._createMenuBar()
         self._createProjectToolBar()
-        self._createRendererSelectorToolBar()
+        # self._createRendererSelectorToolBar()
         self._createViewsToolBar()
         self._createHideShowToolBar()
         self._createAnimationToolBar()
@@ -140,15 +139,15 @@ class MainWindow(QMainWindow):
         self.entities_action.setStatusTip('Plot Lines')
         self.entities_action.triggered.connect(self.plot_entities)
 
-        self.mesh_action = QAction('&Plot Mesh', self)        
-        self.mesh_action.setShortcut('Ctrl+3')
-        self.mesh_action.setStatusTip('Plot Mesh')
-        self.mesh_action.triggered.connect(self.plot_mesh)
-
         self.entities_action_radius = QAction('&Plot Lines with Cross-section', self)        
-        self.entities_action_radius.setShortcut('Ctrl+4')
+        self.entities_action_radius.setShortcut('Ctrl+3')
         self.entities_action_radius.setStatusTip('Plot Lines with Cross-section')
         self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
+
+        self.mesh_action = QAction('&Plot Mesh', self)        
+        self.mesh_action.setShortcut('Ctrl+4')
+        self.mesh_action.setStatusTip('Plot Mesh')
+        self.mesh_action.triggered.connect(self.plot_mesh)
 
         self.section_action = QAction('&Plot Cross-section', self)
         self.section_action.setShortcut('Ctrl+5')
@@ -577,7 +576,6 @@ class MainWindow(QMainWindow):
         #
         self.toolbar_animation.setEnabled(_bool)
         self.toolbar_hide_show.setEnabled(_bool)
-        self.renderer_selector_toolbar.setEnabled(_bool)
         self.views_toolbar.setEnabled(_bool)
 
     def _getFont(self, fontSize, bold=False, italic=False, family_type="Arial"):
@@ -648,10 +646,6 @@ class MainWindow(QMainWindow):
     def _createAnimationToolBar(self):
         self.toolbar_animation = AnimationToolbar(self)
         self.addToolBar(self.toolbar_animation)
-
-    def _createRendererSelectorToolBar(self):
-        self.renderer_selector_toolbar = RendererSelectorToolbar(self)
-        self.addToolBar(self.renderer_selector_toolbar)
 
     def _createViewsToolBar(self):
         self.views_toolbar = RendererToolbar(self)
