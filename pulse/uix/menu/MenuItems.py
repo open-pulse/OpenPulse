@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QStyledItemDelegate
+from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
+from PyQt5.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from data.user_input.project.printMessageInput import PrintMessageInput

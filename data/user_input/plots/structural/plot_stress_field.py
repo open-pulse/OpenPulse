@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
+
 import numpy as np
 
 from data.user_input.project.printMessageInput import PrintMessageInput

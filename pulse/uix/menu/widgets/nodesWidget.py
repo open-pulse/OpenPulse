@@ -1,5 +1,5 @@
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 
 class NodesWidget(QTreeWidget):
     """MenuInfo Widget

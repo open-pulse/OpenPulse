@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QMainWindow, QToolBar, QSplitter, QAction, QLabel, QStatusBar, QMenu, QFileDialog
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import Qt, QEvent, QSize
 from pathlib import Path
 #
 from pulse.uix.menu.Menu import Menu
