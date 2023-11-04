@@ -37,12 +37,13 @@ def load_default_compressor_setup(crank_angle=0):
 
     return compressor
 
-def test_PV_diagram(print_log=True, export_data=False):
+def test_PV_diagram(print_log=False, export_data=False):
         
-    for angle in [0, 90, 180, 270]:
+    # for angle in [0, 90, 180, 270]:
+    for angle in [0]:
     
-        path_crank_end = Path(f"tests/data_base/PV_diagram_crank_end_crank_angle_{angle}.txt")
-        path_head_end = Path(f"tests/data_base/PV_diagram_head_end_crank_angle_{angle}.txt")
+        path_crank_end = Path(f"tests/data/compressor/PV_diagram/PV_diagram_crank_end_crank_angle_{angle}.txt")
+        path_head_end = Path(f"tests/data/compressor/PV_diagram/PV_diagram_head_end_crank_angle_{angle}.txt")
 
         external_data = dict()
 
@@ -65,8 +66,8 @@ def test_PV_diagram(print_log=True, export_data=False):
         compressor = load_default_compressor_setup(crank_angle = angle)
         compressor.number_points = N_he - 1
         
-        volume_HE, pressure_HE, *args = compressor.process_head_end_volumes_and_pressures()
-        volume_CE, pressure_CE, *args = compressor.process_crank_end_volumes_and_pressures()
+        volume_HE, pressure_HE, *args = compressor.process_head_end_volumes_and_pressures(export_data=export_data)
+        volume_CE, pressure_CE, *args = compressor.process_crank_end_volumes_and_pressures(export_data=export_data)
 
         volume_error_head_end = (np.max(np.abs(external_data[f"head_end_{angle}"][:, 0] - volume_HE)/np.abs(external_data[f"head_end_{angle}"][:, 0] + volume_HE)/2))*100
         pressure_error_head_end = (np.max(np.abs(external_data[f"head_end_{angle}"][:, 1] - pressure_HE)/np.abs(external_data[f"head_end_{angle}"][:, 1] + pressure_HE)/2))*100
@@ -162,8 +163,6 @@ def test_discharge_flow_rate():
 
 def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
 
-    # plt.ion()
-
     fig = plt.figure(figsize=[8,6])
     ax_ = fig.add_subplot(1,1,1)
 
@@ -173,11 +172,27 @@ def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
     ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
     ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
     ax_.set_title(title, fontsize = 12, fontweight = 'bold')
+
     plt.legend()
     plt.grid()
     plt.show()
 
+
+def check_angles():
+    crank_angle = 0
+    compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    compressor.number_points = 1023
+
+    compressor.get_cycles_boundary_data(acting_label="HE")
+
+
+def teste_rapido():
+    a = [1,5,9,-5,3,0]
+    print(a.index(-5))
+
 if __name__ == "__main__":
-    # test_PV_diagram()
-    test_suction_flow_rate()
-    test_discharge_flow_rate()
+    test_PV_diagram(print_log=True, export_data=True)
+    # test_suction_flow_rate()
+    # test_discharge_flow_rate()
+    # check_angles()
+    # teste_rapido()
