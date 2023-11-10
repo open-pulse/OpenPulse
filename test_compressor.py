@@ -39,8 +39,8 @@ def load_default_compressor_setup(crank_angle=0):
 
 def test_PV_diagram(print_log=False, export_data=False):
         
-    # for angle in [0, 90, 180, 270]:
-    for angle in [0]:
+    for angle in [0, 90, 180, 270]:
+    # for angle in [0]:
     
         path_crank_end = Path(f"tests/data/compressor/PV_diagram/PV_diagram_crank_end_crank_angle_{angle}.txt")
         path_head_end = Path(f"tests/data/compressor/PV_diagram/PV_diagram_head_end_crank_angle_{angle}.txt")
@@ -185,14 +185,8 @@ def check_angles():
 
     compressor.get_cycles_boundary_data(acting_label="HE")
 
-
-def teste_rapido():
-    a = [1,5,9,-5,3,0]
-    print(a.index(-5))
-
 if __name__ == "__main__":
     test_PV_diagram(print_log=True, export_data=True)
     # test_suction_flow_rate()
     # test_discharge_flow_rate()
     # check_angles()
-    # teste_rapido()

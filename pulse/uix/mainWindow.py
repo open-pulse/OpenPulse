@@ -663,6 +663,7 @@ class MainWindow(QMainWindow):
         working_area.addWidget(self.opv_widget)
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         working_area.setSizes([100,400])
+        self.draw()
 
     def newProject_call(self):
         if self.inputWidget.new_project(self.config):

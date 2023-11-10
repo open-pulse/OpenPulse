@@ -358,8 +358,8 @@ class ProjectFile:
         if "User interface preferences" in sections:
 
             #temporary default preferences to maintain compatibility with the other versions
-            background_color = '(0,0,0)'
-            font_color = '(1,1,1)'
+            background_color = '(1,1,1)'
+            font_color = '(0,0,0)'
             nodes_color = '(255,255,63)'
             lines_color = '(255,255,255)'
             surfaces_color = '(255,255,255)'
