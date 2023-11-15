@@ -228,7 +228,7 @@ class SolutionStructural:
                         self.flag_Modal_prescribed_NonNull_DOFs = True
                         self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
                                                             "The null value has been attributed to those DOFs with non-zero values."]
-        
+
         if self.stop_processing():
             return None, None        
         

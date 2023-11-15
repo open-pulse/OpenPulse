@@ -48,6 +48,8 @@ class Project:
         self.imported_table_frequency_setup = False
         self.solution_structural = None
         self.solution_acoustic = None
+        self.natural_frequencies_structural = None
+        self.natural_frequencies_acoustic = None
         self.perforated_plate_dataLog = None
         self.flag_set_material = False
         self.flag_set_crossSection = False
