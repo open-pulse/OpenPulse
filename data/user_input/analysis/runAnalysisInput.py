@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
 from pathlib import Path
 
@@ -269,8 +269,8 @@ class RunAnalysisInput(QDialog):
                                                     self.dict_reactions_at_springs,
                                                     self.dict_reactions_at_dampers  ])
 
-            # save = SaveData(self.project)
-            # read = ReadData(self.project)
+        # save = SaveData(self.project, file_name="results_data.hdf5")
+        # read = ReadData(self.project, file_name="results_data.hdf5")
 
         self.project.time_to_postprocess = time() - t0
         _times =  [self.project.time_to_process_cross_sections, self.project.time_to_preprocess_model, self.project.time_to_solve_model, self.project.time_to_postprocess]

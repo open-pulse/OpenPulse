@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QStyledItemDelegate
+from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
+from PyQt5.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -244,6 +244,7 @@ class MenuItems(QTreeWidget):
         self.item_child_plotAcousticModeShapes = QTreeWidgetItem(['Plot Acoustic Mode Shapes'])
         self.item_child_plotAcousticPressureField = QTreeWidgetItem(['Plot Acoustic Pressure Field'])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem(['Plot Acoustic Frequency Response'])
+        self.item_child_plotAcousticFrequencyResponseFunction = QTreeWidgetItem(['Plot Acoustic Frequency Response Function'])
         self.item_child_plotAcousticDeltaPressures = QTreeWidgetItem(['Plot Acoustic Delta Pressures'])
         self.item_child_plot_TL_NR = QTreeWidgetItem(['Plot Transmission Loss or Attenuation'])
         self.item_child_plot_perforated_plate_convergence_data = QTreeWidgetItem(['Plot perforated plate convergence data'])
@@ -253,6 +254,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_plotAcousticModeShapes)
         self.list_child_items.append(self.item_child_plotAcousticPressureField)
         self.list_child_items.append(self.item_child_plotAcousticFrequencyResponse)
+        self.list_child_items.append(self.item_child_plotAcousticFrequencyResponseFunction)
         self.list_child_items.append(self.item_child_plotAcousticDeltaPressures)
         self.list_child_items.append(self.item_child_plot_TL_NR)
         self.list_child_items.append(self.item_child_plot_perforated_plate_convergence_data)
@@ -313,6 +315,7 @@ class MenuItems(QTreeWidget):
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticModeShapes)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticPressureField)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticFrequencyResponse)
+        self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticFrequencyResponseFunction)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticDeltaPressures) 
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_TL_NR)   
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
@@ -612,6 +615,11 @@ class MenuItems(QTreeWidget):
             if not self.item_child_plotAcousticFrequencyResponse.isDisabled():
                 self.update_plot_mesh()
                 self.mainWindow.getInputWidget().plotAcousticFrequencyResponse()
+         
+        elif item == self.item_child_plotAcousticFrequencyResponseFunction:
+            if not self.item_child_plotAcousticFrequencyResponseFunction.isDisabled():
+                self.update_plot_mesh()
+                self.mainWindow.getInputWidget().plotAcousticFrequencyResponseFunction()
 
         elif item == self.item_child_plotAcousticDeltaPressures:
             if not self.item_child_plotAcousticDeltaPressures.isDisabled():
@@ -698,6 +706,7 @@ class MenuItems(QTreeWidget):
             self.item_child_plotStressFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticModeShapes.setDisabled(True)
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
+            self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(True)
             self.item_child_plotAcousticPressureField.setDisabled(True)
             self.item_child_plotAcousticDeltaPressures.setDisabled(True)
             self.item_child_check_pulsation_criteria.setDisabled(True)
@@ -746,6 +755,7 @@ class MenuItems(QTreeWidget):
                 if self.project.perforated_plate_dataLog:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
+                self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(False)
                 self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plotAcousticDeltaPressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
@@ -763,9 +773,11 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotReactionsFrequencyResponse.setDisabled(False)  
 
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
+                self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(False)
                 self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plotAcousticDeltaPressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
+
                 if self.project.preprocessor.nodes_with_compressor_excitation != []:
                     self.item_child_check_pulsation_criteria.setDisabled(False)
             
@@ -810,7 +822,6 @@ class MenuItems(QTreeWidget):
             self.item_child_plotStructuralFrequencyResponse.setText(0, 'Plot Structural Frequency Response')
             self.item_child_plotReactionsFrequencyResponse.setText(0, 'Plot Reactions Frequency Response')
             self.item_child_plotStressFrequencyResponse.setText(0, 'Plot Stress Frequency Response')
-
 
     def update_structural_analysis_visibility_items(self):
         self.item_top_structuralModelSetup.setHidden(False)

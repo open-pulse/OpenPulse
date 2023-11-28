@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QWidget, QRadioButton
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
@@ -41,7 +41,6 @@ class MenuInfo(QWidget):
     def _close_tab(self, index):
         current_widget = self.widget(index)
         self.removeTab(index)
-        # print(self.currentIndex)
 
     def _remove_repeated_tabs(self, new_tab):
         for tab in range(self.count()):

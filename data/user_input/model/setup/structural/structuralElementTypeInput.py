@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QDialog, QComboBox, QCheckBox, QFrame, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 

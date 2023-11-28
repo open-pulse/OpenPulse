@@ -33,8 +33,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self._createAxes()        
 
     def defaultPreferences(self):
-        self.background_color = (0,0,0)
-        self.font_color = (1,1,1)
+        self.background_color = (1,1,1)
+        self.font_color = (0,0,0)
         self.add_OpenPulse_logo = True
         self.add_MOPT_logo = True
         self.show_reference_scale = True

@@ -57,6 +57,7 @@ from data.user_input.plots.structural.plot_stresses_for_static_analysis import P
 from data.user_input.plots.acoustic.plot_acoustic_mode_shape_input import PlotAcousticModeShapeInput
 from data.user_input.plots.acoustic.plot_acoustic_pressure_field_input import PlotAcousticPressureFieldInput
 from data.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponseInput
+from data.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunctionInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
 from data.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
 from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
@@ -404,6 +405,13 @@ class InputUi:
             if solution is None:
                 return
             self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv)
+
+    def plotAcousticFrequencyResponseFunction(self):
+        if self.analysis_ID in [3,5,6]:
+            solution = self.project.get_acoustic_solution()
+            if solution is None:
+                return
+            self.processInput(  PlotAcousticFrequencyResponseFunctionInput, self.project, self.opv)
 
     def plotAcousticDeltaPressures(self):
         if self.analysis_ID in [3,5,6]:

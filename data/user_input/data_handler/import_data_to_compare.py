@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QDialog, QCheckBox, QFileDialog, QLineEdit, QPushButton, QSpinBox, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
@@ -271,6 +271,6 @@ class ImportDataToCompare(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check_inputs_and_plot()
+            self.add_imported_data_to_plot()
         elif event.key() == Qt.Key_Escape:
             self.close()

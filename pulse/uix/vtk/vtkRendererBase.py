@@ -8,41 +8,43 @@ class vtkRendererBase(ABC):
     def __init__(self, style):
         super().__init__()
 
+        self._logo_pulse = vtk.vtkLogoRepresentation()
+        self._logo_mopt = vtk.vtkLogoRepresentation()
+        self._imageReader_pulse = vtk.vtkPNGReader()
+        self._imageReader_mopt = vtk.vtkPNGReader()
+        
+        self._textActor = vtk.vtkTextActor()
+        self.textActorStress = vtk.vtkTextActor()
+        self.textProperty = vtk.vtkTextProperty()
+
         self.nodes_color = (255, 255, 63)
         self.lines_color = (255, 255, 255)
         self.surfaces_color = (255, 255, 255)
         self.elements_transparency = 0.8
 
-        self.background_color = (0,0,0)
+        default_background_color = (1,1,1)
+        self.background_color = default_background_color
         self._renderer = vtk.vtkRenderer()
-        self._renderer.SetBackground(self.background_color)
+        self.changeBackgroundColor(default_background_color)
 
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
 
-        self._textActor = vtk.vtkTextActor()
-        self.textActorStress = vtk.vtkTextActor()
         self.actors = {}
         self._inUse = False
         self._usePicker = True
-        self.textProperty = vtk.vtkTextProperty()
         self.textProperty.SetFontSize(17)
         self.textProperty.SetColor((1,1,1))
         self.textProperty.BoldOn()
         # self.textProperty.SetItalic(1)
-        
-        self._logo_pulse = vtk.vtkLogoRepresentation()
-        self._logo_mopt = vtk.vtkLogoRepresentation()
-        self._imageReader_pulse = vtk.vtkPNGReader()
-        self._imageReader_mopt = vtk.vtkPNGReader()
 
         self.changeLogosToGetBetterContrast()
         self._createConfigLogos()        
 
     def _createConfigLogos(self):
         
-        self._imageReader_pulse.SetFileName(Path('data/icons/OpenPulse_logo_white.png'))
-        self._imageReader_mopt.SetFileName(Path('data/icons/mopt_logo_white.png'))
+        self._imageReader_pulse.SetFileName(Path('data/icons/OpenPulse_logo_black.png'))
+        self._imageReader_mopt.SetFileName(Path('data/icons/mopt_logo_black.png'))
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
         

@@ -1,23 +1,24 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QMainWindow, QToolBar, QSplitter, QAction, QLabel, QStatusBar, QMenu, QFileDialog
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import Qt, QEvent, QSize
 from pathlib import Path
-
+#
 from pulse.uix.menu.Menu import Menu
 from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
+#
 from pulse.uix.renderer_toolbar import RendererToolbar
+from pulse.uix.hide_show_controls_toolbar import HideShowControlsToolbar
+from pulse.uix.animation_toolbar import AnimationToolbar
+#
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-
-from pulse.uix.clip_plane_widget import ClipPlaneWidget
 
 import sys
 import os
-
+#
 from pulse.uix.menu import *
-# from pulse.uix.menu.widgets import *
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -37,9 +38,10 @@ class MainWindow(QMainWindow):
         self._createActions()
         self._createMenuBar()
         self._createProjectToolBar()
-        self._createAnimationToolBar()
-        self._createHideShowToolBar()
+        # self._createRendererSelectorToolBar()
         self._createViewsToolBar()
+        self._createHideShowToolBar()
+        self._createAnimationToolBar()
         self.set_enable_menuBar(False)
         self._createStatusBar()
         self.show()
@@ -69,11 +71,6 @@ class MainWindow(QMainWindow):
         self.saveImage_icon = QIcon(get_icons_path('save_image.png'))
         self.exit_icon = QIcon(get_icons_path('exit.png'))
         self.playpause_icon = QIcon(get_icons_path('play_pause.png'))
-        self.element_and_lines_with_cross_sections_icon = QIcon(get_icons_path('cross_section_representation.png'))
-        self.lines_only_icon = QIcon(get_icons_path('lines_only.png'))
-        self.elements_and_nodes_icon = QIcon(get_icons_path('elements_and_nodes.png'))
-        self.elements_only_icon = QIcon(get_icons_path('elements_only.png'))
-        self.nodes_only_icon = QIcon(get_icons_path('nodes_only.png'))
         self.view_top_icon = QIcon(get_icons_path('top.png'))
         self.view_bottom_icon = QIcon(get_icons_path('bottom.png'))
         self.view_left_icon = QIcon(get_icons_path('left.png'))
@@ -367,6 +364,11 @@ class MainWindow(QMainWindow):
         self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
         self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponse)
 
+        self.plotAcousticFrequencyResponseFunction = QAction('&Plot Acoustic Frequency Response Function', self)        
+        # self.plotAcousticFrequencyResponseFunction.setShortcut('')
+        self.plotAcousticFrequencyResponseFunction.setStatusTip('Plot Acoustic Frequency Response Function')
+        self.plotAcousticFrequencyResponseFunction.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponseFunction)
+
         self.plotAcousticDeltaPressures = QAction('&Plot Acoustic Delta Pressures', self)        
         # self.plotAcousticDeltaPressures.setShortcut('')
         self.plotAcousticDeltaPressures.setStatusTip('Plot Acoustic Delta Pressures')
@@ -385,26 +387,6 @@ class MainWindow(QMainWindow):
         self.animationSettings_action = QAction('&Animation Settings', self)
         self.animationSettings_action.setStatusTip('Animation Settings')
         self.animationSettings_action.triggered.connect(self.getInputWidget().animationSettings)
-
-        self.show_lines_action = QAction(self.lines_only_icon, '&Hide/Show lines', self)
-        # self.show_lines_action.setShortcut('')
-        self.show_lines_action.setStatusTip('Hide/Show lines')
-        self.show_lines_action.triggered.connect(self.hide_show_lines)
-
-        self.show_elements_and_nodes_action = QAction(self.elements_and_nodes_icon, '&Hide/Show elements and nodes', self)
-        # self.show_elements_and_nodes_action.setShortcut('')
-        self.show_elements_and_nodes_action.setStatusTip('Hide/Show elements and nodes')
-        self.show_elements_and_nodes_action.triggered.connect(self.hide_show_elements_and_nodes)
-
-        self.show_elements_action = QAction(self.elements_only_icon, '&Hide/Show elements', self)
-        # self.show_elements_action.setShortcut('')
-        self.show_elements_action.setStatusTip('Hide/Show elements')
-        self.show_elements_action.triggered.connect(self.hide_show_elements)
-
-        self.show_nodes_action = QAction(self.nodes_only_icon, '&Hide/Show nodes', self)
-        # self.show_nodes_action.setShortcut('')
-        self.show_nodes_action.setStatusTip('Hide/Show nodes')
-        self.show_nodes_action.triggered.connect(self.hide_show_nodes)
 
         # Views
         self.cameraTop_action = QAction(self.view_top_icon, '&Top View', self)
@@ -533,6 +515,7 @@ class MainWindow(QMainWindow):
         #acoustic
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
+        self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponseFunction)
         self.resultsViewerMenu.addAction(self.plotAcousticDeltaPressures)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
         #animation
@@ -593,6 +576,7 @@ class MainWindow(QMainWindow):
         #
         self.toolbar_animation.setEnabled(_bool)
         self.toolbar_hide_show.setEnabled(_bool)
+        self.views_toolbar.setEnabled(_bool)
 
     def _getFont(self, fontSize, bold=False, italic=False, family_type="Arial"):
         font = QFont()
@@ -656,100 +640,12 @@ class MainWindow(QMainWindow):
             self._updateMeshState("ok")
 
     def _createHideShowToolBar(self):
-
-        label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
-        radioButton_font = self._getFont(9, bold=True, italic=True, family_type="Arial")
-
-        self.toolbar_hide_show = QToolBar("Hide/Show toolbar")
-        self.toolbar_hide_show.setIconSize(QSize(30,30))
-        self.toolbar_hide_show.setMovable(True)
+        self.toolbar_hide_show = HideShowControlsToolbar(self)
         self.addToolBar(self.toolbar_hide_show)
 
-        self.hide_selection_action = QAction('&Hide \nselection', self)
-        self.hide_selection_action.setFont(radioButton_font)
-        self.hide_selection_action.setShortcut('H')
-        self.hide_selection_action.triggered.connect(self.hide_selection)
-        
-        # you need to add the action to the main window to make the shortcut work 
-        # without creating a button
-        self.addAction(self.hide_selection_action)
-
-        self.show_all_action = QAction('&Show \nall', self)
-        self.show_all_action.setFont(radioButton_font)
-        self.show_all_action.setShortcut('U')
-        self.show_all_action.triggered.connect(self.unhide_selection)
-
-        self.acoustic_symbols_action = QAction('&Acoustic \nsymbols', self)
-        self.acoustic_symbols_action.setFont(radioButton_font)
-        # self.acoustic_symbols_action.setShortcut('U')
-        self.acoustic_symbols_action.triggered.connect(self.hide_show_acoustic_symbols)
-
-        self.structural_symbols_action = QAction('&Structural \nsymbols', self)
-        self.structural_symbols_action.setFont(radioButton_font)
-        # self.structural_symbols_action.setShortcut('U')
-        self.structural_symbols_action.triggered.connect(self.hide_show_structural_symbols)
-        
-        self.label_hide_show_controls = QLabel(' Hide/Show controls:  ', self)
-        self.label_hide_show_controls.setFont(label_font)
-
-        self.radioButton_hide = QRadioButton("Hide ", self)
-        self.radioButton_show = QRadioButton("Show ", self)
-        self.radioButton_hide.setChecked(True)
-        self.radioButton_hide.setFont(radioButton_font)
-        self.radioButton_show.setFont(radioButton_font)
-
-        # self.toolbar_hide_show.addAction("")
-        self.toolbar_hide_show.addWidget(self.label_hide_show_controls)
-        self.toolbar_hide_show.addWidget(self.radioButton_hide)
-        self.toolbar_hide_show.addWidget(self.radioButton_show)
-
-        self.toolbar_hide_show.addSeparator()
-        self.toolbar_hide_show.addAction(self.show_lines_action)
-        self.toolbar_hide_show.addAction(self.show_elements_and_nodes_action)
-        self.toolbar_hide_show.addAction(self.show_elements_action)
-        self.toolbar_hide_show.addAction(self.show_nodes_action)
-        self.toolbar_hide_show.addAction(self.show_all_action)
-        self.toolbar_hide_show.addAction(self.acoustic_symbols_action)
-        self.toolbar_hide_show.addAction(self.structural_symbols_action)
-
-        # widget_hide_selection = self.toolbar_hide_show.widgetForAction(self.hide_selection_action)
-        widget_show_all = self.toolbar_hide_show.widgetForAction(self.show_all_action)
-        widget_acoustic_symbols = self.toolbar_hide_show.widgetForAction(self.acoustic_symbols_action)
-        widget_structural_symbols = self.toolbar_hide_show.widgetForAction(self.structural_symbols_action)
-
-        # widget_hide_selection.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
-        widget_show_all.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
-        widget_acoustic_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
-        widget_structural_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
-
-        # widths = []
-        # widths.append(widget_hide_selection.width())
-        # widths.append(widget_show_all.width())
-        # widths.append(widget_acoustic_symbols.width())
-        # widths.append(widget_structural_symbols.width())
-        # _width = max(widths)+10
-
-        # widget_hide_selection.resize(_width, widget_hide_selection.height())
-        # widget_show_all.resize(_width, widget_show_all.height())
-        # widget_acoustic_symbols.resize(_width, widget_acoustic_symbols.height())
-        # widget_structural_symbols.resize(_width, widget_structural_symbols.height())
-
     def _createAnimationToolBar(self):
-
-        label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
-        # radioButton_font = self._getFont(9, bold=True, italic=True, family_type="Arial")
-
-        self.toolbar_animation = QToolBar("Animation toolbar")
-        self.toolbar_animation.setIconSize(QSize(30,30))
-        self.toolbar_animation.setMovable(True)
+        self.toolbar_animation = AnimationToolbar(self)
         self.addToolBar(self.toolbar_animation)
-
-        self.label_animation_controls = QLabel(' Animation controls:  ', self)
-        self.label_animation_controls.setFont(label_font)
-
-        # self.toolbar_animation.addSeparator()
-        self.toolbar_animation.addWidget(self.label_animation_controls)
-        self.toolbar_animation.addAction(self.playPauseAnimaton_action)
 
     def _createViewsToolBar(self):
         self.views_toolbar = RendererToolbar(self)
@@ -767,6 +663,7 @@ class MainWindow(QMainWindow):
         working_area.addWidget(self.opv_widget)
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         working_area.setSizes([100,400])
+        self.draw()
 
     def newProject_call(self):
         if self.inputWidget.new_project(self.config):
@@ -824,30 +721,6 @@ class MainWindow(QMainWindow):
 
     def cameraBack_call(self):
         self.opv_widget.setCameraView(6)
-
-    def hide_selection(self):
-        self.opv_widget.opvRenderer.hide_selection()
-
-    def unhide_selection(self):
-        self.opv_widget.opvRenderer.unhide_all()
-
-    def hide_show_lines(self):
-        self.opv_widget.opvRenderer.hide_show_lines(self.radioButton_show.isChecked())
-
-    def hide_show_elements_and_nodes(self):
-        self.opv_widget.opvRenderer.hide_show_elements_and_nodes(self.radioButton_show.isChecked())
-
-    def hide_show_elements(self):
-        self.opv_widget.opvRenderer.hide_show_elements(self.radioButton_show.isChecked())
-            
-    def hide_show_nodes(self):
-        self.opv_widget.opvRenderer.hide_show_nodes(self.radioButton_show.isChecked())
-
-    def hide_show_acoustic_symbols(self):
-        self.opv_widget.opvRenderer.hide_show_acoustic_symbols()
-
-    def hide_show_structural_symbols(self):
-        self.opv_widget.opvRenderer.hide_show_structural_symbols()
 
     def plot_entities(self):
         self.opv_widget.changePlotToEntities()

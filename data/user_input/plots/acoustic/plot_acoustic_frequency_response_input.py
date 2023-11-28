@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QFrame, QLineEdit, QPushButton
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
@@ -45,19 +45,25 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
-        self.writeNodes(self.list_node_IDs)
+        self.update()
         self.exec()
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
         self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
+        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
         self.setWindowIcon(self.pulse_icon)
 
     def _reset_variables(self):
-        self.unit_label = "Pa"
+        pass
 
     def _define_qt_variables(self):
+        # QFrame
+        self.frame_denominator = self.findChild(QFrame, 'frame_denominator')
+        self.frame_numerator = self.findChild(QFrame, 'frame_numerator')
+        # QLineEdit
         self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
+        # QPushButton
         self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
         self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
         self.pushButton_call_data_exporter.setIcon(self.export_icon)
@@ -65,7 +71,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
     def _create_connections(self):
         self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
-    
+
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
@@ -76,6 +82,8 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.list_node_IDs = self.opv.getListPickedPoints()
         if self.list_node_IDs != []:
             self.writeNodes(self.list_node_IDs)
+        else:
+            self.lineEdit_node_id.setFocus()
 
     def call_plotter(self):
         if self.check_inputs():
@@ -97,31 +105,34 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         if stop:
             self.lineEdit_node_id.setFocus()
             return True
-
+        
     def get_response(self):
+        
         response = get_acoustic_frf(self.preprocessor, 
-                                      self.solution,
-                                      self.node_ID)
+                                    self.solution,
+                                    self.node_ID)
+
         if complex(0) in response:
-            response += np.ones(len(response), dtype=float)*(1e-12)
+            response += 1e-12
+
         return response
 
     def join_model_data(self):
-        # if float(0) in self.frequencies:
-        #     shift = 1
-        # else:
-        #     shift = 0
-        self.model_results = dict()
+
         self.title = "Acoustic frequency response - {}".format(self.analysis_method)
         legend_label = "Acoustic pressure at node {}".format(self.node_ID)
+        unit_label = "Pa"
+        y_label = "Acoustic pressure"
+
+        self.model_results = dict()
         self.model_results = {  "x_data" : self.frequencies,
                                 "y_data" : self.get_response(),
                                 "x_label" : "Frequency [Hz]",
-                                "y_label" : "Nodal response",
+                                "y_label" : y_label,
                                 "title" : self.title,
                                 "data_information" : legend_label,
                                 "legend" : legend_label,
-                                "unit" : self.unit_label,
+                                "unit" : unit_label,
                                 "color" : [0,0,1],
                                 "linestyle" : "-"  }
 

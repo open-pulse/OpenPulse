@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QDialog, QLabel, QProgressBar
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
 from pathlib import Path
 

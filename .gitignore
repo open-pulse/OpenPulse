@@ -14,3 +14,13 @@ test.py
 dist/
 build/
 envpulse/
+
+# C extensions
+*.so
+*.dat
+*.ini
+*.json
+
+# Local directory
+measured_data/
+temporary_data/

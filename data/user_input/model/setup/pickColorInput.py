@@ -1,10 +1,7 @@
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QColorDialog
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from pathlib import Path
-
-from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 class PickColorInput(QColorDialog):
     def __init__(self, *args, **kwargs):
