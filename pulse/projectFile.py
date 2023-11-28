@@ -1746,9 +1746,13 @@ class ProjectFile:
         config.read(self._element_info_path)
 
         if value:
-            config[section]['list of elements'] = str(elements)
-        else:    
-            config.remove_section(section)
+            if section in list(config.sections()):
+                config[section]['list of elements'] = str(elements)
+            else:
+                config[section] = {'list of elements' : str(elements)}
+        else:
+            if section in list(config.sections()):    
+                config.remove_section(section)
                
         self.write_data_in_file(self._element_info_path, config)
 
