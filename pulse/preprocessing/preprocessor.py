@@ -303,6 +303,7 @@ class Preprocessor:
         This method generate the mesh entities, nodes, structural elements, acoustic elements 
         and their connectivity.
         """
+
         try:
             gmsh.model.mesh.generate(3)
 
@@ -1567,7 +1568,7 @@ class Preprocessor:
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs = values
             node.prescribed_dofs_table_names = table_names
-            node.nodal_loads = [None,None,None,None,None,None]
+            node.nodal_loads = [None, None, None, None, None, None]
             self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]

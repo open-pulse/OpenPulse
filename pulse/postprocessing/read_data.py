@@ -10,10 +10,10 @@ class ReadData:
         self._project_path = project.file._project_path
 
         self.data = {}
-        self.file_name = "results_data.hdf5"
         self.folder_name = "solution_data"
 
-        self.folder_path = get_new_path(self._project_path, self.folder_name)
+        self.file_name = kwargs.get("file_name", "results_data.hdf5")
+        self.folder_path = kwargs.get("folder_path", get_new_path(self._project_path, self.folder_name))
         self.file_path = get_new_path(self.folder_path, self.file_name)
 
         self.read_data()
@@ -24,7 +24,7 @@ class ReadData:
         """
         data = []
         var_name = []
-        
+
         if os.path.exists(self.file_path):
                 
             f = h5py.File(self.file_path, 'r')
@@ -49,21 +49,27 @@ class ReadData:
 
             if 'solution_acoustic' in self.data.keys():
                 self.project.set_acoustic_solution(self.data['solution_acoustic'])
+            
             if 'solution_structural' in self.data.keys():
                 self.project.set_structural_solution(self.data['solution_structural'])
+            
             if 'analysis_ID' in self.data.keys():
                 self.project.analysis_ID = self.data['analysis_ID']     
             
             if 'frequencies' in self.data.keys():
                 self.project.frequencies = self.data['frequencies']
+            
             if 'natural_frequencies_acoustic' in self.data.keys():
                 self.project.natural_frequencies_acoustic = list(self.data['natural_frequencies_acoustic'])
+            
             if 'natural_frequencies_structural' in self.data.keys():
                 self.project.natural_frequencies_structural = list(self.data['natural_frequencies_structural'])
 
             if 'analysis_type_label' in self.data.keys():
                 self.project.analysis_type_label = self.data['analysis_type_label']
+            
             if 'analysis_method_label' in self.data.keys():
                 self.project.analysis_method_label = self.data['analysis_method_label']
-        self.project.remove_solution_data_files()
+
+        # self.project.remove_solution_data_files()
         return var_name, data

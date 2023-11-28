@@ -9,7 +9,7 @@ class SaveData:
         self.project = project
         self._project_path = project.file._project_path 
 
-        self.file_name = "results_data.hdf5"
+        self.file_name = kwargs.get("file_name", "results_data.hdf5")
         self.folder_name = "solution_data"
 
         self.update_values(project)

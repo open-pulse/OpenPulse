@@ -36,7 +36,6 @@ class PlotStructuralModeShapeInput(QDialog):
         self.load_natural_frequencies()
         self.exec()
 
-
     def _define_qt_variables(self):
         self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
         self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
@@ -53,7 +52,6 @@ class PlotStructuralModeShapeInput(QDialog):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-
     def _create_connections(self):
         self.pushButton_plot.clicked.connect(self.confirm_selection)
         self.radioButton_absolute.clicked.connect(self.radioButton_event)
@@ -63,16 +61,13 @@ class PlotStructuralModeShapeInput(QDialog):
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-
     def radioButton_event(self):
         if self.lineEdit_natural_frequency.text() != "":
             self.check_selected_frequency()
 
-
     def get_dict_modes_frequencies(self):
-        modes = np.arange(1,len(self.natural_frequencies)+1,1)
+        modes = np.arange(1, len(self.natural_frequencies)+1, 1)
         self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
-
 
     def check_selected_frequency(self):
         message = ""
@@ -111,25 +106,22 @@ class PlotStructuralModeShapeInput(QDialog):
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
-
+        
         # data = np.zeros((len(self.dict_modes_frequencies),2))
         # data[:,0] = np.array(list(self.dict_modes_frequencies.keys()))
         # data[:,1] = np.array(list(self.dict_modes_frequencies.values()))
         # header = "Mode || Natural frequency [Hz]"
-        # np.savetxt("results_modal_OpenPulse.txt", data, delimiter=";", header=header)
-
+        # np.savetxt("natural_frequencies_reference.dat", data, delimiter=";", header=header)
 
     def on_click_item(self, item):
         self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
 
-
     def on_doubleclick_item(self, item):
-        natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
-        self.lineEdit_natural_frequency.setText(str(natural_frequency))
+        self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
+        self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
         self.confirm_selection()
 
-    
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.confirm_selection()
