@@ -65,6 +65,7 @@ class AnimationSettingsInput(QDialog):
         self.pushButton_export_animation.clicked.connect(self.export_animation_to_file)
 
         self.comboBox_file_format = self.findChild(QComboBox, 'comboBox_file_format')
+        self.comboBox_file_format.removeItem(0)
 
         self.tabWidget_animation = self.findChild(QTabWidget, 'tabWidget_animation')
         self.tab_main = self.tabWidget_animation.findChild(QWidget, 'tab_main')
@@ -95,7 +96,7 @@ class AnimationSettingsInput(QDialog):
 
     def get_file_format(self):
         index = self.comboBox_file_format.currentIndex()
-        _formats = [".avi", ".mp4", ".ogv", ".mpeg"]
+        _formats = [".mp4", ".ogv", ".mpeg", ".avi"]
         return _formats[index]
 
     def export_animation_to_file(self):

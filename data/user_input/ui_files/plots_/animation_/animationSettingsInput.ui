@@ -92,7 +92,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Animation settings</string>
+         <string>Model animation assistant</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -145,7 +145,7 @@
           <string>Main</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_12">
-          <item row="0" column="0">
+          <item row="1" column="0">
            <widget class="QFrame" name="frame_13">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -176,13 +176,13 @@
               <widget class="QLabel" name="label_frames">
                <property name="minimumSize">
                 <size>
-                 <width>120</width>
+                 <width>100</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>120</width>
+                 <width>100</width>
                  <height>30</height>
                 </size>
                </property>
@@ -267,7 +267,7 @@
              <item row="0" column="0">
               <widget class="QFrame" name="frame_15">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
@@ -277,7 +277,82 @@
             </layout>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="3" column="0">
+           <widget class="QFrame" name="frame_8">
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_9">
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pushButton_animate">
+               <property name="minimumSize">
+                <size>
+                 <width>160</width>
+                 <height>34</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>160</width>
+                 <height>34</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>MS Shell Dlg 2</family>
+                 <pointsize>11</pointsize>
+                 <weight>75</weight>
+                 <italic>false</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+               </property>
+               <property name="text">
+                <string>  Animate</string>
+               </property>
+               <property name="icon">
+                <iconset>
+                 <normaloff>../../../../icons/play_pause.png</normaloff>../../../../icons/play_pause.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QFrame" name="frame_9">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QFrame" name="frame_10">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="0">
            <widget class="QFrame" name="frame_11">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
@@ -308,13 +383,13 @@
               <widget class="QLabel" name="label_cycles">
                <property name="minimumSize">
                 <size>
-                 <width>120</width>
+                 <width>100</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>120</width>
+                 <width>100</width>
                  <height>30</height>
                 </size>
                </property>
@@ -399,7 +474,7 @@
              <item row="0" column="0">
               <widget class="QFrame" name="frame_16">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
@@ -409,75 +484,37 @@
             </layout>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QFrame" name="frame_8">
+          <item row="0" column="0">
+           <widget class="QFrame" name="frame_17">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QGridLayout" name="gridLayout_9">
-             <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_animate">
-               <property name="minimumSize">
-                <size>
-                 <width>160</width>
-                 <height>34</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>160</width>
-                 <height>34</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>MS Shell Dlg 2</family>
-                 <pointsize>11</pointsize>
-                 <weight>75</weight>
-                 <italic>false</italic>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-               </property>
-               <property name="text">
-                <string>  Animate</string>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>../../../../icons/play_pause.png</normaloff>../../../../icons/play_pause.png</iconset>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>20</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </widget>
-             </item>
+            <layout class="QGridLayout" name="gridLayout_13">
+             <property name="leftMargin">
+              <number>2</number>
+             </property>
+             <property name="topMargin">
+              <number>2</number>
+             </property>
+             <property name="rightMargin">
+              <number>2</number>
+             </property>
+             <property name="bottomMargin">
+              <number>2</number>
+             </property>
+             <property name="spacing">
+              <number>2</number>
+             </property>
              <item row="0" column="0">
-              <widget class="QFrame" name="frame_9">
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Animation settings controls</string>
                </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QFrame" name="frame_10">
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -506,6 +543,21 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
              <enum>QFrame::Raised</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_7">
+             <property name="leftMargin">
+              <number>4</number>
+             </property>
+             <property name="topMargin">
+              <number>4</number>
+             </property>
+             <property name="rightMargin">
+              <number>4</number>
+             </property>
+             <property name="bottomMargin">
+              <number>4</number>
+             </property>
+             <property name="spacing">
+              <number>4</number>
+             </property>
              <item row="0" column="1">
               <widget class="QPushButton" name="pushButton_clean">
                <property name="minimumSize">
@@ -544,12 +596,12 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QFrame" name="frame_7">
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Animation file exportation options</string>
                </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -599,10 +651,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                </property>
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
-                 <weight>75</weight>
-                 <italic>true</italic>
-                 <bold>true</bold>
+                 <pointsize>9</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="toolTip">
@@ -610,6 +662,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                </property>
                <property name="layoutDirection">
                 <enum>Qt::LeftToRight</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);</string>
                </property>
                <property name="text">
                 <string/>
@@ -632,6 +688,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                  <width>70</width>
                  <height>26</height>
                 </size>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the file extension&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QComboBox{border-radius: 2px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 11pt &quot;MS Shell Dlg 2&quot;}
