@@ -111,7 +111,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Select the Analysis Type</string>
+         <string>Select the analysis type</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>

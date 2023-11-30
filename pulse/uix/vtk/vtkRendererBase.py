@@ -34,7 +34,8 @@ class vtkRendererBase(ABC):
         self._inUse = False
         self._usePicker = True
         self.textProperty.SetFontSize(17)
-        self.textProperty.SetColor((1,1,1))
+        self.textProperty.SetColor((0,0,0))
+
         self.textProperty.BoldOn()
         # self.textProperty.SetItalic(1)
 
@@ -229,7 +230,7 @@ class vtkRendererBase(ABC):
         self._style.releaseButtons()
         self._inUse = value
 
-    def createInfoText(self, text):
+    def createInfoText(self, text, color=None):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
 
@@ -239,6 +240,9 @@ class vtkRendererBase(ABC):
         self.textProperty.SetVerticalJustificationToTop()
         self.textProperty.SetJustificationToLeft()
         self._textActor.SetInput(text)
+        if color is not None:
+            if isinstance(color, (tuple, list)) and len(color)==3:
+                self.textProperty.SetColor(color)
         self._textActor.SetTextProperty(self.textProperty)
         self._textActor.SetDisplayPosition(width, height)
         self._renderer.AddActor2D(self._textActor)

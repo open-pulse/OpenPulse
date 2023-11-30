@@ -521,7 +521,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.imageFilter.ReadFrontBufferOff()
         self.imageFilter.Update()
         #Setup movie writer
-        if ".avi" in path:
+        if ".avi" in str(path):
             self.moviewriter = vtk.vtkAVIWriter()
         else:
             self.moviewriter = vtk.vtkOggTheoraWriter()
@@ -588,7 +588,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
         # vertical_position_adjust = None
-        self.createInfoText(text)
+        self.createInfoText(text, color=self.opv.font_color)
 
     def update_min_max_stresses_text(self):
                 
@@ -601,7 +601,7 @@ class opvAnalysisRenderer(vtkRendererBase):
             text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
         
         width, height = self._renderer.GetSize()
-                
+        
         self.textActorStress.SetInput(text)
         self.stressesTextProperty.SetFontSize(17)
         self.stressesTextProperty.SetBold(1)
