@@ -5,6 +5,7 @@ import vtk
 from PyQt5 import Qt, QtCore, QtWidgets
 
 from pulse.uix.mainWindow import MainWindow
+from pulse.uix.application import Application
 
 import matplotlib
 matplotlib.use("Qt5Agg")
@@ -35,8 +36,8 @@ def init():
     if platform.system() == "Windows":
         sys.argv.append("--platform")
         sys.argv.append("windows:dpiawareness=0")
-    app = Qt.QApplication(sys.argv)
-    window = MainWindow()
+
+    app = Application(sys.argv)
     sys.exit(app.exec_())
     
 init()
