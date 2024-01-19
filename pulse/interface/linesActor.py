@@ -10,6 +10,7 @@ class LinesActor(vtkActorBase):
 
         self.project = project
         self.elements = project.get_structural_elements()
+    
         # self.elements = project.preprocessor.structural_elements
         self.hidden_elements = kwargs.get('hidden_elements', set())
 

@@ -12,11 +12,10 @@ class NodesActor(RoundPointsActor):
         super().__init__(points)
 
         self.appear_in_front(True)
-        self.GetProperty().SetPointSize(6)
+        self.GetProperty().SetPointSize(8)
         self.GetProperty().SetColor([i/255 for i in (255, 180, 50)])
     
     def get_points(self):
-        nodes = self.project.get_nodes()
         visible_nodes = {i:e for i,e in self.nodes.items() if (i not in self.hidden_nodes)}
         self._key_index = {j:i for i,j in enumerate(visible_nodes)}
         coords = [n.coordinates for n in visible_nodes.values()]
