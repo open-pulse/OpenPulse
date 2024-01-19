@@ -26,4 +26,3 @@ class Application(QApplication):
 
     def update(self):
         self.geometry_toolbox.update()
-        self.main_window.render_widget.update_plot(reset_camera=False)
