@@ -145,6 +145,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items = []
         self.item_top_generalSettings = QTreeWidgetItem(['General Settings'])
         self.item_child_createGeometry = QTreeWidgetItem(['Create/Edit Geometry'])
+        self.item_child_createGeometry_2 = QTreeWidgetItem(['Create/Edit Geometry 2'])
         self.item_child_editGeometry = QTreeWidgetItem(['Edit Geometry (GMSH GUI)'])
         self.item_child_setProjectAttributes = QTreeWidgetItem(['Set Project Attributes'])
         self.item_child_setGeometryFile = QTreeWidgetItem(['Set Geometry File'])
@@ -155,6 +156,7 @@ class MenuItems(QTreeWidget):
         #
         self.list_top_items.append(self.item_top_generalSettings)
         self.list_child_items.append(self.item_child_createGeometry)
+        self.list_child_items.append(self.item_child_createGeometry_2)
         self.list_child_items.append(self.item_child_editGeometry)
         self.list_child_items.append(self.item_child_setProjectAttributes)
         self.list_child_items.append(self.item_child_setGeometryFile)
@@ -265,6 +267,7 @@ class MenuItems(QTreeWidget):
         """Adds the Top Level Items and the Child Levels Items at the TreeWidget."""
         self.addTopLevelItem(self.item_top_generalSettings)
         self.item_top_generalSettings.addChild(self.item_child_createGeometry)
+        self.item_top_generalSettings.addChild(self.item_child_createGeometry_2)
         self.item_top_generalSettings.addChild(self.item_child_editGeometry)
         self.item_top_generalSettings.addChild(self.item_child_setProjectAttributes)
         self.item_top_generalSettings.addChild(self.item_child_setMeshProperties)
@@ -402,6 +405,10 @@ class MenuItems(QTreeWidget):
                 elif read:
                     self.modify_model_setup_items_access(False)
                     self.mainWindow.set_enable_menuBar(True)
+
+        elif item == self.item_child_createGeometry_2:
+            if not self.item_child_createGeometry_2.isDisabled():
+                self.mainWindow.getInputWidget().call_geometry_editor()
 
         elif item == self.item_child_editGeometry:
             if not self.item_child_editGeometry.isDisabled():

@@ -12,13 +12,6 @@ class Application(QApplication):
         super().__init__(*args, **kwargs)
 
         self.geometry_toolbox = GeometryToolbox()
-        self.geometry_toolbox.editor.add_pipe((1, 0, 0))
-        self.geometry_toolbox.editor.add_bend()
-        self.geometry_toolbox.editor.add_pipe((1, 1, 0))
-        self.geometry_toolbox.editor.commit()
-        self.geometry_toolbox.editor.add_bend()
-        self.geometry_toolbox.editor.add_pipe((1, 0, 0))
-
         self.main_window = MainWindow()
         self.main_window.show()
 

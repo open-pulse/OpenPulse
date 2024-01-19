@@ -5,6 +5,7 @@ from data.user_input.project.loadProjectInput import LoadProjectInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
 from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
 #
+from data.user_input.project.geometry_editor import CreateEditStructuresWidget
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
 from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
@@ -171,6 +172,9 @@ class InputUi:
     def call_geometry_designer(self):
         read = self.processInput(GeometryDesignerInput, self.project, self.opv)
         return read.complete
+
+    def call_geometry_editor(self):
+        self.processInput(CreateEditStructuresWidget, self.opv)
 
     def edit_an_imported_geometry(self):
         self.opv.Disable()

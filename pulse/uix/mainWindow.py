@@ -16,6 +16,8 @@ from pulse.uix.animation_toolbar import AnimationToolbar
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import (
     EditorRenderWidget,
 )
+from opps.interface.widgets.add_structures_widget import AddStructuresWidget
+
 #
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
@@ -172,6 +174,11 @@ class MainWindow(QMainWindow):
         self.mesh_setup_visibility_action.setShortcut('Ctrl+8')
         self.mesh_setup_visibility_action.setStatusTip('User preferences')
         self.mesh_setup_visibility_action.triggered.connect(self.getInputWidget().mesh_setup_visibility)
+
+        self.edit_geometry_action = QAction('&Plot Geometry Editor', self)        
+        self.edit_geometry_action.setShortcut('Ctrl+9')
+        self.edit_geometry_action.setStatusTip('Plot Geometry Editor')
+        self.edit_geometry_action.triggered.connect(self.plot_geometry_editor)
 
         # General Settings
         self.create_edit_geometry_action = QAction('&Create/Edit Geometry', self) 
@@ -467,6 +474,7 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.plot_material_action)
         self.graphicMenu.addAction(self.plot_fluid_action)
         self.graphicMenu.addAction(self.mesh_setup_visibility_action)
+        self.graphicMenu.addAction(self.edit_geometry_action)
         
     def _loadGeneralSettingsMenu(self):
         self.generalSettingsMenu.addAction(self.create_edit_geometry_action)
@@ -747,6 +755,12 @@ class MainWindow(QMainWindow):
         self.opv_widget.changePlotToMesh()
 
     def plot_raw_geometry(self):
+        working_area = self.centralWidget()
+        if not working_area.widget(1) == self.opv_widget:
+            working_area.replaceWidget(1, self.opv_widget)
+        self.opv_widget.changePlotToRawGeometry()
+    
+    def plot_geometry_editor(self):
         working_area = self.centralWidget()
         if not working_area.widget(1) == self.geometry_widget:
             working_area.replaceWidget(1, self.geometry_widget)
