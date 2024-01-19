@@ -12,6 +12,10 @@ from pulse.uix.config import Config
 from pulse.uix.renderer_toolbar import RendererToolbar
 from pulse.uix.hide_show_controls_toolbar import HideShowControlsToolbar
 from pulse.uix.animation_toolbar import AnimationToolbar
+
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import (
+    EditorRenderWidget,
+)
 #
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
@@ -655,12 +659,14 @@ class MainWindow(QMainWindow):
         self.menu_widget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
+        self.geometry_widget = EditorRenderWidget()
+        self.geometry_widget.set_theme("dark")
 
         working_area = QSplitter(Qt.Horizontal)
-        self.setCentralWidget(working_area)
-
         working_area.addWidget(self.menu_widget)
         working_area.addWidget(self.opv_widget)
+        self.setCentralWidget(working_area)
+
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         working_area.setSizes([100,400])
         self.draw()
@@ -723,16 +729,27 @@ class MainWindow(QMainWindow):
         self.opv_widget.setCameraView(6)
 
     def plot_entities(self):
+        working_area = self.centralWidget()
+        if not working_area.widget(1) == self.opv_widget:
+            working_area.replaceWidget(1, self.opv_widget)
         self.opv_widget.changePlotToEntities()
 
     def plot_entities_with_cross_section(self):
+        working_area = self.centralWidget()
+        if not working_area.widget(1) == self.opv_widget:
+            working_area.replaceWidget(1, self.opv_widget)
         self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def plot_mesh(self):
+        working_area = self.centralWidget()
+        if not working_area.widget(1) == self.opv_widget:
+            working_area.replaceWidget(1, self.opv_widget)
         self.opv_widget.changePlotToMesh()
 
     def plot_raw_geometry(self):
-        self.opv_widget.changePlotToRawGeometry()
+        working_area = self.centralWidget()
+        if not working_area.widget(1) == self.geometry_widget:
+            working_area.replaceWidget(1, self.geometry_widget)
 
     def draw(self):
         self.opv_widget.updatePlots()
