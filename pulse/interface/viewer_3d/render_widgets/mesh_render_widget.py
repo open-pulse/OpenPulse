@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from vtkat.render_widgets import CommonRenderWidget
 
-from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor
+from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
 from pulse import app
 
 
@@ -36,9 +36,11 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.nodes_actor = NodesActor(project)
         self.lines_actor = ElementLinesActor(project)
+        self.tubes_actor = TubeActor(project)
 
         self.renderer.AddActor(self.nodes_actor)
         self.renderer.AddActor(self.lines_actor)
+        self.renderer.AddActor(self.tubes_actor)
 
         if reset_camera:
             self.renderer.ResetCamera()
