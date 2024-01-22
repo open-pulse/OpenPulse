@@ -53,7 +53,7 @@ class TubeActor(vtk.vtkActor):
         self.SetMapper(mapper)
 
     def create_element_data(self, element):
-        return self.square_beam_data(element.length, 0.08, 0.04, 0)
+        return self.i_beam_data(element.length, 0.08, 0.04, 0.05, 0.005, 0.005, 0.005)
         # sphere = vtk.vtkSphereSource()
         # sphere.SetRadius(0.1)
         # sphere.Update()
@@ -137,7 +137,35 @@ class TubeActor(vtk.vtkActor):
         pass
 
     def i_beam_data(self, length, h, w1, w2, t1, t2, tw):
-        pass
+        square_top = vtk.vtkCubeSource()
+        square_center = vtk.vtkCubeSource()
+        square_bottom = vtk.vtkCubeSource()
+
+        square_top.SetYLength(length)
+        square_top.SetZLength(t1)
+        square_top.SetXLength(w1)
+        square_top.SetCenter(0, 0, -h/2 + t1/2)
+
+        square_center.SetYLength(length)
+        square_center.SetZLength(h)
+        square_center.SetXLength(tw)
+
+        square_bottom.SetYLength(length)
+        square_bottom.SetZLength(t2)
+        square_bottom.SetXLength(w2)
+        square_bottom.SetCenter(0, 0, h/2 - t2/2)
+
+        square_top.Update()
+        square_center.Update()
+        square_bottom.Update()
+
+        append_polydata = vtk.vtkAppendPolyData()
+        append_polydata.AddInputData(square_top.GetOutput())
+        append_polydata.AddInputData(square_center.GetOutput())
+        append_polydata.AddInputData(square_bottom.GetOutput())
+        append_polydata.Update()
+
+        return append_polydata.GetOutput()
 
     def t_section(self, length, h, w1, t1, tw):
         '''
