@@ -53,7 +53,7 @@ class TubeActor(vtk.vtkActor):
         self.SetMapper(mapper)
 
     def create_element_data(self, element):
-        return self.i_beam_data(element.length, 0.08, 0.04, 0.05, 0.005, 0.005, 0.005)
+        return self.t_beam_data(element.length, 0.08, 0.04, 0.005, 0.005)
         # sphere = vtk.vtkSphereSource()
         # sphere.SetRadius(0.1)
         # sphere.Update()
@@ -80,7 +80,7 @@ class TubeActor(vtk.vtkActor):
         return cilinder.GetOutput()
 
     def circular_beam_data(self, length, outside_diameter, thickness):
-        return self.pipe_data(length, )
+        return self.pipe_data(length, outside_diameter, thickness)
 
     def square_beam_data(self, length, b, h, t):
         if t == 0:
@@ -167,22 +167,25 @@ class TubeActor(vtk.vtkActor):
 
         return append_polydata.GetOutput()
 
-    def t_section(self, length, h, w1, t1, tw):
-        '''
-        bottom:             top:
-        0          1        8          9
-        ┌──────────┐        ┌──────────┐
-        │          │        │          │
-       2└──┐    ┌──┘3     10└──┐    ┌──┘11
-          4│    │5           12│    │13
-           │    │              │    │
-           │    │              │    │
-           │    │              │    │
-          6└────┘7           14└────┘15
-        '''
+    def t_beam_data(self, length, h, w1, t1, tw):
+        square_top = vtk.vtkCubeSource()
+        square_center = vtk.vtkCubeSource()
 
-        # data = vtk.vtkPolyData()
-        # points = vtk.vtkPoints()
-        # points.SetNumberOfPoints(16)
+        square_top.SetYLength(length)
+        square_top.SetZLength(t1)
+        square_top.SetXLength(w1)
+        square_top.SetCenter(0, 0, -h/2 + t1/2)
 
-        # points.SetPoint(0, -w1/2, )
+        square_center.SetYLength(length)
+        square_center.SetZLength(h)
+        square_center.SetXLength(tw)
+
+        square_top.Update()
+        square_center.Update()
+
+        append_polydata = vtk.vtkAppendPolyData()
+        append_polydata.AddInputData(square_top.GetOutput())
+        append_polydata.AddInputData(square_center.GetOutput())
+        append_polydata.Update()
+
+        return append_polydata.GetOutput()
