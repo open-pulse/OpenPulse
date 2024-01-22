@@ -53,29 +53,46 @@ class TubeActor(vtk.vtkActor):
         self.SetMapper(mapper)
 
     def create_element_data(self, element):
-        return self.pipe_data(element.length, 0.08, 0.001)
+        return self.closed_square_beam_data(element.length, 0.08, 0.04)
         # sphere = vtk.vtkSphereSource()
         # sphere.SetRadius(0.1)
         # sphere.Update()
         # return sphere.GetOutput()
 
     def pipe_data(self, length, outside_diameter, thickness):
+        if thickness == 0:
+            return self.closed_pipe_data(length, outside_diameter)
         cilinder = vtk.vtkCylinderSource()
         cilinder.SetResolution(20)
         cilinder.SetRadius(outside_diameter / 2)
         cilinder.SetHeight(length)
-        if thickness == 0:
-            cilinder.CappingOn()
-        else:
-            cilinder.CappingOff()
+        cilinder.CappingOff()
+        cilinder.Update()
+        return cilinder.GetOutput()
+
+    def closed_pipe_data(self, length, outside_diameter):
+        cilinder = vtk.vtkCylinderSource()
+        cilinder.SetResolution(20)
+        cilinder.SetRadius(outside_diameter / 2)
+        cilinder.SetHeight(length)
+        cilinder.CappingOn()
         cilinder.Update()
         return cilinder.GetOutput()
 
     def circular_beam_data(self, length, outside_diameter, thickness):
         return self.pipe_data(length, )
 
-    def square_beam_data(self, length, base, height, thickness):
+    def square_beam_data(self, length, b, h, t):
         pass
+
+    def closed_square_beam_data(self, length, b, h):
+        square = vtk.vtkCubeSource()
+        square.SetYLength(length)
+        square.SetXLength(b)
+        square.SetZLength(h)
+        square.SetCenter(-b/2, 0, -h/2)
+        square.Update()
+        return square.GetOutput()
 
     def c_beam_data(self, length, h, w1, w2, t1, t2, tw):
         pass
