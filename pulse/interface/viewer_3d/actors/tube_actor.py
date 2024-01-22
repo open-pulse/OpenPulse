@@ -53,7 +53,7 @@ class TubeActor(vtk.vtkActor):
         self.SetMapper(mapper)
 
     def create_element_data(self, element):
-        return self.closed_square_beam_data(element.length, 0.08, 0.04)
+        return self.square_beam_data(element.length, 0.08, 0.04, 0)
         # sphere = vtk.vtkSphereSource()
         # sphere.SetRadius(0.1)
         # sphere.Update()
@@ -83,14 +83,53 @@ class TubeActor(vtk.vtkActor):
         return self.pipe_data(length, )
 
     def square_beam_data(self, length, b, h, t):
-        pass
+        if t == 0:
+            return self.closed_square_beam_data(length, b, h)
+
+        square_top = vtk.vtkCubeSource()
+        square_left = vtk.vtkCubeSource()
+        square_right = vtk.vtkCubeSource()
+        square_bottom = vtk.vtkCubeSource()
+
+        square_top.SetYLength(length)
+        square_top.SetZLength(t)
+        square_top.SetXLength(b)
+        square_top.SetCenter(0, 0, -h/2 + t/2)
+
+        square_left.SetYLength(length)
+        square_left.SetZLength(h)
+        square_left.SetXLength(t)
+        square_left.SetCenter(-b/2 + t/2, 0, 0)
+
+        square_right.SetYLength(length)
+        square_right.SetZLength(h)
+        square_right.SetXLength(t)
+        square_right.SetCenter(b/2 - t/2, 0, 0)
+
+        square_bottom.SetYLength(length)
+        square_bottom.SetZLength(t)
+        square_bottom.SetXLength(b)
+        square_bottom.SetCenter(0, 0, h/2 - t/2)
+
+        square_top.Update()
+        square_left.Update()
+        square_right.Update()
+        square_bottom.Update()
+
+        append_polydata = vtk.vtkAppendPolyData()
+        append_polydata.AddInputData(square_top.GetOutput())
+        append_polydata.AddInputData(square_left.GetOutput())
+        append_polydata.AddInputData(square_right.GetOutput())
+        append_polydata.AddInputData(square_bottom.GetOutput())
+        append_polydata.Update()
+
+        return append_polydata.GetOutput()
 
     def closed_square_beam_data(self, length, b, h):
         square = vtk.vtkCubeSource()
         square.SetYLength(length)
         square.SetXLength(b)
         square.SetZLength(h)
-        square.SetCenter(-b/2, 0, -h/2)
         square.Update()
         return square.GetOutput()
 
