@@ -10,7 +10,9 @@ class ElementLinesActor(LinesActor):
 
         lines = self.get_lines()
         super().__init__(lines)
-    
+        self.GetProperty().SetColor(0,0,0)
+        self.appear_in_front(True)
+
     def get_lines(self):
         visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
         self._key_index  = {j:i for i,j in enumerate(visible_elements)}

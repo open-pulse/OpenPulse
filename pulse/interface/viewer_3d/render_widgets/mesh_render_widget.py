@@ -38,8 +38,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.lines_actor = ElementLinesActor(project)
         self.tubes_actor = TubeActor(project)
 
-        self.renderer.AddActor(self.nodes_actor)
         self.renderer.AddActor(self.lines_actor)
+        self.renderer.AddActor(self.nodes_actor)
         self.renderer.AddActor(self.tubes_actor)
 
         if reset_camera:
