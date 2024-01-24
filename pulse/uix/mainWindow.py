@@ -1,3 +1,4 @@
+import dataclasses
 from PyQt5.QtWidgets import QMainWindow, QToolBar, QSplitter, QAction, QLabel, QStatusBar, QMenu, QFileDialog
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QEvent, QSize
@@ -19,6 +20,8 @@ import sys
 import os
 #
 from pulse.uix.menu import *
+
+from data.user_input.project.newProjectInput import NewProjectInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -416,6 +419,16 @@ class MainWindow(QMainWindow):
         self.cameraIsometric_action = QAction(self.view_isometric_icon, '&Isometric View', self)
         self.cameraIsometric_action.setShortcut('Ctrl+Shift+7')
         self.cameraIsometric_action.triggered.connect(self.cameraIsometric_call)
+
+        self.teste = QAction('&Hello', self)    
+        self.teste.setShortcut('Alt+J')  
+        self.teste.triggered.connect(self.teste_callback)
+        self.addAction(self.teste)
+
+    def teste_callback(self):
+        NewProjectInput.pull_step_geometry_from_editor(self)
+        print('callback funcionando')
+        
 
     def _createRecentProjectsActions(self):
         self.importRecent_action = {}

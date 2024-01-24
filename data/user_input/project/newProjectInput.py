@@ -14,6 +14,7 @@ from pulse.lib.default_libraries import default_material_library, default_fluid_
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from pulse.utils import get_new_path
+from pulse.project import Project
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -201,6 +202,12 @@ class NewProjectInput(QDialog):
     def import_conn(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
         self.lineEdit_import_connectivity.setText(str(self.path))
+
+    def pull_step_geometry_from_editor(self):
+        print("função de pull foi chamada")
+        # geometry_path = str(self.project_folder_path) + "//geometry.step" #sempre salvar o arquivo step do arquivo como geometry.step
+        geometry_path = "C:\\meus_arquivos\\ufsc\\LVA\\geometry_files\\open_pulse_files\\teste1.step"
+        Project.load_project(self, geometry_path)
 
     def createProject(self):
 

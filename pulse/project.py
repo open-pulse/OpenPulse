@@ -182,7 +182,7 @@ class Project:
         # self.initial_load_project_actions(self.project_ini_file_path)
 
     def load_geometry_entities(self):
-        """ This method loads geometry data from file a creates a geometry based on
+        """ This method loads geometry data from file and creates a geometry based on
             GMSH built-in functions.
         """
 
