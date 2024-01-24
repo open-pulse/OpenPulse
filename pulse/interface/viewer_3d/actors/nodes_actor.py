@@ -21,7 +21,6 @@ class NodesActor(vtk.vtkActor):
         self.SetMapper(mapper)
         self.GetProperty().SetPointSize(8)
         self.GetProperty().RenderPointsAsSpheresOn()
-        self.GetProperty().RenderPointsAsSpheresOn()
         self.GetProperty().LightingOff()
         self.GetProperty().SetColor([i/255 for i in (255, 180, 50)])
         self.appear_in_front(True)
