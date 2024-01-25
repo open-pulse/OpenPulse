@@ -530,21 +530,22 @@ class ProjectFile:
         
         self.write_data_in_file(self._entity_path, config)
 
-    def create_segment_file(self, entities):
+    def create_segment_file(self, segments):
 
-        if isinstance(entities, (int, float)):
-            entities = [entities]
+        if isinstance(segments, (int, float)):
+            segments = [segments]
 
         config = configparser.ConfigParser()
         
         if os.path.exists(self._segment_path):
+            config.read(self._segment_path)
             sections = config.sections()
-            for entity_id in entities:
-                if str(entity_id) not in sections:
-                    config[str(entity_id)] = {}
+            for segment_id in segments:
+                if str(segment_id) not in sections:
+                    config[str(segment_id)] = {}
         else:
-            for entity_id in entities:
-                config[str(entity_id)] = {}
+            for segment_id in segments:
+                config[str(segment_id)] = {}
         
         self.write_data_in_file(self._segment_path, config)
 

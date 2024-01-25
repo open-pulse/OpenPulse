@@ -251,27 +251,25 @@ class OPPGeometryDesignerInput(QDialog):
 
     def define_cross_section(self):
 
-        self.cross_section_info = None
-        tag = self.get_current_segment_tag()
+        # self.cross_section_info = None
+        # tag = self.get_current_segment_tag()
 
         if self.tabWidget_general.currentIndex() == 0:
             if self.tabWidget_pipe_section.currentIndex() == 0:
                 self.cross_section_widget.get_straight_pipe_parameters()
-                self.cross_section_info = {  "section label" : "pipe (constant)",
-                                                    "section parameters" : self.cross_section_widget.section_parameters  }
+                self.cross_section_info = { "section label" : "pipe (constant)",
+                                            "section parameters" : self.cross_section_widget.section_parameters  }
             else:
                 self.cross_section_widget.get_variable_section_pipe_parameters()
-                self.cross_section_info = {  "section label" : "pipe (variable)",
-                                                    "section parameters" : self.cross_section_widget.variable_parameters  }
+                self.cross_section_info = { "section label" : "pipe (variable)",
+                                            "section parameters" : self.cross_section_widget.variable_parameters  }
         else:
             self.cross_section_widget.get_beam_section_parameters()
-            self.cross_section_info = {  "section label" : "beam",
-                                                "beam section type" : self.cross_section_widget.section_label,
-                                                "section parameters" : self.cross_section_widget.section_parameters  }
+            self.cross_section_info = { "section label" : "beam",
+                                        "beam section type" : self.cross_section_widget.section_label,
+                                        "section parameters" : self.cross_section_widget.section_parameters  }
         
-        if self.cross_section_info is not None:
-            self.segment_information[tag] = self.cross_section_info
-        
+        # self.segment_information[tag] = self.cross_section_info
         self.cross_section_widget.setVisible(False)
         self.reset_appearance_to_default()
         self.alternate_cross_section_button_label()
@@ -287,7 +285,14 @@ class OPPGeometryDesignerInput(QDialog):
         self.reset_appearance_to_default()
         self.alternate_material_button_label()
 
+    def propagate_section(self):
+        if not self.cross_section_widget.isVisible():
+            if self.cross_section_info is not None:
+                tag = self.get_current_segment_tag()
+                self.segment_information[tag] = self.cross_section_info                
+
     def create_segment(self):
+        self.propagate_section()
         dx, dy, dz = self.get_segment_deltas()
         if (dx, dy, dz) == (0, 0, 0):
             return
@@ -322,8 +327,9 @@ class OPPGeometryDesignerInput(QDialog):
         self.segment_information[tag] = dict()
         self.comboBox_segment_id.clear()
         for key in self.segment_information.keys():
-            self.comboBox_segment_id.addItem(f" Segment-{key}")
-            # self.comboBox_segment_id.setAlignment(Qt.AlignHCenter)
+            text = f" Segment-{key}"
+            self.comboBox_segment_id.addItem(text)
+            self.comboBox_segment_id.setCurrentText(text)
 
     def delete_segment(self):
         pass
