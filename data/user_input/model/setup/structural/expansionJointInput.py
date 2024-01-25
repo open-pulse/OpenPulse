@@ -16,7 +16,7 @@ from pulse.preprocessing.before_run import BeforeRun
 from pulse.utils import create_new_folder, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
-from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
+from data.user_input.model.setup.structural.crossSectionInput import SetCrossSectionInput
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
@@ -635,11 +635,11 @@ class ExpansionJointInput(QDialog):
             # self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section()
             self.elements_to_apply_cross_section = self.get_list_of_elements_to_update_cross_section() 
             if self.elements_to_apply_cross_section != []:
-                read = CrossSectionInput(   self.project, 
+                read = SetCrossSectionInput(self.project, 
                                             self.opv, 
                                             pipe_to_beam = False, 
                                             beam_to_pipe = True, 
-                                            elements_to_update_cross_section = self.elements_to_apply_cross_section   )
+                                            elements_to_update_cross_section = self.elements_to_apply_cross_section)
                 if not read.complete:
                     return
             else:
@@ -997,7 +997,7 @@ class ExpansionJointInput(QDialog):
             # self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
             self.elements_to_apply_cross_section = self.get_list_of_elements_to_update_cross_section() 
             if self.elements_to_apply_cross_section != []:
-                read = CrossSectionInput(   self.project, 
+                read = SetCrossSectionInput(self.project, 
                                             self.opv, 
                                             pipe_to_beam = False, 
                                             beam_to_pipe = True, 
