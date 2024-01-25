@@ -12,6 +12,7 @@ from pulse.uix.config import Config
 from pulse.uix.renderer_toolbar import RendererToolbar
 from pulse.uix.hide_show_controls_toolbar import HideShowControlsToolbar
 from pulse.uix.animation_toolbar import AnimationToolbar
+from pulse import app
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import (
     EditorRenderWidget,
@@ -667,8 +668,10 @@ class MainWindow(QMainWindow):
         self.menu_widget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
-        self.geometry_widget = EditorRenderWidget()
-        self.geometry_widget.set_theme("dark")
+
+        editor = app().geometry_toolbox.editor
+        self.geometry_widget = EditorRenderWidget(editor)
+        self.geometry_widget.set_theme("light")
 
         working_area = QSplitter(Qt.Horizontal)
         working_area.addWidget(self.menu_widget)
