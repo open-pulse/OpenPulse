@@ -177,7 +177,7 @@ class Project:
             self.file.update_geometry_path(geometry_path)
             return False
     
-    def edit_imported_geometry(self, geometry_filename):
+    def edit_project_geometry(self, geometry_filename):
         self.file.update_project_attributes(geometry_filename=geometry_filename)
         # self.initial_load_project_actions(self.project_ini_file_path)
 

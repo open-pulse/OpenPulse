@@ -231,7 +231,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
 
-    def setCameraView(self, view=6):
+    def setCameraView(self, view=5):
         if (self.opvRenderer.getInUse()):
             x,y,z = self.opvRenderer._renderer.GetActiveCamera().GetFocalPoint()
         elif (self.opvAnalysisRenderer.getInUse()):

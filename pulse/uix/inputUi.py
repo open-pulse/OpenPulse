@@ -176,7 +176,8 @@ class InputUi:
 
     def call_geometry_editor(self):
         # self.processInput(CreateEditStructuresWidget, self.opv)
-        self.processInput(OPPGeometryDesignerInput, self.project, self.opv)
+        read = self.processInput(OPPGeometryDesignerInput, self.project, self.opv)
+        self.initial_project_action(read.complete)
 
     def edit_an_imported_geometry(self):
         self.opv.Disable()
@@ -192,8 +193,7 @@ class InputUi:
 
     def set_mesh_properties(self):
         read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)
-        if read.complete:
-            self.initial_project_action(True)
+        self.initial_project_action(read.complete)
         return read.complete
 
     def set_material(self):

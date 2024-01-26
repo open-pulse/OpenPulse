@@ -134,6 +134,9 @@ class ProjectFile:
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
+    def get_file_path_inside_project_directory(self, filename):
+        return get_new_path(self._project_path, filename)
+
     def get_element_size_from_project_file(self):
         if self._project_path != "":
             # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
@@ -2709,9 +2712,12 @@ class ProjectFile:
         with open(path, 'w') as config_file:
             config.write(config_file)
 
-
     def get_import_type(self):
         return self._import_type
+
+    @property
+    def projetc_path(self):
+        return self._project_path
 
     @property
     def element_size(self):

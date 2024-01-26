@@ -85,7 +85,7 @@ class EditImportedGeometryInput(QDialog):
             if os.path.exists(self.file._entity_path):
                 os.remove(self.file._entity_path)
             
-            self.project.edit_imported_geometry(self.new_basename)
+            self.project.edit_project_geometry(self.new_basename)
             self.project.initial_load_project_actions(self.project_ini_file_path)
             self.complete = True
 

@@ -11,6 +11,9 @@ from data.user_input.model.geometry.cross_section_inputs import CrossSectionInpu
 from data.user_input.model.setup.structural.material_input_new import MaterialInputsNew
 from data.user_input.project.print_message_input import PrintMessageInput
 
+from opps.io.cad_file.cad_handler import CADHandler
+from pulse import app
+
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
@@ -38,7 +41,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
 
-        self.projec = project
+        self.project = project
         self.file = project.file
 
         self._load_icons()
@@ -58,6 +61,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.setWindowIcon(self.pulse_icon)
 
     def _reset_variables(self):
+        self.complete = False
         self.cross_section_info = None
         self.bending_radius = 0
         self.bending_factor = 0
@@ -87,6 +91,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.label_unit_delta_x = self.findChild(QLabel, 'label_unit_delta_x')
         self.label_unit_delta_y = self.findChild(QLabel, 'label_unit_delta_y')
         self.label_unit_delta_z = self.findChild(QLabel, 'label_unit_delta_z')
+        self.label_unit_diameter = self.findChild(QLabel, 'label_unit_diameter')
         self.label_unit_bending_radius = self.findChild(QLabel, 'label_unit_bending_radius')
 
         # QLineEdit
@@ -94,6 +99,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.lineEdit_delta_y = self.findChild(QLineEdit, 'lineEdit_delta_y')
         self.lineEdit_delta_z = self.findChild(QLineEdit, 'lineEdit_delta_z')
         self.lineEdit_bending_radius = self.findChild(QLineEdit, 'lineEdit_bending_radius')
+        self.lineEdit_section_diameter = self.findChild(QLineEdit, 'lineEdit_section_diameter')
         
         # QPushButton
         self.pushButton_set_cross_section = self.findChild(QPushButton, 'pushButton_set_cross_section')
@@ -259,6 +265,8 @@ class OPPGeometryDesignerInput(QDialog):
                 self.cross_section_widget.get_straight_pipe_parameters()
                 self.cross_section_info = { "section label" : "pipe (constant)",
                                             "section parameters" : self.cross_section_widget.section_parameters  }
+                diameter = self.cross_section_widget.section_parameters["outer_diameter"]
+                self.lineEdit_section_diameter.setText(str(diameter))
             else:
                 self.cross_section_widget.get_variable_section_pipe_parameters()
                 self.cross_section_info = { "section label" : "pipe (variable)",
@@ -300,10 +308,12 @@ class OPPGeometryDesignerInput(QDialog):
         self.coords_modified_callback()
         self.add_segment_information_to_file()
         self.update_segment_tag()
+        self.reset_deltas()
 
     def process_geometry_callback(self):
         self.render_widget.show_passive_points = True
         self.render_widget.unstage_structure()
+        self.export_cad_file()
         self.close()
 
     def add_segment_information_to_file(self):
@@ -334,7 +344,35 @@ class OPPGeometryDesignerInput(QDialog):
     def delete_segment(self):
         pass
 
+    def reset_deltas(self):
+        self.lineEdit_delta_x.setText("")
+        self.lineEdit_delta_y.setText("")
+        self.lineEdit_delta_z.setText("")
+
+    def export_cad_file(self):
+        exporter = CADHandler()
+        pipeline = app().geometry_toolbox.pipeline
+        geometry_filename = "geometry_pipeline.step"
+        geometry_path = self.file.get_file_path_inside_project_directory(geometry_filename)
+        exporter.save(geometry_path, pipeline)
+
+        if os.path.exists(self.file._entity_path):
+            os.remove(self.file._entity_path)
+
+        geometry_filename = os.path.basename(geometry_path)
+        # self.project.edit_project_geometry(geometry_filename)
+        self.file.update_project_attributes(element_size = 0.01, 
+                                            geometry_tolerance = 1e-6,
+                                            geometry_filename=geometry_filename)
+
+        self.project.initial_load_project_actions(self.file._project_ini_file_path)
+        self.project.load_project_files()
+        self.complete = True
+
     def closeEvent(self, a0) -> None:
         self.render_widget.show_passive_points = True
         self.render_widget.unstage_structure()
+        self.opv.updatePlots()
+        self.main_window.plot_entities_with_cross_section()
+        self.main_window.cameraFront_call()
         return super().closeEvent(a0)
