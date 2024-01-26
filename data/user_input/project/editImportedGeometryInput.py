@@ -22,7 +22,7 @@ class EditImportedGeometryInput(QDialog):
         self.project = project
         self.file = project.file
         self.geometry_path = self.file._geometry_path
-        self.project_ini_file_path = self.file._project_ini_file_path
+        self.project_ini_file_path = self.file.project_ini_file_path
         
         self.geometry_basename = "" 
         self.complete = False

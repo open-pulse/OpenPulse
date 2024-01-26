@@ -890,6 +890,16 @@ class ProjectFile:
                         insulation_thickness = entityFile[entity]['insulation thickness']
                     if 'insulation density' in entityFile[entity].keys():
                         insulation_density = entityFile[entity]['insulation density']
+                    
+                    if 'section parameters' in entityFile[entity].keys():
+                        str_section_parameters = entityFile[entity]['section parameters']
+                        parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+                        outerDiameter = parameters[0]
+                        thickness = parameters[1] 
+                        offset_y = parameters[2] 
+                        offset_z = parameters[3] 
+                        insulation_thickness = parameters[4]
+                        insulation_density = parameters[5]
         
                     if outerDiameter != "" and thickness != "":
                         try:
@@ -971,6 +981,16 @@ class ProjectFile:
                         insulation_thickness = entityFile[entity]['insulation thickness']
                     if 'insulation density' in entityFile[entity].keys():
                         insulation_density = entityFile[entity]['insulation density']
+
+                    if 'section parameters' in entityFile[entity].keys():
+                        str_section_parameters = entityFile[entity]['section parameters']
+                        parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+                        outerDiameter = parameters[0]
+                        thickness = parameters[1] 
+                        offset_y = parameters[2] 
+                        offset_z = parameters[3] 
+                        insulation_thickness = parameters[4] 
+                        insulation_density = parameters[5]
 
                     if 'variable section parameters' in entityFile[entity].keys():
                         str_section_variable_parameters = entityFile[entity]['variable section parameters']
@@ -1345,7 +1365,8 @@ class ProjectFile:
                         # config[line_id]['offset [e_y, e_z]'] = str(cross_section.offset)
                         # config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
                         # config[line_id]['insulation density'] = str(cross_section.insulation_density)
-                        config[line_id]['section parameters'] = str(cross_section.section_parameters)
+                        section_parameters = list(cross_section.section_parameters.values())
+                        config[line_id]['section parameters'] = str(section_parameters)
         
         self.write_data_in_file(self._entity_path, config)      
 
@@ -2716,9 +2737,12 @@ class ProjectFile:
         return self._import_type
 
     @property
-    def projetc_path(self):
+    def project_path(self):
         return self._project_path
 
+    @property
+    def project_ini_file_path(self):
+        return self._project_ini_file_path
     @property
     def element_size(self):
         return self._element_size

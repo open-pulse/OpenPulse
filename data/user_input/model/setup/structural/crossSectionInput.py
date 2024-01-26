@@ -708,6 +708,7 @@ class SetCrossSectionInput(QDialog):
         self.section_label = self.input_widget.section_label
         self.section_parameters = self.input_widget.section_parameters
         self.section_properties = self.input_widget.section_properties
+        self.pipe_section_info = self.input_widget.pipe_section_info
 
         if plot:
             return

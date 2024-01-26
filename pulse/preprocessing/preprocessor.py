@@ -270,7 +270,6 @@ class Preprocessor:
         str
             the path of geometry file (only IGES and STEP CAD formats are supported).
         """
-        gmsh.finalize()
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)

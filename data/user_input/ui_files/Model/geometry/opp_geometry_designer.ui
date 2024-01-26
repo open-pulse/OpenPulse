@@ -927,6 +927,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                  <string> Milimeters</string>
                 </property>
                </item>
+               <item>
+                <property name="text">
+                 <string> Inches</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item row="9" column="2">
@@ -1071,7 +1076,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
               </widget>
              </item>
              <item row="7" column="2">
-              <widget class="QLabel" name="label_unit_delta_z_2">
+              <widget class="QLabel" name="label_unit_diameter">
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>

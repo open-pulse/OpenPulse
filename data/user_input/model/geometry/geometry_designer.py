@@ -11,7 +11,8 @@ from data.user_input.model.geometry.cross_section_inputs import CrossSectionInpu
 from data.user_input.model.setup.structural.material_input_new import MaterialInputsNew
 from data.user_input.project.print_message_input import PrintMessageInput
 
-from opps.io.cad_file.cad_handler import CADHandler
+# from opps.io.cad_file.cad_handler import CADHandler
+from pulse.interface.cad_handler import CADHandler
 from pulse import app
 
 def get_icons_path(filename):
@@ -100,6 +101,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.lineEdit_delta_z = self.findChild(QLineEdit, 'lineEdit_delta_z')
         self.lineEdit_bending_radius = self.findChild(QLineEdit, 'lineEdit_bending_radius')
         self.lineEdit_section_diameter = self.findChild(QLineEdit, 'lineEdit_section_diameter')
+        self.create_list_of_unit_labels()
         
         # QPushButton
         self.pushButton_set_cross_section = self.findChild(QPushButton, 'pushButton_set_cross_section')
@@ -125,8 +127,9 @@ class OPPGeometryDesignerInput(QDialog):
         self.textEdit_segment_information.setVisible(False)
 
     def _create_connections(self):
-
+        self.comboBox_length_unit.currentIndexChanged.connect(self.update_legth_units)
         self.comboBox_bending_type.currentIndexChanged.connect(self.update_bending_type)
+        self.update_legth_units()
         self.update_bending_type()
 
         self.lineEdit_delta_x.textEdited.connect(self.coords_modified_callback)
@@ -146,6 +149,26 @@ class OPPGeometryDesignerInput(QDialog):
         self.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
         self.pushButton_attribute_material.clicked.connect(self.define_material)
 
+    def create_list_of_unit_labels(self):
+        self.unit_labels = []
+        self.unit_labels.append(self.label_unit_delta_x)
+        self.unit_labels.append(self.label_unit_delta_y)
+        self.unit_labels.append(self.label_unit_delta_z)
+        self.unit_labels.append(self.label_unit_diameter)
+        self.unit_labels.append(self.label_unit_bending_radius)
+
+    def update_legth_units(self):
+        index = self.comboBox_length_unit.currentIndex()
+        if index == 0:
+            self.length_unit = "m"
+        elif index == 1:
+            self.length_unit = "mm"
+        else:
+            self.length_unit = "in"
+        #
+        for _label in self.unit_labels:
+            _label.setText(f"[{self.length_unit}]")
+
     def update_bending_type(self):
         self.bending_factor = 0
         self.lineEdit_bending_radius.setText("")
@@ -158,8 +181,7 @@ class OPPGeometryDesignerInput(QDialog):
         elif index == 2:
             self.lineEdit_bending_radius.setDisabled(False)
             self.lineEdit_bending_radius.setFocus()
-        else:
-            return
+        self.coords_modified_callback()
 
     def check_bending_radius(self):
         lineEdit = self.lineEdit_bending_radius
@@ -179,8 +201,11 @@ class OPPGeometryDesignerInput(QDialog):
     def coords_modified_callback(self):
         try:
             dx, dy, dz = self.get_segment_deltas()
-            auto_bend = True
-            self.render_widget.stage_pipe_deltas(dx, dy, dz, auto_bend)
+            if self.bending_factor:
+                bend_pipe = True
+            else:
+                bend_pipe = False
+            self.render_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
         except ValueError:
             pass
 
@@ -365,7 +390,7 @@ class OPPGeometryDesignerInput(QDialog):
                                             geometry_tolerance = 1e-6,
                                             geometry_filename=geometry_filename)
 
-        self.project.initial_load_project_actions(self.file._project_ini_file_path)
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
         self.complete = True
 
