@@ -3356,6 +3356,7 @@ class Preprocessor:
         try:
             message = ""
             self.geometry = Geometry()
+
             gmsh.initialize('', False)
             gmsh.option.setNumber("General.Terminal", 0)
             gmsh.option.setNumber("General.Verbosity", 0)

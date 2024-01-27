@@ -74,9 +74,6 @@ class NewProjectInput(QDialog):
 
         self.button_create_project = self.findChild(QDialogButtonBox, 'button_create_project')
         self.tabWidget_new_project = self.findChild(QTabWidget, 'tabWidget_new_project')
-        self.tab_import_geometry = self.tabWidget_new_project.findChild(QWidget, 'tab_import_geometry')
-        self.tab_import_mesh = self.tabWidget_new_project.findChild(QWidget, 'tab_import_mesh')
-        self.tab_create_empty_project = self.tabWidget_new_project.findChild(QWidget, 'tab_create_empty_project')
         self.tabWidget_new_project.removeTab(2)
 
     def _create_Qt_actions(self):    
@@ -213,7 +210,18 @@ class NewProjectInput(QDialog):
         self.createFluidFile()
         self.createProjectFile()
         
-        if self.tabWidget_new_project.currentWidget() == self.tab_import_geometry:
+        if self.tabWidget_new_project.currentIndex() == 0:
+            project_name = self.lineEdit_project_name.text()
+            import_type = 1
+            self.config.writeRecentProject(self.project_file_path)
+            self.project.new_empty_project( self.project_folder_path, 
+                                            project_name,
+                                            import_type, 
+                                            self.material_list_path, 
+                                            self.fluid_list_path )
+            return True
+
+        elif self.tabWidget_new_project.currentIndex() == 1:
             geometry_filename = os.path.basename(self.lineEdit_import_geometry.text())
             new_geometry_path = get_new_path(self.project_folder_path, geometry_filename)
             copyfile(self.lineEdit_import_geometry.text(), new_geometry_path)
@@ -232,18 +240,7 @@ class NewProjectInput(QDialog):
                                         geometry_path=new_geometry_path   )
             return True
         
-        if self.tabWidget_new_project.currentWidget() == self.tab_create_empty_project:
-            project_name = self.lineEdit_project_name.text()
-            import_type = 1
-            self.config.writeRecentProject(self.project_file_path)
-            self.project.new_empty_project( self.project_folder_path, 
-                                            project_name,
-                                            import_type, 
-                                            self.material_list_path, 
-                                            self.fluid_list_path )
-            return True
-
-        elif self.tabWidget_new_project.currentWidget() == self.tab_import_mesh:
+        elif self.tabWidget_new_project.currentIndex() == 2:
             nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
             connectivity_filename = os.path.basename(self.lineEdit_import_connectivity.text())
             new_cord_path = get_new_path(self.project_folder_path, nodal_coordinates_filename)
@@ -272,7 +269,11 @@ class NewProjectInput(QDialog):
         config['PROJECT'] = {}
         config['PROJECT']['Name'] = self.lineEdit_project_name.text()
 
-        if self.tabWidget_new_project.currentWidget() == self.tab_import_geometry:
+        if self.tabWidget_new_project.currentIndex() == 0:
+            config['PROJECT']['Import type'] = str(1)
+            # config['PROJECT']['Geometry file'] = ""
+
+        elif self.tabWidget_new_project.currentIndex() == 1:
             geometry_file_name = os.path.basename(self.lineEdit_import_geometry.text())
             element_size = self.lineEdit_element_size.text()
             geometry_tolerance = self.lineEdit_geometry_tolerance.text()
@@ -283,11 +284,7 @@ class NewProjectInput(QDialog):
             config['PROJECT']['Element size'] = element_size
             config['PROJECT']['Geometry tolerance'] = geometry_tolerance
 
-        if self.tabWidget_new_project.currentWidget() == self.tab_create_empty_project:
-            config['PROJECT']['Import type'] = str(1)
-            # config['PROJECT']['Geometry file'] = ""
-
-        elif self.tabWidget_new_project.currentWidget() == self.tab_import_mesh:
+        elif self.tabWidget_new_project.currentIndex() == 2:
             nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
             connectivity_matrix_filename = os.path.basename(self.lineEdit_import_connectivity.text())
             config['PROJECT']['Import type'] = str(2)

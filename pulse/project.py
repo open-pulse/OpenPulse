@@ -177,7 +177,7 @@ class Project:
             self.file.update_geometry_path(geometry_path)
             return False
     
-    def edit_imported_geometry(self, geometry_filename):
+    def edit_project_geometry(self, geometry_filename):
         self.file.update_project_attributes(geometry_filename=geometry_filename)
         # self.initial_load_project_actions(self.project_ini_file_path)
 
@@ -237,7 +237,7 @@ class Project:
             # self.file.update_project_attributes(geometry_filename=new_geometry_filename)
             if os.path.exists(self.file._entity_path):
                 os.remove(self.file._entity_path)
-            self.initial_load_project_actions(self.file._project_ini_file_path)
+            self.initial_load_project_actions(self.file.project_ini_file_path)
             self.load_project_files()
             self.preprocessor.check_disconnected_lines(self.file._element_size)
             return True

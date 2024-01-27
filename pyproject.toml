@@ -20,6 +20,7 @@ openpyxl = "^3.1.2"
 h5py = "^3.9.0"
 opps = {git = "https://github.com/andrefpf/opps", rev = "open_pulse_integration"}
 vtkat = {git = "https://github.com/andrefpf/vtkat"}
+compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"

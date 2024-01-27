@@ -65,7 +65,7 @@ class GeometryDesignerInput(QDialog):
             # self.checkBox_process_geometry_and_mesh.setDisabled(True)
 
     def load_and_update_paths(self):
-        self.project_path = self.project.file._project_path
+        self.project_path = self.project.file.project_path
         self.project_ini_path = get_new_path(self.project_path, "project.ini")
         self.imported_geometry_path = self.file._geometry_path
         self.geometry_entities_path = self.file.get_geometry_entities_path()
@@ -395,7 +395,8 @@ class GeometryDesignerInput(QDialog):
             if os.path.basename(self.imported_geometry_path) != "":
                 self.opv.changePlotToMesh()
                 # self.opv.changePlotToRawGeometry()
-                temp_geometry_file_path = get_new_path(self.file._project_path, self.file._geometry_entities_file_name)
+                temp_geometry_file_path = get_new_path( self.file.project_path, 
+                                                        self.file._geometry_entities_file_name)
                 if os.path.exists(temp_geometry_file_path):
                     self.configure_reset_geometry_button_visibility()
                     return False
@@ -833,13 +834,11 @@ class GeometryDesignerInput(QDialog):
                     kernel = "Open Cascade"
 
                 geometry_path = ""
-                if self.radioButton_built_in.isChecked():
-                    ext = "geo_unrolled"
-                elif self.radioButton_open_Cascade.isChecked():
-                    ext = "step"
-                if self.lineEdit_geometry_name.text() != "":
-                    self.new_filename = f"{self.lineEdit_geometry_name.text()}.{ext}"
-                    geometry_path = get_new_path(self.file._project_path, self.new_filename)
+                geometry_name = self.lineEdit_geometry_name.text()
+                if geometry_name != "":
+                    self.new_filename = geometry_name + ".step" 
+                    geometry_path = get_new_path(   self.file.project_path, 
+                                                    self.new_filename   )
                 else:
                     window_title = "ERROR"
                     message_title = f"Invalid geometry name"
@@ -1154,7 +1153,7 @@ class GeometryDesignerInput(QDialog):
             list_filenames = os.listdir(self.file._backup_geometry_path).copy()
             geometry_filename = list_filenames[0]
             geometry_path_start = get_new_path(self.file._backup_geometry_path, geometry_filename)
-            geometry_path_end = get_new_path(self.file._project_path, geometry_filename)
+            geometry_path_end = get_new_path(self.file.project_path, geometry_filename)
             
             copyfile(geometry_path_start, geometry_path_end)
             

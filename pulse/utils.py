@@ -127,7 +127,7 @@ def timer(function):
     
 def m_to_mm(value):
     ''' 
-    Converts meter to millimeter.
+    Converts meters to millimeters.
 
     Parameters
     ----------
@@ -140,12 +140,34 @@ def m_to_mm(value):
         Value in millimeters
     '''
     if isinstance(value, list):
-        return np.array(value) * 1000 
-    return float(value) * 1000
+        return np.array(value) * 1e3
+    elif isinstance(value, np.ndarray):
+        return value * 1e3
+    return float(value) * 1e3
 
-def mm_to_m(mm):
+def in_to_mm(value):
     ''' 
-    Converts meter to millimeter.
+    Converts inches to millimeters.
+
+    Parameters
+    ----------
+    m: int, float
+        Value in meters
+
+    Returns
+    -------
+    out: float
+        Value in millimeters
+    '''
+    if isinstance(value, list):
+        return np.array(value) * 25.4
+    elif isinstance(value, np.ndarray):
+        return value * 25.4
+    return float(value) * 25.4
+
+def mm_to_m(value):
+    ''' 
+    Converts milimeters to meters.
 
     Parameters
     ----------
@@ -158,7 +180,11 @@ def mm_to_m(mm):
         Value in meters
 
     '''
-    return float(mm) / 1000
+    if isinstance(value, list):
+        return value * 1e-3
+    elif isinstance(value, np.ndarray):
+        return value * 1e-3
+    return float(value) * 1e-3
 
 def inverse_matrix_Nx3x3(A):
     ''' 

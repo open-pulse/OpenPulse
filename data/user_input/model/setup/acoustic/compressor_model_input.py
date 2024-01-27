@@ -6,8 +6,9 @@ from pathlib import Path
 
 import numpy as np
 
+from compressors.reciprocating.model import CompressorModel
 from pulse.utils import get_new_path, remove_bc_from_file
-from pulse.preprocessing.compressor_model import CompressorModel
+# from pulse.preprocessing.compressor_model import CompressorModel
 from data.user_input.model.setup.acoustic.fluid_input import FluidInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput

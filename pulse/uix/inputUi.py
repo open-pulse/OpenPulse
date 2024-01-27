@@ -5,6 +5,7 @@ from data.user_input.project.loadProjectInput import LoadProjectInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
 from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
 #
+from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 from data.user_input.project.geometry_editor import CreateEditStructuresWidget
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
@@ -13,7 +14,7 @@ from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
 from data.user_input.model.setup.structural.material_input import MaterialInput
 from data.user_input.model.setup.acoustic.fluid_input import FluidInput
-from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
+from data.user_input.model.setup.structural.crossSectionInput import SetCrossSectionInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
 from data.user_input.model.setup.structural.dofInput import DOFInput
@@ -174,7 +175,9 @@ class InputUi:
         return read.complete
 
     def call_geometry_editor(self):
-        self.processInput(CreateEditStructuresWidget, self.opv)
+        # self.processInput(CreateEditStructuresWidget, self.opv)
+        self.processInput(OPPGeometryDesignerInput, self.project, self.opv)
+        self.initial_project_action(True)
 
     def edit_an_imported_geometry(self):
         self.opv.Disable()
@@ -189,17 +192,18 @@ class InputUi:
         return self.opv
 
     def set_mesh_properties(self):
-        read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)
-        if read.complete:
-            self.initial_project_action(True)
-        return read.complete
+        self.processInput(SetMeshPropertiesInput, self.project, self.opv)
+        self.initial_project_action(True)
 
     def set_material(self):
         self.processInput(MaterialInput, self.project, self.opv)   
          
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
-        read = self.processInput(   CrossSectionInput, self.project, self.opv, 
-                                    pipe_to_beam = pipe_to_beam, beam_to_pipe = beam_to_pipe, 
+        read = self.processInput(   SetCrossSectionInput, 
+                                    self.project, 
+                                    self.opv, 
+                                    pipe_to_beam = pipe_to_beam, 
+                                    beam_to_pipe = beam_to_pipe, 
                                     lines_to_update_cross_section = lines_to_update_cross_section   ) 
         return read.complete
 

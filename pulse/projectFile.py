@@ -35,6 +35,7 @@ class ProjectFile:
         self._conn_path = ""
         self._coord_path = ""
         self._entity_path = ""
+        self._segment_path = ""
         self._backup_geometry_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
@@ -53,6 +54,7 @@ class ProjectFile:
 
     def default_filenames(self):
         self._entity_file_name = "entity.dat"
+        self._segment_file_name = "segment_data.dat"
         self._material_file_name = "materialList.dat"
         self._fluid_file_name = "fluidList.dat"
         self._geometry_entities_file_name = "geometry_entities.dat"
@@ -86,6 +88,7 @@ class ProjectFile:
         self._coord_path = coord_path
         self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
@@ -103,6 +106,7 @@ class ProjectFile:
         self._geometry_path = ""
         self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
@@ -121,6 +125,7 @@ class ProjectFile:
         self._coord_path = coord_path
         self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
@@ -128,6 +133,9 @@ class ProjectFile:
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
+
+    def get_file_path_inside_project_directory(self, filename):
+        return get_new_path(self._project_path, filename)
 
     def get_element_size_from_project_file(self):
         if self._project_path != "":
@@ -216,6 +224,7 @@ class ProjectFile:
         self._material_list_path = get_new_path(self._project_path, material_list_file)
         self._fluid_list_path =  get_new_path(self._project_path, fluid_list_file)
         self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
+        self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
         self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -508,11 +517,40 @@ class ProjectFile:
 
     def create_entity_file(self, entities):
 
+        if isinstance(entities, (int, float)):
+            entities = [entities]
+
         config = configparser.ConfigParser()
-        for entity_id in entities:
-            config[str(entity_id)] = {}
+        
+        if os.path.exists(self._entity_path):
+            sections = config.sections()
+            for entity_id in entities:
+                if str(entity_id) not in sections:
+                    config[str(entity_id)] = {}
+        else:
+            for entity_id in entities:
+                config[str(entity_id)] = {}
         
         self.write_data_in_file(self._entity_path, config)
+
+    def create_segment_file(self, segments):
+
+        if isinstance(segments, (int, float)):
+            segments = [segments]
+
+        config = configparser.ConfigParser()
+        
+        if os.path.exists(self._segment_path):
+            config.read(self._segment_path)
+            sections = config.sections()
+            for segment_id in segments:
+                if str(segment_id) not in sections:
+                    config[str(segment_id)] = {}
+        else:
+            for segment_id in segments:
+                config[str(segment_id)] = {}
+        
+        self.write_data_in_file(self._segment_path, config)
 
     def update_entity_file(self, entities, dict_map_lines={}):
 
@@ -852,6 +890,16 @@ class ProjectFile:
                         insulation_thickness = entityFile[entity]['insulation thickness']
                     if 'insulation density' in entityFile[entity].keys():
                         insulation_density = entityFile[entity]['insulation density']
+                    
+                    if 'section parameters' in entityFile[entity].keys():
+                        str_section_parameters = entityFile[entity]['section parameters']
+                        parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+                        outerDiameter = parameters[0]
+                        thickness = parameters[1] 
+                        offset_y = parameters[2] 
+                        offset_z = parameters[3] 
+                        insulation_thickness = parameters[4]
+                        insulation_density = parameters[5]
         
                     if outerDiameter != "" and thickness != "":
                         try:
@@ -933,6 +981,16 @@ class ProjectFile:
                         insulation_thickness = entityFile[entity]['insulation thickness']
                     if 'insulation density' in entityFile[entity].keys():
                         insulation_density = entityFile[entity]['insulation density']
+
+                    if 'section parameters' in entityFile[entity].keys():
+                        str_section_parameters = entityFile[entity]['section parameters']
+                        parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+                        outerDiameter = parameters[0]
+                        thickness = parameters[1] 
+                        offset_y = parameters[2] 
+                        offset_z = parameters[3] 
+                        insulation_thickness = parameters[4] 
+                        insulation_density = parameters[5]
 
                     if 'variable section parameters' in entityFile[entity].keys():
                         str_section_variable_parameters = entityFile[entity]['variable section parameters']
@@ -1302,13 +1360,62 @@ class ProjectFile:
                             config[line_id]['section parameters'] = str(cross_section.section_parameters)
                 else:
                     if line_id in list(config.sections()):
-                        config[line_id]['outer diameter'] = str(cross_section.outer_diameter)
-                        config[line_id]['thickness'] = str(cross_section.thickness)
-                        config[line_id]['offset [e_y, e_z]'] = str(cross_section.offset)
-                        config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
-                        config[line_id]['insulation density'] = str(cross_section.insulation_density)
+                        # config[line_id]['outer diameter'] = str(cross_section.outer_diameter)
+                        # config[line_id]['thickness'] = str(cross_section.thickness)
+                        # config[line_id]['offset [e_y, e_z]'] = str(cross_section.offset)
+                        # config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
+                        # config[line_id]['insulation density'] = str(cross_section.insulation_density)
+                        section_parameters = list(cross_section.section_parameters.values())
+                        config[line_id]['section parameters'] = str(section_parameters)
         
         self.write_data_in_file(self._entity_path, config)      
+
+    def add_cross_section_segment_in_file(self, segments, data):
+        
+        if isinstance(segments, int):
+            segments = [segments]
+
+        config = configparser.ConfigParser()
+        config.read(self._segment_path)
+
+        for segment_id in segments:
+            segment_id = str(segment_id)
+
+            str_keys = [    'section parameters',
+                            'section properties',
+                            'variable section parameters',
+                            'beam section type',
+                            'expansion joint parameters',
+                            'expansion joint stiffness',
+                            'valve parameters',
+                            'valve center coordinates',
+                            'valve section parameters',
+                            'flange section parameters'   ]
+
+            for str_key in str_keys:
+                if str_key in list(config[segment_id].keys()):
+                    config.remove_option(section=segment_id, option=str_key)
+
+            if data is not None:
+
+                if segment_id in list(config.sections()):
+                    config[segment_id]['section label'] = data["section label"]
+
+                if "pipe" in data["section label"]:
+                    if segment_id in list(config.sections()):
+                        section_parameters = list(data["section parameters"].values())
+                        config[segment_id]['section parameters'] = str(section_parameters)
+                else:
+                    if segment_id in list(config.sections()):
+                        config[segment_id]['beam section type'] = data["section label"]
+                        if data["section label"] == "Generic section":
+                            section_properties = list(data["section properties"].values())
+                            config[segment_id]['section properties'] = str(section_properties)
+                        else:
+                            section_parameters = list(data["section parameters"].values())
+                            config[segment_id]['section parameters'] = str(section_parameters)                    
+
+        self.write_data_in_file(self._segment_path, config)
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
@@ -2626,10 +2733,16 @@ class ProjectFile:
         with open(path, 'w') as config_file:
             config.write(config_file)
 
-
     def get_import_type(self):
         return self._import_type
 
+    @property
+    def project_path(self):
+        return self._project_path
+
+    @property
+    def project_ini_file_path(self):
+        return self._project_ini_file_path
     @property
     def element_size(self):
         return self._element_size
