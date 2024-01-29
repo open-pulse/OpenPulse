@@ -175,9 +175,11 @@ class InputUi:
         return read.complete
 
     def call_geometry_editor(self):
+        main_window = self.parent
+        main_window.use_geometry_workspace()
         # self.processInput(CreateEditStructuresWidget, self.opv)
-        self.processInput(OPPGeometryDesignerInput, self.project, self.opv)
-        self.initial_project_action(True)
+        # self.processInput(OPPGeometryDesignerInput, self.project, self.opv)
+        # self.initial_project_action(True)
 
     def edit_an_imported_geometry(self):
         self.opv.Disable()

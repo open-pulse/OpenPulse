@@ -31,13 +31,13 @@ class OPPGeometryDesignerInput(QDialog):
 
         uic.loadUi(Path('data/user_input/ui_files/Model/geometry/opp_geometry_designer.ui'), self)
         
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        # self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        # self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Geometry designer")
 
         self.render_widget = self.main_window.geometry_widget
         self.render_widget.show_passive_points = False
-        self.main_window.plot_geometry_editor()
+        # self.main_window.plot_geometry_editor()
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -53,7 +53,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.update_segment_tag()
 
         self.update()
-        self.exec()
+        self.show()
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
@@ -398,6 +398,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.render_widget.show_passive_points = True
         self.render_widget.unstage_structure()
         self.opv.updatePlots()
-        self.main_window.plot_entities_with_cross_section()
-        self.main_window.cameraFront_call()
+        self.main_window.use_mesh_workspace()
+        # self.main_window.plot_entities_with_cross_section()
+        # self.main_window.cameraFront_call()
         return super().closeEvent(a0)

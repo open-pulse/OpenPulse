@@ -13,7 +13,7 @@ class CreateEditStructuresWidget(QTabWidget):
         self.add_structure_widget = AddStructuresWidget(self.main_window.geometry_widget, self)
         self.edit_structure_widget = EditStructuresWidget(self.main_window.geometry_widget, self)
         
-        self.main_window.plot_geometry_editor()
+        # self.main_window.plot_geometry_editor()
 
         self.addTab(self.add_structure_widget, "Add")
         self.addTab(self.edit_structure_widget, "Edit")

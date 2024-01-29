@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QToolBar, QSplitter, QAction, QLabel, QStatusBar, QMenu, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QToolBar, QSplitter, QAction, QLabel, QStatusBar, QMenu, QFileDialog, QWidget, QComboBox
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QEvent, QSize
 from pathlib import Path
@@ -8,6 +8,8 @@ from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
+from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
+
 #
 from pulse.uix.renderer_toolbar import RendererToolbar
 from pulse.uix.hide_show_controls_toolbar import HideShowControlsToolbar
@@ -47,6 +49,7 @@ class MainWindow(QMainWindow):
         self._createProjectToolBar()
         # self._createRendererSelectorToolBar()
         self._createViewsToolBar()
+        self._create_workspaces_toolbar()
         self._createHideShowToolBar()
         self._createAnimationToolBar()
         self.set_enable_menuBar(False)
@@ -429,6 +432,18 @@ class MainWindow(QMainWindow):
         self.cameraIsometric_action.setShortcut('Ctrl+Shift+7')
         self.cameraIsometric_action.triggered.connect(self.cameraIsometric_call)
 
+        self.geometry_workspace_action = QAction("geometry workspace", self)
+        self.geometry_workspace_action.setShortcut('Ctrl+Shift+i')
+        self.geometry_workspace_action.triggered.connect(self.use_geometry_workspace)
+
+        self.mesh_workspace_action = QAction("mesh workspace", self)
+        self.mesh_workspace_action.setShortcut('Ctrl+Shift+o')
+        self.mesh_workspace_action.triggered.connect(self.use_mesh_workspace)
+
+        self.results_workspace_action = QAction("results workspace", self)
+        self.results_workspace_action.setShortcut('Ctrl+Shift+p')
+        self.results_workspace_action.triggered.connect(self.use_results_workspace)
+
     def _createRecentProjectsActions(self):
         self.importRecent_action = {}
         for value in self.config.recentProjects:
@@ -544,6 +559,10 @@ class MainWindow(QMainWindow):
         self.viewsMenu.addAction(self.cameraBack_action)
         self.viewsMenu.addAction(self.cameraIsometric_action)
 
+        self.viewsMenu.addAction(self.geometry_workspace_action)
+        self.viewsMenu.addAction(self.mesh_workspace_action)
+        self.viewsMenu.addAction(self.results_workspace_action)
+
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
         self.helpMenu.addAction(self.about_action)
@@ -611,6 +630,21 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.reset_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
+    
+    def _create_workspaces_toolbar(self):
+        # this is just a test, the toolbar should be handled in another dedicated class
+        self.workspace_toolbar = QToolBar("Workspace Toolbar")
+        combo_box = QComboBox()
+        mapping = {
+            "geometry": self.use_geometry_workspace,
+            "mesh": self.use_mesh_workspace,
+            "results": self.use_results_workspace
+        }
+        for key in mapping.keys():
+            combo_box.addItem(key)
+        combo_box.activated.connect(lambda x: mapping[combo_box.itemText(x)]())
+        self.workspace_toolbar.addWidget(combo_box)
+        self.addToolBar(self.workspace_toolbar)
 
     def _createStatusBar(self):
         self.status_bar = QStatusBar()
@@ -673,14 +707,46 @@ class MainWindow(QMainWindow):
         self.geometry_widget = EditorRenderWidget(editor)
         self.geometry_widget.set_theme("light")
 
-        working_area = QSplitter(Qt.Horizontal)
-        working_area.addWidget(self.menu_widget)
-        working_area.addWidget(self.opv_widget)
-        self.setCentralWidget(working_area)
+        self.working_area = QSplitter(Qt.Horizontal)
+        self.working_area.addWidget(self.menu_widget)
+        self.working_area.addWidget(self.opv_widget)
+        self.setCentralWidget(self.working_area)
 
         self.opv_widget.opvAnalysisRenderer._createPlayer()
-        working_area.setSizes([100,400])
+        self.working_area.setSizes([100,400])
         self.draw()
+    
+    def _set_menu_widget(self, widget):
+        if not self.working_area.widget(0) == widget:
+            self.working_area.replaceWidget(0, widget)
+        else:
+            print("NOOPE")
+
+    def _set_render_widget(self, widget):
+        if not self.working_area.widget(1) == widget:
+            self.working_area.replaceWidget(1, widget)
+
+    def use_geometry_workspace(self):
+        geometry_input = OPPGeometryDesignerInput(self.project, self.opv_widget)
+        self._set_menu_widget(geometry_input)
+        self._set_render_widget(self.geometry_widget)
+        self.working_area.setSizes([100,400])
+
+    def use_mesh_workspace(self):
+        self._set_menu_widget(self.menu_widget)
+        self._set_render_widget(self.opv_widget)
+        self.working_area.setSizes([100,400])
+
+    def use_results_workspace(self):
+        a = QWidget()
+        a.setStyleSheet('background-color: red;')
+        
+        b = QWidget()
+        b.setStyleSheet('background-color: blue;')
+
+        self._set_menu_widget(a)
+        self._set_render_widget(b)
+        self.working_area.setSizes([100,400])
 
     def newProject_call(self):
         if self.inputWidget.new_project(self.config):
@@ -740,33 +806,23 @@ class MainWindow(QMainWindow):
         self.opv_widget.setCameraView(6)
 
     def plot_entities(self):
-        working_area = self.centralWidget()
-        if not working_area.widget(1) == self.opv_widget:
-            working_area.replaceWidget(1, self.opv_widget)
+        self.use_mesh_workspace()
         self.opv_widget.changePlotToEntities()
 
     def plot_entities_with_cross_section(self):
-        working_area = self.centralWidget()
-        if not working_area.widget(1) == self.opv_widget:
-            working_area.replaceWidget(1, self.opv_widget)
+        self.use_mesh_workspace()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def plot_mesh(self):
-        working_area = self.centralWidget()
-        if not working_area.widget(1) == self.opv_widget:
-            working_area.replaceWidget(1, self.opv_widget)
+        self.use_mesh_workspace()
         self.opv_widget.changePlotToMesh()
 
     def plot_raw_geometry(self):
-        working_area = self.centralWidget()
-        if not working_area.widget(1) == self.opv_widget:
-            working_area.replaceWidget(1, self.opv_widget)
+        self.use_mesh_workspace()
         self.opv_widget.changePlotToRawGeometry()
     
     def plot_geometry_editor(self):
-        working_area = self.centralWidget()
-        if not working_area.widget(1) == self.geometry_widget:
-            working_area.replaceWidget(1, self.geometry_widget)
+        self.use_geometry_workspace()
 
     def draw(self):
         self.opv_widget.updatePlots()
