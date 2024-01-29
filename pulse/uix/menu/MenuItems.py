@@ -149,7 +149,6 @@ class MenuItems(QTreeWidget):
         self.item_child_editGeometry = QTreeWidgetItem(['Edit Geometry (GMSH GUI)'])
         self.item_child_setProjectAttributes = QTreeWidgetItem(['Set Project Attributes'])
         self.item_child_setGeometryFile = QTreeWidgetItem(['Set Geometry File'])
-        self.item_child_setMeshProperties = QTreeWidgetItem(['Set Mesh Properties'])
         self.item_child_set_material = QTreeWidgetItem(['Set Material'])
         self.item_child_set_fluid = QTreeWidgetItem(['Set Fluid'])
         self.item_child_set_crossSection = QTreeWidgetItem(['Set Cross-Section'])
@@ -161,7 +160,6 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_setProjectAttributes)
         self.list_child_items.append(self.item_child_setGeometryFile)
         self.list_child_items.append(self.item_child_setGeometryFile)
-        self.list_child_items.append(self.item_child_setMeshProperties)
         self.list_child_items.append(self.item_child_set_material)
         self.list_child_items.append(self.item_child_set_fluid)
         self.list_child_items.append(self.item_child_set_crossSection)
@@ -270,7 +268,6 @@ class MenuItems(QTreeWidget):
         # self.item_top_generalSettings.addChild(self.item_child_createGeometry_2)
         self.item_top_generalSettings.addChild(self.item_child_editGeometry)
         self.item_top_generalSettings.addChild(self.item_child_setProjectAttributes)
-        self.item_top_generalSettings.addChild(self.item_child_setMeshProperties)
         self.item_top_generalSettings.addChild(self.item_child_setGeometryFile)
         self.item_top_generalSettings.addChild(self.item_child_set_material)
         self.item_top_generalSettings.addChild(self.item_child_set_fluid)
@@ -418,12 +415,12 @@ class MenuItems(QTreeWidget):
             if not self.item_child_setGeometryFile.isDisabled():
                 self.mainWindow.getInputWidget().set_geometry_file()
 
-        elif item == self.item_child_setMeshProperties:
-            if not self.item_child_setMeshProperties.isDisabled():
-                if self.mainWindow.getInputWidget().set_mesh_properties():
-                    self._updateItems()
-                    self.mainWindow.set_enable_menuBar(True)
-                    self.mainWindow._updateStatusBar()
+        # elif item == self.item_child_setMeshProperties:
+        #     if not self.item_child_setMeshProperties.isDisabled():
+        #         if self.mainWindow.getInputWidget().set_mesh_properties():
+        #             self._updateItems()
+        #             self.mainWindow.set_enable_menuBar(True)
+        #             self.mainWindow._updateStatusBar()
 
         elif item == self.item_child_set_material:
             if not self.item_child_set_material.isDisabled():
@@ -644,7 +641,6 @@ class MenuItems(QTreeWidget):
 
     def modify_geometry_item_access(self, bool_key):
         self.item_child_createGeometry.setDisabled(bool_key)
-        self.item_child_setMeshProperties.setDisabled(bool_key)
         self.item_child_editGeometry.setHidden(True)
 
     def modify_general_settings_items_access(self, bool_key):
@@ -652,7 +648,6 @@ class MenuItems(QTreeWidget):
         self.item_child_setProjectAttributes.setDisabled(bool_key)
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
-        self.item_child_setMeshProperties.setDisabled(bool_key)
         self.item_child_editGeometry.setHidden(True)
         # self.item_child_set_material.setDisabled(bool_key)
         # self.item_child_set_fluid.setDisabled(bool_key)
@@ -664,7 +659,6 @@ class MenuItems(QTreeWidget):
         self.item_child_editGeometry.setDisabled(bool_key)
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
-        self.item_child_setMeshProperties.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)

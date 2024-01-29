@@ -44,9 +44,9 @@ class NewProjectInput(QDialog):
         self.project_folder_path = ""
         self.project_file_path = ""
 
-        self.materialListName = self.project.file._material_file_name
-        self.fluidListName = self.project.file._fluid_file_name
-        self.projectFileName = self.project.file._project_base_name
+        self.material_list_name = self.project.file._material_file_name
+        self.fluid_list_name = self.project.file._fluid_file_name
+        self.project_file_name = self.project.file._project_base_name
         self.material_list_path = ""
         self.fluid_list_path = ""
 
@@ -213,7 +213,7 @@ class NewProjectInput(QDialog):
         if self.tabWidget_new_project.currentIndex() == 0:
             project_name = self.lineEdit_project_name.text()
             import_type = 1
-            self.config.writeRecentProject(self.project_file_path)
+            self.config.write_recent_project(self.project_file_path)
             self.project.new_empty_project( self.project_folder_path, 
                                             project_name,
                                             import_type, 
@@ -229,7 +229,7 @@ class NewProjectInput(QDialog):
             element_size = float(self.lineEdit_element_size.text())
             geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
             import_type = 0
-            self.config.writeRecentProject(self.project_file_path)
+            self.config.write_recent_project(self.project_file_path)
             self.project.new_project(   self.project_folder_path, 
                                         project_name, 
                                         element_size,
@@ -250,7 +250,7 @@ class NewProjectInput(QDialog):
             project_name = self.lineEdit_project_name.text()
             element_size = 0
             import_type = 2
-            self.config.writeRecentProject(self.project_file_path)
+            self.config.write_recent_project(self.project_file_path)
             self.project.new_project(   self.project_folder_path, 
                                         project_name, 
                                         element_size, import_type, 
@@ -263,7 +263,7 @@ class NewProjectInput(QDialog):
 
     def createProjectFile(self):
 
-        self.project_file_path = get_new_path(self.project_folder_path, self.projectFileName)
+        self.project_file_path = get_new_path(self.project_folder_path, self.project_file_name)
 
         config = configparser.ConfigParser()
         config['PROJECT'] = {}
@@ -291,16 +291,16 @@ class NewProjectInput(QDialog):
             config['PROJECT']['Nodal coordinates file'] = nodal_coordinates_filename
             config['PROJECT']['Connectivity matrix file'] = connectivity_matrix_filename
         
-        config['PROJECT']['Material list file'] = self.materialListName
-        config['PROJECT']['Fluid list file'] = self.fluidListName
+        config['PROJECT']['Material list file'] = self.material_list_name
+        config['PROJECT']['Fluid list file'] = self.fluid_list_name
         
         with open(self.project_file_path, 'w') as config_file:
             config.write(config_file)
 
     def createMaterialFile(self):
-        self.material_list_path = get_new_path(self.project_folder_path, self.materialListName)
+        self.material_list_path = get_new_path(self.project_folder_path, self.material_list_name)
         default_material_library(self.material_list_path)
 
     def createFluidFile(self):
-        self.fluid_list_path = get_new_path(self.project_folder_path, self.fluidListName)
+        self.fluid_list_path = get_new_path(self.project_folder_path, self.fluid_list_name)
         default_fluid_library(self.fluid_list_path)

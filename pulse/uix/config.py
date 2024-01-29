@@ -10,17 +10,17 @@ class Config:
         self.recentProjects = {}
         self.openLastProject = False
         self.configFileName = ".config"
-        self.loadConfigFile()
-        self.LoadArgs()
+        self.load_config_file()
+        self.load_args()
     
-    def loadConfigFile(self):
+    def load_config_file(self):
         config = configparser.ConfigParser()
         config.read(self.configFileName)
         if config.has_section('project'):
             for k, v in config.items('project'):
                 self.recentProjects[k] = v
 
-    def writeRecentProject(self, project_path):
+    def write_recent_project(self, project_path):
         
         project_name = os.path.basename(os.path.dirname(project_path))
         project_name = project_name.lower()
@@ -47,7 +47,7 @@ class Config:
         with open(self.configFileName, 'w') as configfile:
             config.write(configfile)
 
-    def removePathFromConfigFile(self, dir_identifier):
+    def remove_path_from_config_file(self, dir_identifier):
         config = configparser.ConfigParser()
         config.read(self.configFileName)
         if config.has_section('project'):
@@ -56,7 +56,7 @@ class Config:
             config.write(configfile)
         self.reset()
 
-    def LoadArgs(self):
+    def load_args(self):
         if "--last" in sys.argv:
             self.openLastProject = True
 

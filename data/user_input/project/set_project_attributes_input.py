@@ -42,7 +42,7 @@ class SetProjectAttributesInput(QDialog):
         self.project_name = self.project.file._project_name
 
         self.project_ini = self.project.file._project_base_name
-        self.current_geometry_path = self.project.file._geometry_path
+        self.current_geometry_path = self.project.file.geometry_path
         self.current_material_list_path = self.project.file._material_list_path
         self.current_fluid_list_path = self.project.file._fluid_list_path
 

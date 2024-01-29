@@ -1,6 +1,6 @@
 from pulse.utils import *
 #
-from pulse.projectFile import ProjectFile
+from pulse.project_file import ProjectFile
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.preprocessing.cross_section import CrossSection

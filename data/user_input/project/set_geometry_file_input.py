@@ -22,10 +22,6 @@ class SetGeometryFileInput(QDialog):
 
         uic.loadUi(Path('data/user_input/ui_files/Project/setGeometryFileInput.ui'), self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
         self.project = project
         self.opv = opv
 
@@ -33,13 +29,26 @@ class SetGeometryFileInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.create = False
-        self.stop = False
+        self.load_icon()
+        self.reset_variables()
+        self.define_qt_variables()
+        self.create_connections()
+        self.load_project_info()
+        self.exec()
 
-        self.currentTab = 0
+    def load_icon(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
+
+    def reset_variables(self):
+        self.material_list_path = ""
+        self.fluid_list_path = ""
+        self.selected_geometry_path = ""
+        self.geometry_path = self.project.file.geometry_path
 
         self.userPath = os.path.expanduser('~')
-        self.current_project_file_path = self.project.file._project_path
+        self.current_project_file_path = self.project.file.project_path
         self.project_directory = os.path.dirname(self.current_project_file_path)
         self.project_name = self.project.file._project_name
         self.element_size = self.project.file._element_size
@@ -56,31 +65,32 @@ class SetGeometryFileInput(QDialog):
 
         self.materialListName = self.project.file._material_file_name
         self.fluidListName = self.project.file._fluid_file_name
-        self.projectFileName = self.project.file._project_base_name
+        self.project_file_name = self.project.file._project_base_name
 
-        self.material_list_path = ""
-        self.fluid_list_path = ""
-        self.selected_geometry_path = ""
 
+    def define_qt_variables(self):
+        # QLineEdit
         self.lineEdit_current_geometry_file_path = self.findChild(QLineEdit, 'lineEdit_current_geometry_file_path')
+        self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')        
+        self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
         self.lineEdit_new_geometry_file_path = self.findChild(QLineEdit, 'lineEdit_new_geometry_file_path')
 
-        self.lineEdit_current_geometry_file_path.setText(self.project.file._geometry_path)
+        # QPushButton
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
 
-        self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
-        self.lineEdit_element_size.setText(str(self.element_size))
-        self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
-        self.lineEdit_geometry_tolerance.setText(str(self.geometry_tolerance))
-       
+        # QToolButton
         self.toolButton_search_new_geometry_file = self.findChild(QToolButton, 'toolButton_search_new_geometry_file')
+
+    def create_connections(self):
+        self.pushButton_cancel.clicked.connect(self.cancel)
+        self.pushButton_confirm.clicked.connect(self.confirm_and_update_model)
         self.toolButton_search_new_geometry_file.clicked.connect(self.search_new_geometry_file)
 
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.confirm_and_update_model)
-        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
-        self.pushButton_cancel.clicked.connect(self.cancel)
-
-        self.exec()
+    def load_project_info(self):        
+        self.lineEdit_current_geometry_file_path.setText(str(self.geometry_path))
+        self.lineEdit_element_size.setText(str(self.element_size))
+        self.lineEdit_geometry_tolerance.setText(str(self.geometry_tolerance))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt, QEvent, QSize
 from pathlib import Path
 #
 from pulse.uix.menu.Menu import Menu
-from pulse.uix.inputUi import InputUi
-from pulse.uix.opvUi import OPVUi
+from pulse.uix.input_ui import InputUi
+from pulse.uix.opv_ui import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
 from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
@@ -15,10 +15,9 @@ from pulse.uix.renderer_toolbar import RendererToolbar
 from pulse.uix.hide_show_controls_toolbar import HideShowControlsToolbar
 from pulse.uix.animation_toolbar import AnimationToolbar
 from pulse import app
+from pulse.uix.mesh_toolbar import MeshToolbar
 
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import (
-    EditorRenderWidget,
-)
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.interface.widgets.add_structures_widget import AddStructuresWidget
 
 #
@@ -27,15 +26,11 @@ from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfir
 import sys
 import os
 #
+from pulse.interface.utils import get_icons_path
 from pulse.uix.menu import *
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
-
 class MainWindow(QMainWindow):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
         self.config = Config()
@@ -52,6 +47,7 @@ class MainWindow(QMainWindow):
         self._create_workspaces_toolbar()
         self._createHideShowToolBar()
         self._createAnimationToolBar()
+        self._create_toolbar()
         self.set_enable_menuBar(False)
         self._createStatusBar()
         self.show()
@@ -200,28 +196,23 @@ class MainWindow(QMainWindow):
         self.setProjectAtributtes_action.setStatusTip('Set Project Attributes')
         self.setProjectAtributtes_action.triggered.connect(self.getInputWidget().set_project_attributes)
 
-        self.setMeshProperties_action = QAction('&Set Mesh Properties', self) 
-        self.setMeshProperties_action.setShortcut('Alt+4')
-        self.setMeshProperties_action.setStatusTip('Set Mesh Properties')
-        self.setMeshProperties_action.triggered.connect(self.getInputWidget().set_mesh_properties)
-
         self.setGeometryFile_action = QAction('&Set Geometry File', self) 
-        self.setGeometryFile_action.setShortcut('Alt+5')
+        self.setGeometryFile_action.setShortcut('Alt+4')
         self.setGeometryFile_action.setStatusTip('Set Geometry File')
         self.setGeometryFile_action.triggered.connect(self.getInputWidget().set_geometry_file)
 
         self.setMaterial_action = QAction('&Set Material', self)        
-        self.setMaterial_action.setShortcut('Alt+6')
+        self.setMaterial_action.setShortcut('Alt+5')
         self.setMaterial_action.setStatusTip('Set Material')
         self.setMaterial_action.triggered.connect(self.getInputWidget().set_material)
 
         self.set_fluid_action = QAction('&Set Fluid', self)        
-        self.set_fluid_action.setShortcut('Alt+7')
+        self.set_fluid_action.setShortcut('Alt+6')
         self.set_fluid_action.setStatusTip('Set Fluid')
         self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
 
         self.set_crossSection_action = QAction('&Set Cross-Section', self)        
-        self.set_crossSection_action.setShortcut('Alt+8')
+        self.set_crossSection_action.setShortcut('Alt+7')
         self.set_crossSection_action.setStatusTip('Set Cross-Section')
         self.set_crossSection_action.triggered.connect(self.getInputWidget().set_cross_section)
 
@@ -496,7 +487,6 @@ class MainWindow(QMainWindow):
         self.generalSettingsMenu.addAction(self.create_edit_geometry_action)
         self.generalSettingsMenu.addAction(self.edit_geometry_GMSH_GUI_action)
         self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)
-        self.generalSettingsMenu.addAction(self.setMeshProperties_action)
         self.generalSettingsMenu.addAction(self.setGeometryFile_action)        
         self.generalSettingsMenu.addAction(self.setMaterial_action)
         self.generalSettingsMenu.addAction(self.set_fluid_action)
@@ -549,19 +539,10 @@ class MainWindow(QMainWindow):
         #animation
         self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
         self.resultsViewerMenu.addAction(self.animationSettings_action)
-    
-    def _loadCameraMenu(self):
-        self.viewsMenu.addAction(self.cameraTop_action)
-        self.viewsMenu.addAction(self.cameraBottom_action)
-        self.viewsMenu.addAction(self.cameraLeft_action)
-        self.viewsMenu.addAction(self.cameraRight_action)
-        self.viewsMenu.addAction(self.cameraFront_action)
-        self.viewsMenu.addAction(self.cameraBack_action)
-        self.viewsMenu.addAction(self.cameraIsometric_action)
 
-        self.viewsMenu.addAction(self.geometry_workspace_action)
-        self.viewsMenu.addAction(self.mesh_workspace_action)
-        self.viewsMenu.addAction(self.results_workspace_action)
+        self.resultsViewerMenu.addAction(self.geometry_workspace_action)
+        self.resultsViewerMenu.addAction(self.mesh_workspace_action)
+        self.resultsViewerMenu.addAction(self.results_workspace_action)
 
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
@@ -579,7 +560,6 @@ class MainWindow(QMainWindow):
         self.modelInfoMenu = menuBar.addMenu('&Model Info')
         self.analysisMenu = menuBar.addMenu('&Analysis')
         self.resultsViewerMenu = menuBar.addMenu('&Results Viewer')
-        self.viewsMenu = menuBar.addMenu('&Views')
         self.helpMenu = menuBar.addMenu("&Help")
 
         self._loadProjectMenu()
@@ -589,8 +569,16 @@ class MainWindow(QMainWindow):
         self._loadModelInfoMenu()
         self._loadAnalysisMenu()
         self._loadResultsViewerMenu()
-        self._loadCameraMenu()
         self._loadHelpMenu()
+
+    def _create_toolbar(self):
+        self._createProjectToolBar()
+        # self._createRendererSelectorToolBar()
+        self._createViewsToolBar()
+        self._createHideShowToolBar()
+        self._createAnimationToolBar()
+        self._createMeshToolbar()
+        self.set_enable_menuBar(False)
 
     def set_enable_menuBar(self, _bool):
         #
@@ -601,13 +589,14 @@ class MainWindow(QMainWindow):
         self.modelInfoMenu.setEnabled(_bool)
         self.analysisMenu.setEnabled(_bool)
         self.resultsViewerMenu.setEnabled(_bool)
-        self.viewsMenu.setEnabled(_bool)
+        # self.viewsMenu.setEnabled(_bool)
         #
         self.saveAsPng_action.setEnabled(_bool) 
         self.reset_action.setEnabled(_bool) 
         #
-        self.toolbar_animation.setEnabled(_bool)
-        self.toolbar_hide_show.setEnabled(_bool)
+        self.animation_toolbar.setEnabled(_bool)
+        self.hide_show_toolbar.setEnabled(_bool)
+        self.mesh_toolbar.setEnabled(_bool)
         self.views_toolbar.setEnabled(_bool)
 
     def _getFont(self, fontSize, bold=False, italic=False, family_type="Arial"):
@@ -687,16 +676,21 @@ class MainWindow(QMainWindow):
             self._updateMeshState("ok")
 
     def _createHideShowToolBar(self):
-        self.toolbar_hide_show = HideShowControlsToolbar(self)
-        self.addToolBar(self.toolbar_hide_show)
-
-    def _createAnimationToolBar(self):
-        self.toolbar_animation = AnimationToolbar(self)
-        self.addToolBar(self.toolbar_animation)
+        self.hide_show_toolbar = HideShowControlsToolbar(self)
+        self.addToolBar(self.hide_show_toolbar)
 
     def _createViewsToolBar(self):
         self.views_toolbar = RendererToolbar(self)
         self.addToolBar(self.views_toolbar)
+
+    def _createAnimationToolBar(self):
+        self.animation_toolbar = AnimationToolbar(self)
+        self.addToolBar(self.animation_toolbar)
+
+    def _createMeshToolbar(self):
+        self.mesh_toolbar = MeshToolbar(self)
+        self.addToolBar(self.mesh_toolbar)
+        self.insertToolBarBreak(self.mesh_toolbar)
 
     def _createBasicLayout(self):
         self.menu_widget = Menu(self)

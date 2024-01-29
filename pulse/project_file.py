@@ -148,7 +148,26 @@ class ProjectFile:
                     return float(element_size)
             else:
                 return ""
-            
+
+    def get_mesh_attributes_from_project_file(self):
+        element_size = None
+        geometry_tolerance = None
+        if self._project_path != "":
+            config = configparser.ConfigParser()
+            config.read(self.project_ini_file_path)
+            keys = config['PROJECT'].keys()
+            if 'element size' in keys:
+                str_element_size = config['PROJECT']['element size']
+                if str_element_size != "":
+                    element_size = float(str_element_size)
+            if 'geometry tolerance' in keys:
+                str_geometry_tolerance = config['PROJECT']['geometry tolerance']
+                if str_geometry_tolerance != "":
+                    geometry_tolerance = float(str_geometry_tolerance)
+            return element_size, geometry_tolerance
+        else:
+            return None, None
+
     def get_geometry_entities_path(self):
         return get_new_path(self._project_path, self._geometry_entities_file_name)
     
@@ -2728,7 +2747,6 @@ class ProjectFile:
                 config[_line_id]["beam x-axis rotation"] = str(value)               
             self.write_data_in_file(self._entity_path, config)
 
-
     def write_data_in_file(self, path, config):
         with open(path, 'w') as config_file:
             config.write(config_file)
@@ -2743,9 +2761,6 @@ class ProjectFile:
     @property
     def project_ini_file_path(self):
         return self._project_ini_file_path
-    @property
-    def element_size(self):
-        return self._element_size
 
     @property
     def geometry_path(self):
@@ -2763,6 +2778,17 @@ class ProjectFile:
     def material_list_path(self):
         return self._material_list_path
 
+    @property
+    def fluid_list_path(self):
+        return self._fluid_list_path
+
+    @property
+    def element_size(self):
+        return self._element_size
+
+    @property
+    def geometry_tolerance(self):
+        return self._geometry_tolerance
 
     # def update_list_elements_already_exists_in_entity_file(self, line_id, config, ext_list_elements):
     #     dict_section_to_list_elements = {}

@@ -1,7 +1,7 @@
 #
 from data.user_input.project.getStartedInput import GetStartedInput
-from data.user_input.project.newProjectInput import NewProjectInput
-from data.user_input.project.loadProjectInput import LoadProjectInput
+from data.user_input.project.new_project_iInput import NewProjectInput
+from data.user_input.project.load_project_input import LoadProjectInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
 from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
 #
@@ -9,8 +9,8 @@ from data.user_input.model.geometry.geometry_designer import OPPGeometryDesigner
 from data.user_input.project.geometry_editor import CreateEditStructuresWidget
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
-from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
-from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
+from data.user_input.project.set_project_attributes_input import SetProjectAttributesInput
+from data.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
 from data.user_input.model.setup.structural.material_input import MaterialInput
 from data.user_input.model.setup.acoustic.fluid_input import FluidInput
@@ -121,6 +121,7 @@ class InputUi:
 
     def loadProject(self, config, path=None):
         load_project = self.processInput(LoadProjectInput, self.project, self.opv, config, path)
+        self.parent.mesh_toolbar.update_mesh_attributes()
         self.parent._updateStatusBar()
         return self.initial_project_action(load_project.complete) 
 
