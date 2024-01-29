@@ -4,7 +4,7 @@ import platform
 import vtk
 from PyQt5 import Qt, QtCore, QtWidgets
 
-from pulse.uix.mainWindow import MainWindow
+from pulse.uix.main_window import MainWindow
 from pulse.uix.application import Application
 
 import matplotlib

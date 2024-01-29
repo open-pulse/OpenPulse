@@ -149,7 +149,7 @@ class GetStartedInput(QDialog):
             read_config.read(self.config.configFileName)
             for item, value in self.config.recentProjects.items():
                 if value == dir:
-                    self.config.removePathFromConfigFile(item)
+                    self.config.remove_path_from_config_file(item)
                     self.update_buttons_visibility()
                     break
 

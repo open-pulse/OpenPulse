@@ -68,4 +68,4 @@ class RawLinesActor(vtkActorBase):
     def actor(self):
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().SetLineWidth(3)
-        self._actor.GetProperty().SetColor((0.8, 0.8, 0.8))
+        self._actor.GetProperty().SetColor((0.50, 0.50, 0.50))

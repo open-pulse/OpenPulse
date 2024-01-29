@@ -15,7 +15,8 @@ class AnimationToolbar(QToolBar):
         self.configure_appearance()
 
     def configure_appearance(self):
-        # self.setContentsMargins(4,4,4,4)
+        self.layout().setContentsMargins(0,0,6,0)
+        self.layout().setSpacing(4)
         self.setMovable(True)
         self.setFloatable(True)
 

@@ -2,7 +2,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication
 
 from opps.interface.toolboxes import GeometryToolbox
-from pulse.uix.mainWindow import MainWindow
+from pulse.uix.main_window import MainWindow
 
 
 class Application(QApplication):
