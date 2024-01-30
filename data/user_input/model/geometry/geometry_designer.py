@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTextEdit, QGridLayout
+from PyQt5.QtWidgets import QComboBox, QWidget, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTextEdit, QGridLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -23,27 +23,14 @@ def get_icons_path(filename):
 window_title1 = "Error"
 window_title2 = "Warning"
 
-class OPPGeometryDesignerInput(QDialog):
-    def __init__(self, project, opv):
-        super().__init__()
-        
-        self.main_window = opv.parent
+class OPPGeometryDesignerInput(QWidget):
+    def __init__(self, geometry_widget, parent=None):
+        super().__init__(parent)
+        uic.loadUi(Path('data/user_input/ui_files/Model/geometry/geometry_designer.ui'), self)
+        self.geometry_widget = geometry_widget
 
-        uic.loadUi(Path('data/user_input/ui_files/Model/geometry/opp_geometry_designer.ui'), self)
-        
-        # self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        # self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Geometry designer")
-
-        self.render_widget = self.main_window.geometry_widget
-        self.render_widget.show_passive_points = False
-        # self.main_window.plot_geometry_editor()
-
-        self.opv = opv
-        self.opv.setInputObject(self)
-
-        self.project = project
-        self.file = project.file
+        self.project = app().project
+        self.file = self.project.file
 
         self._load_icons()
         self._reset_variables()
@@ -76,15 +63,14 @@ class OPPGeometryDesignerInput(QDialog):
         self.comboBox_bending_type = self.findChild(QComboBox, 'comboBox_bending_type')
 
         # QFrame
-        self.left_frame = self.findChild(QFrame, 'left_frame')
-        self.right_frame = self.findChild(QFrame, 'right_frame')
+        # self.left_frame = self.findChild(QFrame, 'left_frame')
+        # self.right_frame = self.findChild(QFrame, 'right_frame')
         self.information_frame = self.findChild(QFrame, 'information_frame')
-        self.information_frame.setVisible(False)
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
-        self.right_frame.setLayout(self.grid_layout)
+        # self.right_frame.setLayout(self.grid_layout)
         self.load_cross_section_widget()
         self.load_material_widget()
 
@@ -110,9 +96,9 @@ class OPPGeometryDesignerInput(QDialog):
         self.pushButton_finalize = self.findChild(QPushButton, 'pushButton_finalize')
         self.pushButton_delete_segment = self.findChild(QPushButton, 'pushButton_delete_segment')
 
-        self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
-        self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')
-        self.pushButton_attribute_material = self.findChild(QPushButton, 'pushButton_attribute_material')
+        self.cross_section_widget.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
+        # self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')
+        self.pushButton_set_material = self.findChild(QPushButton, 'pushButton_set_material')
         # self.pushButton_process_geometry.setIcon(self.export_icon)
 
         # QTabWidget
@@ -145,9 +131,9 @@ class OPPGeometryDesignerInput(QDialog):
         self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
         self.pushButton_delete_segment.clicked.connect(self.delete_segment)
 
-        self.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
-        self.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
-        self.pushButton_attribute_material.clicked.connect(self.define_material)
+        # self.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
+        # self.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
+        self.pushButton_set_material.clicked.connect(self.define_material)
 
     def create_list_of_unit_labels(self):
         self.unit_labels = []
@@ -205,40 +191,42 @@ class OPPGeometryDesignerInput(QDialog):
                 bend_pipe = True
             else:
                 bend_pipe = False
-            self.render_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
+            self.geometry_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
         except ValueError:
             pass
 
     def load_cross_section_widget(self):
         self.cross_section_widget = CrossSectionInputs()
-        self.grid_layout.addWidget(self.cross_section_widget, 0, 0)
-        self.right_frame.setVisible(False)
+        self.cross_section_widget.show()
+        # self.grid_layout.addWidget(self.cross_section_widget, 0, 0)
+        # self.right_frame.setVisible(False)
 
     def load_material_widget(self):
         self.material_widget = MaterialInputsNew()
-        self.grid_layout.addWidget(self.material_widget, 1, 0)
-        self.right_frame.setVisible(False)
+        self.material_widget.show()
+        # self.grid_layout.addWidget(self.material_widget, 1, 0)
+        # self.right_frame.setVisible(False)
 
     def hide_widgets(self):
         self.cross_section_widget.setVisible(False)
         self.material_widget.setVisible(False)
-        self.right_frame.setVisible(False)
-        self.right_frame.adjustSize()
+        # self.right_frame.setVisible(False)
+        # self.right_frame.adjustSize()
 
     def show_cross_section_widget(self):
-        self.right_frame.setVisible(True)
+        # self.right_frame.setVisible(True)
         self.cross_section_widget.setVisible(True)
-        self.right_frame.adjustSize()
-        self.setFixedWidth(1000)
+        # self.right_frame.adjustSize()
+        # self.setFixedWidth(1000)
         #
         section_type = self.comboBox_section_type.currentIndex()
         self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
         self.alternate_cross_section_button_label()
 
     def show_material_widget(self):
-        self.right_frame.setVisible(True)
+        # self.right_frame.setVisible(True)
         self.material_widget.setVisible(True)
-        self.right_frame.adjustSize()
+        # self.right_frame.adjustSize()
         self.setFixedWidth(1000)
         #        
         self.alternate_material_button_label()
@@ -273,8 +261,8 @@ class OPPGeometryDesignerInput(QDialog):
 
     def reset_appearance_to_default(self):
         self.hide_widgets()
-        self.setFixedWidth(420)
-        self.adjustSize()
+        # self.setFixedWidth(420)
+        # self.adjustSize()
 
     def get_current_segment_tag(self):
         tag = self.comboBox_segment_id.currentText().split("Segment-")[1]
@@ -329,19 +317,20 @@ class OPPGeometryDesignerInput(QDialog):
         dx, dy, dz = self.get_segment_deltas()
         if (dx, dy, dz) == (0, 0, 0):
             return
-        self.render_widget.commit_structure()
+        self.geometry_widget.commit_structure()
         self.coords_modified_callback()
         self.add_segment_information_to_file()
         self.update_segment_tag()
         self.reset_deltas()
 
     def process_geometry_callback(self):
-        self.render_widget.show_passive_points = True
-        self.render_widget.unstage_structure()
+        self.geometry_widget.show_passive_points = True
+        self.geometry_widget.unstage_structure()
         self.export_cad_file()
         self.close()
 
     def add_segment_information_to_file(self):
+        return
         lines = list(self.segment_information.keys())
         self.file.create_segment_file(lines)
         tag = self.get_current_segment_tag()
@@ -395,9 +384,9 @@ class OPPGeometryDesignerInput(QDialog):
         self.complete = True
 
     def closeEvent(self, a0) -> None:
-        self.render_widget.show_passive_points = True
-        self.render_widget.unstage_structure()
-        self.opv.updatePlots()
+        self.geometry_widget.show_passive_points = True
+        self.geometry_widget.unstage_structure()
+        # self.opv.updatePlots()
         self.main_window.use_mesh_workspace()
         # self.main_window.plot_entities_with_cross_section()
         # self.main_window.cameraFront_call()
