@@ -32,10 +32,12 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
     def use_mesh_workspace(self):
-        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)  
+        self.setup_widgets_stack.setCurrentWidget(self.mesh_input_wigdet)
+        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
 
     def use_results_workspace(self):
-        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)  
+        self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
+        self.render_widgets_stack.setCurrentWidget(self.results_widget)  
 
     # internal
     def _config_window(self):
@@ -96,12 +98,17 @@ class MainWindow(QMainWindow):
 
         self.mesh_widget = MeshRenderWidget()
         self.geometry_widget = EditorRenderWidget(editor)
-
-        self.geometry_input_wigdet = OPPGeometryDesignerInput(self.geometry_widget)
-
-        self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
+        self.results_widget = QLabel("RESULTS")
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
+        self.render_widgets_stack.addWidget(self.results_widget)
+
+        self.geometry_input_wigdet = OPPGeometryDesignerInput(self.geometry_widget)
+        self.mesh_input_wigdet = QLabel("mesh")
+        self.results_input_wigdet = QLabel("results")
+        self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
+        self.setup_widgets_stack.addWidget(self.mesh_input_wigdet)
+        self.setup_widgets_stack.addWidget(self.results_input_wigdet)
 
         self.splitter.setSizes([100, 400])
 
