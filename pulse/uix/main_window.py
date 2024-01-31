@@ -713,8 +713,6 @@ class MainWindow(QMainWindow):
     def _set_menu_widget(self, widget):
         if not self.working_area.widget(0) == widget:
             self.working_area.replaceWidget(0, widget)
-        else:
-            print("NOOPE")
 
     def _set_render_widget(self, widget):
         if not self.working_area.widget(1) == widget:

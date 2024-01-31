@@ -65,8 +65,9 @@ class OPPGeometryDesignerInput(QWidget):
         structure, *_ = editor.selected_structures
 
         if False and isinstance(structure, Pipe):
-            self.stacked_layout.setCurrentWidget(self.edit_pipe_widget)
+            self.edit_stack.setCurrentWidget(self.edit_pipe_widget)
         elif isinstance(structure, Bend):
-            self.stacked_layout.setCurrentWidget(self.edit_bend_widget)
+            self.edit_stack.setCurrentWidget(self.edit_bend_widget)
         else:
-            self.stacked_layout.setCurrentWidget(self.empty_widget)
+            self.edit_stack.setCurrentWidget(self.empty_widget)
+

@@ -878,6 +878,23 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_segment_id</tabstop>
+  <tabstop>pushButton_delete_segment</tabstop>
+  <tabstop>lineEdit_delta_x</tabstop>
+  <tabstop>lineEdit_delta_y</tabstop>
+  <tabstop>lineEdit_delta_z</tabstop>
+  <tabstop>comboBox_length_unit</tabstop>
+  <tabstop>comboBox_bending_type</tabstop>
+  <tabstop>lineEdit_bending_radius</tabstop>
+  <tabstop>comboBox_section_type</tabstop>
+  <tabstop>pushButton_set_cross_section</tabstop>
+  <tabstop>lineEdit_section_diameter</tabstop>
+  <tabstop>pushButton_set_material</tabstop>
+  <tabstop>textEdit_segment_information</tabstop>
+  <tabstop>pushButton_create_segment</tabstop>
+  <tabstop>pushButton_finalize</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

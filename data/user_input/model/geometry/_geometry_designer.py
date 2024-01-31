@@ -391,3 +391,4 @@ class OPPGeometryDesignerInput(QWidget):
         # self.main_window.plot_entities_with_cross_section()
         # self.main_window.cameraFront_call()
         return super().closeEvent(a0)
+        
