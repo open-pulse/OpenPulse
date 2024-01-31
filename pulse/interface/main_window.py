@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.mesh_input_wigdet)
         self.setup_widgets_stack.addWidget(self.results_input_wigdet)
 
-        self.splitter.setSizes([100, 400])
+        self.splitter.setSizes([120, 400])
 
     # callbacks
     def action_geometry_workspace_callback(self):
