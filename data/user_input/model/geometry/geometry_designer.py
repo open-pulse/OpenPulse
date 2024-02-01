@@ -215,7 +215,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.right_frame.setVisible(False)
 
     def load_material_widget(self):
-        self.material_widget = MaterialInputsNew()
+        self.material_widget = MaterialInputsNew(self.main_window)
         self.grid_layout.addWidget(self.material_widget, 1, 0)
         self.right_frame.setVisible(False)
 
@@ -239,7 +239,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.right_frame.setVisible(True)
         self.material_widget.setVisible(True)
         self.right_frame.adjustSize()
-        self.setFixedWidth(1000)
+        self.setFixedWidth(1100)
         #        
         self.alternate_material_button_label()
 
@@ -311,7 +311,9 @@ class OPPGeometryDesignerInput(QDialog):
         # temporary
         tag = self.get_current_segment_tag()
         aux = self.segment_information[tag]
-        aux["material id"] = 1
+        material_tag = self.material_widget.get_selected_material_id()
+        if material_tag is not None:
+            aux["material id"] = material_tag 
         #
         self.segment_information[tag] = aux
         self.material_widget.setVisible(True)

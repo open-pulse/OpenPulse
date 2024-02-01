@@ -11,7 +11,7 @@ from pulse.preprocessing.material import Material
 from pulse.lib.default_libraries import default_material_library
 from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 window_title = "ERROR"
 
@@ -785,7 +785,6 @@ class MaterialInput(QDialog):
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
 
         if read._doNotRun:
             return

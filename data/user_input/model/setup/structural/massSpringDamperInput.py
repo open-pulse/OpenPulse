@@ -10,7 +10,7 @@ import configparser
 from shutil import copyfile
 
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
 
 class MassSpringDamperInput(QDialog):

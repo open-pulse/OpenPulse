@@ -18,7 +18,7 @@ from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorR
 from opps.interface.widgets.add_structures_widget import AddStructuresWidget
 
 #
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 import sys
 import os

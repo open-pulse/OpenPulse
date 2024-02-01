@@ -11,7 +11,7 @@ from math import pi
 
 from pulse.utils import remove_bc_from_file, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 class DOFInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

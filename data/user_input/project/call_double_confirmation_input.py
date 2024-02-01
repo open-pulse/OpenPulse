@@ -50,6 +50,7 @@ class CallDoubleConfirmationInput(QDialog):
         self.pushButton_leftButton.clicked.connect(self.force_to_close)
 
     def _configure_buttons(self):
+
         if self.buttons_config != {}:
             if "left_button_label" in self.buttons_config.keys():
                 self.pushButton_leftButton.setText(self.buttons_config["left_button_label"])
@@ -82,6 +83,8 @@ class CallDoubleConfirmationInput(QDialog):
         self.create_font_message()
         self.label_title.setFont(self.font_title)
         self.label_message.setFont(self.font_message)
+        self.label_message.setAlignment(Qt.AlignJustify)
+        self.label_message.setAlignment(Qt.AlignCenter)
 
     def confirm_action(self):
         self._continue = True
