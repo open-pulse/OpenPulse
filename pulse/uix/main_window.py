@@ -719,7 +719,7 @@ class MainWindow(QMainWindow):
             self.working_area.replaceWidget(1, widget)
 
     def use_geometry_workspace(self):
-        geometry_input = OPPGeometryDesignerInput(self.project, self.opv_widget)
+        geometry_input = OPPGeometryDesignerInput(self.geometry_widget)
         self._set_menu_widget(geometry_input)
         self._set_render_widget(self.geometry_widget)
         self.working_area.setSizes([100,400])
