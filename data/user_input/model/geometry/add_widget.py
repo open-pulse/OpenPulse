@@ -269,7 +269,7 @@ class AddStructuresWidget(QWidget):
         self.export_cad_file()
         app().update()
         app().main_window.opv_widget.updatePlots()
-        app().main_window.use_mesh_workspace()
+        app().main_window.use_structural_setup_workspace()
 
     def export_cad_file(self):
         exporter = CADHandler()

@@ -13,6 +13,7 @@ from data.user_input.project.print_message_input import PrintMessageInput
 from data.user_input.model.geometry.add_widget import AddStructuresWidget
 from data.user_input.model.geometry.edit_bend_widget import EditBendWidget
 from data.user_input.model.geometry.edit_point_widget import EditPointWidget
+from data.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
 
 from opps.model import Pipe, Bend
 
@@ -37,10 +38,12 @@ class OPPGeometryDesignerInput(QWidget):
 
     def _create_layout(self):
         self.add_widget = AddStructuresWidget(self.geometry_widget)
+        self.edit_pipe_widget = EditPipeWidget(self.geometry_widget)
         self.edit_bend_widget = EditBendWidget(self.geometry_widget)
         self.edit_point_widget = EditPointWidget(self.geometry_widget)
 
         self.add_tab.layout().addWidget(self.add_widget)
+        self.edit_stack.addWidget(self.edit_pipe_widget)
         self.edit_stack.addWidget(self.edit_bend_widget)
         self.edit_stack.addWidget(self.edit_point_widget)
 
@@ -64,7 +67,7 @@ class OPPGeometryDesignerInput(QWidget):
 
         structure, *_ = editor.selected_structures
 
-        if False and isinstance(structure, Pipe):
+        if isinstance(structure, Pipe):
             self.edit_stack.setCurrentWidget(self.edit_pipe_widget)
         elif isinstance(structure, Bend):
             self.edit_stack.setCurrentWidget(self.edit_bend_widget)
