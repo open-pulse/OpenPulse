@@ -63,9 +63,9 @@ class OPPGeometryDesignerInput(QDialog):
 
     def _reset_variables(self):
         self.complete = False
-        self.cross_section_info = None
         self.bending_radius = 0
         self.bending_factor = 0
+        self.cross_section_info = dict()
         self.segment_information = dict()
 
     def _define_qt_variables(self):
@@ -139,9 +139,9 @@ class OPPGeometryDesignerInput(QDialog):
         # self.section_button.clicked.connect(self.section_callback)
         # self.bend_checkbox.stateChanged.connect(self.auto_bend_callback)
 
+        self.pushButton_create_segment.clicked.connect(self.create_segment)
         self.pushButton_set_cross_section.clicked.connect(self.show_hide_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_hide_material_widget)
-        self.pushButton_create_segment.clicked.connect(self.create_segment)
         self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
         self.pushButton_delete_segment.clicked.connect(self.delete_segment)
 
@@ -282,7 +282,7 @@ class OPPGeometryDesignerInput(QDialog):
 
     def define_cross_section(self):
 
-        # self.cross_section_info = None
+        self.cross_section_info = dict()
         # tag = self.get_current_segment_tag()
 
         if self.tabWidget_general.currentIndex() == 0:
@@ -321,13 +321,15 @@ class OPPGeometryDesignerInput(QDialog):
         self.alternate_material_button_label()
 
     def propagate_section(self):
-        if not self.cross_section_widget.isVisible():
-            if self.cross_section_info is not None:
-                tag = self.get_current_segment_tag()
-                self.segment_information[tag] = self.cross_section_info                
+        if len(self.cross_section_info) == 0:
+            return True
+        elif not self.cross_section_widget.isVisible():
+            tag = self.get_current_segment_tag()
+            self.segment_information[tag] = self.cross_section_info
 
     def create_segment(self):
-        self.propagate_section()
+        if self.propagate_section():
+            return
         dx, dy, dz = self.get_segment_deltas()
         if (dx, dy, dz) == (0, 0, 0):
             return
@@ -337,17 +339,17 @@ class OPPGeometryDesignerInput(QDialog):
         self.update_segment_tag()
         self.reset_deltas()
 
-    def process_geometry_callback(self):
-        self.render_widget.show_passive_points = True
-        self.render_widget.unstage_structure()
-        self.export_cad_file()
-        self.close()
-
     def add_segment_information_to_file(self):
         lines = list(self.segment_information.keys())
         self.file.create_segment_file(lines)
         tag = self.get_current_segment_tag()
         self.file.add_cross_section_segment_in_file(tag, self.segment_information[tag])
+
+    def process_geometry_callback(self):
+        self.render_widget.show_passive_points = True
+        self.render_widget.unstage_structure()
+        self.export_cad_file()
+        self.close()
 
     def get_segment_tag(self):
         tag = 1

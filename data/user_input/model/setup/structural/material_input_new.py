@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QTableWidget, QTableWidgetItem, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon, QFont, QBrush, QColor
+from PyQt5.QtGui import QCloseEvent, QIcon, QFont, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
@@ -132,7 +132,7 @@ class MaterialInputsNew(QWidget):
                     self.tableWidget_material_data.setItem(i, 4, QTableWidgetItem(config[section]['poisson']))
                     self.tableWidget_material_data.setItem(i, 5, QTableWidgetItem(config[section]['thermal expansion coefficient']))
                     
-                    item = QTableWidgetItem()
+                    item = QTableWidgetItem(str(colorRGB))
                     item.setBackground(QColor(*colorRGB))
                     item.setForeground(QColor(*colorRGB))
                     self.tableWidget_material_data.setItem(i, 6, item)
@@ -147,9 +147,6 @@ class MaterialInputsNew(QWidget):
             self.message = str(error_log)
             PrintMessageInput([window_title, self.title, self.message])
             self.close()
-        
-        # self.update_material_id_selector()
-        # self.lineEdit_selected_material_name.setText("")
 
     def add_row(self):
         last_row = self.tableWidget_material_data.rowCount()
@@ -160,7 +157,6 @@ class MaterialInputsNew(QWidget):
             self.tableWidget_material_data.item(last_row,j).setTextAlignment(Qt.AlignCenter)
 
     def remove_selected_row(self):
-
         if self.row is not None:
             if self.process_material_removal():
                 self.row = None
@@ -192,27 +188,28 @@ class MaterialInputsNew(QWidget):
 
             if selected_material in sections:
 
-                if self.get_confirmation_to_proceed(title, message):
-                    config.remove_section(selected_material)
+                if not self.get_confirmation_to_proceed(title, message):
+                    return True
+            
+                config.remove_section(selected_material)
 
-                    with open(self.material_path, 'w') as config_file:
-                        config.write(config_file)
+                with open(self.material_path, 'w') as config_file:
+                    config.write(config_file)
 
-                    for line_id, entity in self.preprocessor.dict_tag_to_entity.items():
-                        if entity.material is not None:
-                            if entity.material.name == self.lineEdit_name_remove.text():
-                                self.project.set_material_by_lines(line_id, None)
+                for line_id, entity in self.preprocessor.dict_tag_to_entity.items():
+                    if entity.material is not None:
+                        if entity.material.name == self.lineEdit_name_remove.text():
+                            self.project.set_material_by_lines(line_id, None)
 
-                    self.tableWidget_material_data.removeRow(self.row)
-                    self.load_data_from_materials_library()
+                self.load_data_from_materials_library()
 
             else:
-                return
+                return True
 
         except Exception as error_log:
-            self.title = "ERROR DURING THE MATERIAL REMOVAL"
+            self.title = "Error occured in material removal"
             self.message = str(error_log)
-            PrintMessageInput([self.title, self.message, window_title])
+            PrintMessageInput([window_title, self.title, self.message])
             return
 
     def reset_library_to_default(self):
@@ -290,8 +287,6 @@ class MaterialInputsNew(QWidget):
         if col == 6:
             self.pick_color(row, col)
         
-        self.check_inputs_and_add_material_to_library(row)
-
     def cell_changed(self, current_row, current_col, previous_row, previous_col):
 
         item = self.tableWidget_material_data.item(previous_row, previous_col)
@@ -322,16 +317,31 @@ class MaterialInputsNew(QWidget):
             return
         else:
             self.pushButton_attribute_material.setDisabled(False)
-            self.add_material_to_file()
+            self.add_material_to_file(row)
             self.load_data_from_materials_library()
             self.material_data = dict()
 
-    def add_material_to_file(self):
+    def add_material_to_file(self, row):
         try:
 
-            if self.material_data:
-                material_name = self.material_data["name"]
+            self.material_data = dict()
+
+            keys = ["name", 
+                    "identifier", 
+                    "density", 
+                    "young modulus", 
+                    "poisson", 
+                    "thermal expansion coefficient", 
+                    "color"]
             
+            for j, key in enumerate(keys):
+                item = self.tableWidget_material_data.item(row, j)
+                self.material_data[key] = item.text()
+
+            material_name = self.material_data["name"]
+            
+            if material_name != "":
+
                 config = configparser.ConfigParser()
                 config.read(self.material_path)
                 config[material_name] = self.material_data
@@ -348,18 +358,17 @@ class MaterialInputsNew(QWidget):
     def pick_color(self, row, col):
 
         read = PickColorInput()
-
         if read.complete:
-            #
-            picked_color = tuple(read.color)
-            
+        
+            picked_color = read.color
             if picked_color in self.list_colors:
                 return True
-            
-            self.material_data["color"] = list(picked_color)
-            item = self.tableWidget_material_data.item(row, col)
+
+            self.material_data["color"] = picked_color
+            item = QTableWidgetItem(str(picked_color))
             item.setBackground(QColor(*picked_color))
             item.setForeground(QColor(*picked_color))
+            self.tableWidget_material_data.setItem(row, col, item)
             self.tableWidget_material_data.item(row, 0).setSelected(True)
 
     def check_input_material_name(self, row, col):
@@ -464,8 +473,10 @@ class MaterialInputsNew(QWidget):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             return
-            self.confirm_material_attribution()
         elif event.key() == Qt.Key_Delete:
             self.remove_selected_row()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        return super().closeEvent(a0)
