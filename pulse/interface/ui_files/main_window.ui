@@ -349,13 +349,35 @@
     <string>Geometry Workspace</string>
    </property>
   </action>
-  <action name="action_mesh_workspace">
+  <action name="action_acoustic_setup_workspace">
    <property name="text">
-    <string>Mesh Workspace</string>
+    <string>Acoustic Setup Workspace</string>
+   </property>
+   <property name="toolTip">
+    <string>Acoustic Setup Workspace</string>
+   </property>
+  </action>
+  <action name="action_structural_setup_workspace">
+   <property name="text">
+    <string>Structural Setup Workspace</string>
+   </property>
+   <property name="toolTip">
+    <string>Structural Setup Workspace</string>
+   </property>
+  </action>
+  <action name="action_analysis_setup_workspace">
+   <property name="text">
+    <string>Analisys Setup Workspace</string>
+   </property>
+   <property name="toolTip">
+    <string>Analisys Setup Workspace</string>
    </property>
   </action>
   <action name="action_results_workspace">
    <property name="text">
+    <string>Results Workspace</string>
+   </property>
+   <property name="toolTip">
     <string>Results Workspace</string>
    </property>
   </action>

@@ -70,35 +70,33 @@ class MainWindow(QMainWindow):
 
     def use_geometry_workspace(self):
         self.combo_box.setCurrentIndex(0)
-        self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
-        self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
-    def use_mesh_workspace(self):
+    def use_structural_setup_workspace(self):
         self.combo_box.setCurrentIndex(1)
-        self.setup_widgets_stack.setCurrentWidget(self.menu_widget)
-        self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-        # self.setup_widgets_stack.setCurrentWidget(self.mesh_input_wigdet)
-        # self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
+
+    def use_acoustic_setup_workspace(self):
+        self.combo_box.setCurrentIndex(2)
+
+    def use_analisys_setup_workspace(self):
+        self.combo_box.setCurrentIndex(3)
 
     def use_results_workspace(self):
-        self.combo_box.setCurrentIndex(2)
-        self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
-        self.render_widgets_stack.setCurrentWidget(self.results_widget)  
+        self.combo_box.setCurrentIndex(4)
 
     def plot_entities(self):
-        self.use_mesh_workspace()
+        self.use_structural_setup_workspace()
         self.opv_widget.changePlotToEntities()
 
     def plot_entities_with_cross_section(self):
-        self.use_mesh_workspace()
+        self.use_structural_setup_workspace()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def plot_mesh(self):
-        self.use_mesh_workspace()
+        self.use_structural_setup_workspace()
         self.opv_widget.changePlotToMesh()
 
     def plot_raw_geometry(self):
-        self.use_mesh_workspace()
+        self.use_structural_setup_workspace()
         self.opv_widget.changePlotToRawGeometry()
     
     def plot_geometry_editor(self):
@@ -151,7 +149,9 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack: QStackedWidget
         self.render_widgets_stack: QStackedWidget
         self.action_geometry_workspace: QAction
-        self.action_mesh_workspace: QAction
+        self.action_structural_setup_workspace: QAction
+        self.action_acoustic_setup_workspace: QAction
+        self.action_analysis_setup_workspace: QAction
         self.action_results_workspace: QAction
         self.tool_bar: QToolBar
         self.splitter: QSplitter
@@ -188,8 +188,10 @@ class MainWindow(QMainWindow):
     def _create_workspaces_toolbar(self):
         actions = [
             self.action_geometry_workspace,
-            self.action_mesh_workspace,
-            self.action_results_workspace
+            self.action_structural_setup_workspace,
+            self.action_acoustic_setup_workspace,
+            self.action_analysis_setup_workspace,
+            self.action_results_workspace,
         ]
         self.combo_box = QComboBox()
         for action in actions:
@@ -237,13 +239,24 @@ class MainWindow(QMainWindow):
         self.load_project()
 
     def action_geometry_workspace_callback(self):
-        self.use_geometry_workspace()
+        self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
+        self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
-    def action_mesh_workspace_callback(self):
-        self.use_mesh_workspace()
+    def action_structural_setup_workspace_callback(self):
+        self.setup_widgets_stack.setCurrentWidget(self.menu_widget)
+        self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+
+    def action_acoustic_setup_workspace_callback(self):
+        self.setup_widgets_stack.setCurrentWidget(self.mesh_input_wigdet)
+        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
+
+    def action_analysis_setup_workspace_callback(self):
+        self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
+        self.render_widgets_stack.setCurrentWidget(self.results_widget)  
 
     def action_results_workspace_callback(self):
-        self.use_results_workspace()
+        self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
+        self.render_widgets_stack.setCurrentWidget(self.results_widget)  
 
 
     # DEPRECATED, REMOVE AS SOON AS POSSIBLE
