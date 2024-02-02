@@ -8,7 +8,7 @@ import os
 import numpy as np
 
 from data.user_input.model.geometry.cross_section_inputs import CrossSectionInputs
-from data.user_input.model.setup.structural.material_input_new import MaterialInputsNew
+from data.user_input.model.setup.general.material_input_new import MaterialInputs
 from data.user_input.project.print_message_input import PrintMessageInput
 
 # from opps.io.cad_file.cad_handler import CADHandler
@@ -215,7 +215,7 @@ class OPPGeometryDesignerInput(QDialog):
         self.right_frame.setVisible(False)
 
     def load_material_widget(self):
-        self.material_widget = MaterialInputsNew(self.main_window)
+        self.material_widget = MaterialInputs(self.main_window)
         self.grid_layout.addWidget(self.material_widget, 1, 0)
         self.right_frame.setVisible(False)
 
