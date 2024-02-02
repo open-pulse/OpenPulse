@@ -210,6 +210,7 @@ class MainWindow(QMainWindow):
 
         self.mesh_widget = MeshRenderWidget()
         self.geometry_widget = EditorRenderWidget(editor)
+        self.geometry_widget.set_theme("light")
         self.results_widget = QLabel("RESULTS")
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
