@@ -1,4 +1,5 @@
 import sys
+from functools import partial
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QSplitter, QStackedWidget, QLabel, QToolBar, QComboBox, QSizePolicy
@@ -48,9 +49,24 @@ class MainWindow(QMainWindow):
         self.loadRecentProject()
 
     # public
+    def new_project(self):
+        if not self.input_widget.new_project(self.config):
+            return 
+        self._update_recent_projects()
+        self.set_window_title(self.project.file._project_name)
+        self.update()
+
+    def load_project(self, path=None):
+        if not self.input_widget.loadProject(self.config, path):
+            return 
+
+        self._update_recent_projects()
+        self.set_window_title(self.project.file._project_name)
+        self.update()
+
     def update(self):
-        self.geometry_widget.update_plot()
-        self.mesh_widget.update_plot()
+        self.geometry_widget.update_plot(reset_camera=True)
+        self.mesh_widget.update_plot(reset_camera=True)
 
     def use_geometry_workspace(self):
         self.combo_box.setCurrentIndex(0)
@@ -105,11 +121,6 @@ class MainWindow(QMainWindow):
                 self.changeWindowTitle(self.project.file._project_name)
                 # self.draw()
 
-    def load_project(self, path=None):
-        if self.input_widget.loadProject(app().config, path):
-            self.set_window_title(self.project.file._project_name)
-            # self.draw()
-
     # internal
     def _update_recent_projects(self):
         actions = self.menurecent.actions()
@@ -117,10 +128,10 @@ class MainWindow(QMainWindow):
             self.menurecent.removeAction(action)
 
         self.menu_actions = []
-        for name, path in self.config.recentProjects.items():
+        for name, path in reversed(self.config.recentProjects.items()):
             import_action = QAction(str(name) + "\t" + str(path))
             import_action.setStatusTip(str(path))
-            import_action.triggered.connect(lambda: self.load_project(path))
+            import_action.triggered.connect(partial(self.load_project, path))
             self.menurecent.addAction(import_action)
             self.menu_actions.append(import_action)
 
@@ -219,6 +230,12 @@ class MainWindow(QMainWindow):
         pass
 
     # callbacks
+    def action_new_project_callback(self):
+        self.new_project()
+
+    def action_load_project_callback(self):
+        self.load_project()
+
     def action_geometry_workspace_callback(self):
         self.use_geometry_workspace()
 
