@@ -12,7 +12,7 @@ class MeshUpdater:
         super().__init__(*args, **kwargs)
 
         self.main_window = main_window
-        self.input_widget = main_window.inputWidget
+        self.input_widget = main_window.getInputWidget()
         self.project = self.input_widget.project
         self.preprocessor = self.input_widget.project.preprocessor
         self.opv = self.input_widget.opv

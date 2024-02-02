@@ -1,3 +1,5 @@
+import sys
+
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QSplitter, QStackedWidget, QLabel, QToolBar, QComboBox, QSizePolicy
 from PyQt5 import uic
@@ -8,8 +10,11 @@ from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
 from pulse.uix.menu.Menu import Menu
 from pulse.uix.input_ui import InputUi
 from pulse.uix.opv_ui import OPVUi
+from pulse.uix.mesh_toolbar import MeshToolbar
+
 
 from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
@@ -29,7 +34,6 @@ class MainWindow(QMainWindow):
         # defined only in the app.
         self.config = app().config
         self.project = app().project
-        self.input_widget = InputUi(app().project, self)
 
         self._config_window()
         self._define_qt_variables()
@@ -37,23 +41,50 @@ class MainWindow(QMainWindow):
         self._create_layout()
         self._create_workspaces_toolbar()
         self._update_recent_projects()
-
-        self.use_geometry_workspace()
+        self._createMeshToolbar()
+    
+        self.plot_entities_with_cross_section()
+        self.loadRecentProject()
 
     # public
+    def update(self):
+        pass
+
     def use_geometry_workspace(self):
+        self.combo_box.setCurrentIndex(0)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
     def use_mesh_workspace(self):
+        self.combo_box.setCurrentIndex(1)
         self.setup_widgets_stack.setCurrentWidget(self.menu_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
         # self.setup_widgets_stack.setCurrentWidget(self.mesh_input_wigdet)
         # self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
 
     def use_results_workspace(self):
+        self.combo_box.setCurrentIndex(2)
         self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)  
+
+    def plot_entities(self):
+        self.use_mesh_workspace()
+        self.opv_widget.changePlotToEntities()
+
+    def plot_entities_with_cross_section(self):
+        self.use_mesh_workspace()
+        self.opv_widget.changePlotToEntitiesWithCrossSection()
+
+    def plot_mesh(self):
+        self.use_mesh_workspace()
+        self.opv_widget.changePlotToMesh()
+
+    def plot_raw_geometry(self):
+        self.use_mesh_workspace()
+        self.opv_widget.changePlotToRawGeometry()
+    
+    def plot_geometry_editor(self):
+        self.use_geometry_workspace()
 
     def set_window_title(self, msg=""):
         title = "OpenPulse"
@@ -67,7 +98,7 @@ class MainWindow(QMainWindow):
         if config.openLastProject and config.haveRecentProjects():
             self.load_project(config.getMostRecentProjectDir())
         else:
-            if self.inputWidget.getStarted(config):
+            if self.input_widget.getStarted(config):
                 self._loadProjectMenu()
                 self.changeWindowTitle(self.project.file._project_name)
                 # self.draw()
@@ -138,12 +169,12 @@ class MainWindow(QMainWindow):
             self.action_mesh_workspace,
             self.action_results_workspace
         ]
-        combo_box = QComboBox()
+        self.combo_box = QComboBox()
         for action in actions:
-            action: QAction 
-            combo_box.addItem(action.text())
-        combo_box.currentIndexChanged.connect(lambda x: actions[x].trigger())
-        self.tool_bar.addWidget(combo_box)
+            self.combo_box.addItem(action.text())
+
+        self.combo_box.currentIndexChanged.connect(lambda x: actions[x].trigger())
+        self.tool_bar.addWidget(self.combo_box)
 
     def _create_layout(self):
         editor = app().geometry_toolbox.editor
@@ -153,6 +184,7 @@ class MainWindow(QMainWindow):
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         self.opv_widget.updatePlots()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
+        self.input_widget = InputUi(self.project, self)
 
         self.mesh_widget = MeshRenderWidget()
         self.geometry_widget = EditorRenderWidget(editor)
@@ -172,6 +204,9 @@ class MainWindow(QMainWindow):
 
         self.splitter.setSizes([120, 400])
 
+    def _update_permissions(self):
+        pass
+
     # callbacks
     def action_geometry_workspace_callback(self):
         self.use_geometry_workspace()
@@ -181,3 +216,76 @@ class MainWindow(QMainWindow):
 
     def action_results_workspace_callback(self):
         self.use_results_workspace()
+
+
+    # DEPRECATED, REMOVE AS SOON AS POSSIBLE
+    def getInputWidget(self):
+        return self.input_widget
+
+    def getMenuWidget(self):
+        return self.menu_widget
+
+    def getOPVWidget(self):
+        return self.opv_widget
+
+    def getProject(self):
+        return self.project
+    
+    def changeWindowTitle(self, msg = ""):
+        self.set_window_title(msg)
+
+    def draw(self):
+        self.opv_widget.updatePlots()
+        self.plot_entities_with_cross_section()
+        self.opv_widget.setCameraView(5)
+
+    def closeEvent(self, event):
+        title = "OpenPulse stop execution requested"
+        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+
+        buttons_config = {"left_button_label" : "No", 
+                          "right_button_label" : "Yes",
+                          "right_toolTip" : "The current project setup progress has already been saved in the project files."}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._stop:
+            event.ignore()
+            return
+
+        if read._continue:
+            sys.exit()
+    
+    def _loadProjectMenu(self):
+        self._update_recent_projects()
+
+    def loadRecentProject(self):
+        if self.config.openLastProject and self.config.haveRecentProjects():
+            self.importProject_call(self.config.getMostRecentProjectDir())
+        else:
+            if self.input_widget.getStarted(self.config):
+                self._loadProjectMenu()
+                self.changeWindowTitle(self.project.file._project_name)
+                self.draw()
+
+    def importProject_call(self, path=None):
+        if self.input_widget.loadProject(self.config, path):
+            self._loadProjectMenu()
+            self.changeWindowTitle(self.project.file._project_name)
+            self.draw()
+
+    def newProject_call(self):
+        if self.input_widget.new_project(self.config):
+            self._loadProjectMenu()
+            self.changeWindowTitle(self.project.file._project_name)
+            self.draw()
+
+    def _createMeshToolbar(self):
+        self.mesh_toolbar = MeshToolbar(self)
+        self.addToolBar(self.mesh_toolbar)
+        self.insertToolBarBreak(self.mesh_toolbar)
+
+    def _updateStatusBar(self):
+        pass
+    
+    def set_enable_menuBar(self, *args, **kwargs):
+        pass
