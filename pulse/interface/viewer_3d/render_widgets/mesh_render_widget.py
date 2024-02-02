@@ -45,7 +45,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def update_plot(self, reset_camera=True):
         self.remove_actors()
-        project = app().main_window.project
+        project = app().project
 
         self.nodes_actor = NodesActor(project)
         self.lines_actor = ElementLinesActor(project)

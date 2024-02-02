@@ -24,6 +24,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QSplitter" name="splitter">
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -31,7 +34,7 @@
        <bool>true</bool>
       </property>
       <property name="handleWidth">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QStackedWidget" name="setup_widgets_stack">
        <property name="sizePolicy">

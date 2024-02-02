@@ -22,7 +22,7 @@ class AddStructuresWidget(QWidget):
         uic.loadUi(Path('data/user_input/ui_files/Model/geometry/add_widget.ui'), self)
 
         self.geometry_widget = geometry_widget
-        self.project = app().main_window.project
+        self.project = app().project
         self.file = self.project.file
 
         self._reset_variables()
@@ -267,6 +267,7 @@ class AddStructuresWidget(QWidget):
         self.geometry_widget.show_passive_points = True
         self.geometry_widget.unstage_structure()
         self.export_cad_file()
+        app().update()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_mesh_workspace()
 

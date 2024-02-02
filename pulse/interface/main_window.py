@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
         self.config = app().config
         self.project = app().project
 
+    def configure_window(self):
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
@@ -48,7 +49,8 @@ class MainWindow(QMainWindow):
 
     # public
     def update(self):
-        pass
+        self.geometry_widget.update_plot()
+        self.mesh_widget.update_plot()
 
     def use_geometry_workspace(self):
         self.combo_box.setCurrentIndex(0)
@@ -191,8 +193,6 @@ class MainWindow(QMainWindow):
         self.menu_widget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.opv_widget.opvAnalysisRenderer._createPlayer()
-        self.opv_widget.updatePlots()
-        self.opv_widget.changePlotToEntitiesWithCrossSection()
         self.input_widget = InputUi(self.project, self)
 
         self.mesh_widget = MeshRenderWidget()
@@ -212,6 +212,8 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.menu_widget)
 
         self.splitter.setSizes([120, 400])
+        self.opv_widget.updatePlots()
+        self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def _update_permissions(self):
         pass
@@ -244,6 +246,7 @@ class MainWindow(QMainWindow):
         self.set_window_title(msg)
 
     def draw(self):
+        self.update()
         self.opv_widget.updatePlots()
         self.plot_entities_with_cross_section()
         self.opv_widget.setCameraView(5)

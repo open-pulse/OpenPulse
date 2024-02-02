@@ -36,6 +36,7 @@ class MainWindow(QMainWindow):
         self.config = Config()
         self.project = Project()
 
+    def configure_window(self):
         self._loadIcons()
         self._config()
         self._createBasicLayout()
