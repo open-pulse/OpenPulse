@@ -143,6 +143,15 @@ class MainWindow(QMainWindow):
         self.tool_bar: QToolBar
         self.splitter: QSplitter
         self.menurecent: QMenu
+        self.menu_project: QMenu
+        self.menu_graphic: QMenu
+        self.menu_general_settings: QMenu
+        self.menu_structural_model: QMenu
+        self.menu_acoustic_model: QMenu
+        self.menu_model_info: QMenu
+        self.menu_analysis: QMenu
+        self.menu_results_viewer: QMenu
+        self.menu_help: QMenu
 
     def _connect_actions(self):
         '''

@@ -97,7 +97,7 @@
      <height>29</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuProject">
+   <widget class="QMenu" name="menu_project">
     <property name="title">
      <string>Project</string>
     </property>
@@ -118,55 +118,55 @@
     <addaction name="action_export_png"/>
     <addaction name="action_reset"/>
    </widget>
-   <widget class="QMenu" name="menuGeneral_Settings">
+   <widget class="QMenu" name="menu_graphic">
     <property name="title">
      <string>Graphic</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuGeneral_Settings_2">
+   <widget class="QMenu" name="menu_general_settings">
     <property name="title">
      <string>General Settings</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuStructural_Settings">
+   <widget class="QMenu" name="menu_structural_model">
     <property name="title">
      <string>Structural Model Setup</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuAcoustic_Model_Setup">
+   <widget class="QMenu" name="menu_acoustic_model">
     <property name="title">
      <string>Acoustic Model Setup</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuModel_Info">
+   <widget class="QMenu" name="menu_model_info">
     <property name="title">
      <string>Model Info</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuAnalysis">
+   <widget class="QMenu" name="menu_analysis">
     <property name="title">
      <string>Analysis</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuResults_Viewer">
+   <widget class="QMenu" name="menu_results_viewer">
     <property name="title">
      <string>Results Viewer</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuHelo">
+   <widget class="QMenu" name="menu_help">
     <property name="title">
      <string>Help</string>
     </property>
    </widget>
-   <addaction name="menuProject"/>
-   <addaction name="menuGeneral_Settings"/>
-   <addaction name="menuGeneral_Settings_2"/>
-   <addaction name="menuStructural_Settings"/>
-   <addaction name="menuAcoustic_Model_Setup"/>
-   <addaction name="menuModel_Info"/>
-   <addaction name="menuAnalysis"/>
-   <addaction name="menuResults_Viewer"/>
-   <addaction name="menuHelo"/>
+   <addaction name="menu_project"/>
+   <addaction name="menu_graphic"/>
+   <addaction name="menu_general_settings"/>
+   <addaction name="menu_structural_model"/>
+   <addaction name="menu_acoustic_model"/>
+   <addaction name="menu_model_info"/>
+   <addaction name="menu_analysis"/>
+   <addaction name="menu_results_viewer"/>
+   <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="tool_bar">
