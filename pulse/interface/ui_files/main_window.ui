@@ -99,16 +99,16 @@
     </property>
     <widget class="QMenu" name="menurecent">
      <property name="title">
-      <string>recent</string>
+      <string>Recent Projects</string>
      </property>
      <addaction name="actionfiles"/>
     </widget>
     <addaction name="action_new_project"/>
     <addaction name="action_load_project"/>
+    <addaction name="menurecent"/>
     <addaction name="action_save_project"/>
     <addaction name="action_save_project_as"/>
     <addaction name="separator"/>
-    <addaction name="menurecent"/>
     <addaction name="action_import_geometry"/>
     <addaction name="action_import_piping"/>
     <addaction name="action_export_png"/>
