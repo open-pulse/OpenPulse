@@ -43,16 +43,14 @@ class AddStructuresWidget(QWidget):
         self.comboBox_bending_type: QComboBox
 
         # QFrame
-        # self.left_frame: QFrame
-        # self.right_frame: QFrame
         self.information_frame: QFrame
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
-        # self.right_frame.setLayout(self.grid_layout)
-        self.load_cross_section_widget()
-        self.load_material_widget()
+
+        self.cross_section_widget = CrossSectionInputs()
+        self.material_widget = MaterialInputsNew()
 
         # QLabel
         self.label_unit_delta_x: QLabel
@@ -76,9 +74,9 @@ class AddStructuresWidget(QWidget):
         self.pushButton_finalize: QPushButton
         self.pushButton_delete_segment: QPushButton
 
-        self.pushButton_confirm_pipe: QPushButton
+        # self.pushButton_confirm_pipe: QPushButton
         # self.pushButton_confirm_beam: QPushButton
-        self.pushButton_set_material: QPushButton
+        # self.pushButton_set_material: QPushButton
         # self.pushButton_process_geometry.setIcon(self.export_icon)
 
         # QTabWidget
@@ -89,8 +87,8 @@ class AddStructuresWidget(QWidget):
 
         # QTextEdit
         self.textEdit_segment_information: QTextEdit
-        self.textEdit_segment_information.setText("Apenas para testar...\ne ver se consigo configurar corretamente.")
-        self.textEdit_segment_information.setVisible(False)
+        # self.textEdit_segment_information.setText("Apenas para testar...\ne ver se consigo configurar corretamente.")
+        # self.textEdit_segment_information.setVisible(False)
 
     def _create_connections(self):
         self.comboBox_length_unit.currentIndexChanged.connect(self.update_legth_units)
@@ -108,19 +106,7 @@ class AddStructuresWidget(QWidget):
         self.pushButton_create_segment.clicked.connect(self.create_segment_callback)
 
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
-
-
-    def load_cross_section_widget(self):
-        self.cross_section_widget = CrossSectionInputs()
-        # self.cross_section_widget.show()
-        # self.grid_layout.addWidget(self.cross_section_widget, 0, 0)
-        # self.right_frame.setVisible(False)
-
-    def load_material_widget(self):
-        self.material_widget = MaterialInputsNew()
-        # self.material_widget.show()
-        # self.grid_layout.addWidget(self.material_widget, 1, 0)
-        # self.right_frame.setVisible(False)
+        self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
 
     def show_cross_section_widget(self):
         # self.right_frame.setVisible(True)
@@ -239,6 +225,7 @@ class AddStructuresWidget(QWidget):
             self.comboBox_segment_id.setCurrentText(text)
 
     def get_current_segment_tag(self):
+        return 0
         tag = self.comboBox_segment_id.currentText().split("Segment-")[1]
         return int(tag)
 
@@ -253,6 +240,7 @@ class AddStructuresWidget(QWidget):
                 self.cross_section_info = { "section label" : "pipe (constant)",
                                             "section parameters" : self.cross_section_widget.section_parameters  }
                 diameter = self.cross_section_widget.section_parameters["outer_diameter"]
+                self.geometry_widget.update_default_diameter(diameter)
                 self.lineEdit_section_diameter.setText(str(diameter))
             else:
                 self.cross_section_widget.get_variable_section_pipe_parameters()
