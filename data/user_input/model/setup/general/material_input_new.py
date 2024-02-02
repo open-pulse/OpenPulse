@@ -65,7 +65,6 @@ class MaterialInputs(QWidget):
     def create_connections(self):
         self.pushButton_add_row.clicked.connect(self.add_row)
         self.pushButton_remove_row.clicked.connect(self.remove_selected_row)
-        self.pushButton_attribute_material.clicked.connect(self.get_input_data)
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
         #
         self.tableWidget_material_data.itemChanged.connect(self.item_changed)
@@ -208,6 +207,11 @@ class MaterialInputs(QWidget):
 
         if col == 6:
             self.pick_color(row, col)
+
+        if self.check_if_all_input_fields(row):
+            self.pushButton_attribute_material.setDisabled(True)
+        else:
+            self.pushButton_attribute_material.setDisabled(False)
         
     def cell_changed(self, current_row, current_col, previous_row, previous_col):
 
@@ -233,7 +237,6 @@ class MaterialInputs(QWidget):
     def check_inputs_and_add_material_to_library(self, row):
         if self.check_if_all_input_fields(row):
             self.pushButton_attribute_material.setDisabled(True)
-            return
         else:
             self.pushButton_attribute_material.setDisabled(False)
             self.add_material_to_file(row)
@@ -307,7 +310,6 @@ class MaterialInputs(QWidget):
                     item.setText("")
                     return True
 
-            # self.list_names.append(item.text())
             self.material_data["name"] = item.text()
 
         except:
@@ -335,7 +337,6 @@ class MaterialInputs(QWidget):
                 item.setText("")
                 return True
 
-            # self.list_ids.append(item.text())
             self.material_data["identifier"] = input_id
 
         except:
@@ -360,7 +361,6 @@ class MaterialInputs(QWidget):
                 message = f"The value typed for '{prop_labels[col]}' must be a non-zero positive number."
                 PrintMessageInput([window_title, title, message])
                 item.setText("")
-                # self.tableWidget_material_data.setCurrentCell(row, col)
                 return True
 
             if col == 2:
@@ -376,13 +376,9 @@ class MaterialInputs(QWidget):
                 self.material_data["thermal expansion coefficient"] = value
 
         except:
+
             item.setText("")
             self.tableWidget_material_data.setCurrentCell(row, col)
-            pass
-
-    def get_input_data(self):
-        if self.material_data:
-            print(self.material_data)
 
     def get_selected_material_id(self):
         if self.row is not None:
