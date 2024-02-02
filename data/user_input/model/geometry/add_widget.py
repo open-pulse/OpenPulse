@@ -22,7 +22,8 @@ class AddStructuresWidget(QWidget):
         uic.loadUi(Path('data/user_input/ui_files/Model/geometry/add_widget.ui'), self)
 
         self.geometry_widget = geometry_widget
-        self.file = app().project.file
+        self.project = app().main_window.project
+        self.file = self.project.file
 
         self._reset_variables()
         self._define_qt_variables()
@@ -104,6 +105,8 @@ class AddStructuresWidget(QWidget):
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
         self.pushButton_create_segment.clicked.connect(self.create_segment_callback)
+        self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
+        self.pushButton_delete_segment.clicked.connect(self.delete_segment)
 
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
@@ -256,3 +259,33 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.setVisible(False)
         # self.reset_appearance_to_default()
         # self.alternate_cross_section_button_label()
+
+    def delete_segment(self):
+        pass
+
+    def process_geometry_callback(self):
+        self.geometry_widget.show_passive_points = True
+        self.geometry_widget.unstage_structure()
+        self.export_cad_file()
+        app().main_window.opv_widget.updatePlots()
+        app().main_window.use_mesh_workspace()
+
+    def export_cad_file(self):
+        exporter = CADHandler()
+        pipeline = app().geometry_toolbox.pipeline
+        geometry_filename = "geometry_pipeline.step"
+        geometry_path = self.file.get_file_path_inside_project_directory(geometry_filename)
+        exporter.save(geometry_path, pipeline)
+
+        if os.path.exists(self.file._entity_path):
+            os.remove(self.file._entity_path)
+
+        geometry_filename = os.path.basename(geometry_path)
+        # self.project.edit_project_geometry(geometry_filename)
+        self.file.update_project_attributes(element_size = 0.01, 
+                                            geometry_tolerance = 1e-6,
+                                            geometry_filename=geometry_filename)
+
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        self.complete = True
