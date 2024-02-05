@@ -126,60 +126,60 @@
     <property name="title">
      <string>Graphic</string>
     </property>
-    <addaction name="actionPlot_Raw_Lines"/>
-    <addaction name="actionPlot_Lines"/>
-    <addaction name="actionPlot_Mesh"/>
-    <addaction name="actionPlot_Lines_with_Cross_section"/>
-    <addaction name="actionPlot_Cross_section"/>
-    <addaction name="actionPlot_Material"/>
-    <addaction name="actionPlot_Fluid"/>
-    <addaction name="actionUser_Preferences"/>
-    <addaction name="actionPlot_Geometry_Editor"/>
+    <addaction name="action_plot_raw_lines"/>
+    <addaction name="action_plot_lines"/>
+    <addaction name="action_plot_mesh"/>
+    <addaction name="action_plot_lines_with_cross_section"/>
+    <addaction name="action_plot_cross_section"/>
+    <addaction name="action_plot_material"/>
+    <addaction name="action_plot_fluid"/>
+    <addaction name="action_user_preferences"/>
+    <addaction name="action_plot_geometry_editor"/>
    </widget>
    <widget class="QMenu" name="menu_general_settings">
     <property name="title">
      <string>General Settings</string>
     </property>
-    <addaction name="actionCreate_Edit_Geometry"/>
-    <addaction name="actionEdit_Geometry"/>
-    <addaction name="actionSet_Project_Attributes"/>
-    <addaction name="actionSet_Geometry_File"/>
-    <addaction name="actionSet_Material"/>
-    <addaction name="actionSet_Fluid"/>
-    <addaction name="actionSet_Cross_section"/>
+    <addaction name="action_create_edit_geometry"/>
+    <addaction name="action_edit_geometry"/>
+    <addaction name="action_set_project_attributes"/>
+    <addaction name="action_set_geometry_file"/>
+    <addaction name="action_set_material"/>
+    <addaction name="action_set_fluid"/>
+    <addaction name="action_set_cross_section"/>
    </widget>
    <widget class="QMenu" name="menu_structural_model">
     <property name="title">
      <string>Structural Model Setup</string>
     </property>
-    <addaction name="actionSet_Structural_Eleement_Type"/>
-    <addaction name="actionAdd_Ck"/>
-    <addaction name="actionSet_Prescribed_DOFs"/>
-    <addaction name="actionSet_Nodal_Loads"/>
-    <addaction name="actionAdd_Mass_Spring_Damper"/>
-    <addaction name="actionSet_Capped_End"/>
-    <addaction name="actionSet_Stress_Stiffening"/>
-    <addaction name="actionAdd_Elastic_Nodal_Lins"/>
+    <addaction name="action_set_structural_element_type"/>
+    <addaction name="action_add_connecting_flanges"/>
+    <addaction name="action_set_prescribed_dofs"/>
+    <addaction name="action_set_nodal_loads"/>
+    <addaction name="action_add_mass_spring_damper"/>
+    <addaction name="action_set_capped_end"/>
+    <addaction name="action_set_stress_stiffening"/>
+    <addaction name="action_add_elastic_nodal_links"/>
    </widget>
    <widget class="QMenu" name="menu_acoustic_model">
     <property name="title">
      <string>Acoustic Model Setup</string>
     </property>
-    <addaction name="actionSet_Acoustic_Element_Type"/>
-    <addaction name="actionSet_Acoustic_Pressure"/>
-    <addaction name="actionSet_Volume_Velocity"/>
-    <addaction name="actionSet_Specific_Impedance"/>
-    <addaction name="actionAdd_Perforated_Plate"/>
-    <addaction name="actionSet_Acoustic_Element_Length_Correction"/>
-    <addaction name="actionAdd_Compressor_Excitation"/>
+    <addaction name="action_set_acoustic_element_type"/>
+    <addaction name="action_set_acoustic_pressure"/>
+    <addaction name="action_set_volume_velocity"/>
+    <addaction name="action_set_specific_impedance"/>
+    <addaction name="action_add_perforated_plate"/>
+    <addaction name="action_set_acoustic_element_length_correction"/>
+    <addaction name="action_add_compressor_excitation"/>
    </widget>
    <widget class="QMenu" name="menu_model_info">
     <property name="title">
      <string>Model Info</string>
     </property>
-    <addaction name="actionStructural_Model_Info"/>
-    <addaction name="actionAcoustic_Model_Info"/>
-    <addaction name="actionCheck_Beam_Validity_Criteria"/>
+    <addaction name="action_structural_model_info"/>
+    <addaction name="action_acoustic_model_info"/>
+    <addaction name="action_check_beam_criteria"/>
    </widget>
    <widget class="QMenu" name="menu_analysis">
     <property name="title">
@@ -193,19 +193,19 @@
     <property name="title">
      <string>Results Viewer</string>
     </property>
-    <addaction name="actionPlot_Structural_Mode_Shapes"/>
-    <addaction name="actionPlot_Displacement_Field"/>
-    <addaction name="actionPlot_Structural_Frequency_Response"/>
-    <addaction name="actionPlot_Reactions_Frequency_Response"/>
-    <addaction name="actionPlot_Stress_Field"/>
-    <addaction name="actionPlot_Stress_Frequency_Response"/>
-    <addaction name="actionPlot_Acoustic_Pressure_Field"/>
-    <addaction name="actionPlot_Acoustic_Frequency_Response"/>
-    <addaction name="actionPlot_Acoustic_Frequency_Response_Function"/>
-    <addaction name="actionPlot_Acoustic_Delta_Pressures"/>
-    <addaction name="actionPlot_Ransmission_Loss_or_Attenuation"/>
-    <addaction name="actionPlay_Pause_Animation"/>
-    <addaction name="actionAnimation_Settings"/>
+    <addaction name="action_plot_structural_mode_shapes"/>
+    <addaction name="action_plot_displacement_field"/>
+    <addaction name="action_plot_structural_frequency_response"/>
+    <addaction name="action_plot_reactions_frequency_response"/>
+    <addaction name="action_plot_stress_field"/>
+    <addaction name="action_plot_stress_frequency_response"/>
+    <addaction name="action_plot_acoustic_pressure_field"/>
+    <addaction name="action_plot_acoustic_frequency_response"/>
+    <addaction name="action_plot_acoustic_frequency_response_function"/>
+    <addaction name="acoustic_plot_acoustic_delta_pressures"/>
+    <addaction name="action_plot_transmission_loss_or_attenuation"/>
+    <addaction name="action_play_pause_animation"/>
+    <addaction name="action_animation_settings"/>
    </widget>
    <widget class="QMenu" name="menu_help">
     <property name="title">
@@ -478,172 +478,172 @@
     <string>Ctrl+Shift+Q</string>
    </property>
   </action>
-  <action name="actionPlot_Raw_Lines">
+  <action name="action_plot_raw_lines">
    <property name="text">
     <string>Plot Raw Lines</string>
    </property>
   </action>
-  <action name="actionPlot_Lines">
+  <action name="action_plot_lines">
    <property name="text">
     <string>Plot Lines</string>
    </property>
   </action>
-  <action name="actionPlot_Mesh">
+  <action name="action_plot_mesh">
    <property name="text">
     <string>Plot Mesh</string>
    </property>
   </action>
-  <action name="actionPlot_Lines_with_Cross_section">
+  <action name="action_plot_lines_with_cross_section">
    <property name="text">
     <string>Plot Lines with Cross-section</string>
    </property>
   </action>
-  <action name="actionPlot_Cross_section">
+  <action name="action_plot_cross_section">
    <property name="text">
     <string>Plot Cross-section</string>
    </property>
   </action>
-  <action name="actionPlot_Material">
+  <action name="action_plot_material">
    <property name="text">
     <string>Plot Material</string>
    </property>
   </action>
-  <action name="actionPlot_Fluid">
+  <action name="action_plot_fluid">
    <property name="text">
     <string>Plot Fluid</string>
    </property>
   </action>
-  <action name="actionUser_Preferences">
+  <action name="action_user_preferences">
    <property name="text">
     <string>User Preferences</string>
    </property>
   </action>
-  <action name="actionPlot_Geometry_Editor">
+  <action name="action_plot_geometry_editor">
    <property name="text">
     <string>Plot Geometry Editor</string>
    </property>
   </action>
-  <action name="actionCreate_Edit_Geometry">
+  <action name="action_create_edit_geometry">
    <property name="text">
     <string>Create/Edit Geometry</string>
    </property>
   </action>
-  <action name="actionEdit_Geometry">
+  <action name="action_edit_geometry">
    <property name="text">
     <string>Edit Geometry (GMSH GUI)</string>
    </property>
   </action>
-  <action name="actionSet_Project_Attributes">
+  <action name="action_set_project_attributes">
    <property name="text">
     <string>Set Project Attributes</string>
    </property>
   </action>
-  <action name="actionSet_Geometry_File">
+  <action name="action_set_geometry_file">
    <property name="text">
     <string>Set Geometry File</string>
    </property>
   </action>
-  <action name="actionSet_Material">
+  <action name="action_set_material">
    <property name="text">
     <string>Set Material</string>
    </property>
   </action>
-  <action name="actionSet_Fluid">
+  <action name="action_set_fluid">
    <property name="text">
     <string>Set Fluid</string>
    </property>
   </action>
-  <action name="actionSet_Cross_section">
+  <action name="action_set_cross_section">
    <property name="text">
     <string>Set Cross-section</string>
    </property>
   </action>
-  <action name="actionSet_Structural_Eleement_Type">
+  <action name="action_set_structural_element_type">
    <property name="text">
     <string>Set Structural Element Type</string>
    </property>
   </action>
-  <action name="actionAdd_Ck">
+  <action name="action_add_connecting_flanges">
    <property name="text">
     <string>Add Connecting Flanges</string>
    </property>
   </action>
-  <action name="actionSet_Prescribed_DOFs">
+  <action name="action_set_prescribed_dofs">
    <property name="text">
     <string>Set Prescribed DOFs</string>
    </property>
   </action>
-  <action name="actionSet_Nodal_Loads">
+  <action name="action_set_nodal_loads">
    <property name="text">
     <string>Set Nodal Loads</string>
    </property>
   </action>
-  <action name="actionAdd_Mass_Spring_Damper">
+  <action name="action_add_mass_spring_damper">
    <property name="text">
     <string>Add: Mass/Spring/Damper</string>
    </property>
   </action>
-  <action name="actionSet_Capped_End">
+  <action name="action_set_capped_end">
    <property name="text">
     <string>Set Capped End</string>
    </property>
   </action>
-  <action name="actionSet_Stress_Stiffening">
+  <action name="action_set_stress_stiffening">
    <property name="text">
     <string>Set Stress Stiffening</string>
    </property>
   </action>
-  <action name="actionAdd_Elastic_Nodal_Lins">
+  <action name="action_add_elastic_nodal_links">
    <property name="text">
     <string>Add Elastic Nodal Links</string>
    </property>
   </action>
-  <action name="actionSet_Acoustic_Element_Type">
+  <action name="action_set_acoustic_element_type">
    <property name="text">
     <string>Set Acoustic Element Type</string>
    </property>
   </action>
-  <action name="actionSet_Acoustic_Pressure">
+  <action name="action_set_acoustic_pressure">
    <property name="text">
     <string>Set Acoustic Pressure</string>
    </property>
   </action>
-  <action name="actionSet_Volume_Velocity">
+  <action name="action_set_volume_velocity">
    <property name="text">
     <string>Set Volume Velocity</string>
    </property>
   </action>
-  <action name="actionSet_Specific_Impedance">
+  <action name="action_set_specific_impedance">
    <property name="text">
     <string>Set Specific Impedance</string>
    </property>
   </action>
-  <action name="actionAdd_Perforated_Plate">
+  <action name="action_add_perforated_plate">
    <property name="text">
     <string>Add Perforated Plate</string>
    </property>
   </action>
-  <action name="actionSet_Acoustic_Element_Length_Correction">
+  <action name="action_set_acoustic_element_length_correction">
    <property name="text">
     <string>Set Acoustic Element Length Correction</string>
    </property>
   </action>
-  <action name="actionAdd_Compressor_Excitation">
+  <action name="action_add_compressor_excitation">
    <property name="text">
     <string>Add Compressor Excitation</string>
    </property>
   </action>
-  <action name="actionStructural_Model_Info">
+  <action name="action_structural_model_info">
    <property name="text">
     <string>Structural Model Info</string>
    </property>
   </action>
-  <action name="actionAcoustic_Model_Info">
+  <action name="action_acoustic_model_info">
    <property name="text">
     <string>Acoustic Model Info</string>
    </property>
   </action>
-  <action name="actionCheck_Beam_Validity_Criteria">
+  <action name="action_check_beam_criteria">
    <property name="text">
     <string>Check Beam Validity Criteria</string>
    </property>
@@ -663,67 +663,67 @@
     <string>Run Analisys</string>
    </property>
   </action>
-  <action name="actionPlot_Structural_Mode_Shapes">
+  <action name="action_plot_structural_mode_shapes">
    <property name="text">
     <string>Plot Structural Mode Shapes</string>
    </property>
   </action>
-  <action name="actionPlot_Displacement_Field">
+  <action name="action_plot_displacement_field">
    <property name="text">
     <string>Plot Displacement Field</string>
    </property>
   </action>
-  <action name="actionPlot_Structural_Frequency_Response">
+  <action name="action_plot_structural_frequency_response">
    <property name="text">
     <string>Plot Structural Frequency Response</string>
    </property>
   </action>
-  <action name="actionPlot_Reactions_Frequency_Response">
+  <action name="action_plot_reactions_frequency_response">
    <property name="text">
     <string>Plot Reactions Frequency Response</string>
    </property>
   </action>
-  <action name="actionPlot_Stress_Field">
+  <action name="action_plot_stress_field">
    <property name="text">
     <string>Plot Stress Field</string>
    </property>
   </action>
-  <action name="actionPlot_Stress_Frequency_Response">
+  <action name="action_plot_stress_frequency_response">
    <property name="text">
     <string>Plot Stress Frequency Response</string>
    </property>
   </action>
-  <action name="actionPlot_Acoustic_Pressure_Field">
+  <action name="action_plot_acoustic_pressure_field">
    <property name="text">
     <string>Plot Acoustic Pressure Field</string>
    </property>
   </action>
-  <action name="actionPlot_Acoustic_Frequency_Response">
+  <action name="action_plot_acoustic_frequency_response">
    <property name="text">
     <string>Plot Acoustic Frequency Response</string>
    </property>
   </action>
-  <action name="actionPlot_Acoustic_Frequency_Response_Function">
+  <action name="action_plot_acoustic_frequency_response_function">
    <property name="text">
     <string>Plot Acoustic Frequency Response Function</string>
    </property>
   </action>
-  <action name="actionPlot_Acoustic_Delta_Pressures">
+  <action name="acoustic_plot_acoustic_delta_pressures">
    <property name="text">
     <string>Plot Acoustic Delta Pressures</string>
    </property>
   </action>
-  <action name="actionPlot_Ransmission_Loss_or_Attenuation">
+  <action name="action_plot_transmission_loss_or_attenuation">
    <property name="text">
     <string>Plot Ransmission Loss or Attenuation</string>
    </property>
   </action>
-  <action name="actionPlay_Pause_Animation">
+  <action name="action_play_pause_animation">
    <property name="text">
     <string>Play/Pause Animation</string>
    </property>
   </action>
-  <action name="actionAnimation_Settings">
+  <action name="action_animation_settings">
    <property name="text">
     <string>Animation Settings</string>
    </property>

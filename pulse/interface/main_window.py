@@ -316,6 +316,15 @@ class MainWindow(QMainWindow):
             return
         render_widget.set_back_view()
 
+    def action_structural_model_info_callback(self):
+        self.input_widget.structural_model_info()
+
+    def action_acoustic_model_info_callback(self):
+        self.input_widget.acoustic_model_info()
+    
+    def action_check_beam_criteria_callback(self):
+        self.input_widget.check_beam_criteria()
+
     def action_select_analysis_type_callback(self):
         self.input_widget.analysisTypeInput()
 
