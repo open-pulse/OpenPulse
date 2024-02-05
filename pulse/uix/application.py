@@ -2,7 +2,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QApplication
 
 from opps.interface.toolboxes import GeometryToolbox
-from pulse.uix.main_window import MainWindow
+from pulse.interface.main_window import MainWindow
 
 from pulse.project import Project
 from pulse.uix.config import Config
@@ -26,3 +26,4 @@ class Application(QApplication):
 
     def update(self):
         self.geometry_toolbox.update()
+        self.main_window.update()

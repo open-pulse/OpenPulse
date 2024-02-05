@@ -325,6 +325,28 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.axes.EnabledOff()
         self._createAxes()
 
+    def update_visualization(self, points, lines, tubes, symbols):
+        transparent = points or lines or symbols
+        plot_filter = PlotFilter(
+            nodes=points,
+            lines=lines,
+            tubes=tubes,
+            acoustic_symbols=symbols,
+            structural_symbols=symbols,
+            transparent=transparent,
+        )
+        
+        elements = (lines or tubes) and points
+        entities = (lines or tubes) and (not points) 
+        selection_filter = SelectionFilter(
+            nodes=points,
+            elements=elements,
+            entities=entities,
+        )
+
+        self.opvRenderer.setPlotFilter(plot_filter)
+        self.opvRenderer.setSelectionFilter(selection_filter)
+
     def getListPickedPoints(self):
         return self.opvRenderer.getListPickedPoints()
 

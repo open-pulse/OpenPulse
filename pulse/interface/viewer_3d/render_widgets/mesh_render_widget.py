@@ -39,6 +39,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.lines_actor = None
         self.tubes_actor = None
 
+        self.plot_filter = PlotFilter(True, True, True, True, True, True)
+        self.selection_filter = SelectionFilter(True, True, True)
+
         self.create_axes()
         self.create_scale_bar()
         self.set_theme("light")
@@ -57,11 +60,47 @@ class MeshRenderWidget(CommonRenderWidget):
 
         if reset_camera:
             self.renderer.ResetCamera()
-    
+        # self.update()
+
     def remove_actors(self):
         self.renderer.RemoveActor(self.lines_actor)
         self.renderer.RemoveActor(self.nodes_actor)
         self.renderer.RemoveActor(self.tubes_actor)
+
+    def update_visualization(self, points, lines, tubes, symbols):
+        transparent = points or lines or symbols
+        self.plot_filter = PlotFilter(
+            nodes=points,
+            lines=lines,
+            tubes=tubes,
+            acoustic_symbols=symbols,
+            structural_symbols=symbols,
+            transparent=transparent,
+        )
+        
+        elements = (lines or tubes) and points
+        entities = (lines or tubes) and (not points) 
+        self.selection_filter = SelectionFilter(
+            nodes=points,
+            elements=elements,
+            entities=entities,
+        )
+
+        if not self._actor_exists():
+            return 
+
+        self.nodes_actor.SetVisibility(self.plot_filter.nodes)
+        self.lines_actor.SetVisibility(self.plot_filter.lines)
+        self.tubes_actor.SetVisibility(self.plot_filter.tubes)
+        self.update()
+
+    def _actor_exists(self):
+        actors = [
+            self.nodes_actor,
+            self.lines_actor,
+            self.tubes_actor,
+        ]
+        return all([actor is not None for actor in actors])
 
     def click_callback(self, x, y):
         self.mouse_click = x, y

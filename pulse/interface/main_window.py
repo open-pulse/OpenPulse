@@ -167,6 +167,11 @@ class MainWindow(QMainWindow):
         self.menu_analysis: QMenu
         self.menu_results_viewer: QMenu
         self.menu_help: QMenu
+        self.action_show_points: QAction
+        self.action_show_lines: QAction
+        self.action_show_tubes: QAction
+        self.action_show_symbols: QAction
+
 
     def _connect_actions(self):
         '''
@@ -233,6 +238,14 @@ class MainWindow(QMainWindow):
 
     def _update_permissions(self):
         pass
+    
+    def _update_visualization(self):
+        points = self.action_show_points.isChecked()
+        lines = self.action_show_lines.isChecked()
+        tubes = self.action_show_tubes.isChecked()
+        symbols = self.action_show_symbols.isChecked()
+        self.opv_widget.update_visualization(points, lines, tubes, symbols)
+        self.mesh_widget.update_visualization(points, lines, tubes, symbols)
 
     # callbacks
     def action_new_project_callback(self):
@@ -381,6 +394,18 @@ class MainWindow(QMainWindow):
 
     def action_about_openpulse(self):
         self.input_widget.about_OpenPulse()
+
+    def action_show_points_callback(self, cond):
+        self._update_visualization()
+
+    def action_show_lines_callback(self, cond):
+        self._update_visualization()
+
+    def action_show_tubes_callback(self, cond):
+        self._update_visualization()
+    
+    def action_show_symbols_callback(self, cond):
+        self._update_visualization()
 
     # DEPRECATED, REMOVE AS SOON AS POSSIBLE
     def getInputWidget(self):
