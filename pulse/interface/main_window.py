@@ -343,6 +343,27 @@ class MainWindow(QMainWindow):
     def action_structural_model_info_callback(self):
         self.input_widget.structural_model_info()
 
+    def action_set_acoustic_element_type_callback(self):
+        self.input_widget.set_acoustic_element_type()
+
+    def action_set_acoustic_pressure_callback(self):
+        self.input_widget.setAcousticPressure()
+
+    def action_set_volume_velocity_callback(self):
+        self.input_widget.setVolumeVelocity()
+
+    def action_set_specific_impedance_callback(self):
+        self.input_widget.setSpecificImpedance()
+
+    def action_add_perforated_plate_callback(self):
+        self.input_widget.add_perforated_plate()
+
+    def action_set_acoustic_element_length_correction_callback(self):
+        self.input_widget.set_acoustic_element_length_correction()
+
+    def action_add_compressor_excitation_callback(self):
+        self.input_widget.add_compressor_excitation()
+
     def action_acoustic_model_info_callback(self):
         self.input_widget.acoustic_model_info()
     
