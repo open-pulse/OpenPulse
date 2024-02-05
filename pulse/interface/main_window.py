@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
         self.set_window_title(self.project.file._project_name)
         self.update()
 
-    def load_project(self, path=None):
+    def open_project(self, path=None):
         if not self.input_widget.loadProject(self.config, path):
             return 
 
@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
     def update(self):
         self.geometry_widget.update_plot(reset_camera=True)
         self.mesh_widget.update_plot(reset_camera=True)
+        self.opv_widget.updatePlots()
 
     def use_geometry_workspace(self):
         self.combo_box.setCurrentIndex(0)
@@ -113,7 +114,7 @@ class MainWindow(QMainWindow):
         config = app().config
 
         if config.openLastProject and config.haveRecentProjects():
-            self.load_project(config.getMostRecentProjectDir())
+            self.open_project(config.getMostRecentProjectDir())
         else:
             if self.input_widget.getStarted(config):
                 self._loadProjectMenu()
@@ -130,7 +131,7 @@ class MainWindow(QMainWindow):
         for name, path in reversed(self.config.recentProjects.items()):
             import_action = QAction(str(name) + "\t" + str(path))
             import_action.setStatusTip(str(path))
-            import_action.triggered.connect(partial(self.load_project, path))
+            import_action.triggered.connect(partial(self.open_project, path))
             self.menurecent.addAction(import_action)
             self.menu_actions.append(import_action)
 
@@ -237,8 +238,8 @@ class MainWindow(QMainWindow):
     def action_new_project_callback(self):
         self.new_project()
 
-    def action_load_project_callback(self):
-        self.load_project()
+    def action_open_project_callback(self):
+        self.open_project()
 
     def action_geometry_workspace_callback(self):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)

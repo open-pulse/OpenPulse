@@ -111,7 +111,7 @@
      <addaction name="actionfiles"/>
     </widget>
     <addaction name="action_new_project"/>
-    <addaction name="action_load_project"/>
+    <addaction name="action_open_project"/>
     <addaction name="menurecent"/>
     <addaction name="action_save_project"/>
     <addaction name="action_save_project_as"/>
@@ -236,7 +236,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_new_project"/>
-   <addaction name="action_load_project"/>
+   <addaction name="action_open_project"/>
    <addaction name="action_reset"/>
    <addaction name="action_export_png"/>
    <addaction name="separator"/>
@@ -257,14 +257,23 @@
    <property name="text">
     <string>New Project</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
-  <action name="action_load_project">
+  <action name="action_open_project">
    <property name="icon">
     <iconset>
      <normaloff>../../../data/icons/009-download.png</normaloff>../../../data/icons/009-download.png</iconset>
    </property>
    <property name="text">
-    <string>Load Project</string>
+    <string>Open Project</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="action_export_png">
@@ -283,6 +292,9 @@
    </property>
    <property name="text">
     <string>Reset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+R</string>
    </property>
   </action>
   <action name="action_save_project">
@@ -462,6 +474,9 @@
    </property>
    <property name="text">
     <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Q</string>
    </property>
   </action>
   <action name="actionPlot_Raw_Lines">
