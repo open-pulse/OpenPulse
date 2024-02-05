@@ -1,8 +1,9 @@
 import sys
 from functools import partial
+import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QSplitter, QStackedWidget, QLabel, QToolBar, QComboBox, QSizePolicy
+from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QSplitter, QStackedWidget, QLabel, QToolBar, QComboBox, QFileDialog
 from PyQt5 import uic
 from pathlib import Path
 
@@ -259,6 +260,60 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)  
 
+    def action_save_as_png_callback(self):
+        self.savePNG_call()
+    
+    def action_reset_callback(self):
+        self.input_widget.reset_project()
+    
+    def action_isometric_view_callback(self):
+        render_widget = self.render_widgets_stack.currentWidget()
+        if render_widget == self.opv_widget:
+            render_widget.setCameraView(0)
+            return
+        render_widget.set_isometric_view()
+
+    def action_top_view_callback(self):
+        render_widget = self.render_widgets_stack.currentWidget()
+        if render_widget == self.opv_widget:
+            render_widget.setCameraView(1)
+            return
+        render_widget.set_top_view()
+
+    def action_bottom_view_callback(self):
+        render_widget = self.render_widgets_stack.currentWidget()
+        if render_widget == self.opv_widget:
+            render_widget.setCameraView(2)
+            return
+        render_widget.set_bottom_view()
+
+    def action_left_view_callback(self):
+        render_widget = self.render_widgets_stack.currentWidget()
+        if render_widget == self.opv_widget:
+            render_widget.setCameraView(3)
+            return
+        render_widget.set_left_view()
+
+    def action_right_view_callback(self):
+        render_widget = self.render_widgets_stack.currentWidget()
+        if render_widget == self.opv_widget:
+            render_widget.setCameraView(4)
+            return
+        render_widget.set_right_view()
+
+    def action_front_view_callback(self):
+        render_widget = self.render_widgets_stack.currentWidget()
+        if render_widget == self.opv_widget:
+            render_widget.setCameraView(5)
+            return
+        render_widget.set_front_view()
+
+    def action_back_view_callback(self):
+        render_widget = self.render_widgets_stack.currentWidget()
+        if render_widget == self.opv_widget:
+            render_widget.setCameraView(6)
+            return
+        render_widget.set_back_view()
 
     # DEPRECATED, REMOVE AS SOON AS POSSIBLE
     def getInputWidget(self):
@@ -332,3 +387,11 @@ class MainWindow(QMainWindow):
     
     def set_enable_menuBar(self, *args, **kwargs):
         pass
+
+    def savePNG_call(self):
+        project_path = self.project.file._project_path
+        if not os.path.exists(project_path):
+            project_path = ""
+        path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
+        if path != "":
+            self.getOPVWidget().savePNG(path)
