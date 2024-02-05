@@ -37,8 +37,6 @@ class MaterialInputs(QWidget):
         self.define_qt_variables()
         self.create_connections()
         self.load_data_from_materials_library()
-        # self.create_lists_of_entries()
-        # self.config_treeWidget()
 
     def reset(self):
         self.row = None

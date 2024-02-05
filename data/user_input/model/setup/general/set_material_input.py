@@ -85,21 +85,32 @@ class SetMaterialInput(QDialog):
     def _create_connections(self):
         self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
         self.pushButton_attribute_material.clicked.connect(self.confirm_material_attribution)
-        self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
-        self.tableWidget_material_data.cellDoubleClicked.connect(self.on_cell_double_clicked)
+        # self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
+        self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
+        # self.tableWidget_material_data.cellDoubleClicked.connect(self.on_cell_double_clicked)
 
     def on_cell_clicked(self, row, col):
-        # print(row, col)
         self.selected_row = row
-        item = self.tableWidget_material_data.item(row, 0)
-        material_name = item.text()
-        self.lineEdit_selected_material_name.setText("")
-        if material_name != "":
-            self.lineEdit_selected_material_name.setText(material_name)
+        self.update_material_selection()
 
     def on_cell_double_clicked(self, row, col):
         self.selected_row = row
         self.confirm_material_attribution()
+
+    def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
+        self.selected_row = current_row
+        self.update_material_selection()
+
+    def update_material_selection(self):
+        if self.selected_row is None:
+            return
+        item = self.tableWidget_material_data.item(self.selected_row, 0)
+        if item is None:
+            return
+        material_name = item.text()
+        self.lineEdit_selected_material_name.setText("")
+        if material_name != "":
+            self.lineEdit_selected_material_name.setText(material_name)
 
     def update_attribution_type(self):
         index = self.comboBox_attribution_type.currentIndex()
