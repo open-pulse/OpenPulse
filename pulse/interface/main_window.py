@@ -145,7 +145,7 @@ class MainWindow(QMainWindow):
         already defined in the UI file.
 
         Despite that, it is nice to list the variables to
-        future maintainers and to help the code editor with
+        help future maintainers and the code editor with
         type inference.
         '''
         self.setup_widgets_stack: QStackedWidget
@@ -315,6 +315,30 @@ class MainWindow(QMainWindow):
             render_widget.setCameraView(6)
             return
         render_widget.set_back_view()
+
+    def action_set_structural_element_type_callback(self):
+        self.input_widget.setStructuralElementType()
+
+    def action_add_connecting_flanges_callback(self):
+        self.input_widget.add_flanges()
+
+    def action_set_prescribed_dofs_callback(self):
+        self.input_widget.setDOF()
+
+    def action_set_nodal_loads_callback(self):
+        self.input_widget.setNodalLoads()
+
+    def action_add_mass_spring_damper_callback(self):
+        self.input_widget.addMassSpringDamper()
+
+    def action_set_capped_end_callback(self):
+        self.input_widget.setcappedEnd()
+
+    def action_set_stress_stiffening_callback(self):
+        self.input_widget.set_stress_stress_stiffening()
+
+    def action_add_elastic_nodal_links_callback(self):
+        self.input_widget.add_elastic_nodal_links()
 
     def action_structural_model_info_callback(self):
         self.input_widget.structural_model_info()
