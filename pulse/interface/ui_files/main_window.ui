@@ -185,9 +185,9 @@
     <property name="title">
      <string>Analysis</string>
     </property>
-    <addaction name="actionSelect_Analysis_Type"/>
-    <addaction name="actionAnalysis_Setup"/>
-    <addaction name="actionRun_Analisys"/>
+    <addaction name="action_select_analysis_type"/>
+    <addaction name="action_analysis_setup"/>
+    <addaction name="action_run_analysis"/>
    </widget>
    <widget class="QMenu" name="menu_results_viewer">
     <property name="title">
@@ -211,8 +211,7 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionHelp"/>
-    <addaction name="actionAbout_OpenPulse"/>
+    <addaction name="action_about_openpulse"/>
    </widget>
    <addaction name="menu_project"/>
    <addaction name="menu_graphic"/>
@@ -649,17 +648,17 @@
     <string>Check Beam Validity Criteria</string>
    </property>
   </action>
-  <action name="actionSelect_Analysis_Type">
+  <action name="action_select_analysis_type">
    <property name="text">
     <string>Select Analysis Type</string>
    </property>
   </action>
-  <action name="actionAnalysis_Setup">
+  <action name="action_analysis_setup">
    <property name="text">
     <string>Analysis Setup</string>
    </property>
   </action>
-  <action name="actionRun_Analisys">
+  <action name="action_run_analysis">
    <property name="text">
     <string>Run Analisys</string>
    </property>
@@ -729,12 +728,15 @@
     <string>Animation Settings</string>
    </property>
   </action>
-  <action name="actionHelp">
+  <action name="action_help">
    <property name="text">
     <string>Help</string>
    </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
   </action>
-  <action name="actionAbout_OpenPulse">
+  <action name="action_about_openpulse">
    <property name="text">
     <string>About OpenPulse</string>
    </property>

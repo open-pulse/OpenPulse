@@ -316,6 +316,18 @@ class MainWindow(QMainWindow):
             return
         render_widget.set_back_view()
 
+    def action_select_analysis_type_callback(self):
+        self.input_widget.analysisTypeInput()
+
+    def action_analysis_setup_callback(self):
+        self.input_widget.analysisSetup()
+    
+    def action_run_analysis_callback(self):
+        self.input_widget.runAnalysis()
+
+    def action_about_openpulse(self):
+        self.input_widget.about_OpenPulse()
+
     # DEPRECATED, REMOVE AS SOON AS POSSIBLE
     def getInputWidget(self):
         return self.input_widget
