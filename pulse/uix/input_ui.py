@@ -12,7 +12,7 @@ from data.user_input.project.editImportedGeometryInput import EditImportedGeomet
 from data.user_input.project.set_project_attributes_input import SetProjectAttributesInput
 from data.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
-from data.user_input.model.setup.structural.material_input import MaterialInput
+from data.user_input.model.setup.general.set_material_input import SetMaterialInput
 from data.user_input.model.setup.acoustic.fluid_input import FluidInput
 from data.user_input.model.setup.structural.crossSectionInput import SetCrossSectionInput
 #
@@ -199,7 +199,7 @@ class InputUi:
         self.initial_project_action(True)
 
     def set_material(self):
-        self.processInput(MaterialInput, self.project, self.opv)   
+        self.processInput(SetMaterialInput, self.project, self.opv)   
          
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
         read = self.processInput(   SetCrossSectionInput, 

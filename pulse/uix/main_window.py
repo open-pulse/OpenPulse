@@ -21,7 +21,7 @@ from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorR
 from opps.interface.widgets.add_structures_widget import AddStructuresWidget
 
 #
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 import sys
 import os
@@ -823,12 +823,17 @@ class MainWindow(QMainWindow):
         self.opv_widget.setCameraView(5)
 
     def closeEvent(self, event):
+
         title = "OpenPulse stop execution requested"
         message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+        toolTip_message = "The current project setup progress has already been saved in the project files."
 
-        buttons_config = {"left_button_label" : "No", 
-                          "right_button_label" : "Yes",
-                          "right_toolTip" : "The current project setup progress has already been saved in the project files."}
+        buttons_config = {  "left_button_label" : "No", 
+                            "right_button_label" : "Yes",
+                            "left_button_size" : 80,
+                            "right_button_size" : 80,
+                            "right_toolTip" : toolTip_message}
+        
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._stop:

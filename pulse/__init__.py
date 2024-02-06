@@ -1,5 +1,5 @@
-__version__ = '1.0.2'
-__release_date__ = 'Oct 19th 2022'
+__version__ = '2.0.0'
+__release_date__ = 'Apr 30th 2024'
 
 from PyQt5.QtWidgets import QApplication
 

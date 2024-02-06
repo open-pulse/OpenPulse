@@ -13,7 +13,7 @@ from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 from pulse.utils import get_new_path, remove_bc_from_file
 
 window_title_1 = "ERROR"

@@ -3,104 +3,104 @@ import configparser
 def default_material_library(path):
     config = configparser.ConfigParser()
 
-    config['Steel'] = { 
-                            'Name': 'Steel',
-                            'Identifier': 1,
-                            'Color': '[170,170,170]', #Light Gray
-                            'Density': 7860,
-                            'Young Modulus': 210,
-                            'Poisson': 0.3,
-                            'Thermal expansion coefficient': 1.2e-5 }
+    config['Steel'] = {     
+                        'Name': 'Steel',
+                        'Identifier': 1,
+                        'Density': 7860,
+                        'Young Modulus': 210,
+                        'Poisson': 0.3,
+                        'Thermal expansion coefficient': 1.2e-5,
+                        'Color': '[170,170,170]' } # Light Gray
 
     config['Stainless_steel'] = {  
                             'Name': 'Stainless_steel',
                             'Identifier': 2,
-                            'Color': '[126,46,31]', #Wood color
                             'Density': 7750,
                             'Young Modulus': 193,
                             'Poisson': 0.31,
-                            'Thermal expansion coefficient': 1.7e-5 }
+                            'Thermal expansion coefficient': 1.7e-5,
+                            'Color': '[126,46,31]' } # Wood color
 
     config['Ni-Co-Cr_alloy'] = {   
                             'Name': 'Ni-Co-Cr_alloy',
                             'Identifier': 3,
-                            'Color': '[0,255,255]', #Cyan
                             'Density': 8220,
                             'Young Modulus': 212,
                             'Poisson': 0.315,
-                            'Thermal expansion coefficient': 1.2e-5 }
+                            'Thermal expansion coefficient': 1.2e-5,
+                            'Color': '[0,255,255]' } # Cyan
 
     config['Cast_iron'] = { 
                             'Name': 'Cast_iron',
                             'Identifier': 4,
-                            'Color': '[50,50,50]', #Dark Grey
                             'Density': 7200,
                             'Young Modulus': 110,
                             'Poisson': 0.28,
-                            'Thermal expansion coefficient': 1.1e-5 }
+                            'Thermal expansion coefficient': 1.1e-5,
+                            'Color': '[50,50,50]' } # Dark Grey
 
     config['Aluminum'] = {  
                             'Name': 'Aluminum',
                             'Identifier': 5,
-                            'Color': '[255,255,255]', #White
                             'Density': 2770,
                             'Young Modulus': 71,
                             'Poisson': 0.333,
-                            'Thermal expansion coefficient': 2.3e-5 }
+                            'Thermal expansion coefficient': 2.3e-5,
+                            'Color': '[255,255,255]' } # White
 
     config['Brass'] = { 
                             'Name': 'Brass',
                             'Identifier': 6,
-                            'Color': '[181,166,66]', #Brass color
                             'Density': 8150,
                             'Young Modulus': 96,
                             'Poisson': 0.345,
-                            'Thermal expansion coefficient': 1.9e-5 }
+                            'Thermal expansion coefficient': 1.9e-5,
+                            'Color': '[181,166,66]' } # Brass color
     
     config['Ductile cast iron'] = { 
                                     'Name': 'Ductile cast iron',
                                     'Identifier': 7,
-                                    'Color': '[100,100,100]', #Medium Grey
                                     'Density': 7200,
                                     'Young Modulus': 161,
                                     'Poisson': 0.29,
-                                    'Thermal expansion coefficient': 1.1e-5 }
+                                    'Thermal expansion coefficient': 1.1e-5,
+                                    'Color': '[100,100,100]' } # Medium Grey
 
     config['API 5L-A'] = { 
                             'Name': 'API 5L-A',
                             'Identifier': 8,
-                            'Color': '[75,255,135]',
                             'Density': 7833.44,
                             'Young Modulus': 202.7,
                             'Poisson': 0.292,
-                            'Thermal expansion coefficient': 1.2e-5 }
+                            'Thermal expansion coefficient': 1.2e-5,
+                            'Color': '[75,255,135]' }
 
     config['API 5L-A25'] = { 
                             'Name': 'API 5L-A25',
                             'Identifier': 9,
-                            'Color': '[105,105,255]',
                             'Density': 7833.44,
                             'Young Modulus': 203.4,
                             'Poisson': 0.292,
-                            'Thermal expansion coefficient': 1.2e-5 }
+                            'Thermal expansion coefficient': 1.2e-5,
+                            'Color': '[105,105,255]' }
 
     config['API 5L-B'] = { 
                             'Name': 'API 5L-B',
                             'Identifier': 10,
-                            'Color': '[220,110,255]',
                             'Density': 7833.44,
                             'Young Modulus': 202.7,
                             'Poisson': 0.292,
-                            'Thermal expansion coefficient': 1.2e-5 }
+                            'Thermal expansion coefficient': 1.2e-5,
+                            'Color': '[220,110,255]' }
 
     config['API 5L-X42/X80'] = { 
                                 'Name': 'API 5L-X42/X80',
                                 'Identifier': 11,
-                                'Color': '[255,82,82]',
                                 'Density': 7833.44,
                                 'Young Modulus': 202.7,
                                 'Poisson': 0.292,
-                                'Thermal expansion coefficient': 1.2e-5 }
+                                'Thermal expansion coefficient': 1.2e-5,
+                                'Color': '[255,82,82]' }
 
     with open(path, 'w') as config_file:
         config.write(config_file)

@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt, QRect
 
 from pulse.utils import *
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 import gmsh
 import sys

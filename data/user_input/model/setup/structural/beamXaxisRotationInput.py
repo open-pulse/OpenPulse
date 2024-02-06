@@ -7,7 +7,7 @@ from pathlib import Path
 import configparser
 
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"

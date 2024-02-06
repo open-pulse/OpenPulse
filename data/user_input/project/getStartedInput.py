@@ -9,7 +9,7 @@ import configparser
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

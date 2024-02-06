@@ -8,7 +8,7 @@ import os
 import numpy as np
 
 from data.user_input.model.geometry.cross_section_inputs import CrossSectionInputs
-from data.user_input.model.setup.structural.material_input_new import MaterialInputsNew
+from data.user_input.model.setup.general.material_input_new import MaterialInputs
 from data.user_input.project.print_message_input import PrintMessageInput
 from data.user_input.model.geometry.add_widget import AddStructuresWidget
 from data.user_input.model.geometry.edit_bend_widget import EditBendWidget

@@ -19,17 +19,14 @@ class PrintMessageInput(QDialog):
         self._set_texts()
         self.exec()
 
-
     def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
-
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-
 
     def _define_qt_variables(self):
         self.frame_message = self.findChild(QFrame, 'frame_message')
@@ -40,7 +37,6 @@ class PrintMessageInput(QDialog):
         self.timer = QTimer()
         self.pushButton_close.clicked.connect(self.message_close)
         self.pushButton_close.setVisible(True)
-
 
     def _set_texts(self):
         self.title2 = f"   {self.title}   "
@@ -54,11 +50,9 @@ class PrintMessageInput(QDialog):
             self.timer.timeout.connect(self.message_close)
             self.timer.start(2000) 
 
-
     def message_close(self):
         self.timer.stop()
         self.close()
-    
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

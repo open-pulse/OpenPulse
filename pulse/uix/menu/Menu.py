@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QSplitter
 
 from pulse.uix.menu import *
 from pulse.uix.menu.widgets import *
+from pulse.interface.menu.menu_items_widget import MenuItemsWidget
 
 class Menu(QSplitter):
     """Menu
@@ -16,6 +17,7 @@ class Menu(QSplitter):
         self.main_window = main_window
         self.menu_items = MenuItems(self.main_window)
         self.menu_info = MenuInfo(self.main_window, self.menu_items)
+        # self.teste = MenuItemsWidget(self.main_window)
         self.addWidget(self.menu_info)
         self.addWidget(self.menu_items)
         self.setSizes([60, 800])
