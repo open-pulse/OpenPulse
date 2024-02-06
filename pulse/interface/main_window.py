@@ -16,7 +16,7 @@ from pulse.uix.mesh_toolbar import MeshToolbar
 
 
 from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
-from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 

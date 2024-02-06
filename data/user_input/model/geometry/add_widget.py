@@ -8,7 +8,7 @@ import os
 import numpy as np
 
 from data.user_input.model.geometry.cross_section_inputs import CrossSectionInputs
-from data.user_input.model.setup.structural.material_input_new import MaterialInputsNew
+from data.user_input.model.setup.general.material_input_new import MaterialInputs
 from data.user_input.project.print_message_input import PrintMessageInput
 
 # from opps.io.cad_file.cad_handler import CADHandler
@@ -51,7 +51,7 @@ class AddStructuresWidget(QWidget):
         self.grid_layout.setContentsMargins(0,0,0,0)
 
         self.cross_section_widget = CrossSectionInputs()
-        self.material_widget = MaterialInputsNew()
+        self.material_widget = MaterialInputs(app().main_window)
 
         # QLabel
         self.label_unit_delta_x: QLabel
@@ -102,14 +102,15 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_z.textEdited.connect(self.coords_modified_callback)
         self.lineEdit_bending_radius.textEdited.connect(self.coords_modified_callback)
 
+        self.pushButton_create_segment.clicked.connect(self.create_segment_callback)
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
-        self.pushButton_create_segment.clicked.connect(self.create_segment_callback)
         self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
         self.pushButton_delete_segment.clicked.connect(self.delete_segment)
 
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
+        self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material)
 
     def show_cross_section_widget(self):
         # self.right_frame.setVisible(True)
@@ -123,6 +124,8 @@ class AddStructuresWidget(QWidget):
 
     def show_material_widget(self):
         # self.right_frame.setVisible(True)
+        self.material_widget.reset()
+        self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)
         # self.right_frame.adjustSize()
         # self.setFixedWidth(1000)
@@ -259,6 +262,19 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.setVisible(False)
         # self.reset_appearance_to_default()
         # self.alternate_cross_section_button_label()
+
+    def define_material(self):
+        # temporary
+        tag = self.get_current_segment_tag()
+        aux = self.segment_information[tag]
+        material_tag = self.material_widget.get_selected_material_id()
+        if material_tag is not None:
+            aux["material id"] = material_tag 
+        #
+        self.segment_information[tag] = aux
+        self.material_widget.setVisible(True)
+        self.reset_appearance_to_default()
+        self.alternate_material_button_label()
 
     def delete_segment(self):
         pass
