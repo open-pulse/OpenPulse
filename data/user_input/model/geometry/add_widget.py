@@ -15,6 +15,8 @@ from data.user_input.project.print_message_input import PrintMessageInput
 from pulse.interface.cad_handler import CADHandler
 from pulse import app
 
+from opps.model import Bend
+
 
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
@@ -32,6 +34,7 @@ class AddStructuresWidget(QWidget):
     def _reset_variables(self):
         self.complete = False
         self.cross_section_info = None
+        self.current_material_index = None
         self.bending_radius = 0
         self.bending_factor = 0
         self.segment_information = dict()
@@ -113,23 +116,15 @@ class AddStructuresWidget(QWidget):
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material)
 
     def show_cross_section_widget(self):
-        # self.right_frame.setVisible(True)
         self.cross_section_widget.setVisible(True)
-        # self.right_frame.adjustSize()
-        # self.setFixedWidth(1000)
-        #
         section_type = self.comboBox_section_type.currentIndex()
         self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
         # self.alternate_cross_section_button_label()
 
     def show_material_widget(self):
-        # self.right_frame.setVisible(True)
         self.material_widget.reset()
         self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)
-        # self.right_frame.adjustSize()
-        # self.setFixedWidth(1000)
-        #        
         # self.alternate_material_button_label()
 
     def create_list_of_unit_labels(self):
@@ -175,29 +170,29 @@ class AddStructuresWidget(QWidget):
     def coords_modified_callback(self):
         try:
             dx, dy, dz = self.get_segment_deltas()
-            if self.bending_factor:
-                bend_pipe = True
-            else:
-                bend_pipe = False
-            self.geometry_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
         except ValueError:
-            pass
+            return
+
+        # TODO: change this to pass the bend radius directly
+        if self.bending_factor:
+            bend_pipe = True
+        else:
+            bend_pipe = False
+        self.geometry_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
 
     def create_segment_callback(self):
-        self.propagate_section()
         dx, dy, dz = self.get_segment_deltas()
         if (dx, dy, dz) == (0, 0, 0):
             return
-        self.geometry_widget.commit_structure()
-        self.add_segment_information_to_file()
-        self.update_segment_tag()
-        self.reset_deltas()
 
-    def propagate_section(self):
-        if not self.cross_section_widget.isVisible():
-            if self.cross_section_info is not None:
-                tag = self.get_current_segment_tag()
-                self.segment_information[tag] = self.cross_section_info
+        # put usefull data inside the structures
+        editor = app().geometry_toolbox.editor
+        for structure in editor.staged_structures:
+            structure.extra_info["cross_section_info"] = self.cross_section_info
+            structure.extra_info["material_info"] = self.current_material_index
+
+        self.geometry_widget.commit_structure()
+        self.reset_deltas()
 
     def reset_deltas(self):
         self.lineEdit_delta_x.setText("")
@@ -214,93 +209,69 @@ class AddStructuresWidget(QWidget):
                 stop = True
         return tag
 
-    def add_segment_information_to_file(self):
-        return
-        lines = list(self.segment_information.keys())
-        self.file.create_segment_file(lines)
-        tag = self.get_current_segment_tag()
-        self.file.add_cross_section_segment_in_file(tag, self.segment_information[tag])
-
-    def update_segment_tag(self):
-        tag = self.get_segment_tag()
-        self.segment_information[tag] = dict()
-        self.comboBox_segment_id.clear()
-        for key in self.segment_information.keys():
-            text = f" Segment-{key}"
-            self.comboBox_segment_id.addItem(text)
-            self.comboBox_segment_id.setCurrentText(text)
-
-    def get_current_segment_tag(self):
-        return 0
-        tag = self.comboBox_segment_id.currentText().split("Segment-")[1]
-        return int(tag)
-
     def define_cross_section(self):
+        is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
+        is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
 
-        # self.cross_section_info = None
-        # tag = self.get_current_segment_tag()
+        if is_pipe and is_constant_section:
+            self.cross_section_widget.get_straight_pipe_parameters()
+            self.cross_section_info = {
+                "section label" : "pipe (constant)",
+                "section parameters" : self.cross_section_widget.section_parameters
+            }
+            diameter = self.cross_section_widget.section_parameters["outer_diameter"]
+            self.geometry_widget.update_default_diameter(diameter)
+            self.lineEdit_section_diameter.setText(str(diameter))
 
-        if self.cross_section_widget.tabWidget_general.currentIndex() == 0:
-            if self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0:
-                self.cross_section_widget.get_straight_pipe_parameters()
-                self.cross_section_info = { "section label" : "pipe (constant)",
-                                            "section parameters" : self.cross_section_widget.section_parameters  }
-                diameter = self.cross_section_widget.section_parameters["outer_diameter"]
-                self.geometry_widget.update_default_diameter(diameter)
-                self.lineEdit_section_diameter.setText(str(diameter))
-            else:
-                self.cross_section_widget.get_variable_section_pipe_parameters()
-                self.cross_section_info = { "section label" : "pipe (variable)",
-                                            "section parameters" : self.cross_section_widget.variable_parameters  }
-        else:
+        elif is_pipe and not is_constant_section:
+            self.cross_section_widget.get_variable_section_pipe_parameters()
+            self.cross_section_info = {
+                "section label" : "pipe (variable)",
+                "section parameters" : self.cross_section_widget.variable_parameters
+            }
+
+        else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
-            self.cross_section_info = { "section label" : "beam",
-                                        "beam section type" : self.cross_section_widget.section_label,
-                                        "section parameters" : self.cross_section_widget.section_parameters  }
+            self.cross_section_info = {
+                "section label" : "beam",
+                "beam section type" : self.cross_section_widget.section_label,
+                "section parameters" : self.cross_section_widget.section_parameters
+            }
         
-        # self.segment_information[tag] = self.cross_section_info
+        # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
-        # self.reset_appearance_to_default()
         # self.alternate_cross_section_button_label()
 
     def define_material(self):
+        self.current_material_index = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
-        return
-        # temporary
-        tag = self.get_current_segment_tag()
-        aux = self.segment_information[tag]
-        material_tag = self.material_widget.get_selected_material_id()
-        if material_tag is not None:
-            aux["material id"] = material_tag 
-        #
-        self.segment_information[tag] = aux
-        self.material_widget.setVisible(True)
-        self.reset_appearance_to_default()
-        self.alternate_material_button_label()
 
     def delete_segment(self):
         pass
 
     def process_geometry_callback(self):
-        self.geometry_widget.show_passive_points = True
         self.geometry_widget.unstage_structure()
-        self.export_cad_file()
+        self.export_files()
         app().update()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
 
+    def export_files(self):
+        self.export_entity_file()
+        self.export_cad_file()
+
     def export_cad_file(self):
-        exporter = CADHandler()
         pipeline = app().geometry_toolbox.pipeline
         geometry_filename = "geometry_pipeline.step"
         geometry_path = self.file.get_file_path_inside_project_directory(geometry_filename)
+
+        exporter = CADHandler()
         exporter.save(geometry_path, pipeline)
 
         if os.path.exists(self.file._entity_path):
             os.remove(self.file._entity_path)
 
         geometry_filename = os.path.basename(geometry_path)
-        # self.project.edit_project_geometry(geometry_filename)
         self.file.update_project_attributes(element_size = 0.01, 
                                             geometry_tolerance = 1e-6,
                                             geometry_filename=geometry_filename)
@@ -308,3 +279,21 @@ class AddStructuresWidget(QWidget):
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
         self.complete = True
+
+    def export_entity_file(self):
+        # actually this function is exporting the segment_data,
+        # but we could just write the entity file here directly.
+
+        pipeline = app().geometry_toolbox.pipeline
+
+        section_info = dict()
+        tag = 1
+        for structure in pipeline.structures:
+            if isinstance(structure, Bend) and structure.is_colapsed():
+                continue
+            section_info[tag] = structure.extra_info["cross_section_info"]
+            tag += 1
+
+        self.file.create_segment_file(section_info.keys())
+        for tag, section in section_info.items():
+            self.file.add_cross_section_segment_in_file(tag, section)
