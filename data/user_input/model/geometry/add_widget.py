@@ -264,6 +264,8 @@ class AddStructuresWidget(QWidget):
         # self.alternate_cross_section_button_label()
 
     def define_material(self):
+        self.material_widget.setVisible(False)
+        return
         # temporary
         tag = self.get_current_segment_tag()
         aux = self.segment_information[tag]
