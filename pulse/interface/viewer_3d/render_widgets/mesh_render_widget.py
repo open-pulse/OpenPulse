@@ -1,3 +1,4 @@
+import vtk
 from dataclasses import dataclass
 from vtkat.render_widgets import CommonRenderWidget
 from vtkat.interactor_styles import BoxSelectionInteractorStyle
@@ -5,7 +6,6 @@ from vtkat.pickers import CellAreaPicker
 
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
 from pulse import app
-
 
 @dataclass
 class PlotFilter:
@@ -67,10 +67,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.RemoveActor(self.nodes_actor)
         self.renderer.RemoveActor(self.tubes_actor)
 
-    def update_visualization(self, points, lines, tubes, symbols):
-        transparent = points or lines or symbols
+    def update_visualization(self, nodes, lines, tubes, symbols):
+        transparent = nodes or lines or symbols
         self.plot_filter = PlotFilter(
-            nodes=points,
+            nodes=nodes,
             lines=lines,
             tubes=tubes,
             acoustic_symbols=symbols,
@@ -78,10 +78,10 @@ class MeshRenderWidget(CommonRenderWidget):
             transparent=transparent,
         )
         
-        elements = (lines or tubes) and points
-        entities = (lines or tubes) and (not points) 
+        elements = (lines or tubes) and nodes
+        entities = (lines or tubes) and (not nodes) 
         self.selection_filter = SelectionFilter(
-            nodes=points,
+            nodes=nodes,
             elements=elements,
             entities=entities,
         )
@@ -106,19 +106,86 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = x, y
 
     def selection_callback(self, x, y):
+        self.lines_actor.clear_colors()
+        self.nodes_actor.clear_colors()
         self.tubes_actor.clear_colors()
-        picker = CellAreaPicker()
+        
+        if self._pick_nodes(x, y):
+            return
+
+        if self._pick_lines(x, y):
+            return
+        
+        if self._pick_tubes(x, y):
+            return
+
+        # picker = CellAreaPicker()
+
+        # x0, y0 = self.mouse_click
+        # mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
+        # if mouse_moved:
+        #     picker.area_pick(x0, y0, x, y, self.renderer)
+        # else:
+        #     picker.pick(x, y, 0, self.renderer)
+
+        # picked = picker.get_picked()
+        # if self.tubes_actor in picked:
+        #     cells = picked[self.tubes_actor]
+
+        #     if self.selection_filter.elements:
+        #         elements = {self.tubes_actor.get_cell_element(i) for i in cells}
+        #         self.tubes_actor.set_color((255, 0, 0), elements=elements)
+
+        #     elif self.selection_filter.entities:
+        #         entities = {self.tubes_actor.get_cell_entity(i) for i in cells}
+        #         self.tubes_actor.set_color((255, 0, 0), entities=entities)
+
+    def _pick_nodes(self, x, y):
+        picked = self._pick_actor(x, y, self.nodes_actor)
+        if not self.nodes_actor in picked:
+            return False
+        cells = picked[self.nodes_actor]
+        self.nodes_actor.set_color((255, 0, 0), cells)
+        return True
+
+    def _pick_lines(self, x, y):
+        picked = self._pick_actor(x, y, self.lines_actor)
+        if not self.lines_actor in picked:
+            return False
+        cells = picked[self.lines_actor]
+        entities = {self.lines_actor.get_cell_entity(i) for i in cells}
+        self.lines_actor.set_color((255, 0, 0), entities=entities)
+        return True
+
+    def _pick_tubes(self, x, y):
+        picked = self._pick_actor(x, y, self.tubes_actor)
+        if not self.tubes_actor in picked:
+            return False
+        cells = picked[self.tubes_actor]
+        elements = {self.tubes_actor.get_cell_element(i) for i in cells}
+        self.tubes_actor.set_color((255, 0, 0), elements=elements)
+        return True
+    
+    def _pick_actor(self, x, y, actor_to_select):
+        selection_picker = CellAreaPicker()
+        selection_picker._cell_picker.SetTolerance(0.0015)
+        pickability = dict()
+
+        for actor in self.renderer.GetActors():
+            pickability[actor] = actor.GetPickable()
+            if actor == actor_to_select:
+                actor.PickableOn()
+            else:
+                actor.PickableOff()
 
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
         if mouse_moved:
-            picker.area_pick(x0, y0, x, y, self.renderer)
+            selection_picker.area_pick(x0, y0, x, y, self.renderer)
         else:
-            picker.pick(x, y, 0, self.renderer)
+            selection_picker.pick(x, y, 0, self.renderer)
 
-        picked = picker.get_picked()
-        if self.tubes_actor in picked:
-            cells = picked[self.tubes_actor]
-            elements = {self.tubes_actor.get_cell_element(i) for i in cells}
-            entities = {self.tubes_actor.get_cell_entity(i) for i in cells}
-            self.tubes_actor.set_color((255, 0, 0), elements=elements, entities=entities)
+        for actor in self.renderer.GetActors():
+            actor.SetPickable(pickability[actor])
+
+        return selection_picker.get_picked()

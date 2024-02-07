@@ -1,5 +1,6 @@
 import vtk
 from vtkat.poly_data import VerticesData
+from vtkat.utils import set_polydata_property, set_polydata_colors
 
 
 class NodesActor(vtk.vtkActor):
@@ -17,12 +18,14 @@ class NodesActor(vtk.vtkActor):
         data = VerticesData(coords)
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputData(data)
+        mapper.SetScalarModeToUseCellData()
+        set_polydata_colors(data, (255, 180, 50))
 
         self.SetMapper(mapper)
-        self.GetProperty().SetPointSize(8)
+        self.GetProperty().SetPointSize(10)
         self.GetProperty().RenderPointsAsSpheresOn()
         self.GetProperty().LightingOff()
-        self.GetProperty().SetColor([i/255 for i in (255, 180, 50)])
+        # self.GetProperty().SetColor([i/255 for i in (255, 180, 50)])
         self.appear_in_front(True)
 
     def appear_in_front(self, cond: bool):
@@ -35,5 +38,26 @@ class NodesActor(vtk.vtkActor):
         mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(0, offset)
         mapper.SetRelativeCoincidentTopologyPointOffsetParameter(offset)
 
+    def clear_colors(self):
+        data = self.GetMapper().GetInput()
+        set_polydata_colors(data, (255, 180, 50))
+
     def set_color(self, color, nodes=None):
-        pass
+        data = self.GetMapper().GetInput()
+        if (nodes is None):
+            set_polydata_colors(data, color)
+            self.GetMapper().SetScalarModeToUseCellData()
+            self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
+            self.GetMapper().ScalarVisibilityOn()
+            return
+
+        colors: vtk.vtkCharArray = data.GetCellData().GetArray("colors")
+        for i in nodes:
+            # the index of the nodes is the same index of
+            # the cells, so we don't need any conversion
+            colors.SetTuple3(i, *color)
+
+        self.GetMapper().SetScalarModeToUseCellData()
+        self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
+        self.GetMapper().ScalarVisibilityOn()
+

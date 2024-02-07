@@ -103,6 +103,9 @@ class TubeActor(vtk.vtkActor):
         data = self.GetMapper().GetInput()
         if (elements is None) and (entities is None):
             set_polydata_colors(data, color)
+            self.GetMapper().SetScalarModeToUseCellData()
+            self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
+            self.GetMapper().ScalarVisibilityOn()
             return
         
         elements = set(elements) if elements else set()
@@ -116,7 +119,7 @@ class TubeActor(vtk.vtkActor):
         for i in range(n_cells):
             element = element_indexes.GetValue(i)
             entity = entity_indexes.GetValue(i)
-            if entity in entities or element in elements:
+            if (entity in entities) or (element in elements):
                 colors.SetTuple3(i, *color)
         
         self.GetMapper().SetScalarModeToUseCellData()
