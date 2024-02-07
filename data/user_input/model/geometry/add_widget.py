@@ -30,6 +30,7 @@ class AddStructuresWidget(QWidget):
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
+        self._update_permissions()
 
     def _reset_variables(self):
         self.complete = False
@@ -115,6 +116,26 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material)
 
+    def _update_permissions(self):
+        enable_pipe = self.cross_section_info is not None
+
+        self.lineEdit_delta_x.setEnabled(enable_pipe)
+        self.lineEdit_delta_y.setEnabled(enable_pipe)
+        self.lineEdit_delta_z.setEnabled(enable_pipe)
+
+        if enable_pipe:
+            self.lineEdit_delta_x.setPlaceholderText("")
+            self.lineEdit_delta_y.setPlaceholderText("")
+            self.lineEdit_delta_z.setPlaceholderText("")
+        else:
+            self.lineEdit_delta_x.setPlaceholderText("Cross-Section")
+            self.lineEdit_delta_y.setPlaceholderText("was not")
+            self.lineEdit_delta_z.setPlaceholderText("defined")
+
+        pipeline = app().geometry_toolbox.pipeline
+        enable_finalize = len(pipeline.structures) > 0
+        self.pushButton_finalize.setEnabled(enable_finalize)
+
     def show_cross_section_widget(self):
         self.cross_section_widget.setVisible(True)
         section_type = self.comboBox_section_type.currentIndex()
@@ -193,6 +214,7 @@ class AddStructuresWidget(QWidget):
 
         self.geometry_widget.commit_structure()
         self.reset_deltas()
+        self._update_permissions()
 
     def reset_deltas(self):
         self.lineEdit_delta_x.setText("")
@@ -240,11 +262,13 @@ class AddStructuresWidget(QWidget):
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
+        self._update_permissions()
         # self.alternate_cross_section_button_label()
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
+        self._update_permissions()
 
     def delete_segment(self):
         pass
