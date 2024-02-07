@@ -119,27 +119,6 @@ class MeshRenderWidget(CommonRenderWidget):
         if self._pick_tubes(x, y):
             return
 
-        # picker = CellAreaPicker()
-
-        # x0, y0 = self.mouse_click
-        # mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
-        # if mouse_moved:
-        #     picker.area_pick(x0, y0, x, y, self.renderer)
-        # else:
-        #     picker.pick(x, y, 0, self.renderer)
-
-        # picked = picker.get_picked()
-        # if self.tubes_actor in picked:
-        #     cells = picked[self.tubes_actor]
-
-        #     if self.selection_filter.elements:
-        #         elements = {self.tubes_actor.get_cell_element(i) for i in cells}
-        #         self.tubes_actor.set_color((255, 0, 0), elements=elements)
-
-        #     elif self.selection_filter.entities:
-        #         entities = {self.tubes_actor.get_cell_entity(i) for i in cells}
-        #         self.tubes_actor.set_color((255, 0, 0), entities=entities)
-
     def _pick_nodes(self, x, y):
         picked = self._pick_actor(x, y, self.nodes_actor)
         if not self.nodes_actor in picked:
