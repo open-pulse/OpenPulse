@@ -445,12 +445,6 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
                 self.mainWindow.getInputWidget().add_compressor_excitation()
                 self.mainWindow.plot_mesh()
 
-        elif item == self.item_child_check_pulsation_criteria:
-            if not self.item_child_check_pulsation_criteria.isDisabled():
-                self.update_plot_mesh()
-                self.mainWindow.getInputWidget().check_pulsation_criteria()
-                self.mainWindow.plot_mesh()
-
         elif item == self.item_child_selectAnalysisType:
             if not self.item_child_selectAnalysisType.isDisabled():
                 self.mainWindow.getInputWidget().analysisTypeInput()
@@ -513,7 +507,6 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
-        # self.item_child_check_pulsation_criteria.setDisabled(bool_key)
         #
         self.item_child_selectAnalysisType.setDisabled(bool_key)
 

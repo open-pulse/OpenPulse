@@ -88,7 +88,8 @@ class InputUi:
         self.project = project
         self.parent = parent
         self.opv = self.parent.getOPVWidget()
-        self.menu_items = parent.menu_widget.menu_items
+        # self.menu_items = parent.menu_widget.menu_items
+        self.menu_items = parent.model_and_analysis_setup_widget.model_and_analysis_setup_items
         
         self.analysis_ID = None
         self.global_damping = [0,0,0,0]

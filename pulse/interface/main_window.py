@@ -18,7 +18,11 @@ from pulse.uix.mesh_toolbar import MeshToolbar
 from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
 
+from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
+from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+
 
 
 UI_DIR = Path('pulse/interface/ui_files/')
@@ -34,8 +38,16 @@ class MainWindow(QMainWindow):
         # i am keeping these atributes here to make
         # the transition easier, but it should be
         # defined only in the app.
+        self.ui_dir = UI_DIR
         self.config = app().config
         self.project = app().project
+        self.reset()
+
+    def reset(self):
+        self.model_and_analysis_setup_widget = None
+        self.results_viewer_wigdet = None
+        self.opv_widget = None
+        self.input_widget = None
 
     def configure_window(self):
         self._config_window()
@@ -193,11 +205,17 @@ class MainWindow(QMainWindow):
                 action.triggered.connect(function)
 
     def _create_workspaces_toolbar(self):
+        # actions = [
+        #     self.action_geometry_workspace,
+        #     self.action_structural_setup_workspace,
+        #     self.action_acoustic_setup_workspace,
+        #     self.action_analysis_setup_workspace,
+        #     self.action_results_workspace,
+        # ]
         actions = [
             self.action_geometry_workspace,
             self.action_structural_setup_workspace,
             self.action_acoustic_setup_workspace,
-            self.action_analysis_setup_workspace,
             self.action_results_workspace,
         ]
         self.combo_box = QComboBox()
@@ -210,29 +228,27 @@ class MainWindow(QMainWindow):
     def _create_layout(self):
         editor = app().geometry_toolbox.editor
 
-        self.menu_widget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
+        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
+        self.results_viewer_wigdet = ResultsViewerWidget(self)
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         self.input_widget = InputUi(self.project, self)
 
         self.mesh_widget = MeshRenderWidget()
         self.geometry_widget = EditorRenderWidget(editor)
         self.geometry_widget.set_theme("light")
-        self.results_widget = QLabel("RESULTS")
+        #
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
-        self.render_widgets_stack.addWidget(self.results_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
 
         self.geometry_input_wigdet = OPPGeometryDesignerInput(self.geometry_widget)
-        self.mesh_input_wigdet = QLabel("mesh")
-        self.results_input_wigdet = QLabel("results")
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
-        self.setup_widgets_stack.addWidget(self.mesh_input_wigdet)
-        self.setup_widgets_stack.addWidget(self.results_input_wigdet)
-        self.setup_widgets_stack.addWidget(self.menu_widget)
+        self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
-        self.splitter.setSizes([120, 400])
+        self.splitter.setSizes([120, 360])
+        # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
 
@@ -259,20 +275,28 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
     def action_structural_setup_workspace_callback(self):
-        self.setup_widgets_stack.setCurrentWidget(self.menu_widget)
+        self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
+        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        self.plot_entities_with_cross_section()
 
     def action_acoustic_setup_workspace_callback(self):
-        self.setup_widgets_stack.setCurrentWidget(self.mesh_input_wigdet)
-        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
+        self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
+        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
+        self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        self.plot_entities_with_cross_section()
 
-    def action_analysis_setup_workspace_callback(self):
-        self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
-        self.render_widgets_stack.setCurrentWidget(self.results_widget)  
+    def action_coupled_setup_workspace_callback(self):
+        self.model_and_analysis_setup_widget.update_visibility_for_coupled_analysis()
+        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
+        self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        self.plot_entities_with_cross_section()
 
     def action_results_workspace_callback(self):
-        self.setup_widgets_stack.setCurrentWidget(self.results_input_wigdet)
-        self.render_widgets_stack.setCurrentWidget(self.results_widget)  
+        if self.project.is_the_solution_finished():
+            self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
+            self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+            self.results_viewer_wigdet.udate_visibility_items()
 
     def action_save_as_png_callback(self):
         self.savePNG_call()

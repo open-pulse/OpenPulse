@@ -2138,3 +2138,10 @@ class Project:
         self.min_stress = min_stress
         self.max_stress = max_stress
         self.stress_label = stress_label
+
+    def is_the_solution_finished(self):
+        solutions = [self.solution_acoustic, self.solution_structural] 
+        if solutions.count(None) != 2:
+            return True
+        else:
+            return False

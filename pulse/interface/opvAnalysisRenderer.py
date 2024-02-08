@@ -210,16 +210,16 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._animationFrames.clear()
         self._cacheFrequencyIndex = None
         
-    def showDisplacementField(self, frequency_index, scaling_setup):
+    def showDisplacementField(self, frequency_index, current_scaling):
         self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._scaling_setup = scaling_setup
+        self._current_scaling = current_scaling
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
-                                                               scaling_setup)
+                                                               current_scaling)
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
@@ -256,11 +256,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index
         self._plotOnce(self._currentPhase)
 
-    def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_setup):
+    def get_min_max_values_to_resultant_displacements(self, frequency_index, current_scaling):
         solution = self.project.get_structural_solution()
         self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, 
                                                                                        frequency_index,
-                                                                                       scaling_setup)
+                                                                                       current_scaling)
 
     def computeDisplacementField(self, frequency_index, phase_step):
 
@@ -272,7 +272,7 @@ class opvAnalysisRenderer(vtkRendererBase):
                                                                                                             frequency_index, 
                                                                                                             phase_step = phase_step,
                                                                                                             r_max = self.rDisp_max,
-                                                                                                            scaling_setup = self._scaling_setup)
+                                                                                                            current_scaling = self._current_scaling)
         
         self.opvDeformedTubes.build()
         min_max_values_all = [self.rDisp_min, self.rDisp_max]
@@ -509,6 +509,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         sliderValue = round(slider.GetRepresentation().GetValue()/delta_phase_deg)*delta_phase_deg
         slider.GetRepresentation().SetValue(sliderValue)
         phase_rad = sliderValue*(2*pi/360)
+        self._plotOnce(phase_rad)
+
+    def slider_callback(self, phase_deg):
+        if self._currentPlot is None:
+            return 
+        
+        self.playingAnimation = False
+        # delta_phase_deg = (360/self.number_frames)
+        phase_rad = phase_deg*(2*pi/360)
         self._plotOnce(phase_rad)
 
     def start_export_animation_to_file(self, path, frame_rate):

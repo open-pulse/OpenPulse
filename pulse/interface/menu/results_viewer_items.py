@@ -17,6 +17,8 @@ class ResultsViewerItems(QTreeWidget):
         super().__init__()
         self.mainWindow = main_window
         self.project = main_window.getProject()
+
+        self.setObjectName("results_viewer_items")
         
         # self._createIcons()
         # self._configItemSizes()
@@ -230,6 +232,7 @@ class ResultsViewerItems(QTreeWidget):
                 self.mainWindow.plot_mesh()
 
         elif item == self.item_child_plotStructuralModeShapes:
+            return
             if not self.item_child_plotStructuralModeShapes.isDisabled():
                 self.mainWindow.getInputWidget().plotStructuralModeShapes()
 
