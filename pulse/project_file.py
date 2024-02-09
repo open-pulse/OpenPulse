@@ -1395,7 +1395,7 @@ class ProjectFile:
             segments = [segments]
 
         config = configparser.ConfigParser()
-        config.read(self._segment_path)
+        config.read(self._entity_path)
 
         for segment_id in segments:
             segment_id = str(segment_id)
@@ -1434,7 +1434,7 @@ class ProjectFile:
                             section_parameters = list(data["section parameters"].values())
                             config[segment_id]['section parameters'] = str(section_parameters)                    
 
-        self.write_data_in_file(self._segment_path, config)
+        self.write_data_in_file(self._entity_path, config)
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
@@ -1991,6 +1991,22 @@ class ProjectFile:
             material_id = ""
         else:
             material_id = material.identifier
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for line_id in lines:
+            config[str(line_id)]['material id'] = str(material_id)
+            
+        self.write_data_in_file(self._entity_path, config)
+
+    def add_material_segment_in_file(self, lines, material_id):
+
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        if material_id is None:
+            material_id = ""
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)

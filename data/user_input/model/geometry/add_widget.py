@@ -292,9 +292,6 @@ class AddStructuresWidget(QWidget):
         exporter = CADHandler()
         exporter.save(geometry_path, pipeline)
 
-        if os.path.exists(self.file._entity_path):
-            os.remove(self.file._entity_path)
-
         geometry_filename = os.path.basename(geometry_path)
         self.file.update_project_attributes(element_size = 0.01, 
                                             geometry_tolerance = 1e-6,
@@ -302,22 +299,29 @@ class AddStructuresWidget(QWidget):
 
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
         self.complete = True
 
     def export_entity_file(self):
-        # actually this function is exporting the segment_data,
-        # but we could just write the entity file here directly.
 
         pipeline = app().geometry_toolbox.pipeline
 
         section_info = dict()
+        material_info = dict()
         tag = 1
         for structure in pipeline.structures:
             if isinstance(structure, Bend) and structure.is_colapsed():
                 continue
             section_info[tag] = structure.extra_info["cross_section_info"]
+            material_info[tag] = structure.extra_info["material_info"]
             tag += 1
 
-        self.file.create_segment_file(section_info.keys())
+        if os.path.exists(self.file._entity_path):
+            os.remove(self.file._entity_path)
+
+        self.file.create_entity_file(section_info.keys())
         for tag, section in section_info.items():
             self.file.add_cross_section_segment_in_file(tag, section)
+
+        for tag, material_id in material_info.items():
+            self.file.add_material_segment_in_file(tag, material_id)
