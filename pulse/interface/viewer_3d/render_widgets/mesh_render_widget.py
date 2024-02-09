@@ -6,6 +6,8 @@ from vtkat.pickers import CellAreaPicker
 from pathlib import Path
 
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
+from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
+from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse import app
 
 @dataclass
@@ -43,6 +45,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.nodes_actor = None
         self.lines_actor = None
         self.tubes_actor = None
+        self.acoustic_nodes_symbols_actor = None
+        self.acoustic_elements_symbols_actor = None
+        self.structural_nodes_symbols_actor = None
+        self.structural_elements_symbols_actor = None
 
         self.plot_filter = PlotFilter(True, True, True, True, True, True)
         self.selection_filter = SelectionFilter(True, True, True)
@@ -51,7 +57,102 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_scale_bar()
         self.create_logos()
         self.set_theme("light")
-    
+
+    def update_plot(self, reset_camera=True):
+        from time import time
+
+        self.remove_actors()
+        self.create_logos()
+
+        project = app().project
+
+        self.nodes_actor = NodesActor(project)
+        self.lines_actor = ElementLinesActor(project)
+        self.tubes_actor = TubeActor(project)
+
+        # TODO: Replace these actors for newer ones that
+        # are lighter and easier to update
+        self._acoustic_nodes_symbols = AcousticNodesSymbolsActor(project)
+        self._acoustic_elements_symbols = AcousticElementsSymbolsActor(project)
+        self._structural_nodes_symbols = StructuralNodesSymbolsActor(project)
+        self._structural_elements_symbols = StructuralElementsSymbolsActor(project)
+        self._acoustic_nodes_symbols.build()
+        self._acoustic_elements_symbols.build()
+        self._structural_nodes_symbols.build()
+        self._structural_elements_symbols.build()
+        self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
+        self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
+        self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
+        self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
+
+        self.renderer.AddActor(self.lines_actor)
+        self.renderer.AddActor(self.nodes_actor)
+        self.renderer.AddActor(self.tubes_actor)
+        self.renderer.AddActor(self.acoustic_nodes_symbols_actor)
+        self.renderer.AddActor(self.acoustic_elements_symbols_actor)
+        self.renderer.AddActor(self.structural_nodes_symbols_actor)
+        self.renderer.AddActor(self.structural_elements_symbols_actor)
+
+        if reset_camera:
+            self.renderer.ResetCamera()
+        # self.update()
+
+    def remove_actors(self):
+        self.renderer.RemoveActor(self.lines_actor)
+        self.renderer.RemoveActor(self.nodes_actor)
+        self.renderer.RemoveActor(self.tubes_actor)
+        self.renderer.RemoveActor(self.acoustic_nodes_symbols_actor)
+        self.renderer.RemoveActor(self.acoustic_elements_symbols_actor)
+        self.renderer.RemoveActor(self.structural_nodes_symbols_actor)
+        self.renderer.RemoveActor(self.structural_elements_symbols_actor)
+
+        self.nodes_actor = None
+        self.lines_actor = None
+        self.tubes_actor = None
+        self.acoustic_nodes_symbols_actor = None
+        self.acoustic_elements_symbols_actor = None
+        self.structural_nodes_symbols_actor = None
+        self.structural_elements_symbols_actor = None
+
+    def update_visualization(self, nodes, lines, tubes, symbols):
+        transparent = nodes or lines or symbols
+        self.plot_filter = PlotFilter(
+            nodes=nodes,
+            lines=lines,
+            tubes=tubes,
+            acoustic_symbols=symbols,
+            structural_symbols=symbols,
+            transparent=transparent,
+        )
+        
+        elements = (lines or tubes) and nodes
+        entities = (lines or tubes) and (not nodes) 
+        self.selection_filter = SelectionFilter(
+            nodes=nodes,
+            elements=elements,
+            entities=entities,
+        )
+
+        if not self._actor_exists():
+            return 
+
+        self.nodes_actor.SetVisibility(self.plot_filter.nodes)
+        self.lines_actor.SetVisibility(self.plot_filter.lines)
+        self.tubes_actor.SetVisibility(self.plot_filter.tubes)
+        self.update()
+
+    def _actor_exists(self):
+        actors = [
+            self.nodes_actor,
+            self.lines_actor,
+            self.tubes_actor,
+            self.acoustic_nodes_symbols_actor,
+            self.acoustic_elements_symbols_actor,
+            self.structural_nodes_symbols_actor,
+            self.structural_elements_symbols_actor,
+        ]
+        return all([actor is not None for actor in actors])
+
     def set_theme(self, theme):
         super().set_theme(theme)
         try:
@@ -97,64 +198,6 @@ class MeshRenderWidget(CommonRenderWidget):
         logo.GetImageProperty().SetOpacity(0.9)
         logo.GetImageProperty().SetDisplayLocationToBackground()
         return logo
-
-    def update_plot(self, reset_camera=True):
-        self.remove_actors()
-        self.create_logos()
-
-        project = app().project
-
-        self.nodes_actor = NodesActor(project)
-        self.lines_actor = ElementLinesActor(project)
-        self.tubes_actor = TubeActor(project)
-
-        self.renderer.AddActor(self.lines_actor)
-        self.renderer.AddActor(self.nodes_actor)
-        self.renderer.AddActor(self.tubes_actor)
-
-        if reset_camera:
-            self.renderer.ResetCamera()
-        # self.update()
-
-    def remove_actors(self):
-        self.renderer.RemoveActor(self.lines_actor)
-        self.renderer.RemoveActor(self.nodes_actor)
-        self.renderer.RemoveActor(self.tubes_actor)
-
-    def update_visualization(self, nodes, lines, tubes, symbols):
-        transparent = nodes or lines or symbols
-        self.plot_filter = PlotFilter(
-            nodes=nodes,
-            lines=lines,
-            tubes=tubes,
-            acoustic_symbols=symbols,
-            structural_symbols=symbols,
-            transparent=transparent,
-        )
-        
-        elements = (lines or tubes) and nodes
-        entities = (lines or tubes) and (not nodes) 
-        self.selection_filter = SelectionFilter(
-            nodes=nodes,
-            elements=elements,
-            entities=entities,
-        )
-
-        if not self._actor_exists():
-            return 
-
-        self.nodes_actor.SetVisibility(self.plot_filter.nodes)
-        self.lines_actor.SetVisibility(self.plot_filter.lines)
-        self.tubes_actor.SetVisibility(self.plot_filter.tubes)
-        self.update()
-
-    def _actor_exists(self):
-        actors = [
-            self.nodes_actor,
-            self.lines_actor,
-            self.tubes_actor,
-        ]
-        return all([actor is not None for actor in actors])
 
     def click_callback(self, x, y):
         self.mouse_click = x, y
