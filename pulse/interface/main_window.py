@@ -461,8 +461,6 @@ class MainWindow(QMainWindow):
         
         buttons_config = {"left_button_label" : "No", 
                           "right_button_label" : "Yes",
-                          "left_button_size" : 80,
-                          "right_button_size" : 80,
                           "right_toolTip" : right_toolTip}
         
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)

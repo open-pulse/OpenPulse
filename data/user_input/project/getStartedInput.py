@@ -162,10 +162,8 @@ class GetStartedInput(QDialog):
         
     def reset_list_projects(self):
         title = f"Resetting of the recent projects list"
-        message = "Dear user, do you want to proceed with the 'Recent Projects' list clean-up and resetting?\n\n"
-        message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
-        message += "\nClose buttons to abort the current operation."
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        message = "Dear user, do you want to proceed with the 'Recent Projects' list clean-up and resetting?"
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
