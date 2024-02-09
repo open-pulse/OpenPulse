@@ -2,7 +2,7 @@ import vtk
 from dataclasses import dataclass
 from vtkat.render_widgets import CommonRenderWidget
 from vtkat.interactor_styles import BoxSelectionInteractorStyle
-from vtkat.pickers import CellAreaPicker
+from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from pathlib import Path
 
 from PyQt5.QtCore import Qt
@@ -62,8 +62,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.set_theme("light")
 
     def update_plot(self, reset_camera=True):
-        from time import time
-
         self.remove_actors()
         self.create_logos()
 
@@ -211,8 +209,8 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def selection_callback(self, x, y):
         picked_nodes = self._pick_nodes(x, y)
-        picked_entities = self._pick_entities(x, y)
-        picked_elements = self._pick_elements(x, y)
+        picked_entities = self._pick_property(x, y, "entity_index", self.lines_actor)
+        picked_elements = self._pick_property(x, y, "element_index", self.tubes_actor)
 
         # selection priority is: nodes > entities > elements
         if len(picked_nodes) == 1 and len(picked_entities) <= 1 and len(picked_elements) <= 1:
@@ -268,6 +266,30 @@ class MeshRenderWidget(CommonRenderWidget):
         for actor in self.renderer.GetActors():
             pickability[actor] = actor.GetPickable()
             if actor == actor_to_select:
+                actor.PickableOn()
+            else:
+                actor.PickableOff()
+
+        x0, y0 = self.mouse_click
+        mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
+        if mouse_moved:
+            selection_picker.area_pick(x0, y0, x, y, self.renderer)
+        else:
+            selection_picker.pick(x, y, 0, self.renderer)
+
+        for actor in self.renderer.GetActors():
+            actor.SetPickable(pickability[actor])
+
+        return selection_picker.get_picked()
+
+    def _pick_property(self, x, y, property_name, desired_actor):
+        selection_picker = CellPropertyAreaPicker(property_name, desired_actor)
+        selection_picker._cell_picker.SetTolerance(0.0015)
+        pickability = dict()
+
+        for actor in self.renderer.GetActors():
+            pickability[actor] = actor.GetPickable()
+            if actor == desired_actor:
                 actor.PickableOn()
             else:
                 actor.PickableOff()
