@@ -5,6 +5,9 @@ from vtkat.interactor_styles import BoxSelectionInteractorStyle
 from vtkat.pickers import CellAreaPicker
 from pathlib import Path
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
 from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
@@ -139,6 +142,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.nodes_actor.SetVisibility(self.plot_filter.nodes)
         self.lines_actor.SetVisibility(self.plot_filter.lines)
         self.tubes_actor.SetVisibility(self.plot_filter.tubes)
+        self.acoustic_nodes_symbols_actor.SetVisibility(self.plot_filter.acoustic_symbols)
+        self.acoustic_elements_symbols_actor.SetVisibility(self.plot_filter.acoustic_symbols)
+        self.structural_nodes_symbols_actor.SetVisibility(self.plot_filter.structural_symbols)
+        self.structural_elements_symbols_actor.SetVisibility(self.plot_filter.structural_symbols)
         self.update()
 
     def _actor_exists(self):
@@ -203,44 +210,55 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = x, y
 
     def selection_callback(self, x, y):
-        self.lines_actor.clear_colors()
-        self.nodes_actor.clear_colors()
-        self.tubes_actor.clear_colors()
-        
-        if self._pick_nodes(x, y):
-            return
+        picked_nodes = self._pick_nodes(x, y)
+        picked_entities = self._pick_entities(x, y)
+        picked_elements = self._pick_elements(x, y)
 
-        if self._pick_lines(x, y):
-            return
+        # selection priority is: nodes > entities > elements
+        if len(picked_nodes) == 1 and len(picked_entities) <= 1 and len(picked_elements) <= 1:
+            picked_entities.clear()
+            picked_elements.clear()
+        elif len(picked_entities) == 1 and len(picked_elements) <= 1:
+            picked_elements.clear()
+
+        modifiers = QApplication.keyboardModifiers()
+        ctrl_pressed = bool(modifiers & Qt.ControlModifier)
+        shift_pressed = bool(modifiers & Qt.ShiftModifier)
+        alt_pressed = bool(modifiers & Qt.AltModifier)
         
-        if self._pick_tubes(x, y):
-            return
+        self.nodes_actor.clear_colors()
+        self.lines_actor.clear_colors()
+        self.tubes_actor.clear_colors()
+
+        selection_color = (255, 0, 0)
+        self.nodes_actor.set_color(selection_color, picked_nodes)
+        self.lines_actor.set_color(selection_color, entities=picked_entities)
+        self.tubes_actor.set_color(selection_color, elements=picked_elements)
 
     def _pick_nodes(self, x, y):
         picked = self._pick_actor(x, y, self.nodes_actor)
         if not self.nodes_actor in picked:
-            return False
-        cells = picked[self.nodes_actor]
-        self.nodes_actor.set_color((255, 0, 0), cells)
-        return True
+            return set()
 
-    def _pick_lines(self, x, y):
+        cells = picked[self.nodes_actor]
+        return set(cells)
+
+    def _pick_entities(self, x, y):
         picked = self._pick_actor(x, y, self.lines_actor)
         if not self.lines_actor in picked:
-            return False
+            return set()
         cells = picked[self.lines_actor]
         entities = {self.lines_actor.get_cell_entity(i) for i in cells}
-        self.lines_actor.set_color((255, 0, 0), entities=entities)
-        return True
+        return entities
 
-    def _pick_tubes(self, x, y):
+    def _pick_elements(self, x, y):
         picked = self._pick_actor(x, y, self.tubes_actor)
         if not self.tubes_actor in picked:
-            return False
+            return set()
+
         cells = picked[self.tubes_actor]
         elements = {self.tubes_actor.get_cell_element(i) for i in cells}
-        self.tubes_actor.set_color((255, 0, 0), elements=elements)
-        return True
+        return elements
     
     def _pick_actor(self, x, y, actor_to_select):
         selection_picker = CellAreaPicker()
