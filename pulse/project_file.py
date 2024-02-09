@@ -2016,6 +2016,32 @@ class ProjectFile:
             
         self.write_data_in_file(self._entity_path, config)
 
+    def get_material_properties(self, material_id):
+        config = configparser.ConfigParser()
+        config.read(self._material_list_path)
+        sections = config.sections()
+
+        if isinstance(material_id, int):
+            material_id = str(material_id)
+            for section in sections:
+                if material_id == config[section]["identifier"]:
+
+                    name = str(config[section]['name'])
+                    identifier = int(config[section]['identifier'])
+                    density =  float(config[section]['density'])
+                    elasticity_modulus =  float(config[section]['young modulus'])
+                    poisson =  float(config[section]['poisson'])
+                    thermal_expansion_coefficient = config[section]['thermal expansion coefficient']
+                    # color =  str(config[section]['color'])
+                    # elasticity_modulus *= (10**(9))
+                    if thermal_expansion_coefficient == "":
+                        thermal_expansion_coefficient = float(0)
+                    else:
+                        thermal_expansion_coefficient = float(thermal_expansion_coefficient)
+
+                    return [name, identifier, density, elasticity_modulus, poisson, thermal_expansion_coefficient]
+            return None
+
     def add_fluid_in_file(self, lines, fluid):
         
         if isinstance(lines, int):

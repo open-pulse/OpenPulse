@@ -42,7 +42,6 @@ class AddStructuresWidget(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_segment_id: QComboBox
         self.comboBox_length_unit: QComboBox
         self.comboBox_section_type: QComboBox
         self.comboBox_bending_type: QComboBox
@@ -61,7 +60,6 @@ class AddStructuresWidget(QWidget):
         self.label_unit_delta_x: QLabel
         self.label_unit_delta_y: QLabel
         self.label_unit_delta_z: QLabel
-        self.label_unit_diameter: QLabel
         self.label_unit_bending_radius: QLabel
 
         # QLineEdit
@@ -69,15 +67,13 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_y: QLineEdit
         self.lineEdit_delta_z: QLineEdit
         self.lineEdit_bending_radius: QLineEdit
-        self.lineEdit_section_diameter: QLineEdit
         self.create_list_of_unit_labels()
         
         # QPushButton
         self.pushButton_set_cross_section: QPushButton
         self.pushButton_set_material: QPushButton
-        self.pushButton_create_segment: QPushButton
+        self.pushButton_add_segment: QPushButton
         self.pushButton_finalize: QPushButton
-        self.pushButton_delete_segment: QPushButton
 
         # self.pushButton_confirm_pipe: QPushButton
         # self.pushButton_confirm_beam: QPushButton
@@ -92,8 +88,7 @@ class AddStructuresWidget(QWidget):
 
         # QTextEdit
         self.textEdit_segment_information: QTextEdit
-        # self.textEdit_segment_information.setText("Apenas para testar...\ne ver se consigo configurar corretamente.")
-        # self.textEdit_segment_information.setVisible(False)
+        self.textEdit_segment_information.setDisabled(True)
 
     def _create_connections(self):
         self.comboBox_length_unit.currentIndexChanged.connect(self.update_legth_units)
@@ -106,11 +101,10 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_z.textEdited.connect(self.coords_modified_callback)
         self.lineEdit_bending_radius.textEdited.connect(self.coords_modified_callback)
 
-        self.pushButton_create_segment.clicked.connect(self.create_segment_callback)
+        self.pushButton_add_segment.clicked.connect(self.create_segment_callback)
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
         self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
-        self.pushButton_delete_segment.clicked.connect(self.delete_segment)
 
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
@@ -153,7 +147,6 @@ class AddStructuresWidget(QWidget):
         self.unit_labels.append(self.label_unit_delta_x)
         self.unit_labels.append(self.label_unit_delta_y)
         self.unit_labels.append(self.label_unit_delta_z)
-        self.unit_labels.append(self.label_unit_diameter)
         self.unit_labels.append(self.label_unit_bending_radius)
 
     def update_legth_units(self):
@@ -243,7 +236,7 @@ class AddStructuresWidget(QWidget):
             }
             diameter = self.cross_section_widget.section_parameters["outer_diameter"]
             self.geometry_widget.update_default_diameter(diameter)
-            self.lineEdit_section_diameter.setText(str(diameter))
+            # self.lineEdit_section_diameter.setText(str(diameter))
 
         elif is_pipe and not is_constant_section:
             self.cross_section_widget.get_variable_section_pipe_parameters()
@@ -264,14 +257,46 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.setVisible(False)
         self._update_permissions()
         # self.alternate_cross_section_button_label()
+        self.update_segment_information_text()
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
         self._update_permissions()
+        self.update_segment_information_text()
 
-    def delete_segment(self):
-        pass
+    def update_segment_information_text(self):
+
+        self.textEdit_segment_information.clear()
+        
+        section_label = ""
+        section_parameters = ""
+        if self.cross_section_info:
+            section_label = self.cross_section_info["section label"]
+            section_parameters = list(self.cross_section_info["section parameters"].values())
+
+        material_id = ""
+        material_data = None
+        if self.current_material_index is not None:
+            material_id = self.current_material_index
+            material_data = self.file.get_material_properties(material_id)
+
+        message = "SEGMENT INFORMATION\n\n"
+
+        if self.cross_section_info:
+            # message = "Cross-section info:\n"
+            message += f"Section type: {section_label}\n"
+            message += f"Section data: {section_parameters}\n\n"
+
+        if material_data is not None:
+            # message = "Material info:\n"
+            message += f"Material name: {material_data[0]}\n"
+            message += f"Material data: {material_data[1:]}\n\n"
+
+        self.textEdit_segment_information.setText(message)
+
+    def update_cross_section_info(self):
+        self.textEdit_segment_information.setText("")
 
     def process_geometry_callback(self):
         self.geometry_widget.unstage_structure()
