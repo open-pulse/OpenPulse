@@ -34,7 +34,7 @@ class ElementLinesActor(vtk.vtkActor):
         data = LinesData(lines)
         data.GetCellData().AddArray(entity_index)
         data.GetCellData().AddArray(element_index)
-        set_polydata_colors(data, (0,0,0))
+        set_polydata_colors(data, (80, 80, 80))
 
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputData(data)
@@ -60,7 +60,7 @@ class ElementLinesActor(vtk.vtkActor):
 
     def clear_colors(self):
         data = self.GetMapper().GetInput()
-        set_polydata_colors(data, (0,0,0))
+        set_polydata_colors(data, (80, 80, 80))
 
     def set_color(self, color, elements=None, entities=None):
         mapper = self.GetMapper()
