@@ -25,11 +25,9 @@ class ModelAndAnalysisSetupWidget(QWidget):
         self.adjustSize()
 
     def update_visibility_for_acoustic_analysis(self):
-        print("update_acoustic_analysis_visibility_items")
         self.model_and_analysis_setup_items.update_acoustic_analysis_visibility_items()
 
     def update_visibility_for_structural_analysis(self):
-        print("update_structural_analysis_visibility_items")
         self.model_and_analysis_setup_items.update_structural_analysis_visibility_items()
     
     def update_visibility_for_coupled_analysis(self):

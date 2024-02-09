@@ -459,6 +459,7 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
             if not self.item_child_runAnalysis.isDisabled():
                 self.mainWindow.getInputWidget().runAnalysis()
                 self._updateItems()
+                self.mainWindow.use_results_workspace()
 
     def modify_geometry_item_access(self, bool_key):
         self.item_child_createGeometry.setDisabled(bool_key)

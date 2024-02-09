@@ -332,7 +332,7 @@ class InputUi:
         
         if read.complete:
             if read.flag_run:
-                self.runAnalysis() 
+                self.runAnalysis()
             return True   
         else:
             return False
@@ -361,6 +361,7 @@ class InputUi:
 
             self.after_run = self.project.get_post_solution_model_checks(opv=self.opv)
             self.after_run.check_all_acoustic_criterias()
+            self.parent.use_results_workspace()
         
     def plotStructuralModeShapes(self):
         self.project.set_min_max_type_stresses("", "", "")

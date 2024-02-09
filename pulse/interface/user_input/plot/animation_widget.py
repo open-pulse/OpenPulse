@@ -1,11 +1,14 @@
-from PyQt5.QtWidgets import QFrame, QCheckBox, QGridLayout, QLabel, QLineEdit, QSlider, QPushButton, QSpinBox, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QFrame, QCheckBox, QLabel, QLineEdit, QPushButton, QSlider, QSpinBox, QWidget
+from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5 import uic
-from pathlib import Path
 
+from pathlib import Path
 import os
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_new_path
+
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -63,7 +66,8 @@ class AnimationWidget(QWidget):
         self.update_animation_settings()
         self.main_window.opv_widget.opvAnalysisRenderer._setNumberFrames(self.frames)
         self.main_window.opv_widget.opvAnalysisRenderer._setNumberCycles(self.cycles)
-        self.main_window.opv_widget.opvAnalysisRenderer.playAnimation()
+        # self.main_window.opv_widget.opvAnalysisRenderer.playAnimation()
+        self.main_window.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
 
     def update_animation_settings(self):
         self.frames = self.spinBox_frames.value()

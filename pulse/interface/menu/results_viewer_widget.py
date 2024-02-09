@@ -1,7 +1,8 @@
+from PyQt5.QtWidgets import QFrame, QGridLayout, QTreeWidget, QTreeWidgetItem, QWidget, QVBoxLayout
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5 import uic
-from pathlib import Path
 
-from PyQt5.QtWidgets import QFrame, QGridLayout, QTreeWidget, QTreeWidgetItem, QWidget
+from pathlib import Path
 
 from pulse.interface.menu.model_and_analysis_setup_items import ModelAndAnalysisSetupItems
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
@@ -26,14 +27,19 @@ class ResultsViewerWidget(QWidget):
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()
+        # self.vertical_layout = QVBoxLayout()
+        # self.vertical_layout.addWidget()
+
         self.grid_layout.setContentsMargins(0,0,0,0)
         self.main_frame.setLayout(self.grid_layout)
         self.grid_layout.addWidget(self.results_viewer_items, 0, 0)
         self.grid_layout.addWidget(self.animation_widget, 2, 0)
+        self.grid_layout.setAlignment(Qt.AlignCenter)
         self.setLayout(self.grid_layout)
         self.adjustSize()
         self.results_items = self.findChild(QTreeWidget, "results_viewer_items")
         self.results_items.itemClicked.connect(self.on_click_item)
+        self.animation_widget.setVisible(False)
 
     def udate_visibility_items(self):
         self.results_viewer_items._updateItems()
@@ -57,6 +63,7 @@ class ResultsViewerWidget(QWidget):
             if self.grid_layout.indexOf(self.structural_mode_shape_widget) == -1:
                 self.grid_layout.addWidget(self.structural_mode_shape_widget, 1, 0)
             self.structural_mode_shape_widget.load_natural_frequencies()
+            self.animation_widget.setVisible(True)
 
     def on_click_item(self, item, column):
 

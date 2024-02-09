@@ -2140,8 +2140,9 @@ class Project:
         self.stress_label = stress_label
 
     def is_the_solution_finished(self):
-        solutions = [self.solution_acoustic, self.solution_structural] 
-        if solutions.count(None) != 2:
+        if self.solution_acoustic is not None:
+            return True
+        elif self.solution_structural is not None:
             return True
         else:
             return False

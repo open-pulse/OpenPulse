@@ -2,8 +2,8 @@ import sys
 from functools import partial
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QSplitter, QStackedWidget, QLabel, QToolBar, QComboBox, QFileDialog
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5 import uic
 from pathlib import Path
 
@@ -48,6 +48,8 @@ class MainWindow(QMainWindow):
         self.results_viewer_wigdet = None
         self.opv_widget = None
         self.input_widget = None
+        self.cache_indexes = list()
+        self.last_index = None
 
     def configure_window(self):
         self._config_window()
@@ -59,6 +61,7 @@ class MainWindow(QMainWindow):
         self._createMeshToolbar()
     
         self.plot_entities_with_cross_section()
+        self.use_structural_setup_workspace()
         self.loadRecentProject()
 
     # public
@@ -83,34 +86,31 @@ class MainWindow(QMainWindow):
         self.opv_widget.updatePlots()
 
     def use_geometry_workspace(self):
-        self.combo_box.setCurrentIndex(0)
+        self.combo_box_workspaces.setCurrentIndex(0)
 
     def use_structural_setup_workspace(self):
-        self.combo_box.setCurrentIndex(1)
+        self.combo_box_workspaces.setCurrentIndex(1)
 
     def use_acoustic_setup_workspace(self):
-        self.combo_box.setCurrentIndex(2)
-
-    def use_analisys_setup_workspace(self):
-        self.combo_box.setCurrentIndex(3)
+        self.combo_box_workspaces.setCurrentIndex(2)
 
     def use_results_workspace(self):
-        self.combo_box.setCurrentIndex(4)
+        self.combo_box_workspaces.setCurrentIndex(3)
 
     def plot_entities(self):
-        self.use_structural_setup_workspace()
+        # self.use_structural_setup_workspace()
         self.opv_widget.changePlotToEntities()
 
     def plot_entities_with_cross_section(self):
-        self.use_structural_setup_workspace()
+        # self.use_structural_setup_workspace()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def plot_mesh(self):
-        self.use_structural_setup_workspace()
+        # self.use_structural_setup_workspace()
         self.opv_widget.changePlotToMesh()
 
     def plot_raw_geometry(self):
-        self.use_structural_setup_workspace()
+        # self.use_structural_setup_workspace()
         self.opv_widget.changePlotToRawGeometry()
     
     def plot_geometry_editor(self):
@@ -205,25 +205,23 @@ class MainWindow(QMainWindow):
                 action.triggered.connect(function)
 
     def _create_workspaces_toolbar(self):
-        # actions = [
-        #     self.action_geometry_workspace,
-        #     self.action_structural_setup_workspace,
-        #     self.action_acoustic_setup_workspace,
-        #     self.action_analysis_setup_workspace,
-        #     self.action_results_workspace,
-        # ]
-        actions = [
-            self.action_geometry_workspace,
-            self.action_structural_setup_workspace,
-            self.action_acoustic_setup_workspace,
-            self.action_results_workspace,
-        ]
-        self.combo_box = QComboBox()
-        for action in actions:
-            self.combo_box.addItem(action.text())
 
-        self.combo_box.currentIndexChanged.connect(lambda x: actions[x].trigger())
-        self.tool_bar.addWidget(self.combo_box)
+        actions = [ self.action_geometry_workspace,
+                    self.action_structural_setup_workspace,
+                    self.action_acoustic_setup_workspace,
+                    self.action_results_workspace ]
+
+        self.combo_box_workspaces = QComboBox()
+        for action in actions:
+            self.combo_box_workspaces.addItem(action.text())
+
+        self.combo_box_workspaces.currentIndexChanged.connect(self.update_combox_indexes)
+        self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
+        self.tool_bar.addWidget(self.combo_box_workspaces)
+
+    def update_combox_indexes(self):
+        index = self.combo_box_workspaces.currentIndex()
+        self.cache_indexes.append(index)
 
     def _create_layout(self):
         editor = app().geometry_toolbox.editor
@@ -247,7 +245,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
-        self.splitter.setSizes([120, 360])
+        self.splitter.setSizes([100, 500])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
@@ -297,6 +295,9 @@ class MainWindow(QMainWindow):
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
             self.render_widgets_stack.setCurrentWidget(self.opv_widget)
             self.results_viewer_wigdet.udate_visibility_items()
+        else:
+            if self.cache_indexes:
+                self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
 
     def action_save_as_png_callback(self):
         self.savePNG_call()
@@ -511,3 +512,9 @@ class MainWindow(QMainWindow):
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
             self.getOPVWidget().savePNG(path)
+    
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.ShortcutOverride:
+            if event.key() == Qt.Key_Space:
+                self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
+        return super(MainWindow, self).eventFilter(obj, event)
