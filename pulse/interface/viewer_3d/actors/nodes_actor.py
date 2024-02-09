@@ -1,9 +1,9 @@
 import vtk
 from vtkat.poly_data import VerticesData
 from vtkat.utils import set_polydata_property, set_polydata_colors
+from vtkat.actors import GhostActor
 
-
-class NodesActor(vtk.vtkActor):
+class NodesActor(GhostActor):
     def __init__(self, project, **kwargs) -> None:
         super().__init__()
         self.project = project
@@ -24,19 +24,7 @@ class NodesActor(vtk.vtkActor):
         self.SetMapper(mapper)
         self.GetProperty().SetPointSize(10)
         self.GetProperty().RenderPointsAsSpheresOn()
-        self.GetProperty().LightingOff()
-        # self.GetProperty().SetColor([i/255 for i in (255, 180, 50)])
-        self.appear_in_front(True)
-
-    def appear_in_front(self, cond: bool):
-        # this offset is the Z position of the camera buffer.
-        # if it is -66000 the object stays in front of everything.
-        offset = -66000 if cond else 0
-        mapper = self.GetMapper()
-        mapper.SetResolveCoincidentTopologyToPolygonOffset()
-        mapper.SetRelativeCoincidentTopologyLineOffsetParameters(0, offset)
-        mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(0, offset)
-        mapper.SetRelativeCoincidentTopologyPointOffsetParameter(offset)
+        self.make_ghost()
 
     def clear_colors(self):
         data = self.GetMapper().GetInput()

@@ -1065,7 +1065,7 @@ vtk = "^9.3.0"
 type = "git"
 url = "https://github.com/andrefpf/vtkat"
 reference = "HEAD"
-resolved_reference = "a9d9519c99f3e2cd96e877bfc65a458bf6b47838"
+resolved_reference = "cf1cce67cb0bbfac0c9ecdffaeb7104d9d110743"
 
 [metadata]
 lock-version = "2.0"
