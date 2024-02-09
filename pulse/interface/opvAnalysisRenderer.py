@@ -594,8 +594,9 @@ class opvAnalysisRenderer(vtkRendererBase):
                 text += self.project.analysis_method_label + "\n"
             text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
 
-        if not self.project.plot_pressure_field:
-            text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
+        # if not self.project.plot_pressure_field:
+        #     text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
+        
         # vertical_position_adjust = None
         self.createInfoText(text, color=self.opv.font_color)
 

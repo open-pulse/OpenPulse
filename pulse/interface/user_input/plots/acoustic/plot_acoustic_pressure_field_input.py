@@ -65,10 +65,16 @@ class PlotAcousticPressureFieldInput(QWidget):
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def update_plot(self):
+        self.complete = False
+        if self.lineEdit_selected_frequency.text() != "":
+            if self.check_selected_frequency():
+                self.complete = True
+
+    def check_selected_frequency(self):
         if self.lineEdit_selected_frequency.text() == "":
             window_title = "Warning"
             title = "Additional action required to plot the results"
-            message = "You should select a frequency from the available list"
+            message = "You should select a frequency from the available list "
             message += "before trying to plot the acoustic pressure field."
             PrintMessageInput([window_title, title, message], auto_close=True)
             return

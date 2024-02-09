@@ -21,15 +21,13 @@ class PlotStructuralModeShapeInput(QWidget):
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
-
         self.project = main_window.getProject()
-        
 
         self.reset()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        # self.load_natural_frequencies()
+        self.load_natural_frequencies()
 
     def reset(self):
         self.mode_index = None
@@ -59,34 +57,31 @@ class PlotStructuralModeShapeInput(QWidget):
         self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
         # QTreeWidget
         self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
-        #
-        widths = [60, 140]
+        self._config_treeWidget()
+
+    def _create_connections(self):
+        self.comboBox_color_scaling.currentIndexChanged.connect(self.update_plot)
+        self.pushButton_plot.clicked.connect(self.update_plot)
+        self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
+        self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+
+    def _config_treeWidget(self):
+        widths = [80, 140]
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-    def _create_connections(self):
-        self.comboBox_color_scaling.currentIndexChanged.connect(self.plot_update)
-        self.pushButton_plot.clicked.connect(self.plot_update)
-        self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
-        self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
-
-    def plot_update(self):
+    def update_plot(self):
         self.complete = False
         if self.lineEdit_natural_frequency.text() != "":
             if self.check_selected_frequency():
                 self.complete = True
 
-    def get_dict_modes_frequencies(self):
-        self.natural_frequencies = self.project.natural_frequencies_structural
-        modes = np.arange(1, len(self.natural_frequencies)+1, 1)
-        self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
-
     def check_selected_frequency(self):
         message = ""
         if self.lineEdit_natural_frequency.text() == "":
             title = "Additional action required to plot the results"
-            message = "You should select a natural frequency from the available\n\n"
+            message = "You should select a natural frequency from the available "
             message += "list before trying to plot the structural mode shape."
             self.text_data = [title, message, window_title_2]
         else:
@@ -103,7 +98,10 @@ class PlotStructuralModeShapeInput(QWidget):
             return False
 
     def load_natural_frequencies(self):
-        self.get_dict_modes_frequencies()
+        
+        self.natural_frequencies = self.project.natural_frequencies_structural
+        modes = np.arange(1, len(self.natural_frequencies)+1, 1)
+        self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
 
         self.treeWidget_frequencies.clear()
         for mode, natural_frequency in self.dict_modes_frequencies.items():
@@ -121,15 +119,15 @@ class PlotStructuralModeShapeInput(QWidget):
     def on_click_item(self, item):
         self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
-        self.plot_update()
+        self.update_plot()
 
     def on_doubleclick_item(self, item):
         self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
-        self.plot_update()
+        self.update_plot()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.plot_update()
+            self.update_plot()
         elif event.key() == Qt.Key_Escape:
             self.close()

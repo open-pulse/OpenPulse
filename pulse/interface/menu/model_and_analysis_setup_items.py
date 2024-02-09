@@ -32,7 +32,7 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
     def keyPressEvent(self, event):
         """This deals with key events that are directly linked with the menu."""
         if event.key() == Qt.Key_F5:
-            self.mainWindow.getInputWidget().runAnalysis()
+            self.mainWindow.getInputWidget().run_analysis()
             self._updateItems()
 
     def _createIcons(self):
@@ -452,12 +452,12 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
             
         elif item == self.item_child_analisysSetup:
             if not self.item_child_analisysSetup.isDisabled():
-                self.mainWindow.getInputWidget().analysisSetup()
+                self.mainWindow.getInputWidget().analysis_setup()
                 self._updateItems()
 
         elif item == self.item_child_runAnalysis:
             if not self.item_child_runAnalysis.isDisabled():
-                self.mainWindow.getInputWidget().runAnalysis()
+                self.mainWindow.getInputWidget().run_analysis()
                 self._updateItems()
                 self.mainWindow.use_results_workspace()
 

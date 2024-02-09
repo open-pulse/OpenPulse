@@ -33,7 +33,7 @@ class ResultsViewerItems(QTreeWidget):
     # def keyPressEvent(self, event):
     #     """This deals with key events that are directly linked with the menu."""
     #     if event.key() == Qt.Key_F5:
-    #         self.mainWindow.getInputWidget().runAnalysis()
+    #         self.mainWindow.getInputWidget().run_analysis()
     #         self._updateItems()
 
     # def _createIcons(self):
@@ -234,11 +234,12 @@ class ResultsViewerItems(QTreeWidget):
         elif item == self.item_child_plotStructuralModeShapes:
             return
             if not self.item_child_plotStructuralModeShapes.isDisabled():
-                self.mainWindow.getInputWidget().plotStructuralModeShapes()
+                self.mainWindow.getInputWidget().plot_structural_mode_shapes()
 
         elif item == self.item_child_plotDisplacementField:
+            return
             if not self.item_child_plotDisplacementField.isDisabled():
-                self.mainWindow.getInputWidget().plotDisplacementField()
+                self.mainWindow.getInputWidget().plot_displacement_field()
 
         elif item == self.item_child_plotStructuralFrequencyResponse:
             if not self.item_child_plotStructuralFrequencyResponse.isDisabled():
@@ -260,12 +261,14 @@ class ResultsViewerItems(QTreeWidget):
                 self.mainWindow.getInputWidget().plotStressFrequencyResponse()
 
         elif item == self.item_child_plotAcousticModeShapes:
+            return
             if not self.item_child_plotAcousticModeShapes.isDisabled():
-                self.mainWindow.getInputWidget().plotAcousticModeShapes()
+                self.mainWindow.getInputWidget().plot_acoustic_mode_shapes()
 
         elif item == self.item_child_plotAcousticPressureField:
+            return
             if not self.item_child_plotAcousticPressureField.isDisabled():
-                self.mainWindow.getInputWidget().plotAcousticPressureField()
+                self.mainWindow.getInputWidget().plot_acoustic_pressure_field()
          
         elif item == self.item_child_plotAcousticFrequencyResponse:
             if not self.item_child_plotAcousticFrequencyResponse.isDisabled():

@@ -45,7 +45,8 @@ from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
 from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
 from data.user_input.analysis.runAnalysisInput import RunAnalysisInput
 #
-from data.user_input.plots.structural.plot_structural_mode_shape_input import PlotStructuralModeShapeInput
+# from data.user_input.plots.structural.plot_structural_mode_shape_input import PlotStructuralModeShapeInput
+from pulse.interface.user_input.plots.structural.structural_mode_shape_widget import PlotStructuralModeShapeInput
 from data.user_input.plots.structural.plot_displacement_field_input import PlotDisplacementFieldInput
 from data.user_input.plots.structural.plot_structural_frequency_response_input import PlotStructuralFrequencyResponseInput
 from data.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
@@ -113,7 +114,7 @@ class InputUi:
             title = "Error detected in processInput method"
             message = str(log_error)
             PrintMessageInput([title, message, window_title_1])
-            # return read
+            return None
 
     def new_project(self, config):
         new_project_input = self.processInput(NewProjectInput, self.project, self.opv, config)
@@ -317,11 +318,11 @@ class InputUi:
 
         if self.analysis_ID in [2, 4, 7]:
             self.project.update_project_analysis_setup_state(True)
-            self.runAnalysis()
+            self.run_analysis()
         else:
-            self.analysisSetup()
+            self.analysis_setup()
                     
-    def analysisSetup(self):
+    def analysis_setup(self):
 
         if self.project.analysis_ID in [None, 2, 4]:
             return False
@@ -332,12 +333,12 @@ class InputUi:
         
         if read.complete:
             if read.flag_run:
-                self.runAnalysis()
+                self.run_analysis()
             return True   
         else:
             return False
        
-    def runAnalysis(self):
+    def run_analysis(self):
 
         # t0 = time()
         if self.analysis_ID is None or not self.project.setup_analysis_complete:
@@ -363,44 +364,44 @@ class InputUi:
             self.after_run.check_all_acoustic_criterias()
             self.parent.use_results_workspace()
         
-    def plotStructuralModeShapes(self):
+    def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
         if solution is None:
-            return
+            return None
         if self.analysis_ID in [2, 4]:
-            self.processInput(PlotStructuralModeShapeInput, self.project, self.opv)      
+            return self.processInput(PlotStructuralModeShapeInput, self.parent)      
 
-    def plotDisplacementField(self):
+    def plot_displacement_field(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             if solution is None:
-                return
-            self.processInput(PlotDisplacementFieldInput, self.project, self.opv)
+                return None
+            return self.processInput(PlotDisplacementFieldInput, self.parent)
 
-    def plotAcousticModeShapes(self):
+    def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
         self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
         if solution is None:
-            return
+            return None
         if self.analysis_ID in [2, 4]:
-            self.processInput(PlotAcousticModeShapeInput, self.project, self.opv)           
+            return self.processInput(PlotAcousticModeShapeInput, self.parent)           
 
-    def plotAcousticPressureField(self):
+    def plot_acoustic_pressure_field(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = True
         self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
         if self.analysis_ID in [3,5,6]:
             if solution is None:
-                return
-            self.processInput(PlotAcousticPressureFieldInput, self.project, self.opv)           
+                return None
+            return self.processInput(PlotAcousticPressureFieldInput, self.parent)           
 
     def plotStructuralFrequencyResponse(self):
         if self.analysis_ID in [0, 1, 5, 6, 7]:

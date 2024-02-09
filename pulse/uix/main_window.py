@@ -334,7 +334,7 @@ class MainWindow(QMainWindow):
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         # self.plotStructuralModeShapes_action.setShortcut('')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
-        self.plotStructuralModeShapes_action.triggered.connect(self.getInputWidget().plotStructuralModeShapes)
+        self.plotStructuralModeShapes_action.triggered.connect(self.getInputWidget().plot_structural_mode_shapes)
 
         self.plotDisplacementField_action = QAction('&Plot Displacement Field', self)        
         # self.plotDisplacementField_action.setShortcut('')
@@ -364,7 +364,7 @@ class MainWindow(QMainWindow):
         self.plotPressureField_action = QAction('&Plot Acoustic Pressure Field', self)        
         # self.plotPressureField_action.setShortcut('')
         self.plotPressureField_action.setStatusTip('Plot Acoustic Pressure Field')
-        self.plotPressureField_action.triggered.connect(self.getInputWidget().plotAcousticPressureField)
+        self.plotPressureField_action.triggered.connect(self.getInputWidget().plot_acoustic_pressure_field)
 
         self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
         # self.plotAcousticFrequencyResponse.setShortcut('')

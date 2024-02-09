@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
-        self.splitter.setSizes([100, 500])
+        self.splitter.setSizes([100, 400])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
@@ -412,10 +412,10 @@ class MainWindow(QMainWindow):
         self.input_widget.analysisTypeInput()
 
     def action_analysis_setup_callback(self):
-        self.input_widget.analysisSetup()
+        self.input_widget.analysis_setup()
     
     def action_run_analysis_callback(self):
-        self.input_widget.runAnalysis()
+        self.input_widget.run_analysis()
 
     def action_about_openpulse(self):
         self.input_widget.about_OpenPulse()
@@ -457,10 +457,14 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         title = "OpenPulse stop execution requested"
         message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
-
+        right_toolTip = "The current project setup progress has already been saved in the project files."
+        
         buttons_config = {"left_button_label" : "No", 
                           "right_button_label" : "Yes",
-                          "right_toolTip" : "The current project setup progress has already been saved in the project files."}
+                          "left_button_size" : 80,
+                          "right_button_size" : 80,
+                          "right_toolTip" : right_toolTip}
+        
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._stop:

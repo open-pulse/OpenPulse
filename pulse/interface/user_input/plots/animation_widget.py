@@ -36,6 +36,7 @@ class AnimationWidget(QWidget):
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')      
         # QPushButton
         self.pushButton_animate = self.findChild(QPushButton, "pushButton_animate")
+        self.pushButon_reset = self.findChild(QPushButton, "pushButton_reset")
         # QSlider
         self.phase_slider = self.findChild(QSlider, "phase_slider")
         # QSpinBox
@@ -44,6 +45,7 @@ class AnimationWidget(QWidget):
 
     def _create_connections(self):
         self.pushButton_animate.clicked.connect(self.process_animation)
+        self.pushButon_reset.clicked.connect(self.reset_input_field)
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
         self.phase_slider.valueChanged.connect(self.slider_callback)

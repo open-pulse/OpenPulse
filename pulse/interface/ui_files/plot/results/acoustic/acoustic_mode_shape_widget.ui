@@ -490,17 +490,7 @@ color: rgb(0, 0, 255);</string>
            </item>
            <item>
             <property name="text">
-             <string> Ux</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Uy</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Uz</string>
+             <string> Real part</string>
             </property>
            </item>
           </widget>
