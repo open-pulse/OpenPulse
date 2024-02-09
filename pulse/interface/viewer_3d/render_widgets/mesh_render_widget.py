@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from vtkat.render_widgets import CommonRenderWidget
 from vtkat.interactor_styles import BoxSelectionInteractorStyle
 from vtkat.pickers import CellAreaPicker
+from pathlib import Path
 
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
 from pulse import app
@@ -28,12 +29,16 @@ class SelectionFilter:
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
         self.mouse_click = (0, 0)
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
         
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
+
+        self.open_pulse_logo = None
+        self.mopt_logo = None
 
         self.nodes_actor = None
         self.lines_actor = None
@@ -44,10 +49,59 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.create_axes()
         self.create_scale_bar()
+        self.create_logos()
         self.set_theme("light")
+    
+    def set_theme(self, theme):
+        super().set_theme(theme)
+        try:
+            self.create_logos(theme)
+        except:
+            return
+
+    def create_logos(self, theme="light"):
+        self.renderer.RemoveViewProp(self.open_pulse_logo)
+        self.renderer.RemoveViewProp(self.mopt_logo)
+        self.renderer.AddViewProp(self.open_pulse_logo)
+        self.renderer.AddViewProp(self.mopt_logo)
+
+        if theme == "light":
+            open_pulse_path = Path('data/icons/OpenPulse_logo_black.png')
+            mopt_path = Path('data/icons/mopt_logo_black.png')     
+        elif theme == "dark":
+            open_pulse_path = Path('data/icons/OpenPulse_logo_white.png')
+            mopt_path = Path('data/icons/mopt_logo_white.png')
+        else:
+            raise NotImplementedError()
+
+        self.open_pulse_logo = self._load_vtk_logo(open_pulse_path)
+        self.open_pulse_logo.SetPosition(0.845, 0.89)
+        self.open_pulse_logo.SetPosition2(0.15, 0.15)
+        self.renderer.AddViewProp(self.open_pulse_logo)
+        self.open_pulse_logo.SetRenderer(self.renderer)
+
+        self.mopt_logo = self._load_vtk_logo(mopt_path)
+        self.mopt_logo.SetPosition(0.01, -0.015)
+        self.mopt_logo.SetPosition2(0.07, 0.1)
+        self.renderer.AddViewProp(self.mopt_logo)
+        self.mopt_logo.SetRenderer(self.renderer)
+
+    def _load_vtk_logo(self, path):
+        image_reader = vtk.vtkPNGReader()
+        image_reader.SetFileName(path)
+        image_reader.Update()
+
+        logo = vtk.vtkLogoRepresentation()
+        logo.SetImage(image_reader.GetOutput())
+        logo.ProportionalResizeOn()
+        logo.GetImageProperty().SetOpacity(0.9)
+        logo.GetImageProperty().SetDisplayLocationToBackground()
+        return logo
 
     def update_plot(self, reset_camera=True):
         self.remove_actors()
+        self.create_logos()
+
         project = app().project
 
         self.nodes_actor = NodesActor(project)
