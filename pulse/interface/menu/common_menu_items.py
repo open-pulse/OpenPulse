@@ -8,10 +8,9 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 
 
 class CommonMenuItems(QTreeWidget):
-    """Menu Items
+    """Common Menu Items
 
-    This class is responsible for creating, configuring and building the items
-    in the items menu, located on the left side of the interface.
+    This class simplifies the creation of menu items.
 
     """
 
