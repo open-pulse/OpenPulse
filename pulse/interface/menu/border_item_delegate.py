@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QStyledItemDelegate
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QStyledItemDelegate, QStyleOptionViewItem
 from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
 from PyQt5.QtCore import Qt, QSize, QRect
 
@@ -6,6 +6,11 @@ class BorderItemDelegate(QStyledItemDelegate):
     def __init__(self, parent, borderRole):
         super(BorderItemDelegate, self).__init__(parent)
         self.borderRole = borderRole
+
+    def initStyleOption(self, option, index):
+        super(BorderItemDelegate, self).initStyleOption(option, index)
+        option.decorationAlignment = Qt.AlignRight
+        option.decorationPosition = QStyleOptionViewItem.Right
 
     def sizeHint(self, option, index):        
         size = super(BorderItemDelegate, self).sizeHint(option, index)
