@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QFrame, QGridLayout, QTreeWidget, QTreeWidgetItem, QWidget
 
 from pulse.interface.menu.model_and_analysis_setup_items import ModelAndAnalysisSetupItems
-from pulse.interface.menu.results_viewer_items import ResultsViewerItems
+
 
 class ModelAndAnalysisSetupWidget(QWidget):
     def __init__(self, main_window):

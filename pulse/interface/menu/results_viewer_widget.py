@@ -17,6 +17,7 @@ class ResultsViewerWidget(QWidget):
 
         self.reset()
         self._define_qt_variables()
+        self._create_connections()
         self._config_widget()
 
     def reset(self):
@@ -26,7 +27,19 @@ class ResultsViewerWidget(QWidget):
         self.main_frame = QFrame()
         self.animation_widget = AnimationWidget(self.main_window)
         self.results_viewer_items = ResultsViewerItems(self.main_window)
-        self.results_viewer_items.setObjectName("results_viewer_items")
+
+    def _create_connections(self):
+        self.results_viewer_items.item_child_plotStructuralModeShapes.clicked.connect(
+            self.add_structural_mode_shape_widget)
+
+        self.results_viewer_items.item_child_plotDisplacementField.clicked.connect(
+            self.add_displacement_field_widget)
+
+        self.results_viewer_items.item_child_plotAcousticModeShapes.clicked.connect(
+            self.add_acoustic_mode_shape_widget)
+
+        self.results_viewer_items.item_child_plotAcousticPressureField.clicked.connect(
+            self.add_acoustic_pressure_field_widget)
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()
@@ -38,8 +51,6 @@ class ResultsViewerWidget(QWidget):
         self.grid_layout.setAlignment(Qt.AlignCenter)
         self.setLayout(self.grid_layout)
         self.adjustSize()
-        self.results_items = self.findChild(QTreeWidget, "results_viewer_items")
-        self.results_items.itemClicked.connect(self.on_click_item)
         self.animation_widget.setVisible(False)
 
     def udate_visibility_items(self):
@@ -74,24 +85,3 @@ class ResultsViewerWidget(QWidget):
     def remove_widget(self):
         if self.grid_layout.indexOf(self.current_widget) != -1:
             self.grid_layout.removeWidget(self.current_widget)
-
-    def on_click_item(self, item, column):
-
-        if item == self.results_items.item_child_plotStructuralModeShapes:
-            if not self.results_items.item_child_plotStructuralModeShapes.isDisabled():
-                self.add_structural_mode_shape_widget()
-
-        elif item == self.results_items.item_child_plotDisplacementField:
-            if not self.results_items.item_child_plotDisplacementField.isDisabled():
-                self.add_displacement_field_widget()
-
-        elif item == self.results_items.item_child_plotAcousticModeShapes:
-            if not self.results_items.item_child_plotAcousticModeShapes.isDisabled():
-                self.add_acoustic_mode_shape_widget()
-
-        elif item == self.results_items.item_child_plotAcousticPressureField:
-            if not self.results_items.item_child_plotAcousticPressureField.isDisabled():
-                self.add_acoustic_pressure_field_widget()
-         
-        else:
-            return
