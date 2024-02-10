@@ -1,6 +1,6 @@
 #
 from data.user_input.project.getStartedInput import GetStartedInput
-from data.user_input.project.new_project_iInput import NewProjectInput
+from pulse.interface.user_input.project.new_project_input import NewProjectInput
 from data.user_input.project.load_project_input import LoadProjectInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
 from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
@@ -117,9 +117,9 @@ class InputUi:
             return None
 
     def new_project(self, config):
-        new_project_input = self.processInput(NewProjectInput, self.project, self.opv, config)
+        new_project_input = self.processInput(NewProjectInput, self.parent, config)
         self.parent._updateStatusBar()
-        return self.initial_project_action(new_project_input.create)
+        return self.initial_project_action(new_project_input.complete)
 
     def loadProject(self, config, path=None):
         load_project = self.processInput(LoadProjectInput, self.project, self.opv, config, path)

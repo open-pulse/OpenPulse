@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>578</width>
+    <width>548</width>
     <height>412</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>567</width>
-    <height>330</height>
+    <width>548</width>
+    <height>412</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
-    <height>420</height>
+    <width>548</width>
+    <height>412</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -108,7 +108,7 @@
     <widget class="QFrame" name="frame_center">
      <property name="minimumSize">
       <size>
-       <width>567</width>
+       <width>540</width>
        <height>300</height>
       </size>
      </property>
@@ -175,7 +175,10 @@
          <property name="bottomMargin">
           <number>4</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
           <number>4</number>
          </property>
          <item row="0" column="0">
@@ -214,8 +217,7 @@
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+            <string notr="true"/>
            </property>
            <property name="inputMethodHints">
             <set>Qt::ImhNone</set>
@@ -244,13 +246,13 @@ color: rgb(0, 0, 255);</string>
           <widget class="QLabel" name="label_element_size">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>160</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>200</width>
+             <width>160</width>
              <height>30</height>
             </size>
            </property>
@@ -309,13 +311,13 @@ color: rgb(0, 0, 255);</string>
           <widget class="QLabel" name="label_project_directory">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>30</height>
             </size>
            </property>
@@ -339,13 +341,13 @@ color: rgb(0, 0, 255);</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>280</width>
+             <width>260</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>280</width>
+             <width>260</width>
              <height>30</height>
             </size>
            </property>
@@ -359,8 +361,7 @@ color: rgb(0, 0, 255);</string>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+            <string notr="true"/>
            </property>
            <property name="frame">
             <bool>true</bool>
@@ -380,13 +381,13 @@ color: rgb(0, 0, 255);</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>28</width>
+             <width>80</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>30</height>
             </size>
            </property>
@@ -408,14 +409,15 @@ color: rgb(0, 0, 255);</string>
            <property name="styleSheet">
             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(100, 100, 100); background-color: rgb(200, 200, 200); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
            </property>
            <property name="text">
             <string>Search</string>
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../icons/020-search.png</normaloff>../../../icons/020-search.png</iconset>
+             <normaloff>../../../../data/icons/020-search.png</normaloff>../../../../data/icons/020-search.png</iconset>
            </property>
           </widget>
          </item>
@@ -456,13 +458,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <widget class="QLabel" name="label_geometry_file">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>30</height>
             </size>
            </property>
@@ -492,13 +494,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            </property>
            <property name="minimumSize">
             <size>
-             <width>280</width>
+             <width>260</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>280</width>
+             <width>260</width>
              <height>30</height>
             </size>
            </property>
@@ -517,8 +519,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Geometry file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">color: rgb(0, 0, 255);
-background-color: rgb(255, 255, 255);</string>
+            <string notr="true"/>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -535,13 +536,13 @@ background-color: rgb(255, 255, 255);</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>30</height>
             </size>
            </property>
@@ -554,14 +555,15 @@ background-color: rgb(255, 255, 255);</string>
            <property name="styleSheet">
             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(100, 100, 100); background-color: rgb(220, 220, 220); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
            </property>
            <property name="text">
             <string>Import</string>
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../icons/020-search.png</normaloff>../../../icons/020-search.png</iconset>
+             <normaloff>../../../../data/icons/020-search.png</normaloff>../../../../data/icons/020-search.png</iconset>
            </property>
           </widget>
          </item>
@@ -602,13 +604,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <widget class="QFrame" name="frame_6">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
@@ -624,13 +626,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <widget class="QComboBox" name="comboBox_start_project">
            <property name="minimumSize">
             <size>
-             <width>280</width>
+             <width>260</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>280</width>
+             <width>260</width>
              <height>30</height>
             </size>
            </property>
@@ -655,13 +657,13 @@ QComboBox:pressed{border-radius: 4px; border-color: rgb(0, 170, 255); border-sty
           <widget class="QFrame" name="frame_7">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>16777215</height>
             </size>
            </property>
@@ -706,52 +708,17 @@ QComboBox:pressed{border-radius: 4px; border-color: rgb(0, 170, 255); border-sty
          <property name="spacing">
           <number>4</number>
          </property>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEdit_project_name">
-           <property name="minimumSize">
-            <size>
-             <width>280</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>280</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
-           </property>
-           <property name="frame">
-            <bool>true</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_project_name">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>120</width>
              <height>30</height>
             </size>
            </property>
@@ -772,13 +739,13 @@ color: rgb(0, 0, 255);</string>
           <widget class="QFrame" name="frame_4">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>16777215</height>
             </size>
            </property>
@@ -787,6 +754,42 @@ color: rgb(0, 0, 255);</string>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_project_name">
+           <property name="minimumSize">
+            <size>
+             <width>260</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>260</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -825,7 +828,10 @@ color: rgb(0, 0, 255);</string>
          <property name="bottomMargin">
           <number>4</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
           <number>4</number>
          </property>
          <item row="0" column="0">
@@ -842,13 +848,13 @@ color: rgb(0, 0, 255);</string>
           <widget class="QLabel" name="label_geometry_tolerance">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>160</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>200</width>
+             <width>160</width>
              <height>30</height>
             </size>
            </property>
@@ -886,8 +892,7 @@ color: rgb(0, 0, 255);</string>
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+            <string notr="true"/>
            </property>
            <property name="inputMethodHints">
             <set>Qt::ImhNone</set>
@@ -965,7 +970,7 @@ color: rgb(0, 0, 255);</string>
        <number>10</number>
       </property>
       <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_start">
+       <widget class="QPushButton" name="pushButton_start_project">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
