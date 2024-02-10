@@ -84,32 +84,19 @@ class Project:
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
-    def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+    def new_project(self, *args, **kwargs):
         self.reset(reset_all=True)
-        self.file.new(  project_folder_path, 
-                        project_name, 
-                        element_size, 
-                        geometry_tolerance, 
-                        import_type, 
-                        material_list_path, 
-                        fluid_list_path, 
-                        geometry_path, 
-                        coord_path, 
-                        conn_path   )
+        self.file.new(*args, **kwargs)
         
         self.file.create_backup_geometry_folder()
-        self.process_geometry_and_mesh(tolerance=geometry_tolerance)
+        self.process_geometry_and_mesh(tolerance=self.file.geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
         self.empty_geometry = False
 
-    def new_empty_project(self, project_folder_path, project_name, import_type, material_list_path, fluid_list_path,):
+    def new_empty_project(self, *args, **kwargs):
         self.reset(reset_all=True)
-        self.file.new_empty(project_folder_path, 
-                            project_name, 
-                            import_type, 
-                            material_list_path, 
-                            fluid_list_path  )
+        self.file.new(*args, **kwargs)
         self.empty_geometry = True
 
     def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):

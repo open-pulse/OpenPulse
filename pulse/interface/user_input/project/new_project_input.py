@@ -54,6 +54,7 @@ class NewProjectInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("OpenPulse - New project")
 
     def _define_qt_variables(self):
         # QComboBox
@@ -107,13 +108,13 @@ class NewProjectInput(QDialog):
     def update_available_inputs(self):
         index = self.comboBox_start_project.currentIndex()
         if index == 0:
-            self.frame_geometry_file.setDisabled(True)
-            self.frame_element_size.setDisabled(True)
-            self.frame_geometry_tolerance.setDisabled(True)
+            self.pushButton_import_geometry.setDisabled(True)
+            # self.lineEdit_element_size.setDisabled(True)
+            # self.lineEdit_geometry_tolerance.setDisabled(True)
         elif index == 1:
-            self.frame_geometry_file.setDisabled(False)
-            self.frame_element_size.setDisabled(False)
-            self.frame_geometry_tolerance.setDisabled(False)
+            self.pushButton_import_geometry.setDisabled(False)
+            # self.lineEdit_element_size.setDisabled(False)
+            # self.lineEdit_geometry_tolerance.setDisabled(False)
 
     def focus_lineEdit_project_name_if_blank(self):
         if self.lineEdit_project_name.text() == "":
@@ -123,65 +124,68 @@ class NewProjectInput(QDialog):
         self.project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
         self.lineEdit_project_folder.setText(str(self.project_directory))        
 
-    def start_project(self):
+    def import_geometry(self):
+        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.iges *.igs *.step *.stp)')
+        self.lineEdit_geometry_path.setText(str(self.path))
 
-        t0 = time()
-        self.create_project_folder()
-
-        if self.stop:
-            self.project.time_to_load_or_create_project = 0
-            return
-
+    def check_project_inputs(self):
         if self.lineEdit_project_name.text() in os.listdir(self.project_directory):
             title = 'Error in project name'
             message = "This project name already exists, you should use a different project name to continue."
             PrintMessageInput([window_title, title, message], auto_close=True)
-            return
+            return True
         
-        index = self.comboBox_start_project.currentIndex()
-
-        if index == 1: # .iges & .step
+        if self.comboBox_start_project.currentIndex() == 1:
             if self.lineEdit_geometry_path.text() == "":
                 title = 'Empty geometry at selection'
                 message = "Please, select a valid *.iges or *.step format geometry to continue."
                 PrintMessageInput([window_title, title, message], auto_close=True)
-                return
-            if self.lineEdit_element_size.text() == "":
-                title = 'Empty element size'
+                return True
+        
+        if self.lineEdit_element_size.text() == "":
+            title = 'Empty element size'
+            message = "Please, inform a valid input to the element size."
+            PrintMessageInput([window_title, title, message], auto_close=True)
+            return True
+        else:
+            try:
+                self.element_size = float(self.lineEdit_element_size.text())
+            except Exception:
+                title = 'Invalid element size'
                 message = "Please, inform a valid input to the element size."
                 PrintMessageInput([window_title, title, message], auto_close=True)
-                return
-            else:
-                try:
-                    float(self.lineEdit_element_size.text())
-                except Exception:
-                    title = 'Invalid element size'
-                    message = "Please, inform a valid input to the element size."
-                    PrintMessageInput([window_title, title, message], auto_close=True)
-                    return
+                return True
 
-            if self.lineEdit_geometry_tolerance.text() == "":
-                title = 'Empty geometry tolerance'
+        if self.lineEdit_geometry_tolerance.text() == "":
+            title = 'Empty geometry tolerance'
+            message = "Please, inform a valid input to the geometry tolerance."
+            PrintMessageInput([window_title, title, message], auto_close=True)
+            return True
+        else:
+            try:
+                self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
+            except Exception:
+                title = 'Invalid geometry tolerance'
                 message = "Please, inform a valid input to the geometry tolerance."
                 PrintMessageInput([window_title, title, message], auto_close=True)
-                return
-            else:
-                try:
-                    float(self.lineEdit_geometry_tolerance.text())
-                except Exception:
-                    title = 'Invalid geometry tolerance'
-                    message = "Please, inform a valid input to the geometry tolerance."
-                    PrintMessageInput([window_title, title, message], auto_close=True)
-                    return
+                return True
+
+    def start_project(self):
+        t0 = time()
+        self.create_project_folder()
+
+        if self.check_project_inputs():
+            return
+
+        if self.stop:
+            self.project.time_to_load_or_create_project = 0
+            return
    
         if self.create_project():
+            self.config.write_recent_project(self.project_file_path)
             self.complete = True
             self.project.time_to_load_or_create_project = time() - t0
             self.close()
-
-    def import_geometry(self):
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.iges *.igs *.step *.stp)')
-        self.lineEdit_geometry_path.setText(str(self.path))
 
     def create_project(self):
 
@@ -193,16 +197,17 @@ class NewProjectInput(QDialog):
         self.create_material_file()
         self.create_fluid_file()
         self.create_project_file()
-        
-        index = self.comboBox_start_project.currentIndex()
 
+        project_name = self.lineEdit_project_name.text()
+        index = self.comboBox_start_project.currentIndex()
+        
         if index == 0:
-            project_name = self.lineEdit_project_name.text()
             import_type = 1
-            self.config.write_recent_project(self.project_file_path)
             self.project.new_empty_project( self.project_folder_path, 
                                             project_name,
-                                            import_type, 
+                                            self.element_size,
+                                            self.geometry_tolerance, 
+                                            import_type,
                                             self.material_list_path, 
                                             self.fluid_list_path )
             return True
@@ -211,20 +216,17 @@ class NewProjectInput(QDialog):
             geometry_filename = os.path.basename(self.lineEdit_geometry_path.text())
             new_geometry_path = get_new_path(self.project_folder_path, geometry_filename)
             copyfile(self.lineEdit_geometry_path.text(), new_geometry_path)
-            project_name = self.lineEdit_project_name.text()
-            element_size = float(self.lineEdit_element_size.text())
-            geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
             import_type = 0
-            self.config.write_recent_project(self.project_file_path)
             self.project.new_project(   self.project_folder_path, 
                                         project_name, 
-                                        element_size,
-                                        geometry_tolerance, 
+                                        self.element_size,
+                                        self.geometry_tolerance, 
                                         import_type, 
                                         self.material_list_path, 
                                         self.fluid_list_path, 
                                         geometry_path=new_geometry_path   )
-            return True
+        
+        return True
 
     def create_project_file(self):
 
