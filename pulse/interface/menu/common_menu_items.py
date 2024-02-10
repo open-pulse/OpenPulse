@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PyQt5.QtCore import Qt, QSize, QRect, pyqtSignal
+from PyQt5.QtCore import Qt, QSize, QRect, pyqtSignal, QObject, pyqtBoundSignal
 from pathlib import Path
 
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
@@ -36,8 +36,8 @@ class CommonMenuItems(QTreeWidget):
         item = ChildTreeWidgetItem(name)
         self._last_top_level.addChild(item)
 
-        if callable(callback):
-            item.clicked.connect(callback)
+        # if callable(callback):
+        #     item.clicked.connect(callback)
 
         return item
 
@@ -53,21 +53,41 @@ class CommonMenuItems(QTreeWidget):
         if item.isDisabled():
             return
         
-        if not hasattr("clicked"):
+        if not hasattr(item, "clicked"):
             return
         
         item.clicked.emit()
 
 
 # It is usually bad to have multiple classes in the same file
-# but I will do it anyway.
+# but I will do it anyway >=)
+
+
+class CustomBoundSignal:
+    '''
+    Copies the funcionality of pyqtBoundSignal and is meant 
+    to be used in objects that are not instances of QObjects.
+    '''
+
+    def __init__(self) -> None:
+        self.callbacks = set()
+    
+    def connect(self, function):
+        self.callbacks.add(function)
+
+    def disconnect(self, function):
+        self.callbacks.remove(function)
+
+    def emit(self, *args, **kwargs):
+        for function in self.callbacks:
+            if callable(function):
+                function(*args, **kwargs)
 
 
 class TopTreeWidgetItem(QTreeWidgetItem):
-    clicked = pyqtSignal()
-
     def __init__(self, name):
-        super().__init__([name])
+        super(QTreeWidgetItem, self).__init__([name])
+        self.clicked = CustomBoundSignal()
         self._configure_appearance()
 
     def toggle_expansion(self):
@@ -94,10 +114,9 @@ class TopTreeWidgetItem(QTreeWidgetItem):
 
 
 class ChildTreeWidgetItem(QTreeWidgetItem):
-    clicked = pyqtSignal()
-
     def __init__(self, name):
-        super().__init__([name])
+        super(QTreeWidgetItem, self).__init__([name])
+        self.clicked = CustomBoundSignal()
 
     def set_warning(self, cond):
         if cond:
