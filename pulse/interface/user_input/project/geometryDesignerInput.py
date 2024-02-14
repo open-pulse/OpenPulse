@@ -21,7 +21,7 @@ class GeometryDesignerInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('data/user_input/ui_files/Project/geometryDesigner.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/project/geometryDesigner.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

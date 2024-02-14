@@ -6,7 +6,7 @@ from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
-from data.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
+from pulse.interface.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
 #
 from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun

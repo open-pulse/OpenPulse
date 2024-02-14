@@ -7,7 +7,7 @@ from pathlib import Path
 import os
 import numpy as np
 
-from pulse.interface.user_input.model.setup.general.cross_section_widget import CrossSectionWidget
+from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -20,10 +20,7 @@ from opps.model import Bend
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-
-        print(parent)
-
-        uic.loadUi(Path('pulse/interface/ui_files/model/geometry/add_widget.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/Model/geometry/add_widget.ui'), self)
 
         self.geometry_widget = geometry_widget
         self.project = app().project

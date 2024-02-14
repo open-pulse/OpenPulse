@@ -19,7 +19,7 @@ class SetFluidCompositionInput(QDialog):
     def __init__(self, project, opv, selected_fluid_to_edit=None, *args, **kwargs):
         super().__init__()
         
-        uic.loadUi(Path('data/user_input/ui_files/model/setup/acoustic/setFluidCompositionInput.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/setFluidCompositionInput.ui'), self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)

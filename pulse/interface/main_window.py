@@ -15,7 +15,7 @@ from pulse.uix.opv_ui import OPVUi
 from pulse.uix.mesh_toolbar import MeshToolbar
 
 
-from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
+from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget

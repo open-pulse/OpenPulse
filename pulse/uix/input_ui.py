@@ -5,8 +5,6 @@ from pulse.interface.user_input.project.load_project import LoadProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 #
-# from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
-# from data.user_input.project.geometry_editor import CreateEditStructuresWidget
 from pulse.interface.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from pulse.interface.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
 from pulse.interface.user_input.project.set_project_attributes_input import SetProjectAttributesInput
@@ -15,67 +13,63 @@ from pulse.interface.user_input.model.setup.general.set_material_input import Se
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
-from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
-from data.user_input.model.setup.structural.dofInput import DOFInput
-from data.user_input.model.setup.structural.loadsInput import LoadsInput
-from data.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
-from data.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
-from data.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
-from data.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
-from data.user_input.model.setup.structural.cappedEndInput import CappedEndInput
-from data.user_input.model.setup.structural.valvesInput import ValvesInput
-from data.user_input.model.setup.structural.flangesInput import FlangesInput
-from data.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
-from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
-from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
+from pulse.interface.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
+from pulse.interface.user_input.model.setup.structural.dofInput import DOFInput
+from pulse.interface.user_input.model.setup.structural.loadsInput import LoadsInput
+from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
+from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
+from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
+from pulse.interface.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
+from pulse.interface.user_input.model.setup.structural.cappedEndInput import CappedEndInput
+from pulse.interface.user_input.model.setup.structural.valvesInput import ValvesInput
+from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
+from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
+from pulse.interface.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
+from pulse.interface.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
-from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
+from pulse.interface.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
-from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
-from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
-from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
-from data.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
-from data.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
-from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
-from data.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
-from data.user_input.model.setup.acoustic.check_pulsation_criteria import CheckPulsationCriteriaInput
+from pulse.interface.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
+from pulse.interface.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
+from pulse.interface.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
+from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
+from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
+from pulse.interface.user_input.model.setup.acoustic.check_pulsation_criteria import CheckPulsationCriteriaInput
 #
 from pulse.interface.user_input.analysis.general.analysis_type import AnalysisTypeInput
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
 from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysisInput
 #
-# from data.user_input.plots.structural.plot_structural_mode_shape_input import PlotStructuralModeShapeInput
 from pulse.interface.user_input.plots.structural.structural_mode_shape_widget import PlotStructuralModeShapeInput
-from data.user_input.plots.structural.plot_displacement_field_input import PlotDisplacementFieldInput
-from data.user_input.plots.structural.plot_structural_frequency_response_input import PlotStructuralFrequencyResponseInput
-from data.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
-from data.user_input.plots.structural.plot_reactions import PlotReactions
-from data.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
-from data.user_input.plots.structural.plot_stress_field import PlotStressField
-from data.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressFieldForStaticAnalysis
-from data.user_input.plots.structural.plot_stress_frequency_response_input import PlotStressFrequencyResponseInput
-from data.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_displacement_field_input import PlotDisplacementFieldInput
+from pulse.interface.user_input.plots.structural.plot_structural_frequency_response_input import PlotStructuralFrequencyResponseInput
+from pulse.interface.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_reactions import PlotReactions
+from pulse.interface.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
+from pulse.interface.user_input.plots.structural.plot_stress_field import PlotStressField
+from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressFieldForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_stress_frequency_response_input import PlotStressFrequencyResponseInput
+from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
-from data.user_input.plots.acoustic.plot_acoustic_mode_shape_input import PlotAcousticModeShapeInput
-from data.user_input.plots.acoustic.plot_acoustic_pressure_field_input import PlotAcousticPressureFieldInput
-from data.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponseInput
-from data.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunctionInput
-from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
-from data.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
-from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape_input import PlotAcousticModeShapeInput
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field_input import PlotAcousticPressureFieldInput
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponseInput
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunctionInput
+from pulse.interface.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
+from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
-from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
-from data.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
-from data.user_input.plots.render.rendererUserPreferencesInput import RendererUserPreferencesInput
-from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
-from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
-from data.user_input.model.checks.checkBeamCriteriaInput import CheckBeamCriteriaInput
+from pulse.interface.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
+from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
+from pulse.interface.user_input.project.render.renderer_user_preferences import RendererUserPreferencesInput
+from pulse.interface.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
+from pulse.interface.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
+from pulse.interface.user_input.model.criteria.checkBeamCriteriaInput import CheckBeamCriteriaInput
 #
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 #
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.entity import Entity
-from pulse.project import Project
 from pulse.uix.clip_plane_widget import ClipPlaneWidget
 #
 from pulse import app

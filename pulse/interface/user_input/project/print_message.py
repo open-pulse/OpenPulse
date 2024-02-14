@@ -8,7 +8,7 @@ from pathlib import Path
 class PrintMessageInput(QDialog):
     def __init__(self, text_info, *args, **kwargs):
         super().__init__()
-        uic.loadUi(Path('data/user_input/ui_files/plots_/messages_/print_messages.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/plots/messages/print_messages.ui'), self)
 
         self.auto_close = kwargs.get("auto_close", False)
         self.window_title, self.title, self.message = text_info
