@@ -1,15 +1,9 @@
-from PyQt5.QtWidgets import QComboBox, QStackedWidget,  QWidget, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTextEdit, QGridLayout
+from PyQt5.QtWidgets import QStackedWidget,  QWidget, QTabWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-import numpy as np
-
-from data.user_input.model.geometry.cross_section_inputs import CrossSectionInputs
-from data.user_input.model.setup.general.material_input_new import MaterialInputs
-from data.user_input.project.print_message_input import PrintMessageInput
 from data.user_input.model.geometry.add_widget import AddStructuresWidget
 from data.user_input.model.geometry.edit_bend_widget import EditBendWidget
 from data.user_input.model.geometry.edit_point_widget import EditPointWidget

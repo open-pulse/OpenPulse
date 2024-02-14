@@ -16,7 +16,7 @@ from pulse.uix.mesh_toolbar import MeshToolbar
 
 
 from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     def open_project(self, path=None):
-        if not self.input_widget.loadProject(self.config, path):
+        if not self.input_widget.load_project(path):
             return 
 
         self._update_recent_projects()
@@ -123,12 +123,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def show_get_started_window(self):
-        config = app().config
+        # config = app().config
 
-        if config.openLastProject and config.haveRecentProjects():
-            self.open_project(config.getMostRecentProjectDir())
+        if self.config.openLastProject and self.config.haveRecentProjects():
+            self.open_project(self.config.getMostRecentProjectDir())
         else:
-            if self.input_widget.getStarted(config):
+            if self.input_widget.get_started():
                 self._loadProjectMenu()
                 self.changeWindowTitle(self.project.file._project_name)
                 # self.draw()
@@ -230,7 +230,7 @@ class MainWindow(QMainWindow):
         self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
         self.results_viewer_wigdet = ResultsViewerWidget(self)
         self.opv_widget.opvAnalysisRenderer._createPlayer()
-        self.input_widget = InputUi(self.project, self)
+        self.input_widget = InputUi(self)
 
         self.mesh_widget = MeshRenderWidget()
         self.geometry_widget = EditorRenderWidget(editor)
@@ -479,13 +479,13 @@ class MainWindow(QMainWindow):
         if self.config.openLastProject and self.config.haveRecentProjects():
             self.importProject_call(self.config.getMostRecentProjectDir())
         else:
-            if self.input_widget.getStarted(self.config):
+            if self.input_widget.get_started():
                 self._loadProjectMenu()
                 self.changeWindowTitle(self.project.file._project_name)
                 self.draw()
 
     def importProject_call(self, path=None):
-        if self.input_widget.loadProject(self.config, path):
+        if self.input_widget.load_project(path):
             self._loadProjectMenu()
             self.changeWindowTitle(self.project.file._project_name)
             self.draw()

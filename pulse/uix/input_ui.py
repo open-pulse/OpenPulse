@@ -1,12 +1,12 @@
 #
-from data.user_input.project.getStartedInput import GetStartedInput
-from pulse.interface.user_input.project.new_project_input import NewProjectInput
-from data.user_input.project.load_project_input import LoadProjectInput
-from data.user_input.project.resetProjectInput import ResetProjectInput
-from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
+from pulse.interface.user_input.project.get_started import GetStartedInput
+from pulse.interface.user_input.project.new_project import NewProjectInput
+from pulse.interface.user_input.project.load_project import LoadProjectInput
+from pulse.interface.user_input.project.reset_project import ResetProjectInput
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 #
-from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
-from data.user_input.project.geometry_editor import CreateEditStructuresWidget
+# from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
+# from data.user_input.project.geometry_editor import CreateEditStructuresWidget
 from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
 from data.user_input.project.set_project_attributes_input import SetProjectAttributesInput
@@ -14,7 +14,7 @@ from data.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
 from data.user_input.model.setup.general.set_material_input import SetMaterialInput
 from data.user_input.model.setup.acoustic.fluid_input import FluidInput
-from data.user_input.model.setup.structural.crossSectionInput import SetCrossSectionInput
+from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
 from data.user_input.model.setup.structural.dofInput import DOFInput
@@ -85,16 +85,18 @@ window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
 
 class InputUi:
-    def __init__(self, project, parent=None):
-        self.project = project
-        self.parent = parent
-        self.opv = self.parent.getOPVWidget()
-        # self.menu_items = parent.menu_widget.menu_items
+    def __init__(self, parent=None):
+
+        self.main_window = parent
+        self.project = parent.project
+        self.opv = parent.opv_widget
         self.menu_items = parent.model_and_analysis_setup_widget.model_and_analysis_setup_items
         
+        self._reset()
+
+    def _reset(self):
         self.analysis_ID = None
         self.global_damping = [0,0,0,0]
-
         self.project.none_project_action = False
 
     def beforeInput(self):
@@ -116,22 +118,22 @@ class InputUi:
             PrintMessageInput([title, message, window_title_1])
             return None
 
-    def new_project(self, config):
-        new_project_input = self.processInput(NewProjectInput, self.parent, config)
-        self.parent._updateStatusBar()
-        return self.initial_project_action(new_project_input.complete)
+    def new_project(self):
+        new_project = self.processInput(NewProjectInput, self.main_window)
+        self.main_window._updateStatusBar()
+        return self.initial_project_action(new_project.complete)
 
-    def loadProject(self, config, path=None):
-        load_project = self.processInput(LoadProjectInput, self.project, self.opv, config, path)
-        self.parent.mesh_toolbar.update_mesh_attributes()
-        self.parent._updateStatusBar()
-        return self.initial_project_action(load_project.complete) 
+    def load_project(self, path=None):
+        load_project = self.processInput(LoadProjectInput, self.main_window, path=path)
+        self.main_window.mesh_toolbar.update_mesh_attributes()
+        self.main_window._updateStatusBar()
+        return self.initial_project_action(load_project.complete)
 
-    def getStarted(self, config):
+    def get_started(self):
         self.menu_items.modify_model_setup_items_access(True)
-        get_started = self.processInput(GetStartedInput, self.project, self.opv, config, self)
-        self.parent._updateStatusBar()
-        return self.initial_project_action(get_started.draw)          
+        get_started = self.processInput(GetStartedInput, self.main_window)
+        self.main_window._updateStatusBar()
+        # return self.initial_project_action(get_started.complete)          
     
     def initial_project_action(self, finalized):
         mesh_setup = self.project.check_mesh_setup()
@@ -144,7 +146,7 @@ class InputUi:
                 return True   
             else:
                 self.project.none_project_action = False
-                self.parent.set_enable_menuBar(True)
+                self.main_window.set_enable_menuBar(True)
                 self.menu_items.modify_model_setup_items_access(False) 
                 return True
         else:
@@ -168,7 +170,7 @@ class InputUi:
             
     def set_project_attributes(self):
         self.processInput(SetProjectAttributesInput, self.project, self.opv)
-        self.parent.changeWindowTitle(self.project.file._project_name)
+        self.main_window.changeWindowTitle(self.project.file._project_name)
 
     def set_geometry_file(self):
         self.processInput(SetGeometryFileInput, self.project, self.opv)
@@ -178,7 +180,7 @@ class InputUi:
         return read.complete
 
     def call_geometry_editor(self):
-        main_window = self.parent
+        main_window = self.main_window
         main_window.use_geometry_workspace()
         # self.processInput(CreateEditStructuresWidget, self.opv)
         # self.processInput(OPPGeometryDesignerInput, self.project, self.opv)
@@ -362,7 +364,7 @@ class InputUi:
 
             self.after_run = self.project.get_post_solution_model_checks(opv=self.opv)
             self.after_run.check_all_acoustic_criterias()
-            self.parent.use_results_workspace()
+            self.main_window.use_results_workspace()
         
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -372,7 +374,7 @@ class InputUi:
         if solution is None:
             return None
         if self.analysis_ID in [2, 4]:
-            return self.processInput(PlotStructuralModeShapeInput, self.parent)      
+            return self.processInput(PlotStructuralModeShapeInput, self.main_window)      
 
     def plot_displacement_field(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -382,7 +384,7 @@ class InputUi:
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             if solution is None:
                 return None
-            return self.processInput(PlotDisplacementFieldInput, self.parent)
+            return self.processInput(PlotDisplacementFieldInput, self.main_window)
 
     def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
@@ -391,7 +393,7 @@ class InputUi:
         if solution is None:
             return None
         if self.analysis_ID in [2, 4]:
-            return self.processInput(PlotAcousticModeShapeInput, self.parent)           
+            return self.processInput(PlotAcousticModeShapeInput, self.main_window)           
 
     def plot_acoustic_pressure_field(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -401,7 +403,7 @@ class InputUi:
         if self.analysis_ID in [3,5,6]:
             if solution is None:
                 return None
-            return self.processInput(PlotAcousticPressureFieldInput, self.parent)           
+            return self.processInput(PlotAcousticPressureFieldInput, self.main_window)           
 
     def plotStructuralFrequencyResponse(self):
         if self.analysis_ID in [0, 1, 5, 6, 7]:

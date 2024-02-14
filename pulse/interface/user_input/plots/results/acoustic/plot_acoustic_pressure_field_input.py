@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from data.user_input.project.print_message_input import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 class PlotAcousticPressureFieldInput(QWidget):
     def __init__(self, main_window, *args, **kwargs):

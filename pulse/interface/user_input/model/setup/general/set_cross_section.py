@@ -8,7 +8,7 @@ import numpy as np
 import configparser
 import matplotlib.pyplot as plt
 
-from data.user_input.model.geometry.cross_section_inputs import CrossSectionInputs
+from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionInputs
 from data.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput

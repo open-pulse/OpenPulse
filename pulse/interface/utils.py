@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-from data.user_input.project.print_message_input import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title = "Error"
 

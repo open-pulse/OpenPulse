@@ -12,7 +12,7 @@ from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.loading_screen import LoadingScreen
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 #
 import os
 import numpy as np

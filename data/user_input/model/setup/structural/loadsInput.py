@@ -9,7 +9,7 @@ import numpy as np
 
 from pulse.utils import remove_bc_from_file, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 class LoadsInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

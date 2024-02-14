@@ -15,8 +15,8 @@ from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.utils import create_new_folder, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
-from data.user_input.model.setup.structural.crossSectionInput import SetCrossSectionInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"

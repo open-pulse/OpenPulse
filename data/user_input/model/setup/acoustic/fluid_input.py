@@ -11,7 +11,7 @@ from pulse.preprocessing.fluid import Fluid
 from pulse.lib.default_libraries import default_fluid_library
 from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from data.user_input.model.setup.acoustic.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.utils import *
 

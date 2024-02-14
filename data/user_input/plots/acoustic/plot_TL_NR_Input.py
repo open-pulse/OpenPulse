@@ -10,7 +10,7 @@ import numpy as np
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from data.user_input.data_handler.export_model_results import ExportModelResults
 from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from data.user_input.project.print_message_input import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

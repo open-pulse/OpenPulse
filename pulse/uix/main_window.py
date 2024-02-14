@@ -21,7 +21,7 @@ from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorR
 from opps.interface.widgets.add_structures_widget import AddStructuresWidget
 
 #
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 import sys
 import os
@@ -748,7 +748,7 @@ class MainWindow(QMainWindow):
             self.draw()
 
     def importProject_call(self, path=None):
-        if self.inputWidget.loadProject(self.config, path):
+        if self.inputWidget.load_project(path):
             self._loadProjectMenu()
             self.changeWindowTitle(self.project.file._project_name)
             self.draw()
@@ -764,7 +764,7 @@ class MainWindow(QMainWindow):
         if self.config.openLastProject and self.config.haveRecentProjects():
             self.importProject_call(self.config.getMostRecentProjectDir())
         else:
-            if self.inputWidget.getStarted(self.config):
+            if self.inputWidget.get_started(self.config):
                 self._loadProjectMenu()
                 self.changeWindowTitle(self.project.file._project_name)
                 self.draw()

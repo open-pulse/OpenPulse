@@ -466,7 +466,6 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
         self.item_child_editGeometry.setHidden(True)
 
     def modify_general_settings_items_access(self, bool_key):
-        #
         self.item_child_setProjectAttributes.setDisabled(bool_key)
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)

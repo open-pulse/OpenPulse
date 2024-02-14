@@ -7,11 +7,10 @@ from pathlib import Path
 import os
 import numpy as np
 
-from data.user_input.model.geometry.cross_section_inputs import CrossSectionInputs
-from data.user_input.model.setup.general.material_input_new import MaterialInputs
-from data.user_input.project.print_message_input import PrintMessageInput
+from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionInputs
+from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-# from opps.io.cad_file.cad_handler import CADHandler
 from pulse.interface.cad_handler import CADHandler
 from pulse import app
 
@@ -304,6 +303,7 @@ class AddStructuresWidget(QWidget):
         app().update()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
+        app().main_window.action_front_view_callback()
 
     def export_files(self):
         self.export_entity_file()
