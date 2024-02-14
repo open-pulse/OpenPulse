@@ -8,9 +8,9 @@ import os
 import numpy as np
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 
-from data.user_input.data_handler.export_model_results import ExportModelResults
-from data.user_input.data_handler.import_data_to_compare import ImportDataToCompare
-from data.user_input.plots.general.mpl_canvas import MplCanvas
+from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
+from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
+from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
 
 from pulse.tools.advanced_cursor import AdvancedCursor
 

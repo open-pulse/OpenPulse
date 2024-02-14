@@ -18,7 +18,7 @@ class ExportModelResults(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/data_handler/export_model_results.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/data_handler/export_model_results.ui'), self)
 
         self._config_window()
         self._load_icons()

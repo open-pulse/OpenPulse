@@ -8,8 +8,8 @@ import os
 import numpy as np
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from data.user_input.data_handler.export_model_results import ExportModelResults
-from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 def get_icons_path(filename):

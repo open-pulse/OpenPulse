@@ -7,8 +7,8 @@ from pathlib import Path
 import os
 
 from pulse.postprocessing.plot_structural_data import get_structural_frf
-from data.user_input.data_handler.export_model_results import ExportModelResults
-from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

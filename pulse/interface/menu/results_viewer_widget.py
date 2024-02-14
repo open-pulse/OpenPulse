@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pulse.interface.menu.model_and_analysis_setup_items import ModelAndAnalysisSetupItems
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
-from pulse.interface.user_input.plots.animation_widget import AnimationWidget
+from pulse.interface.user_input.plots.general.animation_widget import AnimationWidget
 from pulse.interface.user_input.plots.structural.structural_mode_shape_widget import PlotStructuralModeShapeInput
 
 class ResultsViewerWidget(QWidget):

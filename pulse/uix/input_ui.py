@@ -40,9 +40,9 @@ from data.user_input.model.setup.acoustic.perforatedPlateInput import Perforated
 from data.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 from data.user_input.model.setup.acoustic.check_pulsation_criteria import CheckPulsationCriteriaInput
 #
-from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
-from data.user_input.analysis.analysisSetupInput import AnalysisSetupInput
-from data.user_input.analysis.runAnalysisInput import RunAnalysisInput
+from pulse.interface.user_input.analysis.general.analysis_type import AnalysisTypeInput
+from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
+from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysisInput
 #
 # from data.user_input.plots.structural.plot_structural_mode_shape_input import PlotStructuralModeShapeInput
 from pulse.interface.user_input.plots.structural.structural_mode_shape_widget import PlotStructuralModeShapeInput

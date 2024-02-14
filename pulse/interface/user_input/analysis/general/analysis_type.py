@@ -4,12 +4,12 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-from data.user_input.analysis.structuralHarmonicAnalysisInput import StructuralHarmonicAnalysisInput
-from data.user_input.analysis.acousticHarmonicAnalysisInput import AcousticHarmonicAnalysisInput
-from data.user_input.analysis.coupledHarmonicAnalysisInput import CoupledHarmonicAnalysisInput
-from data.user_input.analysis.structuralModalAnalysisInput import StructuralModalAnalysisInput
-from data.user_input.analysis.acousticModalAnalysisInput import AcousticModalAnalysisInput
-from data.user_input.analysis.statict_analysis_input import StaticAnalysisInput
+from pulse.interface.user_input.analysis.structural.structural_harmonic_analysis import StructuralHarmonicAnalysisInput
+from pulse.interface.user_input.analysis.acoustic.acoustic_harmonic_analysis import AcousticHarmonicAnalysisInput
+from pulse.interface.user_input.analysis.coupled.coupled_harmonic_analysis import CoupledHarmonicAnalysisInput
+from pulse.interface.user_input.analysis.structural.structural_modal_analysis import StructuralModalAnalysisInput
+from pulse.interface.user_input.analysis.acoustic.acoustic_modal_analysis import AcousticModalAnalysisInput
+from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
 
 """
 |--------------------------------------------------------------------|

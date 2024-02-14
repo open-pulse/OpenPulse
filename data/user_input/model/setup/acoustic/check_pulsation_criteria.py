@@ -8,7 +8,7 @@ import numpy as np
 
 from pulse.utils import get_new_path
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from data.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title_1 = "ERROR MESSAGE"
