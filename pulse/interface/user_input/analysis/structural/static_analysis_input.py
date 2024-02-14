@@ -5,14 +5,14 @@ from PyQt5 import uic
 import numpy as np
 from pathlib import Path
 
+from pulse import UI_DIR
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 class StaticAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        uic.loadUi(Path('pulse/interface/ui_files/analysis/structural/static_analysis.ui'), self)
+        uic.loadUi(UI_DIR / "analysis/structural/static_analysis.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

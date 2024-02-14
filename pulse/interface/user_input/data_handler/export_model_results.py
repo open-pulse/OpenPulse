@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 import numpy as np
 
+from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 def get_icons_path(filename):
@@ -18,7 +19,7 @@ class ExportModelResults(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/data_handler/export_model_results.ui'), self)
+        uic.loadUi(UI_DIR / "data_handler/export_model_results.ui", self)
 
         self._config_window()
         self._load_icons()

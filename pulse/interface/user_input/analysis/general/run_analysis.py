@@ -9,6 +9,7 @@ from time import time, sleep
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+from pulse import UI_DIR
 from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
@@ -22,7 +23,7 @@ class RunAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/analysis/general/run_analysis.ui'), self)
+        uic.loadUi(UI_DIR / "analysis/general/run_analysis.ui", self)
 
         self.project = project
 

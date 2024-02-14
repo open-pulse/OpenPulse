@@ -5,6 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 import numpy as np
 
+from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from math import pi
 
@@ -14,8 +15,7 @@ window_title2 = "WARNING MESSAGE"
 class AcousticModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        uic.loadUi(Path('pulse/interface/ui_files/analysis/acoustic/modal_analysis.ui'), self)
+        uic.loadUi(UI_DIR / "analysis/acoustic/modal_analysis.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
