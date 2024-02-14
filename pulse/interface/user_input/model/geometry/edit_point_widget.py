@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 from pathlib import Path
-from pulse import app
+from pulse import app, UI_DIR
 
 from opps.model import Point
 
@@ -20,7 +20,7 @@ from opps.model import Point
 class EditPointWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-        uic.loadUi(Path('pulse/interface/ui_files/model/geometry/edit_point.ui'), self)
+        uic.loadUi(UI_DIR / "model/geometry/edit_point.ui", self)
 
         self.geometry_widget = geometry_widget
 

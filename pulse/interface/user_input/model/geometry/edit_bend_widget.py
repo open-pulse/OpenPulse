@@ -13,15 +13,14 @@ from PyQt5.QtWidgets import (
     QListWidget,
 )
 from pathlib import Path
-from pulse import app
+from pulse import app, UI_DIR
 from opps.model import Bend, Elbow
 
 
 class EditBendWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-        uic.loadUi(Path('pulse/interface/ui_files/model/geometry/edit_bend.ui'), self)
-
+        uic.loadUi(UI_DIR / "model/geometry/edit_bend.ui", self)
 
         self.geometry_widget = geometry_widget
 

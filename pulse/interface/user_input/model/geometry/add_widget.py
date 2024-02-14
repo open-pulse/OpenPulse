@@ -12,7 +12,7 @@ from pulse.interface.user_input.model.setup.general.material_widget import Mater
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.interface.cad_handler import CADHandler
-from pulse import app
+from pulse import app, UI_DIR
 
 from opps.model import Bend
 
@@ -20,7 +20,7 @@ from opps.model import Bend
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-        uic.loadUi(Path('pulse/interface/ui_files/model/geometry/add_widget.ui'), self)
+        uic.loadUi(UI_DIR / "model/geometry/add_widget.ui", self)
 
         self.geometry_widget = geometry_widget
         self.project = app().project
