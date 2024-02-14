@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import UI_DIR
 from pulse.standard_cross_sections_libraries import StandardCrossSections
 
 import numpy as np
@@ -12,8 +13,7 @@ from collections import defaultdict
 class GetStandardCrossSection(QDialog):
     def __init__(self, section_data=None, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__(*args, **kwargs)
-
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/structural/standard_cross_section_input.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/structural/standard_cross_section_input.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

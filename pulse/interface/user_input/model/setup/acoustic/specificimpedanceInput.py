@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 import numpy as np
 
+from pulse import UI_DIR
 from pulse.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
@@ -18,7 +19,7 @@ class SpecificImpedanceInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/specificImpedanceInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/acoustic/specificImpedanceInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

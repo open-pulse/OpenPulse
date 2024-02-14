@@ -7,6 +7,7 @@ from pathlib import Path
 import configparser
 import numpy as np
 
+from pulse import UI_DIR
 from pulse.utils import remove_bc_from_file
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
@@ -16,7 +17,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/element_length_correction_input.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/acoustic/element_length_correction_input.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

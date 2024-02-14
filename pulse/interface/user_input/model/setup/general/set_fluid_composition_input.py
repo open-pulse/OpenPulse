@@ -9,6 +9,7 @@ import numpy as np
 import sys
 import configparser
 
+from pulse import UI_DIR
 from pulse.utils import get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
@@ -18,8 +19,7 @@ window_title_1 = "ERROR"
 class SetFluidCompositionInput(QDialog):
     def __init__(self, project, opv, selected_fluid_to_edit=None, *args, **kwargs):
         super().__init__()
-        
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/setFluidCompositionInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/acoustic/setFluidCompositionInput.ui", self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)

@@ -10,6 +10,7 @@ import configparser
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
+from pulse import UI_DIR
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
@@ -47,7 +48,7 @@ class ClickableLineEdit(QLineEdit):
 class ExpansionJointInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/structural/expansionJointInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/structural/expansionJointInput.ui", self)
         
         clicked = pyqtSignal()
 

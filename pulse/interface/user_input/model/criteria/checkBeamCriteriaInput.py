@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import UI_DIR
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
@@ -13,7 +14,7 @@ class CheckBeamCriteriaInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/criterias/check_beam_criteria.ui'), self)
+        uic.loadUi(UI_DIR / "criterias/check_beam_criteria.ui", self)
         
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

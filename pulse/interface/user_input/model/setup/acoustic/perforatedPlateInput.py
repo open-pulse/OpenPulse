@@ -9,6 +9,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+from pulse import UI_DIR
 from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.preprocessing.perforated_plate import PerforatedPlate
@@ -24,7 +25,7 @@ class PerforatedPlateInput(QDialog):
     def __init__(self, project, opv, valve_ids=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/perforatedPlateInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/acoustic/perforatedPlateInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

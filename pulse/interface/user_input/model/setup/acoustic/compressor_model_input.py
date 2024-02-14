@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from compressors.reciprocating.model import CompressorModel
+from pulse import UI_DIR
 from pulse.utils import get_new_path, remove_bc_from_file
 # from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
@@ -24,7 +25,7 @@ class CompressorModelInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/compressor_model_input.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/acoustic/compressor_model_input.ui", self)
 
         self.opv = opv
         self.opv.setInputObject(self)

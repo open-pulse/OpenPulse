@@ -8,6 +8,7 @@ import numpy as np
 import configparser
 import matplotlib.pyplot as plt
 
+from pulse import UI_DIR
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
@@ -25,7 +26,7 @@ class SetCrossSectionInput(QDialog):
                     *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/general/set_cross_section.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/general/set_cross_section.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
