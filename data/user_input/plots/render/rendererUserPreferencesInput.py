@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.model.setup.pickColorInput import PickColorInput
+from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
 
 class RendererUserPreferencesInput(QDialog):

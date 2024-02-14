@@ -1,16 +1,12 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QProgressBar, QLabel, QListWidget
-from data.user_input.project.printMessageInput import PrintMessageInput
-from pulse.project import Project
+from PyQt5.QtWidgets import QDialog, QFileDialog
 from PyQt5.QtGui import QIcon
-from os.path import basename, expanduser, exists
 from PyQt5 import uic
-import os
-import configparser
-from shutil import ExecError, copyfile
-import numpy as np
-from time import time
 
-from PyQt5 import uic
+import os
+from time import time
+from pathlib import Path
+
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 class LoadProjectInput(QDialog):
     def __init__(self, main_window, *args, **kwargs):
@@ -19,29 +15,38 @@ class LoadProjectInput(QDialog):
         self.project = main_window.project
         self.opv = main_window.opv_widget
         self.config = main_window.config
-        
         self.path = kwargs.get("path", None)
-        self.userPath = expanduser('~')
-        self.complete_project_path = ""
-        self.complete = False
 
+        self._reset()
+        self._get_project_path()
+        self._load_project()
+
+    def _reset(self):
+        self.complete = False
+        self.complete_project_path = ""        
+        user_path = os.path.expanduser('~')
+        desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
+        self.desktop_path = str(desktop_path)
+
+    def _get_project_path(self):
         if self.path is None:
-            self.complete_project_path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'OpenPulse Project (*.ini)')
+            self.complete_project_path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.desktop_path, 'OpenPulse Project (*.ini)')
         else:
             self.complete_project_path = self.path
         
+    def _load_project(self):
         try:
             if self.complete_project_path != "":
                 t0 = time()
                 self.project.load_project(self.complete_project_path)
                 if self.project.preferences:
-                    self.opv.setUserInterfacePreferences(self.project.preferences)
+                    self.opv.set_user_interface_preferences(self.project.preferences)
                 self.config.write_recent_project(self.complete_project_path)
                 self.complete = True
                 self.project.time_to_load_or_create_project = time() - t0
                 self.close()
         except Exception as log_error:
+            window_title = "Error"
             title = "Error while loading project"
             message = str(log_error)
-            window_title = "ERROR"
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])

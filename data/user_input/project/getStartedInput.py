@@ -8,7 +8,7 @@ import os
 import configparser
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 def get_icons_path(filename):

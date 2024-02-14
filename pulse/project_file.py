@@ -2814,6 +2814,10 @@ class ProjectFile:
         return self._import_type
 
     @property
+    def project_name(self):
+        return self._project_name
+
+    @property
     def project_path(self):
         return self._project_path
 

@@ -42,7 +42,10 @@ class NewProjectInput(QDialog):
         self.project_directory = ""
         self.project_folder_path = ""
         self.project_file_path = ""
-        self.userPath = os.path.expanduser('~')
+    
+        user_path = os.path.expanduser('~')
+        desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
+        self.desktop_path = str(desktop_path)
 
         self.material_list_name = self.project.file._material_file_name
         self.fluid_list_name = self.project.file._fluid_file_name
@@ -69,6 +72,7 @@ class NewProjectInput(QDialog):
         self.lineEdit_geometry_path = self.findChild(QLineEdit, 'lineEdit_geometry_path')
         self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
         self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
+        self.lineEdit_project_folder.setText(self.desktop_path)
         self.focus_lineEdit_project_name_if_blank()
         # QPushButton
         self.pushButton_import_geometry = self.findChild(QPushButton, 'pushButton_import_geometry')
@@ -121,12 +125,16 @@ class NewProjectInput(QDialog):
             self.lineEdit_project_name.setFocus()
 
     def search_project_folder(self):
-        self.project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
-        self.lineEdit_project_folder.setText(str(self.project_directory))        
+        self.project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.desktop_path)
+        if self.project_directory != "":
+            self.lineEdit_project_folder.setText(str(self.project_directory))
+        else:
+            self.project_directory = self.desktop_path        
 
     def import_geometry(self):
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.iges *.igs *.step *.stp)')
-        self.lineEdit_geometry_path.setText(str(self.path))
+        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.desktop_path, 'Files (*.iges *.igs *.step *.stp)')
+        if self.path != "":
+            self.lineEdit_geometry_path.setText(str(self.path))
 
     def check_project_inputs(self):
         if self.lineEdit_project_name.text() in os.listdir(self.project_directory):

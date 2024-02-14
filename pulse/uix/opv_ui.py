@@ -39,7 +39,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.add_MOPT_logo = True
         self.show_reference_scale = True
 
-    def setUserInterfacePreferences(self, preferences):
+    def set_user_interface_preferences(self, preferences):
         """
         """
         if preferences:

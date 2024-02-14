@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
     
         self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
-        self.loadRecentProject()
+        self.load_recent_project()
 
     # public
     def new_project(self):
@@ -452,7 +452,8 @@ class MainWindow(QMainWindow):
         self.update()
         self.opv_widget.updatePlots()
         self.plot_entities_with_cross_section()
-        self.opv_widget.setCameraView(5)
+        self.action_front_view_callback()
+        # self.opv_widget.setCameraView(5)
 
     def closeEvent(self, event):
         title = "OpenPulse stop execution requested"
@@ -475,25 +476,25 @@ class MainWindow(QMainWindow):
     def _loadProjectMenu(self):
         self._update_recent_projects()
 
-    def loadRecentProject(self):
+    def load_recent_project(self):
         if self.config.openLastProject and self.config.haveRecentProjects():
             self.importProject_call(self.config.getMostRecentProjectDir())
         else:
             if self.input_widget.get_started():
                 self._loadProjectMenu()
-                self.changeWindowTitle(self.project.file._project_name)
+                self.changeWindowTitle(self.project.file.project_name)
                 self.draw()
 
     def importProject_call(self, path=None):
         if self.input_widget.load_project(path):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.file._project_name)
+            self.changeWindowTitle(self.project.file.project_name)
             self.draw()
 
     def newProject_call(self):
         if self.input_widget.new_project(self.config):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.file._project_name)
+            self.changeWindowTitle(self.project.file.project_name)
             self.draw()
 
     def _createMeshToolbar(self):

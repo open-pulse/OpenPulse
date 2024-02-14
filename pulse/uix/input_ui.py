@@ -12,8 +12,8 @@ from data.user_input.project.editImportedGeometryInput import EditImportedGeomet
 from data.user_input.project.set_project_attributes_input import SetProjectAttributesInput
 from data.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
-from data.user_input.model.setup.general.set_material_input import SetMaterialInput
-from data.user_input.model.setup.acoustic.fluid_input import FluidInput
+from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
+from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
@@ -31,7 +31,7 @@ from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXa
 from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
-from data.user_input.model.setup.acoustic.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
 from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
 from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
 from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
@@ -79,6 +79,8 @@ from pulse.preprocessing.entity import Entity
 from pulse.project import Project
 from pulse.uix.clip_plane_widget import ClipPlaneWidget
 #
+from pulse import app
+
 from time import time
 
 window_title_1 = "ERROR MESSAGE"
@@ -136,6 +138,7 @@ class InputUi:
         # return self.initial_project_action(get_started.complete)          
     
     def initial_project_action(self, finalized):
+        app().main_window.action_front_view_callback()
         mesh_setup = self.project.check_mesh_setup()
         if finalized:
             if self.project.empty_geometry:
