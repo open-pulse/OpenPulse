@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import openpyxl
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

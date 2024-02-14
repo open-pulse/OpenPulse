@@ -6,7 +6,7 @@ from pathlib import Path
 
 from PyQt5.uic.uiparser import QtWidgets
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"

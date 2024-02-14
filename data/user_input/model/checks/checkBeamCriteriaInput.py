@@ -5,7 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 
 from pulse.preprocessing.before_run import BeforeRun
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title = "ERROR"
 

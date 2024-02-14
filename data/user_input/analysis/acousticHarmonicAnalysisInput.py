@@ -8,7 +8,7 @@ import numpy as np
 class AcousticHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(Path('data/user_input/ui_files/analysis_/acoustic_/analysis_setup_input_harmonic_analysis_direct_method.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/analysis/acoustic/analysis_setup_for_harmonic_analysis_direct_method.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

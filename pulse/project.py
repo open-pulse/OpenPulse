@@ -10,8 +10,8 @@ from data.user_input.model.setup.structural.expansionJointInput import get_list_
 #
 from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
-from data.user_input.project.loading_screen import LoadingScreen
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 #
 import os

@@ -7,7 +7,7 @@ from pathlib import Path
 import os
 import numpy as np
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

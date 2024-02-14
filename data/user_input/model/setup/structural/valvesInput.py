@@ -13,7 +13,7 @@ from data.user_input.model.setup.acoustic.perforatedPlateInput import Perforated
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.utils import get_V_linear_distribution, remove_bc_from_file
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "ERROR MESSAGE"

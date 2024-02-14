@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 from data.user_input.analysis.statict_analysis_input import StaticAnalysisInput
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title = "ERROR"
 
@@ -33,11 +33,11 @@ class AnalysisSetupInput(QDialog):
         self.analysis_ID = project.analysis_ID
 
         if self.analysis_ID in [1, 6]:
-            ui_path = Path('data/user_input/ui_files/analysis_/structural_/harmonic_analysis_mode_superposition_method_inputs.ui')
+            ui_path = Path('pulse/interface/ui_files/analysis/structural/harmonic_analysis_mode_superposition_method.ui')
         elif self.analysis_ID in [0, 5]:
-            ui_path = Path('data/user_input/ui_files/analysis_/structural_/harmonic_analysis_direct_method_inputs.ui')
+            ui_path = Path('pulse/interface/ui_files/analysis/structural/harmonic_analysis_direct_method.ui')
         elif self.analysis_ID in [3]:
-            ui_path = Path('data/user_input/ui_files/analysis_/acoustic_/harmonic_analysis_direct_method_inputs.ui')
+            ui_path = Path('pulse/interface/ui_files/analysis/acoustic/harmonic_analysis_direct_method.ui')
         elif self.analysis_ID == 7:
             read = StaticAnalysisInput(self.project)
             self.complete = self.flag_run = read.complete

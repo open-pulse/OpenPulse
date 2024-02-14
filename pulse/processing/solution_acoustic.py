@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 def relative_error(vect_1, vect_2):
     return norm((vect_2-vect_1))/norm(vect_1)

@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 from pulse.utils import remove_bc_from_file
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR"
 window_title2 = "WARNING"

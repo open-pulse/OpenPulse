@@ -5,7 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 
 from pulse.preprocessing.cross_section import CrossSection
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 import numpy as np
 import matplotlib.pyplot as plt

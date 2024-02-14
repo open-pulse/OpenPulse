@@ -6,7 +6,7 @@ from pathlib import Path
 
 import configparser
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title1 = "ERROR MESSAGE"

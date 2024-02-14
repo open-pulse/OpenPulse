@@ -9,7 +9,7 @@ import numpy as np
 import configparser
 from shutil import copyfile
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
 

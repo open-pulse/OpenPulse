@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt, QRect
 
 from pulse.utils import *
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 import gmsh

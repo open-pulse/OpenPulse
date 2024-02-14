@@ -10,7 +10,7 @@ import numpy as np
 from math import pi
 
 from pulse.utils import remove_bc_from_file, get_new_path
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 class DOFInput(QDialog):

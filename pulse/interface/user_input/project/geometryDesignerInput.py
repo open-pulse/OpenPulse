@@ -11,7 +11,7 @@ from collections import defaultdict
 from shutil import copyfile, rmtree
 
 from pulse.utils import *
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "ERROR MESSAGE"

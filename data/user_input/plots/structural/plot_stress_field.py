@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 class PlotStressField(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

@@ -7,11 +7,10 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 #
 # from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 # from data.user_input.project.geometry_editor import CreateEditStructuresWidget
-from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
-from data.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
-from data.user_input.project.set_project_attributes_input import SetProjectAttributesInput
-from data.user_input.project.set_geometry_file_input import SetGeometryFileInput
-from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
+from pulse.interface.user_input.project.geometryDesignerInput import GeometryDesignerInput
+from pulse.interface.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
+from pulse.interface.user_input.project.set_project_attributes_input import SetProjectAttributesInput
+from pulse.interface.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
@@ -72,7 +71,7 @@ from data.user_input.model.info.structuralModel_InfoInput import StructuralModel
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
 from data.user_input.model.checks.checkBeamCriteriaInput import CheckBeamCriteriaInput
 #
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 #
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.entity import Entity
@@ -200,10 +199,6 @@ class InputUi:
     
     def get_opv(self):
         return self.opv
-
-    def set_mesh_properties(self):
-        self.processInput(SetMeshPropertiesInput, self.project, self.opv)
-        self.initial_project_action(True)
 
     def set_material(self):
         self.processInput(SetMaterialInput, self.project, self.opv)   

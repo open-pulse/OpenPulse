@@ -3,7 +3,7 @@ import numpy as np
 from math import pi
 from scipy.sparse.linalg import eigs, spsolve
 from pulse.processing.assembly_structural import AssemblyStructural
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 class SolutionStructural:
     """ This class creates a Structural Solution object from input data.

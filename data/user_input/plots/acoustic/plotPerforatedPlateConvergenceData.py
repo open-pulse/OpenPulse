@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QProgressBar, QLabel, QListWidget
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.processing.solution_acoustic import relative_error
 from pulse.project import Project
 from PyQt5.QtGui import QIcon

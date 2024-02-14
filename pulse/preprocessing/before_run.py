@@ -1,6 +1,6 @@
 # from pulse.preprocessing.before_run import BeforeRun
 from collections import defaultdict
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 import numpy as np
 
 window_title_1 = "ERROR"

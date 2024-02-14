@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionInputs
 from data.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
 
 window_title = "ERROR MESSAGE"

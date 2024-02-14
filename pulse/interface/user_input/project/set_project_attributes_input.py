@@ -9,7 +9,7 @@ import configparser
 from shutil import copytree, rmtree
 
 from pulse.utils import get_new_path
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
@@ -18,7 +18,7 @@ class SetProjectAttributesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Project/setProjectAttributesInput.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/project/set_project_attributes.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

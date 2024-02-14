@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from pulse.tools.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.preprocessing.perforated_plate import PerforatedPlate
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.utils import get_new_path, remove_bc_from_file
 

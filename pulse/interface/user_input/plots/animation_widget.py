@@ -6,7 +6,7 @@ from PyQt5 import uic
 from pathlib import Path
 import os
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_new_path
 
 

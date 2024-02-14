@@ -6,7 +6,7 @@ import numpy as np
 from pathlib import Path
 
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 class SetInertialLoad(QDialog):
     def __init__(self, project, *args, **kwargs):

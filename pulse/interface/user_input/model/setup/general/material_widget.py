@@ -29,7 +29,7 @@ class MaterialInputs(QWidget):
     def __init__(self, main_window, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Model/geometry/material_input_widget.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/model/setup/general/material_input_widget.ui'), self)
 
         self.main_window = main_window
 

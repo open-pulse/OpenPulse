@@ -21,7 +21,7 @@ class SetMaterialInput(QDialog):
     def __init__(   self, project, opv, cache_selected_lines=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Model/Setup/general/set_material_input.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/model/setup/general/set_material.ui'), self)
 
         self.project = project
         self.opv = opv

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from pulse.uix.menu.border_item_delegate import BorderItemDelegate
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 
 class MenuItems(QTreeWidget):
@@ -371,13 +371,6 @@ class MenuItems(QTreeWidget):
         elif item == self.item_child_setGeometryFile:
             if not self.item_child_setGeometryFile.isDisabled():
                 self.mainWindow.getInputWidget().set_geometry_file()
-
-        # elif item == self.item_child_setMeshProperties:
-        #     if not self.item_child_setMeshProperties.isDisabled():
-        #         if self.mainWindow.getInputWidget().set_mesh_properties():
-        #             self._updateItems()
-        #             self.mainWindow.set_enable_menuBar(True)
-        #             self.mainWindow._updateStatusBar()
 
         elif item == self.item_child_set_material:
             if not self.item_child_set_material.isDisabled():

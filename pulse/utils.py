@@ -1,5 +1,5 @@
 from numpy.core.numeric import outer
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from functools import wraps
 from time import time
 from scipy.sparse import issparse

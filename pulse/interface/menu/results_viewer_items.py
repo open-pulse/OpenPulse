@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
 from pulse.interface.menu.common_menu_items import CommonMenuItems
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 class ResultsViewerItems(CommonMenuItems):
     """Menu Items

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QObject, QSize, QThread
 from PyQt5 import uic
 from pathlib import Path
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse import __version__, __release_date__
 
 class QWorker(QObject):
@@ -29,7 +29,7 @@ class LoadingScreen(QDialog):
     def __init__(self, target=None, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(Path('data/user_input/ui_files/Project/loading_window.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/messages/loading_window.ui'), self)
         
         self.target = target
         self.title = kwargs.get("title", "")

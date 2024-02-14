@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 from pulse.processing.solution_acoustic import SolutionAcoustic
-from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
 
@@ -22,7 +22,7 @@ class RunAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/analysis_/general_/run_analysis_input.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/analysis/general/run_analysis.ui'), self)
 
         self.project = project
 

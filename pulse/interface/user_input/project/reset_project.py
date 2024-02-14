@@ -9,7 +9,7 @@ import configparser
 from shutil import copyfile
 import numpy as np
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title = "WARNING"
 title = "Project resetting complete"
@@ -20,7 +20,7 @@ class ResetProjectInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Project/resetProjectInput.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/project/reset_project.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

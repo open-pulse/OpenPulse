@@ -8,7 +8,7 @@ import os
 import numpy as np
 from os.path import basename
 
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_new_path
 
 def get_icons_path(filename):

@@ -1,4 +1,4 @@
-from data.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
 import vtk
 import numpy as np
 from math import pi

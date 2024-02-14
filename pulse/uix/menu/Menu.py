@@ -15,8 +15,6 @@ class Menu(QSplitter):
     def __init__(self, main_window):
         super().__init__(Qt.Vertical)
         self.main_window = main_window
-        # self.menu_items = MenuItems(self.main_window)
-        # self.menu_info = MenuInfo(self.main_window, self.menu_items)
         self.menu_widget = ModelAndAnalysisSetupWidget(self.main_window)
         self.menu_items = self.menu_widget.treeWidget_model_and_analysis_setup
         # self.addWidget(self.menu_info)

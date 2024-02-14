@@ -11,7 +11,7 @@ class CallDoubleConfirmationInput(QDialog):
     def __init__(self, title, message, buttons_config={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/Project/call_double_confirmation_input.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/messages/call_double_confirmation.ui'), self)
 
         self.title = title
         self.message = message

@@ -6,13 +6,13 @@ import numpy as np
 from pathlib import Path
 
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 class StaticAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('data/user_input/ui_files/analysis_/structural_/static_analysis_inputs.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/analysis/structural/static_analysis.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

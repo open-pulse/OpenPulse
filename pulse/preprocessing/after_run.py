@@ -1,5 +1,5 @@
 import numpy as np
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title_1 = "ERROR"
 window_title_2 = "WARNING"

@@ -8,7 +8,7 @@ import numpy as np
 from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
 from pulse.interface.opvGeometryRenderer import opvGeometryRenderer
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
-from data.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
 
 class OPVUi(QVTKRenderWindowInteractor):
