@@ -20,7 +20,7 @@ class CrossSectionWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/general/cross_section_mainwidget.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/model/setup/general/cross_section_widget.ui'), self)
 
         self.reset()
         self.define_qt_variables()

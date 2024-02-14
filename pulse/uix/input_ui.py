@@ -61,7 +61,6 @@ from pulse.interface.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_N
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
 from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
-from pulse.interface.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
 from pulse.interface.user_input.project.render.renderer_user_preferences import RendererUserPreferencesInput
 from pulse.interface.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
@@ -473,9 +472,6 @@ class InputUi:
             self.processInput(PlotReactions, self.project, self.opv)
         elif self.analysis_ID == 7:
             self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
-
-    def animationSettings(self):
-        self.processInput(AnimationSettingsInput, self.project, self.opv)
 
     def structural_model_info(self):
         self.processInput(StructuralModelInfoInput, self.project, self.opv)

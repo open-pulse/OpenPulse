@@ -1018,7 +1018,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../figures/Pipe.PNG</pixmap>
+                 <pixmap>../../../../../../data/figures/Pipe.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -3318,7 +3318,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../figures/Rectangular.PNG</pixmap>
+          <pixmap>../../../../../../data/figures/Rectangular.PNG</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -3842,7 +3842,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../figures/Circular.PNG</pixmap>
+          <pixmap>../../../../../../data/figures/Circular.PNG</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -4288,7 +4288,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../figures/C_profile.PNG</pixmap>
+          <pixmap>../../../../../../data/figures/C_profile.PNG</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -5116,7 +5116,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../figures/I_profile.PNG</pixmap>
+          <pixmap>../../../../../../data/figures/I_profile.PNG</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -5944,7 +5944,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../../figures/T_profile.PNG</pixmap>
+          <pixmap>../../../../../../data/figures/T_profile.PNG</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>

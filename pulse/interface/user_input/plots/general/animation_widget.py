@@ -19,7 +19,7 @@ class AnimationWidget(QWidget):
     def __init__(self, main_window):
         super().__init__()
     
-        ui_path = f"{main_window.ui_dir}/plot/animation/animation_widget.ui"
+        ui_path = f"{main_window.ui_dir}/plots/animation/animation_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.main_window = main_window

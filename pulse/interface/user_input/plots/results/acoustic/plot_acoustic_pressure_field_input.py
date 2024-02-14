@@ -12,7 +12,7 @@ class PlotAcousticPressureFieldInput(QWidget):
     def __init__(self, main_window, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        ui_path = f"{main_window.ui_dir}/plot/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
+        ui_path = f"{main_window.ui_dir}/plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()

@@ -16,7 +16,7 @@ class PlotStructuralModeShapeInput(QWidget):
     def __init__(self, main_window, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = f"{main_window.ui_dir}/plot/results/structural/structural_mode_shape_widget.ui"
+        ui_path = f"{main_window.ui_dir}/plots/results/structural/structural_mode_shape_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()

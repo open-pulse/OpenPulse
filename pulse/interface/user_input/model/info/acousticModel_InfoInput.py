@@ -11,7 +11,7 @@ class AcousticModelInfoInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/Model/Info/acousticModel_Info.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/model/info/acousticModel_Info.ui'), self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

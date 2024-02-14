@@ -391,10 +391,6 @@ class MainWindow(QMainWindow):
         self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
 
-        self.animationSettings_action = QAction('&Animation Settings', self)
-        self.animationSettings_action.setStatusTip('Animation Settings')
-        self.animationSettings_action.triggered.connect(self.getInputWidget().animationSettings)
-
         # Views
         self.cameraTop_action = QAction(self.view_top_icon, '&Top View', self)
         self.cameraTop_action.setShortcut('Ctrl+Shift+1')
@@ -539,7 +535,6 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
         #animation
         self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
-        self.resultsViewerMenu.addAction(self.animationSettings_action)
 
         self.resultsViewerMenu.addAction(self.geometry_workspace_action)
         self.resultsViewerMenu.addAction(self.mesh_workspace_action)

@@ -20,7 +20,7 @@ from opps.model import Bend
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-        uic.loadUi(Path('pulse/interface/ui_files/Model/geometry/add_widget.ui'), self)
+        uic.loadUi(Path('pulse/interface/ui_files/model/geometry/add_widget.ui'), self)
 
         self.geometry_widget = geometry_widget
         self.project = app().project
