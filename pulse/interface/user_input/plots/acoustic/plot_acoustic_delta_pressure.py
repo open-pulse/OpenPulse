@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -10,35 +10,32 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
+from pulse import app
+
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
         return str(Path(path))
 
-class PlotAcousticDeltaPressuresInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class PlotAcousticDeltaPressure(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/acoustic/plot_acoustic_delta_pressures_input.ui'), self)
+        main_window = app().main_window
 
-        self.opv = opv
+        ui_path = Path(f"{main_window.ui_dir}/plots/results/acoustic/plot_acoustic_delta_pressures.ui")
+        uic.loadUi(ui_path, self)
+
+        self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
+        self.project = main_window.getProject()
 
-        self.projec = project
-        self.analysis_method = project.analysis_method_label
-        self.frequencies = project.frequencies
-        self.solution = project.get_acoustic_solution()
-
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-
+        self._reset_variables()
         self._config_window()
         self._load_icons()
-        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.writeNodes(self.opv.getListPickedPoints())
-        self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -51,24 +48,29 @@ class PlotAcousticDeltaPressuresInput(QDialog):
 
     def _reset_variables(self):
         self.unit_label = "Pa"
+        self.analysis_method = self.project.analysis_method_label
+        self.frequencies = self.project.frequencies
+        self.solution = self.project.get_acoustic_solution()
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
         # QLineEdit
         self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')   
         self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
         # QPushButton
-        self.pushButton_flip_nodes_1 = self.findChild(QPushButton, 'pushButton_flip_nodes_1')
-        self.pushButton_flip_nodes_2 = self.findChild(QPushButton, 'pushButton_flip_nodes_2')
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
-        self.pushButton_flip_nodes_1.setIcon(self.update_icon)
-        self.pushButton_flip_nodes_2.setIcon(self.update_icon)
+        self.pushButton_flip_nodes_input = self.findChild(QPushButton, 'pushButton_flip_nodes_input')
+        self.pushButton_flip_nodes_output = self.findChild(QPushButton, 'pushButton_flip_nodes_output')
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
+        self.pushButton_flip_nodes_input.setIcon(self.update_icon)
+        self.pushButton_flip_nodes_output.setIcon(self.update_icon)
 
     def _create_connections(self):
-        self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
-        self.pushButton_flip_nodes_1.clicked.connect(self.flip_nodes)
-        self.pushButton_flip_nodes_2.clicked.connect(self.flip_nodes)
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        self.pushButton_plot_data.clicked.connect(self.call_plotter)
+        self.pushButton_flip_nodes_input.clicked.connect(self.flip_nodes)
+        self.pushButton_flip_nodes_output.clicked.connect(self.flip_nodes)
 
     def writeNodes(self, list_node_ids):
         if len(list_node_ids) == 2:

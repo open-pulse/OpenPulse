@@ -202,7 +202,7 @@ class MenuItems(QTreeWidget):
         self.item_child_plotAcousticPressureField = QTreeWidgetItem(['Plot Acoustic Pressure Field'])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem(['Plot Acoustic Frequency Response'])
         self.item_child_plotAcousticFrequencyResponseFunction = QTreeWidgetItem(['Plot Acoustic Frequency Response Function'])
-        self.item_child_plotAcousticDeltaPressures = QTreeWidgetItem(['Plot Acoustic Delta Pressures'])
+        self.item_child_plot_acoustic_delta_pressures = QTreeWidgetItem(['Plot Acoustic Delta Pressures'])
         self.item_child_plot_TL_NR = QTreeWidgetItem(['Plot Transmission Loss or Attenuation'])
         self.item_child_plot_perforated_plate_convergence_data = QTreeWidgetItem(['Plot perforated plate convergence data'])
         self.item_child_check_pulsation_criteria = QTreeWidgetItem(['Check Pulsation Criteria'])
@@ -212,7 +212,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_plotAcousticPressureField)
         self.list_child_items.append(self.item_child_plotAcousticFrequencyResponse)
         self.list_child_items.append(self.item_child_plotAcousticFrequencyResponseFunction)
-        self.list_child_items.append(self.item_child_plotAcousticDeltaPressures)
+        self.list_child_items.append(self.item_child_plot_acoustic_delta_pressures)
         self.list_child_items.append(self.item_child_plot_TL_NR)
         self.list_child_items.append(self.item_child_plot_perforated_plate_convergence_data)
         self.list_child_items.append(self.item_child_check_pulsation_criteria)
@@ -273,7 +273,7 @@ class MenuItems(QTreeWidget):
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticPressureField)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticFrequencyResponse)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticFrequencyResponseFunction)
-        self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticDeltaPressures) 
+        self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_acoustic_delta_pressures) 
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_TL_NR)   
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_check_pulsation_criteria) 
@@ -575,15 +575,15 @@ class MenuItems(QTreeWidget):
                 self.update_plot_mesh()
                 self.mainWindow.getInputWidget().plot_acoustic_frequency_response_function()
 
-        elif item == self.item_child_plotAcousticDeltaPressures:
-            if not self.item_child_plotAcousticDeltaPressures.isDisabled():
+        elif item == self.item_child_plot_acoustic_delta_pressures:
+            if not self.item_child_plot_acoustic_delta_pressures.isDisabled():
                 self.update_plot_mesh()
-                self.mainWindow.getInputWidget().plotAcousticDeltaPressures()
+                self.mainWindow.getInputWidget().plot_acoustic_delta_pressures()
 
         elif item == self.item_child_plot_TL_NR:
             if not self.item_child_plot_TL_NR.isDisabled():
                 self.update_plot_mesh()
-                self.mainWindow.getInputWidget().plot_TL_NR()
+                self.mainWindow.getInputWidget().plot_transmission_loss()
         
         elif item == self.item_child_plot_perforated_plate_convergence_data:
             if not self.item_child_plot_perforated_plate_convergence_data.isDisabled():
@@ -659,7 +659,7 @@ class MenuItems(QTreeWidget):
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(True)
             self.item_child_plotAcousticPressureField.setDisabled(True)
-            self.item_child_plotAcousticDeltaPressures.setDisabled(True)
+            self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
             self.item_child_check_pulsation_criteria.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
             self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
@@ -703,18 +703,18 @@ class MenuItems(QTreeWidget):
                     self.item_child_plotStructuralModeShapes.setDisabled(False)  
             
             elif self.project.analysis_ID == 3:
-                if self.project.perforated_plate_dataLog:
+                if self.project.perforated_plate_data_log:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(False)
                 self.item_child_plotAcousticPressureField.setDisabled(False)
-                self.item_child_plotAcousticDeltaPressures.setDisabled(False)
+                self.item_child_plot_acoustic_delta_pressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
                 if self.project.preprocessor.nodes_with_compressor_excitation != []:
                     self.item_child_check_pulsation_criteria.setDisabled(False)
             
             elif self.project.analysis_ID in [5, 6]:
-                if self.project.perforated_plate_dataLog:
+                if self.project.perforated_plate_data_log:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
 
                 self.item_child_plotDisplacementField.setDisabled(False)
@@ -726,7 +726,7 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(False)
                 self.item_child_plotAcousticPressureField.setDisabled(False)
-                self.item_child_plotAcousticDeltaPressures.setDisabled(False)
+                self.item_child_plot_acoustic_delta_pressures.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
 
                 if self.project.preprocessor.nodes_with_compressor_excitation != []:

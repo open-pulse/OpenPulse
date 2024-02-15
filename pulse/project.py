@@ -50,7 +50,7 @@ class Project:
         self.solution_acoustic = None
         self.natural_frequencies_structural = None
         self.natural_frequencies_acoustic = None
-        self.perforated_plate_dataLog = None
+        self.perforated_plate_data_log = None
         self.flag_set_material = False
         self.flag_set_crossSection = False
         self.plot_pressure_field = False
@@ -1969,7 +1969,7 @@ class Project:
         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
     
     def set_perforated_plate_convergence_dataLog(self, data):
-        self.perforated_plate_dataLog = data
+        self.perforated_plate_data_log = data
 
     def get_map_nodes(self):
         return self.preprocessor.map_nodes

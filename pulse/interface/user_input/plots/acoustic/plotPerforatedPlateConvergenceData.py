@@ -1,27 +1,26 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QProgressBar, QLabel, QListWidget
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse.processing.solution_acoustic import relative_error
-from pulse.project import Project
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
-from os.path import basename, expanduser, exists
 from PyQt5 import uic
-import os
-import configparser
-from shutil import ExecError, copyfile
-import numpy as np
-from time import time
+
 import matplotlib
 import matplotlib.pyplot as plt
 
-from PyQt5 import uic
+from pulse.processing.solution_acoustic import relative_error
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+
+from pulse import app
 
 class PlotPerforatedPlateConvergenceData(QDialog):
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.project = project
-        self.data = data
-        [iterations, pressure_residues, delta_residues, target] = data
+
+        main_window = app().main_window
+        self.project = main_window.getProject()
+        data_log = self.project.perforated_plate_data_log
+
+        [iterations, pressure_residues, delta_residues, target] = data_log
         self.plot_convergence_graph(iterations, pressure_residues, delta_residues, target)
 
     def keyPressEvent(self, event):

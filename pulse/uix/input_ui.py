@@ -55,10 +55,10 @@ from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analys
 #
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponse
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunctionInput
-from pulse.interface.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response import PlotAcousticFrequencyResponse
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunction
+from pulse.interface.user_input.plots.acoustic.plot_transmission_loss import PlotTransmissionLoss
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure import PlotAcousticDeltaPressure
 from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
@@ -126,8 +126,7 @@ class InputUi:
     def get_started(self):
         self.menu_items.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput, self.main_window)
-        self.main_window._updateStatusBar()
-        # return self.initial_project_action(get_started.complete)          
+        self.main_window._updateStatusBar()        
     
     def initial_project_action(self, finalized):
         app().main_window.action_front_view_callback()
@@ -362,10 +361,11 @@ class InputUi:
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
-        if solution is None:
-            return None
         if self.analysis_ID in [2, 4]:
-            return self.processInput(PlotStructuralModeShape)      
+            if solution is None:
+                return None
+            else:
+                return self.processInput(PlotStructuralModeShape)      
 
     def plot_displacement_field(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -375,33 +375,68 @@ class InputUi:
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             if solution is None:
                 return None
-            return self.processInput(PlotDisplacementField)
+            else:
+                return self.processInput(PlotDisplacementField)
+
+    def plot_stress_field(self):
+        self.project.plot_pressure_field = False
+        self.project.plot_stress_field = True
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
+            solution = self.project.get_structural_solution()
+            if solution is None:
+                return
+            elif self.analysis_ID == 7:
+                self.processInput(PlotStressFieldForStaticAnalysis, self.project, self.opv)
+            else:
+                self.processInput(PlotStressField, self.project, self.opv)
+
+    def plot_stress_frequency_response(self):
+        solution = self.project.get_structural_solution()
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
+            if solution is None:
+                return
+            elif self.analysis_ID == 7:
+                self.processInput(PlotStressesForStaticAnalysis, 
+                                self.project, 
+                                self.opv)
+            else:
+                self.processInput(PlotStressFrequencyResponseInput, 
+                              self.project, 
+                              self.opv)
+
+    def plot_reaction_frequency_response(self):
+        if self.analysis_ID in [0, 1, 5, 6]:
+            self.processInput(PlotReactions, self.project, self.opv)
+        elif self.analysis_ID == 7:
+            self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
 
     def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
         self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
-        if solution is None:
-            return None
         if self.analysis_ID in [2, 4]:
-            return self.processInput(PlotAcousticModeShape)           
+            if solution is None:
+                return None
+            else:
+                return self.processInput(PlotAcousticModeShape)           
 
     def plot_acoustic_pressure_field(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = True
         self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
-        if self.analysis_ID in [3,5,6]:
+        if self.analysis_ID in [3, 5, 6]:
             if solution is None:
                 return None
-            return self.processInput(PlotAcousticPressureField)           
+            else:
+                return self.processInput(PlotAcousticPressureField)           
 
     def plot_structural_frequency_response(self):
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return None
-            if self.analysis_ID == 7:
+            elif self.analysis_ID == 7:
                 return self.processInput(PlotNodalResultsForStaticAnalysis)
             else:
                 return self.processInput(PlotStructuralFrequencyResponse)
@@ -411,67 +446,36 @@ class InputUi:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
-            return self.processInput(PlotAcousticFrequencyResponse)
+            else:
+                return self.processInput(PlotAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
-        if self.analysis_ID in [3,5,6]:
+        if self.analysis_ID in [3, 5, 6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
-            return self.processInput(  PlotAcousticFrequencyResponseFunctionInput, self.project, self.opv)
-
-    def plotAcousticDeltaPressures(self):
-        if self.analysis_ID in [3,5,6]:
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
-                return None
-            return self.processInput(  PlotAcousticDeltaPressuresInput, 
-                                self.project, 
-                                self.opv  )
-
-    def plot_TL_NR(self):
-        if self.analysis_ID in [3,5,6]:
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
-                return
-            self.processInput(  Plot_TL_NR_Input, 
-                                self.project, 
-                                self.opv  )
-
-    def plotPerforatedPlateConvergenceDataLog(self):
-        if self.project.perforated_plate_dataLog:
-            self.processInput( PlotPerforatedPlateConvergenceData, self.project.perforated_plate_dataLog )
-
-    def plot_stress_field(self):
-        self.project.plot_pressure_field = False
-        self.project.plot_stress_field = True
-        if self.analysis_ID in [0, 1, 5, 6, 7]:
-            solution = self.project.get_structural_solution()
-            if solution is None:
-                return
-            if self.analysis_ID == 7:
-                self.processInput(PlotStressFieldForStaticAnalysis, self.project, self.opv)
             else:
-                self.processInput(PlotStressField, self.project, self.opv)
+                return self.processInput(PlotAcousticFrequencyResponseFunction)
 
-    def plotStressFrequencyResponse(self):
-        solution = self.project.get_structural_solution()
-        if solution is None:
-            return
-        if self.analysis_ID == 7:
-            self.processInput(PlotStressesForStaticAnalysis, 
-                              self.project, 
-                              self.opv)
-        elif self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotStressFrequencyResponseInput, 
-                              self.project, 
-                              self.opv)
+    def plot_acoustic_delta_pressures(self):
+        if self.analysis_ID in [3, 5, 6]:
+            solution = self.project.get_acoustic_solution()
+            if solution is None:
+                return None
+            else:
+                return self.processInput(PlotAcousticDeltaPressure)
 
-    def plotReactionsFrequencyResponse(self):
-        if self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotReactions, self.project, self.opv)
-        elif self.analysis_ID == 7:
-            self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
+    def plot_transmission_loss(self):
+        if self.analysis_ID in [3, 5, 6]:
+            solution = self.project.get_acoustic_solution()
+            if solution is None:
+                return None
+            else:
+                return self.processInput(PlotTransmissionLoss)
+
+    def plot_perforated_plate_convergence_data(self):
+        if self.project.perforated_plate_data_log:
+            self.processInput(PlotPerforatedPlateConvergenceData)
 
     def structural_model_info(self):
         self.processInput(StructuralModelInfoInput, self.project, self.opv)

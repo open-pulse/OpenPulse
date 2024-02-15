@@ -376,15 +376,15 @@ class MainWindow(QMainWindow):
         self.plot_acoustic_frequency_response_function_action.setStatusTip('Plot Acoustic Frequency Response Function')
         self.plot_acoustic_frequency_response_function_action.triggered.connect(self.getInputWidget().plot_acoustic_frequency_response_function)
 
-        self.plotAcousticDeltaPressures = QAction('&Plot Acoustic Delta Pressures', self)        
-        # self.plotAcousticDeltaPressures.setShortcut('')
-        self.plotAcousticDeltaPressures.setStatusTip('Plot Acoustic Delta Pressures')
-        self.plotAcousticDeltaPressures.triggered.connect(self.getInputWidget().plot_TL_NR)
+        self.plot_acoustic_delta_pressures = QAction('&Plot Acoustic Delta Pressures', self)        
+        # self.plot_acoustic_delta_pressures.setShortcut('')
+        self.plot_acoustic_delta_pressures.setStatusTip('Plot Acoustic Delta Pressures')
+        self.plot_acoustic_delta_pressures.triggered.connect(self.getInputWidget().plot_transmission_loss)
 
-        self.plot_TL_NR = QAction('&Plot Transmission Loss or Attenuation', self)        
-        self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
-        # self.plot_TL_NR.setShortcut('')
-        self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
+        self.plot_transmission_loss = QAction('&Plot Transmission Loss or Attenuation', self)        
+        self.plot_transmission_loss.setStatusTip('Plot Transmission Loss or Attenuation')
+        # self.plot_transmission_loss.setShortcut('')
+        self.plot_transmission_loss.triggered.connect(self.getInputWidget().plot_transmission_loss)
 
         self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
         self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
@@ -531,8 +531,8 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plot_pressure_field_action)
         self.resultsViewerMenu.addAction(self.plot_acoustic_frequency_response_action)
         self.resultsViewerMenu.addAction(self.plot_acoustic_frequency_response_function_action)
-        self.resultsViewerMenu.addAction(self.plotAcousticDeltaPressures)
-        self.resultsViewerMenu.addAction(self.plot_TL_NR)
+        self.resultsViewerMenu.addAction(self.plot_acoustic_delta_pressures)
+        self.resultsViewerMenu.addAction(self.plot_transmission_loss)
         #animation
         self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
 

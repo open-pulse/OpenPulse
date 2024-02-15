@@ -1,46 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
-  <property name="windowModality">
-   <enum>Qt::NonModal</enum>
-  </property>
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>280</height>
+    <width>328</width>
+    <height>240</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>360</width>
-    <height>240</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>360</width>
-    <height>280</height>
-   </size>
-  </property>
-  <property name="contextMenuPolicy">
-   <enum>Qt::DefaultContextMenu</enum>
-  </property>
   <property name="windowTitle">
-   <string>Plot TL or NR</string>
+   <string>Form</string>
   </property>
-  <property name="whatsThis">
-   <string/>
-  </property>
-  <layout class="QGridLayout" name="gridLayout_3">
+  <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>4</number>
    </property>
@@ -79,7 +52,7 @@
      <property name="lineWidth">
       <number>1</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QGridLayout" name="gridLayout_10">
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -96,7 +69,7 @@
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="Title">
+       <widget class="QLabel" name="title">
         <property name="minimumSize">
          <size>
           <width>300</width>
@@ -119,7 +92,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Plot the transmission loss or noise reduction</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Plot Nodal Delta Pressures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -152,7 +125,7 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_7">
+     <layout class="QGridLayout" name="gridLayout_8">
       <property name="leftMargin">
        <number>4</number>
       </property>
@@ -168,15 +141,15 @@
       <property name="spacing">
        <number>4</number>
       </property>
-      <item row="3" column="0">
-       <widget class="QFrame" name="frame_4">
+      <item row="2" column="0">
+       <widget class="QFrame" name="frame_buttons">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_6">
+        <layout class="QGridLayout" name="gridLayout_9">
          <property name="leftMargin">
           <number>0</number>
          </property>
@@ -193,7 +166,7 @@
           <number>0</number>
          </property>
          <item row="0" column="1">
-          <widget class="QPushButton" name="pushButton_call_data_exporter">
+          <widget class="QPushButton" name="pushButton_export_data">
            <property name="minimumSize">
             <size>
              <width>120</width>
@@ -229,7 +202,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="3">
-          <widget class="QPushButton" name="pushButton_plot_frequency_response">
+          <widget class="QPushButton" name="pushButton_plot_data">
            <property name="minimumSize">
             <size>
              <width>120</width>
@@ -262,7 +235,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QFrame" name="frame_8">
+          <widget class="QFrame" name="frame_14">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -272,7 +245,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QFrame" name="frame_7">
+          <widget class="QFrame" name="frame_15">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -282,7 +255,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="4">
-          <widget class="QFrame" name="frame_13">
+          <widget class="QFrame" name="frame_16">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -294,21 +267,15 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </layout>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QFrame" name="frame_2">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>44</height>
-         </size>
-        </property>
+      <item row="0" column="0">
+       <widget class="QFrame" name="frame_input">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_4">
+        <layout class="QGridLayout" name="gridLayout_5">
          <property name="leftMargin">
           <number>4</number>
          </property>
@@ -328,7 +295,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>4</number>
          </property>
          <item row="0" column="3">
-          <widget class="QPushButton" name="pushButton_flip_nodes_1">
+          <widget class="QPushButton" name="pushButton_flip_nodes_input">
            <property name="minimumSize">
             <size>
              <width>40</width>
@@ -438,7 +405,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QFrame" name="frame_11">
+          <widget class="QFrame" name="frame_17">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -448,7 +415,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="4">
-          <widget class="QFrame" name="frame_12">
+          <widget class="QFrame" name="frame_18">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -460,21 +427,15 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </layout>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QFrame" name="frame">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>44</height>
-         </size>
-        </property>
+      <item row="1" column="0">
+       <widget class="QFrame" name="frame_output">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_2">
+        <layout class="QGridLayout" name="gridLayout_3">
          <property name="leftMargin">
           <number>4</number>
          </property>
@@ -559,7 +520,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="3">
-          <widget class="QPushButton" name="pushButton_flip_nodes_2">
+          <widget class="QPushButton" name="pushButton_flip_nodes_output">
            <property name="minimumSize">
             <size>
              <width>40</width>
@@ -604,7 +565,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="4">
-          <widget class="QFrame" name="frame_9">
+          <widget class="QFrame" name="frame_19">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -614,150 +575,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QFrame" name="frame_10">
+          <widget class="QFrame" name="frame_20">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QFrame" name="frame_3">
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item row="0" column="2">
-          <widget class="QComboBox" name="comboBox_processing_selector">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>160</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <item>
-            <property name="text">
-             <string> Transmission loss</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Noise reduction</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Process: </string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_5">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="QFrame" name="frame_6">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_8">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="pushButton_help">
-              <property name="minimumSize">
-               <size>
-                <width>40</width>
-                <height>26</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>26</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
-                <weight>75</weight>
-                <italic>false</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Help&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
-              </property>
-              <property name="text">
-               <string>?</string>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </widget>
          </item>
         </layout>

@@ -29,6 +29,7 @@ class ResultsViewerWidget(QWidget):
         self.results_viewer_items = ResultsViewerItems()
 
     def _create_connections(self):
+
         self.results_viewer_items.item_child_plot_structural_mode_shapes.clicked.connect(
             self.add_structural_mode_shape_widget)
 
@@ -38,6 +39,15 @@ class ResultsViewerWidget(QWidget):
         self.results_viewer_items.item_child_plot_structural_frequency_response.clicked.connect(
             self.add_structural_frequency_response_widget)
 
+        self.results_viewer_items.item_child_plot_stress_field.clicked.connect(
+            self.add_stress_field_widget)
+        
+        self.results_viewer_items.item_child_plot_stress_frequency_response.clicked.connect(
+            self.add_stress_frequency_response_widget)
+        
+        self.results_viewer_items.item_child_plot_reaction_frequency_response.clicked.connect(
+            self.add_reaction_frequency_response_widget)
+        
         self.results_viewer_items.item_child_plot_acoustic_mode_shapes.clicked.connect(
             self.add_acoustic_mode_shape_widget)
 
@@ -46,6 +56,15 @@ class ResultsViewerWidget(QWidget):
         
         self.results_viewer_items.item_child_plot_acoustic_frequency_response.clicked.connect(
             self.add_acoustic_frequency_response_widget)
+
+        self.results_viewer_items.item_child_plot_acoustic_frequency_response_function.clicked.connect(
+            self.add_acoustic_frequency_response_function_widget)
+        
+        self.results_viewer_items.item_child_plot_acoustic_delta_pressures.clicked.connect(
+            self.add_acoustic_delta_pressures_widget)
+
+        self.results_viewer_items.item_child_plot_transmission_loss.clicked.connect(
+            self.add_transmission_loss_widget)
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()
@@ -76,6 +95,20 @@ class ResultsViewerWidget(QWidget):
         self.add_widget(widget)
         self.main_window.plot_mesh()
 
+    def add_stress_field_widget(self):
+        widget = self.main_window.input_widget.plot_stress_field()
+        self.add_widget(widget)
+
+    def add_stress_frequency_response_widget(self):
+        widget = self.main_window.input_widget.plot_stress_frequency_response()
+        self.add_widget(widget)
+        self.main_window.plot_mesh()
+
+    def add_reaction_frequency_response_widget(self):
+        widget = self.main_window.input_widget.plot_reaction_frequency_response()
+        self.add_widget(widget)
+        self.main_window.plot_mesh()
+
     def add_acoustic_mode_shape_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_mode_shapes()
         self.add_widget(widget)
@@ -88,6 +121,26 @@ class ResultsViewerWidget(QWidget):
         widget = self.main_window.input_widget.plot_acoustic_frequency_response()
         self.add_widget(widget)
         self.main_window.plot_mesh()
+
+    def add_acoustic_frequency_response_function_widget(self):
+        widget = self.main_window.input_widget.plot_acoustic_frequency_response_function()
+        self.add_widget(widget)
+        self.main_window.plot_mesh()
+
+    def add_acoustic_delta_pressures_widget(self):
+        widget = self.main_window.input_widget.plot_acoustic_delta_pressures()
+        self.add_widget(widget)
+        self.main_window.plot_mesh()
+
+    def add_transmission_loss_widget(self):
+        widget = self.main_window.input_widget.plot_transmission_loss()
+        self.add_widget(widget)
+        self.main_window.plot_mesh()
+
+    def add_perforated_plate_convergence_widget(self):
+        widget = self.main_window.input_widget.plot_perforated_plate_convergence_data()
+        self.add_widget(widget)
+        # self.main_window.plot_mesh()
 
     def add_widget(self, widget):
         self.remove_widget()

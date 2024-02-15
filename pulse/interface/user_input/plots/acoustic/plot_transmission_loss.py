@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -12,32 +12,25 @@ from pulse.interface.user_input.data_handler.export_model_results import ExportM
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
+from pulse import app
+
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
         return str(Path(path))
     
-class Plot_TL_NR_Input(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class PlotTransmissionLoss(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/acoustic/plot_TL_NR_input.ui'), self)
+        main_window = app().main_window
 
-        self.opv = opv
+        ui_path = Path(f"{main_window.ui_dir}/plots/results/acoustic/plot_transmission_loss.ui")
+        uic.loadUi(ui_path, self)
+
+        self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
-
-        self.projec = project
-        self.analysis_method = project.analysis_method_label
-        self.frequencies = project.frequencies
-        self.solution = project.get_acoustic_solution()
-
-        self.projec = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-
-        self.elements = self.preprocessor.acoustic_elements
-        self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
-        self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
+        self.project = main_window.getProject()
 
         self._config_window()
         self._load_icons()
@@ -45,7 +38,6 @@ class Plot_TL_NR_Input(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self.update()
-        self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -58,6 +50,15 @@ class Plot_TL_NR_Input(QDialog):
 
     def _reset_variables(self):
         self.unit_label = "dB"
+        self.analysis_method = self.project.analysis_method_label
+        self.frequencies = self.project.frequencies
+        self.solution = self.project.get_acoustic_solution()
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+
+        self.elements = self.preprocessor.acoustic_elements
+        self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
+        self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
 
     def _define_qt_variables(self):
         # QComboBox
@@ -66,31 +67,31 @@ class Plot_TL_NR_Input(QDialog):
         self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')   
         self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
         # QPushButton
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
-        self.pushButton_flip_nodes_1 = self.findChild(QPushButton, 'pushButton_flip_nodes_1')
-        self.pushButton_flip_nodes_2 = self.findChild(QPushButton, 'pushButton_flip_nodes_2')
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.pushButton_flip_nodes_input = self.findChild(QPushButton, 'pushButton_flip_nodes_input')
+        self.pushButton_flip_nodes_output = self.findChild(QPushButton, 'pushButton_flip_nodes_output')
         self.pushButton_help = self.findChild(QPushButton, 'pushButton_help')
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
-        self.pushButton_flip_nodes_1.setIcon(self.update_icon)
-        self.pushButton_flip_nodes_2.setIcon(self.update_icon)
+        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
+        self.pushButton_flip_nodes_input.setIcon(self.update_icon)
+        self.pushButton_flip_nodes_output.setIcon(self.update_icon)
 
     def _create_connections(self):
         self.comboBox_processing_selector.currentIndexChanged.connect(self.update_flip_buttons)
-        self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_help.clicked.connect(self.call_help)
-        self.pushButton_flip_nodes_1.clicked.connect(self.flip_nodes)
-        self.pushButton_flip_nodes_2.clicked.connect(self.flip_nodes)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
+        self.pushButton_flip_nodes_input.clicked.connect(self.flip_nodes)
+        self.pushButton_flip_nodes_output.clicked.connect(self.flip_nodes)
+        self.pushButton_plot_data.clicked.connect(self.call_plotter)
         self.update_flip_buttons()
 
     def update_flip_buttons(self):
         index = self.comboBox_processing_selector.currentIndex()
         if index == 0:
-            self.pushButton_flip_nodes_1.setDisabled(True)
-            self.pushButton_flip_nodes_2.setDisabled(True)
+            self.pushButton_flip_nodes_input.setDisabled(True)
+            self.pushButton_flip_nodes_output.setDisabled(True)
         else:
-            self.pushButton_flip_nodes_1.setDisabled(False)
-            self.pushButton_flip_nodes_2.setDisabled(False)
+            self.pushButton_flip_nodes_input.setDisabled(False)
+            self.pushButton_flip_nodes_output.setDisabled(False)
 
     def call_help(self):
         window_title = "Help"
