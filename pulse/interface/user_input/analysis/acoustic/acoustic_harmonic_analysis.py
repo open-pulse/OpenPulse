@@ -5,10 +5,12 @@ from PyQt5 import uic
 from pathlib import Path
 import numpy as np
 
+from pulse import UI_DIR
+
 class AcousticHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(Path('pulse/interface/ui_files/analysis/acoustic/analysis_setup_for_harmonic_analysis_direct_method.ui'), self)
+        uic.loadUi(UI_DIR / "analysis/acoustic/analysis_setup_for_harmonic_analysis_direct_method.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

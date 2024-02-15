@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
+from pulse import UI_DIR
 from pulse.utils import get_new_path
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
@@ -21,7 +22,7 @@ class CheckPulsationCriteriaInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/criterias/check_pulsation_criteria.ui'), self)
+        uic.loadUi(UI_DIR / "criterias/check_pulsation_criteria.ui", self)
 
         self.opv = opv
         self.opv.setInputObject(self)

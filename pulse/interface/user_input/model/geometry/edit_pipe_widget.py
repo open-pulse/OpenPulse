@@ -15,10 +15,10 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from opps import UI_DIR
+from pulse import UI_DIR
 
 
 class EditPipeWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-        uic.loadUi(Path("pulse/interface/ui_files/model/geometry/edit_pipe.ui"), self)
+        uic.loadUi(UI_DIR / "model/geometry/edit_pipe.ui", self)

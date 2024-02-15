@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import UI_DIR
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
@@ -17,7 +18,7 @@ class StressStiffeningInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/structural/stressStiffeningInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/structural/stressStiffeningInput.ui", self)
         
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

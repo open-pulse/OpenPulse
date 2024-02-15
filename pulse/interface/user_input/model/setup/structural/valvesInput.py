@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
+from pulse import UI_DIR
 from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
@@ -22,8 +23,7 @@ window_title_2 = "Warning"
 class ValvesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/structural/valvesInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/structural/valvesInput.ui", self)
         
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

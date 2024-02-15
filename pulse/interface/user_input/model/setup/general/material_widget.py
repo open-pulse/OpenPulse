@@ -9,6 +9,7 @@ import configparser
 import numpy as np
 import matplotlib.pyplot as plt
 
+from pulse import UI_DIR
 from pulse.lib.default_libraries import default_material_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -29,7 +30,7 @@ class MaterialInputs(QWidget):
     def __init__(self, main_window, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/general/material_input_widget.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/general/material_input_widget.ui", self)
 
         self.main_window = main_window
 

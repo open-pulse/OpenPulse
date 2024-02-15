@@ -4,12 +4,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 import numpy as np
+from pulse import UI_DIR
+
 
 class CoupledHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/analysis/general/harmonic_analysis_method.ui'), self)
+        uic.loadUi(UI_DIR / "analysis/general/harmonic_analysis_method.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

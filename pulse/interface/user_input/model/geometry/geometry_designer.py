@@ -8,6 +8,7 @@ from pulse.interface.user_input.model.geometry.add_widget import AddStructuresWi
 from pulse.interface.user_input.model.geometry.edit_bend_widget import EditBendWidget
 from pulse.interface.user_input.model.geometry.edit_point_widget import EditPointWidget
 from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
+from pulse import UI_DIR
 
 from opps.model import Pipe, Bend
 
@@ -15,8 +16,7 @@ from opps.model import Pipe, Bend
 class OPPGeometryDesignerInput(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-
-        uic.loadUi(Path('pulse/interface/ui_files/model/geometry/geometry_designer_tabs.ui'), self)
+        uic.loadUi(UI_DIR / "model/geometry/geometry_designer_tabs.ui", self)
 
         self.geometry_widget = geometry_widget
 

@@ -9,6 +9,7 @@ import os
 import numpy as np
 from math import pi
 
+from pulse import UI_DIR
 from pulse.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
@@ -18,8 +19,7 @@ window_title ="Error"
 class DOFInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super(DOFInput, self).__init__(*args, **kwargs)
-
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/structural/dofInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/structural/dofInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

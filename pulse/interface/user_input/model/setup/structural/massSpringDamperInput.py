@@ -9,6 +9,7 @@ import numpy as np
 import configparser
 from shutil import copyfile
 
+from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
@@ -19,7 +20,7 @@ class MassSpringDamperInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/structural/addMassSpringDamperInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/structural/addMassSpringDamperInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

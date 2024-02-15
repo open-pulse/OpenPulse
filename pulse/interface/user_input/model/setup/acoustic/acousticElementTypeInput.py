@@ -5,6 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse import UI_DIR
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -13,7 +14,7 @@ class AcousticElementTypeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/acousticElementTypeInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/acoustic/acousticElementTypeInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

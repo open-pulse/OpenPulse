@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import configparser
 
+from pulse import UI_DIR
 from pulse.preprocessing.fluid import Fluid
 from pulse.lib.default_libraries import default_fluid_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
@@ -29,7 +30,7 @@ class FluidInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/acoustic/fluid_input.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/acoustic/fluid_input.ui", self)
         
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

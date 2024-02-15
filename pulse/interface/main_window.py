@@ -20,12 +20,9 @@ from pulse.interface.user_input.project.call_double_confirmation import CallDoub
 
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+from pulse import UI_DIR
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-
-
-
-UI_DIR = Path('pulse/interface/ui_files/')
 
 
 class MainWindow(QMainWindow):

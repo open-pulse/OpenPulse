@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import UI_DIR
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.preprocessing.material import Material
@@ -20,8 +21,7 @@ def getColorRGB(color):
 class SetMaterialInput(QDialog):
     def __init__(   self, project, opv, cache_selected_lines=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        uic.loadUi(Path('pulse/interface/ui_files/model/setup/general/set_material.ui'), self)
+        uic.loadUi(UI_DIR / "model/setup/general/set_material.ui", self)
 
         self.project = project
         self.opv = opv

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import UI_DIR
 from pulse.interface.user_input.analysis.structural.structural_harmonic_analysis import StructuralHarmonicAnalysisInput
 from pulse.interface.user_input.analysis.acoustic.acoustic_harmonic_analysis import AcousticHarmonicAnalysisInput
 from pulse.interface.user_input.analysis.coupled.coupled_harmonic_analysis import CoupledHarmonicAnalysisInput
@@ -30,7 +31,7 @@ class AnalysisTypeInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-        uic.loadUi(Path('pulse/interface/ui_files/analysis/general/analysis_type.ui'), self)
+        uic.loadUi(UI_DIR / "analysis/general/analysis_type.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
