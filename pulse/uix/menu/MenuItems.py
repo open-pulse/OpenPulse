@@ -565,15 +565,15 @@ class MenuItems(QTreeWidget):
             if not self.item_child_plotAcousticPressureField.isDisabled():
                 self.mainWindow.getInputWidget().plot_acoustic_pressure_field()
          
-        elif item == self.item_child_plotAcousticFrequencyResponse:
-            if not self.item_child_plotAcousticFrequencyResponse.isDisabled():
-                self.update_plot_mesh()
-                self.mainWindow.getInputWidget().plotAcousticFrequencyResponse()
+        # elif item == self.item_child_plotAcousticFrequencyResponse:
+        #     if not self.item_child_plotAcousticFrequencyResponse.isDisabled():
+        #         self.update_plot_mesh()
+        #         self.mainWindow.getInputWidget().plot_acoustic_frequency_response()
          
         elif item == self.item_child_plotAcousticFrequencyResponseFunction:
             if not self.item_child_plotAcousticFrequencyResponseFunction.isDisabled():
                 self.update_plot_mesh()
-                self.mainWindow.getInputWidget().plotAcousticFrequencyResponseFunction()
+                self.mainWindow.getInputWidget().plot_acoustic_frequency_response_function()
 
         elif item == self.item_child_plotAcousticDeltaPressures:
             if not self.item_child_plotAcousticDeltaPressures.isDisabled():

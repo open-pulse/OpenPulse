@@ -6,6 +6,8 @@ from PyQt5 import uic
 from pathlib import Path
 import os
 
+from pulse import app
+
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_new_path
 
@@ -18,8 +20,10 @@ def get_icons_path(filename):
         return str(Path(path))
 
 class AnimationWidget(QWidget):
-    def __init__(self, main_window):
+    def __init__(self):
         super().__init__()
+
+        main_window = app().main_window
     
         ui_path = f"{main_window.ui_dir}/plots/animation/animation_widget.ui"
         uic.loadUi(ui_path, self)

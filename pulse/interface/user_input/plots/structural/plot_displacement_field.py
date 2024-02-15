@@ -9,7 +9,6 @@ import numpy as np
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-
 class PlotDisplacementField(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

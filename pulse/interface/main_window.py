@@ -225,7 +225,7 @@ class MainWindow(QMainWindow):
 
         self.opv_widget = OPVUi(self.project, self)
         self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
-        self.results_viewer_wigdet = ResultsViewerWidget(self)
+        self.results_viewer_wigdet = ResultsViewerWidget()
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         self.input_widget = InputUi(self)
 

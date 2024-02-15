@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QRadioButton
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QRadioButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -10,36 +10,31 @@ from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
+from pulse import app
+
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
         return str(Path(path))
 
-class PlotStructuralFrequencyResponseInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class PlotStructuralFrequencyResponse(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/structural/plot_structural_frequency_response.ui'), self)
+        main_window = app().main_window
 
-        self.opv = opv
+        ui_path = Path(f"{main_window.ui_dir}/plots/results/structural/plot_structural_frequency_response_widget.ui")
+        uic.loadUi(ui_path, self)
+
+        self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
-        
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-        self.list_node_IDs = self.opv.getListPickedPoints()
+        self.project = main_window.getProject()
 
-        self.nodes = project.preprocessor.nodes
-        self.analysisMethod = project.analysis_method_label
-        self.frequencies = project.frequencies
-        self.solution = project.get_structural_solution()
-
+        self._reset_variables()
         self._config_window()
         self._load_icons()
-        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
-        self.writeNodes(self.list_node_IDs)
-        self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -63,6 +58,16 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     def _reset_variables(self):
         self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
 
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+        self.list_node_ids = self.opv.getListPickedPoints()
+        self.writeNodes(self.list_node_ids)
+
+        self.nodes = self.project.preprocessor.nodes
+        self.analysisMethod = self.project.analysis_method_label
+        self.frequencies = self.project.frequencies
+        self.solution = self.project.get_structural_solution()
+
     def _create_connections(self):
         self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
@@ -79,9 +84,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.lineEdit_node_id.setText(text)
 
     def update(self):
-        self.list_node_IDs = self.opv.getListPickedPoints()
-        if self.list_node_IDs != []:
-            self.writeNodes(self.list_node_IDs)
+        self.list_node_ids = self.opv.getListPickedPoints()
+        if self.list_node_ids != []:
+            self.writeNodes(self.list_node_ids)
 
     def call_plotter(self):
         if self.check_inputs():

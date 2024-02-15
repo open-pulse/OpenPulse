@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -6,29 +6,35 @@ from pathlib import Path
 
 import numpy as np
 
-class PlotNodalResultsForStaticAnalysis(QDialog):
-    def __init__(self, project, opv, solution, *args, **kwargs):
+from pulse import app
+
+class PlotNodalResultsForStaticAnalysis(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/structural/plot_nodal_response_for_static_analysis.ui'), self)
+        main_window = app().main_window
 
-        self.project = project
+        ui_path = Path(f"{main_window.ui_dir}/plots/results/structural/plot_nodal_response_for_static_analysis.ui")
+        uic.loadUi(ui_path, self)
 
+        self.opv = main_window.getOPVWidget()
+        self.opv.setInputObject(self)
+        self.project = main_window.getProject()
+        
+        solution = self.project.get_structural_solution()
+        self.solution = np.real(solution)
+
+        self._config_window()
+        self._define_qt_variables()
+        self.update()
+
+    def _config_window(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Structural nodal response")
-
-        self.opv = opv
-        self.opv.setInputObject(self)
-        
-        self.solution = np.real(solution)
-
-        self._define_qt_variables()
-        self.update()
-        self.exec()
 
     def _define_qt_variables(self):
         #

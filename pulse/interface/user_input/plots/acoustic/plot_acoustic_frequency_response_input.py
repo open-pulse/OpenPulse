@@ -1,15 +1,16 @@
-from PyQt5.QtWidgets import QDialog, QFrame, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
 import os
-import numpy as np
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+
+from pulse import app
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -19,43 +20,47 @@ def get_icons_path(filename):
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotAcousticFrequencyResponseInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class PlotAcousticFrequencyResponse(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/acoustic/plot_acoustic_frequency_response_input.ui'), self)
-        
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        main_window = app().main_window
 
-        self.opv = opv
+        ui_path = Path(f"{main_window.ui_dir}/plots/results/acoustic/plot_acoustic_frequency_response.ui")
+        uic.loadUi(ui_path, self)
+
+        self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
-        self.list_node_IDs = self.opv.getListPickedPoints()
-
-        self.projec = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-
-        self.nodes = self.preprocessor.nodes
-        self.analysis_method = project.analysis_method_label
-        self.frequencies = project.frequencies
-        self.solution = project.get_acoustic_solution()
+        self.project = main_window.getProject()
 
         self._load_icons()
+        self._config_window()
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.update()
-        self.exec()
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
         self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+
+    def _config_window(self):        
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.pulse_icon)
 
     def _reset_variables(self):
-        pass
+        self.list_node_IDs = self.opv.getListPickedPoints()
+
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+
+        self.nodes = self.preprocessor.nodes
+        self.analysis_method = self.project.analysis_method_label
+        self.frequencies = self.project.frequencies
+        self.solution = self.project.get_acoustic_solution()
+
 
     def _define_qt_variables(self):
         # QFrame

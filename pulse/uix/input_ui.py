@@ -44,7 +44,7 @@ from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysis
 #
 from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
 from pulse.interface.user_input.plots.structural.plot_displacement_field import PlotDisplacementField
-from pulse.interface.user_input.plots.structural.plot_structural_frequency_response_input import PlotStructuralFrequencyResponseInput
+from pulse.interface.user_input.plots.structural.plot_structural_frequency_response import PlotStructuralFrequencyResponse
 from pulse.interface.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
 from pulse.interface.user_input.plots.structural.plot_reactions import PlotReactions
 from pulse.interface.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
@@ -55,7 +55,7 @@ from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analys
 #
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponseInput
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponse
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunctionInput
 from pulse.interface.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure_input import PlotAcousticDeltaPressuresInput
@@ -396,36 +396,36 @@ class InputUi:
                 return None
             return self.processInput(PlotAcousticPressureField)           
 
-    def plotStructuralFrequencyResponse(self):
+    def plot_structural_frequency_response(self):
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
-                return
+                return None
             if self.analysis_ID == 7:
-                self.processInput(PlotNodalResultsForStaticAnalysis, self.project, self.opv, solution)
+                return self.processInput(PlotNodalResultsForStaticAnalysis)
             else:
-                self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv)
+                return self.processInput(PlotStructuralFrequencyResponse)
 
-    def plotAcousticFrequencyResponse(self):
+    def plot_acoustic_frequency_response(self):
+        if self.analysis_ID in [3, 5, 6]:
+            solution = self.project.get_acoustic_solution()
+            if solution is None:
+                return None
+            return self.processInput(PlotAcousticFrequencyResponse)
+
+    def plot_acoustic_frequency_response_function(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
-                return
-            self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv)
-
-    def plotAcousticFrequencyResponseFunction(self):
-        if self.analysis_ID in [3,5,6]:
-            solution = self.project.get_acoustic_solution()
-            if solution is None:
-                return
-            self.processInput(  PlotAcousticFrequencyResponseFunctionInput, self.project, self.opv)
+                return None
+            return self.processInput(  PlotAcousticFrequencyResponseFunctionInput, self.project, self.opv)
 
     def plotAcousticDeltaPressures(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
-                return
-            self.processInput(  PlotAcousticDeltaPressuresInput, 
+                return None
+            return self.processInput(  PlotAcousticDeltaPressuresInput, 
                                 self.project, 
                                 self.opv  )
 
