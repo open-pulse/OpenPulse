@@ -13,6 +13,8 @@ from pulse.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
+window_title ="Error"
+
 class DOFInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super(DOFInput, self).__init__(*args, **kwargs)
@@ -200,7 +202,6 @@ class DOFInput(QDialog):
             try:
                 _real = float(lineEdit_real.text())
             except Exception:
-                window_title ="ERROR"
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
                 PrintMessageInput([title, message, window_title])
@@ -214,7 +215,6 @@ class DOFInput(QDialog):
             try:
                 _imag = float(lineEdit_imag.text())
             except Exception:
-                window_title ="ERROR"
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for imaginary part of {label}."
                 PrintMessageInput([title, message, window_title])
@@ -294,15 +294,13 @@ class DOFInput(QDialog):
             print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")    
             self.opv.updateRendererMesh()
             self.close()
-        else:   
-            window_title ="ERROR"
+        else:
             title = "Additional inputs required"
             message = "You must inform at least one prescribed dof\n"
             message += "before confirming the input!"
             PrintMessageInput([title, message, window_title]) 
 
     def load_table(self, lineEdit, dof_label, direct_load=False):
-        window_title = "ERROR"
         title = "Error reached while loading table"
         try:
             if direct_load:
@@ -526,7 +524,6 @@ class DOFInput(QDialog):
             data = [self.prescribed_dofs, self.basenames]
                         
             if self.basenames == self.list_Nones:
-                window_title ="ERROR"
                 title = "Additional inputs required"
                 message = "You must inform at least one prescribed dof\n"
                 message += "table path before confirming the input!"
@@ -686,7 +683,6 @@ class DOFInput(QDialog):
 
 
     # def tables_frequency_setup_message(self, lineEdit, label):
-    #     window_title = "ERROR"
     #     title = f"Invalid frequency setup of the '{label}' imported table"
     #     message = f"The frequency setup from '{label}' selected table mismatches\n"
     #     message += f"the frequency setup from previously imported tables.\n"

@@ -7,6 +7,9 @@ from pathlib import Path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse import __version__, __release_date__
 
+window_title_1 = "Error"
+window_title_2 = "Warning"
+
 class QWorker(QObject):
     finished = pyqtSignal()
     def __init__(self, target):
@@ -20,7 +23,7 @@ class QWorker(QObject):
             except Exception as log_error:
                 print(log_error)
                 title = "An error has been reached in LoadingScreen"
-                PrintMessageInput([title, str(log_error), "ERROR"])
+                PrintMessageInput([title, str(log_error), window_title_1])
                 
         self.finished.emit()
         self.thread().quit()

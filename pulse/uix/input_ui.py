@@ -42,8 +42,8 @@ from pulse.interface.user_input.analysis.general.analysis_type import AnalysisTy
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
 from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysisInput
 #
-from pulse.interface.user_input.plots.structural.structural_mode_shape_widget import PlotStructuralModeShapeInput
-from pulse.interface.user_input.plots.structural.plot_displacement_field_input import PlotDisplacementFieldInput
+from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
+from pulse.interface.user_input.plots.structural.plot_displacement_field import PlotDisplacementField
 from pulse.interface.user_input.plots.structural.plot_structural_frequency_response_input import PlotStructuralFrequencyResponseInput
 from pulse.interface.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
 from pulse.interface.user_input.plots.structural.plot_reactions import PlotReactions
@@ -53,8 +53,8 @@ from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_an
 from pulse.interface.user_input.plots.structural.plot_stress_frequency_response_input import PlotStressFrequencyResponseInput
 from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape_input import PlotAcousticModeShapeInput
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field_input import PlotAcousticPressureFieldInput
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_input import PlotAcousticFrequencyResponseInput
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunctionInput
 from pulse.interface.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
@@ -75,8 +75,8 @@ from pulse import app
 
 from time import time
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class InputUi:
     def __init__(self, parent=None):
@@ -365,7 +365,7 @@ class InputUi:
         if solution is None:
             return None
         if self.analysis_ID in [2, 4]:
-            return self.processInput(PlotStructuralModeShapeInput, self.main_window)      
+            return self.processInput(PlotStructuralModeShape)      
 
     def plot_displacement_field(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -375,7 +375,7 @@ class InputUi:
         if self.analysis_ID in [0, 1, 5, 6, 7]:
             if solution is None:
                 return None
-            return self.processInput(PlotDisplacementFieldInput, self.main_window)
+            return self.processInput(PlotDisplacementField)
 
     def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
@@ -384,7 +384,7 @@ class InputUi:
         if solution is None:
             return None
         if self.analysis_ID in [2, 4]:
-            return self.processInput(PlotAcousticModeShapeInput, self.main_window)           
+            return self.processInput(PlotAcousticModeShape)           
 
     def plot_acoustic_pressure_field(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -394,7 +394,7 @@ class InputUi:
         if self.analysis_ID in [3,5,6]:
             if solution is None:
                 return None
-            return self.processInput(PlotAcousticPressureFieldInput, self.main_window)           
+            return self.processInput(PlotAcousticPressureField)           
 
     def plotStructuralFrequencyResponse(self):
         if self.analysis_ID in [0, 1, 5, 6, 7]:

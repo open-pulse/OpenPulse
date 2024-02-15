@@ -9,6 +9,9 @@ import os
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse import __version__, __release_date__
 
+window_title_1 = "Error"
+window_title_2 = "Warning"
+
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
@@ -67,7 +70,7 @@ class AboutOpenPulseInput(QDialog):
             if not QDesktopServices.openUrl(url):
                 message = "The OpenPulse repository at the GitHub's site cannot be accessed.\n"
                 message += "We reccomend trying again later."
-                PrintMessageInput([title, message, "ERROR"])
+                PrintMessageInput([title, message, window_title_1])
         except Exception as log_error:
             message = str(log_error)
             PrintMessageInput([title, message, "OpenPulse"])

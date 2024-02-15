@@ -14,8 +14,8 @@ from pulse.utils import *
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class GeometryDesignerInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -840,10 +840,9 @@ class GeometryDesignerInput(QDialog):
                     geometry_path = get_new_path(   self.file.project_path, 
                                                     self.new_filename   )
                 else:
-                    window_title = "ERROR"
                     message_title = f"Invalid geometry name"
                     message = "An empty entry was detecetd at 'Geometry name' input field. \nIt is necessary enter a valid geometry name to proceed."
-                    PrintMessageInput([message_title, message, window_title])  
+                    PrintMessageInput([message_title, message, window_title_1])  
                     self.lineEdit_geometry_name.setFocus()
                     return                  
 
@@ -870,11 +869,10 @@ class GeometryDesignerInput(QDialog):
             self.close()
 
         except Exception as log_error:
-            window_title = "ERROR"
             title = "Error ocurred while edit geometry (built-in)"
             message = "An error has been raised while processing the OpenPulse built-in geometry editor. \nDetails: "
             message += f"{log_error}"
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title_1])
 
     def process_mesh(self):
  
@@ -970,12 +968,11 @@ class GeometryDesignerInput(QDialog):
         return False
 
     def print_error_message(self, label_1, label_2, text):
-        window_title = "ERROR"
         message_title = f"Invalid {label_1}"
         message = f"Please, inform a valid entry at '{label_1}' input field to continue."
         message += "The input value should be a float or an integer number greater than zero."
         message += f"\n\n{text}"
-        PrintMessageInput([message_title, message, window_title])
+        PrintMessageInput([message_title, message, window_title_1])
 
     def reset_points(self):
 
@@ -1104,19 +1101,17 @@ class GeometryDesignerInput(QDialog):
 
             if only_positive:
                 if self.value <= 0:
-                    window_title ="ERROR"
                     title = f"Invalid entry to the {label}"
                     message = f"The allowable input values must be non-zero positive integers or float numbers."
-                    PrintMessageInput([title, message, window_title])
+                    PrintMessageInput([title, message, window_title_1])
                     lineEdit.setFocus()
                     # self.stop = True
                     return False
                 
         except Exception:
-            window_title ="ERROR"
             title = f"Invalid entry to the {label}"
             message = f"The allowable input values must be any real numbers."
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title_1])
             lineEdit.setFocus()
             # self.stop = True
             return False

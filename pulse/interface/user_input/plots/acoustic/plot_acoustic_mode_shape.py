@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -6,40 +6,32 @@ from pathlib import Path
 
 import numpy as np
 
+from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-class PlotDisplacementFieldInput(QWidget):
-    def __init__(self, main_window, *args, **kwargs):
+window_title_1 = "Error"
+window_title_2 = "Warning"
+
+class PlotAcousticModeShape(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = f"{main_window.ui_dir}/plots/results/structural/plot_displacement_field_for_harmonic_analysis.ui"
+
+        main_window = app().main_window
+
+        ui_path = f"{main_window.ui_dir}/plots/results/acoustic/acoustic_mode_shape_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
-        self._config_window()
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
-        self.load_frequencies_vector()
-
-    def _config_window(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon) 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
+        self.load_natural_frequencies()
+       
     def _reset_variables(self):
-        self.frequencies = self.project.frequencies
-        self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
-        self.frequency = None
-        self.scaling_key = {0 : "absolute",
-                            1 : "real_ux",
-                            2 : "real_uy",
-                            3 : "real_uz"}
+        self.mode_index = None
 
     def _define_qt_variables(self):
         # QComboBox
@@ -47,6 +39,11 @@ class PlotDisplacementFieldInput(QWidget):
         # QFrame
         self.frame_plot_button = self.findChild(QFrame, 'frame_plot_button')
         self.frame_plot_button.setVisible(False)
+        # QLineEdit
+        self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
+        self.lineEdit_natural_frequency.setDisabled(True)
+        # QPushButton
+        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
         # QLineEdit
         self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
         # QPushButton
@@ -67,59 +64,62 @@ class PlotDisplacementFieldInput(QWidget):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
+    def _create_connections(self):
+        self.pushButton_plot.clicked.connect(self.update_plot)
+        self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
+        self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+
     def update_plot(self):
         self.complete = False
-        if self.lineEdit_selected_frequency.text() != "":
+        if self.lineEdit_natural_frequency.text() != "":
             if self.check_selected_frequency():
                 self.complete = True
 
+    def get_dict_modes_frequencies(self):
+        self.natural_frequencies = self.project.natural_frequencies_acoustic
+        modes = np.arange(1,len(self.natural_frequencies)+1,1)
+        self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
+
     def check_selected_frequency(self):
-        if self.lineEdit_selected_frequency.text() == "":
+        message = ""
+        if self.lineEdit_natural_frequency.text() == "":
             window_title = "Warning"
             title = "Additional action required to plot the results"
-            message = "You should select a frequency from the available list "
-            message += "before trying to plot the displacement/rotation field."
+            message = "You should select a natural frequency from the available "
+            message += "list before trying to plot the acoustic mode shape."
             PrintMessageInput([window_title, title, message], auto_close=True)
-            return
         else:
-            frequency_selected = float(self.lineEdit_selected_frequency.text())
-            if frequency_selected in self.frequencies:
-                self.frequency = self.frequency_to_index[frequency_selected]
-                index = self.comboBox_color_scaling.currentIndex()
-                current_scaling = self.scaling_key[index]
-                self.opv.plot_displacement_field(self.frequency, current_scaling)
+            self.project.analysis_type_label = "Acoustic Modal Analysis"
+            frequency = self.selected_natural_frequency
+            self.mode_index = self.natural_frequencies.index(frequency)
+            if self.comboBox_color_scaling.currentIndex() == 0:
+                absolute = True
+            else:
+                absolute = False
+            self.opv.plot_pressure_field(self.mode_index, absolute=absolute)
 
-    def load_frequencies_vector(self):
+    def load_natural_frequencies(self):
+        self.get_dict_modes_frequencies()
 
-        if self.project.analysis_ID == 7:
-            self.plot_displacement_for_static_analysis()
-            
         self.treeWidget_frequencies.clear()
-        for index, frequency in enumerate(self.frequencies):
-            new = QTreeWidgetItem([str(index+1), str(frequency)])
+        for mode, natural_frequency in self.dict_modes_frequencies.items():
+            new = QTreeWidgetItem([str(mode), str(round(natural_frequency,4))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
 
-    def plot_displacement_for_static_analysis(self):
-        self.lineEdit_selected_frequency.setDisabled(True)
-        self.treeWidget_frequencies.setDisabled(True)
-        self.frequency = [0]
-        self.lineEdit_selected_frequency.setText(str(self.frequency[0]))
-        index = self.comboBox_color_scaling.currentIndex()
-        current_scaling = self.scaling_key[index]
-        self.opv.plot_displacement_field(self.frequency[0], current_scaling)
-
     def on_click_item(self, item):
-        self.lineEdit_selected_frequency.setText(item.text(1))
+        self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
+        self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
         self.update_plot()
 
     def on_doubleclick_item(self, item):
-        self.lineEdit_selected_frequency.setText(item.text(1))
+        natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
+        self.lineEdit_natural_frequency.setText(str(natural_frequency))
         self.update_plot()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.update_plot()
+            self.confirm_selection()
         elif event.key() == Qt.Key_Escape:
             self.close()

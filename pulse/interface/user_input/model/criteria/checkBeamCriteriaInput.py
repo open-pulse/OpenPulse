@@ -7,7 +7,7 @@ from pathlib import Path
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title = "ERROR"
+window_title = "Error"
 
 class CheckBeamCriteriaInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

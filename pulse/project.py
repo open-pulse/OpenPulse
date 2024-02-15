@@ -19,7 +19,7 @@ import numpy as np
 from shutil import rmtree
 from collections import defaultdict
 
-window_title = "ERROR"
+window_title = "Error"
 
 class Project:
     def __init__(self):

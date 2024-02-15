@@ -11,8 +11,8 @@ from shutil import copytree, rmtree
 from pulse.utils import get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class SetProjectAttributesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

@@ -8,7 +8,7 @@ import numpy as np
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title = "ERROR"
+window_title = "Error"
 
 class AnalysisSetupInput(QDialog):
     def __init__(self, project):

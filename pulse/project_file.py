@@ -15,7 +15,7 @@ from collections import defaultdict
 from shutil import copyfile, rmtree
 from pathlib import Path
 
-window_title = "ERROR"
+window_title = "Error"
 
 class ProjectFile:
     def __init__(self):
@@ -810,7 +810,7 @@ class ProjectFile:
         self.dict_capped_end = defaultdict(list)
         self.dict_B2XP_rotation_decoupling = {}
 
-        window_title = "ERROR"
+        window_title = "Error"
         title = "Error while loading data from project file"
         
         for entity in entityFile.sections():

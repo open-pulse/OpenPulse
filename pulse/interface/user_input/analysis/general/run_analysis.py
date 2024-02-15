@@ -15,8 +15,8 @@ from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class RunAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):

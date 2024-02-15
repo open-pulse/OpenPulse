@@ -18,8 +18,8 @@ from pulse.interface.user_input.project.printMessageInput import PrintMessageInp
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class ClickableLineEdit(QLineEdit):
     
@@ -742,7 +742,6 @@ class ExpansionJointInput(QDialog):
         return changed
 
     def load_table(self, lineEdit, stiffness_label, direct_load=False):
-        window_title = "ERROR"
         title = "Error reached while loading table"
         try:
             if direct_load:
@@ -785,7 +784,7 @@ class ExpansionJointInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title_1])
             lineEdit.setFocus()
             return None, None
 

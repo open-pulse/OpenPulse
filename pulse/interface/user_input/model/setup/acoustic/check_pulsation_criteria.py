@@ -11,8 +11,8 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 psi_to_Pa = 0.45359237*9.80665/((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
@@ -157,7 +157,7 @@ class CheckPulsationCriteriaInput(QDialog):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, "ERROR"])
+                PrintMessageInput([title, message, window_title_1])
 
     def update_compressor_data(self, stage_data):
         self.suction_pressure = stage_data["pressure at suction"]

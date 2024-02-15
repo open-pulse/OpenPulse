@@ -9,6 +9,8 @@ import os
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_new_path
 
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -93,10 +95,10 @@ class AnimationWidget(QWidget):
                 title = "Invalid folder path"
                 message = "Inform a valid folder path before trying export the animation.\n\n"
                 message += f"{self.label_export_path.text()}"
-                PrintMessageInput([title, message, "ERROR"])
+                PrintMessageInput([title, message, window_title_1])
                 self.label_export_path.setText("<Folder path>")
         else:
             title = "Empty file name"
             message = "Inform a file name before trying export the animation."
-            PrintMessageInput([title, message, "ERROR"])
+            PrintMessageInput([title, message, window_title_1])
             self.lineEdit_FileName.setFocus()

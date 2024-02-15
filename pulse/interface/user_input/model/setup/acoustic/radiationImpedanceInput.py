@@ -11,8 +11,8 @@ from pulse.utils import remove_bc_from_file
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
-window_title_1 = "ERROR"
-window_title_2 = "WARNING"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class RadiationImpedanceInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

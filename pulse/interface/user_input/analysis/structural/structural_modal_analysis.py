@@ -8,8 +8,8 @@ from pathlib import Path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from math import pi
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class StructuralModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -46,7 +46,7 @@ class StructuralModalAnalysisInput(QDialog):
         if self.lineEdit_number_modes.text() == "":
             title = "INVALID INPUT VALUE"
             message = "Invalid a value to the number of modes."
-            self.text_data = [title, message, window_title1]
+            self.text_data = [title, message, window_title_1]
             return True
         else:
             try:
@@ -54,14 +54,14 @@ class StructuralModalAnalysisInput(QDialog):
             except Exception:
                 title = "INVALID INPUT VALUE"
                 message = "Invalid input value for number of modes."
-                self.text_data = [title, message, window_title1]
+                self.text_data = [title, message, window_title_1]
                 return True
             try:
                 self.sigma_factor = (2*pi*float(self.lineEdit_input_sigma_factor.text()))**2
             except Exception:
                 title = "INVALID INPUT VALUE"
                 message = "Invalid input value for sigma factor."
-                self.text_data = [title, message, window_title1]
+                self.text_data = [title, message, window_title_1]
                 return True
         return False
     

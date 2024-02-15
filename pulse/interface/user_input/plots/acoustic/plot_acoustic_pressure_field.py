@@ -6,11 +6,14 @@ from pathlib import Path
 
 import numpy as np
 
+from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-class PlotAcousticPressureFieldInput(QWidget):
-    def __init__(self, main_window, *args, **kwargs):
+class PlotAcousticPressureField(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        main_window = app().main_window
         
         ui_path = f"{main_window.ui_dir}/plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)

@@ -8,6 +8,9 @@ from pathlib import Path
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
+window_title_1 = "Error"
+window_title_2 = "Warning"
+
 class SetInertialLoad(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -88,12 +91,11 @@ class SetInertialLoad(QDialog):
         #
         # if np.sum(np.abs(self.gravity)) == 0:
         #     #
-        #     window_title = "WARNING"
         #     title = "Invalid input fields"
         #     message = "Dear user, you should to enter a valid gravity setup to proceed. The null "
         #     message += "gravity vector does not provide an effective static loading."
         #     #
-        #     text_info = [title, message, window_title]
+        #     text_info = [title, message, window_title_2]
         #     PrintMessageInput(text_info)
         #     #
         #     return True
@@ -114,7 +116,6 @@ class SetInertialLoad(QDialog):
         self.stop = False
         message = ""
         title = "Invalid input to the analysis setup"
-        window_title = "ERROR"
         if lineEdit.text() != "":
             try:
 
@@ -146,7 +147,7 @@ class SetInertialLoad(QDialog):
                 message = f"Insert some value at the {label} input field."
         
         if message != "":
-            PrintMessageInput([title, message, window_title])                   
+            PrintMessageInput([title, message, window_title_1])                   
             self.stop = True
             return None
         return out

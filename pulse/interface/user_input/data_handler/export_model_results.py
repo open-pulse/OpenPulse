@@ -117,7 +117,7 @@ class ExportModelResults(QDialog):
    
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
         
-        window_title = "WARNING MESSAGE"
+        window_title = "Warning"
         title = "Information"
         message = "The results have been exported."
         PrintMessageInput([title, message, window_title])

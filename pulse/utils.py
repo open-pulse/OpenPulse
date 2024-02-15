@@ -1,15 +1,17 @@
-from numpy.core.numeric import outer
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from functools import wraps
-from time import time
-from scipy.sparse import issparse
+import os
 import configparser
 import numpy as np
-import os
-import sys
-import gmsh
-from scipy.spatial.transform import Rotation
+from time import time
+from functools import wraps
+from scipy.sparse import issparse
+
 from pathlib import Path
+from scipy.spatial.transform import Rotation
+
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 def split_sequence(sequence, size):
     ''' 
@@ -539,7 +541,7 @@ def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys
             PrintMessageInput(["Removal of selected boundary condition" , message, "WARNING"])
 
     except Exception as log_error:
-        PrintMessageInput(["Error while removing BC from file", str(log_error), "ERROR"])
+        PrintMessageInput(["Error while removing BC from file", str(log_error), window_title_1])
 
 
 def getColorRGB(color):

@@ -13,7 +13,7 @@ from pulse.utils import get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
-window_title_1 = "ERROR"
+window_title_1 = "Error"
 
 class SetFluidCompositionInput(QDialog):
     def __init__(self, project, opv, selected_fluid_to_edit=None, *args, **kwargs):
@@ -530,7 +530,7 @@ class SetFluidCompositionInput(QDialog):
             message += "The sum of all fluids molar fractions must be equals to 1. It is recommended "
             message += "to check the inserted molar fractions until this requirement is met."
         if message != "":
-            PrintMessageInput([title, message, "ERROR"])
+            PrintMessageInput([title, message, window_title_1])
 
     def process_errors(self):
         if len(self.errors) != 0:
@@ -539,7 +539,7 @@ class SetFluidCompositionInput(QDialog):
             for key, _error in self.errors.items():
                 message += f"{str(key)}: {str(_error)}\n\n"
             message += "It is recommended to check the fluid composition and state properties to proceed."
-            PrintMessageInput([title, message, "ERROR"], fontsizes=[13, 12])
+            PrintMessageInput([title, message, window_title_1], fontsizes=[13, 12])
             return True
 
     def get_fluid_state_index(self):
@@ -586,13 +586,11 @@ class SetFluidCompositionInput(QDialog):
                 title = "Invalid entry to the temperature"
                 message = "Dear user, you have typed an invalid value at the temperature input field."
                 message += "You should to inform a valid float number to proceed."
-                window_title = "ERROR"
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([title, message, window_title_1])
         else:
             title = "Empty temperature input field"
             message = "Dear user, the temperature input field is empty. Please, inform a valid float number to proceed."
-            window_title = "ERROR"
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title_1])
             lineEdit_temperature.setFocus()
         return temperature
 
@@ -606,13 +604,11 @@ class SetFluidCompositionInput(QDialog):
                 title = "Invalid entry to the pressure"
                 message = "Dear user, you have typed an invalid value at the pressure input field."
                 message += "You should to inform a valid float number to proceed."
-                window_title = "ERROR"
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([title, message, window_title_1])
         else:
             title = "Empty pressure input field"
             message = "Dear user, the pressure input field is empty. Please, inform a valid float number to proceed."
-            window_title = "ERROR"
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title_1])
             lineEdit_pressure.setFocus()        
         return pressure
 
@@ -846,7 +842,7 @@ class SetFluidCompositionInput(QDialog):
                 title = "REFPROP installation not detected"
                 message = "Dear user, REFPROP application files were not found in the computer's default paths. "
                 message += "Please, install the REFPROP on your computer to enable the set-up of the fluids mixture."
-                PrintMessageInput([title, message, "ERROR"])
+                PrintMessageInput([title, message, window_title_1])
                 return True
 
         except Exception as log_error:
@@ -855,7 +851,7 @@ class SetFluidCompositionInput(QDialog):
             message += "installed we recommend running the 'pip install ctREFPROP' command at the terminal to install the "
             message += "necessary libraries."
             message += f"\n\n{str(log_error)}"
-            PrintMessageInput([title, message, "ERROR"])
+            PrintMessageInput([title, message, window_title_1])
             return True
         
     def keyPressEvent(self, event):

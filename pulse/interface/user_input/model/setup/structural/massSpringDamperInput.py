@@ -13,6 +13,8 @@ from pulse.interface.user_input.project.printMessageInput import PrintMessageInp
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
 
+window_title ="Error"
+
 class MassSpringDamperInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -335,7 +337,6 @@ class MassSpringDamperInput(QDialog):
             try:
                 value = float(lineEdit.text())
             except Exception:
-                window_title ="ERROR"
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
                 PrintMessageInput([title, message, window_title])
@@ -472,7 +473,6 @@ class MassSpringDamperInput(QDialog):
             return
             
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
-            window_title ="ERROR"
             title = "Additional inputs required"
             message = "You must inform at least one external element\n"
             message += "before confirming the input!"
@@ -490,7 +490,6 @@ class MassSpringDamperInput(QDialog):
         self.close()
 
     def load_table(self, lineEdit, _label, direct_load=False):
-        window_title = "ERROR"
         title = "Error reached while loading table"
         try:
             if direct_load:
@@ -935,7 +934,6 @@ class MassSpringDamperInput(QDialog):
             return
 
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
-            window_title ="ERROR"
             title = "Additional inputs required"
             message = "You must inform at least one external element\n" 
             message += "table path before confirming the input!"

@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class DecouplingRotationDOFsInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
@@ -137,7 +137,7 @@ class DecouplingRotationDOFsInput(QDialog):
         if self.rotations_mask.count(False) == 3:
             title = "INVALID DECOUPLING SETUP"
             message = "There are no rotation DOFs decoupling in the current setup. \nYou should tick at least one rotation DOF before continue."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return  
 
     def radioButtonEvent(self):
@@ -199,14 +199,13 @@ class DecouplingRotationDOFsInput(QDialog):
         if len(neighboor_elements)<3:
             message = "The decoupling of rotation dofs can only \nbe applied to the T connections." 
             title = "Incorrect Node ID selection"
-            window_title = "Error message"
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title_1])
             return
 
         if self.rotations_mask.count(False) == 3:
             title = "INVALID DECOUPLING SETUP"
             message = "There are no rotation DOFs decoupling in the current setup. \nYou should tick at least one rotation DOF before continue."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return 
         
         if self.structural_elements[self.element_id].element_type in ['beam_1']:
@@ -219,15 +218,14 @@ class DecouplingRotationDOFsInput(QDialog):
             element_type = self.structural_elements[self.element_id]
             message = f"The selected element have a '{element_type.upper()}' formulation, you should have a \n'BEAM_1' element type in selection"
             message += " to decouple the rotation dofs. \nTry to choose another element or change the element type formulation."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return
 
     def check_reset_all(self):
         self.project.reset_B2PX_totation_decoupling()
         message = "The rotation decoupling applied \nto all dofs has been reseted." 
         title = "Rotations dofs decoupling"
-        window_title = "WARNING"
-        PrintMessageInput([title, message, window_title])
+        PrintMessageInput([title, message, window_title_2])
         self.load_decoupling_info()
         self.clear_texts()
     
@@ -273,12 +271,12 @@ class DecouplingRotationDOFsInput(QDialog):
             else:
                 title = "UNSELECTED GROUP"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title2])
+                PrintMessageInput([title, message, window_title_2])
                 
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, decoupled_DOFs_bool, decoupled_DOFs_labels, *args, **kwargs):

@@ -16,9 +16,8 @@ from pulse.interface.user_input.project.printMessageInput import PrintMessageInp
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.utils import get_new_path, remove_bc_from_file
 
-window_title_1 = "ERROR"
-window_title_2 = "WARNING"
-
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class PerforatedPlateInput(QDialog):
     def __init__(self, project, opv, valve_ids=[], *args, **kwargs):
@@ -487,7 +486,7 @@ class PerforatedPlateInput(QDialog):
                 if not all(aux):
                     title = "Plate thickness different from element length"
                     message = "If possible, use plate thickness equal to the element length for better precision."
-                    PrintMessageInput([title, message, "WARNING MESSAGE"])
+                    PrintMessageInput([title, message, window_title_2])
                     self.lineEdit_thickness.setFocus()
                 self.dict_inputs['plate thickness'] = self.value
 

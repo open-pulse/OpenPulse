@@ -20,7 +20,7 @@ from pulse.interface.user_input.project.printMessageInput import PrintMessageInp
 
 from pulse.utils import *
 
-window_title_1 = "ERROR"
+window_title_1 = "Error"
 
 class Preprocessor:
     """A preprocessor class.

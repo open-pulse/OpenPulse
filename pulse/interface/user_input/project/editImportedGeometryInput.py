@@ -9,8 +9,8 @@ import gmsh
 import sys
 import os
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class EditImportedGeometryInput(QDialog):
     def __init__(self, project, *args, **kwargs):

@@ -6,8 +6,8 @@ from pathlib import Path
 
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR"
-window_title2 = "WARNING"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class AcousticElementTypeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -192,19 +192,19 @@ class AcousticElementTypeInput(QDialog):
                     value = int(value_string) 
                 if value < 0:
                     message = "You cannot input a negative value to the {}.".format(label)
-                    PrintMessageInput([title, message, window_title1])
+                    PrintMessageInput([title, message, window_title_1])
                     return True
                 else:
                     self.value = value
 
             except Exception:
                 message = "You have typed an invalid value to the {}.".format(label)
-                PrintMessageInput([title, message, window_title1])
+                PrintMessageInput([title, message, window_title_1])
                 return True
         else:
             title = "Empty entry to the " + label
             message = "Please, input a valid " + label + " value to continue."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             self.tabWidget_element_type.setCurrentWidget(self.tab_damping)
             self.value = None
             return True
@@ -275,11 +275,11 @@ class AcousticElementTypeInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF LINES"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title2])
+                PrintMessageInput([title, message, window_title_2])
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
 
 
 class GetInformationOfGroup(QDialog):

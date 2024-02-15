@@ -10,7 +10,7 @@ import numpy as np
 from pulse.utils import remove_bc_from_file
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title = "ERROR"
+window_title = "Error"
 
 class AcousticElementLengthCorrectionInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

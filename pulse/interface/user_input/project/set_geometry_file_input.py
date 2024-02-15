@@ -13,8 +13,8 @@ from pulse.utils import get_new_path
 from pulse.project import Project
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class SetGeometryFileInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -173,18 +173,16 @@ class SetGeometryFileInput(QDialog):
         return False
 
     def print_warning_same_geometry_selected(self):
-        window_title = "WARNING"
         message_title = "Error in the geometry file selection"
         message = "The same geometry file has been selected inside the project's directory. Please, "
         message += "you should to select a different geometry file to update the current model setup."
-        PrintMessageInput([message_title, message, window_title])
+        PrintMessageInput([message_title, message, window_title_2])
 
     def print_error_message(self, label_1, label_2):
-        window_title = "ERROR"
         message_title = f"Invalid {label_1}"
         message = f"Please, inform a valid {label_1} at '{label_2}' input field to continue."
         message += "The input value should be a float or an integer number greater than zero."
-        PrintMessageInput([message_title, message, window_title])
+        PrintMessageInput([message_title, message, window_title_1])
 
     def copy_geometry_file_to_project_folder(self):
         self.new_geometry_path = get_new_path(self.current_project_file_path, self.geometry_filename)

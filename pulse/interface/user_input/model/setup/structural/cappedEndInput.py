@@ -8,8 +8,8 @@ import numpy as np
 from pulse.utils import remove_bc_from_file
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR"
-window_title2 = "WARNING"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class CappedEndInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -411,7 +411,7 @@ class CappedEndInput(QDialog):
         self.lineEdit_selected_ID.setText("")
         title = "CAPPED END RESET"
         message = "The capped end effect has been removed \nfrom all elements of the structural model."
-        PrintMessageInput([title, message, window_title2])
+        PrintMessageInput([title, message, window_title_2])
     
     def get_information_elem(self):
         try:
@@ -422,12 +422,12 @@ class CappedEndInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF ELEMENTS"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title2])
+                PrintMessageInput([title, message, window_title_2])
                   
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
 
     def get_information_line(self):
         try:
@@ -439,12 +439,12 @@ class CappedEndInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF LINES"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title2])
+                PrintMessageInput([title, message, window_title_2])
                 
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
 
 
 class GetInformationOfGroup(QDialog):

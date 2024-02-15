@@ -14,8 +14,8 @@ from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class ElasticNodalLinksInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
@@ -423,7 +423,6 @@ class ElasticNodalLinksInput(QDialog):
             self.close()
 
     def load_table(self, lineEdit, _label, direct_load=False):
-        window_title = "ERROR"
         title = "Error reached while loading table"
         try:
             if direct_load:
@@ -442,7 +441,7 @@ class ElasticNodalLinksInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The imported \n"
                 message += "data must have two columns of values."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([title, message, window_title_1])
                 lineEdit.setFocus()
                 return None, None
 
@@ -464,7 +463,7 @@ class ElasticNodalLinksInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title_1])
             lineEdit.setFocus()
             return None, None
 

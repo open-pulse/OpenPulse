@@ -17,8 +17,8 @@ from pulse.utils import create_new_folder, get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class FlangesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

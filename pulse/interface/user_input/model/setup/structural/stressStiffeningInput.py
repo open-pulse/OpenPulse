@@ -10,8 +10,8 @@ from pulse.interface.user_input.project.printMessageInput import PrintMessageInp
 import numpy as np
 import matplotlib.pyplot as plt
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class StressStiffeningInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

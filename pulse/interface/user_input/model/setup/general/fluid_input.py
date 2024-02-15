@@ -15,8 +15,8 @@ from pulse.interface.user_input.project.call_double_confirmation import CallDoub
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.utils import *
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 def getColorRGB(color):
     color = color.replace(" ", "")
@@ -477,19 +477,19 @@ class FluidInput(QDialog):
                     value = int(value_string) 
                 if value < 0:
                     message = "You cannot input a negative value to the {}.".format(label)
-                    PrintMessageInput([title, message, window_title1])
+                    PrintMessageInput([title, message, window_title_1])
                     lineEdit.setFocus()
                     return True
                 elif value == 0 and _positive:
                     message = "You cannot input a zero value to the {}.".format(label)
-                    PrintMessageInput([title, message, window_title1])
+                    PrintMessageInput([title, message, window_title_1])
                     lineEdit.setFocus()
                     return True
                 else:
                     self.value = value
             except Exception:
                 message = "You have typed an invalid value to the {}.".format(label)
-                PrintMessageInput([title, message, window_title1])
+                PrintMessageInput([title, message, window_title_1])
                 lineEdit.setFocus()
                 return True
         else:
@@ -498,7 +498,7 @@ class FluidInput(QDialog):
                 return False
             else:
                 message = f"An empty entry has been detected at the '{label.capitalize()}' input field. \nYou should insert a valid entry to proceed."
-                PrintMessageInput([title, message, window_title1])
+                PrintMessageInput([title, message, window_title_1])
                 lineEdit.setFocus()
                 return True
 
@@ -515,7 +515,7 @@ class FluidInput(QDialog):
             if fluid_name == "":
                 title = "Empty fluid name"
                 message = f"An empty entry has been detected at the 'Fluid name' input field. \nYou should insert a valid entry to proceed."
-                PrintMessageInput([title, message, window_title1])
+                PrintMessageInput([title, message, window_title_1])
                 _lineEdit.setFocus()
                 return True
     
@@ -524,7 +524,7 @@ class FluidInput(QDialog):
                 if fluid_name in self.list_names:
                     title = 'Invalid fluid name'
                     message = f"Please, inform a different fluid name. The '{fluid_name}' is already \nbeing used by another fluid."
-                    PrintMessageInput([title, message, window_title1])
+                    PrintMessageInput([title, message, window_title_1])
                     _lineEdit.setText("")
                     _lineEdit.setFocus()
                     return True
@@ -534,7 +534,7 @@ class FluidInput(QDialog):
         except Exception as error_log:
             title = 'Invalid fluid name'
             message = str(error_log)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True
 
 
@@ -559,7 +559,7 @@ class FluidInput(QDialog):
                 fluid_color = self.lineEdit_color.text()
 
             if fluid_color == "":
-                PrintMessageInput([title, message_empty, window_title1])
+                PrintMessageInput([title, message_empty, window_title_1])
                 return True
 
             elif fluid_color != "" or self.force_check:
@@ -568,18 +568,18 @@ class FluidInput(QDialog):
                 message_color = f" The RGB color {self.colorRGB} was already used.\n Please, input a different color."
 
                 if len(self.colorRGB) != 3:
-                    PrintMessageInput([title, message_invalid, window_title1])
+                    PrintMessageInput([title, message_invalid, window_title_1])
                     return True
 
                 if self.colorRGB in self.list_colors:
-                    PrintMessageInput([title, message_color, window_title1])
+                    PrintMessageInput([title, message_color, window_title_1])
                     return True
 
                 self.dict_inputs['color'] = fluid_color
 
         except Exception as log_error:
             message_invalid += "\n\n" + str(log_error)
-            PrintMessageInput([title, message_invalid, window_title1])
+            PrintMessageInput([title, message_invalid, window_title_1])
             return True
 
 
@@ -594,7 +594,7 @@ class FluidInput(QDialog):
             fluid_color = self.lineEdit_color_edit.text()
 
             if fluid_color == "":
-                PrintMessageInput([title, message_empty, window_title1])
+                PrintMessageInput([title, message_empty, window_title_1])
                 return True
 
             if fluid_color != "" or self.force_check:
@@ -603,14 +603,14 @@ class FluidInput(QDialog):
                 message_color = f" The RGB color {self.colorRGB} was already used.\n Please, input a different color."
 
                 if len(self.colorRGB) != 3:
-                    PrintMessageInput([title, message_invalid, window_title1])
+                    PrintMessageInput([title, message_invalid, window_title_1])
                     self.lineEdit_color_edit.setText("")
                     return True
 
                 temp_colorRGB = getColorRGB(self.temp_fluid_color)
                 if temp_colorRGB != self.colorRGB:
                     if self.colorRGB in self.list_colors:
-                        PrintMessageInput([title, message_color, window_title1])
+                        PrintMessageInput([title, message_color, window_title_1])
                         self.lineEdit_color_edit.setText("")
                         return True 
                     else:
@@ -620,7 +620,7 @@ class FluidInput(QDialog):
                             
         except Exception as log_error:
             message_invalid += "\n\n" + str(log_error)
-            PrintMessageInput([title, message_invalid, window_title1])
+            PrintMessageInput([title, message_invalid, window_title_1])
             self.lineEdit_color_edit.setText("")
             return True
     
@@ -646,7 +646,7 @@ class FluidInput(QDialog):
                     if fluid_density > 2000:
                         title = "Invalid density value"
                         message = "The input value for fluid density must be a positive number less than 2000."
-                        PrintMessageInput([title, message, window_title1])
+                        PrintMessageInput([title, message, window_title_1])
                         _lineEdit_fluid_density.setText("")
                         _lineEdit_fluid_density.setFocus()
                         return False
@@ -663,7 +663,7 @@ class FluidInput(QDialog):
         except Exception as error_log:
             title = 'Invalid fluid density'
             message = str(error_log)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True
 
 
@@ -702,7 +702,7 @@ class FluidInput(QDialog):
         except Exception as error_log:
             title = 'Invalid speed of sound'
             message = str(error_log)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True
 
 
@@ -719,7 +719,7 @@ class FluidInput(QDialog):
                     if fluid_density > 2000:
                         title = "Invalid density value"
                         message = "The input value for fluid density must be a positive number less than 2000."
-                        PrintMessageInput([title, message, window_title1])
+                        PrintMessageInput([title, message, window_title_1])
                         self.lineEdit_fluid_density_edit.setText("")
                         self.lineEdit_fluid_density_edit.setFocus()
                         return False
@@ -736,7 +736,7 @@ class FluidInput(QDialog):
         except Exception as error_log:
             title = 'Invalid fluid density'
             message = str(error_log)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True
 
 
@@ -767,7 +767,7 @@ class FluidInput(QDialog):
         except Exception as error_log:
             title = 'Invalid speed of sound'
             message = str(error_log)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True
     
 
@@ -955,7 +955,7 @@ class FluidInput(QDialog):
         except Exception as log_error:
             title = "Error while saving the fluid data to the file"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True
 
         if self.adding or self.editing:    
@@ -972,7 +972,7 @@ class FluidInput(QDialog):
         if self.clicked_item is None:
             title = "Empty fluid selection"
             message = "Select a fluid in the list before trying to attribute a fluid to the lines."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return
         
         if self.check_element_type_of_lines():
@@ -1026,7 +1026,7 @@ class FluidInput(QDialog):
             if list_empty_inputs != []:                
                 for label in list_empty_inputs:
                     message += "\n{}".format(label)  
-                PrintMessageInput([title, message, window_title1]) 
+                PrintMessageInput([title, message, window_title_1]) 
                 return                   
             
             self.fluid = Fluid( name, 
@@ -1067,7 +1067,7 @@ class FluidInput(QDialog):
         except Exception as log_error:
             title = "Error with the fluid list data"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return
 
 
@@ -1163,7 +1163,7 @@ class FluidInput(QDialog):
         except Exception as log_error:
             title = "Error while loading the fluid list data"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             self.close()
 
         self.update_fluid_id_selector()
@@ -1243,7 +1243,7 @@ class FluidInput(QDialog):
         message += "\n\nEmpty entries:\n"
         for label in self.list_empty_inputs:
             message += "\n{}".format(label)
-        PrintMessageInput([title, message, window_title2])
+        PrintMessageInput([title, message, window_title_2])
 
 
     def hightlight(self):
@@ -1260,7 +1260,7 @@ class FluidInput(QDialog):
         if self.lineEdit_name_edit.text() == "":
             title = "Empty fluid selection"
             message = "Please, select a fluid in the list to be edited."
-            PrintMessageInput([title, message, window_title2])
+            PrintMessageInput([title, message, window_title_2])
             self.hightlight()
             return
 
@@ -1349,7 +1349,7 @@ class FluidInput(QDialog):
         if self.clicked_item is None:
             self.title = "NO FLUID SELECTION"
             self.message = "Select a fluid in the list to be edited."
-            PrintMessageInput([self.title, self.message, window_title2])
+            PrintMessageInput([self.title, self.message, window_title_2])
             return True
         
         try:
@@ -1369,7 +1369,7 @@ class FluidInput(QDialog):
         except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE FLUID LIST DATA"
             self.message = str(error_log)
-            PrintMessageInput([self.title, self.message, window_title1])
+            PrintMessageInput([self.title, self.message, window_title_1])
             return True
 
         return False
@@ -1406,7 +1406,7 @@ class FluidInput(QDialog):
         except Exception as log_error:
             title = "Error with the material removal"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
 
     def reset_library_to_default(self):
 
@@ -1479,7 +1479,7 @@ class FluidInput(QDialog):
             else:
                 title = "Aditional action required"
                 message = "Press the 'Attribute fluid' button to proceed with fluid assignment."
-                PrintMessageInput([title, message, window_title2])
+                PrintMessageInput([title, message, window_title_2])
         elif event.key() == Qt.Key_Delete:
             self.confirm_fluid_removal()
         elif event.key() == Qt.Key_Escape:

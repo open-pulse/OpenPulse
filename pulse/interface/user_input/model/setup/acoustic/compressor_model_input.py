@@ -13,8 +13,8 @@ from pulse.interface.user_input.model.setup.general.fluid_input import FluidInpu
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 psi_to_Pa = 0.45359237*9.80665/((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
@@ -349,7 +349,7 @@ class CompressorModelInput(QDialog):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, "ERROR"]) 
+                PrintMessageInput([title, message, window_title_1]) 
 
         self.not_update_event = False
 

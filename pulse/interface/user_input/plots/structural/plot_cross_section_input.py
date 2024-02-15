@@ -10,6 +10,9 @@ from pulse.interface.user_input.project.printMessageInput import PrintMessageInp
 import numpy as np
 import matplotlib.pyplot as plt    
     
+window_title_1 = "Error"
+window_title_2 = "Warning"
+
 class PlotCrossSectionInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -138,7 +141,7 @@ class PlotCrossSectionInput(QDialog):
                 self.message += "plot by line selection will not work. \n\nIn this case, we strongly recommend selecting an element " 
                 self.message += "from the desired line to plot its cross-section."
                 self.title = "Line with multiples cross-sections"
-                self.window_title = "WARNING"
+                self.window_title = window_title_2
                 return True
 
             entity = self.dict_tag_to_entity[self.line_typed]
@@ -146,7 +149,7 @@ class PlotCrossSectionInput(QDialog):
             if entity.cross_section is None and entity.expansion_joint_parameters is None:
                 self.message = "Please, define a cross-section to the \nselected line before trying to plot the section."
                 self.title = "Error: undefined line cross-section"
-                self.window_title = "ERROR"
+                self.window_title = window_title_1
                 return True
 
             cross_section = entity.cross_section
@@ -162,7 +165,7 @@ class PlotCrossSectionInput(QDialog):
             if element.cross_section is None:
                 self.message = "Please, define a cross-section to the selected \nelement before trying to plot the section."
                 self.title = "Error: undefined element cross-section"
-                self.window_title = "ERROR"          
+                self.window_title = window_title_1          
                 return True
 
             cross_section = element.cross_section
@@ -174,7 +177,7 @@ class PlotCrossSectionInput(QDialog):
             # if self.section_label != "Pipe section":
             #     self.section_properties = cross_section.section_properties    
         else:
-            self.window_title = "WARNING"
+            self.window_title = window_title_2
             self.title = "Unable to plot cross-section"
             self.message = "The cross-section plot has been deactivated to \n\n"
             self.message += "the 'expansion joint' element type."
