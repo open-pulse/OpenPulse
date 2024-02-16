@@ -6,20 +6,20 @@ from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
-from data.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
+from pulse.interface.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
 #
 from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
-from data.user_input.project.loading_screen import LoadingScreen
-from data.user_input.project.printMessageInput import PrintMessageInput
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 #
 import os
 import numpy as np
 from shutil import rmtree
 from collections import defaultdict
 
-window_title = "ERROR"
+window_title = "Error"
 
 class Project:
     def __init__(self):
@@ -50,7 +50,7 @@ class Project:
         self.solution_acoustic = None
         self.natural_frequencies_structural = None
         self.natural_frequencies_acoustic = None
-        self.perforated_plate_dataLog = None
+        self.perforated_plate_data_log = None
         self.flag_set_material = False
         self.flag_set_crossSection = False
         self.plot_pressure_field = False
@@ -84,32 +84,19 @@ class Project:
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
-    def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+    def new_project(self, *args, **kwargs):
         self.reset(reset_all=True)
-        self.file.new(  project_folder_path, 
-                        project_name, 
-                        element_size, 
-                        geometry_tolerance, 
-                        import_type, 
-                        material_list_path, 
-                        fluid_list_path, 
-                        geometry_path, 
-                        coord_path, 
-                        conn_path   )
+        self.file.new(*args, **kwargs)
         
         self.file.create_backup_geometry_folder()
-        self.process_geometry_and_mesh(tolerance=geometry_tolerance)
+        self.process_geometry_and_mesh(tolerance=self.file.geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
         self.empty_geometry = False
 
-    def new_empty_project(self, project_folder_path, project_name, import_type, material_list_path, fluid_list_path,):
+    def new_empty_project(self, *args, **kwargs):
         self.reset(reset_all=True)
-        self.file.new_empty(project_folder_path, 
-                            project_name, 
-                            import_type, 
-                            material_list_path, 
-                            fluid_list_path  )
+        self.file.new(*args, **kwargs)
         self.empty_geometry = True
 
     def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
@@ -136,7 +123,7 @@ class Project:
             self.file.load(project_file_path)
     
             self.empty_geometry = True
-            if self.file._geometry_path.exists():
+            if os.path.exists(self.file._geometry_path):
                 self.empty_geometry = False
                 if self.check_mesh_setup():
                     self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
@@ -1982,7 +1969,7 @@ class Project:
         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
     
     def set_perforated_plate_convergence_dataLog(self, data):
-        self.perforated_plate_dataLog = data
+        self.perforated_plate_data_log = data
 
     def get_map_nodes(self):
         return self.preprocessor.map_nodes
@@ -2138,3 +2125,11 @@ class Project:
         self.min_stress = min_stress
         self.max_stress = max_stress
         self.stress_label = stress_label
+
+    def is_the_solution_finished(self):
+        if self.solution_acoustic is not None:
+            return True
+        elif self.solution_structural is not None:
+            return True
+        else:
+            return False

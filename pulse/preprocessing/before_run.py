@@ -1,10 +1,10 @@
 # from pulse.preprocessing.before_run import BeforeRun
 from collections import defaultdict
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 import numpy as np
 
-window_title_1 = "ERROR"
-window_title_2 = "WARNING"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class BeforeRun:
     def __init__(self, project, opv, **kwargs):

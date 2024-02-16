@@ -16,11 +16,11 @@ from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 from pulse.utils import *
 
-window_title_1 = "ERROR"
+window_title_1 = "Error"
 
 class Preprocessor:
     """A preprocessor class.

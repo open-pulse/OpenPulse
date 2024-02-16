@@ -1,4 +1,4 @@
-from data.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
 import vtk
 import numpy as np
 from math import pi
@@ -162,7 +162,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.update()
 
     def updateHud(self):
-        self._createSlider()
+        # self._createSlider()
         self._createColorBar()
         self._createScaleBar()
 
@@ -189,9 +189,9 @@ class opvAnalysisRenderer(vtkRendererBase):
             i = self.animationIndex
             self.animationIndex += 1
                             
-            _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
-            self._currentPhase = _phase_deg
-            self.slider.GetRepresentation().SetValue(_phase_deg)
+            # _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
+            # self._currentPhase = _phase_deg
+            # self.slider.GetRepresentation().SetValue(_phase_deg)
             cached = self._animationFrames[i]
             self.opvTubes._data.DeepCopy(cached)
             self.updateAll()
@@ -210,16 +210,16 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._animationFrames.clear()
         self._cacheFrequencyIndex = None
         
-    def showDisplacementField(self, frequency_index, scaling_setup):
+    def showDisplacementField(self, frequency_index, current_scaling):
         self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._scaling_setup = scaling_setup
+        self._current_scaling = current_scaling
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
-                                                               scaling_setup)
+                                                               current_scaling)
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
@@ -256,11 +256,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index
         self._plotOnce(self._currentPhase)
 
-    def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_setup):
+    def get_min_max_values_to_resultant_displacements(self, frequency_index, current_scaling):
         solution = self.project.get_structural_solution()
         self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, 
                                                                                        frequency_index,
-                                                                                       scaling_setup)
+                                                                                       current_scaling)
 
     def computeDisplacementField(self, frequency_index, phase_step):
 
@@ -272,7 +272,7 @@ class opvAnalysisRenderer(vtkRendererBase):
                                                                                                             frequency_index, 
                                                                                                             phase_step = phase_step,
                                                                                                             r_max = self.rDisp_max,
-                                                                                                            scaling_setup = self._scaling_setup)
+                                                                                                            current_scaling = self._current_scaling)
         
         self.opvDeformedTubes.build()
         min_max_values_all = [self.rDisp_min, self.rDisp_max]
@@ -280,7 +280,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
 
-        self.slider.SetEnabled(True)
+        # self.slider.SetEnabled(True)
 
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
@@ -322,7 +322,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
         
-        self.slider.SetEnabled(True)
+        # self.slider.SetEnabled(True)
 
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
@@ -364,7 +364,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvPressureTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
         
-        self.slider.SetEnabled(True)
+        # self.slider.SetEnabled(True)
 
         if self.clipping_plane_active:
             self.opvClippablePressureTubes.build()
@@ -380,57 +380,57 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvPressureTubes.getActor().SetVisibility(True)
 
 
-    def _createSlider(self):
+    # def _createSlider(self):
 
-        width, height = self.getSize()
-        self.sliderTitleProperty = vtk.vtkTextProperty()
-        self._titleActor = vtk.vtkTextActor()
-        self._renderer.RemoveActor2D(self._titleActor)
-        self.sliderTitleProperty.SetFontSize(15)
-        self.sliderTitleProperty.SetColor(self.opv.font_color)
-        # self.sliderTitleProperty.BoldOn()
-        self.sliderTitleProperty.SetFontFamilyAsString('Arial')        
-        self.sliderTitleProperty.SetVerticalJustificationToTop()
-        self.sliderTitleProperty.SetJustificationToLeft()
-        self._titleActor.SetInput('Animation phase controller [deg]')
-        self._titleActor.SetTextProperty(self.sliderTitleProperty)
-        self._titleActor.SetDisplayPosition(20, height-190)
-        self._renderer.AddActor2D(self._titleActor)
+    #     width, height = self.getSize()
+    #     self.sliderTitleProperty = vtk.vtkTextProperty()
+    #     self._titleActor = vtk.vtkTextActor()
+    #     self._renderer.RemoveActor2D(self._titleActor)
+    #     self.sliderTitleProperty.SetFontSize(15)
+    #     self.sliderTitleProperty.SetColor(self.opv.font_color)
+    #     # self.sliderTitleProperty.BoldOn()
+    #     self.sliderTitleProperty.SetFontFamilyAsString('Arial')        
+    #     self.sliderTitleProperty.SetVerticalJustificationToTop()
+    #     self.sliderTitleProperty.SetJustificationToLeft()
+    #     self._titleActor.SetInput('Animation phase controller [deg]')
+    #     self._titleActor.SetTextProperty(self.sliderTitleProperty)
+    #     self._titleActor.SetDisplayPosition(20, height-190)
+    #     self._renderer.AddActor2D(self._titleActor)
 
-        self.slider = vtk.vtkSliderWidget()
-        self.sldRep = vtk.vtkSliderRepresentation2D()
+    #     self.slider = vtk.vtkSliderWidget()
+    #     self.sldRep = vtk.vtkSliderRepresentation2D()
 
-        self.sldRep.SetMinimumValue(0)
-        self.sldRep.SetMaximumValue(360)
-        self.sldRep.SetValue(0)
-        self.sliderLabelProperty = self.sldRep.GetLabelProperty()
+    #     self.sldRep.SetMinimumValue(0)
+    #     self.sldRep.SetMaximumValue(360)
+    #     self.sldRep.SetValue(0)
+    #     self.sliderLabelProperty = self.sldRep.GetLabelProperty()
         
-        self.sliderLabelProperty.SetColor(self.opv.font_color)
-        self.sliderLabelProperty.ShadowOff()
-        # self.sliderLabelProperty.SetFontSize(10)
+    #     self.sliderLabelProperty.SetColor(self.opv.font_color)
+    #     self.sliderLabelProperty.ShadowOff()
+    #     # self.sliderLabelProperty.SetFontSize(10)
 
-        self.sldRep.GetSelectedProperty().SetColor(1, 0, 0)
-        self.sldRep.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
-        self.sldRep.GetCapProperty().SetColor(0.8, 0.8, 0.8)
+    #     self.sldRep.GetSelectedProperty().SetColor(1, 0, 0)
+    #     self.sldRep.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
+    #     self.sldRep.GetCapProperty().SetColor(0.8, 0.8, 0.8)
         
-        self.sldRep.SetSliderLength(0.01)
-        self.sldRep.SetSliderWidth(0.03)
-        self.sldRep.SetTubeWidth(0.02)
+    #     self.sldRep.SetSliderLength(0.01)
+    #     self.sldRep.SetSliderWidth(0.03)
+    #     self.sldRep.SetTubeWidth(0.02)
 
-        self.sldRep.SetEndCapWidth(0.02)
-        self.sldRep.SetEndCapLength(0.005)
+    #     self.sldRep.SetEndCapWidth(0.02)
+    #     self.sldRep.SetEndCapLength(0.005)
 
-        # self.sldRep.SetTitleHeight(0.010)
-        self.sldRep.SetLabelHeight(0.018)
+    #     # self.sldRep.SetTitleHeight(0.010)
+    #     self.sldRep.SetLabelHeight(0.018)
 
-        self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-        self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-        self.sldRep.GetPoint1Coordinate().SetValue(20, height-165)
-        self.sldRep.GetPoint2Coordinate().SetValue(220, height-165)
+    #     self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
+    #     self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
+    #     self.sldRep.GetPoint1Coordinate().SetValue(20, height-165)
+    #     self.sldRep.GetPoint2Coordinate().SetValue(220, height-165)
 
-        self.slider.SetInteractor(self.opv)
-        self.slider.SetRepresentation(self.sldRep)
-        self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
+    #     self.slider.SetInteractor(self.opv)
+    #     self.slider.SetRepresentation(self.sldRep)
+    #     self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
 
     def _createPlayer(self):
         self.opv.Initialize()
@@ -488,7 +488,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if not self.playingAnimation:
             return
 
-        self.slider.GetRepresentation().SetValue(0)
+        # self.slider.GetRepresentation().SetValue(0)
         
         self.count_cycles += 1
         if self.count_cycles <= self.total_frames:
@@ -509,6 +509,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         sliderValue = round(slider.GetRepresentation().GetValue()/delta_phase_deg)*delta_phase_deg
         slider.GetRepresentation().SetValue(sliderValue)
         phase_rad = sliderValue*(2*pi/360)
+        self._plotOnce(phase_rad)
+
+    def slider_callback(self, phase_deg):
+        if self._currentPlot is None:
+            return 
+        
+        self.playingAnimation = False
+        # delta_phase_deg = (360/self.number_frames)
+        phase_rad = phase_deg*(2*pi/360)
         self._plotOnce(phase_rad)
 
     def start_export_animation_to_file(self, path, frame_rate):
@@ -585,8 +594,9 @@ class opvAnalysisRenderer(vtkRendererBase):
                 text += self.project.analysis_method_label + "\n"
             text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
 
-        if not self.project.plot_pressure_field:
-            text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
+        # if not self.project.plot_pressure_field:
+        #     text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
+        
         # vertical_position_adjust = None
         self.createInfoText(text, color=self.opv.font_color)
 

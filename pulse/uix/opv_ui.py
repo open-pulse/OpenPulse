@@ -8,7 +8,7 @@ import numpy as np
 from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
 from pulse.interface.opvGeometryRenderer import opvGeometryRenderer
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
-from data.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -39,7 +39,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.add_MOPT_logo = True
         self.show_reference_scale = True
 
-    def setUserInterfacePreferences(self, preferences):
+    def set_user_interface_preferences(self, preferences):
         """
         """
         if preferences:
@@ -168,11 +168,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
-    def plot_displacement_field(self, frequency_indice, scaling_setup):
+    def plot_displacement_field(self, frequency_indice, current_scaling):
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
         self.opvAnalysisRenderer.showDisplacementField(frequency_indice, 
-                                                       scaling_setup)
+                                                       current_scaling)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #
@@ -180,11 +180,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-    def plot_stress_field(self, frequency_indice, scaling_setup): 
+    def plot_stress_field(self, frequency_indice, current_scaling): 
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
         self.opvAnalysisRenderer.showStressField(frequency_indice, 
-                                                   scaling_setup)
+                                                   current_scaling)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #

@@ -8,7 +8,7 @@ from pulse.uix.input_ui import InputUi
 from pulse.uix.opv_ui import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
-from data.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
+from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 
 #
 from pulse.uix.renderer_toolbar import RendererToolbar
@@ -21,7 +21,7 @@ from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorR
 from opps.interface.widgets.add_structures_widget import AddStructuresWidget
 
 #
-from data.user_input.project.call_double_confirmation_input import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 import sys
 import os
@@ -334,7 +334,7 @@ class MainWindow(QMainWindow):
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         # self.plotStructuralModeShapes_action.setShortcut('')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
-        self.plotStructuralModeShapes_action.triggered.connect(self.getInputWidget().plotStructuralModeShapes)
+        self.plotStructuralModeShapes_action.triggered.connect(self.getInputWidget().plot_structural_mode_shapes)
 
         self.plotDisplacementField_action = QAction('&Plot Displacement Field', self)        
         # self.plotDisplacementField_action.setShortcut('')
@@ -361,39 +361,35 @@ class MainWindow(QMainWindow):
         self.plotSressFrequencyResponse_action.setStatusTip('Plot Stress Frequency Response')
         self.plotSressFrequencyResponse_action.triggered.connect(self.getInputWidget().plotStressFrequencyResponse)
 
-        self.plotPressureField_action = QAction('&Plot Acoustic Pressure Field', self)        
-        # self.plotPressureField_action.setShortcut('')
-        self.plotPressureField_action.setStatusTip('Plot Acoustic Pressure Field')
-        self.plotPressureField_action.triggered.connect(self.getInputWidget().plotAcousticPressureField)
+        self.plot_pressure_field_action = QAction('&Plot Acoustic Pressure Field', self)        
+        # self.plot_pressure_field_action.setShortcut('')
+        self.plot_pressure_field_action.setStatusTip('Plot Acoustic Pressure Field')
+        self.plot_pressure_field_action.triggered.connect(self.getInputWidget().plot_acoustic_pressure_field)
 
-        self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
-        # self.plotAcousticFrequencyResponse.setShortcut('')
-        self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
-        self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponse)
+        self.plot_acoustic_frequency_response_action = QAction('&Plot Acoustic Frequency Response', self)        
+        # self.plot_acoustic_frequency_response_action.setShortcut('')
+        self.plot_acoustic_frequency_response_action.setStatusTip('Plot Acoustic Frequency Response')
+        self.plot_acoustic_frequency_response_action.triggered.connect(self.getInputWidget().plot_acoustic_frequency_response)
 
-        self.plotAcousticFrequencyResponseFunction = QAction('&Plot Acoustic Frequency Response Function', self)        
-        # self.plotAcousticFrequencyResponseFunction.setShortcut('')
-        self.plotAcousticFrequencyResponseFunction.setStatusTip('Plot Acoustic Frequency Response Function')
-        self.plotAcousticFrequencyResponseFunction.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponseFunction)
+        self.plot_acoustic_frequency_response_function_action = QAction('&Plot Acoustic Frequency Response Function', self)        
+        # self.plot_acoustic_frequency_response_function_action.setShortcut('')
+        self.plot_acoustic_frequency_response_function_action.setStatusTip('Plot Acoustic Frequency Response Function')
+        self.plot_acoustic_frequency_response_function_action.triggered.connect(self.getInputWidget().plot_acoustic_frequency_response_function)
 
-        self.plotAcousticDeltaPressures = QAction('&Plot Acoustic Delta Pressures', self)        
-        # self.plotAcousticDeltaPressures.setShortcut('')
-        self.plotAcousticDeltaPressures.setStatusTip('Plot Acoustic Delta Pressures')
-        self.plotAcousticDeltaPressures.triggered.connect(self.getInputWidget().plot_TL_NR)
+        self.plot_acoustic_delta_pressures = QAction('&Plot Acoustic Delta Pressures', self)        
+        # self.plot_acoustic_delta_pressures.setShortcut('')
+        self.plot_acoustic_delta_pressures.setStatusTip('Plot Acoustic Delta Pressures')
+        self.plot_acoustic_delta_pressures.triggered.connect(self.getInputWidget().plot_transmission_loss)
 
-        self.plot_TL_NR = QAction('&Plot Transmission Loss or Attenuation', self)        
-        self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
-        # self.plot_TL_NR.setShortcut('')
-        self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
+        self.plot_transmission_loss = QAction('&Plot Transmission Loss or Attenuation', self)        
+        self.plot_transmission_loss.setStatusTip('Plot Transmission Loss or Attenuation')
+        # self.plot_transmission_loss.setShortcut('')
+        self.plot_transmission_loss.triggered.connect(self.getInputWidget().plot_transmission_loss)
 
         self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
         self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
         self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
-
-        self.animationSettings_action = QAction('&Animation Settings', self)
-        self.animationSettings_action.setStatusTip('Animation Settings')
-        self.animationSettings_action.triggered.connect(self.getInputWidget().animationSettings)
 
         # Views
         self.cameraTop_action = QAction(self.view_top_icon, '&Top View', self)
@@ -532,14 +528,13 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plotSressField_action)
         self.resultsViewerMenu.addAction(self.plotSressFrequencyResponse_action)
         #acoustic
-        self.resultsViewerMenu.addAction(self.plotPressureField_action)
-        self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
-        self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponseFunction)
-        self.resultsViewerMenu.addAction(self.plotAcousticDeltaPressures)
-        self.resultsViewerMenu.addAction(self.plot_TL_NR)
+        self.resultsViewerMenu.addAction(self.plot_pressure_field_action)
+        self.resultsViewerMenu.addAction(self.plot_acoustic_frequency_response_action)
+        self.resultsViewerMenu.addAction(self.plot_acoustic_frequency_response_function_action)
+        self.resultsViewerMenu.addAction(self.plot_acoustic_delta_pressures)
+        self.resultsViewerMenu.addAction(self.plot_transmission_loss)
         #animation
         self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
-        self.resultsViewerMenu.addAction(self.animationSettings_action)
 
         self.resultsViewerMenu.addAction(self.geometry_workspace_action)
         self.resultsViewerMenu.addAction(self.mesh_workspace_action)
@@ -748,7 +743,7 @@ class MainWindow(QMainWindow):
             self.draw()
 
     def importProject_call(self, path=None):
-        if self.inputWidget.loadProject(self.config, path):
+        if self.inputWidget.load_project(path):
             self._loadProjectMenu()
             self.changeWindowTitle(self.project.file._project_name)
             self.draw()
@@ -764,7 +759,7 @@ class MainWindow(QMainWindow):
         if self.config.openLastProject and self.config.haveRecentProjects():
             self.importProject_call(self.config.getMostRecentProjectDir())
         else:
-            if self.inputWidget.getStarted(self.config):
+            if self.inputWidget.get_started(self.config):
                 self._loadProjectMenu()
                 self.changeWindowTitle(self.project.file._project_name)
                 self.draw()

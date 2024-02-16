@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
-from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 
 class ModelAndAnalysisSetupItems(QTreeWidget):
@@ -32,7 +32,7 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
     def keyPressEvent(self, event):
         """This deals with key events that are directly linked with the menu."""
         if event.key() == Qt.Key_F5:
-            self.mainWindow.getInputWidget().runAnalysis()
+            self.mainWindow.getInputWidget().run_analysis()
             self._updateItems()
 
     def _createIcons(self):
@@ -445,12 +445,6 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
                 self.mainWindow.getInputWidget().add_compressor_excitation()
                 self.mainWindow.plot_mesh()
 
-        elif item == self.item_child_check_pulsation_criteria:
-            if not self.item_child_check_pulsation_criteria.isDisabled():
-                self.update_plot_mesh()
-                self.mainWindow.getInputWidget().check_pulsation_criteria()
-                self.mainWindow.plot_mesh()
-
         elif item == self.item_child_selectAnalysisType:
             if not self.item_child_selectAnalysisType.isDisabled():
                 self.mainWindow.getInputWidget().analysisTypeInput()
@@ -458,20 +452,20 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
             
         elif item == self.item_child_analisysSetup:
             if not self.item_child_analisysSetup.isDisabled():
-                self.mainWindow.getInputWidget().analysisSetup()
+                self.mainWindow.getInputWidget().analysis_setup()
                 self._updateItems()
 
         elif item == self.item_child_runAnalysis:
             if not self.item_child_runAnalysis.isDisabled():
-                self.mainWindow.getInputWidget().runAnalysis()
+                self.mainWindow.getInputWidget().run_analysis()
                 self._updateItems()
+                self.mainWindow.use_results_workspace()
 
     def modify_geometry_item_access(self, bool_key):
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_editGeometry.setHidden(True)
 
     def modify_general_settings_items_access(self, bool_key):
-        #
         self.item_child_setProjectAttributes.setDisabled(bool_key)
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
@@ -513,7 +507,6 @@ class ModelAndAnalysisSetupItems(QTreeWidget):
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
-        # self.item_child_check_pulsation_criteria.setDisabled(bool_key)
         #
         self.item_child_selectAnalysisType.setDisabled(bool_key)
 

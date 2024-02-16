@@ -27,18 +27,17 @@ def get_structural_frf(preprocessor,
 
 def get_max_min_values_of_resultant_displacements(solution, 
                                                   column, 
-                                                  scaling_setup):
+                                                  current_scaling):
     
     data = np.abs(solution)
     phases = np.angle(solution)
     ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
     #
-    absolute = True
-    if scaling_setup != {}:
-        absolute = scaling_setup["absolute"]
-        real_ux = scaling_setup["real_ux"]
-        real_uy = scaling_setup["real_uy"]
-        real_uz = scaling_setup["real_uz"]
+    if current_scaling is None:
+        scaling_type = "absolute"
+    else:
+        scaling_type = current_scaling
+
     #
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
     _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
@@ -50,19 +49,21 @@ def get_max_min_values_of_resultant_displacements(solution,
     for theta in thetas:
 
         factor = np.cos(theta + _phases)
-        if absolute:
+        if scaling_type == "absolute":
             # absolute r_xyz = |[Ux, Uy, Uz]|
             r_xyz = ((u_x*factor[:, 0])**2 + (u_y*factor[:, 1])**2 + (u_z*factor[:, 2])**2)**(1/2)
-        elif real_ux:
+        elif scaling_type == "real_ux":
             # real part Ux
             r_xyz = u_x*factor[:, 0]
-        elif real_uy:
+        elif scaling_type == "real_uy":
             # real part Uy
             r_xyz = u_y*factor[:, 1]
-        else:
+        elif scaling_type == "real_uz":
             # real part Uz
             r_xyz = u_z*factor[:, 2]
-        
+        else:
+            NotImplementedError("Not supported scaling type.")
+
         min_r_xyz = min(r_xyz)
         max_r_xyz = max(r_xyz)
 
@@ -81,12 +82,10 @@ def get_structural_response(preprocessor,
                             r_max = None,
                             new_scf = None, 
                             Normalize = True, 
-                            scaling_setup = {}):
+                            current_scaling = None):
     
     # if r_max is None:
-    _, r_max = get_max_min_values_of_resultant_displacements(solution, 
-                                                                column,
-                                                                {})
+    _, r_max = get_max_min_values_of_resultant_displacements(solution, column, None)
     #
     data = np.abs(solution)
     phases = np.angle(solution)
@@ -94,13 +93,10 @@ def get_structural_response(preprocessor,
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
     #
-    if scaling_setup != {}:
-        absolute = scaling_setup["absolute"]
-        real_ux = scaling_setup["real_ux"]
-        real_uy = scaling_setup["real_uy"]
-        real_uz = scaling_setup["real_uz"]
+    if current_scaling is None:
+        scaling_type = "absolute"
     else:
-        absolute = True
+        scaling_type = current_scaling
     #
     _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
                         phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
@@ -132,18 +128,20 @@ def get_structural_response(preprocessor,
     coord_def[:,2] = coord[:,2] + u_y*factor[:, 1]
     coord_def[:,3] = coord[:,3] + u_z*factor[:, 2]
 
-    if absolute:
+    if scaling_type == "absolute":
         # absolute r_xyz_plot = |[Ux, Uy, Uz]|
         r_xyz_plot = (((u_x*factor[:, 0])**2 + (u_y*factor[:, 1])**2 + (u_z*factor[:, 2])**2)**(1/2))/magnif_factor
-    elif real_ux:
+    elif scaling_type == "real_ux":
         # real part Ux
         r_xyz_plot = u_x*factor[:, 0]/magnif_factor
-    elif real_uy:
+    elif scaling_type == "real_uy":
         # real part Uy
         r_xyz_plot = u_y*factor[:, 1]/magnif_factor
-    else:
+    elif scaling_type == "real_uz":
         # real part Uz
         r_xyz_plot = u_z*factor[:, 2]/magnif_factor
+    else:
+        NotImplementedError("Not implemented scaling type.")
         
     min_max_values = [min(r_xyz_plot), max(r_xyz_plot)]
 
