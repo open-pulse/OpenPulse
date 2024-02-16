@@ -9,12 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
-from pulse.interface.viewer_3d.text_templates import (
-    format_long_sequence,
-    MULTIPLE_NODES_SELECTION_TEMPLATE,
-    MULTIPLE_ELEMENTS_SELECTION_TEMPLATE,
-    MULTIPLE_ENTITIES_SELECTION_TEMPLATE,
-)
+from pulse.interface.viewer_3d.text_templates import TreeInfo, format_long_sequence
 from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse import app
@@ -316,23 +311,85 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def update_selection_info(self, nodes, elements, entities):
         info_text = ""
-
-        if len(nodes) > 1:
-            info_text += MULTIPLE_NODES_SELECTION_TEMPLATE.format(
-                selection_size=len(nodes),
-                selection_ids=format_long_sequence(nodes),
-            )
-
-        if len(elements) > 1:
-            info_text += MULTIPLE_ELEMENTS_SELECTION_TEMPLATE.format(
-                selection_size=len(elements),
-                selection_ids=format_long_sequence(elements),
-            )
-
-        if len(entities) > 1:
-            info_text += MULTIPLE_ENTITIES_SELECTION_TEMPLATE.format(
-                selection_size=len(entities),
-                selection_ids=format_long_sequence(entities),
-            )
-
+        info_text += self._nodes_info_text(nodes)
+        info_text += self._elements_info_text(elements)
+        info_text += self._entity_info_text(entities)
         self.set_info_text(info_text)
+
+    def _nodes_info_text(self, nodes):
+        info_text = ""
+        if len(nodes) > 1:
+            info_text += (
+                f"{len(nodes)} NODES IN SELECTION\n"
+                f"{format_long_sequence(nodes)}\n\n"
+            )
+        return info_text
+
+    def _elements_info_text(self, elements):
+        info_text = ""
+        if len(elements) > 1:
+            info_text += (
+                f"{len(elements)} ELEMENTS IN SELECTION\n"
+                f"{format_long_sequence(elements)}\n\n"
+            )
+        return info_text
+
+    def _entity_info_text(self, entities):
+        info_text = ""
+        project = app().project
+
+        if len(entities) == 1:
+            _id, *_ = entities
+            entity = project.get_entity(_id)
+
+            info_text += f"LINE {_id}\n\n"
+
+            if entity.material:
+                tree = TreeInfo("Material")
+                tree.add_item("Name", entity.material.name)
+                info_text += str(tree)
+
+            if entity.fluid:
+                tree = TreeInfo("fluid")
+                tree.add_item("Name", entity.fluid.name)
+                if entity.fluid.temperature:
+                    tree.add_item("Temperature", round(entity.fluid.temperature, 4), "[K]")
+                if entity.fluid.pressure:
+                    tree.add_item("Pressure", round(entity.fluid.pressure, 4), "[Pa]")
+                info_text += str(tree)
+
+            if entity.cross_section is None:
+                tree = TreeInfo("cross section")
+                tree.add_item("Info", "Undefined")
+                info_text += str(tree)
+
+            elif entity.structural_element_type == 'beam_1':
+                tree = TreeInfo("cross section")
+                tree.add_item("Area", round(entity.cross_section.area, 2), "[m²]")
+                tree.add_item("Iyy", round(entity.cross_section.second_moment_area_y, 4), "[m⁴]")
+                tree.add_item("Izz", round(entity.cross_section.second_moment_area_z, 4), "[m⁴]")
+                tree.add_item("Iyz", round(entity.cross_section.second_moment_area_yz, 4), "[m⁴]")
+                tree.add_item("x-axis rotation", round(entity.cross_section.second_moment_area_yz, 4), "[m⁴]")
+                info_text += str(tree)
+
+            elif entity.structural_element_type in ['pipe_1', 'valve']:
+                tree = TreeInfo("cross section")
+                tree.add_item("Outer Diameter", round(entity.cross_section.outer_diameter, 4), "[m]")
+                tree.add_item("Thickness", round(entity.cross_section.thickness, 4), "[m]")
+                tree.add_separator()
+                if entity.cross_section.offset_y or entity.cross_section.offset_z:
+                    tree.add_item("Offset Y", round(entity.cross_section.offset_y, 4), "[m]")
+                    tree.add_item("Offset Z", round(entity.cross_section.offset_z, 4), "[m]")
+                    tree.add_separator()
+                if entity.cross_section.insulation_thickness or entity.cross_section.insulation_density:
+                    tree.add_item("Insulation Thickness", round(entity.cross_section.insulation_thickness, 4), "[m]")
+                    tree.add_item("Insulation Density", round(entity.cross_section.insulation_density, 4), "[kg/m³]")
+                info_text += str(tree)
+
+        elif len(entities) > 1:
+            info_text += (
+                f"{len(entities)} LINES IN SELECTION\n"
+                f"{format_long_sequence(entities)}\n\n"
+            )
+
+        return info_text
