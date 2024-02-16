@@ -9,6 +9,12 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
+from pulse.interface.viewer_3d.text_templates import (
+    format_long_sequence,
+    MULTIPLE_NODES_SELECTION_TEMPLATE,
+    MULTIPLE_ELEMENTS_SELECTION_TEMPLATE,
+    MULTIPLE_ENTITIES_SELECTION_TEMPLATE,
+)
 from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse import app
@@ -223,6 +229,8 @@ class MeshRenderWidget(CommonRenderWidget):
         ctrl_pressed = bool(modifiers & Qt.ControlModifier)
         shift_pressed = bool(modifiers & Qt.ShiftModifier)
         alt_pressed = bool(modifiers & Qt.AltModifier)
+
+        self.update_selection_info(picked_nodes, picked_elements, picked_entities)
         
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
@@ -305,3 +313,26 @@ class MeshRenderWidget(CommonRenderWidget):
             actor.SetPickable(pickability[actor])
 
         return selection_picker.get_picked()
+
+    def update_selection_info(self, nodes, elements, entities):
+        info_text = ""
+
+        if len(nodes) > 1:
+            info_text += MULTIPLE_NODES_SELECTION_TEMPLATE.format(
+                selection_size=len(nodes),
+                selection_ids=format_long_sequence(nodes),
+            )
+
+        if len(elements) > 1:
+            info_text += MULTIPLE_ELEMENTS_SELECTION_TEMPLATE.format(
+                selection_size=len(elements),
+                selection_ids=format_long_sequence(elements),
+            )
+
+        if len(entities) > 1:
+            info_text += MULTIPLE_ENTITIES_SELECTION_TEMPLATE.format(
+                selection_size=len(entities),
+                selection_ids=format_long_sequence(entities),
+            )
+
+        self.set_info_text(info_text)
