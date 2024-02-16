@@ -119,16 +119,14 @@ class MainWindow(QMainWindow):
             title += " - " + msg
         self.setWindowTitle(title)
 
-    def show_get_started_window(self):
-        # config = app().config
-
+    def load_recent_project(self):
         if self.config.openLastProject and self.config.haveRecentProjects():
-            self.open_project(self.config.getMostRecentProjectDir())
-        else:
-            if self.input_widget.get_started():
-                self._loadProjectMenu()
-                self.changeWindowTitle(self.project.file._project_name)
-                # self.draw()
+            self.importProject_call(self.config.getMostRecentProjectDir())
+        elif self.input_widget.get_started():
+            self.update()  # update the renders before change the view
+            self.action_front_view_callback()
+            self._update_recent_projects()
+            self.set_window_title(self.project.file.project_name)
 
     # internal
     def _update_recent_projects(self):
@@ -472,15 +470,6 @@ class MainWindow(QMainWindow):
     
     def _loadProjectMenu(self):
         self._update_recent_projects()
-
-    def load_recent_project(self):
-        if self.config.openLastProject and self.config.haveRecentProjects():
-            self.importProject_call(self.config.getMostRecentProjectDir())
-        else:
-            if self.input_widget.get_started():
-                self._loadProjectMenu()
-                self.changeWindowTitle(self.project.file.project_name)
-                self.draw()
 
     def importProject_call(self, path=None):
         if self.input_widget.load_project(path):

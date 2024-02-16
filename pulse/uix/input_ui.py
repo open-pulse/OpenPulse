@@ -126,7 +126,8 @@ class InputUi:
     def get_started(self):
         self.menu_items.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput, self.main_window)
-        self.main_window._updateStatusBar()        
+        self.main_window._updateStatusBar()
+        return get_started    
     
     def initial_project_action(self, finalized):
         app().main_window.action_front_view_callback()
