@@ -10,43 +10,58 @@ from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app
+from pulse import app, UI_DIR
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
         return str(Path(path))
 
-class PlotStructuralFrequencyResponse(QWidget):
+class GetNodalResultsForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
-        ui_path = Path(f"{main_window.ui_dir}/plots/results/structural/plot_structural_frequency_response_widget.ui")
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_nodal_results_for_harmonic_analysis.ui")
         uic.loadUi(ui_path, self)
+
+        main_window = app().main_window
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
-        self._reset_variables()
-        self._config_window()
+        self._initialize()
         self._load_icons()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self.update()
+
+    def _initialize(self):
+        self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
+
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+        self.nodes = self.project.preprocessor.nodes
+        self.analysisMethod = self.project.analysis_method_label
+        self.frequencies = self.project.frequencies
+        self.solution = self.project.get_structural_solution()
+    
+    def _load_icons(self):
+        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
         # LineEdit
         self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
         # PushButton
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
-        self.pushButton_call_data_exporter.setIcon(self.export_icon)
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
         # RadioButton
         self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
         self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
@@ -55,27 +70,9 @@ class PlotStructuralFrequencyResponse(QWidget):
         self.radioButton_ry = self.findChild(QRadioButton, 'radioButton_ry')
         self.radioButton_rz = self.findChild(QRadioButton, 'radioButton_rz')
 
-    def _reset_variables(self):
-        self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
-
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        self.list_node_ids = self.opv.getListPickedPoints()
-        self.writeNodes(self.list_node_ids)
-
-        self.nodes = self.project.preprocessor.nodes
-        self.analysisMethod = self.project.analysis_method_label
-        self.frequencies = self.project.frequencies
-        self.solution = self.project.get_structural_solution()
-
     def _create_connections(self):
-        self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
-    
-    def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
-        self.setWindowIcon(self.pulse_icon)
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        self.pushButton_plot_data.clicked.connect(self.call_plotter)
 
     def writeNodes(self, list_node_ids):
         text = ""

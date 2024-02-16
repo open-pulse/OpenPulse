@@ -19,7 +19,7 @@ class PlotStructuralModeShape(QWidget):
 
         main_window = app().main_window
 
-        ui_path = f"{main_window.ui_dir}/plots/results/structural/structural_mode_shape_widget.ui"
+        ui_path = f"{main_window.ui_dir}/plots/results/structural/plot_structural_mode_shape.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()

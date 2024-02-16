@@ -26,23 +26,24 @@ class ResultsViewerItems(CommonMenuItems):
         self._create_items()
 
     def _create_items(self):
+        # Structural results items
         self.item_top_resultsViewer_structural = self.add_top_item("Results Viewer - Structural")
-        self.item_child_plot_structural_mode_shapes = self.add_item("Plot Structural Mode Shapes")
-        self.item_child_plot_displacement_field = self.add_item("Plot Displacement Field")
-        self.item_child_plot_structural_frequency_response = self.add_item("Plot Structural Frequency Response")
-        self.item_child_plot_reaction_frequency_response = self.add_item("Plot Reactions Frequency Response")
-        self.item_child_plot_stress_field = self.add_item("Plot Stress Field")
-        self.item_child_plot_stress_frequency_response = self.add_item("Plot Stress Frequency Response")
-
+        self.item_child_plot_structural_mode_shapes = self.add_item("Plot structural mode shapes")
+        self.item_child_plot_displacement_field = self.add_item("Plot displacement field")
+        self.item_child_plot_structural_frequency_response = self.add_item("Plot structural frequency response")
+        self.item_child_plot_reaction_frequency_response = self.add_item("Plot reactions frequency response")
+        self.item_child_plot_stress_field = self.add_item("Plot stress field")
+        self.item_child_plot_stress_frequency_response = self.add_item("Plot stress frequency response")
+        # Acoustic results items
         self.item_top_resultsViewer_acoustic = self.add_top_item("Results Viewer - Acoustic")
-        self.item_child_plot_acoustic_mode_shapes = self.add_item('Plot Acoustic Mode Shapes')
-        self.item_child_plot_acoustic_pressure_field = self.add_item('Plot Acoustic Pressure Field')
-        self.item_child_plot_acoustic_frequency_response = self.add_item('Plot Acoustic Frequency Response')
-        self.item_child_plot_acoustic_frequency_response_function = self.add_item('Plot Acoustic Frequency Response Function')
-        self.item_child_plot_acoustic_delta_pressures = self.add_item('Plot Acoustic Delta Pressures')
-        self.item_child_plot_transmission_loss = self.add_item('Plot Transmission Loss')
+        self.item_child_plot_acoustic_mode_shapes = self.add_item('Plot acoustic mode shapes')
+        self.item_child_plot_acoustic_pressure_field = self.add_item('Plot acoustic pressure field')
+        self.item_child_plot_acoustic_frequency_response = self.add_item('Plot acoustic frequency response')
+        self.item_child_plot_acoustic_frequency_response_function = self.add_item('Plot acoustic frequency response function')
+        self.item_child_plot_acoustic_delta_pressures = self.add_item('Plot acoustic delta pressures')
+        self.item_child_plot_transmission_loss = self.add_item('Plot transmission loss')
         self.item_child_plot_perforated_plate_convergence_data = self.add_item('Plot perforated plate convergence data')
-        self.item_child_check_pulsation_criteria = self.add_item('Check Pulsation Criteria')
+        self.item_child_check_pulsation_criteria = self.add_item('Check pulsation criteria')
     
     def update_plot_mesh(self):
         if not self.main_window.opv_widget.change_plot_to_mesh:
@@ -54,10 +55,7 @@ class ResultsViewerItems(CommonMenuItems):
 
     def update_plot_entities_with_cross_section(self):
         if not self.main_window.opv_widget.change_plot_to_entities_with_cross_section:
-            self.main_window.plot_entities_with_cross_section()   
-
-    # def create_plot_convergence_data(self):
-    #     self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
+            self.main_window.plot_entities_with_cross_section()
 
     def _updateItems(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
@@ -69,6 +67,7 @@ class ResultsViewerItems(CommonMenuItems):
             self.item_child_plot_structural_mode_shapes.setDisabled(True)
             self.item_child_plot_displacement_field.setDisabled(True)
             self.item_child_plot_structural_frequency_response.setDisabled(True)
+            self.item_child_plot_reaction_frequency_response.setDisabled(True)
             self.item_child_plot_stress_field.setDisabled(True)
             self.item_child_plot_stress_frequency_response.setDisabled(True)
             self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
@@ -79,7 +78,7 @@ class ResultsViewerItems(CommonMenuItems):
             self.item_child_check_pulsation_criteria.setDisabled(True)
             self.item_child_plot_transmission_loss.setDisabled(True)
             self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
-            self.item_child_plot_reaction_frequency_response.setDisabled(True)
+            self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
                             
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
 
@@ -114,8 +113,11 @@ class ResultsViewerItems(CommonMenuItems):
                     self.item_child_plot_structural_mode_shapes.setDisabled(False)  
             
             elif self.project.analysis_ID == 3:
+
                 if self.project.perforated_plate_data_log:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
+                    self.item_child_plot_perforated_plate_convergence_data.setHidden(False)
+
                 self.item_child_plot_acoustic_frequency_response.setDisabled(False)
                 self.item_child_plot_acoustic_frequency_response_function.setDisabled(False)
                 self.item_child_plot_acoustic_pressure_field.setDisabled(False)
@@ -125,8 +127,10 @@ class ResultsViewerItems(CommonMenuItems):
                     self.item_child_check_pulsation_criteria.setDisabled(False)
             
             elif self.project.analysis_ID in [5, 6]:
+
                 if self.project.perforated_plate_data_log:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
+                    self.item_child_plot_perforated_plate_convergence_data.setHidden(False)
 
                 self.item_child_plot_displacement_field.setDisabled(False)
                 self.item_child_plot_structural_frequency_response.setDisabled(False)

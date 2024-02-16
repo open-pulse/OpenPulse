@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -6,34 +6,43 @@ from pathlib import Path
 
 import numpy as np
 
+from pulse import app, UI_DIR
 
-class PlotStaticAnalysisReactions(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class GetReactionsForStaticAnalysis(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/structural/plot_reactions_for_static_analysis.ui'), self)
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_reactions_for_static_analysis.ui")
+        uic.loadUi(ui_path, self)
 
+        main_window = app().main_window
+
+        self.opv = main_window.getOPVWidget()
+        self.opv.setInputObject(self)
+        self.project = main_window.getProject()
+        
+        self._initialize()
+        self._load_icons()
+        self._config_window()
+        self._define_qt_variables()
+        self._create_connections()
+
+    def _initialize(self):
+        [   self.dict_reactions_at_constrained_dofs, 
+            self.dict_reactions_at_springs, 
+            self.dict_reactions_at_dampers   ] = self.project.get_structural_reactions()
+        
+        self.preprocessor = self.project.preprocessor
+
+    def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
+
+    def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Get the static reactions")
-
-        self.opv = opv
-        self.opv.setInputObject(self)
-
-        self.project = project
-        self.preprocessor = project.preprocessor
-        
-        [   self.dict_reactions_at_constrained_dofs, 
-            self.dict_reactions_at_springs, 
-            self.dict_reactions_at_dampers   ] = project.get_structural_reactions()
-
-        self._define_qt_variables()
-        self._create_connections()
-        self.exec()
-
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
         #
@@ -79,7 +88,6 @@ class PlotStaticAnalysisReactions(QDialog):
         self._config_lineEdits()
         self._tabWidgets_visibility()
 
-
     def _create_connections(self):
         self.pushButton_reset.clicked.connect(self._reset_lineEdits)
         self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
@@ -89,23 +97,19 @@ class PlotStaticAnalysisReactions(QDialog):
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-
     def _config_lineEdits(self):
         for lineEdit in self.lineEdits:
             lineEdit.setDisabled(True)
             lineEdit.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)")
-
 
     def _tabWidgets_visibility(self):
         self.tabWidget_springs_dampers.removeTab(1)
         if len(self.dict_reactions_at_springs) == 0:
             self.tabWidget_reactions.removeTab(1)
 
-
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
             lineEdit.setText("")
-
 
     def _update_lineEdit(self, node_id):
 
@@ -154,7 +158,6 @@ class PlotStaticAnalysisReactions(QDialog):
         except Exception as log_error:
             print(str(log_error))
 
-
     def text_label(self, mask):
         
         text = ""
@@ -174,7 +177,6 @@ class PlotStaticAnalysisReactions(QDialog):
         elif list(mask).count(True) == 1:
             text = "[{}]".format(temp[0])
         return text
-
 
     def _load_nodes_info(self):
         
@@ -201,7 +203,6 @@ class PlotStaticAnalysisReactions(QDialog):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
 
-
     def get_constrained_dofs_mask(self, node):
         constrained_dofs_mask = [False, False, False, False, False, False]
         for index, value in enumerate(node.prescribed_dofs):
@@ -212,24 +213,19 @@ class PlotStaticAnalysisReactions(QDialog):
                 constrained_dofs_mask[index] = False
         return constrained_dofs_mask
 
-
     def get_lumped_dampings_mask(self, node):
         return [False if bc is None else True for bc in node.lumped_dampings]
 
-
     def get_lumped_stiffness_mask(self, node):
         return [False if bc is None else True for bc in node.lumped_stiffness]
-
 
     def on_click_item(self, item):
         self.lineEdit_node_id.setText(item.text(0))
         self.plot_reactions()
 
-
     def on_doubleclick_item(self, item):
         self.lineEdit_node_id.setText(item.text(0))
         self.plot_reactions()
-
 
     def plot_reactions(self):
         try:

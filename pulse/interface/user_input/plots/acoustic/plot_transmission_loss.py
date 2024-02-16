@@ -180,7 +180,6 @@ class PlotTransmissionLoss(QWidget):
                             self.lineEdit_output_node_id.setText(str(node_id))
                 else:
                     return True
-
         
     def check_inputs(self):
 
@@ -204,8 +203,6 @@ class PlotTransmissionLoss(QWidget):
 
         if self.comboBox_processing_selector.currentIndex() == 1:
             self.y_label = "Noise reduction"
-
-
 
     def get_minor_outer_diameter_from_node(self, node):
         data = self.dict_elements_diameter[node]

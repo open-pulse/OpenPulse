@@ -29,7 +29,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.hidden_elements = set()
 
         self._absolute = False
-        self._scaling_setup = dict()
+        self._scaling_type = None
         self._magnificationFactor = 1
         self._currentFrequencyIndex = 0
         self._currentPhase = 0
@@ -210,32 +210,33 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._animationFrames.clear()
         self._cacheFrequencyIndex = None
         
-    def showDisplacementField(self, frequency_index, current_scaling):
+    def showDisplacementField(self, frequency_index, scaling_type):
         self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._current_scaling = current_scaling
+        self._scaling_type = scaling_type
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
-                                                               current_scaling)
+                                                               scaling_type)
+        #
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
         self._plotOnce(self._currentPhase)
 
-    def showStressField(self, frequency_index, scaling_setup):
+    def show_stress_field(self, frequency_index, scaling_setup):
         self.cache_plot_state(stress=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._scaling_setup = scaling_setup
+        self._scaling_type = None
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
-            self.get_min_max_values_to_stresses() 
-            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
-                                                               scaling_setup)
+            self.get_min_max_values_to_stresses(scaling_setup)
+            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex, None)
+        #
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
@@ -256,11 +257,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index
         self._plotOnce(self._currentPhase)
 
-    def get_min_max_values_to_resultant_displacements(self, frequency_index, current_scaling):
+    def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_type):
         solution = self.project.get_structural_solution()
         self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, 
                                                                                        frequency_index,
-                                                                                       current_scaling)
+                                                                                       scaling_type)
 
     def computeDisplacementField(self, frequency_index, phase_step):
 
@@ -272,7 +273,7 @@ class opvAnalysisRenderer(vtkRendererBase):
                                                                                                             frequency_index, 
                                                                                                             phase_step = phase_step,
                                                                                                             r_max = self.rDisp_max,
-                                                                                                            current_scaling = self._current_scaling)
+                                                                                                            scaling_type = self._scaling_type)
         
         self.opvDeformedTubes.build()
         min_max_values_all = [self.rDisp_min, self.rDisp_max]
@@ -296,9 +297,9 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvPressureTubes.getActor().SetVisibility(False)
 
         
-    def get_min_max_values_to_stresses(self):
+    def get_min_max_values_to_stresses(self, scaling_type):
         solution = self.project.stresses_values_for_color_table
-        self.stress_min, self.stress_max = get_min_max_stresses_values(solution)
+        self.stress_min, self.stress_max = get_min_max_stresses_values(solution, scaling_type)
         
     def computeStressField(self, frequency, phase_step):
 
@@ -310,7 +311,7 @@ class opvAnalysisRenderer(vtkRendererBase):
                                                                         frequency,
                                                                         phase_step = phase_step,
                                                                         r_max = self.rDisp_max,
-                                                                        scaling_setup = self._scaling_setup  )
+                                                                        scaling_type = self._scaling_type  )
         self.opvDeformedTubes.build()
         
         _stresses = self.project.stresses_values_for_color_table

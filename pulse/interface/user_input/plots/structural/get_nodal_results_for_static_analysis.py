@@ -6,31 +6,37 @@ from pathlib import Path
 
 import numpy as np
 
-from pulse import app
+from pulse import app, UI_DIR
 
-class PlotNodalResultsForStaticAnalysis(QWidget):
+class GetNodalResultsForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
-        ui_path = Path(f"{main_window.ui_dir}/plots/results/structural/plot_nodal_response_for_static_analysis.ui")
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_nodal_results_for_static_analysis.ui")
         uic.loadUi(ui_path, self)
+
+        main_window = app().main_window
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
-        
+
+        self._initialize()
+        self._load_icons()
+        self._config_window()
+        self._define_qt_variables()
+        self._create_connections()
+        self.update()
+
+    def _initialize(self):
         solution = self.project.get_structural_solution()
         self.solution = np.real(solution)
 
-        self._config_window()
-        self._define_qt_variables()
-        self.update()
-
-    def _config_window(self):
+    def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
+
+    def _config_window(self):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -55,9 +61,10 @@ class PlotNodalResultsForStaticAnalysis(QWidget):
                             self.lineEdit_response_rz  ]
         #
         self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        self.pushButton_reset.clicked.connect(self.reset_selection)
-        #
         self._config_lineEdits()
+
+    def _create_connections(self):
+        self.pushButton_reset.clicked.connect(self.reset_selection)
 
     def _config_lineEdits(self):
         for lineEdit in self.lineEdits:

@@ -39,14 +39,14 @@ class ResultsViewerWidget(QWidget):
         self.results_viewer_items.item_child_plot_structural_frequency_response.clicked.connect(
             self.add_structural_frequency_response_widget)
 
+        self.results_viewer_items.item_child_plot_reaction_frequency_response.clicked.connect(
+            self.add_reaction_frequency_response_widget)
+
         self.results_viewer_items.item_child_plot_stress_field.clicked.connect(
             self.add_stress_field_widget)
         
         self.results_viewer_items.item_child_plot_stress_frequency_response.clicked.connect(
             self.add_stress_frequency_response_widget)
-        
-        self.results_viewer_items.item_child_plot_reaction_frequency_response.clicked.connect(
-            self.add_reaction_frequency_response_widget)
         
         self.results_viewer_items.item_child_plot_acoustic_mode_shapes.clicked.connect(
             self.add_acoustic_mode_shape_widget)
@@ -65,6 +65,12 @@ class ResultsViewerWidget(QWidget):
 
         self.results_viewer_items.item_child_plot_transmission_loss.clicked.connect(
             self.add_transmission_loss_widget)
+        
+        self.results_viewer_items.item_child_plot_perforated_plate_convergence_data.clicked.connect(
+            self.add_perforated_plate_convergence_widget)
+        
+        self.results_viewer_items.item_child_check_pulsation_criteria.clicked.connect(
+            self.add_pulsation_criteria_widget)
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()
@@ -84,11 +90,11 @@ class ResultsViewerWidget(QWidget):
 
     def add_structural_mode_shape_widget(self):
         widget = self.main_window.input_widget.plot_structural_mode_shapes()
-        self.add_widget(widget)
+        self.add_widget(widget, animation_widget=True)
 
     def add_displacement_field_widget(self):
         widget = self.main_window.input_widget.plot_displacement_field()
-        self.add_widget(widget)
+        self.add_widget(widget, animation_widget=True)
         
     def add_structural_frequency_response_widget(self):
         widget = self.main_window.input_widget.plot_structural_frequency_response()
@@ -97,7 +103,7 @@ class ResultsViewerWidget(QWidget):
 
     def add_stress_field_widget(self):
         widget = self.main_window.input_widget.plot_stress_field()
-        self.add_widget(widget)
+        self.add_widget(widget, animation_widget=True)
 
     def add_stress_frequency_response_widget(self):
         widget = self.main_window.input_widget.plot_stress_frequency_response()
@@ -111,11 +117,11 @@ class ResultsViewerWidget(QWidget):
 
     def add_acoustic_mode_shape_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_mode_shapes()
-        self.add_widget(widget)
+        self.add_widget(widget, animation_widget=True)
 
     def add_acoustic_pressure_field_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_pressure_field()
-        self.add_widget(widget)
+        self.add_widget(widget, animation_widget=True)
 
     def add_acoustic_frequency_response_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_frequency_response()
@@ -142,14 +148,19 @@ class ResultsViewerWidget(QWidget):
         self.add_widget(widget)
         # self.main_window.plot_mesh()
 
-    def add_widget(self, widget):
+    def add_pulsation_criteria_widget(self):
+        widget = self.main_window.input_widget.check_api618_pulsation_criteria()
+        self.add_widget(widget)
+        self.main_window.plot_mesh()
+
+    def add_widget(self, widget, animation_widget=False):
         self.remove_widget()
         self.current_widget = widget
         if self.current_widget is None:
             return
         if self.grid_layout.indexOf(self.current_widget) == -1:
             self.grid_layout.addWidget(self.current_widget, 1, 0)
-        self.animation_widget.setVisible(True)
+        self.animation_widget.setVisible(animation_widget)
 
     def remove_widget(self):
         if self.grid_layout.indexOf(self.current_widget) != -1:

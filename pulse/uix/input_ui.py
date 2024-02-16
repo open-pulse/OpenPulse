@@ -36,22 +36,22 @@ from pulse.interface.user_input.model.setup.acoustic.radiationImpedanceInput imp
 from pulse.interface.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
 from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
-from pulse.interface.user_input.model.setup.acoustic.check_pulsation_criteria import CheckPulsationCriteriaInput
+from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 #
 from pulse.interface.user_input.analysis.general.analysis_type import AnalysisTypeInput
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
 from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysisInput
 #
 from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
-from pulse.interface.user_input.plots.structural.plot_displacement_field import PlotDisplacementField
-from pulse.interface.user_input.plots.structural.plot_structural_frequency_response import PlotStructuralFrequencyResponse
-from pulse.interface.user_input.plots.structural.plot_structural_nodal_results import PlotNodalResultsForStaticAnalysis
-from pulse.interface.user_input.plots.structural.plot_reactions import PlotReactions
-from pulse.interface.user_input.plots.structural.plot_static_analysis_reactions import PlotStaticAnalysisReactions
-from pulse.interface.user_input.plots.structural.plot_stress_field import PlotStressField
-from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressFieldForStaticAnalysis
-from pulse.interface.user_input.plots.structural.plot_stress_frequency_response_input import PlotStressFrequencyResponseInput
-from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.get_nodal_results_for_harmonic_analysis import GetNodalResultsForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.get_nodal_results_for_static_analysis import GetNodalResultsForStaticAnalysis
+from pulse.interface.user_input.plots.structural.get_reactions_for_harmonic_analysis import GetReactionsForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.get_reactions_for_static_analysis import GetReactionsForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_field_for_harmonic_analysis import PlotStressesFieldForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressesFieldForStaticAnalysis
+from pulse.interface.user_input.plots.structural.get_stresses_for_harmonic_analysis import GetStressesForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.get_stresses_for_static_analysis import GetStressesForStaticAnalysis
 #
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
@@ -283,9 +283,6 @@ class InputUi:
     def add_compressor_excitation(self):
         self.processInput(CompressorModelInput, self.project, self.opv)
 
-    def check_pulsation_criteria(self):
-        self.processInput(CheckPulsationCriteriaInput, self.project, self.opv)
-
     def analysisTypeInput(self):
 
         read = self.processInput(AnalysisTypeInput, self.project)
@@ -376,7 +373,23 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotDisplacementField)
+                return self.processInput(PlotNodalResultsFieldForHarmonicAnalysis)
+
+    def plot_structural_frequency_response(self):
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
+            solution = self.project.get_structural_solution()
+            if solution is None:
+                return None
+            elif self.analysis_ID == 7:
+                return self.processInput(GetNodalResultsForStaticAnalysis)
+            else:
+                return self.processInput(GetNodalResultsForHarmonicAnalysis)
+
+    def plot_reaction_frequency_response(self):
+        if self.analysis_ID in [0, 1, 5, 6]:
+            return self.processInput(GetReactionsForHarmonicAnalysis)
+        elif self.analysis_ID == 7:
+            return self.processInput(GetReactionsForStaticAnalysis)  
 
     def plot_stress_field(self):
         self.project.plot_pressure_field = False
@@ -386,9 +399,9 @@ class InputUi:
             if solution is None:
                 return
             elif self.analysis_ID == 7:
-                self.processInput(PlotStressFieldForStaticAnalysis, self.project, self.opv)
+                return self.processInput(PlotStressesFieldForStaticAnalysis)
             else:
-                self.processInput(PlotStressField, self.project, self.opv)
+                return self.processInput(PlotStressesFieldForHarmonicAnalysis)
 
     def plot_stress_frequency_response(self):
         solution = self.project.get_structural_solution()
@@ -396,29 +409,9 @@ class InputUi:
             if solution is None:
                 return
             elif self.analysis_ID == 7:
-                self.processInput(PlotStressesForStaticAnalysis, 
-                                self.project, 
-                                self.opv)
+                return self.processInput(GetStressesForStaticAnalysis)
             else:
-                self.processInput(PlotStressFrequencyResponseInput, 
-                              self.project, 
-                              self.opv)
-
-    def plot_reaction_frequency_response(self):
-        if self.analysis_ID in [0, 1, 5, 6]:
-            self.processInput(PlotReactions, self.project, self.opv)
-        elif self.analysis_ID == 7:
-            self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)        
-
-    def plot_structural_frequency_response(self):
-        if self.analysis_ID in [0, 1, 5, 6, 7]:
-            solution = self.project.get_structural_solution()
-            if solution is None:
-                return None
-            elif self.analysis_ID == 7:
-                return self.processInput(PlotNodalResultsForStaticAnalysis)
-            else:
-                return self.processInput(PlotStructuralFrequencyResponse)
+                return self.processInput(GetStressesForHarmonicAnalysis)     
 
     def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
@@ -476,6 +469,9 @@ class InputUi:
     def plot_perforated_plate_convergence_data(self):
         if self.project.perforated_plate_data_log:
             self.processInput(PlotPerforatedPlateConvergenceData)
+    
+    def check_api618_pulsation_criteria(self):
+        return self.processInput(CheckAPI618PulsationCriteriaInput)
 
     def structural_model_info(self):
         self.processInput(StructuralModelInfoInput, self.project, self.opv)

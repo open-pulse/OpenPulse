@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -10,56 +10,59 @@ import numpy as np
 from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse import app, UI_DIR
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
         return str(Path(path))
 
-class PlotReactions(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class GetReactionsForHarmonicAnalysis(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/structural/plot_reactions_for_harmonic_analysis.ui'), self)
-        
-        self.opv = opv
-        self.opv.setInputObject(self)
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_reactions_for_harmonic_analysis.ui")
+        uic.loadUi(ui_path, self)
 
-        self.project = project
-        self.analysis_method = project.analysis_method_label
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-        self.frequencies = project.frequencies
+        main_window = app().main_window
+
+        self.opv = main_window.getOPVWidget()
+        self.opv.setInputObject(self)
+        self.project = main_window.getProject()
         
-        self._config_window()
+        self._initialize()
         self._load_icons()
-        self._reset_variables()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.load_nodes_info()
-        self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+    def _initialize(self):
+
+        [   self.dict_reactions_at_constrained_dofs, 
+            self.dict_reactions_at_springs, 
+            self.dict_reactions_at_dampers   ] = self.project.get_structural_reactions()
+        
+        self.analysis_method = self.project.analysis_method_label
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+        self.frequencies = self.project.frequencies
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+        
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.pulse_icon)
-
-    def _reset_variables(self):
-        #
-        [   self.dict_reactions_at_constrained_dofs, 
-            self.dict_reactions_at_springs, 
-            self.dict_reactions_at_dampers   ] = self.project.get_structural_reactions()
 
     def _define_qt_variables(self):
         # QLineEdit
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID') 
         # QPushButton
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
+        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
         # QRadioButton
         self.radioButton_Fx = self.findChild(QRadioButton, 'radioButton_Fx')
         self.radioButton_Fy = self.findChild(QRadioButton, 'radioButton_Fy')
@@ -90,8 +93,8 @@ class PlotReactions(QDialog):
 
     def _create_connections(self):
         #
-        self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        self.pushButton_plot_data.clicked.connect(self.call_plotter)
         #
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)

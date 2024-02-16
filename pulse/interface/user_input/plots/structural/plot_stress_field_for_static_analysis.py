@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QRadioButton
+from PyQt5.QtWidgets import QComboBox, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -6,94 +6,66 @@ from pathlib import Path
 import numpy as np
 
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse import app, UI_DIR
 
-class PlotStressFieldForStaticAnalysis(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class PlotStressesFieldForStaticAnalysis(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/structural/plot_stress_field_for_static_analysis.ui'), self)
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/plot_stresses_field_for_static_analysis.ui")
+        uic.loadUi(ui_path, self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        main_window = app().main_window
 
-        self.opv = opv
+        self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
+        self.project = main_window.getProject()
 
-        self.project = project
-        self.solve = self.project.structural_solve
-        self.preprocessor = self.project.preprocessor
-
-        self._reset_variables()
+        self._initialize()
+        self._load_icons()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.exec()
 
-
-    def _reset_variables(self):
+    def _initialize(self):
         self.selected_index = None
         self.stress_field = []
         self.stress_data = []
         self.keys = np.arange(7)
-        self.labels = np.array(["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Torsional shear", "Transversal shear xy", "Transversal shear xz"])
+        self.labels = np.array(["Normal axial",
+                                "Normal bending y",
+                                "Normal bending z",
+                                "Hoop",
+                                "Torsional shear",
+                                "Transversal shear xy",
+                                "Transversal shear xz"])
 
+        self.solve = self.project.structural_solve
+        self.preprocessor = self.project.preprocessor
+
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
-        # QPushButton object
+        # QComboBox
+        self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
+        # QPushButton
         self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
-        # QRadioButton objects
-        self.radioButton_normal_axial = self.findChild(QRadioButton, 'radioButton_normal_axial')
-        self.radioButton_normal_bending_y = self.findChild(QRadioButton, 'radioButton_normal_bending_y')
-        self.radioButton_normal_bending_z = self.findChild(QRadioButton, 'radioButton_normal_bending_z')
-        self.radioButton_hoop = self.findChild(QRadioButton, 'radioButton_hoop')
-        self.radioButton_transv_shear_xy = self.findChild(QRadioButton, 'radioButton_transv_shear_xy')
-        self.radioButton_transv_shear_xz = self.findChild(QRadioButton, 'radioButton_transv_shear_xz')
-        self.radioButton_torsional_shear = self.findChild(QRadioButton, 'radioButton_torsional_shear')
-        self.flag_normal_axial = self.radioButton_normal_axial.isChecked()
-        self.flag_normal_bending_y = self.radioButton_normal_bending_y.isChecked()
-        self.flag_normal_bending_z = self.radioButton_normal_bending_z.isChecked()
-        self.flag_hoop = self.radioButton_hoop.isChecked()
-        self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
-        self.flag_transv_shear_xy = self.radioButton_transv_shear_xy.isChecked()
-        self.flag_transv_shear_xz = self.radioButton_transv_shear_xz.isChecked()
-
 
     def _create_connections(self):
         self.pushButton_plot.clicked.connect(self.confirm_button)
-        self.radioButton_normal_axial.clicked.connect(self.radioButtonEvent)
-        self.radioButton_normal_bending_y.clicked.connect(self.radioButtonEvent)
-        self.radioButton_normal_bending_z.clicked.connect(self.radioButtonEvent)
-        self.radioButton_hoop.clicked.connect(self.radioButtonEvent)
-        self.radioButton_torsional_shear.clicked.connect(self.radioButtonEvent)
-        self.radioButton_transv_shear_xy.clicked.connect(self.radioButtonEvent)
-        self.radioButton_transv_shear_xz.clicked.connect(self.radioButtonEvent)
-        self.radioButtonEvent()
-
-
-    def radioButtonEvent(self):
-        self.flag_normal_axial = self.radioButton_normal_axial.isChecked()
-        self.flag_normal_bending_y = self.radioButton_normal_bending_y.isChecked()
-        self.flag_normal_bending_z = self.radioButton_normal_bending_z.isChecked()
-        self.flag_hoop = self.radioButton_hoop.isChecked()
-        self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
-        self.flag_transv_shear_xy = self.radioButton_transv_shear_xy.isChecked()
-        self.flag_transv_shear_xz = self.radioButton_transv_shear_xz.isChecked()
-        #
-        self.masks = [  self.flag_normal_axial, 
-                        self.flag_normal_bending_y, 
-                        self.flag_normal_bending_z, 
-                        self.flag_hoop,
-                        self.flag_torsional_shear, 
-                        self.flag_transv_shear_xy, 
-                        self.flag_transv_shear_xz  ]
-
 
     def get_stress_data(self):
 
-        self.stress_label = self.labels[self.masks][0]
-        self.stress_key = self.keys[self.masks][0]
+        index = self.comboBox_stress_type.currentIndex()
+        self.stress_label = self.labels[index]
+        self.stress_key = self.keys[index]
 
         if self.stress_data == []:
             self.stress_data = self.solve.stress_calculate( pressure_external = 0, 
@@ -107,16 +79,13 @@ class PlotStressFieldForStaticAnalysis(QDialog):
         scaling_setup = {}
         self.opv.plot_stress_field(self.selected_index, scaling_setup)
         
-
     def check(self):
         self.selected_index = 0
         self.get_stress_data()
 
-
     def confirm_button(self):
         self.check()
     
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.check()
