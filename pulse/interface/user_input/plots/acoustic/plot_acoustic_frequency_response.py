@@ -33,12 +33,21 @@ class PlotAcousticFrequencyResponse(QWidget):
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
+        self._reset_variables()
         self._load_icons()
         self._config_window()
-        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.update()
+
+    def _reset_variables(self):
+        self.list_node_IDs = self.opv.getListPickedPoints()
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+        self.nodes = self.preprocessor.nodes
+        self.analysis_method = self.project.analysis_method_label
+        self.frequencies = self.project.frequencies
+        self.solution = self.project.get_acoustic_solution()
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
@@ -50,18 +59,6 @@ class PlotAcousticFrequencyResponse(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.pulse_icon)
 
-    def _reset_variables(self):
-        self.list_node_IDs = self.opv.getListPickedPoints()
-
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-
-        self.nodes = self.preprocessor.nodes
-        self.analysis_method = self.project.analysis_method_label
-        self.frequencies = self.project.frequencies
-        self.solution = self.project.get_acoustic_solution()
-
-
     def _define_qt_variables(self):
         # QFrame
         self.frame_denominator = self.findChild(QFrame, 'frame_denominator')
@@ -69,13 +66,13 @@ class PlotAcousticFrequencyResponse(QWidget):
         # QLineEdit
         self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
         # QPushButton
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
-        self.pushButton_call_data_exporter.setIcon(self.export_icon)
+        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        # self.pushButton_plot_data.setIcon(self.export_icon)
 
     def _create_connections(self):
-        self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
+        self.pushButton_plot_data.clicked.connect(self.call_plotter)
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
 
     def writeNodes(self, list_node_ids):
         text = ""

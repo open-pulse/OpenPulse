@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt
 from PyQt5 import uic
 from pathlib import Path
 
@@ -32,21 +32,12 @@ class PlotTransmissionLoss(QWidget):
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
-        self._config_window()
-        self._load_icons()
         self._reset_variables()
+        self._load_icons()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.update()
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-    def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
-        self.setWindowIcon(self.pulse_icon)
 
     def _reset_variables(self):
         self.unit_label = "dB"
@@ -55,10 +46,18 @@ class PlotTransmissionLoss(QWidget):
         self.solution = self.project.get_acoustic_solution()
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-
         self.elements = self.preprocessor.acoustic_elements
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
         self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
+
+    def _load_icons(self):
+        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
         # QComboBox
@@ -66,32 +65,69 @@ class PlotTransmissionLoss(QWidget):
         # QLineEdit
         self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')   
         self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
+        self.current_lineEdit = self.lineEdit_input_node_id
         # QPushButton
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
-        self.pushButton_flip_nodes_input = self.findChild(QPushButton, 'pushButton_flip_nodes_input')
-        self.pushButton_flip_nodes_output = self.findChild(QPushButton, 'pushButton_flip_nodes_output')
         self.pushButton_help = self.findChild(QPushButton, 'pushButton_help')
         self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
-        self.pushButton_flip_nodes_input.setIcon(self.update_icon)
-        self.pushButton_flip_nodes_output.setIcon(self.update_icon)
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.pushButton_flip_nodes = self.findChild(QPushButton, 'pushButton_flip_nodes')
+        self.pushButton_flip_nodes.setIcon(self.update_icon)
 
     def _create_connections(self):
         self.comboBox_processing_selector.currentIndexChanged.connect(self.update_flip_buttons)
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_help.clicked.connect(self.call_help)
-        self.pushButton_flip_nodes_input.clicked.connect(self.flip_nodes)
-        self.pushButton_flip_nodes_output.clicked.connect(self.flip_nodes)
+        self.pushButton_flip_nodes.clicked.connect(self.flip_nodes)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         self.update_flip_buttons()
+        #
+        self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
+        self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
+
+    def clickable(self, widget):
+        class Filter(QObject):
+            clicked = pyqtSignal()
+
+            def eventFilter(self, obj, event):
+                if obj == widget and event.type() == QEvent.MouseButtonRelease and obj.rect().contains(event.pos()):
+                    self.clicked.emit()
+                    return True
+                else:
+                    return False
+
+        filter = Filter(widget)
+        widget.installEventFilter(filter)
+        return filter.clicked
+
+    def lineEdit_1_clicked(self):
+        self.current_lineEdit = self.lineEdit_input_node_id
+
+    def lineEdit_2_clicked(self):
+        self.current_lineEdit = self.lineEdit_output_node_id
+
+    def writeNodes(self, list_node_ids):
+        node_id = list_node_ids[0]
+        self.current_lineEdit.setText(str(node_id))
+
+    def update(self):
+        self.list_node_ids = self.opv.getListPickedPoints()
+        if self.list_node_ids != []:
+            self.writeNodes(self.list_node_ids)
+        else:
+            self.current_lineEdit.setFocus()
+
+    def flip_nodes(self):
+        temp_text_input = self.lineEdit_input_node_id.text()
+        temp_text_output = self.lineEdit_output_node_id.text()
+        self.lineEdit_input_node_id.setText(temp_text_output)
+        self.lineEdit_output_node_id.setText(temp_text_input)
 
     def update_flip_buttons(self):
         index = self.comboBox_processing_selector.currentIndex()
         if index == 0:
-            self.pushButton_flip_nodes_input.setDisabled(True)
-            self.pushButton_flip_nodes_output.setDisabled(True)
+            self.pushButton_flip_nodes.setDisabled(True)
         else:
-            self.pushButton_flip_nodes_input.setDisabled(False)
-            self.pushButton_flip_nodes_output.setDisabled(False)
+            self.pushButton_flip_nodes.setDisabled(False)
 
     def call_help(self):
         window_title = "Help"
@@ -110,16 +146,6 @@ class PlotTransmissionLoss(QWidget):
             message += "By definition, the NR represents the sound pressure level differece between the "
             message += "input and output of a duct or filter and it does not require a anechoic termination."
         PrintMessageInput([window_title, title, message])
-
-    def flip_nodes(self):
-        temp_text_input = self.lineEdit_input_node_id.text()
-        temp_text_output = self.lineEdit_output_node_id.text()
-        self.lineEdit_input_node_id.setText(temp_text_output)
-        self.lineEdit_output_node_id.setText(temp_text_input) 
-
-    def update(self):
-        selected_ids = self.opv.getListPickedPoints()
-        self.check_nodes_information(selected_ids)
 
     def check_nodes_information(self, picked_nodes=None):
         

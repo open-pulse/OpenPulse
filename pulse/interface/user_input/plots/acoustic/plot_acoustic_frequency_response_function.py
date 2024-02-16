@@ -40,15 +40,15 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self._create_connections()
         self.update()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
-
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
         self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.pulse_icon)
 
     def _reset_variables(self):
         self.preprocessor = self.project.preprocessor
@@ -66,20 +66,18 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         # QLineEdit
         self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')
         self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
-        self.current_lineEdit = self.lineEdit_output_node_id
+        self.current_lineEdit = self.lineEdit_input_node_id
         # QPushButton
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
-        self.pushButton_flip_selection = self.findChild(QPushButton, 'pushButton_flip_selection')
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
-        #
-        self.pushButton_call_data_exporter.setIcon(self.export_icon)
-        self.pushButton_flip_selection.setIcon(self.update_icon)
+        self.pushButton_flip_nodes = self.findChild(QPushButton, 'pushButton_flip_nodes')
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
+        # self.pushButton_export_data.setIcon(self.export_icon)
+        self.pushButton_flip_nodes.setIcon(self.update_icon)
 
     def _create_connections(self):
-        self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
-        self.pushButton_flip_selection.clicked.connect(self.flip_nodes)
-        #
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        self.pushButton_plot_data.clicked.connect(self.call_plotter)
+        self.pushButton_flip_nodes.clicked.connect(self.flip_nodes)
         self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
         self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
 
@@ -136,6 +134,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self.exporter._set_data_to_export(self.model_results)
 
     def check_inputs(self):
+
         lineEdit_input_node_id = self.lineEdit_input_node_id.text()
         stop, self.node_ID_1 = self.before_run.check_input_NodeID(lineEdit_input_node_id, single_ID=True)
         if stop:

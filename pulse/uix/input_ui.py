@@ -408,7 +408,17 @@ class InputUi:
         if self.analysis_ID in [0, 1, 5, 6]:
             self.processInput(PlotReactions, self.project, self.opv)
         elif self.analysis_ID == 7:
-            self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)
+            self.processInput(PlotStaticAnalysisReactions, self.project, self.opv)        
+
+    def plot_structural_frequency_response(self):
+        if self.analysis_ID in [0, 1, 5, 6, 7]:
+            solution = self.project.get_structural_solution()
+            if solution is None:
+                return None
+            elif self.analysis_ID == 7:
+                return self.processInput(PlotNodalResultsForStaticAnalysis)
+            else:
+                return self.processInput(PlotStructuralFrequencyResponse)
 
     def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
@@ -429,17 +439,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotAcousticPressureField)           
-
-    def plot_structural_frequency_response(self):
-        if self.analysis_ID in [0, 1, 5, 6, 7]:
-            solution = self.project.get_structural_solution()
-            if solution is None:
-                return None
-            elif self.analysis_ID == 7:
-                return self.processInput(PlotNodalResultsForStaticAnalysis)
-            else:
-                return self.processInput(PlotStructuralFrequencyResponse)
+                return self.processInput(PlotAcousticPressureField)
 
     def plot_acoustic_frequency_response(self):
         if self.analysis_ID in [3, 5, 6]:
