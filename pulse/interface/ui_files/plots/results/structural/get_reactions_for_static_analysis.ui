@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>610</height>
+    <width>360</width>
+    <height>560</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>560</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>560</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -34,13 +46,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>260</height>
+       <height>240</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>260</height>
+       <height>252</height>
       </size>
      </property>
      <property name="frameShape">
@@ -63,20 +75,20 @@
        <number>0</number>
       </property>
       <property name="verticalSpacing">
-       <number>1</number>
+       <number>0</number>
       </property>
       <item row="1" column="3">
        <widget class="QLabel" name="label_8">
         <property name="minimumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -99,13 +111,13 @@
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="sizeIncrement">
@@ -123,8 +135,8 @@
         <property name="font">
          <font>
           <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
+          <weight>50</weight>
+          <bold>false</bold>
          </font>
         </property>
         <property name="styleSheet">
@@ -140,13 +152,13 @@
         <property name="minimumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -169,13 +181,13 @@
         <property name="minimumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -198,13 +210,13 @@
         <property name="minimumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -227,13 +239,13 @@
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="sizeIncrement">
@@ -315,13 +327,13 @@
         <property name="minimumSize">
          <size>
           <width>60</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>70</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="frameShape">
@@ -378,13 +390,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -407,13 +419,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -436,13 +448,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="sizeIncrement">
@@ -475,13 +487,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="sizeIncrement">
@@ -514,13 +526,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -543,13 +555,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -572,13 +584,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="sizeIncrement">
@@ -611,13 +623,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -640,13 +652,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="sizeIncrement">
@@ -679,13 +691,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -708,13 +720,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>72</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -737,13 +749,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -766,13 +778,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>52</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -795,13 +807,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
-          <height>30</height>
+          <height>28</height>
          </size>
         </property>
         <property name="sizeIncrement">
@@ -896,7 +908,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>Static Reactions</string>
+         <string>Static reactions</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -911,7 +923,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>268</height>
+       <height>260</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>260</height>
       </size>
      </property>
      <property name="frameShape">
@@ -921,6 +939,21 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <property name="spacing">
+       <number>4</number>
+      </property>
       <item row="0" column="0">
        <widget class="QTabWidget" name="tabWidget_reactions">
         <property name="minimumSize">

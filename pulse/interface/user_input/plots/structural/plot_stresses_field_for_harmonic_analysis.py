@@ -70,8 +70,8 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
         self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
         # QFrame
-        self.frame_plot_button = self.findChild(QFrame, 'frame_plot_button')
-        self.frame_plot_button.setVisible(False)
+        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button.setVisible(False)
         # QLineEdit
         self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
         # QPushButton

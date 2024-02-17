@@ -113,9 +113,10 @@ class GetReactionsForStaticAnalysis(QWidget):
 
     def _update_lineEdit(self, node_id):
 
-        reactions = [None, None, None, None, None, None]
         self._reset_lineEdits()
+        self.lineEdit_node_id.setText(str(node_id))
         node = self.project.preprocessor.nodes[node_id]
+        reactions = [None, None, None, None, None, None]
 
         if self.tabWidget_reactions.currentIndex() == 0:
             dict_reactions = self.dict_reactions_at_constrained_dofs

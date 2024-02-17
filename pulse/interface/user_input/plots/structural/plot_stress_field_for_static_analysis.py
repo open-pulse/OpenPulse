@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QPushButton, QWidget
+from PyQt5.QtWidgets import QComboBox, QFrame, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -26,6 +26,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self.plot_stress_field()
 
     def _initialize(self):
         self.selected_index = None
@@ -39,6 +40,9 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
                                 "Torsional shear",
                                 "Transversal shear xy",
                                 "Transversal shear xz"])
+
+        self.scaling_key = {0 : "absolute",
+                            1 : "real"}
 
         self.solve = self.project.structural_solve
         self.preprocessor = self.project.preprocessor
@@ -54,12 +58,18 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
+        self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
         self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
+        # QFrame
+        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button.setVisible(False)
         # QPushButton
         self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
 
     def _create_connections(self):
-        self.pushButton_plot.clicked.connect(self.confirm_button)
+        self.comboBox_color_scaling.currentIndexChanged.connect(self.plot_stress_field)
+        self.comboBox_stress_type.currentIndexChanged.connect(self.plot_stress_field)
+        self.pushButton_plot.clicked.connect(self.plot_stress_field)
 
     def get_stress_data(self):
 
@@ -76,18 +86,20 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
                                                 np.max(list(self.stress_field.values())), 
                                                 self.stress_label )
-        scaling_setup = {}
-        self.opv.plot_stress_field(self.selected_index, scaling_setup)
+
+        scale_index = self.comboBox_color_scaling.currentIndex()
+        scaling_type = self.scaling_key[scale_index]
+        self.opv.plot_stress_field(self.selected_index, scaling_type)
         
-    def check(self):
+    def plot_stress_field(self):
         self.selected_index = 0
         self.get_stress_data()
 
     def confirm_button(self):
-        self.check()
+        self.plot_stress_field()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.plot_stress_field()
         elif event.key() == Qt.Key_Escape:
             self.close()

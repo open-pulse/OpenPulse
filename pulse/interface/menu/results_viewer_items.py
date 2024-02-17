@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
 from pulse.interface.menu.common_menu_items import CommonMenuItems
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse import app
 
@@ -36,14 +36,14 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_stress_frequency_response = self.add_item("Plot stress frequency response")
         # Acoustic results items
         self.item_top_resultsViewer_acoustic = self.add_top_item("Results Viewer - Acoustic")
-        self.item_child_plot_acoustic_mode_shapes = self.add_item('Plot acoustic mode shapes')
-        self.item_child_plot_acoustic_pressure_field = self.add_item('Plot acoustic pressure field')
-        self.item_child_plot_acoustic_frequency_response = self.add_item('Plot acoustic frequency response')
-        self.item_child_plot_acoustic_frequency_response_function = self.add_item('Plot acoustic frequency response function')
-        self.item_child_plot_acoustic_delta_pressures = self.add_item('Plot acoustic delta pressures')
-        self.item_child_plot_transmission_loss = self.add_item('Plot transmission loss')
-        self.item_child_plot_perforated_plate_convergence_data = self.add_item('Plot perforated plate convergence data')
-        self.item_child_check_pulsation_criteria = self.add_item('Check pulsation criteria')
+        self.item_child_plot_acoustic_mode_shapes = self.add_item("Plot acoustic mode shapes")
+        self.item_child_plot_acoustic_pressure_field = self.add_item("Plot acoustic pressure field")
+        self.item_child_plot_acoustic_frequency_response = self.add_item("Plot acoustic frequency response")
+        self.item_child_plot_acoustic_frequency_response_function = self.add_item("Plot acoustic frequency response function")
+        self.item_child_plot_acoustic_delta_pressures = self.add_item("Plot acoustic delta pressures")
+        self.item_child_plot_transmission_loss = self.add_item("Plot transmission loss")
+        self.item_child_plot_perforated_plate_convergence_data = self.add_item("Plot perforated plate convergence data")
+        self.item_child_check_pulsation_criteria = self.add_item("Check pulsation criteria")
     
     def update_plot_mesh(self):
         if not self.main_window.opv_widget.change_plot_to_mesh:
@@ -101,9 +101,7 @@ class ResultsViewerItems(CommonMenuItems):
             
             elif self.project.analysis_ID == 2:
                 self.item_child_plot_structural_mode_shapes.setDisabled(False)
-                # Deixei esse set_warning aqui só pra lembrar que dá pra fazer
-                # Agora que você viu já pode apagar =D
-                self.item_child_plot_structural_mode_shapes.set_warning(True)
+                # self.item_child_plot_structural_mode_shapes.set_warning(True)
                 if self.project.get_acoustic_solution() is not None:
                     self.item_child_plot_acoustic_mode_shapes.setDisabled(False)    
             
@@ -161,18 +159,15 @@ class ResultsViewerItems(CommonMenuItems):
         """Expands and collapses the Top Level Items ont the menu after the solution is done.
         
         """
-        # self.collapseItem(self.item_top_generalSettings)
-        # self.collapseItem(self.item_top_structuralModelSetup)
-        # self.collapseItem(self.item_top_acousticModelSetup)
 
         if self.project.analysis_ID in [0, 1, 2, 7]:
             self.item_top_resultsViewer_structural.setHidden(False)
-            self.expandItem(self.item_top_resultsViewer_structural)
-            # self.expandItem(self.item_top_structuralModelSetup)            
-        elif self.project.analysis_ID in [3,4]:
+            self.expandItem(self.item_top_resultsViewer_structural)            
+        
+        elif self.project.analysis_ID in [3, 4]:
             self.item_top_resultsViewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_resultsViewer_acoustic)
-            # self.expandItem(self.item_top_acousticModelSetup)
+        
         elif self.project.analysis_ID in [5, 6]:
             self.item_top_resultsViewer_structural.setHidden(False)
             self.item_top_resultsViewer_acoustic.setHidden(False)
@@ -181,17 +176,17 @@ class ResultsViewerItems(CommonMenuItems):
 
     def modify_item_names_according_to_analysis(self):
         if self.project.analysis_ID == 7:
-            self.item_child_plot_structural_frequency_response.setText(0, 'Plot Nodal Response')
-            self.item_child_plot_reaction_frequency_response.setText(0, 'Plot Reactions')
-            self.item_child_plot_stress_frequency_response.setText(0, 'Plot Stresses')
+            self.item_child_plot_structural_frequency_response.setText(0, "Plot nodal response")
+            self.item_child_plot_reaction_frequency_response.setText(0, "Plot reactions")
+            self.item_child_plot_stress_frequency_response.setText(0, "Plot stresses")
         else:
-            self.item_child_plot_structural_frequency_response.setText(0, 'Plot Structural Frequency Response')
-            self.item_child_plot_reaction_frequency_response.setText(0, 'Plot Reactions Frequency Response')
-            self.item_child_plot_stress_frequency_response.setText(0, 'Plot Stress Frequency Response')
+            self.item_child_plot_structural_frequency_response.setText(0, "Plot structural frequency response")
+            self.item_child_plot_reaction_frequency_response.setText(0, "Plot reactions frequency response")
+            self.item_child_plot_stress_frequency_response.setText(0, "Plot stress frequency response")
 
     def empty_project_action_message(self):
+        window_title = 'Error'
         title = 'EMPTY PROJECT'
         message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
         message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' \nbuttons to continue."
-        window_title = 'ERROR'
-        PrintMessageInput([title, message, window_title], opv=self.main_window.getOPVWidget())
+        PrintMessageInput([window_title, title, message])

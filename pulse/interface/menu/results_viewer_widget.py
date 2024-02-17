@@ -74,7 +74,6 @@ class ResultsViewerWidget(QWidget):
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()
-
         self.grid_layout.setContentsMargins(0,0,0,0)
         self.main_frame.setLayout(self.grid_layout)
         self.grid_layout.addWidget(self.results_viewer_items, 0, 0)
