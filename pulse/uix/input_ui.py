@@ -55,10 +55,10 @@ from pulse.interface.user_input.plots.structural.get_stresses_for_static_analysi
 #
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response import PlotAcousticFrequencyResponse
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunction
+from pulse.interface.user_input.plots.acoustic.get_acoustic_frequency_response import GetAcousticFrequencyResponse
+from pulse.interface.user_input.plots.acoustic.get_acoustic_frequency_response_function import GetAcousticFrequencyResponseFunction
 from pulse.interface.user_input.plots.acoustic.plot_transmission_loss import PlotTransmissionLoss
-from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure import PlotAcousticDeltaPressure
+from pulse.interface.user_input.plots.acoustic.get_acoustic_delta_pressure import GetAcousticDeltaPressure
 from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
@@ -113,19 +113,19 @@ class InputUi:
             return None
 
     def new_project(self):
-        new_project = self.processInput(NewProjectInput, self.main_window)
+        new_project = self.processInput(NewProjectInput)
         self.main_window._updateStatusBar()
         return self.initial_project_action(new_project.complete)
 
     def load_project(self, path=None):
-        load_project = self.processInput(LoadProjectInput, self.main_window, path=path)
+        load_project = self.processInput(LoadProjectInput, path=path)
         self.main_window.mesh_toolbar.update_mesh_attributes()
         self.main_window._updateStatusBar()
         return self.initial_project_action(load_project.complete)
 
     def get_started(self):
         self.menu_items.modify_model_setup_items_access(True)
-        get_started = self.processInput(GetStartedInput, self.main_window)
+        get_started = self.processInput(GetStartedInput)
         self.main_window._updateStatusBar()
         return get_started    
     
@@ -246,7 +246,7 @@ class InputUi:
         self.processInput(ElasticNodalLinksInput, self.project, self.opv)
 
     def set_inertial_load(self):
-        return self.processInput(SetInertialLoad, self.project)
+        return self.processInput(SetInertialLoad)
     
     def add_expansion_joint(self):
         self.processInput(ExpansionJointInput, self.project, self.opv)
@@ -286,7 +286,7 @@ class InputUi:
 
     def analysisTypeInput(self):
 
-        read = self.processInput(AnalysisTypeInput, self.project)
+        read = self.processInput(AnalysisTypeInput)
 
         if not read.complete:
             return
@@ -319,7 +319,7 @@ class InputUi:
         if self.project.file._project_name == "":
             return False
         
-        read = self.processInput(AnalysisSetupInput, self.project)
+        read = self.processInput(AnalysisSetupInput)
         
         if read.complete:
             if read.flag_run:
@@ -441,7 +441,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotAcousticFrequencyResponse)
+                return self.processInput(GetAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -449,7 +449,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotAcousticFrequencyResponseFunction)
+                return self.processInput(GetAcousticFrequencyResponseFunction)
 
     def plot_acoustic_delta_pressures(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -457,7 +457,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotAcousticDeltaPressure)
+                return self.processInput(GetAcousticDeltaPressure)
 
     def plot_transmission_loss(self):
         if self.analysis_ID in [3, 5, 6]:

@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt
 from PyQt5 import uic
 from pathlib import Path
 
@@ -17,16 +17,13 @@ def get_icons_path(filename):
     if os.path.exists(path):
         return str(Path(path))
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-class PlotAcousticFrequencyResponseFunction(QWidget):
+class GetAcousticDeltaPressure(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         main_window = app().main_window
 
-        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_acoustic_frequency_response_function.ui")
+        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/get_acoustic_delta_pressures.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()
@@ -41,17 +38,15 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self.update()
 
     def _initialize(self):
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.preprocessor.nodes
+        self.unit_label = "Pa"
         self.analysis_method = self.project.analysis_method_label
         self.frequencies = self.project.frequencies
         self.solution = self.project.get_acoustic_solution()
-        self.list_node_IDs = self.opv.getListPickedPoints()
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _config_window(self):
@@ -60,24 +55,21 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
-        # QFrame
-        self.frame_denominator = self.findChild(QFrame, 'frame_denominator')
-        self.frame_numerator = self.findChild(QFrame, 'frame_numerator')
         # QLineEdit
-        self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')
+        self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')   
         self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
         self.current_lineEdit = self.lineEdit_input_node_id
         # QPushButton
         self.pushButton_flip_nodes = self.findChild(QPushButton, 'pushButton_flip_nodes')
         self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
         self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
-        # self.pushButton_export_data.setIcon(self.export_icon)
         self.pushButton_flip_nodes.setIcon(self.update_icon)
 
     def _create_connections(self):
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         self.pushButton_flip_nodes.clicked.connect(self.flip_nodes)
+        #
         self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
         self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
 
@@ -107,9 +99,9 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self.current_lineEdit.setText(str(node_id))
 
     def update(self):
-        self.list_node_IDs = self.opv.getListPickedPoints()
-        if self.list_node_IDs != []:
-            self.writeNodes(self.list_node_IDs)
+        self.list_node_ids = self.opv.getListPickedPoints()
+        if self.list_node_ids != []:
+            self.writeNodes(self.list_node_ids)
         else:
             self.current_lineEdit.setFocus()
 
@@ -117,7 +109,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         temp_text_input = self.lineEdit_input_node_id.text()
         temp_text_output = self.lineEdit_output_node_id.text()
         self.lineEdit_input_node_id.setText(temp_text_output)
-        self.lineEdit_output_node_id.setText(temp_text_input) 
+        self.lineEdit_output_node_id.setText(temp_text_input)
 
     def call_plotter(self):
         if self.check_inputs():
@@ -136,51 +128,42 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
     def check_inputs(self):
 
         lineEdit_input_node_id = self.lineEdit_input_node_id.text()
-        stop, self.node_ID_1 = self.before_run.check_input_NodeID(lineEdit_input_node_id, single_ID=True)
+        stop, self.input_node_id = self.before_run.check_input_NodeID(lineEdit_input_node_id, single_ID=True)
         if stop:
             self.lineEdit_input_node_id.setFocus()
             return True
-        
+
         lineEdit_output_node_id = self.lineEdit_output_node_id.text()
-        stop, self.node_ID_2 = self.before_run.check_input_NodeID(lineEdit_output_node_id, single_ID=True)
+        stop, self.output_node_id = self.before_run.check_input_NodeID(lineEdit_output_node_id, single_ID=True)
         if stop:
             self.lineEdit_output_node_id.setFocus()
             return True
 
-    def get_response(self):
+    def get_delta_pressures(self):
+
+        P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
+        P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
+
+        delta_pressure = P_input - P_output
         
-        numerator = get_acoustic_frf(   self.preprocessor, 
-                                        self.solution,
-                                        self.node_ID_2   )
-
-        denominator = get_acoustic_frf( self.preprocessor, 
-                                        self.solution,
-                                        self.node_ID_1 )
-        if complex(0) in denominator:
-            denominator += 1e-12
-
-        response = numerator/denominator
-        if complex(0) in response:
-            response += 1e-12
-
-        return response
+        if complex(0) in delta_pressure:
+            # the zero_shift constant is summed to delta pressures to avoid zero values in log type plots
+            zero_shift = 1e-12 
+            delta_pressure += zero_shift 
+        return delta_pressure
 
     def join_model_data(self):
-
-        self.title = "Acoustic frequency response - {}".format(self.analysis_method)
-        legend_label = "Acoustic pressure ratio between nodes {} and {}".format(self.node_ID_1, self.node_ID_2)
-        unit_label = "--"
-        y_label = "Acoustic pressure ratio"
-
         self.model_results = dict()
+        self.title = "Acoustic frequency response - {}".format(self.analysis_method)
+        legend_label = "Delta pressure between nodes {} and {}".format(self.input_node_id, self.output_node_id)
         self.model_results = {  "x_data" : self.frequencies,
-                                "y_data" : self.get_response(),
+                                "y_data" : self.get_delta_pressures(),
                                 "x_label" : "Frequency [Hz]",
-                                "y_label" : y_label,
+                                "y_label" : "Delta pressure",
                                 "title" : self.title,
                                 "data_information" : legend_label,
                                 "legend" : legend_label,
-                                "unit" : unit_label,
+                                "unit" : self.unit_label,
                                 "color" : [0,0,1],
                                 "linestyle" : "-"  }
 

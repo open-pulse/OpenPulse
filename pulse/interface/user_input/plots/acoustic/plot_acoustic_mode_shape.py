@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pulse import app
+from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
@@ -18,7 +18,7 @@ class PlotAcousticModeShape(QWidget):
 
         main_window = app().main_window
 
-        ui_path = f"{main_window.ui_dir}/plots/results/acoustic/acoustic_mode_shape.ui"
+        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/acoustic_mode_shape.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()

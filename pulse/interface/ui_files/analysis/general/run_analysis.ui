@@ -197,7 +197,7 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
@@ -212,8 +212,8 @@
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QProgressBar { border-radius: 4px;  background-color: rgba(255,255,255,255);}
-QProgressBar::chunk {border-radius: 4px;   background-color:  rgba(20,150,255,255);   width: 10px; }</string>
+            <string notr="true">QProgressBar { border-radius: 4px;  background-color: rgb(255,255,255);  border-width: 1px}
+QProgressBar::chunk {border-radius: 4px;   background-color:  rgb(20,150,255);  border-width: 1px }</string>
            </property>
            <property name="value">
             <number>0</number>

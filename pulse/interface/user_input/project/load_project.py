@@ -7,14 +7,16 @@ from time import time
 from pathlib import Path
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse import app, UI_DIR
 
 class LoadProjectInput(QDialog):
-    def __init__(self, main_window, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.project = main_window.project
-        self.opv = main_window.opv_widget
-        self.config = main_window.config
+        self.main_window = app().main_window
+        self.project = self.main_window.project
+        self.opv = self.main_window.opv_widget
+        self.config = self.main_window.config
         self.path = kwargs.get("path", None)
 
         self._reset()

@@ -7,8 +7,8 @@ from pathlib import Path
 import numpy as np
 import configparser
 
-from pulse import app
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse import app, UI_DIR
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -19,7 +19,7 @@ class PlotStructuralModeShape(QWidget):
 
         main_window = app().main_window
 
-        ui_path = f"{main_window.ui_dir}/plots/results/structural/plot_structural_mode_shape.ui"
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/plot_structural_mode_shape.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()

@@ -20,13 +20,13 @@ def get_icons_path(filename):
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotAcousticFrequencyResponse(QWidget):
+class GetAcousticFrequencyResponse(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         main_window = app().main_window
 
-        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_acoustic_frequency_response.ui")
+        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/get_acoustic_frequency_response.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()

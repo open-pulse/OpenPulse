@@ -10,6 +10,7 @@ import configparser
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse import app, UI_DIR
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -17,13 +18,13 @@ def get_icons_path(filename):
         return str(Path(path))
 
 class GetStartedInput(QDialog):
-    def __init__(self, main_window, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = f"{main_window.ui_dir}/project/get_started_input.ui"
+        ui_path = Path(f"{UI_DIR}/project/get_started_input.ui")
         uic.loadUi(ui_path, self)
 
-        self.main_window = main_window
+        self.main_window = app().main_window
        
         self._reset()
         self._load_icons()
