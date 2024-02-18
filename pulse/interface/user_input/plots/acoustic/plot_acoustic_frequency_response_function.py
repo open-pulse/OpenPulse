@@ -10,7 +10,7 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app
+from pulse import app, UI_DIR
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -26,19 +26,28 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{main_window.ui_dir}/plots/results/acoustic/plot_acoustic_frequency_response_function.ui")
+        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_acoustic_frequency_response_function.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
-        self._reset_variables()
+        self._initialize()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.update()
+
+    def _initialize(self):
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+        self.nodes = self.preprocessor.nodes
+        self.analysis_method = self.project.analysis_method_label
+        self.frequencies = self.project.frequencies
+        self.solution = self.project.get_acoustic_solution()
+        self.list_node_IDs = self.opv.getListPickedPoints()
 
     def _load_icons(self):
         self.pulse_icon = QIcon(get_icons_path('pulse.png'))
@@ -49,15 +58,6 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.pulse_icon)
-
-    def _reset_variables(self):
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.preprocessor.nodes
-        self.analysis_method = self.project.analysis_method_label
-        self.frequencies = self.project.frequencies
-        self.solution = self.project.get_acoustic_solution()
-        self.list_node_IDs = self.opv.getListPickedPoints()
 
     def _define_qt_variables(self):
         # QFrame
