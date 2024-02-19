@@ -8,11 +8,12 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
+pyqt5-qt5 = "5.15.2"
+PyQt5 = "^5.15.9"
 vtk = "^9.2.6"
 numpy = "^1.25.2"
 scipy = "^1.11.2"
 matplotlib = "^3.7.2"
-PyQt5 = "^5.15.9"
 gmsh = "^4.11.1"
 ctREFPROP = "^0.10.2"
 pandas = "^2.1.0"
