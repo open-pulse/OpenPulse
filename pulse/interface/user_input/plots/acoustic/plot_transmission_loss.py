@@ -12,7 +12,7 @@ from pulse.interface.user_input.data_handler.export_model_results import ExportM
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse import app
+from pulse import app, UI_DIR
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -25,21 +25,21 @@ class PlotTransmissionLoss(QWidget):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{main_window.ui_dir}/plots/results/acoustic/plot_transmission_loss.ui")
+        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_transmission_loss.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
-        self._reset_variables()
+        self._initialize()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.update()
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.unit_label = "dB"
         self.analysis_method = self.project.analysis_method_label
         self.frequencies = self.project.frequencies
@@ -180,7 +180,6 @@ class PlotTransmissionLoss(QWidget):
                             self.lineEdit_output_node_id.setText(str(node_id))
                 else:
                     return True
-
         
     def check_inputs(self):
 
@@ -204,8 +203,6 @@ class PlotTransmissionLoss(QWidget):
 
         if self.comboBox_processing_selector.currentIndex() == 1:
             self.y_label = "Noise reduction"
-
-
 
     def get_minor_outer_diameter_from_node(self, node):
         data = self.dict_elements_diameter[node]

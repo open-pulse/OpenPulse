@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>311</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>280</height>
+    <height>320</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>311</height>
+    <height>320</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -61,7 +61,7 @@
     <number>4</number>
    </property>
    <item row="0" column="0">
-    <widget class="QFrame" name="frame_3">
+    <widget class="QFrame" name="frame_title">
      <property name="minimumSize">
       <size>
        <width>380</width>
@@ -116,14 +116,14 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Harmonic Analysis - Acoustic</string>
+         <string>Acoustic harmonic analysis</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -150,14 +150,14 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Direct Method</string>
+         <string>Direct method</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -171,17 +171,17 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QFrame" name="frame_2">
+    <widget class="QFrame" name="frame_main">
      <property name="minimumSize">
       <size>
        <width>380</width>
-       <height>239</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>400</width>
-       <height>240</height>
+       <height>260</height>
       </size>
      </property>
      <property name="font">
@@ -225,7 +225,7 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>11</pointsize>
+          <pointsize>10</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
@@ -236,31 +236,22 @@
         </property>
         <widget class="QWidget" name="tab_2">
          <attribute name="title">
-          <string>Frequency Setup</string>
+          <string>Frequency setup</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="2">
            <widget class="QLineEdit" name="lineEdit_min">
             <property name="minimumSize">
              <size>
-              <width>120</width>
+              <width>100</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>120</width>
+              <width>100</width>
               <height>28</height>
              </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-             </font>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -287,7 +278,6 @@
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>11</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -299,28 +289,47 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLineEdit" name="lineEdit_max">
+          <item row="0" column="3">
+           <widget class="QLabel" name="label_24">
             <property name="minimumSize">
              <size>
-              <width>120</width>
+              <width>48</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>120</width>
+              <width>48</width>
               <height>28</height>
              </size>
             </property>
             <property name="font">
              <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
+              <family>MS Shell Dlg 2</family>
+              <italic>false</italic>
              </font>
+            </property>
+            <property name="text">
+             <string>[Hz]</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLineEdit" name="lineEdit_max">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>28</height>
+             </size>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -347,7 +356,6 @@
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>11</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -359,8 +367,43 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
-           <widget class="QLabel" name="label_24">
+          <item row="0" column="0">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLineEdit" name="lineEdit_step">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QLabel" name="label_26">
             <property name="minimumSize">
              <size>
               <width>48</width>
@@ -376,7 +419,6 @@
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>11</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -405,72 +447,11 @@
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>11</pointsize>
               <italic>false</italic>
              </font>
             </property>
             <property name="text">
              <string>[Hz]</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QLabel" name="label_26">
-            <property name="minimumSize">
-             <size>
-              <width>48</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>48</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>MS Shell Dlg 2</family>
-              <pointsize>11</pointsize>
-              <italic>false</italic>
-             </font>
-            </property>
-            <property name="text">
-             <string>[Hz]</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="lineEdit_step">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>120</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -494,7 +475,6 @@
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>11</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -506,32 +486,25 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QFrame" name="frame_4">
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="4">
-           <widget class="QFrame" name="frame_5">
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
             </property>
-           </widget>
+           </spacer>
           </item>
          </layout>
         </widget>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QFrame" name="frame">
+       <widget class="QFrame" name="frame_buttons">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -579,7 +552,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
+             <width>160</width>
              <height>32</height>
             </size>
            </property>
@@ -587,18 +560,18 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>11</pointsize>
-             <weight>75</weight>
+             <weight>9</weight>
              <italic>false</italic>
-             <bold>true</bold>
+             <bold>false</bold>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 11pt &quot;MS Shell Dlg 2&quot;}</string>
            </property>
            <property name="text">
-            <string>Confirm and Close</string>
+            <string>Confirm and close</string>
            </property>
           </widget>
          </item>
@@ -612,7 +585,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
+             <width>160</width>
              <height>32</height>
             </size>
            </property>
@@ -620,15 +593,15 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>11</pointsize>
-             <weight>75</weight>
+             <weight>9</weight>
              <italic>false</italic>
-             <bold>true</bold>
+             <bold>false</bold>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 bold 11pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 11pt &quot;MS Shell Dlg 2&quot;}</string>
            </property>
            <property name="text">
             <string>Run analysis</string>

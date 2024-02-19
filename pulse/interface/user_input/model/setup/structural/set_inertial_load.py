@@ -5,7 +5,7 @@ from PyQt5 import uic
 import numpy as np
 from pathlib import Path
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
@@ -13,50 +13,54 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class SetInertialLoad(QDialog):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(UI_DIR / "model/setup/structural/inertial_load_input.ui", self)
 
+        ui_path = Path(f"{UI_DIR}/model/setup/structural/inertial_load_input.ui")
+        uic.loadUi(ui_path, self)
+
+        self.main_window = app().main_window
+        self.project = self.main_window.project
+        
+        self._initialize()
+        self._load_icons()
+        self._config_window()
+        self._define_qt_variables()
+        self._create_connections()
+        self._load_inertia_load_setup()
+        self.exec()
+
+    def _initialize(self):
+        self.complete = False
+        self.global_damping = [0, 0, 0, 0]
+        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
+        self.gravity_vector = self.project.preprocessor.gravity_vector
+
+    def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
+
+    def _config_window(self):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Set inertial load")
 
-        self.project = project
-        self.gravity_vector = self.project.preprocessor.gravity_vector
-        
-        self._reset_variables()
-        self._define_qt_variables()
-        self._load_inertia_load_setup()
-        self.exec()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def _reset_variables(self):
-        self.complete = False
-        self.global_damping = [0, 0, 0, 0]
-        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
-
     def _define_qt_variables(self):
-        #
+        # QCheckBox
         self.checkBox_stiffening_effect = self.findChild(QCheckBox, 'checkBox_stiffening_effect')
         self.checkBox_stiffening_effect.stateChanged.connect(self.change_input_fields_visibility)
-        #
+        # QLineEdit
         self.lineEdit_acceleration_x_axis = self.findChild(QLineEdit, 'lineEdit_acceleration_x_axis')
         self.lineEdit_acceleration_y_axis = self.findChild(QLineEdit, 'lineEdit_acceleration_y_axis')
         self.lineEdit_acceleration_z_axis = self.findChild(QLineEdit, 'lineEdit_acceleration_z_axis')
-        #
+        # QPushButton
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+
+    def _create_connections(self):
         self.pushButton_confirm.clicked.connect(self.confirm)
 
     def change_input_fields_visibility(self):
-        #
         _bool = not self.checkBox_stiffening_effect.isChecked()
         # self.lineEdit_acceleration_x_axis.setDisabled(_bool)
         # self.lineEdit_acceleration_y_axis.setDisabled(_bool)
@@ -162,4 +166,9 @@ class SetInertialLoad(QDialog):
             self.lineEdit_acceleration_x_axis.setText(str(g[0]))
             self.lineEdit_acceleration_y_axis.setText(str(g[1]))
             self.lineEdit_acceleration_z_axis.setText(str(g[2]))
-        
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.confirm()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

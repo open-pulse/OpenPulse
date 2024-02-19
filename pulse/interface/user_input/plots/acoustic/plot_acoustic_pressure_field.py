@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pulse import app
+from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 class PlotAcousticPressureField(QWidget):
@@ -15,38 +15,42 @@ class PlotAcousticPressureField(QWidget):
 
         main_window = app().main_window
         
-        ui_path = f"{main_window.ui_dir}/plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
+        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
-        self._reset_variables()
+        self._initialize()
+        self._load_icons()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.load_frequencies_vector()
 
-    def _config_window(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-    def _reset_variables(self):
+    def _initialize(self):
         self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
         self.scaling_key = {0 : "absolute",
                             1 : "real_part"}
 
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
     def _define_qt_variables(self):
         # QComboBox
         self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
         # QFrame
-        self.frame_plot_button = self.findChild(QFrame, 'frame_plot_button')
-        self.frame_plot_button.setVisible(False)
+        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button.setVisible(False)
         # QLineEdit
         self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
         # QPushButton

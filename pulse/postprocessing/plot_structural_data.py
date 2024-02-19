@@ -82,7 +82,7 @@ def get_structural_response(preprocessor,
                             r_max = None,
                             new_scf = None, 
                             Normalize = True, 
-                            current_scaling = None):
+                            scaling_type = None):
     
     # if r_max is None:
     _, r_max = get_max_min_values_of_resultant_displacements(solution, column, None)
@@ -93,10 +93,8 @@ def get_structural_response(preprocessor,
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
     #
-    if current_scaling is None:
+    if scaling_type is None:
         scaling_type = "absolute"
-    else:
-        scaling_type = current_scaling
     #
     _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
                         phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
@@ -189,6 +187,7 @@ def get_stress_spectrum_data(stresses,
                              absolute = False, 
                              real = False, 
                              imaginary = False):
+
     if absolute:
         return np.abs(np.array(stresses[element_id][stress_key,:]))
     elif real:
@@ -199,24 +198,33 @@ def get_stress_spectrum_data(stresses,
         return np.array(stresses[element_id][stress_key,:])
 
 
-def get_min_max_stresses_values(data):
+def get_min_max_stresses_values(data, scaling_type):
 
     if isinstance(data, dict):
         values = np.array(list(data.values()))
 
-    _stresses = np.abs(values)
-    phase = np.angle(values)
+    if scaling_type is None:
+        scaling_type = "absolute"
+
     stress_min = 1
     stress_max = 0
+    _stresses = np.abs(values)
+    phase = np.angle(values)
     thetas = np.arange(0, N_div+1, 1)*(2*pi/N_div)
+
     for theta in thetas:
+        
         stresses = _stresses*np.cos(theta + phase)
+
+        if scaling_type == "absolute":
+            stresses = np.absolute(stresses)
         
         _stress_min = min(stresses)
         _stress_max = max(stresses)
-
+        
         if _stress_min < stress_min:
             stress_min = _stress_min
+
         if _stress_max > stress_max:
             stress_max = _stress_max
 
