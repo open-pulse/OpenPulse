@@ -594,7 +594,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
            <number>0</number>
           </property>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit_FileName">
+           <widget class="QLineEdit" name="lineEdit_file_name">
             <property name="minimumSize">
              <size>
               <width>228</width>

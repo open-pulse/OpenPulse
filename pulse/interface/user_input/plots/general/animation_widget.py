@@ -36,8 +36,8 @@ class AnimationWidget(QWidget):
         self.checkBox_export = self.findChild(QCheckBox, 'checkBox_export')
         # QLabel
         self.label_export_path = self.findChild(QLabel, 'label_export_path')
-        # QLineEdi
-        self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')      
+        # QLineEdit
+        self.lineEdit_file_name = self.findChild(QLineEdit, 'lineEdit_file_name')      
         # QPushButton
         self.pushButton_animate = self.findChild(QPushButton, "pushButton_animate")
         # QSlider
@@ -80,9 +80,9 @@ class AnimationWidget(QWidget):
         return _formats[index]
 
     def export_animation_to_file(self):
-        if self.lineEdit_FileName.text() != "":
+        if self.lineEdit_file_name.text() != "":
             file_format = self.get_file_format()
-            filename = self.lineEdit_FileName.text() + file_format
+            filename = self.lineEdit_file_name.text() + file_format
             if os.path.exists(self.save_path):
                 self.export_file_path = get_new_path(self.save_path, filename)
                 self.update_animation_settings()
@@ -98,4 +98,4 @@ class AnimationWidget(QWidget):
             title = "Empty file name"
             message = "Inform a file name before trying export the animation."
             PrintMessageInput([title, message, window_title_1])
-            self.lineEdit_FileName.setFocus()
+            self.lineEdit_file_name.setFocus()
