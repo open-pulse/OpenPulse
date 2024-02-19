@@ -6,36 +6,30 @@ from pathlib import Path
 
 import numpy as np
 
-from pulse import app
+from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-class PlotDisplacementField(QWidget):
+class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
-        ui_path = f"{main_window.ui_dir}/plots/results/structural/plot_displacement_field_for_harmonic_analysis.ui"
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/plot_nodal_results_field_for_harmonic_analysis.ui")
         uic.loadUi(ui_path, self)
+
+        main_window = app().main_window
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
+        self._initialize()
+        self._load_icons()
         self._config_window()
-        self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
         self.load_frequencies_vector()
 
-    def _config_window(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon) 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-    def _reset_variables(self):
+    def _initialize(self):
         self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
@@ -43,6 +37,14 @@ class PlotDisplacementField(QWidget):
                             1 : "real_ux",
                             2 : "real_uy",
                             3 : "real_uz"}
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
         # QComboBox
@@ -89,8 +91,8 @@ class PlotDisplacementField(QWidget):
             if frequency_selected in self.frequencies:
                 self.frequency = self.frequency_to_index[frequency_selected]
                 index = self.comboBox_color_scaling.currentIndex()
-                current_scaling = self.scaling_key[index]
-                self.opv.plot_displacement_field(self.frequency, current_scaling)
+                scaling_type = self.scaling_key[index]
+                self.opv.plot_displacement_field(self.frequency, scaling_type)
 
     def load_frequencies_vector(self):
 

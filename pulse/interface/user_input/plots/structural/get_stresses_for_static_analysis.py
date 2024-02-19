@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QWidget
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -7,36 +7,47 @@ from pathlib import Path
 import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
+from pulse import app, UI_DIR
 
-class PlotStressesForStaticAnalysis(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class GetStressesForStaticAnalysis(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/structural/plot_stresses_for_static_analysis.ui'), self)
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_stresses_for_static_analysis.ui")
+        uic.loadUi(ui_path, self)
 
-        self.opv = opv
+        main_window = app().main_window
+
+        self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
-        self.project = project
-        self.solve = self.project.structural_solve
+        self.project = main_window.getProject()
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Plot stresses for static analysis")
+        self._initialize()
+        self._load_icons()
+        self._config_window()
+        self._define_qt_variables()
+        self.update()
 
+    def _initialize(self):
         self.stress_labels = [  "Normal axial", 
                                 "Normal bending y", 
                                 "Normal bending z", 
                                 "Hoop", 
                                 "Torsional shear", 
                                 "Transversal shear xy", 
-                                "Transversal shear xz"]        
+                                "Transversal shear xz"]
 
-        self._define_qt_variables()
-        self.update()
-        self.exec()
+        self.solve = self.project.structural_solve
+
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Plot stresses for static analysis")
 
     def _define_qt_variables(self):
         #
@@ -60,7 +71,6 @@ class PlotStressesForStaticAnalysis(QDialog):
         #
         self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
         self.pushButton_reset.clicked.connect(self.reset_selection)
-        #
         self._config_lineEdits()
 
     def _config_lineEdits(self):

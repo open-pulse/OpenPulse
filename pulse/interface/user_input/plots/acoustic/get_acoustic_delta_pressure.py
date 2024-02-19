@@ -10,34 +10,34 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app
+from pulse import app, UI_DIR
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
         return str(Path(path))
 
-class PlotAcousticDeltaPressure(QWidget):
+class GetAcousticDeltaPressure(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         main_window = app().main_window
 
-        ui_path = Path(f"{main_window.ui_dir}/plots/results/acoustic/plot_acoustic_delta_pressures.ui")
+        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/get_acoustic_delta_pressures.ui")
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
         self.project = main_window.getProject()
 
-        self._reset_variables()
+        self._initialize()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.update()
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.unit_label = "Pa"
         self.analysis_method = self.project.analysis_method_label
         self.frequencies = self.project.frequencies

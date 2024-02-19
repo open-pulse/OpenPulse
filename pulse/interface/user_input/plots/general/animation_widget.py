@@ -6,10 +6,9 @@ from PyQt5 import uic
 from pathlib import Path
 import os
 
-from pulse import app
-
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_new_path
+from pulse import app, UI_DIR
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -23,11 +22,10 @@ class AnimationWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        main_window = app().main_window
-    
-        ui_path = f"{main_window.ui_dir}/plots/animation/animation_widget.ui"
+        ui_path = Path(f"{UI_DIR}/plots/animation/animation_widget.ui")
         uic.loadUi(ui_path, self)
 
+        main_window = app().main_window
         self.main_window = main_window
 
         self._define_qt_variables()
@@ -38,11 +36,10 @@ class AnimationWidget(QWidget):
         self.checkBox_export = self.findChild(QCheckBox, 'checkBox_export')
         # QLabel
         self.label_export_path = self.findChild(QLabel, 'label_export_path')
-        # QLineEdi
-        self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')      
+        # QLineEdit
+        self.lineEdit_file_name = self.findChild(QLineEdit, 'lineEdit_file_name')      
         # QPushButton
         self.pushButton_animate = self.findChild(QPushButton, "pushButton_animate")
-        self.pushButon_reset = self.findChild(QPushButton, "pushButton_reset")
         # QSlider
         self.phase_slider = self.findChild(QSlider, "phase_slider")
         # QSpinBox
@@ -50,14 +47,10 @@ class AnimationWidget(QWidget):
         self.spinBox_cycles = self.findChild(QSpinBox, 'spinBox_cycles')
 
     def _create_connections(self):
+        self.phase_slider.valueChanged.connect(self.slider_callback)
         self.pushButton_animate.clicked.connect(self.process_animation)
-        self.pushButon_reset.clicked.connect(self.reset_input_field)
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
-        self.phase_slider.valueChanged.connect(self.slider_callback)
-
-    def reset_input_field(self):
-        self.lineEdit_FileName.setText("")
 
     def frames_value_changed(self):
         self.main_window.opv_widget.opvAnalysisRenderer._numberFramesHasChanged(True)
@@ -87,9 +80,9 @@ class AnimationWidget(QWidget):
         return _formats[index]
 
     def export_animation_to_file(self):
-        if self.lineEdit_FileName.text() != "":
+        if self.lineEdit_file_name.text() != "":
             file_format = self.get_file_format()
-            filename = self.lineEdit_FileName.text() + file_format
+            filename = self.lineEdit_file_name.text() + file_format
             if os.path.exists(self.save_path):
                 self.export_file_path = get_new_path(self.save_path, filename)
                 self.update_animation_settings()
@@ -105,4 +98,4 @@ class AnimationWidget(QWidget):
             title = "Empty file name"
             message = "Inform a file name before trying export the animation."
             PrintMessageInput([title, message, window_title_1])
-            self.lineEdit_FileName.setFocus()
+            self.lineEdit_file_name.setFocus()

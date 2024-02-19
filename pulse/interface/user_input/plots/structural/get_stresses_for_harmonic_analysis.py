@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QRadioButton
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QLineEdit, QPushButton, QRadioButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -11,45 +11,34 @@ from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
+from pulse import app, UI_DIR
+
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
     if os.path.exists(path):
         return str(Path(path))
 
-class PlotStressFrequencyResponseInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class GetStressesForHarmonicAnalysis(QWidget):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/structural/plot_stress_frequency_response.ui'), self)
+        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_stresses_for_harmonic_analysis.ui")
+        uic.loadUi(ui_path, self)
 
-        self.opv = opv
+        main_window = app().main_window
+
+        self.opv = main_window.getOPVWidget()
         self.opv.setInputObject(self)
+        self.project = main_window.getProject()
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-        self.frequencies = project.frequencies
-        self.solve = self.project.structural_solve 
-        self.analysis_method = project.analysis_method_label
-
-        self._config_window()
+        self._initialize()    
         self._load_icons()
-        self._reset_variables()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.writeElements(self.opv.getListPickedElements())
-        self.exec()
+        self.update()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-    def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
-        self.setWindowIcon(self.pulse_icon)
-
-    def _reset_variables(self):
+    def _initialize(self):
         self.element_id = None
         self.keys = np.arange(7)
         self.labels = np.array(["Normal axial", 
@@ -63,38 +52,37 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.unit_label = "Pa"
         self.y_label = "Stress"
 
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+        self.frequencies = self.project.frequencies
+        self.solve = self.project.structural_solve 
+        self.analysis_method = self.project.analysis_method_label
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.pulse_icon)
+
+    def _load_icons(self):
+        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+
     def _define_qt_variables(self):
         # QCheckBox
         self.checkBox_damping_effect = self.findChild(QCheckBox, 'checkBox_damping_effect')
+        # QComboBox
+        self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
         # QLineEdit
         self.lineEdit_element_id = self.findChild(QLineEdit, 'lineEdit_element_id')
         # QPushButton
-        self.pushButton_call_data_exporter = self.findChild(QPushButton, 'pushButton_call_data_exporter')
-        self.pushButton_plot_frequency_response = self.findChild(QPushButton, 'pushButton_plot_frequency_response')
-        # QRadioButton
-        self.radioButton_normal_axial = self.findChild(QRadioButton, 'radioButton_normal_axial')
-        self.radioButton_normal_bending_y = self.findChild(QRadioButton, 'radioButton_normal_bending_y')
-        self.radioButton_normal_bending_z = self.findChild(QRadioButton, 'radioButton_normal_bending_z')
-        self.radioButton_hoop = self.findChild(QRadioButton, 'radioButton_hoop')
-        self.radioButton_transv_shear_xy = self.findChild(QRadioButton, 'radioButton_transv_shear_xy')
-        self.radioButton_transv_shear_xz = self.findChild(QRadioButton, 'radioButton_transv_shear_xz')
-        self.radioButton_torsional_shear = self.findChild(QRadioButton, 'radioButton_torsional_shear')
-        self.radioButton_event()
+        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
 
     def _create_connections(self):
         #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
-        #
-        self.pushButton_call_data_exporter.clicked.connect(self.call_data_exporter)
-        self.pushButton_plot_frequency_response.clicked.connect(self.call_plotter)
-        #
-        self.radioButton_normal_axial.clicked.connect(self.radioButton_event)
-        self.radioButton_normal_bending_y.clicked.connect(self.radioButton_event)
-        self.radioButton_normal_bending_z.clicked.connect(self.radioButton_event)
-        self.radioButton_hoop.clicked.connect(self.radioButton_event)
-        self.radioButton_torsional_shear.clicked.connect(self.radioButton_event)
-        self.radioButton_transv_shear_xy.clicked.connect(self.radioButton_event)
-        self.radioButton_transv_shear_xz.clicked.connect(self.radioButton_event)
+        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        self.pushButton_plot_data.clicked.connect(self.call_plotter)
 
     def _update_damping_effect(self):
         self.update_damping = True
@@ -108,15 +96,6 @@ class PlotStressFrequencyResponseInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_element_id.setText(text)
 
-    def radioButton_event(self):    
-        self.bool_stress = [self.radioButton_normal_axial.isChecked(), 
-                            self.radioButton_normal_bending_y.isChecked(), 
-                            self.radioButton_normal_bending_z.isChecked(), 
-                            self.radioButton_hoop.isChecked(),
-                            self.radioButton_torsional_shear.isChecked(),
-                            self.radioButton_transv_shear_xy.isChecked(),
-                            self.radioButton_transv_shear_xz.isChecked()]
-
     def check_inputs(self, export=False):
 
         lineEdit = self.lineEdit_element_id.text()
@@ -126,8 +105,9 @@ class PlotStressFrequencyResponseInput(QDialog):
         if stop:
             return True
         
-        self.stress_label = self.labels[self.bool_stress][0]
-        self.stress_key = self.keys[self.bool_stress][0]
+        index = self.comboBox_stress_type.currentIndex()
+        self.stress_label = self.labels[index]
+        self.stress_key = self.keys[index]
 
     def get_stress_data(self):
 

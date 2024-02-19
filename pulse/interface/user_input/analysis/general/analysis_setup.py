@@ -5,14 +5,14 @@ from PyQt5 import uic
 from pathlib import Path
 import numpy as np
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title = "Error"
 
 class AnalysisSetupInput(QDialog):
-    def __init__(self, project):
+    def __init__(self):
         super().__init__()
        
         """
@@ -30,17 +30,18 @@ class AnalysisSetupInput(QDialog):
         |--------------------------------------------------------------------|
         """
 
-        self.project = project
-        self.analysis_ID = project.analysis_ID
+        self.main_window = app().main_window
+        self.project = self.main_window.project
+        self.analysis_ID = self.project.analysis_ID
 
         if self.analysis_ID in [1, 6]:
-            ui_path = UI_DIR / "analysis/structural/harmonic_analysis_mode_superposition_method.ui"
+            ui_path = Path(f"{UI_DIR}/analysis/structural/harmonic_analysis_mode_superposition_method.ui")
         elif self.analysis_ID in [0, 5]:
-            ui_path = UI_DIR / "analysis/structural/harmonic_analysis_direct_method.ui"
+            ui_path = Path(f"{UI_DIR}/analysis/structural/harmonic_analysis_direct_method.ui")
         elif self.analysis_ID in [3]:
-            ui_path = UI_DIR / "analysis/acoustic/harmonic_analysis_direct_method.ui"
+            ui_path = Path(f"{UI_DIR}/analysis/acoustic/harmonic_analysis_direct_method.ui")
         elif self.analysis_ID == 7:
-            read = StaticAnalysisInput(self.project)
+            read = StaticAnalysisInput()
             self.complete = self.flag_run = read.complete
             return
         else:
@@ -48,14 +49,9 @@ class AnalysisSetupInput(QDialog):
 
         uic.loadUi(ui_path, self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Analysis setup")
-
-        self._initialize_variables()
+        self._initialize()
+        self._load_icons()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
 
@@ -63,7 +59,12 @@ class AnalysisSetupInput(QDialog):
         self.update_damping_input_texts()
         self.exec()
 
-    def _initialize_variables(self):
+    def _initialize(self):
+        self.complete = False
+        self.flag_run = False
+        self.frequencies = []
+        self.modes = 0
+        #
         self.title = self.project.analysis_type_label
         self.subtitle = self.project.analysis_method_label
         self.f_min = self.project.f_min
@@ -71,10 +72,15 @@ class AnalysisSetupInput(QDialog):
         self.f_step = self.project.f_step
         self.global_damping = self.project.global_damping
 
-        self.complete = False
-        self.flag_run = False
-        self.frequencies = []
-        self.modes = 0
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Analysis setup")
 
     def _define_qt_variables(self):
         # QLabel objects

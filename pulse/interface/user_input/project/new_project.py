@@ -12,21 +12,22 @@ from time import time
 from pulse.lib.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils import get_new_path
+from pulse import app, UI_DIR
 
 window_title = "Error"
 
 class NewProjectInput(QDialog):
-    def __init__(self, main_window, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = f"{main_window.ui_dir}/project/new_project_input.ui"
+        ui_path = Path(f"{UI_DIR}/project/new_project_input.ui")
         uic.loadUi(ui_path, self)
-
-        self.opv = main_window.getOPVWidget()
+        
+        self.main_window = app().main_window
+        self.opv = self.main_window.getOPVWidget()
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
-        self.config = main_window.config
-        # self.config = config
+        self.project = self.main_window.getProject()
+        self.config = self.main_window.config
 
         self._reset()
         self._config_window()

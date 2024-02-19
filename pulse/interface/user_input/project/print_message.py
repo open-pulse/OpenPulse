@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
 from pathlib import Path
 
-from pulse import app
+from pulse import app, UI_DIR
 
 class PrintMessageInput(QDialog):
     def __init__(self, text_info, *args, **kwargs):
@@ -12,7 +12,7 @@ class PrintMessageInput(QDialog):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{main_window.ui_dir}/messages/print_message.ui")
+        ui_path = Path(f"{UI_DIR}/messages/print_message.ui")
         uic.loadUi(ui_path, self)
 
         self.auto_close = kwargs.get("auto_close", False)
