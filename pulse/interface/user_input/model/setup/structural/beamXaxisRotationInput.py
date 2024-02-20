@@ -304,7 +304,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, key, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "/model/info/getGroupInformationInput.ui", self)
+        uic.loadUi(UI_DIR / "model/info/getGroupInformationInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

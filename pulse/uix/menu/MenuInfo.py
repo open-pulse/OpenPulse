@@ -17,7 +17,7 @@ class MenuInfo(QWidget):
         #
         self.main_window = main_window
         self.menu_items = menu_items
-        uic.loadUi(UI_DIR / "/project/analysisFilter.ui", self)
+        uic.loadUi(UI_DIR / "project/analysisFilter.ui", self)
         self._define_Qt_variables_and_connections()
         # self._create_radioButtons()
         # self._set_config()

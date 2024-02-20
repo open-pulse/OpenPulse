@@ -16,7 +16,7 @@ def get_icons_path(filename):
 class ProgressBar(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
-        uic.loadUi(UI_DIR / "/project/progress_bar2.ui", self)
+        uic.loadUi(UI_DIR / "project/progress_bar2.ui", self)
         
         self.icon = QIcon(get_icons_path('pulse.png'))
         self.setWindowIcon(self.icon)

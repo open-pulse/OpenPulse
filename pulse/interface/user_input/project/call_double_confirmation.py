@@ -12,7 +12,7 @@ class CallDoubleConfirmationInput(QDialog):
     def __init__(self, title, message, buttons_config={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "/messages/call_double_confirmation.ui", self)
+        uic.loadUi(UI_DIR / "messages/call_double_confirmation.ui", self)
 
         self.title = title
         self.message = message

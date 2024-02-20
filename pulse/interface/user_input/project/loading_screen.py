@@ -33,7 +33,7 @@ class LoadingScreen(QDialog):
     def __init__(self, target=None, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(UI_DIR / "/messages/loading_window.ui", self)
+        uic.loadUi(UI_DIR / "messages/loading_window.ui", self)
         
         self.target = target
         self.title = kwargs.get("title", "")

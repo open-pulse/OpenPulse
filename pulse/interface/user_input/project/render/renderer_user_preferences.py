@@ -15,7 +15,7 @@ class RendererUserPreferencesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "/project/render/renderer_user_preferences.ui", self)
+        uic.loadUi(UI_DIR / "project/render/renderer_user_preferences.ui", self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
