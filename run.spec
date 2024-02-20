@@ -9,6 +9,7 @@ a = Analysis(
         # I have no idea why, but the paths need to be repeated
         ("data/", "data/"),
         ("pulse/interface/ui_files/", "pulse/interface/ui_files"),
+        ("pulse/lib/", "pulse/lib/"),
     ],
     hiddenimports=[],
     hookspath=[],
@@ -38,4 +39,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon="icons/pulse.ico",
 )
