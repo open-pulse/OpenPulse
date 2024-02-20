@@ -153,13 +153,13 @@ class MaterialInputs(QWidget):
             item = QTableWidgetItem()
             self.tableWidget_material_data.setItem(last_row, j, item)
             self.tableWidget_material_data.item(last_row,j).setTextAlignment(Qt.AlignCenter)
+        first_item = self.tableWidget_material_data.item(last_row, 0)
+        self.tableWidget_material_data.editItem(first_item)
 
     def remove_selected_row(self):
         if self.row is not None:
-            if self.process_material_removal():
-                self.row = None
-                self.col = None
-    
+            self.process_material_removal()
+
     def item_changed(self, item):
 
         if self.disable_item_changed:
@@ -341,6 +341,8 @@ class MaterialInputs(QWidget):
             self.material_data["identifier"] = input_id
 
         except:
+
+            item.setText("")
             pass
 
     def check_material_properties(self, row, col):
@@ -433,8 +435,12 @@ class MaterialInputs(QWidget):
 
             else:
 
-                self.tableWidget_material_data.removeRow(self.row)
-                return True
+                self.load_data_from_materials_library()
+                self.row = None
+                self.col = None
+
+            #     self.tableWidget_material_data.removeRow(self.row)
+            #     return True
 
         except Exception as error_log:
             self.title = "Error occured in material removal"
