@@ -194,7 +194,11 @@ class AddStructuresWidget(QWidget):
         self.geometry_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
 
     def create_segment_callback(self):
-        dx, dy, dz = self.get_segment_deltas()
+        try:
+            dx, dy, dz = self.get_segment_deltas()
+        except ValueError:
+            return
+
         if (dx, dy, dz) == (0, 0, 0):
             return
 
