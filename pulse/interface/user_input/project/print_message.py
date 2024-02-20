@@ -50,7 +50,8 @@ class PrintMessageInput(QDialog):
         self.label_message.setText(self.message)
         self.setWindowTitle(self.window_title)
         self.adjustSize()
-        self.label_message.setAlignment(Qt.AlignJustify)
+        # self.label_message.setAlignment(Qt.AlignJustify)
+        self.label_message.setAlignment(Qt.AlignCenter)
         if self.auto_close:
             self.timer.timeout.connect(self.message_close)
             self.timer.start(2000) 

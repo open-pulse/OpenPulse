@@ -56,7 +56,7 @@ class MaterialInputs(QWidget):
         self.pushButton_add_row = self.findChild(QPushButton, 'pushButton_add_row')
         self.pushButton_remove_row = self.findChild(QPushButton, 'pushButton_remove_row')
         self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
-        self.pushButton_attribute_material.setDisabled(True)
+        # self.pushButton_attribute_material.setDisabled(True)
 
         # QTableWidget
         self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
@@ -208,9 +208,10 @@ class MaterialInputs(QWidget):
             self.pick_color(row, col)
 
         if self.check_if_all_input_fields(row):
-            self.pushButton_attribute_material.setDisabled(True)
-        else:
-            self.pushButton_attribute_material.setDisabled(False)
+            return
+        #     self.pushButton_attribute_material.setDisabled(True)
+        # else:
+        #     self.pushButton_attribute_material.setDisabled(False)
         
     def cell_changed(self, current_row, current_col, previous_row, previous_col):
 
@@ -235,9 +236,10 @@ class MaterialInputs(QWidget):
 
     def check_inputs_and_add_material_to_library(self, row):
         if self.check_if_all_input_fields(row):
-            self.pushButton_attribute_material.setDisabled(True)
+            return
+            # self.pushButton_attribute_material.setDisabled(True)
         else:
-            self.pushButton_attribute_material.setDisabled(False)
+            # self.pushButton_attribute_material.setDisabled(False)
             self.add_material_to_file(row)
             self.load_data_from_materials_library()
             self.material_data = dict()
@@ -416,7 +418,7 @@ class MaterialInputs(QWidget):
 
                 if not self.get_confirmation_to_proceed(title, message):
                     return True
-            
+
                 config.remove_section(selected_material)
 
                 with open(self.material_path, 'w') as config_file:
@@ -430,6 +432,8 @@ class MaterialInputs(QWidget):
                 self.load_data_from_materials_library()
 
             else:
+
+                self.tableWidget_material_data.removeRow(self.row)
                 return True
 
         except Exception as error_log:

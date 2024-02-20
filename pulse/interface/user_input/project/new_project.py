@@ -29,13 +29,14 @@ class NewProjectInput(QDialog):
         self.project = self.main_window.getProject()
         self.config = self.main_window.config
 
-        self._reset()
+        self._initialize()
         self._config_window()
         self._define_qt_variables()
         self._create_qt_actions()
+        self.update_project_directory()
         self.exec()
 
-    def _reset(self):
+    def _initialize(self):
 
         self.stop = False
         self.complete = False
@@ -125,12 +126,15 @@ class NewProjectInput(QDialog):
         if self.lineEdit_project_name.text() == "":
             self.lineEdit_project_name.setFocus()
 
-    def search_project_folder(self):
-        self.project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.desktop_path)
+    def update_project_directory(self):
         if self.project_directory != "":
             self.lineEdit_project_folder.setText(str(self.project_directory))
         else:
             self.project_directory = self.desktop_path        
+
+    def search_project_folder(self):
+        self.project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.desktop_path)
+        self.update_project_directory()
 
     def import_geometry(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.desktop_path, 'Files (*.iges *.igs *.step *.stp)')
