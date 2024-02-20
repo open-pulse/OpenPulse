@@ -1,7 +1,7 @@
 from PyQt5 import Qt
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtCore import Qt
-from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
 

@@ -27,6 +27,10 @@ compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
 black = "^23.7.0"
 isort = "^5.12.0"
 pytest = "^7.4.1"
+pyinstaller = "^6.4.0"
+
+[tool.poetry.scripts]
+pulse = "pulse.run:init"
 
 [build-system]
 requires = ["poetry-core"]
