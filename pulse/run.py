@@ -4,8 +4,7 @@ import platform
 import vtk
 from PyQt5 import Qt, QtCore, QtWidgets
 
-from pulse.uix.main_window import MainWindow
-from pulse.uix.application import Application
+from pulse.interface.application import Application
 
 import matplotlib
 matplotlib.use("Qt5Agg")
