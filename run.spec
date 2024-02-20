@@ -39,5 +39,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon="icons/pulse.ico",
+    icon="data/icons/pulse.ico",
 )
