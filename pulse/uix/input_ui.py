@@ -107,7 +107,7 @@ class InputUi:
             self.opv.setInputObject(read)
             return read
         except Exception as log_error:
-            title = "Error detected in processInput method"
+            title = "Error detected in process Input method"
             message = str(log_error)
             PrintMessageInput([title, message, window_title_1])
             return None
