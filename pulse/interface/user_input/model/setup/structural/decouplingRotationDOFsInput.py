@@ -283,7 +283,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, decoupled_DOFs_bool, decoupled_DOFs_labels, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/info/getInformationRotationDecouplingInput.ui'), self)
+        uic.loadUi(UI_DIR / "/model/info/getInformationRotationDecouplingInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

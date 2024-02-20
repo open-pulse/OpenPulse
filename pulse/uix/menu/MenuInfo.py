@@ -3,6 +3,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
+from pulse import UI_DIR
 
 class MenuInfo(QWidget):
     """Menu Info
@@ -16,7 +17,7 @@ class MenuInfo(QWidget):
         #
         self.main_window = main_window
         self.menu_items = menu_items
-        uic.loadUi(Path('pulse/interface/ui_files/project/analysisFilter.ui'), self)
+        uic.loadUi(UI_DIR / "/project/analysisFilter.ui", self)
         self._define_Qt_variables_and_connections()
         # self._create_radioButtons()
         # self._set_config()

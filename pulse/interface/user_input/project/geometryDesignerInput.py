@@ -11,6 +11,7 @@ from collections import defaultdict
 from shutil import copyfile, rmtree
 
 from pulse.utils import *
+from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
@@ -21,7 +22,7 @@ class GeometryDesignerInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('pulse/interface/ui_files/project/geometryDesigner.ui'), self)
+        uic.loadUi(UI_DIR / "/project/geometryDesigner.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

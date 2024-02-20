@@ -6,12 +6,13 @@ import numpy as np
 from pathlib import Path
 from pulse import __version__, __release_date__
 
+from pulse import UI_DIR
 
 class CallDoubleConfirmationInput(QDialog):
     def __init__(self, title, message, buttons_config={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/messages/call_double_confirmation.ui'), self)
+        uic.loadUi(UI_DIR / "/messages/call_double_confirmation.ui", self)
 
         self.title = title
         self.message = message

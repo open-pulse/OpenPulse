@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
+from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
@@ -14,7 +15,7 @@ class RendererUserPreferencesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/project/render/renderer_user_preferences.ui'), self)
+        uic.loadUi(UI_DIR / "/project/render/renderer_user_preferences.ui", self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)

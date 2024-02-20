@@ -6,6 +6,7 @@ from pathlib import Path
 
 import os
 
+from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse import __version__, __release_date__
 
@@ -21,7 +22,7 @@ class AboutOpenPulseInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('pulse/interface/ui_files/project/about_open_pulse.ui'), self)
+        uic.loadUi(UI_DIR / "/project/about_open_pulse.ui", self)
 
         self.icon = QIcon(get_icons_path('pulse.png'))
         self.load_icon = QIcon(get_icons_path('loadProject.png'))

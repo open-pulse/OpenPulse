@@ -4,13 +4,14 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import UI_DIR
 from threading import Thread
 
 class PrintMessageInput(QDialog):
     def __init__(self, text_info, opv=None, fontsizes=[13,12], alignment=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/messages/printMessages.ui'), self)
+        uic.loadUi(UI_DIR / "/messages/printMessages.ui", self)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.message_close)

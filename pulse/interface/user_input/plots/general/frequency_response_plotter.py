@@ -12,6 +12,7 @@ from pulse.interface.user_input.data_handler.export_model_results import ExportM
 from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
 
+from pulse import UI_DIR
 from pulse.tools.advanced_cursor import AdvancedCursor
 
 def get_icons_path(filename):
@@ -23,7 +24,7 @@ class FrequencyResponsePlotter(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/plots/results/general/frequency_response_plot.ui'), self)
+        uic.loadUi(UI_DIR / "/plots/results/general/frequency_response_plot.ui", self)
 
         self._config_window()
         self._load_icons()

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import UI_DIR
 from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
@@ -17,7 +18,7 @@ class PlotCrossSectionInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(Path('pulse/interface/ui_files/plots/model/plot_section_input.ui'), self)
+        uic.loadUi(UI_DIR / "/plots/model/plot_section_input.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

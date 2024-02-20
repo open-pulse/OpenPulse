@@ -459,12 +459,12 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         if label == "Elements":
-            uic.loadUi(Path('pulse/interface/ui_files/model/info/getGroupInformationInput.ui'), self)
+            uic.loadUi(UI_DIR / "/model/info/getGroupInformationInput.ui", self)
             self.flagElements = True
             self.flagLines = False
 
         elif label == "Lines":
-            uic.loadUi(Path('pulse/interface/ui_files/model/info/getGroupInformationAndRemoveInput.ui'), self)
+            uic.loadUi(UI_DIR / "/model/info/getGroupInformationAndRemoveInput.ui", self)
             self.flagLines = True
             self.flagElements = False
             self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')

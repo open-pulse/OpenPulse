@@ -9,6 +9,7 @@ import configparser
 from shutil import copyfile
 import numpy as np
 
+from pulse import UI_DIR
 from pulse.utils import get_new_path
 from pulse.project import Project
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
@@ -20,7 +21,7 @@ class SetGeometryFileInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/project/set_geometry_file.ui'), self)
+        uic.loadUi(UI_DIR / "project/set_geometry_file.ui", self)
 
         self.project = project
         self.opv = opv

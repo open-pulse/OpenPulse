@@ -1387,7 +1387,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, selection, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/model/info/getExpansionJointInformationInput.ui'), self)
+        uic.loadUi(UI_DIR / "model/info/getExpansionJointInformationInput.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

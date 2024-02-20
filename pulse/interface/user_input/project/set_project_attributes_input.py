@@ -8,6 +8,7 @@ import os
 import configparser
 from shutil import copytree, rmtree
 
+from pulse import UI_DIR
 from pulse.utils import get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
@@ -18,7 +19,7 @@ class SetProjectAttributesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(Path('pulse/interface/ui_files/project/set_project_attributes.ui'), self)
+        uic.loadUi(UI_DIR / "/project/set_project_attributes.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
