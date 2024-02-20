@@ -1,6 +1,7 @@
 import os
 import sys
 import configparser
+from pathlib import Path
 
 class Config:
     def __init__(self):
@@ -9,7 +10,7 @@ class Config:
     def reset(self):
         self.recentProjects = {}
         self.openLastProject = False
-        self.configFileName = ".config"
+        self.configFileName = Path().home() / ".open_pulse_config"
         self.load_config_file()
         self.load_args()
     

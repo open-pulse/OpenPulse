@@ -160,8 +160,6 @@ class GetStartedInput(QDialog):
             if self.input_ui.load_project(path=dir):
                 self.close()
         else:
-            read_config = configparser.ConfigParser()
-            read_config.read(self.config.configFileName)
             for item, value in self.config.recentProjects.items():
                 if value == dir:
                     self.config.remove_path_from_config_file(item)
