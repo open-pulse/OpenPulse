@@ -392,7 +392,7 @@ color: rgb(0, 0, 255)
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QFrame" name="frame_plot_button">
+       <widget class="QFrame" name="frame_button">
         <property name="minimumSize">
          <size>
           <width>0</width>

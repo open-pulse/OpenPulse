@@ -149,30 +149,15 @@ class SetMaterialInput(QDialog):
         self.update_selection()
 
     def confirm_material_attribution(self):
+        new_material = self.material_widget.get_selected_material()
 
-        if self.selected_row is None:
+        if new_material is None:
             self.title = "No materials selected"
             self.message = "Select a material in the list before confirming the material attribution."
             PrintMessageInput([window_title, self.title, self.message])
             return
         
         try:
-            _row = self.selected_row
-            name = self.tableWidget_material_data.item(_row, 0).text()
-            identifier = int(self.tableWidget_material_data.item(_row, 1).text())
-            density = float(self.tableWidget_material_data.item(_row, 2).text())
-            young = float(self.tableWidget_material_data.item(_row, 3).text())*(10**(9))
-            poisson = float(self.tableWidget_material_data.item(_row, 4).text())
-            thermal_expansion_coefficient = float(self.tableWidget_material_data.item(_row, 5).text())
-            color = self.tableWidget_material_data.item(_row, 6).text()
-            
-            new_material = Material(name, 
-                                    density,
-                                    poisson_ratio = poisson, 
-                                    young_modulus = young, 
-                                    identifier = identifier, 
-                                    thermal_expansion_coefficient = thermal_expansion_coefficient, 
-                                    color = color)
             self.material = new_material
             
             if self.comboBox_attribution_type.currentIndex():
