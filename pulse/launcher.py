@@ -10,9 +10,9 @@ import matplotlib
 matplotlib.use("Qt5Agg")
 
 
-def init():
-    """ OpenPulse init
-        The init function starts the OpenPulse software.
+def main():
+    """ OpenPulse main
+        The main function starts the OpenPulse software.
         This will create the mainWindow and also pass the terminal arguments to it.
 
         # If are using Windows with HighDPI active, this'll set the scale to 100%
@@ -42,4 +42,4 @@ def init():
 
 
 if __name__ == "__main__":
-    init()
+    main()
