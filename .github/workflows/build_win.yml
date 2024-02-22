@@ -39,7 +39,7 @@ jobs:
           --include-data-dir=pulse/lib/=pulse/lib/
       - uses: actions/upload-artifact@v2
         with:
-          name: Windows_qwiklabs
+          name: WindowsOpenPulse
           path: OpenPulse.exe
 
       - name: create release
