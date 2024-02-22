@@ -1,4 +1,4 @@
-name: Build Workflow
+name: Build Windows Workflow
 
 on:
   push:
