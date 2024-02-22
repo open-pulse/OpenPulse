@@ -22,7 +22,7 @@ jobs:
         run: |
           poetry install 
       - name: Run Nuitka compiler
-        run: |
+        run: >
           poetry run nuitka pulse/launch.py
           --onefile
           --disable-console
