@@ -1,13 +1,16 @@
 from collections import deque
-from random import choice
 from collections import defaultdict
-from shutil import copyfile
+
+import os
 import gmsh 
 import numpy as np
 from scipy.spatial.transform import Rotation
 from time import time
+
 from pulse.preprocessing import structural_element
 from pulse.preprocessing.cross_section import *
+
+from pulse.interface.gmsh_geometry_handler import GMSHGeometryHandler
 
 from pulse.preprocessing.geometry import Geometry
 from pulse.preprocessing.entity import Entity
@@ -30,6 +33,7 @@ class Preprocessor:
         self.project = project
         self.file = project.file
         self.reset_variables()
+        self.geometry_handler = None
 
     def reset_variables(self):
         """
@@ -38,50 +42,50 @@ class Preprocessor:
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
         self.number_structural_elements = 0
         self.number_acosutic_elements = 0
-        self.nodes = {}
-        self.structural_elements = {}
-        self.acoustic_elements = {}
+        self.nodes = dict()
+        self.structural_elements = dict()
+        self.acoustic_elements = dict()
         self.transformation_matrices = None
         self.section_rotations_xyz = None
         self.elements_connected_to_node = None
-        self.dict_tag_to_entity = {}
-        self.line_to_elements = {}
-        self.dict_line_to_nodes = {}
-        self.elements_to_line = {}
-        self.elements_with_expansion_joint = []
-        self.elements_with_valve = []
-        self.number_expansion_joints_by_lines = {}
-        self.number_valves_by_lines = {}
-        self.group_elements_with_length_correction = {}
-        self.group_elements_with_capped_end = {}
-        self.group_elements_with_perforated_plate = {}
-        self.group_elements_with_stress_stiffening = {}
-        self.group_elements_with_expansion_joints = {}
-        self.group_elements_with_valves = {}
-        self.group_lines_with_capped_end = {}        
-        self.dict_lines_with_stress_stiffening = {}
-        self.dict_lines_with_expansion_joints = {}
-        self.dict_lines_with_valves = {}
+        self.dict_tag_to_entity = dict()
+        self.line_to_elements = dict()
+        self.dict_line_to_nodes = dict()
+        self.elements_to_line = dict()
+        self.elements_with_expansion_joint = list()
+        self.elements_with_valve = list()
+        self.number_expansion_joints_by_lines = dict()
+        self.number_valves_by_lines = dict()
+        self.group_elements_with_length_correction = dict()
+        self.group_elements_with_capped_end = dict()
+        self.group_elements_with_perforated_plate = dict()
+        self.group_elements_with_stress_stiffening = dict()
+        self.group_elements_with_expansion_joints = dict()
+        self.group_elements_with_valves = dict()
+        self.group_lines_with_capped_end = dict()        
+        self.dict_lines_with_stress_stiffening = dict()
+        self.dict_lines_with_expansion_joints = dict()
+        self.dict_lines_with_valves = dict()
         self.expansion_joint_table_indexes = defaultdict(list)
-        self.dict_B2PX_rotation_decoupling = {}
-        self.entities = []
-        self.connectivity_matrix = []
-        self.nodal_coordinates_matrix = []
-        self.nodes_with_nodal_loads = []
-        self.nodes_with_prescribed_dofs = []
-        self.nodes_with_constrained_dofs = []
-        self.nodes_with_masses = []
-        self.nodes_connected_to_springs = []
-        self.nodes_connected_to_dampers = []
-        self.pair_of_nodes_with_elastic_nodal_links = []
-        self.nodes_with_acoustic_pressure = []
-        self.nodes_with_volume_velocity = []
-        self.nodes_with_compressor_excitation = []
-        self.nodes_with_specific_impedance = []
-        self.nodes_with_radiation_impedance = []
-        self.element_with_length_correction = []
-        self.elements_with_perforated_plate = []
-        self.element_with_capped_end = []
+        self.dict_B2PX_rotation_decoupling = dict()
+        self.entities = list()
+        self.connectivity_matrix = list()
+        self.nodal_coordinates_matrix = list()
+        self.nodes_with_nodal_loads = list()
+        self.nodes_with_prescribed_dofs = list()
+        self.nodes_with_constrained_dofs = list()
+        self.nodes_with_masses = list()
+        self.nodes_connected_to_springs = list()
+        self.nodes_connected_to_dampers = list()
+        self.pair_of_nodes_with_elastic_nodal_links = list()
+        self.nodes_with_acoustic_pressure = list()
+        self.nodes_with_volume_velocity = list()
+        self.nodes_with_compressor_excitation = list()
+        self.nodes_with_specific_impedance = list()
+        self.nodes_with_radiation_impedance = list()
+        self.element_with_length_correction = list()
+        self.elements_with_perforated_plate = list()
+        self.element_with_capped_end = list()
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
 
@@ -89,26 +93,26 @@ class Preprocessor:
         self.dict_acoustic_element_type_to_lines = defaultdict(list)
         self.dict_beam_xaxis_rotating_angle_to_lines = defaultdict(list)
 
-        self.dict_coordinate_to_update_bc_after_remesh = {}
-        self.dict_element_info_to_update_indexes_in_entity_file = {}
-        self.dict_element_info_to_update_indexes_in_element_info_file = {}
-        self.dict_list_elements_to_subgroups = {}
-        self.dict_old_to_new_node_external_indexes = {}
+        self.dict_coordinate_to_update_bc_after_remesh = dict()
+        self.dict_element_info_to_update_indexes_in_entity_file = dict()
+        self.dict_element_info_to_update_indexes_in_element_info_file = dict()
+        self.dict_list_elements_to_subgroups = dict()
+        self.dict_old_to_new_node_external_indexes = dict()
 
-        self.nodes_with_elastic_link_stiffness = {}
-        self.nodes_with_elastic_link_dampings = {}
-        self.lines_with_structural_element_force_offset = {}
-        self.lines_with_structural_element_wall_formulation = {}
-        self.lines_with_capped_end = []
-        self.lines_with_stress_stiffening = []
-        self.elements_with_adding_mass_effect = []
-        self.radius = {}
+        self.nodes_with_elastic_link_stiffness = dict()
+        self.nodes_with_elastic_link_dampings = dict()
+        self.lines_with_structural_element_force_offset = dict()
+        self.lines_with_structural_element_wall_formulation = dict()
+        self.lines_with_capped_end = list()
+        self.lines_with_stress_stiffening = list()
+        self.elements_with_adding_mass_effect = list()
+        self.radius = dict()
         self.element_type = "pipe_1" # defined as default
-        self.all_lines = []
+        self.all_lines = list()
         self.flag_fluid_mass_effect = False
         self.stress_stiffening_enabled = False
         self.group_index = 0
-        # self.compressor_excitation_table_indexes = []
+        # self.compressor_excitation_table_indexes = list()
         self.structure_principal_diagonal = None
         self.nodal_coordinates_matrix_external = None
         
@@ -123,7 +127,10 @@ class Preprocessor:
     def set_element_size(self, element_size):
         self.element_size = element_size
 
-    def generate(self, path, element_size, tolerance=1e-6, gmsh_geometry=False):
+    def set_geometry_handler(self, geometry_handler):
+        self.geometry_handler = geometry_handler
+
+    def generate(self, **kwargs):
         """
         This method loads geometry file or data and process the mesh.
 
@@ -142,11 +149,19 @@ class Preprocessor:
             This variable reaches True value if the geometry is created by user or False if it is imported.
         """
 
+        self.geometry_path = kwargs.get('geometry_path', "")
+        self.element_size = kwargs.get('element_size', 0.01)
+        self.tolerance = kwargs.get('tolerance', 1e-6)
+        self.unit_length = kwargs.get('unit_length', 'meter')
+
         self.reset_variables()
-        self.set_element_size(element_size)
-        if not gmsh_geometry:
-            self._initialize_gmsh(path)
-        self._set_gmsh_options(element_size, tolerance=tolerance)
+
+        if os.path.exists(self.geometry_path):
+            self._initialize_gmsh()
+        else:
+            self._create_gmsh_geometry()
+        
+        self._set_gmsh_options()
         self._create_entities()
         self._map_lines_to_elements()
         self._map_lines_to_nodes()
@@ -174,94 +189,7 @@ class Preprocessor:
         # dt = time() - t0
         # print("Time to process all rotations matrices: ", dt)
 
-    def update_number_divisions(self):
-        """
-        This method updates the number of divisions of pipe and circular beam cross-sections based on model size. This adds some
-        compensation for the computational effort spent to render vtk actors in models with millions of degrees of freedom.
-        """
-        if self.number_structural_elements <= 1e3:
-            self.section_number_of_divisions = 36 
-        if self.number_structural_elements <= 5e3:
-            self.section_number_of_divisions = 24        
-        elif self.number_structural_elements <= 1e4:
-            self.section_number_of_divisions = 16
-        elif self.number_structural_elements <= 5e4:
-            self.section_number_of_divisions = 10
-        elif self.number_structural_elements <= 2e4:
-            self.section_number_of_divisions = 8
-        else:
-            self.section_number_of_divisions = 6
-
-    def neighbor_elements_diameter(self):
-        """
-        This method maps the elements outer diameters that each node belongs to. The maping is done according to the node external index.
-
-        Returns
-        ----------
-        dict
-            Outer diameters at a certain node. Giving a node external index, returns a list of diameters.
-        """
-        neighbor_diameters = dict()
-
-        for index, element in self.structural_elements.items():
-            first = element.first_node.external_index
-            last = element.last_node.external_index
-            neighbor_diameters.setdefault(first, [])
-            neighbor_diameters.setdefault(last, [])
-
-            outer_diameter = element.cross_section.outer_diameter
-            inner_diameter = element.cross_section.inner_diameter
-
-            neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
-            neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
-
-        return neighbor_diameters
-
-    def neighbor_elements_diameter_global(self):
-        """
-        This method maps the elements inner diameters that each node belongs to. The maping is done according to the node global index.
-
-        Returns
-        ----------
-        Dict
-            Inner diameters at a certain node. Giving a node global index, returns a list of diameters.
-        """
-        neighbor_diameters = dict()
-        for index, element in self.acoustic_elements.items():
-            first = element.first_node.global_index
-            last = element.last_node.global_index
-            neighbor_diameters.setdefault(first, [])
-            neighbor_diameters.setdefault(last, [])
-            outer_diameter = element.cross_section.outer_diameter
-            inner_diameter = element.cross_section.inner_diameter
-            neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
-            neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
-        return neighbor_diameters    
-    
-    def neighboor_elements_of_node(self, node_ID):
-        """
-        This method returns the acoustic elements that a node belongs to.
-
-        Parameters
-        ----------
-        int
-            Node external indexes.
-
-        Returns
-        ----------
-        List
-            List of acoustic elements indexes.
-        """
-        node = self.nodes[node_ID]
-        neighboor_elments = defaultdict(list)      
-        for element in self.acoustic_elements.values():
-            first = element.first_node
-            last = element.last_node
-            if node in [first, last]:
-                neighboor_elments[node].append(element.index)
-        return neighboor_elments[node]
-
-    def _initialize_gmsh(self, path):
+    def _initialize_gmsh(self):
         """
         This method initializes mesher algorithm gmsh.
 
@@ -273,9 +201,13 @@ class Preprocessor:
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.open(str(path))
+        gmsh.open(str(self.geometry_path))
 
-    def _set_gmsh_options(self, element_size, tolerance=1e-6):
+    def _create_gmsh_geometry(self):
+        if self.geometry_handler is not None:
+            self.geometry_handler.create_geometry()
+
+    def _set_gmsh_options(self):
         """
         This method sets the mesher algorithm configuration.
 
@@ -288,15 +220,21 @@ class Preprocessor:
             gmsh.option.setNumber("General.NumThreads", 4)
         except:
             pass
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', m_to_mm(element_size))
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', m_to_mm(element_size))
+
+        if self.unit_length == 'meter':
+            conv_function = m_to_mm
+        elif self.unit_length == 'inch':
+            conv_function = in_to_mm
+
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', conv_function(self.element_size))
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', conv_function(self.element_size))
         gmsh.option.setNumber('Mesh.Optimize', 1)
         gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
         gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)
         gmsh.option.setNumber('Mesh.ElementOrder', 1)
         gmsh.option.setNumber('Mesh.Algorithm', 2)
         gmsh.option.setNumber('Mesh.Algorithm3D', 1)
-        gmsh.option.setNumber('Geometry.Tolerance', tolerance)
+        gmsh.option.setNumber('Geometry.Tolerance', self.tolerance)
 
     def _create_entities(self):
         """
@@ -373,6 +311,7 @@ class Preprocessor:
         map_nodes : dict
             Dictionary maps global indexes to external indexes.
         """
+
         for i, coord in zip(indexes, split_sequence(coords, 3)):
             x = mm_to_m(coord[0])
             y = mm_to_m(coord[1])
@@ -484,6 +423,12 @@ class Preprocessor:
         # dt = time() - t0
         # print(f"Time to process : {dt}")
 
+    def _finalize_gmsh(self):
+        """
+        This method finalize the mesher gmsh algorithm.
+        """
+        gmsh.finalize()
+
     def get_line_length(self, line_ID):
         """
         This method returns the length of a given line ID.
@@ -529,12 +474,6 @@ class Preprocessor:
                         dict_line_to_vertex_coords[line_id].append(list(vertex_node.coordinates))         
         return dict_line_to_vertex_coords
 
-    def _finalize_gmsh(self):
-        """
-        This method finalize the mesher gmsh algorithm.
-        """
-        gmsh.finalize()
-
     def _load_neighbors(self):
         """
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
@@ -551,6 +490,93 @@ class Preprocessor:
             #     self.nodes_with_multiples_neighbors[element.first_node] = self.neighbors[element.first_node]
             # if len(self.neighbors[element.last_node]) > 2:
             #     self.nodes_with_multiples_neighbors[element.last_node] = self.neighbors[element.last_node]
+
+    def update_number_divisions(self):
+        """
+        This method updates the number of divisions of pipe and circular beam cross-sections based on model size. This adds some
+        compensation for the computational effort spent to render vtk actors in models with millions of degrees of freedom.
+        """
+        if self.number_structural_elements <= 1e3:
+            self.section_number_of_divisions = 36 
+        if self.number_structural_elements <= 5e3:
+            self.section_number_of_divisions = 24        
+        elif self.number_structural_elements <= 1e4:
+            self.section_number_of_divisions = 16
+        elif self.number_structural_elements <= 5e4:
+            self.section_number_of_divisions = 10
+        elif self.number_structural_elements <= 2e4:
+            self.section_number_of_divisions = 8
+        else:
+            self.section_number_of_divisions = 6
+
+    def neighbor_elements_diameter(self):
+        """
+        This method maps the elements outer diameters that each node belongs to. The maping is done according to the node external index.
+
+        Returns
+        ----------
+        dict
+            Outer diameters at a certain node. Giving a node external index, returns a list of diameters.
+        """
+        neighbor_diameters = dict()
+
+        for index, element in self.structural_elements.items():
+            first = element.first_node.external_index
+            last = element.last_node.external_index
+            neighbor_diameters.setdefault(first, [])
+            neighbor_diameters.setdefault(last, [])
+
+            outer_diameter = element.cross_section.outer_diameter
+            inner_diameter = element.cross_section.inner_diameter
+
+            neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
+            neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
+
+        return neighbor_diameters
+
+    def neighbor_elements_diameter_global(self):
+        """
+        This method maps the elements inner diameters that each node belongs to. The maping is done according to the node global index.
+
+        Returns
+        ----------
+        Dict
+            Inner diameters at a certain node. Giving a node global index, returns a list of diameters.
+        """
+        neighbor_diameters = dict()
+        for index, element in self.acoustic_elements.items():
+            first = element.first_node.global_index
+            last = element.last_node.global_index
+            neighbor_diameters.setdefault(first, [])
+            neighbor_diameters.setdefault(last, [])
+            outer_diameter = element.cross_section.outer_diameter
+            inner_diameter = element.cross_section.inner_diameter
+            neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
+            neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
+        return neighbor_diameters    
+    
+    def neighboor_elements_of_node(self, node_ID):
+        """
+        This method returns the acoustic elements that a node belongs to.
+
+        Parameters
+        ----------
+        int
+            Node external indexes.
+
+        Returns
+        ----------
+        List
+            List of acoustic elements indexes.
+        """
+        node = self.nodes[node_ID]
+        neighboor_elments = defaultdict(list)      
+        for element in self.acoustic_elements.values():
+            first = element.first_node
+            last = element.last_node
+            if node in [first, last]:
+                neighboor_elments[node].append(element.index)
+        return neighboor_elments[node]
 
     def add_lids_to_variable_cross_sections(self):
         """ 

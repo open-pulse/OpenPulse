@@ -266,6 +266,7 @@ class MainWindow(QMainWindow):
     def action_geometry_workspace_callback(self):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
+        self.geometry_input_wigdet.add_widget.load_defined_unit()
 
     def action_structural_setup_workspace_callback(self):
         self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
