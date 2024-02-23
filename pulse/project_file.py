@@ -5,6 +5,9 @@ from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUS
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
+from pulse import app
+
+from opps.model import Pipe, Bend, Point
 
 import os
 import configparser
@@ -1976,6 +1979,50 @@ class ProjectFile:
                 config[str(line_id)]['curvature'] = str(data[3])
 
         self.write_data_in_file(self._entity_path, config)
+
+    def load_segment_build_data_in_file(self):
+        '''
+        Eu tô tomando uma surra inacreditável pra carregar esse arquivo =/
+        '''
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        structures = []
+        for section in config.sections():
+            is_bend = ('corner point' in section) and ('curvature' in section)
+            if is_bend:
+                x, y, z = section['start point']
+                start = Point(x, y, z)
+
+                x, y, z = section['end point']
+                end = Point(x, y, z)
+
+                x, y, z = section['corner point']
+                corner = Point(x, y, z)
+
+                curvature = float(section['curvature'])
+                bend = Bend(start, end, corner, curvature)
+                structures.append(bend)
+
+            else:
+                x, y, z = section['start point']
+                start = Point(x, y, z)
+
+                x, y, z = section['end point']
+                end = Point(x, y, z)
+
+                pipe = Pipe(start, end)
+                structures.append(pipe)
+
+        pipeline = app().geometry_toolbox.pipeline
+        pipeline.structures.clear()
+        pipeline.structures.extend(structures)
+
+        # Essa parte creio que não esteja pronta ainda
+        # então vou deixar comentada
+        # editor = app().geometry_toolbox.editor
+        # editor.merge_points()
 
     def add_material_in_file(self, lines, material):
 
