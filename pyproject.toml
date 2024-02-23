@@ -22,7 +22,7 @@ h5py = "^3.9.0"
 opps = {git = "https://github.com/andrefpf/opps", rev = "open_pulse_integration"}
 vtkat = {git = "https://github.com/andrefpf/vtkat"}
 compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
-nuitka = "^2.0.3"
+pyinstaller = "^6.4.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"

@@ -2,7 +2,10 @@ name: Build Windows Workflow
 
 on:
   push:
-#    branches: master
+  #  branches: master
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+rc[0-9]+'
 
 jobs:
   build-windows:
@@ -21,28 +24,15 @@ jobs:
       - name: Install requirements
         run: |
           poetry install 
-      - name: Run Nuitka compiler
-        run: >
-          poetry run nuitka pulse/launch.py
-          --onefile
-          --disable-console
-          --assume-yes-for-downloads
-          --file-version=2.0
-          --company-name=MOPT
-          --product-name=OpenPulse
-          --output-filename=OpenPulse.exe
-          --enable-plugin=pyqt5
-          --windows-icon-from-ico=data/icons/pulse.ico
-          --include-data-dir=data/icons/=data/icons/
-          --include-data-dir=data/symbols/=data/symbols/
-          --include-data-dir=pulse/interface/ui_files/=pulse/interface/ui_files/
-          --include-data-dir=pulse/lib/=pulse/lib/
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
       - uses: actions/upload-artifact@v2
         with:
-          name: WindowsOpenPulse
-          path: OpenPulse.exe
+          name: openpulse-windows
+          path: dist/OpenPulse.exe
 
-      - name: create release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -62,6 +52,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: OpenPulse.exe
+          asset_path: dist/OpenPulse.exe
           asset_name: OpenPulse-win-x64.exe
           asset_content_type: application/zip
