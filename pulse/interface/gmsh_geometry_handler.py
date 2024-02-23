@@ -83,6 +83,10 @@ class GMSHGeometryHandler:
         structures = []
         for key, data in build_data.items():
 
+            self.cross_section_info = { "section label" : data['section label'],
+                                        "section parameters" : data['section parameters'] }
+            self.material_id = data['material id']
+
             if key[1] == "Bend":
 
                 start_coords = data['start point']
@@ -95,8 +99,10 @@ class GMSHGeometryHandler:
                 corner = Point(*corner_coords)
 
                 curvature = data['curvature']
-    
-                bend = Bend(start, end, corner, curvature)
+
+                bend = Bend(start, end, corner, curvature, auto=False)
+                bend.extra_info["cross_section_info"] = self.cross_section_info
+                bend.extra_info["material_info"] = self.material_id
                 structures.append(bend)
 
             else:
@@ -108,11 +114,15 @@ class GMSHGeometryHandler:
                 end = Point(*end_coords)
 
                 pipe = Pipe(start, end)
+                pipe.extra_info["cross_section_info"] = self.cross_section_info
+                pipe.extra_info["material_info"] = self.material_id
                 structures.append(pipe)
 
         pipeline = app().geometry_toolbox.pipeline
         pipeline.structures.clear()
         pipeline.structures.extend(structures)
+
         # editor = app().geometry_toolbox.editor
         # editor.merge_points()
+
         return pipeline

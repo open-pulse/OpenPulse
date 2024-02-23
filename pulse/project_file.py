@@ -1401,16 +1401,16 @@ class ProjectFile:
 
                 if "pipe" in data["section label"]:
                     if segment_id in list(config.sections()):
-                        section_parameters = list(data["section parameters"].values())
+                        section_parameters = data["section parameters"]
                         config[segment_id]['section parameters'] = str(section_parameters)
                 else:
                     if segment_id in list(config.sections()):
                         config[segment_id]['beam section type'] = data["section label"]
                         if data["section label"] == "Generic section":
-                            section_properties = list(data["section properties"].values())
+                            section_properties = data["section properties"]
                             config[segment_id]['section properties'] = str(section_properties)
                         else:
-                            section_parameters = list(data["section parameters"].values())
+                            section_parameters = data["section parameters"]
                             config[segment_id]['section parameters'] = str(section_parameters)                    
 
         self.write_data_in_file(self._entity_path, config)
@@ -1983,7 +1983,7 @@ class ProjectFile:
 
     def load_segment_build_data_from_file(self):
         '''
-        Eu tô tomando uma surra inacreditável pra carregar esse arquivo =/
+        This method returns the all required data to build pipeline segments.
         '''
 
         config = configparser.ConfigParser()
@@ -2007,19 +2007,34 @@ class ProjectFile:
             if "curvature" in keys:
                 curvature = float(config[section]["curvature"])
 
+            if 'section label' in keys:
+                section_label = config[section]["section label"]
+
+            if 'section parameters' in keys:
+                section_parameters = get_list_of_values_from_string(config[section]["section parameters"], int_values=False)
+
+            material_id = None
+            if 'material id' in keys:
+                material_id = int(config[section]["material id"])
+
             is_bend = ('corner point' in keys) and ('curvature' in keys)
             if is_bend:
                 
                 segment_build_data[tag, "Bend"] = { 'start point' : start_point,
                                                     'corner point' : corner_point,
                                                     'end point' : end_point,
-                                                    'curvature' : curvature }
+                                                    'curvature' : curvature,
+                                                    'section label' : section_label,
+                                                    'section parameters' : section_parameters,
+                                                    'material id' : material_id }
 
             else:
 
                 segment_build_data[tag, "Pipe"] = { 'start point' : start_point,
-                                                    'end point' : end_point }
-                
+                                                    'end point' : end_point,
+                                                    'section label' : section_label,
+                                                    'section parameters' : section_parameters,
+                                                    'material id' : material_id }
 
         return segment_build_data
 

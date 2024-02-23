@@ -247,33 +247,29 @@ class AddStructuresWidget(QWidget):
 
         if is_pipe and is_constant_section:
             self.cross_section_widget.get_straight_pipe_parameters()
-            self.cross_section_info = {
-                "section label" : "pipe (constant)",
-                "section parameters" : self.cross_section_widget.section_parameters
-            }
+            section_parameters = list(self.cross_section_widget.section_parameters.values())
+            self.cross_section_info = { "section label" : "pipe (constant)",
+                                        "section parameters" : section_parameters }
             diameter = self.cross_section_widget.section_parameters["outer_diameter"]
             self.geometry_widget.update_default_diameter(diameter)
-            # self.lineEdit_section_diameter.setText(str(diameter))
 
         elif is_pipe and not is_constant_section:
             self.cross_section_widget.get_variable_section_pipe_parameters()
-            self.cross_section_info = {
-                "section label" : "pipe (variable)",
-                "section parameters" : self.cross_section_widget.variable_parameters
-            }
+            section_parameters =self.cross_section_widget.variable_parameters
+            self.cross_section_info = { "section label" : "pipe (variable)",
+                                        "section parameters" : section_parameters }
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
-            self.cross_section_info = {
-                "section label" : "beam",
-                "beam section type" : self.cross_section_widget.section_label,
-                "section parameters" : self.cross_section_widget.section_parameters
-            }
+            section_label = self.cross_section_widget.section_label
+            section_parameters = self.cross_section_widget.section_parameters
+            self.cross_section_info = { "section label" : "beam",
+                                        "beam section type" : section_label,
+                                        "section parameters" : section_parameters }
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
         self._update_permissions()
-        # self.alternate_cross_section_button_label()
         self.update_segment_information_text()
 
     def define_material(self):
@@ -290,7 +286,7 @@ class AddStructuresWidget(QWidget):
         section_parameters = ""
         if self.cross_section_info:
             section_label = self.cross_section_info["section label"]
-            section_parameters = list(self.cross_section_info["section parameters"].values())
+            section_parameters = self.cross_section_info["section parameters"]
 
         material_id = ""
         material_data = None
