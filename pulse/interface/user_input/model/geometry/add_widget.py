@@ -16,7 +16,9 @@ from pulse.interface.gmsh_geometry_handler import GMSHGeometryHandler
 from pulse import app, UI_DIR
 
 from opps.model import Bend, Pipe
-
+        
+def get_data(data):
+    return list(np.round(data, 6))
 
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
@@ -343,7 +345,6 @@ class AddStructuresWidget(QWidget):
         self.file.update_project_attributes(length_unit = self.unit_of_length,
                                             element_size = 0.01, 
                                             geometry_tolerance = 1e-6)
-                                            # geometry_filename = geometry_filename)
 
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
@@ -386,16 +387,15 @@ class AddStructuresWidget(QWidget):
 
     def get_segment_build_info(self, structure):
         if isinstance(structure, Bend):
-            start_coords = structure.start.coords()
-            # center_coords = structure.center.coords()
-            corner_coords = structure.corner.coords()
-            end_coords = structure.end.coords()
+            start_coords = get_data(structure.start.coords())
+            end_coords = get_data(structure.end.coords())
+            corner_coords = get_data(structure.corner.coords())
             curvature = structure.curvature
             return [start_coords, corner_coords, end_coords, curvature]
 
         elif isinstance(structure, Pipe):
-            start_coords = structure.start.coords()
-            end_coords = structure.end.coords()
+            start_coords = get_data(structure.start.coords())
+            end_coords = get_data(structure.end.coords())
             return [start_coords, end_coords]
         else:
             return None

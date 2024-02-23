@@ -253,12 +253,13 @@ class ProjectFile:
                 section['element size'] = str(element_size)
         
         if geometry_tolerance is not None:
-            section['Geometry tolerance'] = str(geometry_tolerance)
+            section['geometry tolerance'] = str(geometry_tolerance)
 
         if geometry_filename is not None:
             section['geometry file'] = geometry_filename
 
         self.write_data_in_file(self._project_ini_file_path, config)
+        self.load(self._project_ini_file_path)
 
     def add_geometry_entities_to_file(self, entities_data):
         
@@ -1980,49 +1981,47 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config)
 
-    def load_segment_build_data_in_file(self):
+    def load_segment_build_data_from_file(self):
         '''
         Eu tô tomando uma surra inacreditável pra carregar esse arquivo =/
         '''
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
+        segment_build_data = dict()
 
-        structures = []
         for section in config.sections():
-            is_bend = ('corner point' in section) and ('curvature' in section)
+
+            tag = int(section)
+            keys = config[section].keys()
+
+            if "start point" in keys:
+                start_point = get_list_of_values_from_string(config[section]["start point"], int_values=False)
+
+            if "end point" in keys:
+                end_point = get_list_of_values_from_string(config[section]["end point"], int_values=False)
+
+            if "corner point" in keys:
+                corner_point = get_list_of_values_from_string(config[section]["corner point"], int_values=False)
+
+            if "curvature" in keys:
+                curvature = float(config[section]["curvature"])
+
+            is_bend = ('corner point' in keys) and ('curvature' in keys)
             if is_bend:
-                x, y, z = section['start point']
-                start = Point(x, y, z)
-
-                x, y, z = section['end point']
-                end = Point(x, y, z)
-
-                x, y, z = section['corner point']
-                corner = Point(x, y, z)
-
-                curvature = float(section['curvature'])
-                bend = Bend(start, end, corner, curvature)
-                structures.append(bend)
+                
+                segment_build_data[tag, "Bend"] = { 'start point' : start_point,
+                                                    'corner point' : corner_point,
+                                                    'end point' : end_point,
+                                                    'curvature' : curvature }
 
             else:
-                x, y, z = section['start point']
-                start = Point(x, y, z)
 
-                x, y, z = section['end point']
-                end = Point(x, y, z)
+                segment_build_data[tag, "Pipe"] = { 'start point' : start_point,
+                                                    'end point' : end_point }
+                
 
-                pipe = Pipe(start, end)
-                structures.append(pipe)
-
-        pipeline = app().geometry_toolbox.pipeline
-        pipeline.structures.clear()
-        pipeline.structures.extend(structures)
-
-        # Essa parte creio que não esteja pronta ainda
-        # então vou deixar comentada
-        # editor = app().geometry_toolbox.editor
-        # editor.merge_points()
+        return segment_build_data
 
     def add_material_in_file(self, lines, material):
 

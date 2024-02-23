@@ -1,10 +1,9 @@
-from opps.model.pipe import Pipe
-from opps.model.bend import Bend
-from opps.model.flange import Flange
+from opps.model import Pipe, Bend, Point, Flange
 
 from pulse.utils import m_to_mm, in_to_mm
-import numpy as np
+from pulse import app
 
+import numpy as np
 import sys
 import gmsh
 
@@ -78,3 +77,42 @@ class GMSHGeometryHandler:
         #     gmsh.fltk.run()
         # # gmsh.write(str(path))
         # gmsh.finalize()
+
+    def process_pipeline(self, build_data):
+                
+        structures = []
+        for key, data in build_data.items():
+
+            if key[1] == "Bend":
+
+                start_coords = data['start point']
+                start = Point(*start_coords)
+
+                end_coords = data['end point']
+                end = Point(*end_coords)
+
+                corner_coords = data['corner point']
+                corner = Point(*corner_coords)
+
+                curvature = data['curvature']
+    
+                bend = Bend(start, end, corner, curvature)
+                structures.append(bend)
+
+            else:
+
+                start_coords = data['start point']
+                start = Point(*start_coords)
+
+                end_coords = data['end point']
+                end = Point(*end_coords)
+
+                pipe = Pipe(start, end)
+                structures.append(pipe)
+
+        pipeline = app().geometry_toolbox.pipeline
+        pipeline.structures.clear()
+        pipeline.structures.extend(structures)
+        # editor = app().geometry_toolbox.editor
+        # editor.merge_points()
+        return pipeline

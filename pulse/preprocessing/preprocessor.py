@@ -204,8 +204,14 @@ class Preprocessor:
         gmsh.open(str(self.geometry_path))
 
     def _create_gmsh_geometry(self):
-        if self.geometry_handler is not None:
-            self.geometry_handler.create_geometry()
+        if self.geometry_handler is None:
+            build_data = self.file.load_segment_build_data_from_file()
+            self.geometry_handler = GMSHGeometryHandler()
+            pipeline = self.geometry_handler.process_pipeline(build_data)
+            self.geometry_handler.set_unit_of_length(self.file.length_unit)
+            self.geometry_handler.set_pipeline(pipeline)
+        
+        self.geometry_handler.create_geometry()
 
     def _set_gmsh_options(self):
         """
