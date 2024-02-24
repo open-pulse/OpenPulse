@@ -10,7 +10,7 @@ from time import time
 from pulse.preprocessing import structural_element
 from pulse.preprocessing.cross_section import *
 
-from pulse.interface.gmsh_geometry_handler import GMSHGeometryHandler
+from pulse.interface.geometry_handler import GeometryHandler
 
 from pulse.preprocessing.geometry import Geometry
 from pulse.preprocessing.entity import Entity
@@ -195,8 +195,7 @@ class Preprocessor:
 
         Parameters
         ----------
-        str
-            the path of geometry file (only IGES and STEP CAD formats are supported).
+
         """
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
@@ -204,9 +203,16 @@ class Preprocessor:
         gmsh.open(str(self.geometry_path))
 
     def _create_gmsh_geometry(self):
+        """
+        This method creates the GMSH geometry based on entity file data.
+
+        Parameters
+        ----------
+        
+        """
         if self.geometry_handler is None:
             build_data = self.file.load_segment_build_data_from_file()
-            self.geometry_handler = GMSHGeometryHandler()
+            self.geometry_handler = GeometryHandler()
             pipeline = self.geometry_handler.process_pipeline(build_data)
             self.geometry_handler.set_unit_of_length(self.file.length_unit)
             self.geometry_handler.set_pipeline(pipeline)
@@ -219,8 +225,7 @@ class Preprocessor:
 
         Parameters
         ----------
-        float
-            Element size.
+
         """
         try:
             gmsh.option.setNumber("General.NumThreads", 4)

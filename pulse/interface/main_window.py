@@ -77,6 +77,9 @@ class MainWindow(QMainWindow):
         self.set_window_title(self.project.file._project_name)
         self.update()
 
+    def export_geometry(self):
+        self.input_widget.export_geometry()
+
     def update(self):
         self.geometry_widget.update_plot(reset_camera=True)
         self.mesh_widget.update_plot(reset_camera=True)
@@ -262,6 +265,9 @@ class MainWindow(QMainWindow):
 
     def action_open_project_callback(self):
         self.open_project()
+
+    def action_export_geometry_callback(self):
+        self.export_geometry()
 
     def action_geometry_workspace_callback(self):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)

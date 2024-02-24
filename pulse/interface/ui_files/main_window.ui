@@ -74,7 +74,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_3">
         <property name="styleSheet">
@@ -117,6 +117,7 @@
     <addaction name="action_save_project_as"/>
     <addaction name="separator"/>
     <addaction name="action_import_geometry"/>
+    <addaction name="action_export_geometry"/>
     <addaction name="action_import_piping"/>
     <addaction name="action_export_png"/>
     <addaction name="action_reset"/>
@@ -816,6 +817,18 @@
   <action name="action_unhide_all">
    <property name="text">
     <string>Unhide All</string>
+   </property>
+  </action>
+  <action name="action_export_geometry">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../data/icons/send_to_disk.png</normaloff>../../../data/icons/send_to_disk.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export Geometry</string>
+   </property>
+   <property name="toolTip">
+    <string>Export Geometry</string>
    </property>
   </action>
  </widget>

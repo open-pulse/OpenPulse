@@ -3,6 +3,7 @@ from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.load_project import LoadProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
+from pulse.interface.user_input.project.export_geometry import ExportGeometry
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 #
 from pulse.interface.user_input.project.geometryDesignerInput import GeometryDesignerInput
@@ -152,6 +153,9 @@ class InputUi:
     def reset_project(self):
         if not self.project.none_project_action:
             self.processInput(ResetProjectInput, self.project, self.opv)
+
+    def export_geometry(self):
+        exporter = self.processInput(ExportGeometry)
 
     def set_clipping_plane(self):
         if not self.opv.opvAnalysisRenderer.getInUse():

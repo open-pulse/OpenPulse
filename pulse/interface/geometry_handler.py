@@ -8,7 +8,7 @@ import sys
 import gmsh
 
 
-class GMSHGeometryHandler:
+class GeometryHandler:
     def __init__(self):
         self._initialize()
 
@@ -72,13 +72,11 @@ class GMSHGeometryHandler:
                 gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
 
         gmsh.model.occ.synchronize()
-        # if '-nopopup' not in sys.argv:
-        #     gmsh.option.setNumber('General.FltkColorScheme', 1)
-        #     gmsh.fltk.run()
-        # # gmsh.write(str(path))
-        # gmsh.finalize()
 
-    def process_pipeline(self, build_data):
+
+    def process_pipeline(self, build_data : dict):
+        """ This method builds structures based on entity file data.
+        """
                 
         structures = []
         for key, data in build_data.items():
@@ -103,6 +101,7 @@ class GMSHGeometryHandler:
                 bend = Bend(start, end, corner, curvature, auto=False)
                 bend.extra_info["cross_section_info"] = self.cross_section_info
                 bend.extra_info["material_info"] = self.material_id
+
                 structures.append(bend)
 
             else:
@@ -116,6 +115,7 @@ class GMSHGeometryHandler:
                 pipe = Pipe(start, end)
                 pipe.extra_info["cross_section_info"] = self.cross_section_info
                 pipe.extra_info["material_info"] = self.material_id
+
                 structures.append(pipe)
 
         pipeline = app().geometry_toolbox.pipeline
@@ -126,3 +126,13 @@ class GMSHGeometryHandler:
         # editor.merge_points()
 
         return pipeline
+    
+    def export_cad_file(self, path):
+        self.create_geometry()
+
+        # if '-nopopup' not in sys.argv:
+        #     gmsh.option.setNumber('General.FltkColorScheme', 1)
+        #     gmsh.fltk.run()
+
+        gmsh.write(str(path))
+        gmsh.finalize()

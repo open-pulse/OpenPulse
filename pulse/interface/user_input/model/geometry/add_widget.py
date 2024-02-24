@@ -11,8 +11,7 @@ from pulse.interface.user_input.model.setup.general.cross_section_inputs import 
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.interface.cad_handler import CADHandler
-from pulse.interface.gmsh_geometry_handler import GMSHGeometryHandler
+from pulse.interface.geometry_handler import GeometryHandler
 from pulse import app, UI_DIR
 
 from opps.model import Bend, Pipe
@@ -330,10 +329,7 @@ class AddStructuresWidget(QWidget):
         geometry_filename = os.path.basename(geometry_path)
         geometry_filename = ""
 
-        # exporter = CADHandler()
-        # exporter.save(geometry_path, pipeline, unit=self.unit_of_length)
-
-        geometry_handler = GMSHGeometryHandler()
+        geometry_handler = GeometryHandler()
         geometry_handler.set_unit_of_length(self.unit_of_length)
         geometry_handler.set_pipeline(pipeline)
         self.project.preprocessor.set_geometry_handler(geometry_handler)
