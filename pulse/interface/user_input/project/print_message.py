@@ -67,7 +67,7 @@ class PrintMessageInput(QDialog):
         self.timer.stop()
         t0 = time()
         dt = 0
-        duration = 3
+        duration = 2.5
         while dt <= duration:
             sleep(0.1)
             dt = time() - t0

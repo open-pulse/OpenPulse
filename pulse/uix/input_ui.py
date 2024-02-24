@@ -84,6 +84,7 @@ class InputUi:
 
         self.main_window = parent
         self.project = parent.project
+        self.file = parent.project.file
         self.opv = parent.opv_widget
         self.menu_items = parent.model_and_analysis_setup_widget.model_and_analysis_setup_items
         
@@ -132,6 +133,7 @@ class InputUi:
     
     def initial_project_action(self, finalized):
         app().main_window.action_front_view_callback()
+        app().main_window.update_export_geometry_file_access()
         mesh_setup = self.project.check_mesh_setup()
         if finalized:
             if self.project.empty_geometry:
@@ -143,7 +145,7 @@ class InputUi:
             else:
                 self.project.none_project_action = False
                 self.main_window.set_enable_menuBar(True)
-                self.menu_items.modify_model_setup_items_access(False) 
+                self.menu_items.modify_model_setup_items_access(False)
                 return True
         else:
             self.project.none_project_action = True

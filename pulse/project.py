@@ -24,8 +24,7 @@ window_title = "Error"
 class Project:
     def __init__(self):
         self.file = ProjectFile() 
-        self.preprocessor = Preprocessor(self)
-         
+        self.preprocessor = Preprocessor(self)        
         self.reset()
 
     def reset(self, reset_all=False):

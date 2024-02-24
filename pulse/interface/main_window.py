@@ -165,6 +165,7 @@ class MainWindow(QMainWindow):
         self.action_acoustic_setup_workspace: QAction
         self.action_analysis_setup_workspace: QAction
         self.action_results_workspace: QAction
+        self.action_export_geometry: QAction
         self.tool_bar: QToolBar
         self.splitter: QSplitter
         self.menurecent: QMenu
@@ -434,6 +435,13 @@ class MainWindow(QMainWindow):
     
     def action_show_symbols_callback(self, cond):
         self._update_visualization()
+
+    def update_export_geometry_file_access(self):
+        import_type = self.project.file.get_import_type()
+        if import_type == 0:
+            self.action_export_geometry.setDisabled(True)
+        elif import_type == 1:
+            self.action_export_geometry.setDisabled(False)
 
     # DEPRECATED, REMOVE AS SOON AS POSSIBLE
     def getInputWidget(self):
