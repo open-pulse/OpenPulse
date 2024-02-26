@@ -1,4 +1,7 @@
-__version__ = '2.0.0'
+import pkg_resources
+
+# copying the version from pyproject.toml
+__version__ = pkg_resources.get_distribution('pulse').version
 __release_date__ = 'Apr 30th 2024'
 
 from PyQt5.QtWidgets import QApplication
