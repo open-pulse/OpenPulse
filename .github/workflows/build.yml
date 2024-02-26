@@ -39,7 +39,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/openpulse-linux.zip
+          asset_path: ./openpulse-linux/OpenPulse
           asset_name: OpenPulse
           asset_content_type: application/zip
 
@@ -50,7 +50,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/openpulse-windows.zip
+          asset_path: ./openpulse-windows/OpenPulse.exe
           asset_name: OpenPulse.exe
           asset_content_type: application/zip                        
 
@@ -75,7 +75,7 @@ jobs:
           poetry run pyinstaller openpulse.spec
       - uses: actions/upload-artifact@v2
         with:
-          name: uploads/openpulse-windows
+          name: openpulse-windows
           path: dist/OpenPulse.exe
 
   build-linux:
@@ -99,7 +99,7 @@ jobs:
           poetry run pyinstaller openpulse.spec
       - uses: actions/upload-artifact@v2
         with:
-          name: uploads/openpulse-linux
+          name: openpulse-linux
           path: dist/OpenPulse
 
       # - name: Create Release
