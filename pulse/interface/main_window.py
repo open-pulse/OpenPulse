@@ -2,7 +2,7 @@ import sys
 from functools import partial
 import os
 
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QSplitter, QStackedWidget, QLabel, QToolBar, QComboBox, QFileDialog
+from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5 import uic
 from pathlib import Path
@@ -465,25 +465,7 @@ class MainWindow(QMainWindow):
         self.plot_entities_with_cross_section()
         self.action_front_view_callback()
         # self.opv_widget.setCameraView(5)
-
-    def closeEvent(self, event):
-        title = "OpenPulse stop execution requested"
-        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
-        right_toolTip = "The current project setup progress has already been saved in the project files."
         
-        buttons_config = {"left_button_label" : "No", 
-                          "right_button_label" : "Yes",
-                          "right_toolTip" : right_toolTip}
-        
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
-        if read._stop:
-            event.ignore()
-            return
-
-        if read._continue:
-            sys.exit()
-    
     def _loadProjectMenu(self):
         self._update_recent_projects()
 
@@ -523,3 +505,31 @@ class MainWindow(QMainWindow):
             if event.key() == Qt.Key_Space:
                 self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
         return super(MainWindow, self).eventFilter(obj, event)
+    
+    def closeEvent(self, event):
+        title = "OpenPulse"
+        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+        close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
+        
+        if close == QMessageBox.Yes:
+            sys.exit()
+        else:
+            event.ignore()
+
+    # def closeEvent(self, event):
+    #     title = "OpenPulse stop execution requested"
+    #     message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+    #     right_toolTip = "The current project setup progress has already been saved in the project files."
+        
+    #     buttons_config = {"left_button_label" : "No", 
+    #                       "right_button_label" : "Yes",
+    #                       "right_toolTip" : right_toolTip}
+        
+    #     read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
+    #     if read._stop:
+    #         event.ignore()
+    #         return
+
+    #     if read._continue:
+    #         sys.exit()
