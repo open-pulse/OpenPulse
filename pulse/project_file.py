@@ -4,7 +4,7 @@ from pulse.preprocessing.cross_section import CrossSection, get_beam_section_pro
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import *
+from pulse.tools.utils import *
 from pulse import app
 
 from opps.model import Pipe, Bend, Point

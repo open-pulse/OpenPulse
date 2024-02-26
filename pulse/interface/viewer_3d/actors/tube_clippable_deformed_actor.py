@@ -4,7 +4,7 @@ from time import time
 from scipy.spatial.transform import Rotation
 from time import time
 
-from pulse.interface.tubeClippableActor import TubeClippableActor
+from pulse.interface.viewer_3d.actors.tube_clippable_actor import TubeClippableActor
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 
 class TubeClippableDeformedActor(TubeClippableActor):

@@ -5,7 +5,7 @@ from collections import namedtuple
 # from itertools import chain
 
 from abc import ABC, abstractmethod
-from pulse.interface.vtkActorBase import vtkActorBase
+from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
 def loadSymbol(path):
     reader = vtk.vtkOBJReader()
@@ -15,7 +15,7 @@ def loadSymbol(path):
 
 SymbolTransform = namedtuple('SymbolTransform', ['source', 'position', 'rotation', 'scale', 'color'])
 
-class SymbolsActorBase(vtkActorBase):
+class SymbolsActorBase(ActorBase):
     '''
     Abstract class that defines how to create a new set of Symbols.
 

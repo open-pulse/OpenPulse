@@ -2,9 +2,9 @@ import vtk
 import numpy as np
 from time import time 
 
-from pulse.interface.vtkActorBase import vtkActorBase
+from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
-class LinesActor(vtkActorBase):
+class LinesActor(ActorBase):
     def __init__(self, project, *args, **kwargs):
         super().__init__()
 

@@ -1,8 +1,8 @@
 import vtk
 import math
-from pulse.interface.vtkActorBase import vtkActorBase
+from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
-class ActorArrow(vtkActorBase):
+class ActorArrow(ActorBase):
     def __init__(self, node, radius, base_length, xyz=1, u_def=[]):
         super().__init__()
         self.node = node

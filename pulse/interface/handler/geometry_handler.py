@@ -1,6 +1,6 @@
 from opps.model import Pipe, Bend, Point, Flange
 
-from pulse.utils import m_to_mm, in_to_mm
+from pulse.tools.utils import m_to_mm, in_to_mm
 from pulse import app
 
 import numpy as np

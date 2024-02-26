@@ -8,7 +8,7 @@ import configparser
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.utils import remove_bc_from_file
+from pulse.tools.utils import remove_bc_from_file
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title = "Error"

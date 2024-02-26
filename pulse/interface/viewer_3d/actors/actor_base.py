@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import vtk
 
-class vtkActorBase(ABC):
+class ActorBase(ABC):
     def __init__(self):
         self._actor = vtk.vtkActor()
         super().__init__()

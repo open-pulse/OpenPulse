@@ -14,7 +14,7 @@ from pulse.interface.user_input.project.call_double_confirmation import CallDoub
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 
-from pulse.interface.toolbar.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 
 from pulse import app, UI_DIR
 

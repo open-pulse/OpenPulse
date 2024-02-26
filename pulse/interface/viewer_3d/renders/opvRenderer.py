@@ -9,11 +9,11 @@ from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
-from pulse.interface.linesActor import LinesActor
-from pulse.interface.rawLinesActor import RawLinesActor
-from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
-from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
-from pulse.interface.tubeDeformedActor import TubeDeformedActor
+from pulse.interface.viewer_3d.actors.lines_actor import LinesActor
+from pulse.interface.viewer_3d.actors.raw_lines_actor import RawLinesActor
+from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
+from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
+from pulse.interface.viewer_3d.actors.tube_deformed_actor import TubeDeformedActor
 
 
 @dataclass

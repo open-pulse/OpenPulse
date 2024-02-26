@@ -1,5 +1,5 @@
 import vtk
-from pulse.interface.symbolsActor import SymbolsActorBase, SymbolTransform, loadSymbol
+from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 import numpy as np
 from scipy.spatial.transform import Rotation
 

@@ -1,4 +1,4 @@
-from pulse.interface.symbolsActor import SymbolsActorBase, SymbolTransform, loadSymbol
+from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 
 
 class AcousticNodesSymbolsActor(SymbolsActorBase):

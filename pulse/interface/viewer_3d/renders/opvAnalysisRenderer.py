@@ -2,8 +2,6 @@ from pulse.interface.user_input.project.loading_screen import LoadingScreen
 import vtk
 import numpy as np
 from math import pi
-# import imageio
-# import os
 
 from pulse.postprocessing.plot_structural_data import get_structural_response, get_max_min_values_of_resultant_displacements, get_stresses_to_plot, get_min_max_stresses_values
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_max_min_values_of_pressures
@@ -11,12 +9,12 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_m
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 from pulse.interface.viewer_3d.vtk.vtkRendererBase import vtkRendererBase
 from pulse.interface.viewer_3d.vtk.vtkMeshClicker import vtkMeshClicker
-# from pulse.interface.symbolsActor import SymbolsActor
-from pulse.interface.cutting_plane_actor import CuttingPlaneActor
+
+from pulse.interface.viewer_3d.actors.cutting_plane_actor import CuttingPlaneActor
 from pulse.interface.tubeActor import TubeActor
-from pulse.interface.tubeDeformedActor import TubeDeformedActor
-from pulse.interface.tubeClippableActor import TubeClippableActor
-from pulse.interface.tubeClippableDeformedActor import TubeClippableDeformedActor
+from pulse.interface.viewer_3d.actors.tube_deformed_actor import TubeDeformedActor
+from pulse.interface.viewer_3d.actors.tube_clippable_actor import TubeClippableActor
+from pulse.interface.viewer_3d.actors.tube_clippable_deformed_actor import TubeClippableDeformedActor
 
 class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):

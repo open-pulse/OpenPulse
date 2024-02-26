@@ -3,10 +3,10 @@ import numpy as np
 from time import time
 from scipy.spatial.transform import Rotation
 
-from pulse.interface.vtkActorBase import vtkActorBase
+from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
 
-class TubeClippableActor(vtkActorBase):
+class TubeClippableActor(ActorBase):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__()
 

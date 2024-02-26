@@ -5,9 +5,9 @@ from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
 
-from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
-from pulse.interface.opvGeometryRenderer import opvGeometryRenderer
-from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
+from pulse.interface.viewer_3d.renders.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
+from pulse.interface.viewer_3d.renders.opvGeometryRenderer import opvGeometryRenderer
+from pulse.interface.viewer_3d.renders.opvAnalysisRenderer import opvAnalysisRenderer
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
 

@@ -4,7 +4,7 @@ from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import QAction, QDoubleSpinBox, QFrame, QGridLayout, QLabel, QLineEdit, QPushButton, QToolBar
 
 from pulse.interface.utils import check_inputs
-from pulse.interface.mesh_updater import MeshUpdater
+from pulse.interface.toolbars.mesh_updater import MeshUpdater
 
 class MeshToolbar(QToolBar):
     def __init__(self, parent):

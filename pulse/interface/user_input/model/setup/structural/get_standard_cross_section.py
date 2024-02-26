@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse.lib.standard_cross_sections import StandardCrossSections
 from pulse import UI_DIR
-from pulse.standard_cross_sections_libraries import StandardCrossSections
 
 import numpy as np
 from collections import defaultdict

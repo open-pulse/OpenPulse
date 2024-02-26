@@ -1,8 +1,8 @@
 import vtk
-from pulse.interface.vtkActorBase import vtkActorBase
+from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 import numpy as np
 
-class ActorPoint(vtkActorBase):
+class ActorPoint(ActorBase):
     def __init__(self, node, tag = -1, u_def=[], size = 0.01, enableTransformation=True):
         super().__init__()
 

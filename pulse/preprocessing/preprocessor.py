@@ -10,7 +10,7 @@ from time import time
 from pulse.preprocessing import structural_element
 from pulse.preprocessing.cross_section import *
 
-from pulse.interface.geometry_handler import GeometryHandler
+from pulse.interface.handler.geometry_handler import GeometryHandler
 
 from pulse.preprocessing.geometry import Geometry
 from pulse.preprocessing.entity import Entity
@@ -21,7 +21,7 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import *
+from pulse.tools.utils import *
 
 window_title_1 = "Error"
 
