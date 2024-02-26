@@ -284,7 +284,7 @@ class MainWindow(QMainWindow):
     def action_acoustic_setup_workspace_callback(self):
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
         self.plot_entities_with_cross_section()
 
     def action_coupled_setup_workspace_callback(self):
