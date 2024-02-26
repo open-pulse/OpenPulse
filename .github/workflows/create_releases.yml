@@ -1,4 +1,4 @@
-name: Build Windows Workflow
+name: Create Releases
 on:
   push:
     tags:
