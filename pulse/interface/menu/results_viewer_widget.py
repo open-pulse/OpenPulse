@@ -84,7 +84,7 @@ class ResultsViewerWidget(QWidget):
         self.animation_widget.setVisible(False)
 
     def udate_visibility_items(self):
-        self.results_viewer_items._updateItems()
+        self.results_viewer_items._update_items()
         self.results_viewer_items.update_TreeVisibility_after_solution()
 
     def add_structural_mode_shape_widget(self):

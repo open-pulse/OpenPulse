@@ -10,7 +10,7 @@ from time import time
 from collections import defaultdict
 from shutil import copyfile, rmtree
 
-from pulse.utils import *
+from pulse.tools.utils import *
 from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput

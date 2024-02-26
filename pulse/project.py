@@ -1,4 +1,4 @@
-from pulse.utils import *
+from pulse.tools.utils import *
 #
 from pulse.project_file import ProjectFile
 from pulse.preprocessing.entity import Entity

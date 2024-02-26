@@ -57,28 +57,26 @@ class ResultsViewerItems(CommonMenuItems):
         if not self.main_window.opv_widget.change_plot_to_entities_with_cross_section:
             self.main_window.plot_entities_with_cross_section()
 
-    def _updateItems(self):
+    def _update_items(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
 
-        if True:
-            # self.item_top_analysis.setHidden(True)
-            self.item_top_resultsViewer_structural.setHidden(True)
-            self.item_top_resultsViewer_acoustic.setHidden(True)
-            self.item_child_plot_structural_mode_shapes.setDisabled(True)
-            self.item_child_plot_displacement_field.setDisabled(True)
-            self.item_child_plot_structural_frequency_response.setDisabled(True)
-            self.item_child_plot_reaction_frequency_response.setDisabled(True)
-            self.item_child_plot_stress_field.setDisabled(True)
-            self.item_child_plot_stress_frequency_response.setDisabled(True)
-            self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
-            self.item_child_plot_acoustic_frequency_response.setDisabled(True)
-            self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
-            self.item_child_plot_acoustic_pressure_field.setDisabled(True)
-            self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
-            self.item_child_check_pulsation_criteria.setDisabled(True)
-            self.item_child_plot_transmission_loss.setDisabled(True)
-            self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
-            self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
+        self.item_top_resultsViewer_structural.setHidden(True)
+        self.item_top_resultsViewer_acoustic.setHidden(True)
+        self.item_child_plot_structural_mode_shapes.setDisabled(True)
+        self.item_child_plot_displacement_field.setDisabled(True)
+        self.item_child_plot_structural_frequency_response.setDisabled(True)
+        self.item_child_plot_reaction_frequency_response.setDisabled(True)
+        self.item_child_plot_stress_field.setDisabled(True)
+        self.item_child_plot_stress_frequency_response.setDisabled(True)
+        self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
+        self.item_child_plot_acoustic_frequency_response.setDisabled(True)
+        self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
+        self.item_child_plot_acoustic_pressure_field.setDisabled(True)
+        self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
+        self.item_child_check_pulsation_criteria.setDisabled(True)
+        self.item_child_plot_transmission_loss.setDisabled(True)
+        self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
+        self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
                             
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
 

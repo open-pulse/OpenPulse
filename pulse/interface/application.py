@@ -5,7 +5,7 @@ from opps.interface.toolboxes import GeometryToolbox
 from pulse.interface.main_window import MainWindow
 
 from pulse.project import Project
-from pulse.uix.config import Config
+from pulse.interface.config import Config
 
 class Application(QApplication):
     selection_changed = pyqtSignal()

@@ -9,7 +9,7 @@ import numpy as np
 from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
-from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
+from pulse.interface.viewer_3d.renders.opvRenderer import PlotFilter, SelectionFilter
 
 class RendererUserPreferencesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

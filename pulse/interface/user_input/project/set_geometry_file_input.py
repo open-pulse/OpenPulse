@@ -10,7 +10,7 @@ from shutil import copyfile
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.utils import get_new_path
+from pulse.tools.utils import get_new_path
 from pulse.project import Project
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 

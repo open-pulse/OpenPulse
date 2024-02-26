@@ -11,7 +11,7 @@ from pulse.interface.user_input.model.setup.general.cross_section_inputs import 
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.interface.geometry_handler import GeometryHandler
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse import app, UI_DIR
 
 from opps.model import Bend, Pipe

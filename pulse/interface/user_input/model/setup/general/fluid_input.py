@@ -14,7 +14,7 @@ from pulse.interface.user_input.model.setup.general.color_selector import PickCo
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
-from pulse.utils import *
+from pulse.tools.utils import *
 
 window_title_1 = "Error"
 window_title_2 = "Warning"

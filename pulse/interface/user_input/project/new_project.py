@@ -11,7 +11,7 @@ from time import time
 
 from pulse.lib.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils import get_new_path
+from pulse.tools.utils import get_new_path
 from pulse import app, UI_DIR
 
 window_title = "Error"

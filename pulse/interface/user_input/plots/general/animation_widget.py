@@ -7,7 +7,7 @@ from pathlib import Path
 import os
 
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import get_new_path
+from pulse.tools.utils import get_new_path
 from pulse import app, UI_DIR
 
 window_title_1 = "Error"
