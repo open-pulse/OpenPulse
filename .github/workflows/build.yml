@@ -10,27 +10,52 @@ on:
 jobs:
   build-windows:
     runs-on: windows-2019
-    # steps:
-    #   - name: Checkout
-    #     uses: actions/checkout@v1
-    #   - name: Install Python
-    #     uses: actions/setup-python@v1
-    #     with:
-    #       python-version: '3.11'
-    #       architecture: 'x64'
-      # - name: Install Poetry
-      #   run: |
-      #     pip install poetry
-      # - name: Install requirements
-      #   run: |
-      #     poetry install 
-      # - name: Run Pyinstaller
-      #   run: |
-      #     poetry run pyinstaller openpulse.spec
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     name: openpulse-windows
-      #     path: dist/OpenPulse.exe
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install requirements
+        run: |
+          poetry install 
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
+      - uses: actions/upload-artifact@v2
+        with:
+          name: openpulse-windows
+          path: dist/OpenPulse.exe
+    
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install requirements
+        run: |
+          poetry install 
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
+      - uses: actions/upload-artifact@v2
+        with:
+          name: openpulse-linux
+          path: dist/OpenPulse
+
 
       # - name: Create Release
       #   id: create_release
