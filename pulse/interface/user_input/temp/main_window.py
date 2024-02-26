@@ -3,7 +3,6 @@ from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QEvent, QSize
 from pathlib import Path
 #
-from pulse.uix.menu.Menu import Menu
 from pulse.uix.input_ui import InputUi
 from pulse.uix.opv_ui import OPVUi
 from pulse.project import Project

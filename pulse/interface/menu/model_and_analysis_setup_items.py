@@ -21,12 +21,13 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
         self._create_items()
         self._create_connections()
+        self._update_items()
 
     def keyPressEvent(self, event):
         """This deals with key events that are directly linked with the menu."""
         if event.key() == Qt.Key_F5:
             self.mainWindow.getInputWidget().run_analysis()
-            self._updateItems()
+            self._update_items()
 
     def _create_items(self):
         """Creates all TreeWidgetItems."""
@@ -248,15 +249,15 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_select_analysis_type_callback(self):
         self.mainWindow.getInputWidget().analysisTypeInput()
-        self._updateItems()
+        self._update_items()
     
     def item_child_analisys_setup_callback(self):
         self.mainWindow.getInputWidget().analysis_setup()
-        self._updateItems()
+        self._update_items()
 
     def item_child_run_analysis_callback(self):
         self.mainWindow.getInputWidget().run_analysis()
-        self._updateItems()
+        self._update_items()
         self.mainWindow.use_results_workspace()
 
     # Items access
@@ -309,7 +310,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         #
         self.item_child_select_analysis_type.setDisabled(bool_key)
 
-    def _updateItems(self):
+    def _update_items(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
         self.modify_model_setup_items_access(False)
 

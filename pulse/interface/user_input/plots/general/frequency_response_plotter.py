@@ -13,7 +13,7 @@ from pulse.interface.user_input.data_handler.import_data_to_compare import Impor
 from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
 
 from pulse import UI_DIR
-from pulse.tools.advanced_cursor import AdvancedCursor
+from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

@@ -17,7 +17,8 @@ class CallDoubleConfirmationInput(QDialog):
         self.title = title
         self.message = message
         self.buttons_config = buttons_config
-        self.window_title = kwargs.get('window_title', f'OpenPulse v{__version__} ({__release_date__})')
+        # self.window_title = kwargs.get('window_title', 'OpenPulse')
+        self.window_title = kwargs.get('window_title', f'OpenPulse v{__version__}')
 
         self._config_window()
         self._reset_variables()

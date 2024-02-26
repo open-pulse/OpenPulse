@@ -107,14 +107,14 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Analysis time log</string>
+         <string>Solution finished</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
