@@ -1,7 +1,7 @@
 import vtk
 import numpy as np
-from pulse.uix.vtk.actor.actorArrow import ActorArrow
-from pulse.uix.vtk.actor.actorSpring import ActorSpring
+from pulse.interface.viewer_3d.actors.actor_arrow import ActorArrow
+from pulse.interface.viewer_3d.actors.actor_spring import ActorSpring
 
 class vtkSymbols:
     def __init__(self, project):

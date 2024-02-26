@@ -500,36 +500,33 @@ class MainWindow(QMainWindow):
                 self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
         return super(MainWindow, self).eventFilter(obj, event)
     
-    # def closeEvent(self, event):
-    #     title = "OpenPulse"
-    #     message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
-    #     box_message = QMessageBox
-    #     box_message.setStyleSheet("QLabel{min-width: 700px;}")
-    #     close = box_message.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
-        
-    #     if close == QMessageBox.Yes:
-    #         sys.exit()
-    #     else:
-    #         event.ignore()
-
     def closeEvent(self, event):
-
-        title = "OpenPulse stop execution requested"
-        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
-        right_toolTip = "The current project setup progress has already been saved in the project files."
-        
-        buttons_config = {"left_button_label" : "No", 
-                          "right_button_label" : "Yes",
-                          "right_toolTip" : right_toolTip}
-        
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
-        if read._stop:
-            event.ignore()
-            return
-
-        if read._continue:
+        title = "OpenPulse"
+        message = "Would you like to exit from the OpenPulse application?"
+        close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
+        if close == QMessageBox.Yes:
             sys.exit()
+        else:
+            event.ignore()
+
+    # def closeEvent(self, event):
+
+    #     title = "OpenPulse stop execution requested"
+    #     message = "Would you like to exit from the OpenPulse application?"
+    #     right_toolTip = "The current project setup progress has already been saved in the project files."
+        
+    #     buttons_config = {"left_button_label" : "No", 
+    #                       "right_button_label" : "Yes",
+    #                       "right_toolTip" : right_toolTip}
+        
+    #     read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
+    #     if read._stop:
+    #         event.ignore()
+    #         return
+
+    #     if read._continue:
+    #         sys.exit()
 
     # def remove_selected_lines(self):
     #     lines = self.opv_widget.getListPickedLines()

@@ -1,4 +1,4 @@
-from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
+from pulse.interface.viewer_3d.vtk.vtkMeshClicker import vtkMeshClicker
 
 
 class vtkGeometryClicker(vtkMeshClicker):

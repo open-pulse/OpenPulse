@@ -8,9 +8,9 @@ from math import pi
 from pulse.postprocessing.plot_structural_data import get_structural_response, get_max_min_values_of_resultant_displacements, get_stresses_to_plot, get_min_max_stresses_values
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_max_min_values_of_pressures
 
-from pulse.uix.vtk.colorTable import ColorTable
-from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
-from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
+from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
+from pulse.interface.viewer_3d.vtk.vtkRendererBase import vtkRendererBase
+from pulse.interface.viewer_3d.vtk.vtkMeshClicker import vtkMeshClicker
 # from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.cutting_plane_actor import CuttingPlaneActor
 from pulse.interface.tubeActor import TubeActor

@@ -1,5 +1,5 @@
 import vtk
-from pulse.uix.vtk.vtkActorBase import vtkActorBase
+from pulse.interface.vtkActorBase import vtkActorBase
 from pulse.preprocessing.entity import Entity
 
 class ActorLine(vtkActorBase):

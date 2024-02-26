@@ -23,7 +23,7 @@ class RunAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "messages/run_analysis.ui", self)
+        uic.loadUi(UI_DIR / "messages/solution_log.ui", self)
 
         self.project = project
 
@@ -72,6 +72,7 @@ class RunAnalysisInput(QDialog):
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("OpenPulse")
 
     def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))

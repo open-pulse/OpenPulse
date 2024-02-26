@@ -5,7 +5,7 @@ import numpy as np
 from functools import partial
 from math import sqrt
 from time import time
-from pulse.uix.vtk.vtkInteractorStyleArcballCamera import vtkInteractorStyleArcballCamera
+from pulse.interface.viewer_3d.vtk.vtkInteractorStyleArcballCamera import vtkInteractorStyleArcballCamera
 
 def constrain(number, floor, ceil):
     '''

@@ -1,5 +1,5 @@
 import vtk
-from pulse.uix.vtk.vtkActorBase import vtkActorBase
+from pulse.interface.vtkActorBase import vtkActorBase
 
 class ActorElement(vtkActorBase):
     def __init__(self, element, size=0.01, tag=-1):

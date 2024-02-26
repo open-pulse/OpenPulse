@@ -1,5 +1,5 @@
 import vtk
-from pulse.uix.vtk.vtkActorBase import vtkActorBase
+from pulse.interface.vtkActorBase import vtkActorBase
 
 class ActorEntityPoints(vtkActorBase):
     def __init__(self, nodes, size, tag = -1):

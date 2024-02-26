@@ -1,6 +1,6 @@
 import vtk
 import math
-from pulse.uix.vtk.vtkActorBase import vtkActorBase
+from pulse.interface.vtkActorBase import vtkActorBase
 
 class ActorSpring(vtkActorBase):
     def __init__(self, node, radius, base_length, xyz=1, u_def=[]):

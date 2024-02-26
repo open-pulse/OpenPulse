@@ -1,6 +1,6 @@
 import vtk
 import numpy as np
-from pulse.uix.vtk.vtkActorBase import vtkActorBase
+from pulse.interface.vtkActorBase import vtkActorBase
 
 class ActorAnalysis(vtkActorBase):
     def __init__(self, project, connect, coord_def, color_table, stress_field, pressure_field):

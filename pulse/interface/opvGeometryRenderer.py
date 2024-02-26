@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from collections import defaultdict
 import os
 
-from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
-from pulse.uix.vtk.vtkGeometryClicker import vtkGeometryClicker
-from pulse.uix.vtk.colorTable import ColorTable
+from pulse.interface.viewer_3d.vtk.vtkRendererBase import vtkRendererBase
+from pulse.interface.viewer_3d.vtk.vtkGeometryClicker import vtkGeometryClicker
+from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
