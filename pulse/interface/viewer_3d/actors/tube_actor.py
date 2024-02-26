@@ -39,6 +39,7 @@ class TubeActor(vtk.vtkActor):
             total_points_appended += source.GetNumberOfPoints()
 
             transform = vtk.vtkTransform()
+            transform.Translate((element.length/2, 0, 0))
             transform.Translate((x,y,z))
             transform.RotateX(section_rotation_xyz[0])
             transform.RotateZ(section_rotation_xyz[2])
