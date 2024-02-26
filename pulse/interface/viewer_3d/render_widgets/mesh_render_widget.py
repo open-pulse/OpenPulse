@@ -210,15 +210,15 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def selection_callback(self, x, y):
         picked_nodes = self._pick_nodes(x, y)
-        picked_entities = self._pick_property(x, y, "entity_index", self.lines_actor)
-        picked_elements = self._pick_property(x, y, "element_index", self.tubes_actor)
+        picked_entities = self._pick_property(x, y, "entity_index", self.tubes_actor)
+        picked_elements = self._pick_property(x, y, "element_index", self.lines_actor)
 
-        # selection priority is: nodes > entities > elements
+        # selection priority is: nodes > elements > entities
         if len(picked_nodes) == 1 and len(picked_entities) <= 1 and len(picked_elements) <= 1:
             picked_entities.clear()
             picked_elements.clear()
-        elif len(picked_entities) == 1 and len(picked_elements) <= 1:
-            picked_elements.clear()
+        elif len(picked_elements) == 1 and len(picked_entities) <= 1:
+            picked_entities.clear()
 
         modifiers = QApplication.keyboardModifiers()
         ctrl_pressed = bool(modifiers & Qt.ControlModifier)
@@ -233,8 +233,8 @@ class MeshRenderWidget(CommonRenderWidget):
 
         selection_color = (255, 0, 0)
         self.nodes_actor.set_color(selection_color, picked_nodes)
-        self.lines_actor.set_color(selection_color, entities=picked_entities)
-        self.tubes_actor.set_color(selection_color, elements=picked_elements)
+        self.lines_actor.set_color(selection_color, elements=picked_elements)
+        self.tubes_actor.set_color(selection_color, elements=picked_elements, entities=picked_entities)
 
     def _pick_nodes(self, x, y):
         picked = self._pick_actor(x, y, self.nodes_actor)
@@ -243,23 +243,6 @@ class MeshRenderWidget(CommonRenderWidget):
 
         cells = picked[self.nodes_actor]
         return set(cells)
-
-    def _pick_entities(self, x, y):
-        picked = self._pick_actor(x, y, self.lines_actor)
-        if not self.lines_actor in picked:
-            return set()
-        cells = picked[self.lines_actor]
-        entities = {self.lines_actor.get_cell_entity(i) for i in cells}
-        return entities
-
-    def _pick_elements(self, x, y):
-        picked = self._pick_actor(x, y, self.tubes_actor)
-        if not self.tubes_actor in picked:
-            return set()
-
-        cells = picked[self.tubes_actor]
-        elements = {self.tubes_actor.get_cell_element(i) for i in cells}
-        return elements
     
     def _pick_actor(self, x, y, actor_to_select):
         selection_picker = CellAreaPicker()
