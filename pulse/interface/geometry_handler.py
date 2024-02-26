@@ -98,7 +98,7 @@ class GeometryHandler:
 
                 curvature = data['curvature']
 
-                bend = Bend(start, end, corner, curvature, auto=False)
+                bend = Bend(start, end, corner, curvature)
                 bend.extra_info["cross_section_info"] = self.cross_section_info
                 bend.extra_info["material_info"] = self.material_id
 
@@ -122,8 +122,8 @@ class GeometryHandler:
         pipeline.structures.clear()
         pipeline.structures.extend(structures)
 
-        # editor = app().geometry_toolbox.editor
-        # editor.merge_points()
+        editor = app().geometry_toolbox.editor
+        editor.merge_coincident_points()
 
         return pipeline
     
