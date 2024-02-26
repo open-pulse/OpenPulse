@@ -327,7 +327,35 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def _elements_info_text(self, elements):
         info_text = ""
-        if len(elements) > 1:
+        project = app().project
+
+        if len(elements) == 1:
+            _id, *_ = elements
+            structural_element = project.get_structural_element(_id)
+            acoustic_element = project.get_acoustic_element(_id)
+
+            first_node = structural_element.first_node
+            last_node = structural_element.last_node
+
+            tree = TreeInfo(f"ELEMENT {_id}")
+            tree.add_item(f"First Node - {first_node.external_index:>5}",
+                          "({:.3f}, {:.3f}, {:.3f})".format(*first_node.coordinates),
+                          "m")
+            tree.add_item(f"Last Node  - {last_node.external_index:>5}",
+                          "({:.3f}, {:.3f}, {:.3f})".format(*last_node.coordinates),
+                          "m")
+            info_text += str(tree)
+
+            if structural_element.material:
+                info_text += self._material_info_text(structural_element.material)
+
+            if acoustic_element.fluid:
+                info_text += self._fluid_info_text(acoustic_element.fluid)
+
+            info_text += self._cross_section_info_text(
+                structural_element.cross_section, structural_element.element_type)
+
+        elif len(elements) > 1:
             info_text += (
                 f"{len(elements)} ELEMENTS IN SELECTION\n"
                 f"{format_long_sequence(elements)}\n\n"
@@ -345,46 +373,12 @@ class MeshRenderWidget(CommonRenderWidget):
             info_text += f"LINE {_id}\n\n"
 
             if entity.material:
-                tree = TreeInfo("Material")
-                tree.add_item("Name", entity.material.name)
-                info_text += str(tree)
+                info_text += self._material_info_text(entity.material)
 
             if entity.fluid:
-                tree = TreeInfo("fluid")
-                tree.add_item("Name", entity.fluid.name)
-                if entity.fluid.temperature:
-                    tree.add_item("Temperature", round(entity.fluid.temperature, 4), "[K]")
-                if entity.fluid.pressure:
-                    tree.add_item("Pressure", round(entity.fluid.pressure, 4), "[Pa]")
-                info_text += str(tree)
+                info_text += self._fluid_info_text(entity.fluid)
 
-            if entity.cross_section is None:
-                tree = TreeInfo("cross section")
-                tree.add_item("Info", "Undefined")
-                info_text += str(tree)
-
-            elif entity.structural_element_type == 'beam_1':
-                tree = TreeInfo("cross section")
-                tree.add_item("Area", round(entity.cross_section.area, 2), "[m²]")
-                tree.add_item("Iyy", round(entity.cross_section.second_moment_area_y, 4), "[m⁴]")
-                tree.add_item("Izz", round(entity.cross_section.second_moment_area_z, 4), "[m⁴]")
-                tree.add_item("Iyz", round(entity.cross_section.second_moment_area_yz, 4), "[m⁴]")
-                tree.add_item("x-axis rotation", round(entity.cross_section.second_moment_area_yz, 4), "[m⁴]")
-                info_text += str(tree)
-
-            elif entity.structural_element_type in ['pipe_1', 'valve']:
-                tree = TreeInfo("cross section")
-                tree.add_item("Outer Diameter", round(entity.cross_section.outer_diameter, 4), "[m]")
-                tree.add_item("Thickness", round(entity.cross_section.thickness, 4), "[m]")
-                tree.add_separator()
-                if entity.cross_section.offset_y or entity.cross_section.offset_z:
-                    tree.add_item("Offset Y", round(entity.cross_section.offset_y, 4), "[m]")
-                    tree.add_item("Offset Z", round(entity.cross_section.offset_z, 4), "[m]")
-                    tree.add_separator()
-                if entity.cross_section.insulation_thickness or entity.cross_section.insulation_density:
-                    tree.add_item("Insulation Thickness", round(entity.cross_section.insulation_thickness, 4), "[m]")
-                    tree.add_item("Insulation Density", round(entity.cross_section.insulation_density, 4), "[kg/m³]")
-                info_text += str(tree)
+            info_text += self._cross_section_info_text(entity.cross_section, entity.structural_element_type)
 
         elif len(entities) > 1:
             info_text += (
@@ -392,4 +386,51 @@ class MeshRenderWidget(CommonRenderWidget):
                 f"{format_long_sequence(entities)}\n\n"
             )
 
+        return info_text
+    
+    def _material_info_text(self, material):
+        tree = TreeInfo("Material")
+        tree.add_item("Name", material.name)
+        return str(tree)
+
+    def _fluid_info_text(self, fluid):
+        tree = TreeInfo("fluid")
+        tree.add_item("Name", fluid.name)
+        if fluid.temperature:
+            tree.add_item("Temperature", round(fluid.temperature, 4), "K")
+        if fluid.pressure:
+            tree.add_item("Pressure", round(fluid.pressure, 4), "Pa")
+        return str(tree)
+
+    def _cross_section_info_text(self, cross_section, element_type):
+        info_text = ""
+
+        if cross_section is None:
+            tree = TreeInfo("cross section")
+            tree.add_item("Info", "Undefined")
+            info_text += str(tree)
+
+        elif element_type == 'beam_1':
+            tree = TreeInfo("cross section")
+            tree.add_item("Area", round(cross_section.area, 2), "m²")
+            tree.add_item("Iyy", round(cross_section.second_moment_area_y, 4), "m⁴")
+            tree.add_item("Izz", round(cross_section.second_moment_area_z, 4), "m⁴")
+            tree.add_item("Iyz", round(cross_section.second_moment_area_yz, 4), "m⁴")
+            tree.add_item("x-axis rotation", round(cross_section.second_moment_area_yz, 4), "m⁴")
+            info_text += str(tree)
+
+        elif element_type in ['pipe_1', 'valve']:
+            tree = TreeInfo("cross section")
+            tree.add_item("Outer Diameter", round(cross_section.outer_diameter, 4), "m")
+            tree.add_item("Thickness", round(cross_section.thickness, 4), "m")
+            tree.add_separator()
+            if cross_section.offset_y or cross_section.offset_z:
+                tree.add_item("Offset Y", round(cross_section.offset_y, 4), "m")
+                tree.add_item("Offset Z", round(cross_section.offset_z, 4), "m")
+                tree.add_separator()
+            if cross_section.insulation_thickness or cross_section.insulation_density:
+                tree.add_item("Insulation Thickness", round(cross_section.insulation_thickness, 4), "m")
+                tree.add_item("Insulation Density", round(cross_section.insulation_density, 4), "kg/m³")
+            info_text += str(tree)
+        
         return info_text

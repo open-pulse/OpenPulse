@@ -41,11 +41,13 @@ class TreeInfo:
                 text += "│\n"
                 continue
             spacer = " " * (spaces - len(item.name) - len(str(item.data)))
-            text += f"├─{item.name}: {spacer}{item.data} {item.unity}\n"
+            unity = f"[{item.unity}]" if item.unity else ""
+            text += f"├─{item.name}: {spacer}{item.data} {unity}\n"
 
         # last item
         item = pruned_items[-1]
         spacer = " " * (spaces - len(item.name) - len(str(item.data)))
-        text += f"└─{item.name}: {spacer}{item.data} {item.unity}\n"
+        unity = f"[{item.unity}]" if item.unity else ""
+        text += f"└─{item.name}: {spacer}{item.data} {unity}\n"
         text += "\n"
         return text
