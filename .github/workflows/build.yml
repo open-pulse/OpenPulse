@@ -2,7 +2,7 @@ name: Build Windows Workflow
 on:
   push:
     tags:
-      - '*'
+      - '**'
 
   #  branches: master
   workflow_dispatch:
