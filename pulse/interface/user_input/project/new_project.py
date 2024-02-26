@@ -63,6 +63,7 @@ class NewProjectInput(QDialog):
 
     def _define_qt_variables(self):
         # QComboBox
+        self.comboBox_length_unit = self.findChild(QComboBox, 'comboBox_length_unit')
         self.comboBox_start_project = self.findChild(QComboBox, 'comboBox_start_project')
         # QFrame
         self.frame_geometry_file = self.findChild(QFrame, 'frame_geometry_file')
@@ -216,58 +217,65 @@ class NewProjectInput(QDialog):
         
         if index == 0:
             import_type = 1
-            self.project.new_empty_project( self.project_folder_path, 
+            self.project.new_empty_project( self.project_folder_path,
                                             project_name,
+                                            self.length_unit,
                                             self.element_size,
-                                            self.geometry_tolerance, 
+                                            self.geometry_tolerance,
                                             import_type,
-                                            self.material_list_path, 
+                                            self.material_list_path,
                                             self.fluid_list_path )
             return True
 
         elif index == 1:
+
+            import_type = 0
             geometry_filename = os.path.basename(self.lineEdit_geometry_path.text())
             new_geometry_path = get_new_path(self.project_folder_path, geometry_filename)
             copyfile(self.lineEdit_geometry_path.text(), new_geometry_path)
-            import_type = 0
-            self.project.new_project(   self.project_folder_path, 
-                                        project_name, 
+            self.project.new_project(   self.project_folder_path,
+                                        project_name,
+                                        self.length_unit,
                                         self.element_size,
-                                        self.geometry_tolerance, 
-                                        import_type, 
-                                        self.material_list_path, 
-                                        self.fluid_list_path, 
+                                        self.geometry_tolerance,
+                                        import_type,
+                                        self.material_list_path,
+                                        self.fluid_list_path,
                                         geometry_path=new_geometry_path   )
+            return True
         
-        return True
+        else:
+            return False
 
     def create_project_file(self):
 
-        self.project_file_path = get_new_path(self.project_folder_path, self.project_file_name)
-
         config = configparser.ConfigParser()
+
+        self.project_file_path = get_new_path(self.project_folder_path, self.project_file_name)
+        self.length_unit = self.comboBox_length_unit.currentText().replace(" ", "")
+
         config['PROJECT'] = {}
-        config['PROJECT']['Name'] = self.lineEdit_project_name.text()
+        config['PROJECT']['name'] = self.lineEdit_project_name.text()
+        config['PROJECT']['length unit'] =  self.length_unit
 
-        index = self.comboBox_start_project.currentIndex()
+        if self.comboBox_start_project.currentIndex() == 0:
+            
+            config['PROJECT']['import type'] = str(1)
 
-        if index == 0:
-            config['PROJECT']['Import type'] = str(1)
-            # config['PROJECT']['Geometry file'] = ""
+        else:
 
-        elif index == 1:
             geometry_file_name = os.path.basename(self.lineEdit_geometry_path.text())
             element_size = self.lineEdit_element_size.text()
             geometry_tolerance = self.lineEdit_geometry_tolerance.text()
 
-            config['PROJECT']['Import type'] = str(0)
-            config['PROJECT']['Geometry file'] = geometry_file_name
-            config['PROJECT']['Geometry state'] = str(0)
-            config['PROJECT']['Element size'] = element_size
-            config['PROJECT']['Geometry tolerance'] = geometry_tolerance
+            config['PROJECT']['import type'] = str(0)
+            config['PROJECT']['geometry file'] = geometry_file_name
+            config['PROJECT']['geometry state'] = str(0)
+            config['PROJECT']['element size'] = element_size
+            config['PROJECT']['geometry tolerance'] = geometry_tolerance
 
-        config['PROJECT']['Material list file'] = self.material_list_name
-        config['PROJECT']['Fluid list file'] = self.fluid_list_name
+        config['PROJECT']['material list file'] = self.material_list_name
+        config['PROJECT']['fluid list file'] = self.fluid_list_name
         
         with open(self.project_file_path, 'w') as config_file:
             config.write(config_file)

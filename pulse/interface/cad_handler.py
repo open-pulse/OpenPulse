@@ -47,9 +47,9 @@ class CADHandler:
                     center_coords = m_to_mm(_center_coords)
                 
                 elif unit == "inch":
-                    start_coords = m_to_mm(_start_coords)
-                    end_coords = m_to_mm(_end_coords)
-                    center_coords = m_to_mm(_center_coords)
+                    start_coords = in_to_mm(_start_coords)
+                    end_coords = in_to_mm(_end_coords)
+                    center_coords = in_to_mm(_center_coords)
 
                 start_point = gmsh.model.occ.add_point(*start_coords)
                 end_point = gmsh.model.occ.add_point(*end_coords)
