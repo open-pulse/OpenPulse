@@ -6,7 +6,7 @@ from pulse.tools.utils import sparse_is_equal
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.preprocessor import Preprocessor
-from pulse.project import Project
+from pulse.project.project import Project
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.read_data import ReadData
 

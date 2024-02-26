@@ -5,8 +5,8 @@ from pathlib import Path
 #
 from pulse.uix.input_ui import InputUi
 from pulse.uix.opv_ui import OPVUi
-from pulse.project import Project
-from pulse.uix.config import Config
+from pulse.project.project import Project
+from pulse.project.config import Config
 from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 
 #
