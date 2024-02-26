@@ -1,56 +1,57 @@
 name: Build Windows Workflow
-
 on:
   push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
   #  branches: master
-    # tags:
-    #   - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
 
 jobs:
   build-windows:
     runs-on: windows-2019
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Install Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.11'
-          architecture: 'x64'
-      - name: Install Poetry
-        run: |
-          pip install poetry
-      - name: Install requirements
-        run: |
-          poetry install 
-      - name: Run Pyinstaller
-        run: |
-          poetry run pyinstaller openpulse.spec
-      - uses: actions/upload-artifact@v2
-        with:
-          name: openpulse-windows
-          path: dist/OpenPulse.exe
+    # steps:
+    #   - name: Checkout
+    #     uses: actions/checkout@v1
+    #   - name: Install Python
+    #     uses: actions/setup-python@v1
+    #     with:
+    #       python-version: '3.11'
+    #       architecture: 'x64'
+      # - name: Install Poetry
+      #   run: |
+      #     pip install poetry
+      # - name: Install requirements
+      #   run: |
+      #     poetry install 
+      # - name: Run Pyinstaller
+      #   run: |
+      #     poetry run pyinstaller openpulse.spec
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: openpulse-windows
+      #     path: dist/OpenPulse.exe
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.event.head_commit.message }}
-          release_name: ${{ github.event.head_commit.message }}
-          overwrite: true
-          body: |
-            Test Release v1.0.0
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: dist/OpenPulse.exe
-          asset_name: OpenPulse-win-x64.exe
-          asset_content_type: application/zip
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ github.event.head_commit.message }}
+      #     release_name: ${{ github.event.head_commit.message }}
+      #     overwrite: true
+      #     body: |
+      #       Test Release v1.0.0
+      #     draft: false
+      #     prerelease: false
+      # - name: Upload Release Asset
+      #   id: upload-release-asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{steps.create_release.outputs.upload_url}}
+      #     asset_path: dist/OpenPulse.exe
+      #     asset_name: OpenPulse-win-x64.exe
+      #     asset_content_type: application/zip
