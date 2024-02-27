@@ -209,6 +209,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = x, y
 
     def selection_callback(self, x, y):
+        if not self._actor_exists():
+            return 
+
         picked_nodes = self._pick_nodes(x, y)
         picked_entities = self._pick_property(x, y, "entity_index", self.tubes_actor)
         picked_elements = self._pick_property(x, y, "element_index", self.lines_actor)
