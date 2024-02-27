@@ -6,6 +6,8 @@ from PyQt5 import Qt, QtCore, QtWidgets
 
 from pulse.interface.application import Application
 
+import qdarktheme
+
 import matplotlib
 matplotlib.use("Qt5Agg")
 
@@ -37,6 +39,7 @@ def init():
         sys.argv.append("--platform")
         sys.argv.append("windows:dpiawareness=0")
 
+    qdarktheme.enable_hi_dpi()
     app = Application(sys.argv)
     sys.exit(app.exec_())
 

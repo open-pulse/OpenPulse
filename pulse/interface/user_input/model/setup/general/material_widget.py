@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from itertools import count
 
 from pulse import UI_DIR
-from pulse.lib.default_libraries import default_material_library
+from pulse.libraries.default_libraries import default_material_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput

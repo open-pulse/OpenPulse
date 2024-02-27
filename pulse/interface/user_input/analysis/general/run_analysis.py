@@ -23,7 +23,7 @@ class RunAnalysisInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "analysis/general/run_analysis.ui", self)
+        uic.loadUi(UI_DIR / "messages/solution_log.ui", self)
 
         self.project = project
 
@@ -72,6 +72,7 @@ class RunAnalysisInput(QDialog):
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("OpenPulse")
 
     def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
@@ -299,7 +300,7 @@ class RunAnalysisInput(QDialog):
 
     def print_final_log(self):
 
-        text = "Solution finished!\n\n"
+        text = ""#"Solution finished!\n\n"
         # text += "Time to check all entries: {} [s]\n".format(round(self.project.time_to_checking_entries, 6))
         text += "Time to load/create the project: {} [s]\n".format(round(self.project.time_to_load_or_create_project, 4))
         text += "Time to process cross-sections: {} [s]\n".format(round(self.project.time_to_process_cross_sections, 4))

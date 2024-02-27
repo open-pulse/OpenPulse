@@ -1,29 +1,27 @@
-import sys
-from functools import partial
-import os
-
 from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5 import uic
 from pathlib import Path
 
-from pulse import app
+from pulse.interface.viewer_3d.opv_ui import OPVUi
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
-from pulse.uix.menu.Menu import Menu
-from pulse.uix.input_ui import InputUi
-from pulse.uix.opv_ui import OPVUi
-from pulse.uix.mesh_toolbar import MeshToolbar
 
-
+from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
-from pulse import UI_DIR
 
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 
+from pulse import app, UI_DIR
+
+import sys
+from functools import partial
+import os
+import qdarktheme
 
 class MainWindow(QMainWindow):
     permission_changed = pyqtSignal()
@@ -41,6 +39,7 @@ class MainWindow(QMainWindow):
         self.reset()
 
     def reset(self):
+        self.theme = None
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
         self.opv_widget = None
@@ -60,7 +59,7 @@ class MainWindow(QMainWindow):
         self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
         self.load_recent_project()
-
+        
     # public
     def new_project(self):
         if not self.input_widget.new_project(self.config):
@@ -166,6 +165,9 @@ class MainWindow(QMainWindow):
         self.action_analysis_setup_workspace: QAction
         self.action_results_workspace: QAction
         self.action_export_geometry: QAction
+        self.action_set_dark_theme : QAction
+        self.action_set_light_theme : QAction
+        self.action_remove_themes : QAction
         self.tool_bar: QToolBar
         self.splitter: QSplitter
         self.menurecent: QMenu
@@ -182,7 +184,6 @@ class MainWindow(QMainWindow):
         self.action_show_lines: QAction
         self.action_show_tubes: QAction
         self.action_show_symbols: QAction
-
 
     def _connect_actions(self):
         '''
@@ -244,7 +245,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
-        self.splitter.setSizes([120, 400])
+        self.splitter.setSizes([100, 400])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
@@ -447,9 +448,6 @@ class MainWindow(QMainWindow):
     def getInputWidget(self):
         return self.input_widget
 
-    def getMenuWidget(self):
-        return self.menu_widget
-
     def getOPVWidget(self):
         return self.opv_widget
 
@@ -492,6 +490,30 @@ class MainWindow(QMainWindow):
     def set_enable_menuBar(self, *args, **kwargs):
         pass
 
+    def action_set_dark_theme_callback(self):
+        if self.theme in [None, "light"]:
+            self.theme = "dark"
+            self.custom_colors = { "[dark]": { "toolbar.background": "#202124"} }
+            qdarktheme.setup_theme("dark", custom_colors=self.custom_colors)
+            # self.dark_theme_configuration()
+            self.action_set_light_theme.setDisabled(False)
+            self.action_set_dark_theme.setDisabled(True)
+
+    def action_set_light_theme_callback(self):
+        if self.theme in [None, "dark"]:
+            self.theme = "light"
+            qdarktheme.setup_theme("light")
+            # self.light_theme_configuration()
+            self.action_set_light_theme.setDisabled(True)
+            self.action_set_dark_theme.setDisabled(False)
+
+    def action_remove_themes_callback(self):
+        if self.theme is not None:
+            self.theme = None
+            qdarktheme.setup_theme()
+            self.action_set_light_theme.setDisabled(False)
+            self.action_set_dark_theme.setDisabled(False)
+
     def savePNG_call(self):
         project_path = self.project.file._project_path
         if not os.path.exists(project_path):
@@ -508,17 +530,17 @@ class MainWindow(QMainWindow):
     
     def closeEvent(self, event):
         title = "OpenPulse"
-        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+        message = "Would you like to exit from the OpenPulse application?"
         close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
-        
         if close == QMessageBox.Yes:
             sys.exit()
         else:
             event.ignore()
 
     # def closeEvent(self, event):
+
     #     title = "OpenPulse stop execution requested"
-    #     message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+    #     message = "Would you like to exit from the OpenPulse application?"
     #     right_toolTip = "The current project setup progress has already been saved in the project files."
         
     #     buttons_config = {"left_button_label" : "No", 
@@ -533,3 +555,52 @@ class MainWindow(QMainWindow):
 
     #     if read._continue:
     #         sys.exit()
+
+    # def remove_selected_lines(self):
+    #     lines = self.opv_widget.getListPickedLines()
+    #     if len(lines) > 0:
+    #         if self.project.remove_selected_lines_from_geometry(lines):
+    #             self.opv_widget.updatePlots()
+    #             self.opv_widget.changePlotToEntities()
+    #             # self.cameraFront_call()
+    #             # self.opv_widget.changePlotToMesh()
+            
+    # def _createStatusBar(self):
+    #     self.status_bar = QStatusBar()
+    #     self.setStatusBar(self.status_bar)
+    #     #
+    #     label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
+    #     self.label_geometry_state = QLabel("", self)
+    #     self.label_geometry_state.setFont(label_font)
+    #     self.status_bar.addPermanentWidget(self.label_geometry_state)
+    #     #
+    #     self.label_mesh_state = QLabel("", self)
+    #     self.label_mesh_state.setFont(label_font)
+    #     self.status_bar.addPermanentWidget(self.label_mesh_state)
+
+    # def _updateGeometryState(self, label):
+    #     _state = ""
+    #     if label != "":
+    #         _state = f" Geometry: {label} "            
+    #     self.label_geometry_state.setText(_state)
+
+    # def _updateMeshState(self, label):
+    #     _state = ""
+    #     if label != "":
+    #         _state = f" Mesh: {label} "           
+    #     self.label_mesh_state.setText(_state)
+
+    # def _updateStatusBar(self):
+    #     # Check and update geometry state
+    #     if self.project.empty_geometry:
+    #         self._updateGeometryState("pending")
+    #     else:
+    #         self._updateGeometryState("ok")
+    #     # Check and update mesh state
+    #     if len(self.project.preprocessor.structural_elements) == 0:
+    #         if self.project.check_mesh_setup():
+    #             self._updateMeshState("setup complete but not generated")
+    #         else:
+    #             self._updateMeshState("pending")
+    #     else:
+    #         self._updateMeshState("ok")

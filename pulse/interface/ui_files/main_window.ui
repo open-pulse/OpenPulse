@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -122,6 +122,10 @@
     <addaction name="action_export_png"/>
     <addaction name="action_reset"/>
     <addaction name="action_exit"/>
+    <addaction name="separator"/>
+    <addaction name="action_set_dark_theme"/>
+    <addaction name="action_set_light_theme"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_graphic">
     <property name="title">
@@ -829,6 +833,21 @@
    </property>
    <property name="toolTip">
     <string>Export Geometry</string>
+   </property>
+  </action>
+  <action name="action_set_dark_theme">
+   <property name="text">
+    <string>Use dark theme</string>
+   </property>
+  </action>
+  <action name="action_set_light_theme">
+   <property name="text">
+    <string>Use light theme</string>
+   </property>
+  </action>
+  <action name="action_remove_themes">
+   <property name="text">
+    <string>Remove themes</string>
    </property>
   </action>
  </widget>

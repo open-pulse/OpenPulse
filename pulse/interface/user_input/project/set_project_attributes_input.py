@@ -9,7 +9,7 @@ import configparser
 from shutil import copytree, rmtree
 
 from pulse import UI_DIR
-from pulse.utils import get_new_path
+from pulse.tools.utils import get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 window_title_1 = "Error"

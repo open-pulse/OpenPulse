@@ -8,7 +8,7 @@ import numpy as np
 
 from compressors.reciprocating.model import CompressorModel
 from pulse import UI_DIR
-from pulse.utils import get_new_path, remove_bc_from_file
+from pulse.tools.utils import get_new_path, remove_bc_from_file
 # from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput

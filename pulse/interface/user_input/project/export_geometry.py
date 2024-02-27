@@ -4,14 +4,14 @@ from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-
-from pulse.interface.geometry_handler import GeometryHandler
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse import app, UI_DIR
 
-from pulse.utils import get_new_path
+from pulse.tools.utils import get_new_path
+
+import os
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"

@@ -12,7 +12,7 @@ from shutil import copyfile
 from pulse import UI_DIR
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
+from pulse.tools.utils import remove_bc_from_file, get_new_path, create_new_folder
 
 window_title ="Error"
 

@@ -56,7 +56,7 @@ class LoadingScreen(QDialog):
 
 
     def _config_window(self):
-        self.setWindowTitle(f"Pulse v{__version__} ({__release_date__})")
+        self.setWindowTitle(f"Pulse v{__version__}")
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
         self.setWindowIcon(self.pvfat_icon)
