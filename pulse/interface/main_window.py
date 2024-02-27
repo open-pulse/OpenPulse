@@ -21,6 +21,7 @@ from pulse import app, UI_DIR
 import sys
 from functools import partial
 import os
+import qdarktheme
 
 class MainWindow(QMainWindow):
     permission_changed = pyqtSignal()
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow):
         self.reset()
 
     def reset(self):
+        self.theme = None
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
         self.opv_widget = None
@@ -57,7 +59,7 @@ class MainWindow(QMainWindow):
         self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
         self.load_recent_project()
-
+        
     # public
     def new_project(self):
         if not self.input_widget.new_project(self.config):
@@ -163,6 +165,9 @@ class MainWindow(QMainWindow):
         self.action_analysis_setup_workspace: QAction
         self.action_results_workspace: QAction
         self.action_export_geometry: QAction
+        self.action_set_dark_theme : QAction
+        self.action_set_light_theme : QAction
+        self.action_remove_themes : QAction
         self.tool_bar: QToolBar
         self.splitter: QSplitter
         self.menurecent: QMenu
@@ -179,7 +184,6 @@ class MainWindow(QMainWindow):
         self.action_show_lines: QAction
         self.action_show_tubes: QAction
         self.action_show_symbols: QAction
-
 
     def _connect_actions(self):
         '''
@@ -241,7 +245,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
-        self.splitter.setSizes([120, 400])
+        self.splitter.setSizes([100, 400])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
@@ -485,6 +489,30 @@ class MainWindow(QMainWindow):
     
     def set_enable_menuBar(self, *args, **kwargs):
         pass
+
+    def action_set_dark_theme_callback(self):
+        if self.theme in [None, "light"]:
+            self.theme = "dark"
+            self.custom_colors = { "[dark]": { "toolbar.background": "#202124"} }
+            qdarktheme.setup_theme("dark", custom_colors=self.custom_colors)
+            # self.dark_theme_configuration()
+            self.action_set_light_theme.setDisabled(False)
+            self.action_set_dark_theme.setDisabled(True)
+
+    def action_set_light_theme_callback(self):
+        if self.theme in [None, "dark"]:
+            self.theme = "light"
+            qdarktheme.setup_theme("light")
+            # self.light_theme_configuration()
+            self.action_set_light_theme.setDisabled(True)
+            self.action_set_dark_theme.setDisabled(False)
+
+    def action_remove_themes_callback(self):
+        if self.theme is not None:
+            self.theme = None
+            qdarktheme.setup_theme()
+            self.action_set_light_theme.setDisabled(False)
+            self.action_set_dark_theme.setDisabled(False)
 
     def savePNG_call(self):
         project_path = self.project.file._project_path
