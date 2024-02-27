@@ -81,9 +81,16 @@ class GeometryHandler:
         structures = []
         for key, data in build_data.items():
 
-            self.cross_section_info = { "section label" : data['section label'],
-                                        "section parameters" : data['section parameters'] }
+            self.cross_section_info = { 
+                "section label" : data['section label'],
+                "section parameters" : data['section parameters'],
+            }
             self.material_id = data['material id']
+
+            if data["section label"] == "pipe (constant)":
+                diameter = data["section parameters"][0]
+            else:
+                diameter = 0.01
 
             if key[1] == "Bend":
 
@@ -101,6 +108,7 @@ class GeometryHandler:
                 bend = Bend(start, end, corner, curvature)
                 bend.extra_info["cross_section_info"] = self.cross_section_info
                 bend.extra_info["material_info"] = self.material_id
+                bend.set_diameter(diameter)
 
                 structures.append(bend)
 
@@ -115,6 +123,7 @@ class GeometryHandler:
                 pipe = Pipe(start, end)
                 pipe.extra_info["cross_section_info"] = self.cross_section_info
                 pipe.extra_info["material_info"] = self.material_id
+                pipe.set_diameter(diameter)
 
                 structures.append(pipe)
 
