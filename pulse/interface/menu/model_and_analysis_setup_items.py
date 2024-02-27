@@ -182,7 +182,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         # self.mainWindow.plot_entities()
 
     def item_child_set_capped_end_callback(self):
-        self.mainWindow.getInputWidget().setcappedEnd()
+        self.mainWindow.getInputWidget().set_capped_end()
         # self.mainWindow.plot_entities()
 
     def item_child_add_valve_callback(self):

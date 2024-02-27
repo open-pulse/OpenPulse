@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         self.setcappedEnd_action = QAction('&Set Capped End', self)        
         # self.setcappedEnd_action.setShortcut('')
         self.setcappedEnd_action.setStatusTip('Set Capped End')
-        self.setcappedEnd_action.triggered.connect(self.getInputWidget().setcappedEnd)
+        self.setcappedEnd_action.triggered.connect(self.getInputWidget().set_capped_end)
 
         self.stressStiffening_action = QAction('&Set Strees Stiffening', self)        
         # self.stressStiffening_action.setShortcut('')

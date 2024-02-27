@@ -12,8 +12,8 @@ class StandardCrossSections:
     def _reset_variables(self):
         self.carbon_steel_cross_sections = dict()
         self.stainless_steel_cross_sections = dict()
-        self.default_path_for_carbon_steel = OPEN_PULSE_DIR / 'lib/standard_cross_sections_carbon_steel.dat'
-        self.default_path_for_stainless_steel = OPEN_PULSE_DIR / 'lib/standard_cross_sections_stainless_steel.dat'
+        self.default_path_for_carbon_steel = OPEN_PULSE_DIR / 'libraries/standard_cross_sections_carbon_steel.dat'
+        self.default_path_for_stainless_steel = OPEN_PULSE_DIR / 'libraries/standard_cross_sections_stainless_steel.dat'
 
     def _load_standard_cross_sections_for_carbon_steel(self):
         """ This method loads the standard cross-sections from ASME B36.10m (2018)
