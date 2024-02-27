@@ -344,7 +344,8 @@ class MeshRenderWidget(CommonRenderWidget):
         if mouse_moved:
             selection_picker.area_pick(x0, y0, x, y, self.renderer)
         else:
-            selection_picker.pick(x, y, 0, self.renderer)
+            # ugly solution that works better than expected
+            selection_picker.area_pick(x-5, y-5, x+5, y+5, self.renderer)
 
         for actor in self.renderer.GetActors():
             actor.SetPickable(pickability[actor])
