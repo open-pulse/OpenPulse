@@ -1,18 +1,25 @@
-import vtk
 from dataclasses import dataclass
-from vtkat.render_widgets import CommonRenderWidget
-from vtkat.interactor_styles import BoxSelectionInteractorStyle
-from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from pathlib import Path
 
+import vtk
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
+from vtkat.interactor_styles import BoxSelectionInteractorStyle
+from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
+from vtkat.render_widgets import CommonRenderWidget
 
-from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
-from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
-from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
-from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse import app
+from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, TubeActor
+from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
+    AcousticElementsSymbolsActor,
+    AcousticNodesSymbolsActor,
+)
+from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
+    StructuralElementsSymbolsActor,
+    StructuralNodesSymbolsActor,
+)
+from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
+
 
 @dataclass
 class PlotFilter:
@@ -27,7 +34,7 @@ class PlotFilter:
 
 @dataclass
 class SelectionFilter:
-    nodes: bool    = False
+    nodes: bool = False
     entities: bool = False
     elements: bool = False
 
@@ -39,7 +46,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = (0, 0)
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
-        
+
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
 
@@ -87,9 +94,13 @@ class MeshRenderWidget(CommonRenderWidget):
         self._structural_nodes_symbols.build()
         self._structural_elements_symbols.build()
         self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
-        self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
+        self.acoustic_elements_symbols_actor = (
+            self._acoustic_elements_symbols.getActor()
+        )
         self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
-        self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
+        self.structural_elements_symbols_actor = (
+            self._structural_elements_symbols.getActor()
+        )
 
         self.renderer.AddActor(self.lines_actor)
         self.renderer.AddActor(self.nodes_actor)
@@ -130,9 +141,9 @@ class MeshRenderWidget(CommonRenderWidget):
             structural_symbols=symbols,
             transparent=transparent,
         )
-        
+
         elements = (lines or tubes) and nodes
-        entities = (lines or tubes) and (not nodes) 
+        entities = (lines or tubes) and (not nodes)
         self.selection_filter = SelectionFilter(
             nodes=nodes,
             elements=elements,
@@ -140,15 +151,23 @@ class MeshRenderWidget(CommonRenderWidget):
         )
 
         if not self._actor_exists():
-            return 
+            return
 
         self.nodes_actor.SetVisibility(self.plot_filter.nodes)
         self.lines_actor.SetVisibility(self.plot_filter.lines)
         self.tubes_actor.SetVisibility(self.plot_filter.tubes)
-        self.acoustic_nodes_symbols_actor.SetVisibility(self.plot_filter.acoustic_symbols)
-        self.acoustic_elements_symbols_actor.SetVisibility(self.plot_filter.acoustic_symbols)
-        self.structural_nodes_symbols_actor.SetVisibility(self.plot_filter.structural_symbols)
-        self.structural_elements_symbols_actor.SetVisibility(self.plot_filter.structural_symbols)
+        self.acoustic_nodes_symbols_actor.SetVisibility(
+            self.plot_filter.acoustic_symbols
+        )
+        self.acoustic_elements_symbols_actor.SetVisibility(
+            self.plot_filter.acoustic_symbols
+        )
+        self.structural_nodes_symbols_actor.SetVisibility(
+            self.plot_filter.structural_symbols
+        )
+        self.structural_elements_symbols_actor.SetVisibility(
+            self.plot_filter.structural_symbols
+        )
         self.update()
 
     def _actor_exists(self):
@@ -177,11 +196,11 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.AddViewProp(self.mopt_logo)
 
         if theme == "light":
-            open_pulse_path = Path('data/icons/OpenPulse_logo_black.png')
-            mopt_path = Path('data/icons/mopt_logo_black.png')     
+            open_pulse_path = Path("data/icons/OpenPulse_logo_black.png")
+            mopt_path = Path("data/icons/mopt_logo_black.png")
         elif theme == "dark":
-            open_pulse_path = Path('data/icons/OpenPulse_logo_white.png')
-            mopt_path = Path('data/icons/mopt_logo_white.png')
+            open_pulse_path = Path("data/icons/OpenPulse_logo_white.png")
+            mopt_path = Path("data/icons/mopt_logo_white.png")
         else:
             raise NotImplementedError()
 
@@ -214,14 +233,18 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def selection_callback(self, x, y):
         if not self._actor_exists():
-            return 
+            return
 
         picked_nodes = self._pick_nodes(x, y)
         picked_entities = self._pick_property(x, y, "entity_index", self.tubes_actor)
         picked_elements = self._pick_property(x, y, "element_index", self.lines_actor)
 
         # selection priority is: nodes > elements > entities
-        if len(picked_nodes) == 1 and len(picked_entities) <= 1 and len(picked_elements) <= 1:
+        if (
+            len(picked_nodes) == 1
+            and len(picked_entities) <= 1
+            and len(picked_elements) <= 1
+        ):
             picked_entities.clear()
             picked_elements.clear()
         elif len(picked_elements) == 1 and len(picked_entities) <= 1:
@@ -255,15 +278,21 @@ class MeshRenderWidget(CommonRenderWidget):
         self.update_selection()
 
     def update_selection(self):
-        self.update_selection_info(self.selected_nodes, self.selected_elements, self.selected_entities)
-        
+        self.update_selection_info(
+            self.selected_nodes, self.selected_elements, self.selected_entities
+        )
+
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
         self.tubes_actor.clear_colors()
 
         self.nodes_actor.set_color((255, 50, 50), self.selected_nodes)
         self.lines_actor.set_color((200, 0, 0), elements=self.selected_elements)
-        self.tubes_actor.set_color((255, 0, 50), elements=self.selected_elements, entities=self.selected_entities)
+        self.tubes_actor.set_color(
+            (255, 0, 50),
+            elements=self.selected_elements,
+            entities=self.selected_entities,
+        )
 
     def _pick_nodes(self, x, y):
         picked = self._pick_actor(x, y, self.nodes_actor)
@@ -272,7 +301,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         cells = picked[self.nodes_actor]
         return set(cells)
-    
+
     def _pick_actor(self, x, y, actor_to_select):
         selection_picker = CellAreaPicker()
         selection_picker._cell_picker.SetTolerance(0.0015)
@@ -350,12 +379,16 @@ class MeshRenderWidget(CommonRenderWidget):
             last_node = structural_element.last_node
 
             tree = TreeInfo(f"ELEMENT {_id}")
-            tree.add_item(f"First Node - {first_node.external_index:>5}",
-                          "({:.3f}, {:.3f}, {:.3f})".format(*first_node.coordinates),
-                          "m")
-            tree.add_item(f"Last Node  - {last_node.external_index:>5}",
-                          "({:.3f}, {:.3f}, {:.3f})".format(*last_node.coordinates),
-                          "m")
+            tree.add_item(
+                f"First Node - {first_node.external_index:>5}",
+                "({:.3f}, {:.3f}, {:.3f})".format(*first_node.coordinates),
+                "m",
+            )
+            tree.add_item(
+                f"Last Node  - {last_node.external_index:>5}",
+                "({:.3f}, {:.3f}, {:.3f})".format(*last_node.coordinates),
+                "m",
+            )
             info_text += str(tree)
 
             if structural_element.material:
@@ -365,7 +398,8 @@ class MeshRenderWidget(CommonRenderWidget):
                 info_text += self._fluid_info_text(acoustic_element.fluid)
 
             info_text += self._cross_section_info_text(
-                structural_element.cross_section, structural_element.element_type)
+                structural_element.cross_section, structural_element.element_type
+            )
 
         elif len(elements) > 1:
             info_text += (
@@ -390,7 +424,9 @@ class MeshRenderWidget(CommonRenderWidget):
             if entity.fluid:
                 info_text += self._fluid_info_text(entity.fluid)
 
-            info_text += self._cross_section_info_text(entity.cross_section, entity.structural_element_type)
+            info_text += self._cross_section_info_text(
+                entity.cross_section, entity.structural_element_type
+            )
 
         elif len(entities) > 1:
             info_text += (
@@ -399,7 +435,7 @@ class MeshRenderWidget(CommonRenderWidget):
             )
 
         return info_text
-    
+
     def _material_info_text(self, material):
         tree = TreeInfo("Material")
         tree.add_item("Name", material.name)
@@ -422,16 +458,18 @@ class MeshRenderWidget(CommonRenderWidget):
             tree.add_item("Info", "Undefined")
             info_text += str(tree)
 
-        elif element_type == 'beam_1':
+        elif element_type == "beam_1":
             tree = TreeInfo("cross section")
             tree.add_item("Area", round(cross_section.area, 2), "m²")
             tree.add_item("Iyy", round(cross_section.second_moment_area_y, 4), "m⁴")
             tree.add_item("Izz", round(cross_section.second_moment_area_z, 4), "m⁴")
             tree.add_item("Iyz", round(cross_section.second_moment_area_yz, 4), "m⁴")
-            tree.add_item("x-axis rotation", round(cross_section.second_moment_area_yz, 4), "m⁴")
+            tree.add_item(
+                "x-axis rotation", round(cross_section.second_moment_area_yz, 4), "m⁴"
+            )
             info_text += str(tree)
 
-        elif element_type in ['pipe_1', 'valve']:
+        elif element_type in ["pipe_1", "valve"]:
             tree = TreeInfo("cross section")
             tree.add_item("Outer Diameter", round(cross_section.outer_diameter, 4), "m")
             tree.add_item("Thickness", round(cross_section.thickness, 4), "m")
@@ -441,8 +479,16 @@ class MeshRenderWidget(CommonRenderWidget):
                 tree.add_item("Offset Z", round(cross_section.offset_z, 4), "m")
                 tree.add_separator()
             if cross_section.insulation_thickness or cross_section.insulation_density:
-                tree.add_item("Insulation Thickness", round(cross_section.insulation_thickness, 4), "m")
-                tree.add_item("Insulation Density", round(cross_section.insulation_density, 4), "kg/m³")
+                tree.add_item(
+                    "Insulation Thickness",
+                    round(cross_section.insulation_thickness, 4),
+                    "m",
+                )
+                tree.add_item(
+                    "Insulation Density",
+                    round(cross_section.insulation_density, 4),
+                    "kg/m³",
+                )
             info_text += str(tree)
-        
+
         return info_text
