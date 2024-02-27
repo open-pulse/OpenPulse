@@ -135,6 +135,9 @@ class TubeActor(vtk.vtkActor):
             self.set_color(color, elements)
 
     def set_color(self, color, elements=None, entities=None):
+        if len(color) != 3:
+            return
+
         data = self.GetMapper().GetInput()
         if (elements is None) and (entities is None):
             set_polydata_colors(data, color)
