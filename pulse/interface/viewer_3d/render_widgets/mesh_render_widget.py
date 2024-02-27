@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
-from pulse.interface.viewer_3d.text_templates import TreeInfo, format_long_sequence
+from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse import app
