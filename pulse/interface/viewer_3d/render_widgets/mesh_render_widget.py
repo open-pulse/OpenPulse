@@ -252,6 +252,9 @@ class MeshRenderWidget(CommonRenderWidget):
             self.selected_entities = set(picked_entities)
             self.selected_elements = set(picked_elements)
 
+        self.update_selection()
+
+    def update_selection(self):
         self.update_selection_info(self.selected_nodes, self.selected_elements, self.selected_entities)
         
         self.nodes_actor.clear_colors()
