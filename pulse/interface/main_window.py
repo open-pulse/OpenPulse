@@ -15,7 +15,6 @@ from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysi
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-
 from pulse import app, UI_DIR
 
 import sys
@@ -48,16 +47,18 @@ class MainWindow(QMainWindow):
         self.last_index = None
 
     def configure_window(self):
+        
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
         self._create_layout()
         self._create_workspaces_toolbar()
         self._update_recent_projects()
-        self._createMeshToolbar()
+        self._add_mesh_toolbar()
     
         self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
+        self.action_set_light_theme_callback()
         self.load_recent_project()
         
     # public
@@ -479,15 +480,15 @@ class MainWindow(QMainWindow):
             self.changeWindowTitle(self.project.file.project_name)
             self.draw()
 
-    def _createMeshToolbar(self):
+    def _add_mesh_toolbar(self):
         self.mesh_toolbar = MeshToolbar(self)
         self.addToolBar(self.mesh_toolbar)
         self.insertToolBarBreak(self.mesh_toolbar)
 
-    def _updateStatusBar(self):
+    def _update_status_bar(self):
         pass
-    
-    def set_enable_menuBar(self, *args, **kwargs):
+
+    def _enable_menus_at_start(self):
         pass
 
     def action_set_dark_theme_callback(self):
@@ -500,18 +501,12 @@ class MainWindow(QMainWindow):
             self.action_set_dark_theme.setDisabled(True)
 
     def action_set_light_theme_callback(self):
+        # self.action_remove_themes_callback()
         if self.theme in [None, "dark"]:
             self.theme = "light"
             qdarktheme.setup_theme("light")
             # self.light_theme_configuration()
             self.action_set_light_theme.setDisabled(True)
-            self.action_set_dark_theme.setDisabled(False)
-
-    def action_remove_themes_callback(self):
-        if self.theme is not None:
-            self.theme = None
-            qdarktheme.setup_theme()
-            self.action_set_light_theme.setDisabled(False)
             self.action_set_dark_theme.setDisabled(False)
 
     def savePNG_call(self):
@@ -536,25 +531,6 @@ class MainWindow(QMainWindow):
             sys.exit()
         else:
             event.ignore()
-
-    # def closeEvent(self, event):
-
-    #     title = "OpenPulse stop execution requested"
-    #     message = "Would you like to exit from the OpenPulse application?"
-    #     right_toolTip = "The current project setup progress has already been saved in the project files."
-        
-    #     buttons_config = {"left_button_label" : "No", 
-    #                       "right_button_label" : "Yes",
-    #                       "right_toolTip" : right_toolTip}
-        
-    #     read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
-    #     if read._stop:
-    #         event.ignore()
-    #         return
-
-    #     if read._continue:
-    #         sys.exit()
 
     # def remove_selected_lines(self):
     #     lines = self.opv_widget.getListPickedLines()
@@ -590,7 +566,7 @@ class MainWindow(QMainWindow):
     #         _state = f" Mesh: {label} "           
     #     self.label_mesh_state.setText(_state)
 
-    # def _updateStatusBar(self):
+    # def _update_status_bar(self):
     #     # Check and update geometry state
     #     if self.project.empty_geometry:
     #         self._updateGeometryState("pending")

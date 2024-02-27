@@ -15,14 +15,14 @@ window_title_2 = "Warning"
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         uic.loadUi(UI_DIR / "model/info/get_group_information.ui", self)
-        
-        self.project = app().main_window.project
 
         self.values = kwargs.get("values", "")
         self.label = kwargs.get("label", "")
+
+        self.project = app().main_window.project
 
         self._initialize()
         self._load_icons()
@@ -91,6 +91,7 @@ class GetInformationOfGroup(QDialog):
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_group_info.addTopLevelItem(new)
+        self.adjustSize()
 
     def force_to_close(self):
         self.close()

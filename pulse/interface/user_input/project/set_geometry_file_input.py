@@ -60,8 +60,6 @@ class SetGeometryFileInput(QDialog):
         self.current_material_list_path = self.project.file._material_list_path
         self.current_fluid_list_path = self.project.file._fluid_list_path
 
-        # self.current_conn_path = self.project.file._conn_path
-        # self.current_coord_path_path = self.project.file._coord_path
         self.import_type = self.project.file._import_type
 
         self.materialListName = self.project.file._material_file_name

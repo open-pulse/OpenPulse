@@ -116,19 +116,19 @@ class InputUi:
 
     def new_project(self):
         new_project = self.processInput(NewProjectInput)
-        self.main_window._updateStatusBar()
+        self.main_window._update_status_bar()
         return self.initial_project_action(new_project.complete)
 
     def load_project(self, path=None):
         load_project = self.processInput(LoadProjectInput, path=path)
         self.main_window.mesh_toolbar.update_mesh_attributes()
-        self.main_window._updateStatusBar()
+        self.main_window._update_status_bar()
         return self.initial_project_action(load_project.complete)
 
     def get_started(self):
         self.menu_items.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput)
-        self.main_window._updateStatusBar()
+        self.main_window._update_status_bar()
         return get_started    
     
     def initial_project_action(self, finalized):
@@ -144,7 +144,7 @@ class InputUi:
                 return True   
             else:
                 self.project.none_project_action = False
-                self.main_window.set_enable_menuBar(True)
+                # self.main_window._enable_menus_at_start(True)
                 self.menu_items.modify_model_setup_items_access(False)
                 return True
         else:

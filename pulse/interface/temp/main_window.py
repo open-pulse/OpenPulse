@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
         self._createHideShowToolBar()
         self._createAnimationToolBar()
         self._create_toolbar()
-        self.set_enable_menuBar(False)
+        self.enable_menus_at_start(False)
         self._createStatusBar()
         self.show()
         self.loadRecentProject()
@@ -573,9 +573,9 @@ class MainWindow(QMainWindow):
         self._createHideShowToolBar()
         self._createAnimationToolBar()
         self._createMeshToolbar()
-        self.set_enable_menuBar(False)
+        self.enable_menus_at_start(False)
 
-    def set_enable_menuBar(self, _bool):
+    def enable_menus_at_start(self, _bool):
         #
         self.graphicMenu.setEnabled(_bool)
         self.generalSettingsMenu.setEnabled(_bool)
@@ -655,7 +655,7 @@ class MainWindow(QMainWindow):
             _state = f" Mesh: {label} "           
         self.label_mesh_state.setText(_state)
 
-    def _updateStatusBar(self):
+    def _update_status_bar(self):
         # Check and update geometry state
         if self.project.empty_geometry:
             self._updateGeometryState("pending")

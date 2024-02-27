@@ -2869,14 +2869,6 @@ class ProjectFile:
         return self._geometry_path
 
     @property
-    def coord_path(self):
-        return self._coord_path
-
-    @property
-    def conn_path(self):
-        return self._conn_path
-
-    @property
     def material_list_path(self):
         return self._material_list_path
 

@@ -11,13 +11,7 @@ from pulse.interface.user_input.model.setup.general.cross_section_inputs import 
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse import app, UI_DIR
-
-from opps.model import Bend, Pipe
-        
-def get_data(data):
-    return list(np.round(data, 6))
 
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
@@ -49,6 +43,7 @@ class AddStructuresWidget(QWidget):
 
         # QFrame
         self.information_frame: QFrame
+        self.information_frame.setVisible(False)
 
         # QGridLayout
         self.grid_layout = QGridLayout()
@@ -74,12 +69,6 @@ class AddStructuresWidget(QWidget):
         self.pushButton_set_cross_section: QPushButton
         self.pushButton_set_material: QPushButton
         self.pushButton_add_segment: QPushButton
-        self.pushButton_finalize: QPushButton
-
-        # self.pushButton_confirm_pipe: QPushButton
-        # self.pushButton_confirm_beam: QPushButton
-        # self.pushButton_set_material: QPushButton
-        # self.pushButton_process_geometry.setIcon(self.export_icon)
 
         # QTabWidget
         # self.tabWidget_main: QTabWidget
@@ -105,7 +94,6 @@ class AddStructuresWidget(QWidget):
         self.pushButton_add_segment.clicked.connect(self.create_segment_callback)
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
-        self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
 
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
@@ -129,7 +117,6 @@ class AddStructuresWidget(QWidget):
 
         pipeline = app().geometry_toolbox.pipeline
         enable_finalize = len(pipeline.structures) > 0
-        self.pushButton_finalize.setEnabled(enable_finalize)
 
     def load_defined_unit(self):
         self.unit_of_length = self.file.length_unit
@@ -309,85 +296,3 @@ class AddStructuresWidget(QWidget):
 
     def update_cross_section_info(self):
         self.textEdit_segment_information.setText("")
-
-    def process_geometry_callback(self):
-        self.geometry_widget.unstage_structure()
-        self.export_files()
-        app().update()
-        app().main_window.opv_widget.updatePlots()
-        app().main_window.use_structural_setup_workspace()
-        app().main_window.action_front_view_callback()
-
-    def export_files(self):
-        self.export_entity_file()
-        self.export_cad_file()
-
-    def export_cad_file(self):
-        pipeline = app().geometry_toolbox.pipeline
-        geometry_filename = "geometry_pipeline.step"
-        geometry_path = self.file.get_file_path_inside_project_directory(geometry_filename)
-        geometry_filename = os.path.basename(geometry_path)
-        geometry_filename = ""
-
-        geometry_handler = GeometryHandler()
-        geometry_handler.set_unit_of_length(self.unit_of_length)
-        geometry_handler.set_pipeline(pipeline)
-        self.project.preprocessor.set_geometry_handler(geometry_handler)
-
-        self.file.update_project_attributes(length_unit = self.unit_of_length,
-                                            element_size = 0.01, 
-                                            geometry_tolerance = 1e-6)
-
-        self.project.initial_load_project_actions(self.file.project_ini_file_path)
-        self.project.load_project_files()
-        app().main_window.input_widget.initial_project_action(True)
-        self.complete = True
-
-    def export_entity_file(self):
-
-        pipeline = app().geometry_toolbox.pipeline
-        
-        tag = 1
-        points_info = dict()
-        section_info = dict()
-        material_info = dict()
-        for structure in pipeline.structures:
-            
-            build_data = self.get_segment_build_info(structure)
-            if build_data is not None:
-                points_info[tag] = build_data
-            
-            if isinstance(structure, Bend) and structure.is_colapsed():               
-                continue
-            
-            section_info[tag] = structure.extra_info["cross_section_info"]
-            material_info[tag] = structure.extra_info["material_info"]
-            tag += 1
-
-        if os.path.exists(self.file._entity_path):
-            os.remove(self.file._entity_path)
-
-        self.file.create_entity_file(section_info.keys())
-        for tag, coords in points_info.items():
-            self.file.add_segment_build_data_in_file(tag, coords)
-
-        for tag, section in section_info.items():
-            self.file.add_cross_section_segment_in_file(tag, section)
-
-        for tag, material_id in material_info.items():
-            self.file.add_material_segment_in_file(tag, material_id)
-
-    def get_segment_build_info(self, structure):
-        if isinstance(structure, Bend):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            corner_coords = get_data(structure.corner.coords())
-            curvature = structure.curvature
-            return [start_coords, corner_coords, end_coords, curvature]
-
-        elif isinstance(structure, Pipe):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            return [start_coords, end_coords]
-        else:
-            return None

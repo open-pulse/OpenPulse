@@ -33,7 +33,6 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         """Creates all TreeWidgetItems."""
         self.item_top_generalSettings = self.add_top_item('General Settings')
         self.item_child_createGeometry = self.add_item('Create/Edit Geometry')
-        self.item_child_editGeometry = self.add_item('Edit Geometry (GMSH GUI)')
         self.item_child_setProjectAttributes = self.add_item('Set Project Attributes')
         self.item_child_setGeometryFile = self.add_item('Set Geometry File')
         self.item_child_set_material = self.add_item('Set Material')
@@ -71,14 +70,14 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_run_analysis = self.add_item('Run Analysis')
 
     def _create_connections(self):
+        # General Settings
         self.item_child_createGeometry.clicked.connect(self.item_child_create_geometry_callback)
-        self.item_child_editGeometry.clicked.connect(self.item_child_edit_geometry_callback)
         self.item_child_setProjectAttributes.clicked.connect(self.item_child_set_project_attributes_callback)
         self.item_child_setGeometryFile.clicked.connect(self.item_child_set_geometry_file_callback)
         self.item_child_set_material.clicked.connect(self.item_child_set_material_callback)
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
-
+        # Structural Model Setup
         self.item_child_setStructuralElementType.clicked.connect(self.item_child_set_structural_element_type_callback)
         self.item_child_setPrescribedDofs.clicked.connect(self.item_child_set_prescribed_dofs_callback)
         self.item_child_setNodalLoads.clicked.connect(self.item_child_set_nodal_loads_callback)
@@ -92,7 +91,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_expansion_joint.clicked.connect(self.item_child_add_expansion_joint_callback)
         self.item_child_setBeamXaxisRotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
         self.item_child_setRotationDecoupling.clicked.connect(self.item_child_set_rotation_decoupling_callback)
-
+        # Acoustic Model Setup
         self.item_child_setAcousticElementType.clicked.connect(self.item_child_set_acoustic_element_type_callback)
         self.item_child_setAcousticPressure.clicked.connect(self.item_child_set_acoustic_pressure_callback)
         self.item_child_setVolumeVelocity.clicked.connect(self.item_child_set_volume_velocity_callback)
@@ -101,7 +100,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
-        
+        # Analysis Setup
         self.item_child_select_analysis_type.clicked.connect(self.item_child_select_analysis_type_callback)
         self.item_child_analysis_setup.clicked.connect(self.item_child_analisys_setup_callback)
         self.item_child_run_analysis.clicked.connect(self.item_child_run_analysis_callback)
@@ -260,16 +259,19 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self._update_items()
         self.mainWindow.use_results_workspace()
 
+    def enable_actions_according_to_import_type(self):
+        import_type = self.project.file.get_import_type()
+        if import_type == 0:
+            pass
+            
     # Items access
     def modify_geometry_item_access(self, bool_key):
         self.item_child_createGeometry.setDisabled(bool_key)
-        self.item_child_editGeometry.setHidden(True)
 
     def modify_general_settings_items_access(self, bool_key):
         self.item_child_setProjectAttributes.setDisabled(bool_key)
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
-        self.item_child_editGeometry.setHidden(True)
         # self.item_child_set_material.setDisabled(bool_key)
         # self.item_child_set_fluid.setDisabled(bool_key)
         # self.item_child_set_crossSection.setDisabled(bool_key)
@@ -277,13 +279,11 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def modify_model_setup_items_access(self, bool_key):
         #
         self.item_child_setProjectAttributes.setDisabled(bool_key)
-        self.item_child_editGeometry.setDisabled(bool_key)
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
-        self.item_child_editGeometry.setHidden(False)
         #
         self.item_child_setStructuralElementType.setDisabled(bool_key) 
         self.item_child_setPrescribedDofs.setDisabled(bool_key)

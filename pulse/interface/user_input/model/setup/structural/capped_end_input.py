@@ -391,7 +391,7 @@ class CappedEndInput(QDialog):
             selected_key = self.dictKey_label.format(selected_id)
             if "Selection-" in selected_key:
                 values = self.preprocessor.group_elements_with_capped_end[selected_key]
-                GetInformationOfGroup(values, "Elements")
+                GetInformationOfGroup(values=values, label="Elements")
             else:
                 title = "UNSELECTED GROUP OF ELEMENTS"
                 message = "Please, select a group in the list to get the information."
@@ -417,7 +417,7 @@ class CappedEndInput(QDialog):
         try:
             if self.lineEdit_selected_ID.text() != "":
                 list_lines = self.get_list_typed_entries()            
-                read = GetInformationOfGroup(list_lines, "Lines")
+                read = GetInformationOfGroup(values=list_lines, label="Lines")
                 if read.lines_removed:
                     self.load_lines_info()
             else:

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>336</width>
-    <height>701</height>
+    <width>361</width>
+    <height>781</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
     <number>4</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame_2">
+    <widget class="QFrame" name="frame_title">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -409,14 +409,20 @@
    </item>
    <item>
     <widget class="QFrame" name="frame_upper_buttons">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>60</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>48</height>
+       <height>60</height>
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -510,7 +516,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="frame_4">
+    <widget class="QFrame" name="information_frame">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -518,7 +524,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -563,7 +569,7 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="QFrame" name="frame_title_deltas">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -599,7 +605,7 @@ p, li { white-space: pre-wrap; }
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_10">
+       <widget class="QLabel" name="label_title_deltas">
         <property name="minimumSize">
          <size>
           <width>240</width>
@@ -912,14 +918,20 @@ p, li { white-space: pre-wrap; }
    </item>
    <item>
     <widget class="QFrame" name="frame_bottom_buttons">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>60</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>48</height>
+       <height>60</height>
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -941,14 +953,53 @@ p, li { white-space: pre-wrap; }
        <widget class="QPushButton" name="pushButton_add_segment">
         <property name="minimumSize">
          <size>
-          <width>100</width>
-          <height>30</height>
+          <width>120</width>
+          <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
-          <height>30</height>
+          <width>120</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>10</pointsize>
+          <weight>9</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Press enter to create the segment&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+        </property>
+        <property name="text">
+         <string>Remove segment</string>
+        </property>
+        <property name="shortcut">
+         <string>Return</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton_add_segment_2">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>28</height>
          </size>
         </property>
         <property name="font">
@@ -976,54 +1027,21 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_finalize">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>MS Shell Dlg 2</family>
-          <pointsize>10</pointsize>
-          <weight>9</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Press to finalize the geometry creation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
-        </property>
-        <property name="text">
-         <string>Finalize</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="frame_5">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
   </layout>
  </widget>
