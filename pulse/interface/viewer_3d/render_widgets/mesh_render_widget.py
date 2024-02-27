@@ -61,8 +61,19 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
 
-        self.plot_filter = PlotFilter(True, True, True, True, True, True)
-        self.selection_filter = SelectionFilter(True, True, True)
+        self.plot_filter = PlotFilter(
+            nodes=False,
+            lines=True,
+            tubes=True,
+            transparent=False,
+            acoustic_symbols=True,
+            structural_symbols=True,
+        )
+        self.selection_filter = SelectionFilter(
+            nodes=True,
+            elements=False,
+            entities=True,
+        )
 
         self.selected_nodes = set()
         self.selected_entities = set()
@@ -250,15 +261,23 @@ class MeshRenderWidget(CommonRenderWidget):
 
         # try to select tubes_actor only if lines selection was not successfull
         if self.selection_filter.entities:
-            picked_entities = self._pick_property(x, y, "entity_index", self.lines_actor)
+            picked_entities = self._pick_property(
+                x, y, "entity_index", self.lines_actor
+            )
             if not picked_entities:
-                picked_entities = self._pick_property(x, y, "entity_index", self.tubes_actor)
+                picked_entities = self._pick_property(
+                    x, y, "entity_index", self.tubes_actor
+                )
 
         # try to select tubes_actor only if lines selection was not successfull
         if self.selection_filter.elements:
-            picked_elements = self._pick_property(x, y, "element_index", self.lines_actor)
+            picked_elements = self._pick_property(
+                x, y, "element_index", self.lines_actor
+            )
             if not picked_elements:
-                picked_elements = self._pick_property(x, y, "element_index", self.tubes_actor)
+                picked_elements = self._pick_property(
+                    x, y, "element_index", self.tubes_actor
+                )
 
         # give higher priority to points selection
         if (
@@ -309,7 +328,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.nodes_actor.set_color((255, 50, 50), self.selected_nodes)
         self.lines_actor.set_color(
-            (200, 0, 0), 
+            (200, 0, 0),
             elements=self.selected_elements,
             entities=self.selected_entities,
         )
@@ -345,7 +364,7 @@ class MeshRenderWidget(CommonRenderWidget):
             selection_picker.area_pick(x0, y0, x, y, self.renderer)
         else:
             # ugly solution that works better than expected
-            selection_picker.area_pick(x-5, y-5, x+5, y+5, self.renderer)
+            selection_picker.area_pick(x - 5, y - 5, x + 5, y + 5, self.renderer)
 
         for actor in self.renderer.GetActors():
             actor.SetPickable(pickability[actor])
@@ -369,7 +388,7 @@ class MeshRenderWidget(CommonRenderWidget):
         if mouse_moved:
             selection_picker.area_pick(x0, y0, x, y, self.renderer)
         else:
-            selection_picker.area_pick(x-5, y-5, x+5, y+5, self.renderer)
+            selection_picker.area_pick(x - 5, y - 5, x + 5, y + 5, self.renderer)
             if len(selection_picker._picked) > 1:
                 first, *_ = selection_picker.get_picked()
                 selection_picker._picked = {first}
