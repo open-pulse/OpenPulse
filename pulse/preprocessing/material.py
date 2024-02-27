@@ -109,7 +109,8 @@ class Material:
         tuple
             Material color.
         """
-        temp = self.color[1:-1] #Remove "[ ]"
+        # Ugly hack, will be corrected (I hope)
+        temp = str(self.color)[1:-1] #Remove "[ ]"
         tokens = temp.split(',')
         return list(map(int, tokens))
 

@@ -1,6 +1,8 @@
 import vtk
 from vtkat.utils import set_polydata_property, set_polydata_colors
 from pulse.interface.viewer_3d.sources import cross_section_sources
+from collections import defaultdict
+import numpy as np
 
 
 class TubeActor(vtk.vtkActor):
@@ -99,6 +101,38 @@ class TubeActor(vtk.vtkActor):
     def clear_colors(self):
         data = self.GetMapper().GetInput()
         set_polydata_colors(data, (255,255,255))
+    
+    def color_by_material(self):
+        grouped_by_color = defaultdict(list)
+        elements = self.project.get_structural_elements()
+        for i, e in elements.items():
+            if i in self.hidden_elements:
+                continue
+            color = (0,0,0)
+            if (e.material is not None) and e.material.color:
+                # get the color and make it a bit brighter
+                color = np.array(e.material.getColorRGB()) + 50
+                color = tuple(np.clip(color, 0, 255))
+            grouped_by_color[color].append(i)
+        
+        for color, elements in grouped_by_color.items():
+            self.set_color(color, elements)
+
+    def color_by_fluid(self):
+        grouped_by_color = defaultdict(list)
+        elements = self.project.get_structural_elements()
+        for i, e in elements.items():
+            if i in self.hidden_elements:
+                continue
+            color = (0,0,0)
+            if (e.fluid is not None) and e.fluid.color:
+                # get the color and make it a bit brighter
+                color = np.array(e.fluid.getColorRGB()) + 50
+                color = tuple(np.clip(color, 0, 255))
+            grouped_by_color[color].append(i)
+        
+        for color, elements in grouped_by_color.items():
+            self.set_color(color, elements)
 
     def set_color(self, color, elements=None, entities=None):
         data = self.GetMapper().GetInput()
