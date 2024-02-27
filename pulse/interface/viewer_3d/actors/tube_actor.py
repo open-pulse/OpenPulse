@@ -3,6 +3,13 @@ from vtkat.utils import set_polydata_property, set_polydata_colors
 from pulse.interface.viewer_3d.sources import cross_section_sources
 from collections import defaultdict
 import numpy as np
+from enum import Enum
+
+
+class ColorMode(Enum):
+    empty = 0
+    material = 1
+    fluid = 2
 
 
 class TubeActor(vtk.vtkActor):
@@ -13,6 +20,7 @@ class TubeActor(vtk.vtkActor):
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
         self.hidden_elements = kwargs.get('hidden_elements', set())
+        self.color_mode = ColorMode.empty
 
         self.build()
 
@@ -59,11 +67,12 @@ class TubeActor(vtk.vtkActor):
         
         append_polydata.Update()
         data: vtk.vtkPolyData = append_polydata.GetOutput()
-        set_polydata_colors(data, (255, 255, 255))
 
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()
         self.SetMapper(mapper)
+
+        self.clear_colors()
 
     def create_element_data(self, element):
         cross_section = element.cross_section
@@ -101,6 +110,12 @@ class TubeActor(vtk.vtkActor):
     def clear_colors(self):
         data = self.GetMapper().GetInput()
         set_polydata_colors(data, (255,255,255))
+
+        if self.color_mode == ColorMode.material:
+            self.color_by_material()
+
+        elif self.color_mode == ColorMode.fluid:
+            self.color_by_fluid()
     
     def color_by_material(self):
         grouped_by_color = defaultdict(list)

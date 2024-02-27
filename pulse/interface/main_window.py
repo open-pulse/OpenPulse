@@ -186,6 +186,9 @@ class MainWindow(QMainWindow):
         self.action_show_transparent: QAction
         self.action_show_symbols: QAction
         self.action_select_elements: QAction
+        self.action_plot_material: QAction
+        self.action_plot_fluid: QAction
+
 
     def _connect_actions(self):
         '''
@@ -265,11 +268,11 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update_visualization(points, lines, tubes, symbols, transparent)
 
         if self.action_select_elements.isChecked():
-            self.opv_widget.selection_to_elements()
-            self.mesh_widget.selection_to_elements()
+            self.opv_widget.set_selection_to_elements()
+            self.mesh_widget.set_selection_to_elements()
         else:
-            self.opv_widget.selection_to_lines()
-            self.mesh_widget.selection_to_lines()
+            self.opv_widget.set_selection_to_lines()
+            self.mesh_widget.set_selection_to_lines()
 
     # callbacks
     def action_new_project_callback(self):
@@ -452,6 +455,12 @@ class MainWindow(QMainWindow):
     
     def action_select_elements_callback(self, cond):
         self._update_visualization()
+
+    def action_plot_material_callback(self):
+        self.mesh_widget.set_color_mode_to_material()
+
+    def action_plot_fluid_callback(self):
+        self.mesh_widget.set_color_mode_to_fluid()
 
     def update_export_geometry_file_access(self):
         import_type = self.project.file.get_import_type()

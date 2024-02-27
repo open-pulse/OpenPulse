@@ -337,14 +337,14 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.opvRenderer.setPlotFilter(plot_filter)
     
-    def selection_to_lines(self):
+    def set_selection_to_lines(self):
         selection_filter = SelectionFilter(
             nodes=self.opvRenderer._plotFilter.nodes,
             entities=True,
         )
         self.opvRenderer.setSelectionFilter(selection_filter)
 
-    def selection_to_elements(self):
+    def set_selection_to_elements(self):
         selection_filter = SelectionFilter(
             nodes=self.opvRenderer._plotFilter.nodes,
             elements=True,

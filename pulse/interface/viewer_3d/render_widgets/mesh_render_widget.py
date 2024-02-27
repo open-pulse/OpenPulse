@@ -10,6 +10,7 @@ from vtkat.render_widgets import CommonRenderWidget
 
 from pulse import app
 from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, TubeActor
+from pulse.interface.viewer_3d.actors.tube_actor import ColorMode
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
     AcousticNodesSymbolsActor,
@@ -178,17 +179,35 @@ class MeshRenderWidget(CommonRenderWidget):
         )
         self.update()
 
-    def selection_to_lines(self):
+    def set_selection_to_lines(self):
         self.selection_filter = SelectionFilter(
             nodes=True,
             entities=True,
         )
 
-    def selection_to_elements(self):
+    def set_selection_to_elements(self):
         self.selection_filter = SelectionFilter(
             nodes=True,
             elements=True,
         )
+    
+    def set_color_mode_to_empty(self):
+        if not self._actor_exists():
+            return
+        self.tubes_actor.color_mode = ColorMode.empty
+        self.tubes_actor.clear_colors()
+
+    def set_color_mode_to_material(self):
+        if not self._actor_exists():
+            return
+        self.tubes_actor.color_mode = ColorMode.material
+        self.tubes_actor.clear_colors()
+
+    def set_color_mode_to_fluid(self):
+        if not self._actor_exists():
+            return
+        self.tubes_actor.color_mode = ColorMode.fluid
+        self.tubes_actor.clear_colors()
 
     def _actor_exists(self):
         actors = [
