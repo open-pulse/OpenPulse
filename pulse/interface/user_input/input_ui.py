@@ -21,7 +21,7 @@ from pulse.interface.user_input.model.setup.structural.massSpringDamperInput imp
 from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
 from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
 from pulse.interface.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
-from pulse.interface.user_input.model.setup.structural.cappedEndInput import CappedEndInput
+from pulse.interface.user_input.model.setup.structural.capped_end_input import CappedEndInput
 from pulse.interface.user_input.model.setup.structural.valvesInput import ValvesInput
 from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
 from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
@@ -242,8 +242,8 @@ class InputUi:
     def addMassSpringDamper(self):
         self.processInput(MassSpringDamperInput, self.project, self.opv)
 
-    def setcappedEnd(self):
-        self.processInput(CappedEndInput, self.project, self.opv)
+    def set_capped_end(self):
+        self.processInput(CappedEndInput)
 
     def set_stress_stress_stiffening(self):
         self.processInput(StressStiffeningInput, self.project, self.opv)

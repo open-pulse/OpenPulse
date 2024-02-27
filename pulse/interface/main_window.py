@@ -375,7 +375,7 @@ class MainWindow(QMainWindow):
         self.input_widget.addMassSpringDamper()
 
     def action_set_capped_end_callback(self):
-        self.input_widget.setcappedEnd()
+        self.input_widget.set_capped_end()
 
     def action_set_stress_stiffening_callback(self):
         self.input_widget.set_stress_stress_stiffening()
