@@ -131,8 +131,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
 
-    def update_visualization(self, nodes, lines, tubes, symbols):
-        transparent = nodes or lines or symbols
+    def update_visualization(self, nodes, lines, tubes, symbols, transparent):
         self.plot_filter = PlotFilter(
             nodes=nodes,
             lines=lines,
@@ -142,20 +141,18 @@ class MeshRenderWidget(CommonRenderWidget):
             transparent=transparent,
         )
 
-        elements = (lines or tubes) and nodes
-        entities = (lines or tubes) and (not nodes)
-        self.selection_filter = SelectionFilter(
-            nodes=nodes,
-            elements=elements,
-            entities=entities,
-        )
-
         if not self._actor_exists():
             return
 
         self.nodes_actor.SetVisibility(self.plot_filter.nodes)
         self.lines_actor.SetVisibility(self.plot_filter.lines)
         self.tubes_actor.SetVisibility(self.plot_filter.tubes)
+
+        if self.plot_filter.transparent:
+            self.tubes_actor.GetProperty().SetOpacity(0.9)
+        else:
+            self.tubes_actor.GetProperty().SetOpacity(1)
+
         self.acoustic_nodes_symbols_actor.SetVisibility(
             self.plot_filter.acoustic_symbols
         )
@@ -169,6 +166,18 @@ class MeshRenderWidget(CommonRenderWidget):
             self.plot_filter.structural_symbols
         )
         self.update()
+
+    def selection_to_lines(self):
+        self.selection_filter = SelectionFilter(
+            nodes=True,
+            entities=True,
+        )
+
+    def selection_to_elements(self):
+        self.selection_filter = SelectionFilter(
+            nodes=True,
+            elements=True,
+        )
 
     def _actor_exists(self):
         actors = [
@@ -236,10 +245,22 @@ class MeshRenderWidget(CommonRenderWidget):
             return
 
         picked_nodes = self._pick_nodes(x, y)
-        picked_entities = self._pick_property(x, y, "entity_index", self.tubes_actor)
-        picked_elements = self._pick_property(x, y, "element_index", self.lines_actor)
+        picked_entities = set()
+        picked_elements = set()
 
-        # selection priority is: nodes > elements > entities
+        # try to select tubes_actor only if lines selection was not successfull
+        if self.selection_filter.entities:
+            picked_entities = self._pick_property(x, y, "entity_index", self.lines_actor)
+            if not picked_entities:
+                picked_entities = self._pick_property(x, y, "entity_index", self.tubes_actor)
+
+        # try to select tubes_actor only if lines selection was not successfull
+        if self.selection_filter.elements:
+            picked_elements = self._pick_property(x, y, "element_index", self.lines_actor)
+            if not picked_elements:
+                picked_elements = self._pick_property(x, y, "element_index", self.tubes_actor)
+
+        # give higher priority to points selection
         if (
             len(picked_nodes) == 1
             and len(picked_entities) <= 1
@@ -247,8 +268,6 @@ class MeshRenderWidget(CommonRenderWidget):
         ):
             picked_entities.clear()
             picked_elements.clear()
-        elif len(picked_elements) == 1 and len(picked_entities) <= 1:
-            picked_entities.clear()
 
         modifiers = QApplication.keyboardModifiers()
         ctrl_pressed = bool(modifiers & Qt.ControlModifier)
@@ -279,7 +298,9 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def update_selection(self):
         self.update_selection_info(
-            self.selected_nodes, self.selected_elements, self.selected_entities
+            self.selected_nodes,
+            self.selected_elements,
+            self.selected_entities,
         )
 
         self.nodes_actor.clear_colors()
@@ -287,7 +308,11 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.clear_colors()
 
         self.nodes_actor.set_color((255, 50, 50), self.selected_nodes)
-        self.lines_actor.set_color((200, 0, 0), elements=self.selected_elements)
+        self.lines_actor.set_color(
+            (200, 0, 0), 
+            elements=self.selected_elements,
+            entities=self.selected_entities,
+        )
         self.tubes_actor.set_color(
             (255, 0, 50),
             elements=self.selected_elements,

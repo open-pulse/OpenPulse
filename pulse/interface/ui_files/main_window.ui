@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -255,8 +255,10 @@
    <addaction name="action_show_points"/>
    <addaction name="action_show_lines"/>
    <addaction name="action_show_tubes"/>
+   <addaction name="action_show_transparent"/>
    <addaction name="action_show_symbols"/>
    <addaction name="separator"/>
+   <addaction name="action_select_elements"/>
    <addaction name="action_hide_selection"/>
    <addaction name="action_unhide_all"/>
   </widget>
@@ -758,7 +760,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset>
@@ -848,6 +850,32 @@
   <action name="action_remove_themes">
    <property name="text">
     <string>Remove themes</string>
+   </property>
+  </action>
+  <action name="action_show_transparent">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../data/icons/mesh.png</normaloff>../../../data/icons/mesh.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Transparent</string>
+   </property>
+  </action>
+  <action name="action_select_elements">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Selection to Elements</string>
+   </property>
+   <property name="toolTip">
+    <string>Selection to Elements</string>
    </property>
   </action>
  </widget>

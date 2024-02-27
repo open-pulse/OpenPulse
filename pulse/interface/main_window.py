@@ -183,7 +183,9 @@ class MainWindow(QMainWindow):
         self.action_show_points: QAction
         self.action_show_lines: QAction
         self.action_show_tubes: QAction
+        self.action_show_transparent: QAction
         self.action_show_symbols: QAction
+        self.action_select_elements: QAction
 
     def _connect_actions(self):
         '''
@@ -258,8 +260,16 @@ class MainWindow(QMainWindow):
         lines = self.action_show_lines.isChecked()
         tubes = self.action_show_tubes.isChecked()
         symbols = self.action_show_symbols.isChecked()
-        self.opv_widget.update_visualization(points, lines, tubes, symbols)
-        self.mesh_widget.update_visualization(points, lines, tubes, symbols)
+        transparent = self.action_show_transparent.isChecked()
+        self.opv_widget.update_visualization(points, lines, tubes, symbols, transparent)
+        self.mesh_widget.update_visualization(points, lines, tubes, symbols, transparent)
+
+        if self.action_select_elements.isChecked():
+            self.opv_widget.selection_to_elements()
+            self.mesh_widget.selection_to_elements()
+        else:
+            self.opv_widget.selection_to_lines()
+            self.mesh_widget.selection_to_lines()
 
     # callbacks
     def action_new_project_callback(self):
@@ -435,6 +445,12 @@ class MainWindow(QMainWindow):
         self._update_visualization()
     
     def action_show_symbols_callback(self, cond):
+        self._update_visualization()
+    
+    def action_show_transparent_callback(self, cond):
+        self._update_visualization()
+    
+    def action_select_elements_callback(self, cond):
         self._update_visualization()
 
     def update_export_geometry_file_access(self):
