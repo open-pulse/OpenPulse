@@ -57,6 +57,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.plot_filter = PlotFilter(True, True, True, True, True, True)
         self.selection_filter = SelectionFilter(True, True, True)
 
+        self.selected_nodes = set()
+        self.selected_entities = set()
+        self.selected_elements = set()
+
         self.create_axes()
         self.create_scale_bar()
         self.create_logos()
@@ -228,16 +232,35 @@ class MeshRenderWidget(CommonRenderWidget):
         shift_pressed = bool(modifiers & Qt.ShiftModifier)
         alt_pressed = bool(modifiers & Qt.AltModifier)
 
-        self.update_selection_info(picked_nodes, picked_elements, picked_entities)
+        join = ctrl_pressed | shift_pressed
+        remove = alt_pressed
+
+        if join and remove:
+            self.selected_nodes ^= set(picked_nodes)
+            self.selected_entities ^= set(picked_entities)
+            self.selected_elements ^= set(picked_elements)
+        elif join:
+            self.selected_nodes |= set(picked_nodes)
+            self.selected_entities |= set(picked_entities)
+            self.selected_elements |= set(picked_elements)
+        elif remove:
+            self.selected_nodes -= set(picked_nodes)
+            self.selected_entities -= set(picked_entities)
+            self.selected_elements -= set(picked_elements)
+        else:
+            self.selected_nodes = set(picked_nodes)
+            self.selected_entities = set(picked_entities)
+            self.selected_elements = set(picked_elements)
+
+        self.update_selection_info(self.selected_nodes, self.selected_elements, self.selected_entities)
         
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
         self.tubes_actor.clear_colors()
 
-        selection_color = (255, 0, 0)
-        self.nodes_actor.set_color(selection_color, picked_nodes)
-        self.lines_actor.set_color(selection_color, elements=picked_elements)
-        self.tubes_actor.set_color(selection_color, elements=picked_elements, entities=picked_entities)
+        self.nodes_actor.set_color((255, 50, 50), self.selected_nodes)
+        self.lines_actor.set_color((200, 0, 0), elements=self.selected_elements)
+        self.tubes_actor.set_color((255, 0, 50), elements=self.selected_elements, entities=self.selected_entities)
 
     def _pick_nodes(self, x, y):
         picked = self._pick_actor(x, y, self.nodes_actor)
