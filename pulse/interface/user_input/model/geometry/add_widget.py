@@ -69,6 +69,7 @@ class AddStructuresWidget(QWidget):
         self.pushButton_set_cross_section : QPushButton
         self.pushButton_set_material : QPushButton
         self.pushButton_add_segment : QPushButton
+        self.pushButton_remove_segment : QPushButton
 
         # QTabWidget
         # self.tabWidget_main : QTabWidget
@@ -108,7 +109,7 @@ class AddStructuresWidget(QWidget):
             self.lineEdit_delta_y.setPlaceholderText("")
             self.lineEdit_delta_z.setPlaceholderText("")
         else:
-            self.lineEdit_delta_x.setPlaceholderText("Cross-Section")
+            self.lineEdit_delta_x.setPlaceholderText("Cross-section")
             self.lineEdit_delta_y.setPlaceholderText("was not")
             self.lineEdit_delta_z.setPlaceholderText("defined")
 
