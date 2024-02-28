@@ -11,15 +11,50 @@ def closed_pipe_data(length, outside_diameter):
     return cilinder.GetOutput()
 
 def pipe_data(length, outside_diameter, thickness):
-    if thickness == 0:
+    if (thickness == 0) or (2 * thickness > outside_diameter):
         return closed_pipe_data(length, outside_diameter)
-    cilinder = vtk.vtkCylinderSource()
-    cilinder.SetResolution(20)
-    cilinder.SetRadius(outside_diameter / 2)
-    cilinder.SetHeight(length)
-    cilinder.CappingOff()
-    cilinder.Update()
-    return cilinder.GetOutput()
+
+    outer_radius = outside_diameter / 2
+    inner_radius = outer_radius - thickness
+
+    outer_cilinder = vtk.vtkCylinderSource()
+    outer_cilinder.SetResolution(20)
+    outer_cilinder.SetRadius(outer_radius)
+    outer_cilinder.SetHeight(length)
+    outer_cilinder.CappingOff()
+    outer_cilinder.Update()
+
+    inner_cilinder = vtk.vtkCylinderSource()
+    inner_cilinder.SetResolution(20)
+    inner_cilinder.SetRadius(inner_radius)
+    inner_cilinder.SetHeight(length)
+    inner_cilinder.CappingOff()
+    inner_cilinder.Update()
+
+    ring_bottom = vtk.vtkDiskSource()
+    ring_bottom.SetCircumferentialResolution(20)
+    ring_bottom.SetOuterRadius(outer_radius)
+    ring_bottom.SetInnerRadius(inner_radius)
+    ring_bottom.SetCenter(0, -length/2, 0)
+    ring_bottom.SetNormal(0, 1, 0)
+    ring_bottom.Update()
+
+    ring_top = vtk.vtkDiskSource()
+    ring_top.SetCircumferentialResolution(20)
+    ring_top.SetOuterRadius(outer_radius)
+    ring_top.SetInnerRadius(inner_radius)
+    ring_top.SetCenter(0, length/2, 0)
+    ring_top.SetNormal(0, 1, 0)
+    ring_top.Update()
+
+    append_polydata = vtk.vtkAppendPolyData()
+    append_polydata.AddInputData(outer_cilinder.GetOutput())
+    append_polydata.AddInputData(inner_cilinder.GetOutput())
+    append_polydata.AddInputData(ring_bottom.GetOutput())
+    append_polydata.AddInputData(ring_top.GetOutput())
+    append_polydata.Update()
+
+    return append_polydata.GetOutput()
 
 def circular_beam_data(length, outside_diameter, thickness):
     return pipe_data(length, outside_diameter, thickness)
