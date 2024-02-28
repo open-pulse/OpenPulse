@@ -123,9 +123,6 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_edit_geometry_callback(self):
         read = self.mainWindow.getInputWidget().edit_an_imported_geometry()
 
-    # def item_child_set_geometry_file_callback(self):
-    #     self.mainWindow.getInputWidget().set_geometry_file()
-
     def item_child_set_material_callback(self):
         self.update_plot_entities()
         self.mainWindow.getInputWidget().set_material()

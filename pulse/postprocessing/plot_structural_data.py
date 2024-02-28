@@ -1,9 +1,19 @@
-import numpy as np
-from time import time
+from pulse import app
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
+
+import numpy as np
 from math import pi
+
 N_div = 20
 
+
+def get_preprocessor():
+    project = app().main_window.project
+    return project.preprocessor
+
+def get_acoustic_solution():
+    project = app().main_window.project
+    return project.get_structural_solution()
 
 def get_structural_frf(preprocessor, 
                        solution, 

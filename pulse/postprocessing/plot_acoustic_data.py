@@ -1,9 +1,25 @@
+from pulse import app
+from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
+
 import numpy as np
 from math import pi
-from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
+
 N_div = 20
 
-def get_acoustic_frf(preprocessor, solution, node, absolute=False, real=False, imag=False, dB=False):
+
+def get_preprocessor():
+    project = app().main_window.project
+    return project.preprocessor
+
+def get_acoustic_solution():
+    project = app().main_window.project
+    return project.get_acoustic_solution()
+
+def get_acoustic_frf(node, absolute=False, real=False, imag=False, dB=False):
+
+    preprocessor = get_preprocessor()
+    solution = get_acoustic_solution()
+
     position = preprocessor.nodes[node].global_index * DOF_PER_NODE_ACOUSTIC
     if absolute:
         results = np.abs(solution[position])
@@ -18,10 +34,13 @@ def get_acoustic_frf(preprocessor, solution, node, absolute=False, real=False, i
         results = solution[position]
     return results
 
-def get_max_min_values_of_pressures(solution, column, absolute=False):
+def get_max_min_values_of_pressures(column, absolute=False):
+
+    solution = get_acoustic_solution()
     
-    _pressures = np.abs(solution.T[column])
-    _phases = np.angle(solution.T)[column]
+    data = solution.T[column]
+    _pressures = np.abs(data)
+    _phases = np.angle(data)
     
     p_min = 1
     p_max = 0
@@ -43,24 +62,17 @@ def get_max_min_values_of_pressures(solution, column, absolute=False):
    
     return p_min, p_max
 
-def get_acoustic_response(preprocessor, solution, column, phase_step=None, absolute=True):
-    
-    # if absolute:
-    #     data = np.abs(solution.T)
-    # else:
-    #     data = np.real(solution.T)
-    
-    data = np.abs(solution.T)
+def get_acoustic_response(column, phase_step=None, absolute=False):
 
-    _pressures = data[column]
-    _phases = np.angle(solution.T)[column]
+    preprocessor = get_preprocessor()
+    solution = get_acoustic_solution()
 
-    rows = int(solution.shape[0])
-    pressure = np.zeros((rows, 2))
-    pressure[:,0] = np.arange( 0, rows, 1 )
-    pressure[:,1] = _pressures
+    data = solution.T[column]
 
-    pressures_plot = _pressures*np.cos(phase_step + _phases)
+    _pressures = np.abs(data)
+    _phases = np.angle(data)
+
+    pressures_plot = _pressures*np.cos(_phases + phase_step)
     
     if absolute:
         pressures_plot = np.abs(pressures_plot)
@@ -70,7 +82,7 @@ def get_acoustic_response(preprocessor, solution, column, phase_step=None, absol
 
     min_max_values = [min(_pressures), max(_pressures)]
         
-    return pressure, connect, coord, pressures_plot, min_max_values
+    return connect, coord, pressures_plot, min_max_values
 
 def get_acoustic_absortion(element, frequencies):
     if isinstance(element.pp_impedance, np.ndarray):

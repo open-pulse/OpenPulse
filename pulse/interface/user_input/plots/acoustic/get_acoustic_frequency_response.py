@@ -110,9 +110,7 @@ class GetAcousticFrequencyResponse(QWidget):
         
     def get_response(self):
         
-        response = get_acoustic_frf(self.preprocessor, 
-                                    self.solution,
-                                    self.node_ID)
+        response = get_acoustic_frf(self.node_ID)
 
         if complex(0) in response:
             response += 1e-12

@@ -339,23 +339,17 @@ class opvAnalysisRenderer(vtkRendererBase):
 
 
     def get_min_max_values_to_pressure(self, frequency_index):
-        solution = self.project.get_acoustic_solution()
-        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, 
-                                                                               frequency_index, 
-                                                                               absolute=self._absolute)
+        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures( frequency_index, 
+                                                                                absolute = self._absolute )
 
     def computePressureField(self, frequency, phase_step):
 
-        preprocessor = self.project.preprocessor
-        solution = self.project.get_acoustic_solution()
         self._currentFrequencyIndex = frequency
         self._colorScalling = 'absolute' if self._absolute else 'real part'
 
-        *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  preprocessor, 
-                                                                                                    solution, 
-                                                                                                    frequency, 
-                                                                                                    phase_step=phase_step,
-                                                                                                    absolute=self._absolute  )
+        *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  frequency, 
+                                                                                                    phase_step = phase_step,
+                                                                                                    absolute = self._absolute  )
         
         self.opvPressureTubes.build()
         min_max_values_all = [self.pressure_min, self.pressure_max]

@@ -141,8 +141,8 @@ class GetAcousticDeltaPressure(QWidget):
 
     def get_delta_pressures(self):
 
-        P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
-        P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
+        P_input = get_acoustic_frf(self.input_node_id)
+        P_output = get_acoustic_frf(self.output_node_id)
 
         delta_pressure = P_input - P_output
         
