@@ -31,6 +31,7 @@ class OPPGeometryDesignerInput(QWidget):
         self._define_qt_variables()
         self._create_layout()
         self._create_connections()
+        self.setContentsMargins(2,2,2,2)
 
     def _define_qt_variables(self):
         self.pushButton_cancel: QPushButton
