@@ -98,14 +98,15 @@ class Project:
         self.file.new(*args, **kwargs)
         self.empty_geometry = True
 
-    def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
-        self.file.copy( project_folder_path, 
-                        project_name, 
-                        material_list_path, 
-                        fluid_list_path, 
-                        geometry_path, 
-                        coord_path, 
-                        conn_path)
+    # def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = ""):
+    #     self.file.copy( project_folder_path, 
+    #                     project_name, 
+    #                     material_list_path, 
+    #                     fluid_list_path, 
+    #                     geometry_path )
+
+    def copy_project(self, *args, **kwargs):
+        self.file.copy(*args, **kwargs)
          
     def load_project(self, project_file_path):
         # def callback():

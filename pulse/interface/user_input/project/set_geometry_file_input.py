@@ -54,7 +54,7 @@ class SetGeometryFileInput(QDialog):
         self.project_name = self.project.file._project_name
         self.element_size = self.project.file._element_size
         self.geometry_tolerance = self.project.file._geometry_tolerance
-        self.project_ini = self.project.file._project_base_name
+        self.project_ini = self.project.file.project_ini_name
 
         self.current_geometry_path = self.project.file._geometry_path
         self.current_material_list_path = self.project.file._material_list_path
@@ -64,7 +64,7 @@ class SetGeometryFileInput(QDialog):
 
         self.materialListName = self.project.file._material_file_name
         self.fluidListName = self.project.file._fluid_file_name
-        self.project_file_name = self.project.file._project_base_name
+        self.project_file_name = self.project.file.project_ini_name
 
 
     def define_qt_variables(self):

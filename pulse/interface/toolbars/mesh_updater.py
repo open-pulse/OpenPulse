@@ -28,7 +28,7 @@ class MeshUpdater:
         # self.project_directory = os.path.dirname(self.project_file_path)
         # self.project_name = self.project.file._project_name
         # self.project_file_path = self.project.file._project_path
-        # self.project_ini = self.project.file._project_base_name      
+        # self.project_ini = self.project.file.project_ini_name      
         self._reset_variables()
 
     def _reset_variables(self):

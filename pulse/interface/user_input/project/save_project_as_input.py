@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QRadioButton, QToolButton
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QCheckBox, QDialog, QFileDialog, QLineEdit, QPushButton, QRadioButton, QToolButton
+from PyQt5.QtGui import QIcon, QKeyEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
@@ -9,7 +9,6 @@ from pulse.tools.utils import get_new_path
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import os
-import configparser
 from shutil import copytree, rmtree
 
 window_title_1 = "Error"
@@ -36,15 +35,18 @@ class SaveProjectAsInput(QDialog):
         self.exec()
 
     def _initialize(self):
-        # self.create = False
+
         self.stop = False
 
         self.user_path = os.path.expanduser('~')
-        self.current_project_file_path = self.file._project_path
-        self.project_directory = os.path.dirname(self.current_project_file_path)
-        self.project_name = self.file._project_name
+        desktop_path = Path(os.path.join(os.path.join(self.user_path, 'Desktop')))
+        self.desktop_path = str(desktop_path)
 
-        self.project_ini = self.file._project_base_name
+        self.current_project_file_path = self.file.project_path
+        self.project_directory = os.path.dirname(self.current_project_file_path)
+        self.project_name = self.file.project_name
+
+        self.project_ini = self.file.project_ini_name
         self.current_geometry_path = self.file.geometry_path
         self.current_material_list_path = self.file._material_list_path
         self.current_fluid_list_path = self.file._fluid_list_path
@@ -59,137 +61,108 @@ class SaveProjectAsInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
+        # QCheckBox
+        self.remove_current_project_files : QCheckBox
+
         # QLineEdit
-        self.lineEdit_current_project_name : QLineEdit
-        self.lineEdit_current_project_folder : QLineEdit
-        self.lineEdit_new_project_name : QLineEdit
-        self.lineEdit_new_project_folder : QLineEdit
-        self.lineEdit_current_project_name.setText(self.project_name)
-        self.lineEdit_current_project_folder.setText(self.project_directory)
-        self.toolButton_clean_project_name : QToolButton
-        self.toolButton_search_project_folder : QToolButton
-        
-        # QRadioButton
-        self.radioButton_projectName : QRadioButton
-        self.radioButton_projectDirectory : QRadioButton
-        self.radioButton_projectNameDirectory : QRadioButton
-        self.radioButton_maintain_current_project_folder : QRadioButton
-        self.radioButton_remove_current_project_folder : QRadioButton
+        self.current_project_name : QLineEdit
+        self.new_project_name : QLineEdit
+        self.current_project_directory : QLineEdit
+        self.new_project_directory : QLineEdit
+        #
+        self.current_project_name.setText(self.project_name)
+        self.current_project_directory.setText(self.project_directory)
+        self.new_project_directory.setText(self.project_directory)
 
-        # QToolButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_cancel : QPushButton
-
-        if self.radioButton_projectName.isChecked():
-            self.lineEdit_new_project_folder.setText(self.project_directory)
-            self.lineEdit_new_project_folder.setDisabled(True)
-            self.toolButton_search_project_folder.setDisabled(True)
+        # QPushButton
+        self.search_project_folder_button : QPushButton
+        self.cancel_button : QPushButton
+        self.save_project_button : QPushButton
+        # self.save_project_button.setDisabled(True)
 
     def _create_connections(self):
-        self.pushButton_confirm.clicked.connect(self.check_entries_and_confirm)
-        self.pushButton_cancel.clicked.connect(self.cancel_and_close)
-        self.radioButton_projectName.toggled.connect(self.update_texts_and_controls)
-        self.radioButton_projectDirectory.toggled.connect(self.update_texts_and_controls)
-        self.radioButton_projectNameDirectory.toggled.connect(self.update_texts_and_controls)
-        self.toolButton_clean_project_name.clicked.connect(self.clean_project_name)
-        self.toolButton_search_project_folder.clicked.connect(self.search_project_folder)
+        self.save_project_button.clicked.connect(self.save_project_button_pressed)
+        self.cancel_button.clicked.connect(self.cancel_and_close)
+        self.search_project_folder_button.clicked.connect(self.search_project_folder)
 
-    def update_texts_and_controls(self):
-        if self.radioButton_projectName.isChecked():
-            self.lineEdit_new_project_folder.setText(self.project_directory)
-            self.lineEdit_new_project_name.setText("")
-            self.lineEdit_new_project_name.setDisabled(False)
-            self.lineEdit_new_project_folder.setDisabled(True)
-            self.toolButton_clean_project_name.setDisabled(False)
-            self.toolButton_search_project_folder.setDisabled(True)
-        elif self.radioButton_projectDirectory.isChecked():
-            self.lineEdit_new_project_folder.setText("")
-            self.lineEdit_new_project_name.setText(self.project_name)
-            self.lineEdit_new_project_name.setDisabled(True)
-            self.lineEdit_new_project_folder.setDisabled(False)
-            self.toolButton_clean_project_name.setDisabled(True)
-            self.toolButton_search_project_folder.setDisabled(False)
-        elif self.radioButton_projectNameDirectory.isChecked():
-            if self.lineEdit_new_project_name.text() == self.lineEdit_current_project_name.text():
-                self.lineEdit_new_project_name.setText("")
-            if self.lineEdit_new_project_folder.text() == self.lineEdit_current_project_folder.text():  
-                self.lineEdit_new_project_folder.setText("")
-            self.lineEdit_new_project_name.setDisabled(False)
-            self.toolButton_clean_project_name.setDisabled(False)
-            self.lineEdit_new_project_folder.setDisabled(False)
-            self.toolButton_search_project_folder.setDisabled(False)
+    def search_project_folder(self):
+        self.new_project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.desktop_path)
+        if os.path.exists(self.new_project_directory):
+            self.new_project_directory.setText(str(self.new_project_directory))
  
+    def clean_project_name(self):
+        self.new_project_name.setText("")
+
+    def are_modifications_allowable(self):
+        
+        if self.new_project_name.text() == "":
+            self.title = "Empty project name"
+            self.message = "Please, inform a valid project name at 'New project name' input field to continue."
+            self.new_project_name.setFocus()
+            return True
+        
+        if self.new_project_name.text() == self.current_project_name.text():
+            if self.new_project_directory.text() == self.current_project_directory.text():
+                self.title = "Same project name and directory detected"
+                self.message = "Please, inform a diferent project name and/or directory to continue."
+                return True
+
+    def copy_project_files(self):  
+        self.new_project_file_path = get_new_path(self.new_project_directory.text(), 
+                                                  self.new_project_name.text())
+        copytree(self.current_project_file_path, 
+                 self.new_project_file_path)
+
+    def update_all_file_paths(self):
+
+        if os.path.exists(self.current_geometry_path):
+            new_geometry_path = get_new_path(self.new_project_directory.text(), 
+                                             os.path.basename(self.current_geometry_path))
+        else:
+            new_geometry_path = ""
+
+        new_material_list_path = get_new_path(self.new_project_directory.text(), 
+                                              os.path.basename(self.current_material_list_path))
+
+        new_fluid_list_path = get_new_path(self.new_project_directory.text(), 
+                                           os.path.basename(self.current_fluid_list_path))
+
+        self.project.copy_project(  self.new_project_directory.text(),
+                                    self.new_project_name.text(),
+                                    new_material_list_path,
+                                    new_fluid_list_path,
+                                    geometry_path = new_geometry_path  )
+
+    def save_project_button_pressed(self):
+
+        if self.are_modifications_allowable():
+            PrintMessageInput([window_title_2, self.title, self.message])  
+            return
+
+        if self.new_project_name.text() == "":
+            self.search_project_folder()
+            return self.save_project_button_pressed()
+        else:
+            self.copy_project_files()
+            self.update_all_file_paths()
+            self.file.modify_project_ini_name(self.new_project_name.text())
+            if self.remove_current_project_files.isChecked():
+                rmtree(self.current_project_file_path)
+            self.main_window.change_window_title(self.file.project_name)
+            self.close()
+
     def cancel_and_close(self):
         self.close()
 
-    def clean_project_name(self):
-        self.lineEdit_new_project_name.setText("")
+    def keyPressEvent(self, event: QKeyEvent | None) -> None:
 
-    def check_entries_and_confirm(self):
-        self.check_modification_type()
-        if self.lineEdit_new_project_name.text() != "":
-            if self.lineEdit_new_project_folder.text() != "":
-                self.copyTreeProjectFiles()
-                self.update_all_file_paths()
-                self.update_project_ini_name()
-                if self.radioButton_remove_current_project_folder.isChecked():
-                    rmtree(self.current_project_file_path)
-                self.main_window.change_window_title(self.file.project_name)
-                self.close()
-            else:
-                self.search_project_folder()
-                return self.check_entries_and_confirm()
-        else:
-            message_title = "Empty project name"
-            message = "Please, inform a valid project name at 'New project name' input field to continue."
-            PrintMessageInput([window_title_2, message_title, message])
+        if event.key() == Qt.Key_Escape:
+            self.close()
+        if event.key() == Qt.Key_Enter:
+            self.save_project_button_pressed()
 
-    def search_project_folder(self):
-        self.new_project_directory = QFileDialog.getExistingDirectory(None, 'Choose a new folder to save the project files', self.user_path)
-        self.lineEdit_new_project_folder.setText(str(self.new_project_directory))        
-
-    def copyTreeProjectFiles(self):  
-        self.new_project_folder_path = get_new_path(self.new_project_folder, self.new_project_name)
-        copytree(self.current_project_file_path, self.new_project_folder_path)
-
-    def update_all_file_paths(self):
-        new_geometry_path = get_new_path(self.new_project_folder_path, os.path.basename(self.current_geometry_path))
-        new_material_list_path = get_new_path(self.new_project_folder_path, os.path.basename(self.current_material_list_path))
-        new_fluid_list_path = get_new_path(self.new_project_folder_path, os.path.basename(self.current_fluid_list_path))
-        if self.import_type == 0:
-            self.project.copy_project(  self.new_project_folder_path, 
-                                        self.new_project_name, 
-                                        new_material_list_path, 
-                                        new_fluid_list_path, 
-                                        geometry_path = new_geometry_path)
-        elif self.import_type == 1:
-            pass
-
-    def check_modification_type(self):
-        if self.radioButton_projectName.isChecked():
-            self.new_project_folder = self.lineEdit_current_project_folder.text()
-            self.new_project_name =  self.lineEdit_new_project_name.text()
-            self.current_project_folder = self.lineEdit_current_project_folder.text()
-            self.current_project_name = self.lineEdit_current_project_name.text()
-        elif self.radioButton_projectDirectory.isChecked():
-            self.new_project_folder = self.lineEdit_new_project_folder.text()
-            self.new_project_name =  self.lineEdit_current_project_name.text()
-            self.current_project_folder = self.lineEdit_current_project_folder.text()
-            self.current_project_name = self.lineEdit_current_project_name.text()
-        elif self.radioButton_projectNameDirectory.isChecked():
-            self.new_project_folder = self.lineEdit_new_project_folder.text()
-            self.new_project_name =  self.lineEdit_new_project_name.text()
-            self.current_project_folder = self.lineEdit_current_project_folder.text()
-            self.current_project_name = self.lineEdit_current_project_name.text()
-        
-    def update_project_ini_name(self):
-        project_ini_file_path = get_new_path(self.new_project_folder_path, self.project_ini)
-        config = configparser.ConfigParser()
-        config.read(project_ini_file_path)
-
-        config['PROJECT']['Name'] = self.new_project_name
-        
-        with open(project_ini_file_path, 'w') as config_file:
-            config.write(config_file)
+        return super().keyPressEvent(event)

@@ -63,13 +63,13 @@ class ProjectFile:
         self._node_structural_file_name = "structural_nodal_info.dat"
         self._node_acoustic_file_name = "acoustic_nodal_info.dat"
         self._elements_file_name = "elements_info.dat"
-        self._project_base_name = "project.ini"
+        self._project_ini_name = "project.ini"
         self._imported_data_folder_name = "imported_data"
         self._backup_geometry_foldername = "geometry_backup"
 
     def get_list_filenames_to_maintain_after_reset(self):
         files_to_maintain_after_reset = []
-        files_to_maintain_after_reset.append(self._project_base_name)
+        files_to_maintain_after_reset.append(self._project_ini_name)
         files_to_maintain_after_reset.append(self._material_file_name)
         files_to_maintain_after_reset.append(self._fluid_file_name)
         files_to_maintain_after_reset.append(self._geometry_entities_file_name)
@@ -96,9 +96,9 @@ class ProjectFile:
         self._import_type = int(import_type)
         self._material_list_path = material_list_path
         self._fluid_list_path = fluid_list_path
-        if geometry_path != "":
-            self._geometry_path = geometry_path
-        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+        self._geometry_path = geometry_path
+        #
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
@@ -109,13 +109,20 @@ class ProjectFile:
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
     
-    def copy(self, project_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+    def copy(self, 
+             project_path, 
+             project_name, 
+             material_list_path, 
+             fluid_list_path, 
+             geometry_path = ""):
+        
         self._project_path = project_path
         self._project_name = project_name
         self._material_list_path = material_list_path
         self._fluid_list_path = fluid_list_path
         self._geometry_path = geometry_path
-        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+        #
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
@@ -131,14 +138,30 @@ class ProjectFile:
 
     def get_element_size_from_project_file(self):
         if self._project_path != "":
+
             config = configparser.ConfigParser()
-            config.read(self._project_ini_file_path)
-            if 'element size' in config['PROJECT'].keys():
-                element_size = config['PROJECT']['element size']
-                if element_size != "":
-                    return float(element_size)
-            else:
-                return ""
+            config.read(self.project_ini_file_path)
+
+            if config.has_option('PROJECT', 'element size'):
+                if 'element size' in config['PROJECT'].keys():
+
+                    element_size = config['PROJECT']['element size']
+                    if element_size != "":
+                        return float(element_size)
+
+                else:
+                    return ""
+
+    def modify_project_ini_name(self, project_name):
+        
+        config = configparser.ConfigParser()
+        config.read(self.project_ini_file_path)
+        
+        if config.has_section('PROJECT'):
+            config['PROJECT']['Name'] = project_name
+            
+            with open(self.project_ini_file_path, 'w') as config_file:
+                config.write(config_file)
 
     def get_mesh_attributes_from_project_file(self):
         element_size = None
@@ -205,7 +228,7 @@ class ProjectFile:
         config['PROJECT']['material list file'] = self._material_file_name
         config['PROJECT']['fluid list file'] = self._fluid_file_name
 
-        path = get_new_path(project_folder_path, self._project_base_name)
+        path = get_new_path(project_folder_path, self._project_ini_name)
 
         with open(path, 'w') as config_file:
             config.write(config_file)
@@ -263,7 +286,7 @@ class ProjectFile:
 
         self._project_name = project_name
         self._import_type = import_type
-        self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
+        self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._material_list_path = get_new_path(self._project_path, material_list_file)
         self._fluid_list_path =  get_new_path(self._project_path, fluid_list_file)
         self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
@@ -378,7 +401,7 @@ class ProjectFile:
         alpha_v, beta_v = 0, 0
         alpha_h, beta_h = 0, 0
         
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         sections = config.sections()
@@ -404,7 +427,7 @@ class ProjectFile:
 
     def load_visibility_preferences_file(self):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         sections = config.sections()
@@ -475,7 +498,7 @@ class ProjectFile:
         min_ = str(min_)
         max_ = str(max_)
         step_ = str(step_)
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         # sections = config.sections()
@@ -492,7 +515,7 @@ class ProjectFile:
         beta_v = str(global_damping[1])
         alpha_h = str(global_damping[2])
         beta_h = str(global_damping[3])
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
 
@@ -506,7 +529,7 @@ class ProjectFile:
 
     def reset_project_setup(self):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         sections = config.sections()
@@ -521,7 +544,7 @@ class ProjectFile:
 
     def add_user_preferences_to_file(self, preferences):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
 
@@ -531,7 +554,7 @@ class ProjectFile:
         
     def add_inertia_load_setup_to_file(self, gravity, stiffening_effect):
         
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
 
@@ -544,7 +567,7 @@ class ProjectFile:
 
     def load_inertia_load_setup(self):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         sections = config.sections()
@@ -2914,7 +2937,11 @@ class ProjectFile:
     @property
     def project_name(self):
         return self._project_name
-
+    
+    @property
+    def project_ini_name(self):
+        return self._project_ini_name
+    
     @property
     def project_path(self):
         return self._project_path

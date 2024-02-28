@@ -50,7 +50,7 @@ class NewProjectInput(QDialog):
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
 
-        self.project_file_name = self.file._project_base_name
+        self.project_file_name = self.file.project_ini_name
 
     def _config_window(self):
         icons_path = str(Path('data/icons/pulse.png'))
