@@ -13,15 +13,15 @@ class GeometryHandler:
         self._initialize()
 
     def _initialize(self):
-        self.unit = "meter"
+        self.length_unit = "meter"
         self.pipeline = list()
 
     def set_pipeline(self, pipeline):
         self.pipeline = pipeline
 
-    def set_unit_of_length(self, unit):
+    def set_length_unit(self, unit):
         if unit in ["meter", "milimiter", "inch"]:
-            self.unit = unit
+            self.length_unit = unit
 
     def create_geometry(self):
         gmsh.initialize("", False)
@@ -34,11 +34,11 @@ class GeometryHandler:
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
                 
-                if self.unit == "meter":
+                if self.length_unit == "meter":
                     start_coords = m_to_mm(_start_coords)
                     end_coords = m_to_mm(_end_coords)
                 
-                elif self.unit == "inch":
+                elif self.length_unit == "inch":
                     start_coords = in_to_mm(_start_coords)
                     end_coords = in_to_mm(_end_coords)
 
@@ -55,12 +55,12 @@ class GeometryHandler:
                 _end_coords = structure.end.coords()
                 _center_coords = structure.center.coords()
 
-                if self.unit == "meter":
+                if self.length_unit == "meter":
                     start_coords = m_to_mm(_start_coords)
                     end_coords = m_to_mm(_end_coords)
                     center_coords = m_to_mm(_center_coords)
                 
-                elif self.unit == "inch":
+                elif self.length_unit == "inch":
                     start_coords = in_to_mm(_start_coords)
                     end_coords = in_to_mm(_end_coords)
                     center_coords = in_to_mm(_center_coords)

@@ -214,7 +214,7 @@ class Preprocessor:
             build_data = self.file.load_segment_build_data_from_file()
             self.geometry_handler = GeometryHandler()
             pipeline = self.geometry_handler.process_pipeline(build_data)
-            self.geometry_handler.set_unit_of_length(self.file.length_unit)
+            self.geometry_handler.set_length_unit(self.file.length_unit)
             self.geometry_handler.set_pipeline(pipeline)
         
         self.geometry_handler.create_geometry()

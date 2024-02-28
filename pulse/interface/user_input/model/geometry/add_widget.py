@@ -117,22 +117,24 @@ class AddStructuresWidget(QWidget):
         enable_finalize = len(pipeline.structures) > 0
 
     def load_defined_unit(self):
-        self.unit_of_length = self.file.length_unit
-        if self.unit_of_length == "milimeter":
+        self.length_unit = self.file.length_unit
+        if self.length_unit == "milimeter":
             self.comboBox_length_unit.setCurrentIndex(0)
-        elif self.unit_of_length == "milimeter":
+        elif self.length_unit == "milimeter":
             self.comboBox_length_unit.setCurrentIndex(1)
-        elif self.unit_of_length == "inch":
+        elif self.length_unit == "inch":
             self.comboBox_length_unit.setCurrentIndex(2)
         self.update_legth_units()
 
     def show_cross_section_widget(self):
-        self.cross_section_widget.setVisible(True)
+        self.cross_section_widget._add_icon_and_title()
         section_type = self.comboBox_section_type.currentIndex()
         self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
+        self.cross_section_widget.setVisible(True)
 
     def show_material_widget(self):
         self.material_widget.reset()
+        self.material_widget._add_icon_and_title()
         self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)
 
@@ -147,13 +149,13 @@ class AddStructuresWidget(QWidget):
         index = self.comboBox_length_unit.currentIndex()
         if index == 0:
             unit_label = "m"
-            self.unit_of_length = "meter"
+            self.length_unit = "meter"
         elif index == 1:
             unit_label = "mm"
-            self.unit_of_length = "milimeter"
+            self.length_unit = "milimeter"
         else:
             unit_label = "in"
-            self.unit_of_length = "inch"
+            self.length_unit = "inch"
         #
         for _label in self.unit_labels:
             _label.setText(f"[{unit_label}]")

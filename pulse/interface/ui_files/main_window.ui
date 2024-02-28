@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -147,7 +147,6 @@
     </property>
     <addaction name="action_create_edit_geometry"/>
     <addaction name="action_edit_geometry"/>
-    <addaction name="action_set_project_attributes"/>
     <addaction name="action_set_geometry_file"/>
     <addaction name="action_set_material"/>
     <addaction name="action_set_fluid"/>
