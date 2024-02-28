@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         
     # public
     def new_project(self):
-        if not self.input_widget.new_project(self.config):
+        if not self.input_widget.new_project():
             return 
         self._update_recent_projects()
         self.set_window_title(self.project.file._project_name)
