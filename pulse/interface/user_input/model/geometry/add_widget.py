@@ -22,6 +22,9 @@ class AddStructuresWidget(QWidget):
         self.project = app().project
         self.file = self.project.file
 
+        self.cross_section_widget = CrossSectionWidget()
+        self.material_widget = MaterialInputs()
+
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
@@ -37,44 +40,38 @@ class AddStructuresWidget(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_length_unit: QComboBox
-        self.comboBox_section_type: QComboBox
-        self.comboBox_bending_type: QComboBox
+        self.comboBox_length_unit : QComboBox
+        self.comboBox_section_type : QComboBox
+        self.comboBox_bending_type : QComboBox
 
         # QFrame
-        self.information_frame: QFrame
+        self.information_frame : QFrame
         self.information_frame.setVisible(False)
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        self.cross_section_widget = CrossSectionWidget()
-        self.material_widget = MaterialInputs(app().main_window)
-
         # QLabel
-        self.label_unit_delta_x: QLabel
-        self.label_unit_delta_y: QLabel
-        self.label_unit_delta_z: QLabel
-        self.label_unit_bending_radius: QLabel
+        self.label_unit_delta_x : QLabel
+        self.label_unit_delta_y : QLabel
+        self.label_unit_delta_z : QLabel
+        self.label_unit_bending_radius : QLabel
 
         # QLineEdit
-        self.lineEdit_delta_x: QLineEdit
-        self.lineEdit_delta_y: QLineEdit
-        self.lineEdit_delta_z: QLineEdit
-        self.lineEdit_bending_radius: QLineEdit
+        self.lineEdit_delta_x : QLineEdit
+        self.lineEdit_delta_y : QLineEdit
+        self.lineEdit_delta_z : QLineEdit
+        self.lineEdit_bending_radius : QLineEdit
         self.create_list_of_unit_labels()
         
         # QPushButton
-        self.pushButton_set_cross_section: QPushButton
-        self.pushButton_set_material: QPushButton
-        self.pushButton_add_segment: QPushButton
+        self.pushButton_set_cross_section : QPushButton
+        self.pushButton_set_material : QPushButton
+        self.pushButton_add_segment : QPushButton
 
         # QTabWidget
-        # self.tabWidget_main: QTabWidget
-        # self.tabWidget_general: QTabWidget
-        # self.tabWidget_pipe_section: QTabWidget
-        # self.tabWidget_beam_section: QTabWidget
+        # self.tabWidget_main : QTabWidget
 
         # QTextEdit
         self.textEdit_segment_information: QTextEdit

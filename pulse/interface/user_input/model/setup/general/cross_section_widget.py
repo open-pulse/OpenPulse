@@ -764,12 +764,12 @@ class CrossSectionWidget(QWidget):
     def check_if_section_is_normalized(self):
                             
         outside_diameter = check_inputs(self.lineEdit_outside_diameter, "'outside diameter (Pipe section)'")
-        if outside_diameter:
+        if outside_diameter is None:
             self.lineEdit_outside_diameter.setFocus()
             return
 
         thickness = check_inputs(self.lineEdit_wall_thickness, "'thickness (Pipe section)'")
-        if thickness:
+        if thickness is None:
             self.lineEdit_wall_thickness.setFocus()
             return
         

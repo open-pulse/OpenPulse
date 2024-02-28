@@ -42,6 +42,9 @@ class MeshToolbar(QToolBar):
         self.lineEdit_element_size.setAlignment(Qt.AlignCenter)
         self.lineEdit_geometry_tolerance.setAlignment(Qt.AlignCenter)
 
+        self.lineEdit_element_size.setStyleSheet("background-color: rgb(255,255,255)")
+        self.lineEdit_geometry_tolerance.setStyleSheet("background-color: rgb(255,255,255)")
+
     def configure_appearance(self):
         self.setMinimumHeight(32)
         self.setMovable(True)

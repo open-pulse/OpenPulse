@@ -79,7 +79,7 @@ class SetMaterialInput(QDialog):
         self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
 
     def _add_material_input_widget(self):
-        self.material_widget = MaterialInputs(self.main_window)
+        self.material_widget = MaterialInputs()
         self.grid_layout.addWidget(self.material_widget)
 
     def _create_connections(self):

@@ -10,12 +10,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import count
 
-from pulse import UI_DIR
 from pulse.libraries.default_libraries import default_material_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.preprocessing.material import Material
+from pulse import app, UI_DIR
 
 window_title = "Error"
 window_title2 = "Warning"
@@ -28,18 +28,23 @@ def getColorRGB(color):
     return list(map(int, tokens))
 
 class MaterialInputs(QWidget):
-    def __init__(self, main_window, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "model/setup/general/material_input_widget.ui", self)
 
-        self.main_window = main_window
+        self.main_window = app().main_window
 
         self.reset()
         self.define_qt_variables()
         self.create_connections()
-
         self.load_data_from_materials_library()
+
+    def _add_icon_and_title(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
     def reset(self):
         self.row = None

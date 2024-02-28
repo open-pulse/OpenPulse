@@ -619,77 +619,88 @@ class ProjectFile:
             entityFile = configparser.ConfigParser()
             entityFile.read(self._entity_path)
             sections = entityFile.sections()
-            section_info = {}
-            parameters_to_entity_id = defaultdict(list)
-            parameters_to_elements_id = {}
-            variable_section_line_ids = []
+
             _id = 1
+            section_info = dict()
+            parameters_to_elements_id = dict()
+            variable_section_line_ids = list()
+            parameters_to_entity_id = defaultdict(list)
 
             for entity in sections:
 
-                line_prefix = ""
-                list_elements = []
                 outerDiameter = ""
                 thickness = ""
+                line_prefix = ""
+                list_elements = []
 
-                if 'structural element type' in entityFile[entity].keys():
-                    
-                    structural_element_type = entityFile[entity]['structural element type']
-                    if structural_element_type == 'pipe_1':
+                section = entityFile[entity]
+                keys = section.keys()
 
-                        if 'variable section parameters' in entityFile[entity].keys():
+                if 'section label' in keys:
+                    section_label = section['section label']
+                    if "pipe" in section_label:
+
+                        if 'structural element type' in keys:
+                            structural_element_type = section['structural element type']
+                        else:
+                            structural_element_type = "pipe_1"
+
+                        if 'variable' in section_label:
                             if line_prefix not in variable_section_line_ids:
                                 variable_section_line_ids.append(entity)
-                        
+                            str_section_variable_parameters = section['variable section parameters']
+                            section_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)                  
+
                         if "-" in entity:
                             line_prefix = entity.split("-")[0]
                             if line_prefix in variable_section_line_ids:
                                 continue
-                            elif 'list of elements' in entityFile[entity].keys():
-                                str_list_elements = entityFile[entity]['list of elements']
+                            elif 'list of elements' in keys:
+                                str_list_elements = section['list of elements']
                                 list_elements = get_list_of_values_from_string(str_list_elements)
 
-                        if 'outer diameter' in entityFile[entity].keys():
-                            outerDiameter = entityFile[entity]['outer diameter']
-                        
-                        if 'thickness' in entityFile[entity].keys():
-                            thickness = entityFile[entity]['thickness']
-                        
-                        if 'offset [e_y, e_z]' in entityFile[entity].keys():
-                            offset = entityFile[entity]['offset [e_y, e_z]']
-                            offset_y, offset_z = self._get_offset_from_string(offset) 
-                        
-                        if 'insulation thickness' in entityFile[entity].keys():
-                            insulation_thickness = entityFile[entity]['insulation thickness']
-                        
-                        if 'insulation density' in entityFile[entity].keys():
-                            insulation_density = entityFile[entity]['insulation density']
-            
-                        if outerDiameter != "" and thickness != "":
-                            outerDiameter = float(outerDiameter)
-                            thickness = float(thickness)
-                            offset_y = float(offset_y)
-                            offset_z = float(offset_z)
-                            insulation_thickness = float(insulation_thickness)
-                            insulation_density = float(insulation_density)
-                            section_parameters = [outerDiameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
-                        
-                        if 'section parameters' in entityFile[entity].keys():
-                            str_section_parameters = entityFile[entity]['section parameters']
+                        if 'section parameters' in keys:
+                            str_section_parameters = section['section parameters']
                             section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)                  
-                    
-                        if 'variable section parameters' in entityFile[entity].keys():
-                            str_section_variable_parameters = entityFile[entity]['variable section parameters']
-                            section_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)                  
-                    
-                    elif 'beam section type' in entityFile[entity].keys():
-                            section_type = entityFile[entity]['beam section type']
+                        
+                        else:
+                            # just to maintain the compatibility with older versions
+                            # TODO: remove as soons as possible
+                            if 'outer diameter' in keys:
+                                outerDiameter = section['outer diameter']
+                            
+                            if 'thickness' in keys:
+                                thickness = section['thickness']
+                            
+                            if 'offset [e_y, e_z]' in keys:
+                                offset = section['offset [e_y, e_z]']
+                                offset_y, offset_z = self._get_offset_from_string(offset) 
+                            
+                            if 'insulation thickness' in keys:
+                                insulation_thickness = section['insulation thickness']
+                            
+                            if 'insulation density' in keys:
+                                insulation_density = section['insulation density']
+                
+                            if outerDiameter != "" and thickness != "":
+                                outerDiameter = float(outerDiameter)
+                                thickness = float(thickness)
+                                offset_y = float(offset_y)
+                                offset_z = float(offset_z)
+                                insulation_thickness = float(insulation_thickness)
+                                insulation_density = float(insulation_density)
+                                section_parameters = [outerDiameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
+
+                    elif 'beam section type' in keys:
+
+                            section_type = section['beam section type']
                             structural_element_type = f"beam_1 - {section_type}"
+
                             if section_type == "Generic section":   
                                 continue              
                             else:
-                                if 'section parameters' in entityFile[entity].keys():
-                                    str_section_parameters = entityFile[entity]['section parameters']
+                                if 'section parameters' in keys:
+                                    str_section_parameters = section['section parameters']
                                     section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
 
                     str_section_parameters = str(section_parameters)

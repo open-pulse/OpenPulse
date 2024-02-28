@@ -203,9 +203,7 @@ class InputUi:
         self.processInput(SetMaterialInput, self.project, self.opv)   
          
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
-        read = self.processInput(   SetCrossSectionInput, 
-                                    self.project, 
-                                    self.opv, 
+        read = self.processInput(   SetCrossSectionInput,
                                     pipe_to_beam = pipe_to_beam, 
                                     beam_to_pipe = beam_to_pipe, 
                                     lines_to_update_cross_section = lines_to_update_cross_section   ) 

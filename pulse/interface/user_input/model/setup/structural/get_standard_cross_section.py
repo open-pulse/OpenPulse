@@ -11,20 +11,19 @@ import numpy as np
 from collections import defaultdict
 
 class GetStandardCrossSection(QDialog):
-    def __init__(self, section_data=None, *args, **kwargs):
-        super(GetStandardCrossSection, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(GetStandardCrossSection, self).__init__()
+        
         uic.loadUi(UI_DIR / "model/setup/structural/standard_cross_section_input.ui", self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        section_data = kwargs.get("section_data", None)
 
-        self._reset_variables()
-        self._load_cross_section_libraries()
+        self._initialize()
+        self._load_icons()
+        self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self._load_cross_section_libraries()
         
         if section_data is None:
             self.load_treeWidget()
@@ -35,19 +34,26 @@ class GetStandardCrossSection(QDialog):
 
         self.exec()
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.complete = False
         self.selected_id = None
         self.outside_diameter = 0.
         self.wall_thickness = 0.
         self.highlight_section = defaultdict(list)
 
+    def _load_icons(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def _load_cross_section_libraries(self):
         std_data = StandardCrossSections()
         self.carbon_steel_cross_sections = std_data.carbon_steel_cross_sections
         self.stainless_steel_cross_sections = std_data.stainless_steel_cross_sections
-
 
     def _define_qt_variables(self):
         self.comboBox_units = self.findChild(QComboBox, 'comboBox_units')
@@ -146,15 +152,12 @@ class GetStandardCrossSection(QDialog):
             self.close()
 
     def check_section(self, section_data):
-        """
-        """
 
         self.highlight_section = defaultdict(list)
         outside_diameter_1 = section_data["outside diameter"]
         thickness_1 = section_data["wall thickness"]
 
         self.std_data_CS = self.carbon_steel_cross_sections
-        self.std_data_SS = self.stainless_steel_cross_sections
         for index, data in self.std_data_CS.items():
             outside_diameter_2 = data["Outside diameter (in)"]*(25.4/1000)
             thickness_2 = data["Wall thickness (in)"]*(25.4/1000)
@@ -162,13 +165,14 @@ class GetStandardCrossSection(QDialog):
                 if np.abs(thickness_1 - thickness_2) < 1e-4:
                     self.highlight_section["carbon steel pipe"].append(index-1)
 
+        self.std_data_SS = self.stainless_steel_cross_sections
         for index, data in self.std_data_SS.items():
             outside_diameter_2 = data["Outside diameter (in)"]*(25.4/1000)
             thickness_2 = data["Wall thickness (in)"]*(25.4/1000)
             if np.abs(outside_diameter_1 - outside_diameter_2) < 1e-4:
                 if np.abs(thickness_1 - thickness_2) < 1e-4:
                     self.highlight_section["stainless steel pipe"].append(index-1)
-        
+
         if len(self.highlight_section) > 0:
             return False
         else:

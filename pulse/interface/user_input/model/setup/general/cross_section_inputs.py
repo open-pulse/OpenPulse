@@ -30,6 +30,11 @@ class CrossSectionWidget(QWidget):
         self.create_lists_of_entries()
         self.config_treeWidget()
         
+    def _add_icon_and_title(self):
+        icons_path = str(Path('data/icons/pulse.png'))
+        self.icon = QIcon(icons_path)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
     def reset(self):
         
@@ -371,7 +376,7 @@ class CrossSectionWidget(QWidget):
             message = "The THICKNESS must be greater than zero."
 
         if message != "":
-            title = "INPUT CROSS-SECTION ERROR"
+            title = "Input cross-section error"
             PrintMessageInput([window_title, title, message]) 
             return True
            
@@ -424,8 +429,8 @@ class CrossSectionWidget(QWidget):
             message = "The FINAL THICKNESS must be greater than zero." 
         
         if message != "":
-            title = "INPUT CROSS-SECTION ERROR"
-            PrintMessageInput([title, message, window_title])
+            title = "Input cross-section error"
+            PrintMessageInput([window_title, title, message])
             return
 
         offset_y_initial = check_inputs(self.lineEdit_offset_y_initial, "'offset y (initial)'", only_positive=False, zero_included=True)
@@ -521,9 +526,9 @@ class CrossSectionWidget(QWidget):
                     return True
 
                 if thickness > np.min([(base/2), (height/2)]):
-                    title = "INPUT CROSS-SECTION ERROR"
+                    title = "Input cross-section error"
                     message = "Error in THICKNESS value input."
-                    PrintMessageInput([title, message, window_title])
+                    PrintMessageInput([window_title, title, message])
                     return True             
                 else:
                     base_in = base - 2*thickness
@@ -563,7 +568,7 @@ class CrossSectionWidget(QWidget):
                 title = "INPUT CROSS-SECTION ERROR (CIRCULAR PROFILE)"
                 message = "The outside diameter must be greater than 2*THICKNESS."
                 message += "Note: let THICKNESS input field blank for massive sections"
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return True
 
             self.section_parameters = [outside_diameter_beam, thickness, offset_y, offset_z]
@@ -613,9 +618,9 @@ class CrossSectionWidget(QWidget):
                 return True
 
             if h < (t1 + t2):
-                title = "INPUT CROSS-SECTION ERROR"
+                title = "Input cross-section error"
                 message = "The HEIGHT must be greater than t1+t2 summation."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return True
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
@@ -665,9 +670,9 @@ class CrossSectionWidget(QWidget):
                 return True
 
             if h < (t1 + t2):
-                title = "INPUT CROSS-SECTION ERROR"
+                title = "Input cross-section error"
                 message = "The HEIGHT must be greater than t1+t2 summation."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return True
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
@@ -707,9 +712,9 @@ class CrossSectionWidget(QWidget):
                 return True
 
             if h < t1:
-                title = "INPUT CROSS-SECTION ERROR"
+                title = "Input cross-section error"
                 message = "The HEIGHT must be greater than t1."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return True
 
             self.section_parameters = [h, w1, t1, tw, offset_y, offset_z]
@@ -742,9 +747,9 @@ class CrossSectionWidget(QWidget):
                 return True
 
             if shear_coefficient > 1:
-                title = "INPUT CROSS-SECTION ERROR"
+                title = "Input cross-section error"
                 message = "The SHEAR FACTOR must be less or equals to 1."
-                PrintMessageInput([title, message, window_title]) 
+                PrintMessageInput([window_title, title, message]) 
                 return True
             else:  
 
@@ -763,20 +768,20 @@ class CrossSectionWidget(QWidget):
         return False
 
     def check_if_section_is_normalized(self):
-                            
+
         outside_diameter = check_inputs(self.lineEdit_outside_diameter, "'outside diameter (Pipe section)'")
-        if outside_diameter:
+        if outside_diameter is None:
             self.lineEdit_outside_diameter.setFocus()
             return
 
         thickness = check_inputs(self.lineEdit_wall_thickness, "'thickness (Pipe section)'")
-        if thickness:
+        if thickness is None:
             self.lineEdit_wall_thickness.setFocus()
             return
         
         section_data = {"outside diameter" : outside_diameter,
                         "wall thickness" : thickness}
-        
+
         read = GetStandardCrossSection(section_data=section_data)
 
     def plot_section(self):

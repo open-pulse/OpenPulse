@@ -1,20 +1,13 @@
-from PyQt5.QtWidgets import (
-                            QCheckBox,
-                            QFrame,
-                            QGridLayout,
-                            QHBoxLayout,
-                            QLabel,
-                            QLineEdit,
-                            QPushButton,
-                            QStackedLayout,
-                            QVBoxLayout,
-                            QWidget,
-                            )
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5 import uic
 
-from opps.model import Pipe
+from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app, UI_DIR
+
+from opps.model import Pipe
 
 from pathlib import Path
 import numpy as np
@@ -29,8 +22,13 @@ class EditPipeWidget(QWidget):
         self.project = app().project
         self.file = self.project.file
 
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()        
+
     def _initialize(self):
-        pass
+        self.cross_section_widget = CrossSectionWidget()
+        self.material_widget = MaterialInputs()
 
     def _define_qt_variables(self):
         # QLineEdit
@@ -46,14 +44,60 @@ class EditPipeWidget(QWidget):
         self.remove_segment_button : QPushButton
 
     def _create_connections(self):
-        self.change_material_button.clicked.connect(self.change_material_callback)
-        self.change_section_button.clicked.connect(self.change_section_callback)
+        self.change_material_button.clicked.connect(self.show_material_widget)
+        self.change_section_button.clicked.connect(self.show_cross_section_widget)
+        self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
+        self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
+        self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material)
 
-    def change_material_callback(self):
-        pass
+    def show_cross_section_widget(self):
+        self.cross_section_widget._add_icon_and_title()
+        self.cross_section_widget.setVisible(True)
+        # section_type = self.comboBox_section_type.currentIndex()
+        # self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
 
-    def change_section_callback(self):
-        pass
+    def show_material_widget(self):
+        self.material_widget._add_icon_and_title()
+        self.material_widget.setVisible(True)
+        self.material_widget.reset()
+        self.material_widget.load_data_from_materials_library()
+
+    def define_cross_section(self):
+        is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
+        is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
+
+        if is_pipe and is_constant_section:
+            self.cross_section_widget.get_straight_pipe_parameters()
+            section_parameters = list(self.cross_section_widget.section_parameters.values())
+            self.cross_section_info = { "section label" : "pipe (constant)",
+                                        "section parameters" : section_parameters }
+            diameter = self.cross_section_widget.section_parameters["outer_diameter"]
+            self.geometry_widget.update_default_diameter(diameter)
+
+        elif is_pipe and not is_constant_section:
+            self.cross_section_widget.get_variable_section_pipe_parameters()
+            section_parameters =self.cross_section_widget.variable_parameters
+            self.cross_section_info = { "section label" : "pipe (variable)",
+                                        "section parameters" : section_parameters }
+
+        else:  # is beam
+            self.cross_section_widget.get_beam_section_parameters()
+            section_label = self.cross_section_widget.section_label
+            section_parameters = self.cross_section_widget.section_parameters
+            self.cross_section_info = { "section label" : "beam",
+                                        "beam section type" : section_label,
+                                        "section parameters" : section_parameters }
+        
+        # just being consistent with the material name
+        self.cross_section_widget.setVisible(False)
+        # self._update_permissions()
+        # self.update_segment_information_text()
+
+    def define_material(self):
+        self.current_material_index = self.material_widget.get_selected_material_id()
+        self.material_widget.setVisible(False)
+        # self._update_permissions()
+        # self.update_segment_information_text()
 
     def update(self):
         super().update()
