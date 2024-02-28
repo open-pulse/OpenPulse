@@ -168,7 +168,7 @@ class MainWindow(QMainWindow):
         self.action_export_geometry: QAction
         self.action_set_dark_theme : QAction
         self.action_set_light_theme : QAction
-        self.action_remove_themes : QAction
+        self.action_save_project_as : QAction
         self.tool_bar: QToolBar
         self.splitter: QSplitter
         self.menurecent: QMenu
@@ -268,6 +268,9 @@ class MainWindow(QMainWindow):
 
     def action_open_project_callback(self):
         self.open_project()
+
+    def action_save_project_as_callback(self):
+        self.input_widget.save_project_as()
 
     def action_export_geometry_callback(self):
         self.export_geometry()
@@ -455,7 +458,7 @@ class MainWindow(QMainWindow):
     def getProject(self):
         return self.project
     
-    def changeWindowTitle(self, msg = ""):
+    def change_window_title(self, msg = ""):
         self.set_window_title(msg)
 
     def draw(self):
@@ -471,13 +474,13 @@ class MainWindow(QMainWindow):
     def importProject_call(self, path=None):
         if self.input_widget.load_project(path):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.file.project_name)
+            self.change_window_title(self.project.file.project_name)
             self.draw()
 
     def newProject_call(self):
         if self.input_widget.new_project(self.config):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.file.project_name)
+            self.change_window_title(self.project.file.project_name)
             self.draw()
 
     def _add_mesh_toolbar(self):

@@ -8,7 +8,7 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 #
 from pulse.interface.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from pulse.interface.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
-from pulse.interface.user_input.project.set_project_attributes_input import SetProjectAttributesInput
+from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
 from pulse.interface.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
@@ -169,9 +169,8 @@ class InputUi:
         clipping_plane.exec()
         self.opv.dismiss_clipping_plane()
             
-    def set_project_attributes(self):
-        self.processInput(SetProjectAttributesInput, self.project, self.opv)
-        self.main_window.changeWindowTitle(self.project.file._project_name)
+    def save_project_as(self):
+        self.processInput(SaveProjectAsInput)
 
     def set_geometry_file(self):
         self.processInput(SetGeometryFileInput, self.project, self.opv)

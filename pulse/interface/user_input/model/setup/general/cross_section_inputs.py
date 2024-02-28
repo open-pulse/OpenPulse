@@ -59,13 +59,11 @@ class CrossSectionWidget(QWidget):
         self.bottom_frame = self.findChild(QFrame, 'bottom_frame')
         self.top_frame = self.findChild(QFrame, 'top_frame')
         self.selection_frame = self.findChild(QFrame, 'selection_frame')
-        # self.top_frame.setVisible(False)
-        # self.selection_frame.setVisible(False)
-        # self.adjustSize()
-
+        
+        # QLineEdit
         self.lineEdit_element_id_initial = self.findChild(QLineEdit, 'lineEdit_element_id_initial')
         self.lineEdit_element_id_final = self.findChild(QLineEdit, 'lineEdit_element_id_final')
-
+        
         self.lineEdit_outside_diameter = self.findChild(QLineEdit, 'lineEdit_outside_diameter')
         self.lineEdit_wall_thickness = self.findChild(QLineEdit, 'lineEdit_wall_thickness')
         self.lineEdit_offset_y = self.findChild(QLineEdit, 'lineEdit_offset_y')
@@ -128,6 +126,7 @@ class CrossSectionWidget(QWidget):
         self.lineEdit_Iyz = self.findChild(QLineEdit, 'lineEdit_Iyz')
         self.lineEdit_shear_coefficient = self.findChild(QLineEdit, 'lineEdit_shear_coefficient')
 
+        # QPushButton
         self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
         self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')
         self.pushButton_flip_element_ids_initial = self.findChild(QPushButton, 'pushButton_flip_element_ids_initial')
@@ -140,14 +139,13 @@ class CrossSectionWidget(QWidget):
         self.pushButton_select_standard_section_final = self.findChild(QPushButton, 'pushButton_select_standard_section_final')
         self.pushButton_check_if_section_is_normalized = self.findChild(QPushButton, 'pushButton_check_if_section_is_normalized')
 
-        self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
-        self.radioButton_selected_elements = self.findChild(QRadioButton, 'radioButton_selected_elements')
+        # QTabWidget
         self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
         self.tabWidget_pipe_section = self.findChild(QTabWidget, 'tabWidget_pipe_section')
         self.tabWidget_beam_section = self.findChild(QTabWidget, 'tabWidget_beam_section')
         self.tabWidget_sections_data = self.findChild(QTabWidget, 'tabWidget_sections_data')
-
+        
+        # QWidget
         self.tab_pipe = self.tabWidget_general.findChild(QWidget, "tab_pipe")
         self.tab_beam = self.tabWidget_general.findChild(QWidget, "tab_beam")
         self.tab_sections =  self.tabWidget_general.findChild(QTabWidget, 'tab_sections')
@@ -163,6 +161,7 @@ class CrossSectionWidget(QWidget):
         self.tab_attributed_by_lines = self.tabWidget_sections_data.findChild(QWidget, 'tab_attributed_by_lines')
         self.tab_attributed_by_elements = self.tabWidget_sections_data.findChild(QWidget, 'tab_attributed_by_elements')
         
+        # QTreeWidget
         self.treeWidget_sections_parameters_by_lines = self.findChild(QTreeWidget, 'treeWidget_sections_parameters_by_lines')
         self.treeWidget_sections_parameters_by_elements = self.findChild(QTreeWidget, 'treeWidget_sections_parameters_by_elements')  
             

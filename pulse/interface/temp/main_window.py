@@ -89,9 +89,9 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(QSize(800, 600))
         self.showMaximized()
         self.setWindowIcon(self.pulse_icon)
-        self.changeWindowTitle()
+        self.change_window_title()
 
-    def changeWindowTitle(self, msg = ""):
+    def change_window_title(self, msg = ""):
         title = "OpenPulse"
         if (msg != ""):
             title += " - " + msg
@@ -738,13 +738,13 @@ class MainWindow(QMainWindow):
     def newProject_call(self):
         if self.inputWidget.new_project(self.config):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.file._project_name)
+            self.change_window_title(self.project.file._project_name)
             self.draw()
 
     def importProject_call(self, path=None):
         if self.inputWidget.load_project(path):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.file._project_name)
+            self.change_window_title(self.project.file._project_name)
             self.draw()
     
     def resetProject_call(self):
@@ -760,7 +760,7 @@ class MainWindow(QMainWindow):
         else:
             if self.inputWidget.get_started(self.config):
                 self._loadProjectMenu()
-                self.changeWindowTitle(self.project.file._project_name)
+                self.change_window_title(self.project.file._project_name)
                 self.draw()
 
     def savePNG_call(self):
