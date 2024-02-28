@@ -17,7 +17,7 @@ class PlotPerforatedPlateConvergenceData(QDialog):
         # self.project = project
 
         main_window = app().main_window
-        self.project = main_window.getProject()
+        self.project = main_window.project
         data_log = self.project.perforated_plate_data_log
 
         [iterations, pressure_residues, delta_residues, target] = data_log

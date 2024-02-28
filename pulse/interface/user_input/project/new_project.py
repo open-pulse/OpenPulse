@@ -12,7 +12,7 @@ from time import time
 from pulse.libraries.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_new_path
-from pulse import app, UI_DIR
+from pulse import app, UI_DIR, __version__
 
 window_title = "Error"
 
@@ -24,9 +24,10 @@ class NewProjectInput(QDialog):
         uic.loadUi(ui_path, self)
         
         self.main_window = app().main_window
-        self.opv = self.main_window.getOPVWidget()
+        self.opv = self.main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = self.main_window.getProject()
+        self.project = self.main_window.project
+        self.file = self.project.file
         self.config = self.main_window.config
 
         self._initialize()
@@ -49,9 +50,7 @@ class NewProjectInput(QDialog):
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
 
-        self.material_list_name = self.project.file._material_file_name
-        self.fluid_list_name = self.project.file._fluid_file_name
-        self.project_file_name = self.project.file._project_base_name
+        self.project_file_name = self.file._project_base_name
 
     def _config_window(self):
         icons_path = str(Path('data/icons/pulse.png'))
@@ -59,7 +58,7 @@ class NewProjectInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("OpenPulse - New project")
+        self.setWindowTitle(f"OpenPulse v{__version__}")
 
     def _define_qt_variables(self):
         # QComboBox
@@ -116,12 +115,8 @@ class NewProjectInput(QDialog):
         index = self.comboBox_start_project.currentIndex()
         if index == 0:
             self.pushButton_import_geometry.setDisabled(True)
-            # self.lineEdit_element_size.setDisabled(True)
-            # self.lineEdit_geometry_tolerance.setDisabled(True)
         elif index == 1:
             self.pushButton_import_geometry.setDisabled(False)
-            # self.lineEdit_element_size.setDisabled(False)
-            # self.lineEdit_geometry_tolerance.setDisabled(False)
 
     def focus_lineEdit_project_name_if_blank(self):
         if self.lineEdit_project_name.text() == "":
@@ -186,6 +181,7 @@ class NewProjectInput(QDialog):
 
     def start_project(self):
         t0 = time()
+
         self.create_project_folder()
 
         if self.check_project_inputs():
@@ -196,94 +192,97 @@ class NewProjectInput(QDialog):
             return
    
         if self.create_project():
-            self.config.write_recent_project(self.project_file_path)
-            self.complete = True
+            project_ini_file_path = get_new_path(self.project_folder_path, self.project_file_name)
+            self.config.write_recent_project(project_ini_file_path)
             self.project.time_to_load_or_create_project = time() - t0
+            self.complete = True
             self.close()
 
     def create_project(self):
 
-        self.project_folder_path = get_new_path(self.project_directory, self.lineEdit_project_name.text())
+        try:
 
-        if not os.path.exists(self.project_folder_path):
-            os.makedirs(self.project_folder_path)
+            self.project_folder_path = get_new_path(self.project_directory, self.lineEdit_project_name.text())
 
-        self.create_material_file()
-        self.create_fluid_file()
-        self.create_project_file()
+            if not os.path.exists(self.project_folder_path):
+                os.makedirs(self.project_folder_path)
 
-        project_name = self.lineEdit_project_name.text()
-        index = self.comboBox_start_project.currentIndex()
-        
-        if index == 0:
-            import_type = 1
-            self.project.new_empty_project( self.project_folder_path,
+            self.create_material_file()
+            self.create_fluid_file()
+            self.create_project_file()
+
+            project_name = self.lineEdit_project_name.text()
+            index = self.comboBox_start_project.currentIndex()
+            
+            if index == 0:
+
+                self.project.new_empty_project( self.project_folder_path,
+                                                project_name,
+                                                self.length_unit,
+                                                self.element_size,
+                                                self.geometry_tolerance,
+                                                self.import_type,
+                                                self.material_list_path,
+                                                self.fluid_list_path )
+                return True
+
+            elif index == 1:
+
+                current_geometry_path = self.lineEdit_geometry_path.text()
+                new_geometry_path = get_new_path(self.project_folder_path, self.geometry_filename)
+                copyfile(current_geometry_path, new_geometry_path)
+
+                self.project.new_project(   self.project_folder_path,
                                             project_name,
                                             self.length_unit,
                                             self.element_size,
                                             self.geometry_tolerance,
-                                            import_type,
+                                            self.import_type,
                                             self.material_list_path,
-                                            self.fluid_list_path )
-            return True
+                                            self.fluid_list_path,
+                                            geometry_path=new_geometry_path   )
+                return True
+            
+            else:
+                return False
 
-        elif index == 1:
-
-            import_type = 0
-            geometry_filename = os.path.basename(self.lineEdit_geometry_path.text())
-            new_geometry_path = get_new_path(self.project_folder_path, geometry_filename)
-            copyfile(self.lineEdit_geometry_path.text(), new_geometry_path)
-            self.project.new_project(   self.project_folder_path,
-                                        project_name,
-                                        self.length_unit,
-                                        self.element_size,
-                                        self.geometry_tolerance,
-                                        import_type,
-                                        self.material_list_path,
-                                        self.fluid_list_path,
-                                        geometry_path=new_geometry_path   )
-            return True
-        
-        else:
+        except Exception as error_log:
+            
+            window_title = "Error"
+            title = "Error while creating new project"
+            message = str(error_log)
+            PrintMessageInput([window_title, title, message])
+            
             return False
 
     def create_project_file(self):
 
-        config = configparser.ConfigParser()
-
-        self.project_file_path = get_new_path(self.project_folder_path, self.project_file_name)
+        # self.project_name = get_new_path(self.project_folder_path, self.project_filename)
+        self.project_filename = self.lineEdit_project_name.text()
         self.length_unit = self.comboBox_length_unit.currentText().replace(" ", "")
+        index = self.comboBox_start_project.currentIndex()
 
-        config['PROJECT'] = {}
-        config['PROJECT']['name'] = self.lineEdit_project_name.text()
-        config['PROJECT']['length unit'] =  self.length_unit
-
-        if self.comboBox_start_project.currentIndex() == 0:
-            
-            config['PROJECT']['import type'] = str(1)
-
+        if index == 1:
+            self.import_type = 0
+            self.geometry_filename = os.path.basename(self.lineEdit_geometry_path.text())
         else:
-
-            geometry_file_name = os.path.basename(self.lineEdit_geometry_path.text())
-            element_size = self.lineEdit_element_size.text()
-            geometry_tolerance = self.lineEdit_geometry_tolerance.text()
-
-            config['PROJECT']['import type'] = str(0)
-            config['PROJECT']['geometry file'] = geometry_file_name
-            config['PROJECT']['geometry state'] = str(0)
-            config['PROJECT']['element size'] = element_size
-            config['PROJECT']['geometry tolerance'] = geometry_tolerance
-
-        config['PROJECT']['material list file'] = self.material_list_name
-        config['PROJECT']['fluid list file'] = self.fluid_list_name
+            self.import_type = 1
+            self.geometry_filename = ""
         
-        with open(self.project_file_path, 'w') as config_file:
-            config.write(config_file)
+        project_setup = {   "project_folder_path" : self.project_folder_path,
+                            "project_filename" : self.project_filename,
+                            "length_unit" : self.length_unit,
+                            "element_size" : self.element_size,
+                            "geometry_tolerance" : self.geometry_tolerance,
+                            "import_type" : self.import_type,
+                            "geometry_filename" : self.geometry_filename   }
+
+        self.file.create_project_file(**project_setup)
 
     def create_material_file(self):
-        self.material_list_path = get_new_path(self.project_folder_path, self.material_list_name)
+        self.material_list_path = get_new_path(self.project_folder_path, self.file._material_file_name)
         default_material_library(self.material_list_path)
 
     def create_fluid_file(self):
-        self.fluid_list_path = get_new_path(self.project_folder_path, self.fluid_list_name)
+        self.fluid_list_path = get_new_path(self.project_folder_path, self.file._fluid_file_name)
         default_fluid_library(self.fluid_list_path)

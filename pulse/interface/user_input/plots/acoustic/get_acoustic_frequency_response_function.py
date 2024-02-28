@@ -29,9 +29,9 @@ class GetAcousticFrequencyResponseFunction(QWidget):
         ui_path = Path(f"{UI_DIR}/plots/results/acoustic/get_acoustic_frequency_response_function.ui")
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()
         self._load_icons()

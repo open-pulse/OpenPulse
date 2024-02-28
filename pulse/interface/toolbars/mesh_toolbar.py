@@ -3,54 +3,60 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import QAction, QDoubleSpinBox, QFrame, QGridLayout, QLabel, QLineEdit, QPushButton, QToolBar
 
-from pulse.interface.utils import check_inputs
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
+from pulse.interface.utils import check_inputs
+
+from pulse import app
 
 class MeshToolbar(QToolBar):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         
-        self.main_window = parent
-        self.project = parent.project
-        self.mesh_updater = MeshUpdater(parent)
+        self.main_window = app().main_window
+        self.project = app().main_window.project
+        self.mesh_updater = MeshUpdater()
 
-        self.define_qt_variables()
-        self.create_connections()
-        self.configure_layout()
-        self.configure_appearance()
+        self._define_qt_variables()
+        self._configure_widgets()
+        self._create_connections()
+        self._configure_layout()
+        self._configure_appearance()
         self.update_mesh_attributes()
 
-    def define_qt_variables(self):
+    def _define_qt_variables(self):
 
         self.label_element_size = QLabel(" Element size [m]:")
         self.label_geometry_tolerance = QLabel(" Geometry tolerance [m]:")
         self.lineEdit_element_size = QLineEdit()
         self.lineEdit_geometry_tolerance = QLineEdit()
-        self.pushButton_generate_mesh = QPushButton(" Generate mesh ")
 
-        # self.label_element_size.setFixedWidth(80)
-        # self.label_geometry_tolerance.setFixedWidth(120)
-        self.lineEdit_element_size.setFixedWidth(60)
-        self.lineEdit_geometry_tolerance.setFixedWidth(60)
         self.lineEdit_element_size.setText("0.01")
         self.lineEdit_geometry_tolerance.setText("1e-6")
 
+    def _configure_widgets(self):
+        # self.label_element_size.setFixedWidth(80)
+        # self.label_geometry_tolerance.setFixedWidth(120)
         self.label_element_size.setAlignment(Qt.AlignRight)
         self.label_geometry_tolerance.setAlignment(Qt.AlignRight)
         self.label_element_size.setAlignment(Qt.AlignVCenter)
         self.label_geometry_tolerance.setAlignment(Qt.AlignVCenter)
+
         self.lineEdit_element_size.setAlignment(Qt.AlignCenter)
         self.lineEdit_geometry_tolerance.setAlignment(Qt.AlignCenter)
+        self.lineEdit_element_size.setFixedWidth(60)
+        self.lineEdit_geometry_tolerance.setFixedWidth(60)
 
         self.lineEdit_element_size.setStyleSheet("background-color: rgb(255,255,255)")
         self.lineEdit_geometry_tolerance.setStyleSheet("background-color: rgb(255,255,255)")
 
-    def configure_appearance(self):
-        self.setMinimumHeight(32)
-        self.setMovable(True)
-        self.setFloatable(True)
+        self.pushButton_generate_mesh = QPushButton(" Generate mesh ")
+        self.pushButton_generate_mesh.setStyleSheet(""" QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
+                                                        QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
+                                                        QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+                                                        QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}
+                                                    """)
 
-    def create_connections(self):
+    def _create_connections(self):
         # generate_mesh_icon = QIcon(str(Path("data/icons/mesh.png")))
         # self.generate_mesh_action = QAction(generate_mesh_icon, "Mesh", self)
         # self.generate_mesh_action.setToolTip("Press to generate the mesh")
@@ -60,19 +66,22 @@ class MeshToolbar(QToolBar):
         self.lineEdit_geometry_tolerance.editingFinished.connect(self.change_button_visibility)
         self.change_button_visibility()
 
-    def configure_layout(self):
-        #
+    def _configure_layout(self):
         self.addWidget(self.label_element_size)
         self.addWidget(self.lineEdit_element_size)
         self.addWidget(self.label_geometry_tolerance)
         self.addWidget(self.lineEdit_geometry_tolerance)
         self.addSeparator()
         self.addWidget(self.pushButton_generate_mesh)
-        # self.addAction(self.generate_mesh_action)
         #
         self.layout().setContentsMargins(0,0,6,0)
         self.layout().setSpacing(4)
         self.adjustSize()
+
+    def _configure_appearance(self):
+        self.setMinimumHeight(32)
+        self.setMovable(True)
+        self.setFloatable(True)
 
     def change_button_visibility(self):
         self.pushButton_generate_mesh.setDisabled(True)

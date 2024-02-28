@@ -23,10 +23,10 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>OpenPulse - New project</string>
+   <string>OpenPulse</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(255, 255, 255);</string>
+   <string notr="true"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
@@ -97,7 +97,7 @@
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>New project</string>
+         <string>New project settings</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -242,7 +242,7 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -251,14 +251,14 @@
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(250, 250, 250); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QLineEdit:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(100, 100, 100); background-color: rgb(220, 220, 220); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="inputMethodHints">
             <set>Qt::ImhNone</set>
            </property>
            <property name="text">
-            <string>1e-8</string>
+            <string>1e-6</string>
            </property>
            <property name="maxLength">
             <number>20</number>
@@ -387,13 +387,14 @@ QLineEdit:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(250, 250, 250); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="text">
             <string/>
@@ -499,7 +500,7 @@ QLineEdit:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -508,8 +509,8 @@ QLineEdit:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Geometry file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(250, 250, 250); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QLineEdit:disabled{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(100, 100, 100); background-color: rgb(220, 220, 220); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -544,6 +545,11 @@ QLineEdit:disabled{border-radius: 4px; border-color: rgb(150, 150, 150); border-
              <width>0</width>
              <height>1</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
@@ -632,7 +638,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -641,8 +647,8 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(250, 250, 250); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QLineEdit:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(100, 100, 100); background-color: rgb(220, 220, 220); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="inputMethodHints">
             <set>Qt::ImhNone</set>
@@ -785,14 +791,14 @@ QLineEdit:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(250, 250, 250); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QLineEdit:disabled{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(100, 100, 100); background-color: rgb(220, 220, 220); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="frame">
             <bool>true</bool>
@@ -1157,6 +1163,11 @@ QComboBox:pressed{border-radius: 2px; border-color: rgb(0, 170, 255); border-sty
           <height>1</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
@@ -1193,6 +1204,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
           <width>0</width>
           <height>1</height>
          </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}

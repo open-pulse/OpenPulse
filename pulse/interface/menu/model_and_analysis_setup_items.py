@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from pulse.interface.menu.common_menu_items import CommonMenuItems
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
 class ModelAndAnalysisSetupItems(CommonMenuItems):
@@ -17,7 +17,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def __init__(self, main_window):
         super().__init__()
         self.mainWindow = main_window
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._create_items()
         self._create_connections()
@@ -26,7 +26,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def keyPressEvent(self, event):
         """This deals with key events that are directly linked with the menu."""
         if event.key() == Qt.Key_F5:
-            self.mainWindow.getInputWidget().run_analysis()
+            self.mainWindow.input_widget.run_analysis()
             self._update_items()
 
     def _create_items(self):
@@ -118,134 +118,134 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     # Callbacks
     def item_child_create_geometry_callback(self):
-        self.mainWindow.getInputWidget().call_geometry_editor()
+        self.mainWindow.input_widget.call_geometry_editor()
 
     def item_child_edit_geometry_callback(self):
-        read = self.mainWindow.getInputWidget().edit_an_imported_geometry()
+        read = self.mainWindow.input_widget.edit_an_imported_geometry()
 
     def item_child_set_material_callback(self):
         self.update_plot_entities()
-        self.mainWindow.getInputWidget().set_material()
+        self.mainWindow.input_widget.set_material()
         self.mainWindow.plot_entities()
 
     def item_child_set_fluid_callback(self):
         self.update_plot_entities()
-        self.mainWindow.getInputWidget().set_fluid()
+        self.mainWindow.input_widget.set_fluid()
         self.mainWindow.plot_entities()
 
     def item_child_set_cross_section_callback(self):
-        if self.mainWindow.getInputWidget().set_cross_section():
+        if self.mainWindow.input_widget.set_cross_section():
             self.mainWindow.plot_entities_with_cross_section()
 
     def item_child_set_structural_element_type_callback(self):
         self.update_plot_entities()
-        self.mainWindow.getInputWidget().setStructuralElementType()
+        self.mainWindow.input_widget.setStructuralElementType()
 
     def item_child_set_prescribed_dofs_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().setDOF()
+        self.mainWindow.input_widget.setDOF()
         self.mainWindow.plot_mesh()
 
     def item_child_set_nodal_loads_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().setNodalLoads()
+        self.mainWindow.input_widget.setNodalLoads()
         self.mainWindow.plot_mesh()
 
     def item_child_add_mass_spring_damper_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().addMassSpringDamper()
+        self.mainWindow.input_widget.addMassSpringDamper()
         self.mainWindow.plot_mesh()
 
     def item_child_add_elastic_nodal_links_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().add_elastic_nodal_links()
+        self.mainWindow.input_widget.add_elastic_nodal_links()
         self.mainWindow.plot_mesh()
 
     def item_child_set_inertial_loads_callback(self):
-        obj = self.mainWindow.getInputWidget().set_inertial_load()
+        obj = self.mainWindow.input_widget.set_inertial_load()
         if obj.complete:
             self.mainWindow.plot_mesh()
 
     def item_child_set_stress_stiffening_callback(self):
-        self.mainWindow.getInputWidget().set_stress_stress_stiffening()
+        self.mainWindow.input_widget.set_stress_stress_stiffening()
         # self.mainWindow.plot_entities()
 
     def item_child_set_capped_end_callback(self):
-        self.mainWindow.getInputWidget().set_capped_end()
+        self.mainWindow.input_widget.set_capped_end()
         # self.mainWindow.plot_entities()
 
     def item_child_add_valve_callback(self):
-        read = self.mainWindow.getInputWidget().add_valve()
+        read = self.mainWindow.input_widget.add_valve()
         if read.complete:
             self.mainWindow.plot_mesh()
         # self.mainWindow.plot_entities_with_cross_section()
 
     def item_child_add_flanges_callback(self):
-        self.mainWindow.getInputWidget().add_flanges()
+        self.mainWindow.input_widget.add_flanges()
 
     def item_child_add_expansion_joint_callback(self):
-        self.mainWindow.getInputWidget().add_expansion_joint()
+        self.mainWindow.input_widget.add_expansion_joint()
         # self.mainWindow.plot_entities_with_cross_section()
 
     def item_child_set_beam_x_axis_rotation_callback(self):
         self.update_plot_entities_with_cross_section()
-        self.mainWindow.getInputWidget().set_beam_xaxis_rotation()
+        self.mainWindow.input_widget.set_beam_xaxis_rotation()
 
     def item_child_set_rotation_decoupling_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().setRotationDecoupling()
+        self.mainWindow.input_widget.setRotationDecoupling()
         self.mainWindow.plot_mesh()
 
     def item_child_set_acoustic_element_type_callback(self):
         self.update_plot_entities()
-        self.mainWindow.getInputWidget().set_acoustic_element_type()
+        self.mainWindow.input_widget.set_acoustic_element_type()
         self.mainWindow.plot_entities()
 
     def item_child_set_acoustic_pressure_callback(self):
         self.update_plot_mesh()      
-        self.mainWindow.getInputWidget().setAcousticPressure()
+        self.mainWindow.input_widget.setAcousticPressure()
         self.mainWindow.plot_mesh()
 
     def item_child_set_volume_velocity_callback(self):
         self.update_plot_mesh()  
-        self.mainWindow.getInputWidget().setVolumeVelocity()
+        self.mainWindow.input_widget.setVolumeVelocity()
         self.mainWindow.plot_mesh()
 
     def item_child_set_specific_impedance_callback(self):
         self.update_plot_mesh() 
-        self.mainWindow.getInputWidget().setSpecificImpedance()
+        self.mainWindow.input_widget.setSpecificImpedance()
         self.mainWindow.plot_mesh()
 
     def item_child_set_radiation_impedance_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().set_radiation_impedance()
+        self.mainWindow.input_widget.set_radiation_impedance()
         self.mainWindow.plot_mesh()
 
     def item_child_add_perforated_plate_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().add_perforated_plate()
+        self.mainWindow.input_widget.add_perforated_plate()
         self.mainWindow.plot_mesh()
 
     def item_child_set_acoustic_element_length_correction_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().set_acoustic_element_length_correction()
+        self.mainWindow.input_widget.set_acoustic_element_length_correction()
         self.mainWindow.plot_mesh()
 
     def item_child_add_compressor_excitation_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.getInputWidget().add_compressor_excitation()
+        self.mainWindow.input_widget.add_compressor_excitation()
         self.mainWindow.plot_mesh()
 
     def item_child_select_analysis_type_callback(self):
-        self.mainWindow.getInputWidget().analysisTypeInput()
+        self.mainWindow.input_widget.analysisTypeInput()
         self._update_items()
     
     def item_child_analisys_setup_callback(self):
-        self.mainWindow.getInputWidget().analysis_setup()
+        self.mainWindow.input_widget.analysis_setup()
         self._update_items()
 
     def item_child_run_analysis_callback(self):
-        self.mainWindow.getInputWidget().run_analysis()
+        self.mainWindow.input_widget.run_analysis()
         self._update_items()
         self.mainWindow.use_results_workspace()
 
@@ -340,4 +340,4 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
         message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' \nbuttons to continue."
         window_title = 'ERROR'
-        PrintMessageInput([title, message, window_title], opv=self.mainWindow.getOPVWidget())
+        PrintMessageInput([window_title, title, message])

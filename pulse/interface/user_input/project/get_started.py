@@ -110,15 +110,15 @@ class GetStartedInput(QDialog):
             self.project_buttons[i].setVisible(False)
             self.project_path_labels[i].setVisible(False)
 
-        self.recentProjectsList = list(self.config.recentProjects.items())[::-1]
-        for i in range(5 if len(self.recentProjectsList) > 5 else len(self.recentProjectsList)):
+        self.recent_projectsList = list(self.config.recent_projects.items())[::-1]
+        for i in range(5 if len(self.recent_projectsList) > 5 else len(self.recent_projectsList)):
             self.project_buttons[i].setVisible(True)
             self.project_path_labels[i].setVisible(True)
-            self.project_dir[i] = self.recentProjectsList[i][1]
-            # text = str(self.recentProjectsList[i][0]) + "\n" + str(self.recentProjectsList[i][1])
+            self.project_dir[i] = self.recent_projectsList[i][1]
+            # text = str(self.recent_projectsList[i][0]) + "\n" + str(self.recent_projectsList[i][1])
             # self.project_buttons[i].setText(text)
             # self.project_buttons[i].setStyleSheet("text-align:right;")
-            self.project_path_labels[i].setText(str(self.recentProjectsList[i][1]))
+            self.project_path_labels[i].setText(str(self.recent_projectsList[i][1]))
             stylesheet =    """ QLabel{ 
                                         border-radius: 6px; 
                                         border-color: rgb(150, 150, 150); 
@@ -160,9 +160,9 @@ class GetStartedInput(QDialog):
             if self.input_ui.load_project(path=dir):
                 self.close()
         else:
-            for item, value in self.config.recentProjects.items():
+            for key, value in self.config.recent_projects.items():
                 if value == dir:
-                    self.config.remove_path_from_config_file(item)
+                    self.config.remove_path_from_config_file(key)
                     self.update_buttons_visibility()
                     break
 

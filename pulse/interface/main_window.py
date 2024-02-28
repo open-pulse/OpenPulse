@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse.interface.viewer_3d.opv_ui import OPVUi
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
@@ -17,10 +16,12 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse import app, UI_DIR
 
-import sys
-from functools import partial
 import os
+import sys
 import qdarktheme
+from functools import partial
+from pathlib import Path
+
 
 class MainWindow(QMainWindow):
     permission_changed = pyqtSignal()
@@ -35,6 +36,7 @@ class MainWindow(QMainWindow):
         self.ui_dir = UI_DIR
         self.config = app().config
         self.project = app().project
+        self.file = app().project.file
         self.reset()
 
     def reset(self):
@@ -66,7 +68,7 @@ class MainWindow(QMainWindow):
         if not self.input_widget.new_project():
             return 
         self._update_recent_projects()
-        self.set_window_title(self.project.file._project_name)
+        self.set_window_title(self.file._project_name)
         self.update()
 
     def open_project(self, path=None):
@@ -74,7 +76,7 @@ class MainWindow(QMainWindow):
             return 
 
         self._update_recent_projects()
-        self.set_window_title(self.project.file._project_name)
+        self.set_window_title(self.file._project_name)
         self.update()
 
     def export_geometry(self):
@@ -123,26 +125,26 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def load_recent_project(self):
-        if self.config.openLastProject and self.config.haveRecentProjects():
+        if self.config.open_last_project and self.config.haveRecentProjects():
             self.importProject_call(self.config.getMostRecentProjectDir())
         elif self.input_widget.get_started():
             self.update()  # update the renders before change the view
             self.action_front_view_callback()
             self._update_recent_projects()
-            self.set_window_title(self.project.file.project_name)
+            self.set_window_title(self.file.project_name)
 
     # internal
     def _update_recent_projects(self):
-        actions = self.menurecent.actions()
+        actions = self.menu_recent.actions()
         for action in actions:
-            self.menurecent.removeAction(action)
+            self.menu_recent.removeAction(action)
 
         self.menu_actions = []
-        for name, path in reversed(self.config.recentProjects.items()):
+        for name, path in reversed(self.config.recent_projects.items()):
             import_action = QAction(str(name) + "\t" + str(path))
             import_action.setStatusTip(str(path))
             import_action.triggered.connect(partial(self.open_project, path))
-            self.menurecent.addAction(import_action)
+            self.menu_recent.addAction(import_action)
             self.menu_actions.append(import_action)
 
     def _config_window(self):
@@ -158,8 +160,7 @@ class MainWindow(QMainWindow):
         help future maintainers and the code editor with
         type inference.
         '''
-        self.setup_widgets_stack: QStackedWidget
-        self.render_widgets_stack: QStackedWidget
+        # QAction
         self.action_geometry_workspace: QAction
         self.action_structural_setup_workspace: QAction
         self.action_acoustic_setup_workspace: QAction
@@ -169,9 +170,12 @@ class MainWindow(QMainWindow):
         self.action_set_dark_theme : QAction
         self.action_set_light_theme : QAction
         self.action_save_project_as : QAction
-        self.tool_bar: QToolBar
-        self.splitter: QSplitter
-        self.menurecent: QMenu
+        self.action_show_points: QAction
+        self.action_show_lines: QAction
+        self.action_show_tubes: QAction
+        self.action_show_symbols: QAction
+        # QMenu
+        self.menu_recent: QMenu
         self.menu_project: QMenu
         self.menu_graphic: QMenu
         self.menu_general_settings: QMenu
@@ -181,10 +185,14 @@ class MainWindow(QMainWindow):
         self.menu_analysis: QMenu
         self.menu_results_viewer: QMenu
         self.menu_help: QMenu
-        self.action_show_points: QAction
-        self.action_show_lines: QAction
-        self.action_show_tubes: QAction
-        self.action_show_symbols: QAction
+        # QSplitter
+        self.splitter: QSplitter
+        # QStackedWidget
+        self.setup_widgets_stack: QStackedWidget
+        self.render_widgets_stack: QStackedWidget
+        # QToolBar
+        self.tool_bar: QToolBar
+
 
     def _connect_actions(self):
         '''
@@ -225,7 +233,6 @@ class MainWindow(QMainWindow):
         self.cache_indexes.append(index)
 
     def _create_layout(self):
-        editor = app().geometry_toolbox.editor
 
         self.opv_widget = OPVUi(self.project, self)
         self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
@@ -233,10 +240,11 @@ class MainWindow(QMainWindow):
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         self.input_widget = InputUi(self)
 
+        editor = app().geometry_toolbox.editor
         self.mesh_widget = MeshRenderWidget()
         self.geometry_widget = EditorRenderWidget(editor)
         self.geometry_widget.set_theme("light")
-        #
+
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
@@ -250,6 +258,9 @@ class MainWindow(QMainWindow):
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
         self.opv_widget.changePlotToEntitiesWithCrossSection()
+
+    def change_window_title(self, msg = ""):
+        self.set_window_title(msg)
 
     def _update_permissions(self):
         pass
@@ -442,25 +453,12 @@ class MainWindow(QMainWindow):
         self._update_visualization()
 
     def update_export_geometry_file_access(self):
-        import_type = self.project.file.get_import_type()
+        import_type = self.file.get_import_type()
         if import_type == 0:
             self.action_export_geometry.setDisabled(True)
         elif import_type == 1:
             self.action_export_geometry.setDisabled(False)
-
-    # DEPRECATED, REMOVE AS SOON AS POSSIBLE
-    def getInputWidget(self):
-        return self.input_widget
-
-    def getOPVWidget(self):
-        return self.opv_widget
-
-    def getProject(self):
-        return self.project
     
-    def change_window_title(self, msg = ""):
-        self.set_window_title(msg)
-
     def draw(self):
         self.update()
         self.opv_widget.updatePlots()
@@ -474,17 +472,17 @@ class MainWindow(QMainWindow):
     def importProject_call(self, path=None):
         if self.input_widget.load_project(path):
             self._loadProjectMenu()
-            self.change_window_title(self.project.file.project_name)
+            self.change_window_title(self.file.project_name)
             self.draw()
 
     def newProject_call(self):
         if self.input_widget.new_project(self.config):
             self._loadProjectMenu()
-            self.change_window_title(self.project.file.project_name)
+            self.change_window_title(self.file.project_name)
             self.draw()
 
     def _add_mesh_toolbar(self):
-        self.mesh_toolbar = MeshToolbar(self)
+        self.mesh_toolbar = MeshToolbar()
         self.addToolBar(self.mesh_toolbar)
         self.insertToolBarBreak(self.mesh_toolbar)
 
@@ -513,12 +511,12 @@ class MainWindow(QMainWindow):
             self.action_set_dark_theme.setDisabled(False)
 
     def savePNG_call(self):
-        project_path = self.project.file._project_path
+        project_path = self.file._project_path
         if not os.path.exists(project_path):
             project_path = ""
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
-            self.getOPVWidget().savePNG(path)
+            self.opv_widget().savePNG(path)
     
     def eventFilter(self, obj, event):
         if event.type() == QEvent.ShortcutOverride:

@@ -21,9 +21,9 @@ class PlotAcousticModeShape(QWidget):
         ui_path = Path(f"{UI_DIR}/plots/results/acoustic/acoustic_mode_shape.ui")
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()
         self._define_qt_variables()

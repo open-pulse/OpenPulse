@@ -140,7 +140,7 @@
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
+              <pointsize>11</pointsize>
               <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
@@ -149,7 +149,8 @@
             <property name="styleSheet">
              <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
             </property>
             <property name="text">
              <string>Plot cross-section</string>
@@ -173,7 +174,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
+              <pointsize>11</pointsize>
               <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
@@ -182,7 +183,8 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <property name="styleSheet">
              <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
             </property>
             <property name="text">
              <string>Confirm</string>
@@ -376,17 +378,27 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <property name="horizontalSpacing">
-               <number>9</number>
-              </property>
-              <property name="verticalSpacing">
+              <property name="spacing">
                <number>6</number>
               </property>
-              <item row="0" column="2">
+              <item row="0" column="0">
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="3">
                <widget class="QLabel" name="label_17">
                 <property name="minimumSize">
                  <size>
-                  <width>60</width>
+                  <width>50</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -399,7 +411,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -413,76 +425,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_22">
-                <property name="minimumSize">
-                 <size>
-                  <width>160</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>174</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
-                  <weight>50</weight>
-                  <italic>false</italic>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Offset y (e&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="lineEdit_offset_y">
-                <property name="minimumSize">
-                 <size>
-                  <width>84</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>84</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
-                  <weight>50</weight>
-                  <italic>false</italic>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="focusPolicy">
-                 <enum>Qt::StrongFocus</enum>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">color: rgb(255, 0, 0);</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
+              <item row="0" column="1">
                <widget class="QLabel" name="label_20">
                 <property name="minimumSize">
                  <size>
-                  <width>160</width>
+                  <width>150</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -495,7 +442,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -509,24 +456,24 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="lineEdit_offset_z">
+              <item row="2" column="2">
+               <widget class="QLineEdit" name="lineEdit_offset_y">
                 <property name="minimumSize">
                  <size>
-                  <width>84</width>
+                  <width>90</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>84</width>
+                  <width>100</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -541,36 +488,36 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
                 </property>
+                <property name="clearButtonEnabled">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
-              <item row="4" column="1">
-               <widget class="QLineEdit" name="lineEdit_insulation_thickness">
+              <item row="2" column="1">
+               <widget class="QLabel" name="label_22">
                 <property name="minimumSize">
                  <size>
-                  <width>84</width>
+                  <width>150</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>84</width>
+                  <width>174</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
                 </property>
-                <property name="focusPolicy">
-                 <enum>Qt::StrongFocus</enum>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">color: rgb(255, 0, 0);</string>
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Offset y (e&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
@@ -578,10 +525,47 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                </widget>
               </item>
               <item row="4" column="2">
+               <widget class="QLineEdit" name="lineEdit_insulation_thickness">
+                <property name="minimumSize">
+                 <size>
+                  <width>90</width>
+                  <height>26</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>26</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>MS Shell Dlg 2</family>
+                  <pointsize>10</pointsize>
+                  <weight>50</weight>
+                  <italic>false</italic>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::StrongFocus</enum>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 0, 0);</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="clearButtonEnabled">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
                <widget class="QLabel" name="label_42">
                 <property name="minimumSize">
                  <size>
-                  <width>60</width>
+                  <width>50</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -594,7 +578,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -608,28 +592,31 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="5" column="1">
-               <widget class="QLineEdit" name="lineEdit_insulation_density">
+              <item row="3" column="2">
+               <widget class="QLineEdit" name="lineEdit_offset_z">
                 <property name="minimumSize">
                  <size>
-                  <width>84</width>
+                  <width>90</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>84</width>
+                  <width>100</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                  </font>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::StrongFocus</enum>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">color: rgb(255, 0, 0);</string>
@@ -637,13 +624,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
                 </property>
+                <property name="clearButtonEnabled">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
-              <item row="5" column="2">
+              <item row="5" column="3">
                <widget class="QLabel" name="label_41">
                 <property name="minimumSize">
                  <size>
-                  <width>60</width>
+                  <width>50</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -656,7 +646,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -670,11 +660,45 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="lineEdit_insulation_density">
+                <property name="minimumSize">
+                 <size>
+                  <width>90</width>
+                  <height>26</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>100</width>
+                  <height>26</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>MS Shell Dlg 2</family>
+                  <pointsize>10</pointsize>
+                  <weight>50</weight>
+                  <italic>false</italic>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 0, 0);</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="clearButtonEnabled">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
                <widget class="QLabel" name="label_23">
                 <property name="minimumSize">
                  <size>
-                  <width>160</width>
+                  <width>150</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -687,7 +711,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -701,11 +725,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="5" column="0">
+              <item row="5" column="1">
                <widget class="QLabel" name="label_25">
                 <property name="minimumSize">
                  <size>
-                  <width>160</width>
+                  <width>150</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -718,7 +742,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -732,11 +756,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="4" column="0">
+              <item row="4" column="1">
                <widget class="QLabel" name="label_26">
                 <property name="minimumSize">
                  <size>
-                  <width>160</width>
+                  <width>150</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -749,7 +773,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -763,24 +787,24 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
+              <item row="0" column="2">
                <widget class="QLineEdit" name="lineEdit_outside_diameter">
                 <property name="minimumSize">
                  <size>
-                  <width>84</width>
+                  <width>90</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>84</width>
+                  <width>100</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -795,13 +819,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
                 </property>
+                <property name="clearButtonEnabled">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
-              <item row="1" column="2">
+              <item row="1" column="3">
                <widget class="QLabel" name="label_18">
                 <property name="minimumSize">
                  <size>
-                  <width>60</width>
+                  <width>50</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -814,7 +841,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -828,11 +855,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="2" column="2">
+              <item row="2" column="3">
                <widget class="QLabel" name="label_19">
                 <property name="minimumSize">
                  <size>
-                  <width>60</width>
+                  <width>50</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -845,7 +872,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -859,24 +886,24 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
+              <item row="1" column="2">
                <widget class="QLineEdit" name="lineEdit_wall_thickness">
                 <property name="minimumSize">
                  <size>
-                  <width>84</width>
+                  <width>90</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>84</width>
+                  <width>100</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -891,13 +918,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
                 </property>
+                <property name="clearButtonEnabled">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
-              <item row="3" column="2">
+              <item row="3" column="3">
                <widget class="QLabel" name="label_24">
                 <property name="minimumSize">
                  <size>
-                  <width>60</width>
+                  <width>50</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -910,7 +940,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -924,11 +954,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
+              <item row="1" column="1">
                <widget class="QLabel" name="label_21">
                 <property name="minimumSize">
                  <size>
-                  <width>160</width>
+                  <width>150</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -941,7 +971,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                 <property name="font">
                  <font>
                   <family>MS Shell Dlg 2</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -954,6 +984,19 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                  <set>Qt::AlignCenter</set>
                 </property>
                </widget>
+              </item>
+              <item row="0" column="4">
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
              <zorder>label_24</zorder>
@@ -974,6 +1017,8 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
              <zorder>lineEdit_insulation_thickness</zorder>
              <zorder>label_20</zorder>
              <zorder>label_41</zorder>
+             <zorder>horizontalSpacer</zorder>
+             <zorder>horizontalSpacer_2</zorder>
             </widget>
            </item>
            <item row="1" column="1">
@@ -1181,7 +1226,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1195,6 +1240,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="clearButtonEnabled">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -1277,7 +1325,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1288,6 +1336,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="clearButtonEnabled">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -1615,7 +1666,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1646,7 +1697,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1677,7 +1728,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1708,7 +1759,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1739,7 +1790,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1770,7 +1821,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
-                     <pointsize>11</pointsize>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1889,7 +1940,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -1903,6 +1954,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -1923,7 +1977,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2010,15 +2064,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>9</weight>
+                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+                       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
                       </property>
                       <property name="text">
                        <string>Flip</string>
@@ -2042,7 +2097,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>12</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2056,6 +2111,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -2118,7 +2176,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2132,6 +2190,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -2152,7 +2213,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2245,7 +2306,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2259,6 +2320,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -2279,7 +2343,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2352,7 +2416,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2383,7 +2447,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2397,6 +2461,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -2488,10 +2555,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="styleSheet">
                        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
                       </property>
                       <property name="text">
-                       <string>Initial section</string>
+                       <string>Get section</string>
                       </property>
                      </widget>
                     </item>
@@ -2625,7 +2693,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2639,6 +2707,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -2659,7 +2730,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2743,15 +2814,16 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>9</weight>
+                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+                       <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
                       </property>
                       <property name="text">
                        <string>Flip</string>
@@ -2775,7 +2847,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>12</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2789,6 +2861,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -2851,7 +2926,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2865,6 +2940,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -2885,7 +2963,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2978,7 +3056,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -2992,6 +3070,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -3012,7 +3093,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -3085,7 +3166,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -3116,7 +3197,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="font">
                        <font>
                         <family>MS Shell Dlg 2</family>
-                        <pointsize>11</pointsize>
+                        <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
@@ -3130,6 +3211,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="clearButtonEnabled">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -3221,10 +3305,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                       <property name="styleSheet">
                        <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
                       </property>
                       <property name="text">
-                       <string>Final section</string>
+                       <string>Get section</string>
                       </property>
                      </widget>
                     </item>
@@ -3367,11 +3452,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -3382,6 +3463,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_base_rectangular_section">
@@ -3407,11 +3491,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -3422,6 +3502,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_offsety_rectangular_section">
@@ -3447,11 +3530,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -3462,6 +3541,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_wall_thickness_rectangular_section">
@@ -3487,11 +3569,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -3502,6 +3580,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_height_rectangular_section">
@@ -3527,11 +3608,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -3542,6 +3619,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_100">
@@ -3965,11 +4045,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="focusPolicy">
@@ -3980,6 +4059,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_outside_diameter_circular_section">
@@ -4005,11 +4087,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="styleSheet">
@@ -4020,6 +4101,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_115">
@@ -4129,11 +4213,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4144,6 +4227,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_118">
@@ -4197,11 +4283,10 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4212,6 +4297,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_119">
@@ -4323,11 +4411,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4338,6 +4422,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_height_C_section">
@@ -4369,11 +4456,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4384,6 +4467,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_tw_C_section">
@@ -4415,11 +4501,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4430,6 +4512,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_t1_C_section">
@@ -4461,11 +4546,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4476,6 +4557,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_w1_C_section">
@@ -4507,11 +4591,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4522,6 +4602,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_t2_C_section">
@@ -4553,11 +4636,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4568,6 +4647,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_121">
@@ -4873,11 +4955,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4888,6 +4966,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_offsety_C_section">
@@ -4913,11 +4994,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -4928,6 +5005,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_67">
@@ -5173,11 +5253,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5188,6 +5264,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_139">
@@ -5303,11 +5382,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5318,6 +5393,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_74">
@@ -5405,11 +5483,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5420,6 +5494,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_offsety_I_section">
@@ -5445,11 +5522,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5460,6 +5533,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_134">
@@ -5519,11 +5595,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5534,6 +5606,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_t1_I_section">
@@ -5565,11 +5640,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5580,6 +5651,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_tw_I_section">
@@ -5611,11 +5685,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5626,6 +5696,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_137">
@@ -5797,11 +5870,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5812,6 +5881,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_77">
@@ -5973,11 +6045,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -5988,6 +6056,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_143">
@@ -6103,11 +6174,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -6118,6 +6185,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_w1_T_section">
@@ -6149,11 +6219,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -6164,6 +6230,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_145">
@@ -6217,11 +6286,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -6232,6 +6297,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLineEdit" name="lineEdit_tw_T_section">
@@ -6263,11 +6331,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -6278,6 +6342,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_83">
@@ -6421,11 +6488,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="focusPolicy">
@@ -6436,6 +6499,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QLabel" name="label_85">
@@ -6599,11 +6665,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="font">
              <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="focusPolicy">
@@ -6614,6 +6676,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -6633,11 +6698,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="font">
              <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="focusPolicy">
@@ -6648,6 +6709,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -6667,11 +6731,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="font">
              <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="focusPolicy">
@@ -6682,6 +6742,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -6701,11 +6764,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="font">
              <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="focusPolicy">
@@ -6716,6 +6775,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -6735,11 +6797,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="font">
              <font>
-              <family>Arial</family>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <property name="focusPolicy">
@@ -6753,6 +6811,9 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -7097,13 +7158,14 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
        </property>
        <property name="text">
         <string>Confirm</string>
@@ -7133,7 +7195,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        <property name="font">
         <font>
          <family>MS Shell Dlg 2</family>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>
@@ -7142,7 +7204,8 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        <property name="styleSheet">
         <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
        </property>
        <property name="text">
         <string>Plot cross-section</string>
@@ -7154,6 +7217,18 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        <string>Sections</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_25">
+       <property name="leftMargin">
+        <number>6</number>
+       </property>
+       <property name="topMargin">
+        <number>6</number>
+       </property>
+       <property name="rightMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>6</number>
+       </property>
        <item row="0" column="0">
         <widget class="QFrame" name="frame_24">
          <property name="frameShape">
@@ -7372,7 +7447,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
+              <pointsize>11</pointsize>
               <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
@@ -7381,7 +7456,8 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <property name="styleSheet">
              <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
             </property>
             <property name="text">
              <string>Load</string>

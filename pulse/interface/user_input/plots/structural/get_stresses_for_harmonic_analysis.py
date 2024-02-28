@@ -27,9 +27,9 @@ class GetStressesForHarmonicAnalysis(QWidget):
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()    
         self._load_icons()

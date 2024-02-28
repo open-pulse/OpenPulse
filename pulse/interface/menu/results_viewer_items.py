@@ -20,7 +20,7 @@ class ResultsViewerItems(CommonMenuItems):
         super().__init__()
 
         self.main_window = app().main_window
-        self.project = self.main_window.getProject()
+        self.project = self.main_window.project
 
         self.setObjectName("results_viewer_items")
         self._create_items()

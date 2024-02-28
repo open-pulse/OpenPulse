@@ -17,7 +17,7 @@ class MenuItems(QTreeWidget):
     def __init__(self, main_window):
         super().__init__()
         self.mainWindow = main_window
-        self.project = main_window.getProject()
+        self.project = main_window.project
         
         # self._createIcons()
         # self._configItemSizes()

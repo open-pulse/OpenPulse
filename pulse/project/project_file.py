@@ -162,6 +162,54 @@ class ProjectFile:
     def get_geometry_entities_path(self):
         return get_new_path(self._project_path, self._geometry_entities_file_name)
 
+    def create_project_file(self, **kwargs):
+        """ This method creates the project.ini beyond default material and fluid library files. 
+
+        Parameters
+        ----------
+
+        """
+
+        config = configparser.ConfigParser()
+
+        project_folder_path = kwargs.get("project_folder_path", "")
+        project_filename = kwargs.get("project_filename", "")
+        length_unit = kwargs.get("length_unit", "")
+        element_size = kwargs.get("element_size", "")
+        geometry_tolerance = kwargs.get("geometry_tolerance", "")
+        element_size = kwargs.get("element_size", "")
+        import_type = kwargs.get("import_type", "")
+        geometry_filename = kwargs.get("geometry_filename", "")
+
+        config['PROJECT'] = {}
+        
+        if project_filename != "":
+            config['PROJECT']['name'] = project_filename
+        
+        if length_unit != "":
+            config['PROJECT']['length unit'] =  length_unit
+
+        if element_size != "":
+            config['PROJECT']['element size'] = str(element_size)
+        
+        if geometry_tolerance != "":
+            config['PROJECT']['geometry tolerance'] = str(geometry_tolerance)
+        
+        if import_type != "":
+            config['PROJECT']['import type'] = str(import_type)
+
+        if geometry_filename != "":
+            config['PROJECT']['geometry file'] = os.path.basename(geometry_filename)
+            # config['PROJECT']['geometry state'] = str(0)
+        
+        config['PROJECT']['material list file'] = self._material_file_name
+        config['PROJECT']['fluid list file'] = self._fluid_file_name
+
+        path = get_new_path(project_folder_path, self._project_base_name)
+
+        with open(path, 'w') as config_file:
+            config.write(config_file)
+
     def create_backup_geometry_folder(self):
         """ This method creates a backup geometry folder if it was not create yet. Additionally, a geometry file copy
             is pasted inside geometry backup folder just after its creation. This geometry file will be used in resetting

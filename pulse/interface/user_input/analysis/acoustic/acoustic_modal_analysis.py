@@ -20,9 +20,9 @@ class AcousticModalAnalysisInput(QDialog):
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._load_icons()
         self._config_window()

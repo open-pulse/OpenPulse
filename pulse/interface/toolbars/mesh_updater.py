@@ -3,18 +3,19 @@ from time import time
 from pulse.tools.utils import get_new_path
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse import app
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class MeshUpdater:
-    def __init__(self, main_window, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.main_window = main_window
-        self.input_widget = main_window.getInputWidget()
-        self.project = self.input_widget.project
-        self.preprocessor = self.input_widget.project.preprocessor
+        self.main_window = app().main_window
+        self.input_widget = app().main_window.input_widget
+        self.project = app().main_window.project
+        self.preprocessor = self.project.preprocessor
         self.opv = self.input_widget.opv
 
         self.remesh_to_match_bcs = False

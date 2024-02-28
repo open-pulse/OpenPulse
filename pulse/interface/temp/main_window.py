@@ -433,12 +433,12 @@ class MainWindow(QMainWindow):
 
     def _createRecentProjectsActions(self):
         self.importRecent_action = {}
-        for value in self.config.recentProjects:
-            import_action = QAction('&'+str(value) + "     "+str(self.config.recentProjects[value]), self)       
+        for value in self.config.recent_projects:
+            import_action = QAction('&'+str(value) + "     "+str(self.config.recent_projects[value]), self)       
             import_action.setStatusTip(value)
             self.importRecent_action[value] = import_action
         try:
-            temp = list(self.config.recentProjects.items())
+            temp = list(self.config.recent_projects.items())
             self.importRecent_action[temp[0][0]].triggered.connect(lambda: self.importRecentProject_call(temp[0][1]))
             self.importRecent_action[temp[1][0]].triggered.connect(lambda: self.importRecentProject_call(temp[1][1]))
             self.importRecent_action[temp[2][0]].triggered.connect(lambda: self.importRecentProject_call(temp[2][1]))
@@ -453,9 +453,9 @@ class MainWindow(QMainWindow):
             pass
 
     def _createMenuRecentProjects(self):
-        self.recentProjectsMenu = QMenu("Recents Projects", parent=self)
+        self.recent_projectsMenu = QMenu("Recents Projects", parent=self)
         for i in self.importRecent_action:
-            self.recentProjectsMenu.addAction(self.importRecent_action[i])
+            self.recent_projectsMenu.addAction(self.importRecent_action[i])
     
     def _loadProjectMenu(self):
         self._createRecentProjectsActions()
@@ -463,7 +463,7 @@ class MainWindow(QMainWindow):
         self.projectMenu.clear()
         self.projectMenu.addAction(self.new_action)
         self.projectMenu.addAction(self.import_action)
-        self.projectMenu.addMenu(self.recentProjectsMenu)
+        self.projectMenu.addMenu(self.recent_projectsMenu)
         self.projectMenu.addAction(self.saveAsPng_action)
         self.projectMenu.addAction(self.reset_action)
         self.projectMenu.addAction(self.exit_action)
@@ -755,7 +755,7 @@ class MainWindow(QMainWindow):
         self.importProject_call(dir)
 
     def loadRecentProject(self):
-        if self.config.openLastProject and self.config.haveRecentProjects():
+        if self.config.open_last_project and self.config.haveRecentProjects():
             self.importProject_call(self.config.getMostRecentProjectDir())
         else:
             if self.inputWidget.get_started(self.config):

@@ -104,7 +104,7 @@
     <property name="title">
      <string>Project</string>
     </property>
-    <widget class="QMenu" name="menurecent">
+    <widget class="QMenu" name="menu_recent">
      <property name="title">
       <string>Recent Projects</string>
      </property>
@@ -112,7 +112,7 @@
     </widget>
     <addaction name="action_new_project"/>
     <addaction name="action_open_project"/>
-    <addaction name="menurecent"/>
+    <addaction name="menu_recent"/>
     <addaction name="action_save_project"/>
     <addaction name="action_save_project_as"/>
     <addaction name="separator"/>

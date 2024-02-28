@@ -26,9 +26,9 @@ class ExportGeometry(QDialog):
         uic.loadUi(ui_path, self)
         
         self.main_window = app().main_window
-        self.opv = self.main_window.getOPVWidget()
+        self.opv = self.main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = self.main_window.getProject()
+        self.project = self.main_window.project
         self.file = self.project.file
         self.config = self.main_window.config
 
