@@ -80,6 +80,29 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
+    def initial_load_project_actions(self, project_file_path):
+        try:
+            self.reset(reset_all=True)
+            self.file.load(project_file_path)
+    
+            self.empty_geometry = True
+            # if os.path.exists(self.file._geometry_path):
+            if self.check_mesh_setup():
+                self.process_geometry_and_mesh()
+                self.empty_geometry = False
+                self.entities = self.preprocessor.dict_tag_to_entity.values()
+                if not os.path.exists(self.file._entity_path):
+                    self.file.create_entity_file(self.preprocessor.all_lines)                   
+            return True
+            # else:
+            #     return False
+            
+        except Exception as log_error:
+            title = "Error while processing initial load project actions"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title])
+            return False
+
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
@@ -111,30 +134,18 @@ class Project:
         #               target=callback)
         self.preprocessor.check_disconnected_lines(self.file._element_size)
 
-    def initial_load_project_actions(self, project_file_path):
-        try:
-            self.reset(reset_all=True)
-            self.file.load(project_file_path)
-    
-            self.empty_geometry = True
-            # if os.path.exists(self.file._geometry_path):
-            if self.check_mesh_setup():
-                self.process_geometry_and_mesh()
-                self.empty_geometry = False
-                self.entities = self.preprocessor.dict_tag_to_entity.values()
-                if not os.path.exists(self.file._entity_path):
-                    self.file.create_entity_file(self.preprocessor.all_lines)                   
-            return True
-            # else:
-            #     return False
-            
-        except Exception as log_error:
-            title = "Error while processing initial load project actions"
-            message = str(log_error)
-            PrintMessageInput([title, message, window_title])
-            return False
+    def reset_project(self, **kwargs):
+        self.reset()
+        self.file.remove_all_unnecessary_files(**kwargs)
+        self.file.reset_fluid_and_material_files(**kwargs)
+        self.file.reset_project_setup(**kwargs)
+        self.file.reset_entity_file(**kwargs)
+        if self.check_mesh_setup():
+            self.process_geometry_and_mesh()
+            self.load_project_files()
 
     def check_mesh_setup(self):
+        #TODO: create a robust solution to avoid crashes
         if self.file.get_element_size_from_project_file() != "":
             return True
         else:
@@ -247,21 +258,6 @@ class Project:
                                                             dict_non_mapped_subgroups,
                                                             dict_list_elements_to_subgroups  )
 
-    def reset_project(self):
-        self.reset()
-        self.remove_all_unnecessary_files()
-        self.file.reset_project_setup()
-        # path = self.file.get_geometry_entities_path()
-        if os.path.exists(self.file._geometry_path):
-            # self.load_geometry_entities()
-            if self.check_mesh_setup():
-                self.process_geometry_and_mesh()
-                self.entities = self.preprocessor.dict_tag_to_entity.values()
-                self.file.create_entity_file(self.preprocessor.all_lines)
-        # else:
-        #     self.process_geometry_and_mesh()
-        # self.file.create_entity_file(self.preprocessor.all_lines)
-
     def create_folders_structural(self, new_folder_name):
         """This method creates the 'imported_data', 'structural' and 'new_folder_name' folders 
             in the project's directory if they do not exist yet.
@@ -285,18 +281,6 @@ class Project:
         new_path = get_new_path(self.file._acoustic_imported_data_folder_path, new_folder_name)
         if not os.path.exists(new_path):
             create_new_folder(self.file._acoustic_imported_data_folder_path, new_folder_name)
-
-    def remove_all_unnecessary_files(self):
-        list_filenames = os.listdir(self.file._project_path).copy()
-        files_to_maintain = self.file.get_list_filenames_to_maintain_after_reset()
-        for filename in list_filenames:
-            if filename not in files_to_maintain:
-                file_path = get_new_path(self.file._project_path, filename)
-                if os.path.exists(file_path):
-                    if "." in filename:
-                        os.remove(file_path)
-                    else:
-                        rmtree(file_path)
                     
     def remove_file_or_folder_from_project_directory(self, filename, folder_name=""):
         if folder_name != "":

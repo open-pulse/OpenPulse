@@ -7,6 +7,7 @@ import numpy as np
 import sys
 import gmsh
 
+np.loadtxt
 
 class GeometryHandler:
     def __init__(self):
@@ -73,11 +74,25 @@ class GeometryHandler:
 
         gmsh.model.occ.synchronize()
 
-
     def process_pipeline(self, build_data : dict):
         """ This method builds structures based on entity file data.
+        
+        Parameters:
+        -----------
+        build_data: dictionary
+            
+            a dictionary containing all required data to build the pipeline structures.
+
+        Returns
+        -------
+        pipeline: Pipeline type
+
+            pipeline data to...
         """
-                
+        
+        editor = app().geometry_toolbox.editor
+        editor.reset()
+
         structures = []
         for key, data in build_data.items():
 
@@ -129,10 +144,10 @@ class GeometryHandler:
 
         pipeline = app().geometry_toolbox.pipeline
         pipeline.structures.clear()
-        pipeline.structures.extend(structures)
 
-        editor = app().geometry_toolbox.editor
-        editor.merge_coincident_points()
+        if len(structures):
+            pipeline.structures.extend(structures)
+            editor.merge_coincident_points()
 
         return pipeline
     

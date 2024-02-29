@@ -1,10 +1,13 @@
+
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.perforated_plate import PerforatedPlate
+from pulse.libraries.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.tools.utils import *
+
 from pulse import app
 
 from opps.model import Pipe, Bend, Point
@@ -54,26 +57,27 @@ class ProjectFile:
         self.zero_frequency = False
 
     def default_filenames(self):
-        self._entity_file_name = "entity.dat"
-        self._material_file_name = "material_list.dat"
-        self._fluid_file_name = "fluid_list.dat"
-        self._geometry_entities_file_name = "geometry_entities.dat"
-        self._node_structural_file_name = "structural_nodal_info.dat"
-        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
-        self._elements_file_name = "elements_info.dat"
         self._project_ini_name = "project.ini"
+        self._entity_file_name = "entity.dat"
+        self._fluid_file_name = "fluid_list.dat"
+        self._material_file_name = "material_list.dat"
+        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
+        self._node_structural_file_name = "structural_nodal_info.dat"
+        self._elements_file_name = "elements_info.dat"
         self._imported_data_folder_name = "imported_data"
         self._backup_geometry_foldername = "geometry_backup"
 
-    def get_list_filenames_to_maintain_after_reset(self):
-        files_to_maintain_after_reset = []
-        files_to_maintain_after_reset.append(self._project_ini_name)
-        files_to_maintain_after_reset.append(self._material_file_name)
-        files_to_maintain_after_reset.append(self._fluid_file_name)
-        files_to_maintain_after_reset.append(self._geometry_entities_file_name)
-        if os.path.exists(self._geometry_path):
-            files_to_maintain_after_reset.append(os.path.basename(self._geometry_path))
-        return files_to_maintain_after_reset
+    def reset_fluid_and_material_files(self, **kwargs):
+
+        reset_fluids = kwargs.get('reset_fluids', True)
+        if reset_fluids:
+            fluid_list_path = get_new_path(self._project_path, self._fluid_file_name)
+            default_fluid_library(fluid_list_path)
+
+        reset_materials = kwargs.get('reset_materials', True)
+        if reset_materials:
+            material_list_path = get_new_path(self._project_path, self._material_file_name)
+            default_material_library(material_list_path)
 
     def new(self, 
             project_path, 
@@ -81,9 +85,7 @@ class ProjectFile:
             length_unit, 
             element_size, 
             geometry_tolerance, 
-            import_type, 
-            material_list_path, 
-            fluid_list_path, 
+            import_type,
             geometry_path = ""):
 
         self._project_path = project_path
@@ -92,12 +94,13 @@ class ProjectFile:
         self._element_size = float(element_size)
         self._geometry_tolerance = float(geometry_tolerance)
         self._import_type = int(import_type)
-        self._material_list_path = material_list_path
-        self._fluid_list_path = fluid_list_path
         self._geometry_path = geometry_path
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
+        self._material_list_path = get_new_path(self._project_path, self._material_file_name)
+
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
@@ -106,21 +109,19 @@ class ProjectFile:
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
     
-    def copy(self, 
-             project_path, 
-             project_name, 
-             material_list_path, 
-             fluid_list_path, 
+    def copy(self,
+             project_path,
+             project_name,
              geometry_path = ""):
         
         self._project_path = project_path
         self._project_name = project_name
-        self._material_list_path = material_list_path
-        self._fluid_list_path = fluid_list_path
         self._geometry_path = geometry_path
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
+        self._material_list_path = get_new_path(self._project_path, self._material_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
@@ -129,8 +130,63 @@ class ProjectFile:
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
-    def get_file_path_inside_project_directory(self, filename):
-        return get_new_path(self._project_path, filename)
+    def get_list_filenames_to_maintain_after_reset(self, **kwargs):
+
+        reset_fluids = kwargs.get('reset_fluids', False)
+        reset_materials = kwargs.get('reset_materials', False)
+        reset_acoustic_model = kwargs.get('reset_fluids', False)
+        reset_structural_model = kwargs.get('reset_materials', False)
+
+        list_filenames = os.listdir(self._project_path).copy()
+        imported_data_files = list()
+        if self._imported_data_folder_name in list_filenames:
+            imported_data_files = os.listdir(self._imported_data_folder_path).copy()
+
+        files_to_maintain_after_reset = []
+        files_to_maintain_after_reset.append(self._project_ini_name)
+        files_to_maintain_after_reset.append(self._entity_file_name)
+
+        if not reset_fluids:
+            files_to_maintain_after_reset.append(self._fluid_file_name)
+
+        if not reset_materials:
+            files_to_maintain_after_reset.append(self._material_file_name)
+
+        if reset_acoustic_model:
+            if self._imported_data_folder_name in list_filenames:
+                if "acoustic" in imported_data_files:
+                    file_path = get_new_path(self._imported_data_folder_name, "acoustic")
+                    rmtree(file_path)
+        else:
+            files_to_maintain_after_reset.append(self._node_acoustic_file_name)
+
+        if reset_structural_model:
+            if self._imported_data_folder_name in list_filenames:
+                if "structural" in imported_data_files:
+                    file_path = get_new_path(self._imported_data_folder_name, "structural")
+                    rmtree(file_path)
+        else:
+            files_to_maintain_after_reset.append(self._node_structural_file_name)
+            
+        if os.path.exists(self._geometry_path):
+            files_to_maintain_after_reset.append(os.path.basename(self._geometry_path))
+
+        return files_to_maintain_after_reset
+
+    def remove_all_unnecessary_files(self, **kwargs):
+        list_filenames = os.listdir(self._project_path).copy()
+        files_to_maintain = self.get_list_filenames_to_maintain_after_reset(**kwargs)
+        for filename in list_filenames:
+            if filename not in files_to_maintain:
+                file_path = get_new_path(self._project_path, filename)
+                if os.path.exists(file_path):
+                    if filename == self._imported_data_folder_name:
+                        if len(os.listdir(file_path).copy()):
+                            continue
+                    if "." in filename:
+                        os.remove(file_path)
+                    else:
+                        rmtree(file_path)
 
     def get_element_size_from_project_file(self):
         if self._project_path != "":
@@ -147,17 +203,6 @@ class ProjectFile:
 
                 else:
                     return ""
-
-    def modify_project_ini_name(self, project_name):
-        
-        config = configparser.ConfigParser()
-        config.read(self.project_ini_file_path)
-
-        if config.has_section('PROJECT'):
-            config['PROJECT']['Name'] = project_name
-            
-            with open(self.project_ini_file_path, 'w') as config_file:
-                config.write(config_file)
 
     def get_mesh_attributes_from_project_file(self):
         element_size = None
@@ -257,31 +302,26 @@ class ProjectFile:
 
         keys = list(section.keys())
 
-        if import_type in [0, 1]:
+        if 'length unit' in keys:
+            self._length_unit = section['length unit']
 
-            if 'length unit' in keys:
-                self._length_unit = section['length unit']
+        if 'geometry file' in keys:
+            geometry_file = section['geometry file']
+            self._geometry_path =  get_new_path(self._project_path, geometry_file)
 
-            if 'geometry file' in keys:
-                geometry_file = section['geometry file']
-                self._geometry_path =  get_new_path(self._project_path, geometry_file)
+        if 'element size' in keys:
+            element_size = section['element size']
+            self._element_size = float(element_size)
 
-            if 'element size' in keys:
-                element_size = section['element size']
-                self._element_size = float(element_size)
-
-            if 'geometry tolerance' in keys:
-                geometry_tolerance = section['geometry tolerance']
-                self._geometry_tolerance = float(geometry_tolerance)
-
-        material_list_file = section['material list file']
-        fluid_list_file = section['fluid list file']
+        if 'geometry tolerance' in keys:
+            geometry_tolerance = section['geometry tolerance']
+            self._geometry_tolerance = float(geometry_tolerance)
 
         self._project_name = project_name
         self._import_type = import_type
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._material_list_path = get_new_path(self._project_path, material_list_file)
-        self._fluid_list_path =  get_new_path(self._project_path, fluid_list_file)
+        self._fluid_list_path =  get_new_path(self._project_path, self._fluid_file_name)
+        self._material_list_path = get_new_path(self._project_path, self._material_file_name)
         self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
         self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
         self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
@@ -424,9 +464,9 @@ class ProjectFile:
 
     def load_visibility_preferences_file(self):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
+        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
+        config.read(project_ini_path)
         sections = config.sections()
 
         preferences = {}
@@ -491,82 +531,115 @@ class ProjectFile:
         
         return preferences
 
-    def add_frequency_in_file(self, min_, max_, step_):
-        min_ = str(min_)
-        max_ = str(max_)
-        step_ = str(step_)
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
-        config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
-        # sections = config.sections()
-        config["Frequency setup"] = {}
-        config['Frequency setup']['frequency min'] = min_
-        config['Frequency setup']['frequency max'] = max_
-        config['Frequency setup']['frequency step'] = step_
+    def add_frequency_in_file(self, f_min, f_max, f_step):
 
-        self.write_data_in_file(temp_project_base_file_path, config)
+        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
+        config = configparser.ConfigParser()
+        config.read(project_ini_path)
+
+        config["Frequency setup"] = {}
+        config['Frequency setup']['frequency min'] = str(f_min)
+        config['Frequency setup']['frequency max'] = str(f_max)
+        config['Frequency setup']['frequency step'] = str(f_step)
+
+        self.write_data_in_file(project_ini_path, config)
 
     def add_damping_in_file(self, global_damping):
 
-        alpha_v = str(global_damping[0])
-        beta_v = str(global_damping[1])
-        alpha_h = str(global_damping[2])
-        beta_h = str(global_damping[3])
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
+        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
+        config.read(project_ini_path)
 
         config['Global damping setup'] = {}
-        config['Global damping setup']['alpha_v'] = alpha_v
-        config['Global damping setup']['beta_v'] = beta_v
-        config['Global damping setup']['alpha_h'] = alpha_h
-        config['Global damping setup']['beta_h'] = beta_h
+        config['Global damping setup']['alpha_v'] = str(global_damping[0])
+        config['Global damping setup']['beta_v'] = str(global_damping[1])
+        config['Global damping setup']['alpha_h'] = str(global_damping[2])
+        config['Global damping setup']['beta_h'] = str(global_damping[3])
 
-        self.write_data_in_file(temp_project_base_file_path, config)
+        self.write_data_in_file(project_ini_path, config)
 
-    def reset_project_setup(self):
+    def reset_project_setup(self, **kwargs):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
+        reset_analysis_setup = kwargs.get('reset_analysis_setup', False)
+
+        if reset_analysis_setup:
+
+            temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
+            config = configparser.ConfigParser()
+            config.read(temp_project_base_file_path)
+            sections = config.sections()
+
+            if "Frequency setup" in sections:
+                config.remove_section("Frequency setup")
+
+            if "Global damping setup" in sections:
+                config.remove_section("Global damping setup")
+
+            self.write_data_in_file(temp_project_base_file_path, config)
+
+    def reset_entity_file(self, **kwargs):
+
+        reset_fluids = kwargs.get('reset_fluids', False)
+        reset_materials = kwargs.get('reset_materials', False)
+
+        keys_to_ignore = list()
+        keys_to_ignore.append("section label")
+        keys_to_ignore.append("section parameters")
+        keys_to_ignore.append("start point")
+        keys_to_ignore.append("corner point")
+        keys_to_ignore.append("end point")
+        keys_to_ignore.append("curvature")
+        
+        if not reset_fluids:
+            keys_to_ignore.append("fluid id")
+
+        if not reset_materials:
+            keys_to_ignore.append("material id")
+
         config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
-        sections = config.sections()
+        config.read(self._entity_path)
 
-        if "Frequency setup" in sections:
-            config.remove_section("Frequency setup")
+        for tag in config.sections():
 
-        if "Global damping setup" in sections:
-            config.remove_section("Global damping setup")
+            keys = list(config[tag].keys())
 
-        self.write_data_in_file(temp_project_base_file_path, config)
+            # config[tag] = {}
+            for key in keys:
+                if key in keys_to_ignore:
+                    continue
+                else:
+                    config.remove_option(tag, key)
+
+        self.write_data_in_file(self._entity_path, config)
 
     def add_user_preferences_to_file(self, preferences):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
+        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
+        config.read(project_ini_path)
 
         config['User interface preferences'] = preferences
         
-        self.write_data_in_file(temp_project_base_file_path, config)
+        self.write_data_in_file(project_ini_path, config)
         
     def add_inertia_load_setup_to_file(self, gravity, stiffening_effect):
         
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
+        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
+        config.read(project_ini_path)
 
         key_effect = int(stiffening_effect)
 
         config['Inertia load setup'] = {'gravity' : list(gravity),
                                         'stiffening_effect' : key_effect}
 
-        self.write_data_in_file(temp_project_base_file_path, config)
+        self.write_data_in_file(project_ini_path, config)
 
     def load_inertia_load_setup(self):
 
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
+        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
         config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
+        config.read(project_ini_path)
         sections = config.sections()
         
         gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)

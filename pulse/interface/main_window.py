@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent
+from PyQt5.QtGui import QColor
 from PyQt5 import uic
 
 from pulse.interface.viewer_3d.opv_ui import OPVUi
@@ -14,6 +15,7 @@ from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysi
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.formatters.icons import get_formatted_icon
 from pulse import app, UI_DIR
 
 import os
@@ -49,7 +51,8 @@ class MainWindow(QMainWindow):
         self.last_index = None
 
     def configure_window(self):
-        
+
+        self._load_icon()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
@@ -147,9 +150,14 @@ class MainWindow(QMainWindow):
             self.menu_recent.addAction(import_action)
             self.menu_actions.append(import_action)
 
+    def _load_icon(self):
+        icon_path = str(Path('data/icons/pulse.png'))
+        self.pulse_icon = get_formatted_icon(icon_path, QColor("#0055DD"))
+
     def _config_window(self):
         self.showMaximized()
         self.installEventFilter(self)
+        self.setWindowIcon(self.pulse_icon)
     
     def _define_qt_variables(self):
         '''

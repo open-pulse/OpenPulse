@@ -210,8 +210,7 @@ class NewProjectInput(QDialog):
             if not os.path.exists(self.project_folder_path):
                 os.makedirs(self.project_folder_path)
 
-            self.create_material_file()
-            self.create_fluid_file()
+            self.create_fluid_and_material_files()
             self.create_project_file()
 
             project_name = self.lineEdit_project_name.text()
@@ -224,9 +223,7 @@ class NewProjectInput(QDialog):
                                                 self.length_unit,
                                                 self.element_size,
                                                 self.geometry_tolerance,
-                                                self.import_type,
-                                                self.material_list_path,
-                                                self.fluid_list_path )
+                                                self.import_type )
                 return True
 
             elif index == 1:
@@ -241,8 +238,6 @@ class NewProjectInput(QDialog):
                                             self.element_size,
                                             self.geometry_tolerance,
                                             self.import_type,
-                                            self.material_list_path,
-                                            self.fluid_list_path,
                                             geometry_path = new_geometry_path   )
                 return True
             
@@ -282,10 +277,5 @@ class NewProjectInput(QDialog):
 
         self.file.create_project_file(**project_setup)
 
-    def create_material_file(self):
-        self.material_list_path = get_new_path(self.project_folder_path, self.file._material_file_name)
-        default_material_library(self.material_list_path)
-
-    def create_fluid_file(self):
-        self.fluid_list_path = get_new_path(self.project_folder_path, self.file._fluid_file_name)
-        default_fluid_library(self.fluid_list_path)
+    def create_fluid_and_material_files(self):
+        self.file.reset_fluid_and_material_files()

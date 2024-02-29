@@ -123,16 +123,14 @@ class SaveProjectAsInput(QDialog):
         else:
             new_geometry_path = ""
 
-        new_material_list_path = get_new_path(self.new_project_directory.text(), 
-                                              os.path.basename(self.current_material_list_path))
+        # new_material_list_path = get_new_path(self.new_project_directory.text(), 
+        #                                       os.path.basename(self.current_material_list_path))
 
-        new_fluid_list_path = get_new_path(self.new_project_directory.text(), 
-                                           os.path.basename(self.current_fluid_list_path))
+        # new_fluid_list_path = get_new_path(self.new_project_directory.text(), 
+        #                                    os.path.basename(self.current_fluid_list_path))
 
         self.project.copy_project(  self.new_project_path,
                                     self.new_project_name.text(),
-                                    new_material_list_path,
-                                    new_fluid_list_path,
                                     geometry_path = new_geometry_path  )
 
     def save_project_button_pressed(self):

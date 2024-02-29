@@ -8,6 +8,7 @@ from pulse.interface.user_input.model.geometry.add_widget import AddStructuresWi
 from pulse.interface.user_input.model.geometry.edit_bend_widget import EditBendWidget
 from pulse.interface.user_input.model.geometry.edit_point_widget import EditPointWidget
 from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
+from pulse.tools.utils import get_new_path
 from pulse import app, UI_DIR
 
 from opps.model import Pipe, Bend
@@ -99,7 +100,7 @@ class OPPGeometryDesignerInput(QWidget):
     def export_cad_file(self):
         pipeline = app().geometry_toolbox.pipeline
         geometry_filename = "geometry_pipeline.step"
-        geometry_path = self.file.get_file_path_inside_project_directory(geometry_filename)
+        geometry_path = self.get_file_path_inside_project_directory(geometry_filename)
         geometry_filename = os.path.basename(geometry_path)
         geometry_filename = ""
 
@@ -165,7 +166,10 @@ class OPPGeometryDesignerInput(QWidget):
             return [start_coords, end_coords]
         else:
             return None
-        
+
+    def get_file_path_inside_project_directory(self, filename):
+        return get_new_path(self.file._project_path, filename)
+
     def close_callback(self):
         app().update()
         app().main_window.opv_widget.updatePlots()
