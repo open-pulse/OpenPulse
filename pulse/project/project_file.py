@@ -134,8 +134,8 @@ class ProjectFile:
 
         reset_fluids = kwargs.get('reset_fluids', False)
         reset_materials = kwargs.get('reset_materials', False)
-        reset_acoustic_model = kwargs.get('reset_fluids', False)
-        reset_structural_model = kwargs.get('reset_materials', False)
+        reset_acoustic_model = kwargs.get('reset_acoustic_model', False)
+        reset_structural_model = kwargs.get('reset_structural_model', False)
 
         list_filenames = os.listdir(self._project_path).copy()
         imported_data_files = list()

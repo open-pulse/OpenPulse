@@ -418,7 +418,7 @@ class BeforeRun:
 
         for index, flag in enumerate(list_flags):
             if flag:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
                 self.opv.opvRenderer.highlight_elements(lists_elements[index])
                 PrintMessageInput([title, list_messages[index], window_title])
 

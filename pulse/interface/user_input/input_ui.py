@@ -192,7 +192,7 @@ class InputUi:
         self.opv.Enable()
         if read.complete:
             self.opv.updatePlots()
-            self.opv.changePlotToEntities()
+            self.opv.plot_entities()
         return read.complete
     
     def get_opv(self):

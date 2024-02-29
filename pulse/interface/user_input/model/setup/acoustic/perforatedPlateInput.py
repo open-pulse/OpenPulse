@@ -1030,7 +1030,7 @@ class PerforatedPlateInput(QDialog):
                                         
         if _update_renderer:
             self.opv.opvRenderer.plot()
-            self.opv.changePlotToEntitiesWithCrossSection()
+            self.opv.plot_entities_with_cross_section()
     
     def actions_to_finalize(self):
         self.opv.updateRendererMesh()

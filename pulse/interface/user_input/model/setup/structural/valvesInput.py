@@ -123,7 +123,7 @@ class ValvesInput(QDialog):
         self.pushButton_remove.clicked.connect(self.remove_valve_by_selection)
 
         if len(self.line_id) + len(self.element_id) == 0:
-            self.opv.changePlotToEntitiesWithCrossSection()
+            self.opv.plot_entities_with_cross_section()
 
         self.update()
         # self.checkBox_event_update()
@@ -205,10 +205,10 @@ class ValvesInput(QDialog):
         self.lineEdit_selected_ID.setText("")
         
         if self.radioButton_line_selection.isChecked():
-            self.opv.changePlotToEntitiesWithCrossSection()
+            self.opv.plot_entities_with_cross_section()
 
         if self.radioButton_element_selection.isChecked():
-            self.opv.changePlotToMesh()
+            self.opv.plot_mesh()
 
         self.opv.update()
 
@@ -243,7 +243,7 @@ class ValvesInput(QDialog):
         self.lineEdit_selected_ID.setText("")
         self.line_id = []
         self.element_id = []
-        self.opv.changePlotToMesh()
+        self.opv.plot_mesh()
 
     def process_tabs_after_selection(self):
         if self.line_id != []:
@@ -294,7 +294,7 @@ class ValvesInput(QDialog):
     def update_selection_flags(self):
 
         if self.opv.change_plot_to_mesh and self.radioButton_line_selection.isChecked():
-            self.opv.changePlotToEntitiesWithCrossSection()
+            self.opv.plot_entities_with_cross_section()
         self.selection_by_line = self.radioButton_line_selection.isChecked()
         self.selection_by_element = self.radioButton_element_selection.isChecked()
         
@@ -302,13 +302,13 @@ class ValvesInput(QDialog):
         if self.selection_by_line:
             self.tabWidget_inputs.addTab(self.tab_line_selection, "Line selection")
             if self.opv.change_plot_to_mesh:
-                self.opv.changePlotToEntitiesWithCrossSection()
+                self.opv.plot_entities_with_cross_section()
      
         if self.selection_by_element:
             if not self.opv.change_plot_to_mesh:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
             if self.opv.getListPickedPoints() != []:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
             self.tabWidget_inputs.addTab(self.tab_element_selection, "Element selection")
 
         return False
@@ -906,8 +906,8 @@ class ValvesInput(QDialog):
     def actions_to_finalize(self):
         self.complete = True
         self.opv.updateEntityRadius()
-        self.opv.changePlotToMesh()
-        # self.opv.changePlotToEntitiesWithCrossSection()   
+        self.opv.plot_mesh()
+        # self.opv.plot_entities_with_cross_section()   
         self.close()
     
     def load_valves_info(self):
@@ -942,7 +942,7 @@ class ValvesInput(QDialog):
         self.load_valves_info()
         self.lineEdit_selected_ID.setText("")
         self.opv.opvRenderer.plot()
-        self.opv.changePlotToEntitiesWithCrossSection()
+        self.opv.plot_entities_with_cross_section()
 
     def remove_valve_function(self, key):
         [valve_elements, _] = self.group_elements_with_valves[key]
@@ -982,7 +982,7 @@ class ValvesInput(QDialog):
         message += f"\n\n ID: {key}"
         PrintMessageInput([title, message, window_title_2])
         self.opv.opvRenderer.plot()
-        self.opv.changePlotToEntitiesWithCrossSection()
+        self.opv.plot_entities_with_cross_section()
 
     def remove_all_valves(self):
         title = f"Removal of all valves from model"
@@ -1002,7 +1002,7 @@ class ValvesInput(QDialog):
         message = "The valves has been removed from all elements."
         PrintMessageInput([title, message, window_title_2])
         self.opv.opvRenderer.plot()
-        self.opv.changePlotToEntitiesWithCrossSection()
+        self.opv.plot_entities_with_cross_section()
 
     def check_if_is_there_a_perforated_plate_and_remove_it(self, elements_from_valve):
         temp_dict = self.group_elements_with_perforated_plate.copy()

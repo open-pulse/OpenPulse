@@ -685,7 +685,7 @@ class SetCrossSectionInput(QDialog):
         plt.close()
         self.complete = True
         self.opv.updateEntityRadius()
-        self.opv.changePlotToEntitiesWithCrossSection()
+        self.opv.plot_entities_with_cross_section()
         self.close()
 
     def check_straight_pipe(self, plot=False):

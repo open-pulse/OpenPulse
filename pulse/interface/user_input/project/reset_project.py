@@ -64,7 +64,7 @@ class ResetProjectInput(QDialog):
         reset_config = self.get_reset_config()
         self.project.reset_project(**reset_config)
         self.opv.opvRenderer.plot()
-        self.opv.changePlotToEntitiesWithCrossSection()
+        self.opv.plot_mesh()
         self.print_final_message()
     
     def print_final_message(self):

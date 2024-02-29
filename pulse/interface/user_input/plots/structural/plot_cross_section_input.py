@@ -85,13 +85,13 @@ class PlotCrossSectionInput(QDialog):
             self.lineEdit_id_labels.setText("Line ID:")
             self.write_ids(self.line_id)
             if self.opv.change_plot_to_mesh:
-                self.opv.changePlotToEntitiesWithCrossSection()
+                self.opv.plot_entities_with_cross_section()
 
         elif self.flagElements:
             self.lineEdit_id_labels.setText("Element ID:")
             self.write_ids(self.element_id)
             if not self.opv.change_plot_to_mesh:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
 
     def write_ids(self, list_ids):
         text = ""

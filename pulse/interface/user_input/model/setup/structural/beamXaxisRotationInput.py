@@ -219,7 +219,7 @@ class BeamXaxisRotationInput(QDialog):
         self.load_beam_xaxis_rotation_info()
         self.project.preprocessor.process_all_rotation_matrices() 
         self.opv.opvRenderer.plot()
-        self.opv.changePlotToEntitiesWithCrossSection() 
+        self.opv.plot_entities_with_cross_section() 
 
     def check_xaxis_rotation_angle(self):
         self.rotation_angle = 0

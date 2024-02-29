@@ -128,7 +128,7 @@ class SetGeometryFileInput(QDialog):
             self.project.file.reset_project_setup()
             # self.remove_other_files()
             self.opv.opvRenderer.plot()
-            self.opv.changePlotToEntities()
+            self.opv.plot_entities()
             self.close()
 
     def search_new_geometry_file(self):

@@ -104,19 +104,19 @@ class MainWindow(QMainWindow):
 
     def plot_entities(self):
         # self.use_structural_setup_workspace()
-        self.opv_widget.changePlotToEntities()
+        self.opv_widget.plot_entities()
 
     def plot_entities_with_cross_section(self):
         # self.use_structural_setup_workspace()
-        self.opv_widget.changePlotToEntitiesWithCrossSection()
+        self.opv_widget.plot_entities_with_cross_section()
 
     def plot_mesh(self):
         # self.use_structural_setup_workspace()
-        self.opv_widget.changePlotToMesh()
+        self.opv_widget.plot_mesh()
 
     def plot_raw_geometry(self):
         # self.use_structural_setup_workspace()
-        self.opv_widget.changePlotToRawGeometry()
+        self.opv_widget.plot_raw_geometry()
     
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
@@ -265,7 +265,7 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([100, 400])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
-        self.opv_widget.changePlotToEntitiesWithCrossSection()
+        self.opv_widget.plot_entities_with_cross_section()
 
     def change_window_title(self, msg = ""):
         self.set_window_title(msg)
@@ -546,9 +546,9 @@ class MainWindow(QMainWindow):
     #     if len(lines) > 0:
     #         if self.project.remove_selected_lines_from_geometry(lines):
     #             self.opv_widget.updatePlots()
-    #             self.opv_widget.changePlotToEntities()
+    #             self.opv_widget.plot_entities()
     #             # self.cameraFront_call()
-    #             # self.opv_widget.changePlotToMesh()
+    #             # self.opv_widget.plot_mesh()
             
     # def _createStatusBar(self):
     #     self.status_bar = QStatusBar()

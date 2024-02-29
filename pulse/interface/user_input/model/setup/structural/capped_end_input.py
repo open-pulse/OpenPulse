@@ -178,9 +178,9 @@ class CappedEndInput(QDialog):
     def update_renders(self):
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index in [0, 1]:
-            self.opv.changePlotToEntities()
+            self.opv.plot_entities()
         else:
-            self.opv.changePlotToMesh()
+            self.opv.plot_mesh()
 
     def load_elements_info(self):
         self.treeWidget_capped_end_elements.clear()

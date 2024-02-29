@@ -331,8 +331,8 @@ class RendererUserPreferencesInput(QDialog):
         if final_setup != self.cache_setup:
             self.opv.updateRendererMesh()
             if self.opv.change_plot_to_mesh:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
             elif self.opv.change_plot_to_entities:
-                self.opv.changePlotToEntities()
+                self.opv.plot_entities()
             elif self.opv.change_plot_to_entities_with_cross_section:
-                self.opv.changePlotToEntitiesWithCrossSection()
+                self.opv.plot_entities_with_cross_section()

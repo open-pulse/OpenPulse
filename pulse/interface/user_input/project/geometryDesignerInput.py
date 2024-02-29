@@ -394,8 +394,8 @@ class GeometryDesignerInput(QDialog):
         # self.check_geometry_file_state()
         if os.path.exists(self.imported_geometry_path):
             if os.path.basename(self.imported_geometry_path) != "":
-                self.opv.changePlotToMesh()
-                # self.opv.changePlotToRawGeometry()
+                self.opv.plot_mesh()
+                # self.opv.plot_raw_geometry()
                 temp_geometry_file_path = get_new_path( self.file.project_path, 
                                                         self.file._geometry_entities_file_name)
                 if os.path.exists(temp_geometry_file_path):
@@ -858,7 +858,7 @@ class GeometryDesignerInput(QDialog):
                                                         only_save = only_save  ):
                     return
                
-                self.opv.changePlotToRawGeometry()
+                self.opv.plot_raw_geometry()
      
                 if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.check_mesh_setup():
                     if self.process_mesh():
@@ -909,7 +909,7 @@ class GeometryDesignerInput(QDialog):
         self.project.load_project_files()
         self.preprocessor.check_disconnected_lines(self.element_size)
         self.opv.updatePlots()
-        self.opv.changePlotToMesh()
+        self.opv.plot_mesh()
         return False
 
     def process_lines_mapping(self):
@@ -1167,5 +1167,5 @@ class GeometryDesignerInput(QDialog):
             self.project.load_project_files()
             self.preprocessor.check_disconnected_lines(self.file._element_size)
             self.opv.updatePlots()
-            self.opv.changePlotToEntities()
+            self.opv.plot_entities()
             self.close()

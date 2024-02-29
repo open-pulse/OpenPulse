@@ -134,7 +134,7 @@ class FlangesInput(QDialog):
         self.tabWidget_inputs.addTab(self.tab_lines, "Line selection")
         
         if len(self.line_id) + len(self.node_id) + len(self.element_id) == 0:
-            self.opv.changePlotToEntitiesWithCrossSection()
+            self.opv.plot_entities_with_cross_section()
         
         self.checkBox_event_update()
 
@@ -248,7 +248,7 @@ class FlangesInput(QDialog):
         self.node_id = []
         self.element_id = []
         self.treeWidget_flange_by_elements.clear()
-        self.opv.changePlotToMesh()
+        self.opv.plot_mesh()
 
     def process_tabs_after_selection(self):
         if self.line_id != []:
@@ -328,7 +328,7 @@ class FlangesInput(QDialog):
     def update_selection_flags(self):
         
         if self.opv.change_plot_to_mesh and self.radioButton_line_selection.isChecked():
-            self.opv.changePlotToEntitiesWithCrossSection()
+            self.opv.plot_entities_with_cross_section()
 
         self.selection_by_line = self.radioButton_line_selection.isChecked()
         self.selection_by_node = self.radioButton_node_selection.isChecked()
@@ -338,19 +338,19 @@ class FlangesInput(QDialog):
         if self.selection_by_line:
             self.tabWidget_inputs.addTab(self.tab_lines, "Line selection")
             if self.opv.change_plot_to_mesh:
-                self.opv.changePlotToEntitiesWithCrossSection()
+                self.opv.plot_entities_with_cross_section()
         else:
             if not self.opv.change_plot_to_mesh:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
         
         if self.selection_by_node:
             if self.opv.getListPickedElements() != []:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
             self.tabWidget_inputs.addTab(self.tab_nodes, "Node selection")
             
         if self.selection_by_element:
             if self.opv.getListPickedPoints() != []:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
             self.tabWidget_inputs.addTab(self.tab_elements, "Element selection")
         else:
             self.treeWidget_flange_by_elements.clear()
@@ -646,5 +646,5 @@ class FlangesInput(QDialog):
         self.project.add_cross_sections_expansion_joints_valves_in_file(list_elements)
         self.preprocessor.add_lids_to_variable_cross_sections()
         self.opv.updateEntityRadius()
-        self.opv.changePlotToEntitiesWithCrossSection()   
+        self.opv.plot_entities_with_cross_section()   
         self.close()

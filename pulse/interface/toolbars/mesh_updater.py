@@ -113,7 +113,7 @@ class MeshUpdater:
         self.project.initial_load_project_actions(self.project.file.project_ini_file_path )
         self.project.load_project_files()     
         self.opv.updatePlots()
-        self.opv.changePlotToMesh() 
+        self.opv.plot_mesh() 
 
     def process_final_actions(self):
         if len(self.dict_old_to_new_node_external_indexes) > 0:
@@ -138,5 +138,5 @@ class MeshUpdater:
                                                                                 self.dict_list_elements_to_subgroups    )
         self.project.load_project_files()     
         self.opv.updatePlots()
-        self.opv.changePlotToMesh()   
+        self.opv.plot_mesh()   
         self.complete = True

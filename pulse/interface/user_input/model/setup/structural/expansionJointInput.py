@@ -351,10 +351,10 @@ class ExpansionJointInput(QDialog):
         self.update_selection_lineEdit_visibility(state_has_changed=state_has_changed)
         if self.selection_by_line:
             if self.opv.change_plot_to_mesh:
-                self.opv.changePlotToEntitiesWithCrossSection()
+                self.opv.plot_entities_with_cross_section()
         else:
             if not self.opv.change_plot_to_mesh:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
 
         if self.line_id != []:
             if self.selection_by_line:
@@ -1270,7 +1270,7 @@ class ExpansionJointInput(QDialog):
         self.update_tabs()
         self.opv.opvRenderer.plot()
         # self.opv.opvAnalysisRenderer.plot()
-        self.opv.changePlotToEntitiesWithCrossSection() 
+        self.opv.plot_entities_with_cross_section() 
     
     def remove_table_files_from_imported_data_folder_by_elements(self, list_elements):
 
