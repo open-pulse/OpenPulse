@@ -90,7 +90,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         #               message = "Updating render",
         #               target = callback)
 
-    def changePlotToRawGeometry(self):
+    def plot_raw_geometry(self):
         
         if self.opvGeometryRenderer.plot():
             return
