@@ -106,8 +106,8 @@ class RunAnalysisInput(QDialog):
     def config_title_and_message(self):
         self.label_message.setWordWrap(True)
         self.label_message.setMargin(16)
-        self.label_title.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
-        self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
+        # self.label_title.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
+        # self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
 
     def _load_analysis_info(self):
         self.analysis_ID = self.project.analysis_ID

@@ -5,6 +5,9 @@ from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUS
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
+from pulse import app
+
+from opps.model import Pipe, Bend, Point
 
 import os
 import configparser
@@ -25,6 +28,7 @@ class ProjectFile:
         self._project_name = ""
         self._import_type = 0
         self._section = 0
+        self._length_unit = "meter"
         self._element_size = 0.01 # default value to the element size (in meters)
         self._project_path = ""
         self._material_list_path = ""
@@ -32,8 +36,6 @@ class ProjectFile:
         self._geometry_path = ""
         self._geometry_filename = ""
         self._geometry_tolerance = 1e-8 # default value to gmsh geometry tolerance (in milimeters)
-        self._conn_path = ""
-        self._coord_path = ""
         self._entity_path = ""
         self._segment_path = ""
         self._backup_geometry_path = ""
@@ -77,7 +79,8 @@ class ProjectFile:
 
     def new(self, 
             project_path, 
-            project_name, 
+            project_name,
+            length_unit, 
             element_size, 
             geometry_tolerance, 
             import_type, 
@@ -87,6 +90,7 @@ class ProjectFile:
 
         self._project_path = project_path
         self._project_name = project_name
+        self._length_unit = length_unit
         self._element_size = float(element_size)
         self._geometry_tolerance = float(geometry_tolerance)
         self._import_type = int(import_type)
@@ -104,33 +108,6 @@ class ProjectFile:
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
-
-    # def new_empty(self, 
-    #               project_path, 
-    #               project_name,
-    #               element_size, 
-    #               geometry_tolerance,
-    #               import_type, 
-    #               material_list_path, 
-    #               fluid_list_path):
-    #     self._project_path = project_path
-    #     self._project_name = project_name
-    #     self._element_size = float(element_size)
-    #     self._geometry_tolerance = float(geometry_tolerance)
-    #     self._import_type = import_type
-    #     self._material_list_path = material_list_path
-    #     self._fluid_list_path = fluid_list_path
-    #     self._geometry_path = ""
-    #     self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
-    #     self._entity_path = get_new_path(self._project_path, self._entity_file_name)
-    #     self._segment_path = get_new_path(self._project_path, self._segment_file_name)
-    #     self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
-    #     self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
-    #     self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
-    #     self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
-    #     self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
-    #     self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
-    #     self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
     
     def copy(self, project_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
@@ -138,8 +115,6 @@ class ProjectFile:
         self._material_list_path = material_list_path
         self._fluid_list_path = fluid_list_path
         self._geometry_path = geometry_path
-        self._conn_path = conn_path
-        self._coord_path = coord_path
         self._project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._segment_path = get_new_path(self._project_path, self._segment_file_name)
@@ -156,7 +131,6 @@ class ProjectFile:
 
     def get_element_size_from_project_file(self):
         if self._project_path != "":
-            # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
             config = configparser.ConfigParser()
             config.read(self._project_ini_file_path)
             if 'element size' in config['PROJECT'].keys():
@@ -187,18 +161,6 @@ class ProjectFile:
 
     def get_geometry_entities_path(self):
         return get_new_path(self._project_path, self._geometry_entities_file_name)
-    
-    # def get_geometry_state_from_project_file(self):
-    #     if self._project_path != "":
-    #         # project_ini_file_path = get_new_path(self._project_path, self._project_base_name)
-    #         config = configparser.ConfigParser()
-    #         config.read(self._project_ini_file_path)
-    #         if 'geometry state' in config['PROJECT'].keys():
-    #             geometry_state = config['PROJECT']['geometry state']
-    #             if geometry_state != "":
-    #                 return int(geometry_state)
-    #         else:
-    #             return -1
 
     def create_backup_geometry_folder(self):
         """ This method creates a backup geometry folder if it was not create yet. Additionally, a geometry file copy
@@ -225,34 +187,31 @@ class ProjectFile:
         config = configparser.ConfigParser()
         config.read(project_file_path)
 
-        project_name = config['PROJECT']['Name']
-        import_type = int(config['PROJECT']['Import type'])
-
         section = config['PROJECT']
+        project_name = section['name']
+        import_type = int(section['import type'])
+
         keys = list(section.keys())
 
-        if import_type in [0,1]:
+        if import_type in [0, 1]:
+
+            if 'length unit' in keys:
+                self._length_unit = section['length unit']
+
             if 'geometry file' in keys:
-                geometry_file = section['Geometry file']
+                geometry_file = section['geometry file']
                 self._geometry_path =  get_new_path(self._project_path, geometry_file)
+
             if 'element size' in keys:
-                element_size = section['Element size']
+                element_size = section['element size']
                 self._element_size = float(element_size)
+
             if 'geometry tolerance' in keys:
-                geometry_tolerance = section['Geometry tolerance']
+                geometry_tolerance = section['geometry tolerance']
                 self._geometry_tolerance = float(geometry_tolerance)
-            # if 'geometry state' in keys:
-            #     geometry_state = section['Geometry state']
-            #     self._geometry_state = int(geometry_state)
 
-        elif import_type == 2:
-            coord_file = section['Nodal coordinates file']
-            conn_file = section['Connectivity matrix file']
-            self._conn_path =  get_new_path(self._project_path, conn_file)
-            self._coord_path =  get_new_path(self._project_path, coord_file)
-
-        material_list_file = section['Material list file']
-        fluid_list_file = section['Fluid list file']
+        material_list_file = section['material list file']
+        fluid_list_file = section['fluid list file']
 
         self._project_name = project_name
         self._import_type = import_type
@@ -269,13 +228,21 @@ class ProjectFile:
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
-    def update_project_attributes(self, element_size=None, geometry_tolerance=None, geometry_filename=None, geometry_state=None):
+    def update_project_attributes(self, **kwargs):
+
+        length_unit = kwargs.get('length_unit', None)
+        element_size = kwargs.get('element_size', None)
+        geometry_tolerance = kwargs.get('geometry_tolerance', None)
+        geometry_filename = kwargs.get('geometry_filename', None)
         
         config = configparser.ConfigParser()
         config.read(self._project_ini_file_path)
 
         section = config['PROJECT']
         keys = section.keys()
+
+        if length_unit is not None:
+            section['Length unit'] = length_unit
 
         if element_size is not None:
             if 'element size' in keys: 
@@ -286,18 +253,13 @@ class ProjectFile:
                 section['element size'] = str(element_size)
         
         if geometry_tolerance is not None:
-            # if 'Geometry tolerance' in keys:
-            section['Geometry tolerance'] = str(geometry_tolerance)
+            section['geometry tolerance'] = str(geometry_tolerance)
 
         if geometry_filename is not None:
-            # if 'geometry file' in keys:
             section['geometry file'] = geometry_filename
-        
-        # if geometry_state is not None:
-        #     if 'geometry state' in keys:
-        #         section['geometry state'] = str(geometry_state)
-        
+
         self.write_data_in_file(self._project_ini_file_path, config)
+        self.load(self._project_ini_file_path)
 
     def add_geometry_entities_to_file(self, entities_data):
         
@@ -1439,16 +1401,16 @@ class ProjectFile:
 
                 if "pipe" in data["section label"]:
                     if segment_id in list(config.sections()):
-                        section_parameters = list(data["section parameters"].values())
+                        section_parameters = data["section parameters"]
                         config[segment_id]['section parameters'] = str(section_parameters)
                 else:
                     if segment_id in list(config.sections()):
                         config[segment_id]['beam section type'] = data["section label"]
                         if data["section label"] == "Generic section":
-                            section_properties = list(data["section properties"].values())
+                            section_properties = data["section properties"]
                             config[segment_id]['section properties'] = str(section_properties)
                         else:
-                            section_parameters = list(data["section parameters"].values())
+                            section_parameters = data["section parameters"]
                             config[segment_id]['section parameters'] = str(section_parameters)                    
 
         self.write_data_in_file(self._entity_path, config)
@@ -1998,6 +1960,83 @@ class ProjectFile:
                 config.remove_option(section=_section, option='volume flow rate')  
     
         self.write_data_in_file(self._entity_path, config)
+
+    def add_segment_build_data_in_file(self, lines, data):
+
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for line_id in lines:
+            if len(data) == 2:
+                config[str(line_id)]['start point'] = str(data[0])
+                config[str(line_id)]['end point'] = str(data[1])
+            else:
+                config[str(line_id)]['start point'] = str(data[0])
+                config[str(line_id)]['corner point'] = str(data[1])
+                config[str(line_id)]['end point'] = str(data[2])
+                config[str(line_id)]['curvature'] = str(data[3])
+
+        self.write_data_in_file(self._entity_path, config)
+
+    def load_segment_build_data_from_file(self):
+        '''
+        This method returns the all required data to build pipeline segments.
+        '''
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        segment_build_data = dict()
+
+        for section in config.sections():
+
+            tag = int(section)
+            keys = config[section].keys()
+
+            if "start point" in keys:
+                start_point = get_list_of_values_from_string(config[section]["start point"], int_values=False)
+
+            if "end point" in keys:
+                end_point = get_list_of_values_from_string(config[section]["end point"], int_values=False)
+
+            if "corner point" in keys:
+                corner_point = get_list_of_values_from_string(config[section]["corner point"], int_values=False)
+
+            if "curvature" in keys:
+                curvature = float(config[section]["curvature"])
+
+            if 'section label' in keys:
+                section_label = config[section]["section label"]
+
+            if 'section parameters' in keys:
+                section_parameters = get_list_of_values_from_string(config[section]["section parameters"], int_values=False)
+
+            material_id = None
+            if 'material id' in keys:
+                material_id = int(config[section]["material id"])
+
+            is_bend = ('corner point' in keys) and ('curvature' in keys)
+            if is_bend:
+                
+                segment_build_data[tag, "Bend"] = { 'start point' : start_point,
+                                                    'corner point' : corner_point,
+                                                    'end point' : end_point,
+                                                    'curvature' : curvature,
+                                                    'section label' : section_label,
+                                                    'section parameters' : section_parameters,
+                                                    'material id' : material_id }
+
+            else:
+
+                segment_build_data[tag, "Pipe"] = { 'start point' : start_point,
+                                                    'end point' : end_point,
+                                                    'section label' : section_label,
+                                                    'section parameters' : section_parameters,
+                                                    'material id' : material_id }
+
+        return segment_build_data
 
     def add_material_in_file(self, lines, material):
 
@@ -2844,7 +2883,11 @@ class ProjectFile:
     @property
     def fluid_list_path(self):
         return self._fluid_list_path
-
+    
+    @property
+    def length_unit(self):
+        return self._length_unit
+    
     @property
     def element_size(self):
         return self._element_size

@@ -1,0 +1,109 @@
+name: Create Releases
+on:
+  push:
+    tags:
+      - '**'
+
+  #  branches: master
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-18.04
+    needs: [build-windows, build-linux]
+
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          # tag_name: ${{ github.event.head_commit.message }}
+          # release_name: ${{ github.event.head_commit.message }}
+          overwrite: true
+          draft: false
+          prerelease: false
+
+      - name: download artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: uploads
+
+      - name: upload linux
+        id: upload-linux
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./openpulse-linux/OpenPulse
+          asset_name: OpenPulse
+          asset_content_type: application/zip
+
+      - name: upload windows
+        id: upload-windows
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./openpulse-windows/OpenPulse.exe
+          asset_name: OpenPulse.exe
+          asset_content_type: application/zip                        
+
+  build-windows:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install requirements
+        run: |
+          poetry install 
+      - name: Run pytest
+        run: |
+          poetry run pytest
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
+      - uses: actions/upload-artifact@v2
+        with:
+          name: openpulse-windows
+          path: dist/OpenPulse.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install requirements
+        run: |
+          poetry install 
+      - name: Run pytest
+        run: |
+          poetry run pytest
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
+      - uses: actions/upload-artifact@v2
+        with:
+          name: openpulse-linux
+          path: dist/OpenPulse

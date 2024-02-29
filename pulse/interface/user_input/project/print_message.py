@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QLabel, QFrame
+from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
@@ -6,11 +6,13 @@ from pathlib import Path
 
 from pulse import app, UI_DIR
 
+from time import sleep, time 
+
 class PrintMessageInput(QDialog):
     def __init__(self, text_info, *args, **kwargs):
         super().__init__()
 
-        ui_path = UI_DIR / "messages/print_messages.ui"
+        ui_path = UI_DIR / "messages/print_message.ui"
         uic.loadUi(ui_path, self)
 
         self.auto_close = kwargs.get("auto_close", False)
@@ -19,6 +21,7 @@ class PrintMessageInput(QDialog):
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
+        self._create_connections()
         self._set_texts()
         self.exec()
 
@@ -32,14 +35,45 @@ class PrintMessageInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
     def _define_qt_variables(self):
+        # QFrame
+        self.frame_button = self.findChild(QFrame, 'frame_button')
         self.frame_message = self.findChild(QFrame, 'frame_message')
+        self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
         self.frame_title = self.findChild(QFrame, 'frame_title')
+        if self.auto_close:
+            self.frame_button.setVisible(False)
+        else:
+            self.frame_progress_bar.setVisible(False)
+        # QLabel
         self.label_title = self.findChild(QLabel, 'label_title')
         self.label_message = self.findChild(QLabel, 'label_message')
+        # QProgressBar
+        self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
+        # QPushButton
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        self.timer = QTimer()
-        self.pushButton_close.clicked.connect(self.message_close)
         self.pushButton_close.setVisible(True)
+        # QTimer
+        self.timer = QTimer()
+
+    def _create_connections(self):
+        self.pushButton_close.clicked.connect(self.message_close)
+        self.timer.timeout.connect(self.update_progress_bar)
+
+    def message_close(self):
+        self.timer.stop()
+        self.close()
+
+    def update_progress_bar(self):
+        self.timer.stop()
+        t0 = time()
+        dt = 0
+        duration = 2.5
+        while dt <= duration:
+            sleep(0.1)
+            dt = time() - t0
+            value = int(100*(dt/duration))
+            self.progress_bar_timer.setValue(value)
+        self.close()
 
     def _set_texts(self):
         self.title2 = f"   {self.title}   "
@@ -48,15 +82,10 @@ class PrintMessageInput(QDialog):
         self.label_message.setText(self.message)
         self.setWindowTitle(self.window_title)
         self.adjustSize()
-        # self.label_message.setAlignment(Qt.AlignJustify)
         self.label_message.setAlignment(Qt.AlignCenter)
         if self.auto_close:
             self.timer.timeout.connect(self.message_close)
-            self.timer.start(2000) 
-
-    def message_close(self):
-        self.timer.stop()
-        self.close()
+            self.timer.start(50) 
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

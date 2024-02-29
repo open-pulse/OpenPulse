@@ -2,7 +2,7 @@ import sys
 from functools import partial
 import os
 
-from PyQt5.QtWidgets import QMainWindow, QMenu, QAction, QSplitter, QStackedWidget, QLabel, QToolBar, QComboBox, QFileDialog
+from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5 import uic
 from pathlib import Path
@@ -76,6 +76,9 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self.set_window_title(self.project.file._project_name)
         self.update()
+
+    def export_geometry(self):
+        self.input_widget.export_geometry()
 
     def update(self):
         self.geometry_widget.update_plot(reset_camera=True)
@@ -162,6 +165,7 @@ class MainWindow(QMainWindow):
         self.action_acoustic_setup_workspace: QAction
         self.action_analysis_setup_workspace: QAction
         self.action_results_workspace: QAction
+        self.action_export_geometry: QAction
         self.tool_bar: QToolBar
         self.splitter: QSplitter
         self.menurecent: QMenu
@@ -263,9 +267,13 @@ class MainWindow(QMainWindow):
     def action_open_project_callback(self):
         self.open_project()
 
+    def action_export_geometry_callback(self):
+        self.export_geometry()
+
     def action_geometry_workspace_callback(self):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
+        self.geometry_input_wigdet.add_widget.load_defined_unit()
 
     def action_structural_setup_workspace_callback(self):
         self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
@@ -428,6 +436,13 @@ class MainWindow(QMainWindow):
     def action_show_symbols_callback(self, cond):
         self._update_visualization()
 
+    def update_export_geometry_file_access(self):
+        import_type = self.project.file.get_import_type()
+        if import_type == 0:
+            self.action_export_geometry.setDisabled(True)
+        elif import_type == 1:
+            self.action_export_geometry.setDisabled(False)
+
     # DEPRECATED, REMOVE AS SOON AS POSSIBLE
     def getInputWidget(self):
         return self.input_widget
@@ -450,25 +465,7 @@ class MainWindow(QMainWindow):
         self.plot_entities_with_cross_section()
         self.action_front_view_callback()
         # self.opv_widget.setCameraView(5)
-
-    def closeEvent(self, event):
-        title = "OpenPulse stop execution requested"
-        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
-        right_toolTip = "The current project setup progress has already been saved in the project files."
         
-        buttons_config = {"left_button_label" : "No", 
-                          "right_button_label" : "Yes",
-                          "right_toolTip" : right_toolTip}
-        
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
-        if read._stop:
-            event.ignore()
-            return
-
-        if read._continue:
-            sys.exit()
-    
     def _loadProjectMenu(self):
         self._update_recent_projects()
 
@@ -508,3 +505,31 @@ class MainWindow(QMainWindow):
             if event.key() == Qt.Key_Space:
                 self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
         return super(MainWindow, self).eventFilter(obj, event)
+    
+    def closeEvent(self, event):
+        title = "OpenPulse"
+        message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+        close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
+        
+        if close == QMessageBox.Yes:
+            sys.exit()
+        else:
+            event.ignore()
+
+    # def closeEvent(self, event):
+    #     title = "OpenPulse stop execution requested"
+    #     message = "Do you really want to stop the OpenPulse processing and close the current project setup?"
+    #     right_toolTip = "The current project setup progress has already been saved in the project files."
+        
+    #     buttons_config = {"left_button_label" : "No", 
+    #                       "right_button_label" : "Yes",
+    #                       "right_toolTip" : right_toolTip}
+        
+    #     read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
+    #     if read._stop:
+    #         event.ignore()
+    #         return
+
+    #     if read._continue:
+    #         sys.exit()

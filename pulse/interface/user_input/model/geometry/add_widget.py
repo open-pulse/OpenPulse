@@ -11,11 +11,13 @@ from pulse.interface.user_input.model.setup.general.cross_section_inputs import 
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.interface.cad_handler import CADHandler
+from pulse.interface.geometry_handler import GeometryHandler
 from pulse import app, UI_DIR
 
-from opps.model import Bend
-
+from opps.model import Bend, Pipe
+        
+def get_data(data):
+    return list(np.round(data, 6))
 
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
@@ -26,12 +28,12 @@ class AddStructuresWidget(QWidget):
         self.project = app().project
         self.file = self.project.file
 
-        self._reset_variables()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._update_permissions()
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.complete = False
         self.cross_section_info = None
         self.current_material_index = None
@@ -129,20 +131,28 @@ class AddStructuresWidget(QWidget):
         enable_finalize = len(pipeline.structures) > 0
         self.pushButton_finalize.setEnabled(enable_finalize)
 
+    def load_defined_unit(self):
+        self.unit_of_length = self.file.length_unit
+        if self.unit_of_length == "milimeter":
+            self.comboBox_length_unit.setCurrentIndex(0)
+        elif self.unit_of_length == "milimeter":
+            self.comboBox_length_unit.setCurrentIndex(1)
+        elif self.unit_of_length == "inch":
+            self.comboBox_length_unit.setCurrentIndex(2)
+        self.update_legth_units()
+
     def show_cross_section_widget(self):
         self.cross_section_widget.setVisible(True)
         section_type = self.comboBox_section_type.currentIndex()
         self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
-        # self.alternate_cross_section_button_label()
 
     def show_material_widget(self):
         self.material_widget.reset()
         self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)
-        # self.alternate_material_button_label()
 
     def create_list_of_unit_labels(self):
-        self.unit_labels = []
+        self.unit_labels = list()
         self.unit_labels.append(self.label_unit_delta_x)
         self.unit_labels.append(self.label_unit_delta_y)
         self.unit_labels.append(self.label_unit_delta_z)
@@ -151,14 +161,17 @@ class AddStructuresWidget(QWidget):
     def update_legth_units(self):
         index = self.comboBox_length_unit.currentIndex()
         if index == 0:
-            self.length_unit = "m"
+            unit_label = "m"
+            self.unit_of_length = "meter"
         elif index == 1:
-            self.length_unit = "mm"
+            unit_label = "mm"
+            self.unit_of_length = "milimeter"
         else:
-            self.length_unit = "in"
+            unit_label = "in"
+            self.unit_of_length = "inch"
         #
         for _label in self.unit_labels:
-            _label.setText(f"[{self.length_unit}]")
+            _label.setText(f"[{unit_label}]")
 
     def update_bending_type(self):
         self.bending_factor = 0
@@ -233,33 +246,29 @@ class AddStructuresWidget(QWidget):
 
         if is_pipe and is_constant_section:
             self.cross_section_widget.get_straight_pipe_parameters()
-            self.cross_section_info = {
-                "section label" : "pipe (constant)",
-                "section parameters" : self.cross_section_widget.section_parameters
-            }
+            section_parameters = list(self.cross_section_widget.section_parameters.values())
+            self.cross_section_info = { "section label" : "pipe (constant)",
+                                        "section parameters" : section_parameters }
             diameter = self.cross_section_widget.section_parameters["outer_diameter"]
             self.geometry_widget.update_default_diameter(diameter)
-            # self.lineEdit_section_diameter.setText(str(diameter))
 
         elif is_pipe and not is_constant_section:
             self.cross_section_widget.get_variable_section_pipe_parameters()
-            self.cross_section_info = {
-                "section label" : "pipe (variable)",
-                "section parameters" : self.cross_section_widget.variable_parameters
-            }
+            section_parameters =self.cross_section_widget.variable_parameters
+            self.cross_section_info = { "section label" : "pipe (variable)",
+                                        "section parameters" : section_parameters }
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
-            self.cross_section_info = {
-                "section label" : "beam",
-                "beam section type" : self.cross_section_widget.section_label,
-                "section parameters" : self.cross_section_widget.section_parameters
-            }
+            section_label = self.cross_section_widget.section_label
+            section_parameters = self.cross_section_widget.section_parameters
+            self.cross_section_info = { "section label" : "beam",
+                                        "beam section type" : section_label,
+                                        "section parameters" : section_parameters }
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
         self._update_permissions()
-        # self.alternate_cross_section_button_label()
         self.update_segment_information_text()
 
     def define_material(self):
@@ -276,7 +285,7 @@ class AddStructuresWidget(QWidget):
         section_parameters = ""
         if self.cross_section_info:
             section_label = self.cross_section_info["section label"]
-            section_parameters = list(self.cross_section_info["section parameters"].values())
+            section_parameters = self.cross_section_info["section parameters"]
 
         material_id = ""
         material_data = None
@@ -317,14 +326,17 @@ class AddStructuresWidget(QWidget):
         pipeline = app().geometry_toolbox.pipeline
         geometry_filename = "geometry_pipeline.step"
         geometry_path = self.file.get_file_path_inside_project_directory(geometry_filename)
-
-        exporter = CADHandler()
-        exporter.save(geometry_path, pipeline)
-
         geometry_filename = os.path.basename(geometry_path)
-        self.file.update_project_attributes(element_size = 0.01, 
-                                            geometry_tolerance = 1e-6,
-                                            geometry_filename=geometry_filename)
+        geometry_filename = ""
+
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_unit_of_length(self.unit_of_length)
+        geometry_handler.set_pipeline(pipeline)
+        self.project.preprocessor.set_geometry_handler(geometry_handler)
+
+        self.file.update_project_attributes(length_unit = self.unit_of_length,
+                                            element_size = 0.01, 
+                                            geometry_tolerance = 1e-6)
 
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
@@ -334,13 +346,20 @@ class AddStructuresWidget(QWidget):
     def export_entity_file(self):
 
         pipeline = app().geometry_toolbox.pipeline
-
+        
+        tag = 1
+        points_info = dict()
         section_info = dict()
         material_info = dict()
-        tag = 1
         for structure in pipeline.structures:
-            if isinstance(structure, Bend) and structure.is_colapsed():
+            
+            build_data = self.get_segment_build_info(structure)
+            if build_data is not None:
+                points_info[tag] = build_data
+            
+            if isinstance(structure, Bend) and structure.is_colapsed():               
                 continue
+            
             section_info[tag] = structure.extra_info["cross_section_info"]
             material_info[tag] = structure.extra_info["material_info"]
             tag += 1
@@ -349,8 +368,26 @@ class AddStructuresWidget(QWidget):
             os.remove(self.file._entity_path)
 
         self.file.create_entity_file(section_info.keys())
+        for tag, coords in points_info.items():
+            self.file.add_segment_build_data_in_file(tag, coords)
+
         for tag, section in section_info.items():
             self.file.add_cross_section_segment_in_file(tag, section)
 
         for tag, material_id in material_info.items():
             self.file.add_material_segment_in_file(tag, material_id)
+
+    def get_segment_build_info(self, structure):
+        if isinstance(structure, Bend):
+            start_coords = get_data(structure.start.coords())
+            end_coords = get_data(structure.end.coords())
+            corner_coords = get_data(structure.corner.coords())
+            curvature = structure.curvature
+            return [start_coords, corner_coords, end_coords, curvature]
+
+        elif isinstance(structure, Pipe):
+            start_coords = get_data(structure.start.coords())
+            end_coords = get_data(structure.end.coords())
+            return [start_coords, end_coords]
+        else:
+            return None

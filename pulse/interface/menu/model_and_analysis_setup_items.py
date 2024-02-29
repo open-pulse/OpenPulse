@@ -65,9 +65,9 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_compressor_excitation = self.add_item('Add Compressor Excitation')
         #
         self.item_top_analysis = self.add_top_item('Analysis')
-        self.item_child_selectAnalysisType = self.add_item('Select Analysis Type')
-        self.item_child_analisysSetup = self.add_item('Analysis Setup')
-        self.item_child_runAnalysis = self.add_item('Run Analysis (F5)')
+        self.item_child_select_analysis_type = self.add_item('Select Analysis Type')
+        self.item_child_analysis_setup = self.add_item('Analysis Setup')
+        self.item_child_run_analysis = self.add_item('Run Analysis')
 
     def _create_connections(self):
         self.item_child_createGeometry.clicked.connect(self.item_child_create_geometry_callback)
@@ -100,6 +100,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
+        
+        self.item_child_select_analysis_type.clicked.connect(self.item_child_select_analysis_type_callback)
+        self.item_child_analysis_setup.clicked.connect(self.item_child_analisys_setup_callback)
+        self.item_child_run_analysis.clicked.connect(self.item_child_run_analysis_callback)
 
     def update_plot_mesh(self):
         if not self.mainWindow.opv_widget.change_plot_to_mesh:
@@ -303,24 +307,24 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
         #
-        self.item_child_selectAnalysisType.setDisabled(bool_key)
+        self.item_child_select_analysis_type.setDisabled(bool_key)
 
     def _updateItems(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
         self.modify_model_setup_items_access(False)
 
         if True:
-            self.item_child_analisysSetup.setDisabled(True)
-            self.item_child_runAnalysis.setDisabled(True)
+            self.item_child_analysis_setup.setDisabled(True)
+            self.item_child_run_analysis.setDisabled(True)
             # self.item_top_analysis.setHidden(True)
                     
         if self.project.analysis_ID in [None, 2, 4]:
-            self.item_child_analisysSetup.setDisabled(True)
+            self.item_child_analysis_setup.setDisabled(True)
         else:
-            self.item_child_analisysSetup.setDisabled(False)
+            self.item_child_analysis_setup.setDisabled(False)
         
         if self.project.analysis_ID is not None and self.project.setup_analysis_complete:
-            self.item_child_runAnalysis.setDisabled(False)
+            self.item_child_run_analysis.setDisabled(False)
 
             # self.update_TreeVisibility_after_solution()
             
