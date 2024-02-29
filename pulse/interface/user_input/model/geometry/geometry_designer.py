@@ -108,7 +108,7 @@ class OPPGeometryDesignerInput(QWidget):
         geometry_handler.set_pipeline(pipeline)
         self.project.preprocessor.set_geometry_handler(geometry_handler)
 
-        self.file.update_project_attributes(length_unit = self.add_widget.length_unit,
+        self.file.modify_project_attributes(length_unit = self.add_widget.length_unit,
                                             element_size = 0.01, 
                                             geometry_tolerance = 1e-6)
 

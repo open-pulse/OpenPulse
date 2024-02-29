@@ -31,6 +31,7 @@ class NewProjectInput(QDialog):
         self.config = self.main_window.config
 
         self._initialize()
+        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_qt_actions()
@@ -50,11 +51,11 @@ class NewProjectInput(QDialog):
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
 
-        self.project_file_name = self.file.project_ini_name
-
-    def _config_window(self):
+    def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
+        
+    def _config_window(self):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -62,25 +63,25 @@ class NewProjectInput(QDialog):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_length_unit = self.findChild(QComboBox, 'comboBox_length_unit')
-        self.comboBox_start_project = self.findChild(QComboBox, 'comboBox_start_project')
+        self.comboBox_length_unit : QComboBox
+        self.comboBox_start_project : QComboBox
         # QFrame
-        self.frame_geometry_file = self.findChild(QFrame, 'frame_geometry_file')
-        self.frame_element_size = self.findChild(QFrame, 'frame_element_size')
-        self.frame_geometry_tolerance = self.findChild(QFrame, 'frame_geometry_tolerance')
+        self.frame_geometry_file : QFrame
+        self.frame_element_size : QFrame
+        self.frame_geometry_tolerance : QFrame
         # QLineEdit
-        self.lineEdit_project_name = self.findChild(QLineEdit, 'lineEdit_project_name')
-        self.lineEdit_project_folder = self.findChild(QLineEdit, 'lineEdit_project_folder')
-        self.lineEdit_geometry_path = self.findChild(QLineEdit, 'lineEdit_geometry_path')
-        self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
-        self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
+        self.lineEdit_project_name : QLineEdit
+        self.lineEdit_project_folder : QLineEdit
+        self.lineEdit_geometry_path : QLineEdit
+        self.lineEdit_element_size : QLineEdit
+        self.lineEdit_geometry_tolerance : QLineEdit
         self.lineEdit_project_folder.setText(self.desktop_path)
         self.focus_lineEdit_project_name_if_blank()
         # QPushButton
-        self.pushButton_import_geometry = self.findChild(QPushButton, 'pushButton_import_geometry')
-        self.pushButton_search_project_folder = self.findChild(QPushButton, 'pushButton_search_project_folder')
-        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
-        self.pushButton_start_project = self.findChild(QPushButton, 'pushButton_start_project')
+        self.pushButton_import_geometry : QPushButton
+        self.pushButton_search_project_folder : QPushButton
+        self.pushButton_cancel : QPushButton
+        self.pushButton_start_project : QPushButton
 
     def _create_qt_actions(self):
         self.comboBox_start_project.currentIndexChanged.connect(self.update_available_inputs)
@@ -192,7 +193,8 @@ class NewProjectInput(QDialog):
             return
    
         if self.create_project():
-            project_ini_file_path = get_new_path(self.project_folder_path, self.project_file_name)
+            project_ini_file_path = get_new_path(self.project_folder_path, 
+                                                 self.file.project_ini_name)
             self.config.write_recent_project(project_ini_file_path)
             self.project.time_to_load_or_create_project = time() - t0
             self.complete = True
@@ -202,7 +204,8 @@ class NewProjectInput(QDialog):
 
         try:
 
-            self.project_folder_path = get_new_path(self.project_directory, self.lineEdit_project_name.text())
+            self.project_folder_path = get_new_path(self.project_directory, 
+                                                    self.lineEdit_project_name.text())
 
             if not os.path.exists(self.project_folder_path):
                 os.makedirs(self.project_folder_path)
@@ -240,7 +243,7 @@ class NewProjectInput(QDialog):
                                             self.import_type,
                                             self.material_list_path,
                                             self.fluid_list_path,
-                                            geometry_path=new_geometry_path   )
+                                            geometry_path = new_geometry_path   )
                 return True
             
             else:

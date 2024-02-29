@@ -97,13 +97,7 @@ class Project:
         self.reset(reset_all=True)
         self.file.new(*args, **kwargs)
         self.empty_geometry = True
-
-    # def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = ""):
-    #     self.file.copy( project_folder_path, 
-    #                     project_name, 
-    #                     material_list_path, 
-    #                     fluid_list_path, 
-    #                     geometry_path )
+        self.preprocessor._create_gmsh_geometry()
 
     def copy_project(self, *args, **kwargs):
         self.file.copy(*args, **kwargs)
@@ -151,7 +145,7 @@ class Project:
         """
         self.file.add_geometry_entities_to_file(entities_data)
         geometry_filename = os.path.basename(geometry_path)
-        self.file.update_project_attributes(geometry_filename=geometry_filename)
+        self.file.modify_project_attributes(geometry_filename=geometry_filename)
 
         if only_save:
             self.empty_geometry = False
@@ -165,7 +159,7 @@ class Project:
             return False
     
     def edit_project_geometry(self, geometry_filename):
-        self.file.update_project_attributes(geometry_filename=geometry_filename)
+        self.file.modify_project_attributes(geometry_filename=geometry_filename)
         # self.initial_load_project_actions(self.project_ini_file_path)
 
     def load_geometry_entities(self):
@@ -221,7 +215,7 @@ class Project:
         if read._continue:
             geometry_path = self.file._geometry_path
             self.preprocessor.remove_selected_lines_and_process_geometry(geometry_path, lines)
-            # self.file.update_project_attributes(geometry_filename=new_geometry_filename)
+            # self.file.modify_project_attributes(geometry_filename=new_geometry_filename)
             if os.path.exists(self.file._entity_path):
                 os.remove(self.file._entity_path)
             self.initial_load_project_actions(self.file.project_ini_file_path)
@@ -402,8 +396,6 @@ class Project:
         elif import_type == 1:
             self.preprocessor.generate(element_size = self.file.element_size, 
                                        tolerance = self.file.geometry_tolerance)
-        elif import_type == 2:
-            self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
         # dt = time()-t0
         # print(f"process_geometry_and_mesh: {dt} [s]")
 

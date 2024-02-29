@@ -33,12 +33,12 @@ class Preprocessor:
         self.project = project
         self.file = project.file
         self.reset_variables()
-        self.geometry_handler = None
 
     def reset_variables(self):
         """
         This method reset the class default values.
         """
+        self.geometry_handler = None
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
         self.number_structural_elements = 0
         self.number_acosutic_elements = 0

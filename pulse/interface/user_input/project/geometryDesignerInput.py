@@ -896,7 +896,7 @@ class GeometryDesignerInput(QDialog):
                     os.remove(self.geometry_entities_path)
                     # self.project.remove_all_unnecessary_files()
 
-        self.file.update_project_attributes(element_size = self.element_size, 
+        self.file.modify_project_attributes(element_size = self.element_size, 
                                             geometry_tolerance = self.geometry_tolerance)
 
         self.project.initial_load_project_actions(self.project_ini_path)
@@ -1157,7 +1157,7 @@ class GeometryDesignerInput(QDialog):
                 os.remove(self.file._entity_path)
 
             # rmtree(backup_path)
-            self.file.update_project_attributes(geometry_filename = geometry_filename)        
+            self.file.modify_project_attributes(geometry_filename = geometry_filename)        
             self.project.initial_load_project_actions(self.project_ini_path)
 
             # if True:

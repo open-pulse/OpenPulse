@@ -95,7 +95,7 @@ class MeshUpdater:
     def process_intermediate_actions(self):
         self.current_element_size, self.current_geometry_tolerance = self.project.file.get_mesh_attributes_from_project_file()
         self.t0 = time()
-        self.project.file.update_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
+        self.project.file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
         self.project.initial_load_project_actions(self.project.file.project_ini_file_path )
         if len(self.preprocessor.structural_elements) > 0:
             #
@@ -109,7 +109,7 @@ class MeshUpdater:
 
     def undo_mesh_actions(self):
         self.t0 = time()
-        self.project.file.update_project_attributes(element_size=self.current_element_size, geometry_tolerance=self.current_geometry_tolerance)
+        self.project.file.modify_project_attributes(element_size=self.current_element_size, geometry_tolerance=self.current_geometry_tolerance)
         self.project.initial_load_project_actions(self.project.file.project_ini_file_path )
         self.project.load_project_files()     
         self.opv.updatePlots()

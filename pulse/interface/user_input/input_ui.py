@@ -129,8 +129,8 @@ class InputUi:
         self.menu_items.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput)
         self.main_window._update_status_bar()
-        return get_started    
-    
+        return get_started
+
     def initial_project_action(self, finalized):
         app().main_window.action_front_view_callback()
         app().main_window.update_export_geometry_file_access()
@@ -154,10 +154,10 @@ class InputUi:
 
     def reset_project(self):
         if not self.project.none_project_action:
-            self.processInput(ResetProjectInput, self.project, self.opv)
+            self.processInput(ResetProjectInput)
 
     def export_geometry(self):
-        exporter = self.processInput(ExportGeometry)
+        self.processInput(ExportGeometry)
 
     def set_clipping_plane(self):
         if not self.opv.opvAnalysisRenderer.getInUse():

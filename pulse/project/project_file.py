@@ -37,7 +37,6 @@ class ProjectFile:
         self._geometry_filename = ""
         self._geometry_tolerance = 1e-8 # default value to gmsh geometry tolerance (in milimeters)
         self._entity_path = ""
-        self._segment_path = ""
         self._backup_geometry_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
@@ -56,7 +55,6 @@ class ProjectFile:
 
     def default_filenames(self):
         self._entity_file_name = "entity.dat"
-        self._segment_file_name = "segment_data.dat"
         self._material_file_name = "material_list.dat"
         self._fluid_file_name = "fluid_list.dat"
         self._geometry_entities_file_name = "geometry_entities.dat"
@@ -100,7 +98,6 @@ class ProjectFile:
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
-        self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
@@ -124,7 +121,6 @@ class ProjectFile:
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
-        self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
@@ -156,7 +152,7 @@ class ProjectFile:
         
         config = configparser.ConfigParser()
         config.read(self.project_ini_file_path)
-        
+
         if config.has_section('PROJECT'):
             config['PROJECT']['Name'] = project_name
             
@@ -190,10 +186,7 @@ class ProjectFile:
 
         Parameters
         ----------
-
         """
-
-        config = configparser.ConfigParser()
 
         project_folder_path = kwargs.get("project_folder_path", "")
         project_filename = kwargs.get("project_filename", "")
@@ -204,6 +197,7 @@ class ProjectFile:
         import_type = kwargs.get("import_type", "")
         geometry_filename = kwargs.get("geometry_filename", "")
 
+        config = configparser.ConfigParser()
         config['PROJECT'] = {}
         
         if project_filename != "":
@@ -223,7 +217,6 @@ class ProjectFile:
 
         if geometry_filename != "":
             config['PROJECT']['geometry file'] = os.path.basename(geometry_filename)
-            # config['PROJECT']['geometry state'] = str(0)
         
         config['PROJECT']['material list file'] = self._material_file_name
         config['PROJECT']['fluid list file'] = self._fluid_file_name
@@ -290,7 +283,6 @@ class ProjectFile:
         self._material_list_path = get_new_path(self._project_path, material_list_file)
         self._fluid_list_path =  get_new_path(self._project_path, fluid_list_file)
         self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
-        self._segment_path = get_new_path(self._project_path, self._segment_file_name)
         self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
         self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -299,8 +291,9 @@ class ProjectFile:
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
         self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
-    def update_project_attributes(self, **kwargs):
+    def modify_project_attributes(self, **kwargs):
 
+        project_name = kwargs.get('project_name', None)
         length_unit = kwargs.get('length_unit', None)
         element_size = kwargs.get('element_size', None)
         geometry_tolerance = kwargs.get('geometry_tolerance', None)
@@ -308,29 +301,33 @@ class ProjectFile:
         
         config = configparser.ConfigParser()
         config.read(self._project_ini_file_path)
-
-        section = config['PROJECT']
-        keys = section.keys()
-
-        if length_unit is not None:
-            section['Length unit'] = length_unit
-
-        if element_size is not None:
-            if 'element size' in keys: 
-                read_element_size = section['element size']
-                if read_element_size != str(element_size):
-                    section['element size'] = str(element_size)
-            else:
-                section['element size'] = str(element_size)
         
-        if geometry_tolerance is not None:
-            section['geometry tolerance'] = str(geometry_tolerance)
+        if config.has_section('PROJECT'):
+            section = config['PROJECT']
+            keys = section.keys()
 
-        if geometry_filename is not None:
-            section['geometry file'] = geometry_filename
+            if project_name is not None:
+                section['Name'] = project_name
 
-        self.write_data_in_file(self._project_ini_file_path, config)
-        self.load(self._project_ini_file_path)
+            if length_unit is not None:
+                section['Length unit'] = length_unit
+
+            if element_size is not None:
+                if 'element size' in keys: 
+                    read_element_size = section['element size']
+                    if read_element_size != str(element_size):
+                        section['element size'] = str(element_size)
+                else:
+                    section['element size'] = str(element_size)
+            
+            if geometry_tolerance is not None:
+                section['geometry tolerance'] = str(geometry_tolerance)
+
+            if geometry_filename is not None:
+                section['geometry file'] = geometry_filename
+
+            self.write_data_in_file(self._project_ini_file_path, config)
+            self.load(self._project_ini_file_path)
 
     def add_geometry_entities_to_file(self, entities_data):
         
@@ -601,25 +598,6 @@ class ProjectFile:
                 config[str(entity_id)] = {}
         
         self.write_data_in_file(self._entity_path, config)
-
-    def create_segment_file(self, segments):
-
-        if isinstance(segments, (int, float)):
-            segments = [segments]
-
-        config = configparser.ConfigParser()
-        
-        if os.path.exists(self._segment_path):
-            config.read(self._segment_path)
-            sections = config.sections()
-            for segment_id in segments:
-                if str(segment_id) not in sections:
-                    config[str(segment_id)] = {}
-        else:
-            for segment_id in segments:
-                config[str(segment_id)] = {}
-        
-        self.write_data_in_file(self._segment_path, config)
 
     def update_entity_file(self, entities, dict_map_lines={}):
 

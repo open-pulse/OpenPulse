@@ -42,16 +42,14 @@ class SaveProjectAsInput(QDialog):
         desktop_path = Path(os.path.join(os.path.join(self.user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
 
-        self.current_project_file_path = self.file.project_path
-        self.project_directory = os.path.dirname(self.current_project_file_path)
+        self.current_project_path = self.file.project_path
+        self.project_directory = os.path.dirname(self.current_project_path)
         self.project_name = self.file.project_name
 
         self.project_ini = self.file.project_ini_name
         self.current_geometry_path = self.file.geometry_path
         self.current_material_list_path = self.file._material_list_path
         self.current_fluid_list_path = self.file._fluid_list_path
-
-        self.import_type = self.file._import_type
 
     def _load_icons(self):
         icons_path = str(Path('data/icons/pulse.png'))
@@ -112,10 +110,10 @@ class SaveProjectAsInput(QDialog):
                 return True
 
     def copy_project_files(self):  
-        self.new_project_file_path = get_new_path(self.new_project_directory.text(), 
+        self.new_project_path = get_new_path(self.new_project_directory.text(),
                                                   self.new_project_name.text())
-        copytree(self.current_project_file_path, 
-                 self.new_project_file_path)
+        copytree(self.current_project_path, 
+                 self.new_project_path)
 
     def update_all_file_paths(self):
 
@@ -131,7 +129,7 @@ class SaveProjectAsInput(QDialog):
         new_fluid_list_path = get_new_path(self.new_project_directory.text(), 
                                            os.path.basename(self.current_fluid_list_path))
 
-        self.project.copy_project(  self.new_project_directory.text(),
+        self.project.copy_project(  self.new_project_path,
                                     self.new_project_name.text(),
                                     new_material_list_path,
                                     new_fluid_list_path,
@@ -142,16 +140,17 @@ class SaveProjectAsInput(QDialog):
         if self.are_modifications_allowable():
             PrintMessageInput([window_title_2, self.title, self.message])  
             return
-
-        if self.new_project_name.text() == "":
+        
+        project_name = self.new_project_name.text()
+        if project_name == "":
             self.search_project_folder()
             return self.save_project_button_pressed()
         else:
             self.copy_project_files()
             self.update_all_file_paths()
-            self.file.modify_project_ini_name(self.new_project_name.text())
+            self.file.modify_project_attributes(project_name = project_name)
             if self.remove_current_project_files.isChecked():
-                rmtree(self.current_project_file_path)
+                rmtree(self.current_project_path)
             self.main_window.change_window_title(self.file.project_name)
             self.close()
 
