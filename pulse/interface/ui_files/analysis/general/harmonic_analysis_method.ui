@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>240</height>
+    <width>320</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,14 +21,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>240</height>
+    <width>320</width>
+    <height>220</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
-    <height>240</height>
+    <width>320</width>
+    <height>220</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -112,14 +112,14 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Select the Analysis Method</string>
+         <string>Harmonic Analysis Method Selector</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -161,11 +161,14 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <property name="verticalSpacing">
+       <number>0</number>
+      </property>
       <item row="0" column="0">
        <widget class="QFrame" name="frame_3">
         <property name="minimumSize">
          <size>
-          <width>360</width>
+          <width>0</width>
           <height>48</height>
          </size>
         </property>
@@ -198,20 +201,20 @@
           <widget class="QLabel" name="label_title">
            <property name="minimumSize">
             <size>
-             <width>200</width>
-             <height>32</height>
+             <width>180</width>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>300</width>
-             <height>32</height>
+             <width>180</width>
+             <height>30</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
@@ -224,7 +227,7 @@
             <enum>QFrame::Plain</enum>
            </property>
            <property name="text">
-            <string>  Harmonic Analysis - type  </string>
+            <string>Select the Analysis Method</string>
            </property>
            <property name="textFormat">
             <enum>Qt::AutoText</enum>
@@ -267,7 +270,7 @@
        <widget class="QFrame" name="frame_4">
         <property name="minimumSize">
          <size>
-          <width>360</width>
+          <width>0</width>
           <height>48</height>
          </size>
         </property>
@@ -300,27 +303,27 @@
           <widget class="QComboBox" name="comboBox">
            <property name="minimumSize">
             <size>
-             <width>190</width>
-             <height>30</height>
+             <width>160</width>
+             <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>190</width>
-             <height>30</height>
+             <width>160</width>
+             <height>28</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Select the analysis method&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="insertPolicy">
             <enum>QComboBox::NoInsert</enum>
@@ -341,20 +344,20 @@
           <widget class="QLabel" name="label_2">
            <property name="minimumSize">
             <size>
-             <width>68</width>
-             <height>0</height>
+             <width>48</width>
+             <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>68</width>
-             <height>16777215</height>
+             <width>48</width>
+             <height>28</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>50</weight>
              <bold>false</bold>
             </font>
@@ -397,18 +400,18 @@
           <widget class="QFrame" name="frame_6">
            <property name="minimumSize">
             <size>
-             <width>68</width>
+             <width>48</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>68</width>
+             <width>48</width>
              <height>16777215</height>
             </size>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
@@ -422,7 +425,7 @@
        <widget class="QFrame" name="frame_button">
         <property name="minimumSize">
          <size>
-          <width>360</width>
+          <width>0</width>
           <height>48</height>
          </size>
         </property>
@@ -458,29 +461,30 @@
           <widget class="QPushButton" name="pushButton_go_to_analysis_setup">
            <property name="minimumSize">
             <size>
-             <width>200</width>
-             <height>32</height>
+             <width>160</width>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>200</width>
-             <height>32</height>
+             <width>160</width>
+             <height>30</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>9</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 11pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="text">
             <string>Go to analysis setup</string>
