@@ -201,7 +201,7 @@
           <widget class="QLabel" name="label_title">
            <property name="minimumSize">
             <size>
-             <width>180</width>
+             <width>0</width>
              <height>30</height>
             </size>
            </property>
@@ -221,7 +221,7 @@
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Box</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
@@ -475,7 +475,7 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>

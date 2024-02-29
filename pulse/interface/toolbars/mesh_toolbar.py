@@ -46,8 +46,8 @@ class MeshToolbar(QToolBar):
         self.lineEdit_element_size.setFixedWidth(60)
         self.lineEdit_geometry_tolerance.setFixedWidth(60)
 
-        self.lineEdit_element_size.setStyleSheet("background-color: rgb(255,255,255)")
-        self.lineEdit_geometry_tolerance.setStyleSheet("background-color: rgb(255,255,255)")
+        self.lineEdit_element_size.setStyleSheet("background-color: rgb(255,255,255); color: rgb(100,100,100)")
+        self.lineEdit_geometry_tolerance.setStyleSheet("background-color: rgb(255,255,255); color: rgb(100,100,100)")
 
         self.pushButton_generate_mesh = QPushButton(" Generate mesh ")
         self.pushButton_generate_mesh.setStyleSheet(""" QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
