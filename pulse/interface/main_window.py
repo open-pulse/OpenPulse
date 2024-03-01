@@ -15,7 +15,7 @@ from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysi
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.formatters.icons import get_formatted_icon
+from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse import app, UI_DIR
 
 import os
@@ -152,8 +152,7 @@ class MainWindow(QMainWindow):
             self.menu_actions.append(import_action)
 
     def _load_icon(self):
-        icon_path = str(Path('data/icons/pulse.png'))
-        self.pulse_icon = get_formatted_icon(icon_path, QColor("#0055DD"))
+        self.pulse_icon = get_openpulse_icon(QColor("#0055DD"))
 
     def _config_window(self):
         self.showMaximized()

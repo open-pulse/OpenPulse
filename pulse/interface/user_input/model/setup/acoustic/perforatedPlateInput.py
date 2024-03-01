@@ -488,7 +488,7 @@ class PerforatedPlateInput(QDialog):
                 if not all(aux):
                     title = "Plate thickness different from element length"
                     message = "If possible, use plate thickness equal to the element length for better precision."
-                    PrintMessageInput([title, message, window_title_2])
+                    PrintMessageInput([window_title_2, title, message])
                     self.lineEdit_thickness.setFocus()
                 self.dict_inputs['plate thickness'] = self.value
 
@@ -727,7 +727,7 @@ class PerforatedPlateInput(QDialog):
             self.remove_function(key, message_print=False)
         title = "Perforated plate resetting"
         message = "The perforated plate has been removed\n from all elements."
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([window_title_2, title, message])
         self.opv.updateRendererMesh()
         self.close()
  
