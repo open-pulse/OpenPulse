@@ -133,6 +133,8 @@ class InputUi:
         return get_started
 
     def initial_project_action(self, finalized):
+        editor = app().geometry_toolbox.editor
+        editor.reset()
         self.main_window.action_front_view_callback()
         self.main_window.update_export_geometry_file_access()
         self.menu_items.modify_model_setup_items_access(True)
