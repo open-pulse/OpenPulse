@@ -312,7 +312,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    <property name="geometry">
     <rect>
      <x>36</x>
-     <y>48</y>
+     <y>46</y>
      <width>579</width>
      <height>25</height>
     </rect>
@@ -331,7 +331,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </property>
    <property name="font">
     <font>
-     <pointsize>12</pointsize>
+     <pointsize>11</pointsize>
      <weight>50</weight>
      <italic>false</italic>
      <bold>false</bold>
