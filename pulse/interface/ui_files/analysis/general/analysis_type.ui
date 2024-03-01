@@ -429,6 +429,14 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_harmonic_structural</tabstop>
+  <tabstop>pushButton_harmonic_acoustic</tabstop>
+  <tabstop>pushButton_harmonic_coupled</tabstop>
+  <tabstop>pushButton_modal_structural</tabstop>
+  <tabstop>pushButton_modal_acoustic</tabstop>
+  <tabstop>pushButton_static_analysis</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

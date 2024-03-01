@@ -4,15 +4,13 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-import configparser
-from shutil import copyfile
-from time import time
-
-from pulse.libraries.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_new_path
 from pulse import app, UI_DIR, __version__
+
+import os
+from shutil import copyfile
+from time import time
 
 window_title = "Error"
 
@@ -193,12 +191,14 @@ class NewProjectInput(QDialog):
             return
    
         if self.create_project():
-            project_ini_file_path = get_new_path(self.project_folder_path, 
-                                                 self.file.project_ini_name)
-            self.config.write_recent_project(project_ini_file_path)
-            self.project.time_to_load_or_create_project = time() - t0
-            self.complete = True
-            self.close()
+            return
+        
+        project_ini_file_path = get_new_path(self.project_folder_path, 
+                                                self.file.project_ini_name)
+        self.config.write_recent_project(project_ini_file_path)
+        self.project.time_to_load_or_create_project = time() - t0
+        self.complete = True
+        self.close()
 
     def create_project(self):
 
@@ -210,7 +210,6 @@ class NewProjectInput(QDialog):
             if not os.path.exists(self.project_folder_path):
                 os.makedirs(self.project_folder_path)
 
-            self.create_fluid_and_material_files()
             self.create_project_file()
 
             project_name = self.lineEdit_project_name.text()
@@ -224,7 +223,6 @@ class NewProjectInput(QDialog):
                                                 self.element_size,
                                                 self.geometry_tolerance,
                                                 self.import_type )
-                return True
 
             elif index == 1:
 
@@ -239,10 +237,8 @@ class NewProjectInput(QDialog):
                                             self.geometry_tolerance,
                                             self.import_type,
                                             geometry_path = new_geometry_path   )
-                return True
-            
-            else:
-                return False
+                
+            self.create_fluid_and_material_files()
 
         except Exception as error_log:
             
@@ -251,7 +247,7 @@ class NewProjectInput(QDialog):
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
             
-            return False
+            return True
 
     def create_project_file(self):
 
@@ -279,3 +275,9 @@ class NewProjectInput(QDialog):
 
     def create_fluid_and_material_files(self):
         self.file.reset_fluid_and_material_files()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.start_project()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

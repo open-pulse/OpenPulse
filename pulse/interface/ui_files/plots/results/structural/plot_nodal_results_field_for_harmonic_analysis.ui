@@ -106,6 +106,18 @@
          </property>
          <item row="0" column="1">
           <widget class="QLabel" name="label_2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -141,6 +153,18 @@
          </item>
          <item row="0" column="2">
           <widget class="QComboBox" name="comboBox_color_scaling">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -471,13 +495,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>40</height>
+       <height>42</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>40</height>
+       <height>42</height>
       </size>
      </property>
      <property name="frameShape">

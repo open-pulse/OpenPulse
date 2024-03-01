@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
-    <height>365</height>
+    <width>360</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,14 +21,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>430</width>
+    <width>360</width>
     <height>360</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>430</width>
-    <height>365</height>
+    <width>380</width>
+    <height>360</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -64,14 +64,14 @@
     <widget class="QFrame" name="frame_3">
      <property name="minimumSize">
       <size>
-       <width>300</width>
-       <height>61</height>
+       <width>0</width>
+       <height>60</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>430</width>
-       <height>61</height>
+       <height>60</height>
       </size>
      </property>
      <property name="frameShape">
@@ -111,7 +111,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Harmonic Analysis - Structural</string>
+         <string>Harmonic analysis - Structural</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -133,7 +133,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Mode Superposition Method</string>
+         <string>Mode superposition method</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -155,11 +155,23 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_9">
+      <property name="leftMargin">
+       <number>4</number>
+      </property>
       <property name="topMargin">
        <number>6</number>
       </property>
+      <property name="rightMargin">
+       <number>4</number>
+      </property>
       <property name="bottomMargin">
-       <number>6</number>
+       <number>4</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>2</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>4</number>
       </property>
       <item row="0" column="0">
        <widget class="QFrame" name="frame_7">
@@ -235,13 +247,13 @@
           <widget class="QLineEdit" name="lineEdit_modes">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>28</height>
             </size>
            </property>
@@ -263,37 +275,31 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="QFrame" name="frame_9">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>28</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>28</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
-          <widget class="QFrame" name="frame_10">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
            </property>
-          </widget>
+          </spacer>
+         </item>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -302,8 +308,8 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
        <widget class="QTabWidget" name="tabWidget">
         <property name="minimumSize">
          <size>
-          <width>360</width>
-          <height>188</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -324,22 +330,37 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
         <property name="currentIndex">
          <number>0</number>
         </property>
-        <widget class="QWidget" name="tab_2">
+        <widget class="QWidget" name="tab_setup">
          <attribute name="title">
           <string>Frequency Setup</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_5">
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <property name="horizontalSpacing">
+           <number>8</number>
+          </property>
           <item row="2" column="3">
            <widget class="QLabel" name="label_26">
             <property name="minimumSize">
              <size>
-              <width>48</width>
+              <width>60</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>48</width>
+              <width>60</width>
               <height>28</height>
              </size>
             </property>
@@ -353,7 +374,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
              <string>[Hz]</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignCenter</set>
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -361,13 +382,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            <widget class="QLabel" name="label_25">
             <property name="minimumSize">
              <size>
-              <width>48</width>
+              <width>60</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>48</width>
+              <width>60</width>
               <height>28</height>
              </size>
             </property>
@@ -381,7 +402,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
              <string>[Hz]</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignCenter</set>
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -389,13 +410,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            <widget class="QLineEdit" name="lineEdit_step">
             <property name="minimumSize">
              <size>
-              <width>100</width>
+              <width>80</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
+              <width>80</width>
               <height>28</height>
              </size>
             </property>
@@ -421,13 +442,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            <widget class="QLineEdit" name="lineEdit_max">
             <property name="minimumSize">
              <size>
-              <width>100</width>
+              <width>80</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
+              <width>80</width>
               <height>28</height>
              </size>
             </property>
@@ -453,13 +474,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            <widget class="QLabel" name="label_24">
             <property name="minimumSize">
              <size>
-              <width>48</width>
+              <width>60</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>48</width>
+              <width>60</width>
               <height>28</height>
              </size>
             </property>
@@ -473,7 +494,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
              <string>[Hz]</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignCenter</set>
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -510,13 +531,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            <widget class="QLineEdit" name="lineEdit_min">
             <property name="minimumSize">
              <size>
-              <width>100</width>
+              <width>80</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
+              <width>80</width>
               <height>28</height>
              </size>
             </property>
@@ -791,13 +812,13 @@ hysteretic</string>
              <widget class="QLineEdit" name="lineEdit_av">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -823,13 +844,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
              <widget class="QLineEdit" name="lineEdit_bv">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -872,13 +893,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
              <widget class="QLineEdit" name="lineEdit_ah">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -904,13 +925,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
              <widget class="QLineEdit" name="lineEdit_bh">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>80</width>
                 <height>26</height>
                </size>
               </property>
@@ -1111,7 +1132,7 @@ viscous</string>
        <widget class="QFrame" name="frame">
         <property name="minimumSize">
          <size>
-          <width>360</width>
+          <width>0</width>
           <height>0</height>
          </size>
         </property>
@@ -1147,16 +1168,16 @@ viscous</string>
           <number>4</number>
          </property>
          <item row="0" column="0">
-          <widget class="QPushButton" name="pushButton_confirm_close">
+          <widget class="QPushButton" name="enter_setup_button">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>
@@ -1164,7 +1185,7 @@ viscous</string>
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -1176,21 +1197,21 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
 QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="text">
-            <string>Confirm and close</string>
+            <string>Enter setup</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QPushButton" name="pushButton_confirm_run_analysis">
+          <widget class="QPushButton" name="run_analysis_button">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>
@@ -1198,7 +1219,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -1222,6 +1243,19 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_modes</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lineEdit_min</tabstop>
+  <tabstop>lineEdit_max</tabstop>
+  <tabstop>lineEdit_step</tabstop>
+  <tabstop>run_analysis_button</tabstop>
+  <tabstop>enter_setup_button</tabstop>
+  <tabstop>lineEdit_av</tabstop>
+  <tabstop>lineEdit_bv</tabstop>
+  <tabstop>lineEdit_ah</tabstop>
+  <tabstop>lineEdit_bh</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

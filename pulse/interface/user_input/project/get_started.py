@@ -51,6 +51,7 @@ class GetStartedInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Get started")
         
     def _define_qt_variables(self):
         # QLable

@@ -26,13 +26,12 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def keyPressEvent(self, event):
         """This deals with key events that are directly linked with the menu."""
         if event.key() == Qt.Key_F5:
-            self.mainWindow.input_widget.run_analysis()
-            self._update_items()
+            self.item_child_run_analysis_callback()
 
     def _create_items(self):
         """Creates all TreeWidgetItems."""
         self.item_top_general_settings = self.add_top_item('General Settings')
-        self.item_child_createGeometry = self.add_item('Create/Edit Geometry')
+        self.item_child_create_geometry = self.add_item('Create/Edit Geometry')
         self.item_child_set_material = self.add_item('Set Material')
         self.item_child_set_fluid = self.add_item('Set Fluid')
         self.item_child_set_crossSection = self.add_item('Set Cross-Section')
@@ -54,7 +53,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
         self.item_child_setAcousticElementType = self.add_item('Set Acoustic Element Type')
-        self.item_child_setAcousticPressure = self.add_item('Set Acoustic Pressure')
+        self.item_child_set_acoustic_pressure = self.add_item('Set Acoustic Pressure')
         self.item_child_setVolumeVelocity = self.add_item('Set Volume Velocity')
         self.item_child_setSpecificImpedance = self.add_item('Set Specific Impedance')
         self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
@@ -69,7 +68,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def _create_connections(self):
         # General Settings
-        self.item_child_createGeometry.clicked.connect(self.item_child_create_geometry_callback)
+        self.item_child_create_geometry.clicked.connect(self.item_child_create_geometry_callback)
         self.item_child_set_material.clicked.connect(self.item_child_set_material_callback)
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
@@ -89,7 +88,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_setRotationDecoupling.clicked.connect(self.item_child_set_rotation_decoupling_callback)
         # Acoustic Model Setup
         self.item_child_setAcousticElementType.clicked.connect(self.item_child_set_acoustic_element_type_callback)
-        self.item_child_setAcousticPressure.clicked.connect(self.item_child_set_acoustic_pressure_callback)
+        self.item_child_set_acoustic_pressure.clicked.connect(self.item_child_set_acoustic_pressure_callback)
         self.item_child_setVolumeVelocity.clicked.connect(self.item_child_set_volume_velocity_callback)
         self.item_child_setSpecificImpedance.clicked.connect(self.item_child_set_specific_impedance_callback)
         self.item_child_set_radiation_impedance.clicked.connect(self.item_child_set_radiation_impedance_callback)
@@ -203,7 +202,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_set_acoustic_pressure_callback(self):
         self.update_plot_mesh()      
-        self.mainWindow.input_widget.setAcousticPressure()
+        self.mainWindow.input_widget.set_acoustic_pressure()
         self.mainWindow.plot_mesh()
 
     def item_child_set_volume_velocity_callback(self):
@@ -256,17 +255,17 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
             
     # Items access
     def modify_geometry_item_access(self, bool_key):
-        self.item_child_createGeometry.setDisabled(bool_key)
+        self.item_child_create_geometry.setDisabled(bool_key)
 
     def modify_general_settings_items_access(self, bool_key):
-        self.item_child_createGeometry.setDisabled(bool_key)
+        self.item_child_create_geometry.setDisabled(bool_key)
         # self.item_child_set_material.setDisabled(bool_key)
         # self.item_child_set_fluid.setDisabled(bool_key)
         # self.item_child_set_crossSection.setDisabled(bool_key)
 
     def modify_model_setup_items_access(self, bool_key):
         #
-        self.item_child_createGeometry.setDisabled(bool_key)
+        self.item_child_create_geometry.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
@@ -286,7 +285,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_setRotationDecoupling.setDisabled(bool_key)
         #   
         self.item_child_setAcousticElementType.setDisabled(bool_key)
-        self.item_child_setAcousticPressure.setDisabled(bool_key)
+        self.item_child_set_acoustic_pressure.setDisabled(bool_key)
         self.item_child_setVolumeVelocity.setDisabled(bool_key)
         self.item_child_setSpecificImpedance.setDisabled(bool_key)
         self.item_child_set_radiation_impedance.setDisabled(bool_key)
@@ -295,15 +294,17 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
         #
         self.item_child_select_analysis_type.setDisabled(bool_key)
-
-    def _update_items(self):
-        """Enables and disables the Child Items on the menu after the solution is done."""
-        self.modify_model_setup_items_access(False)
-
-        if True:
+        if bool_key:
             self.item_child_analysis_setup.setDisabled(True)
             self.item_child_run_analysis.setDisabled(True)
-            # self.item_top_analysis.setHidden(True)
+
+    def _update_items(self):
+        """ Enables and disables the child items on the menu after
+            the solution is done.
+        """
+        self.modify_model_setup_items_access(False)
+        self.item_child_analysis_setup.setDisabled(True)
+        self.item_child_run_analysis.setDisabled(True)
                     
         if self.project.analysis_ID in [None, 2, 4]:
             self.item_child_analysis_setup.setDisabled(True)
@@ -312,17 +313,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         
         if self.project.analysis_ID is not None and self.project.setup_analysis_complete:
             self.item_child_run_analysis.setDisabled(False)
-
-            # self.update_TreeVisibility_after_solution()
             
-    def update_TreeVisibility_after_solution(self):
-        """Expands and collapses the Top Level Items on the menu after the solution is done.
-        
-        """
-        self.collapseItem(self.item_top_general_settings)
-        self.collapseItem(self.item_top_structural_model_setup)
-        self.collapseItem(self.item_top_acoustic_model_setup)
-
     def update_structural_analysis_visibility_items(self):
         self.item_top_structural_model_setup.setHidden(False)
         self.item_top_acoustic_model_setup.setHidden(True)
@@ -334,10 +325,3 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def update_coupled_analysis_visibility_items(self):
         self.item_top_structural_model_setup.setHidden(False)
         self.item_top_acoustic_model_setup.setHidden(False)
-
-    def empty_project_action_message(self):
-        title = 'EMPTY PROJECT'
-        message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
-        message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' \nbuttons to continue."
-        window_title = 'ERROR'
-        PrintMessageInput([window_title, title, message])

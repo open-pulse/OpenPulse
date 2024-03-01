@@ -53,7 +53,7 @@ class MeshUpdater:
             
     def process_mesh_and_load_project(self):
 
-        if self.project.empty_geometry:
+        if self.project.check_if_entity_file_exists():
             self.process_intermediate_actions(undo_remesh=False, mapping=False) 
             self.complete = True
             return

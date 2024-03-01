@@ -9,7 +9,7 @@ from time import time, sleep
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
@@ -20,12 +20,12 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class RunAnalysisInput(QDialog):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "messages/solution_log.ui", self)
 
-        self.project = project
+        self.project = app().main_window.project
 
         self._config_window()
         self._load_icons()
@@ -37,7 +37,7 @@ class RunAnalysisInput(QDialog):
         LoadingScreen(title = 'Solution in progress', 
                       message = 'Processing the cross-sections',  
                       target = self.process_cross_sections, 
-                      project = project)
+                      project = self.project)
         
         if self.project.preprocessor.stop_processing:
             self.project.preprocessor.stop_processing = False
@@ -52,7 +52,7 @@ class RunAnalysisInput(QDialog):
         LoadingScreen(title = 'Solution in progress', 
                       message = 'Solving the analysis',  
                       target = self.process_analysis, 
-                      project = project)
+                      project = self.project)
 
         self.post_non_linear_convergence_plot()  
 

@@ -153,7 +153,7 @@ class MenuItems(QTreeWidget):
         #
         self.item_top_acousticModelSetup = QTreeWidgetItem(['Acoustic Model Setup'])
         self.item_child_setAcousticElementType = QTreeWidgetItem(['Set Acoustic Element Type'])
-        self.item_child_setAcousticPressure = QTreeWidgetItem(['Set Acoustic Pressure'])
+        self.item_child_set_acoustic_pressure = QTreeWidgetItem(['Set Acoustic Pressure'])
         self.item_child_setVolumeVelocity = QTreeWidgetItem(['Set Volume Velocity'])
         self.item_child_setSpecificImpedance = QTreeWidgetItem(['Set Specific Impedance'])
         self.item_child_set_radiation_impedance = QTreeWidgetItem(['Set Radiation Impedance'])
@@ -163,7 +163,7 @@ class MenuItems(QTreeWidget):
         #
         self.list_top_items.append(self.item_top_acousticModelSetup)
         self.list_child_items.append(self.item_child_setAcousticElementType)
-        self.list_child_items.append(self.item_child_setAcousticPressure)
+        self.list_child_items.append(self.item_child_set_acoustic_pressure)
         self.list_child_items.append(self.item_child_setVolumeVelocity)
         self.list_child_items.append(self.item_child_setSpecificImpedance)
         self.list_child_items.append(self.item_child_set_radiation_impedance)
@@ -247,7 +247,7 @@ class MenuItems(QTreeWidget):
 
         self.addTopLevelItem(self.item_top_acousticModelSetup)
         self.item_top_acousticModelSetup.addChild(self.item_child_setAcousticElementType)    
-        self.item_top_acousticModelSetup.addChild(self.item_child_setAcousticPressure) 
+        self.item_top_acousticModelSetup.addChild(self.item_child_set_acoustic_pressure) 
         self.item_top_acousticModelSetup.addChild(self.item_child_setVolumeVelocity)     
         self.item_top_acousticModelSetup.addChild(self.item_child_setSpecificImpedance)
         self.item_top_acousticModelSetup.addChild(self.item_child_set_radiation_impedance)     
@@ -342,9 +342,6 @@ class MenuItems(QTreeWidget):
 
         if self.update_childItems_visibility(item):
             return
-
-        if self.project.none_project_action:           
-            self.empty_project_action_message()
         
         if item == self.item_child_setProjectAttributes:
             if not self.item_child_setProjectAttributes.isDisabled():
@@ -467,10 +464,10 @@ class MenuItems(QTreeWidget):
                 self.mainWindow.getInputWidget().set_acoustic_element_type()
                 self.mainWindow.plot_entities()
 
-        elif item == self.item_child_setAcousticPressure:
-            if not self.item_child_setAcousticPressure.isDisabled():
+        elif item == self.item_child_set_acoustic_pressure:
+            if not self.item_child_set_acoustic_pressure.isDisabled():
                 self.update_plot_mesh()      
-                self.mainWindow.getInputWidget().setAcousticPressure()
+                self.mainWindow.getInputWidget().set_acoustic_pressure()
                 self.mainWindow.plot_mesh()
 
         elif item == self.item_child_setVolumeVelocity:
@@ -629,7 +626,7 @@ class MenuItems(QTreeWidget):
         self.item_child_setRotationDecoupling.setDisabled(bool_key)
         #   
         self.item_child_setAcousticElementType.setDisabled(bool_key)
-        self.item_child_setAcousticPressure.setDisabled(bool_key)
+        self.item_child_set_acoustic_pressure.setDisabled(bool_key)
         self.item_child_setVolumeVelocity.setDisabled(bool_key)
         self.item_child_setSpecificImpedance.setDisabled(bool_key)
         self.item_child_set_radiation_impedance.setDisabled(bool_key)
@@ -740,9 +737,9 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotStressFrequencyResponse.setDisabled(False)
 
             self.modify_item_names_according_to_analysis()
-            self.update_TreeVisibility_after_solution()
+            self.update_tree_visibility_after_solution()
             
-    def update_TreeVisibility_after_solution(self):
+    def update_tree_visibility_after_solution(self):
         """Expands and collapses the Top Level Items ont the menu after the solution is done.
         
         """
@@ -785,10 +782,3 @@ class MenuItems(QTreeWidget):
     def update_coupled_analysis_visibility_items(self):
         self.item_top_structuralModelSetup.setHidden(False)
         self.item_top_acousticModelSetup.setHidden(False)
-
-    def empty_project_action_message(self):
-        title = 'EMPTY PROJECT'
-        message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
-        message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' \nbuttons to continue."
-        window_title = 'ERROR'
-        PrintMessageInput([title, message, window_title], opv=self.mainWindow.getOPVWidget())

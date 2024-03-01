@@ -30,7 +30,7 @@ from pulse.interface.user_input.model.setup.structural.decouplingRotationDOFsInp
 #
 from pulse.interface.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
-from pulse.interface.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
+from pulse.interface.user_input.model.setup.acoustic.acoustic_pressure_input import AcousticPressureInput
 from pulse.interface.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
 from pulse.interface.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
 from pulse.interface.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
@@ -82,11 +82,11 @@ window_title_2 = "Warning"
 class InputUi:
     def __init__(self, parent=None):
 
-        self.main_window = parent
-        self.project = parent.project
-        self.file = parent.project.file
-        self.opv = parent.opv_widget
-        self.menu_items = parent.model_and_analysis_setup_widget.model_and_analysis_setup_items
+        self.main_window = app().main_window
+        self.project = app().main_window.project
+        self.file = app().main_window.project.file
+        self.opv = app().main_window.opv_widget
+        self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
         
         self._reset()
 
@@ -116,8 +116,9 @@ class InputUi:
 
     def new_project(self):
         new_project = self.processInput(NewProjectInput)
-        self.main_window._update_status_bar()
-        return self.initial_project_action(new_project.complete)
+        if new_project.complete:
+            self.main_window._update_status_bar()
+            return self.initial_project_action(new_project.complete)
 
     def load_project(self, path=None):
         load_project = self.processInput(LoadProjectInput, path=path)
@@ -132,25 +133,20 @@ class InputUi:
         return get_started
 
     def initial_project_action(self, finalized):
-        app().main_window.action_front_view_callback()
-        app().main_window.update_export_geometry_file_access()
-        mesh_setup = self.project.check_mesh_setup()
+        self.main_window.action_front_view_callback()
+        self.main_window.update_export_geometry_file_access()
+        self.menu_items.modify_model_setup_items_access(True)
         if finalized:
-            if self.project.empty_geometry:
-                self.menu_items.modify_geometry_item_access(False)
-                return True
-            elif not mesh_setup:
-                self.menu_items.modify_general_settings_items_access(False)
-                return True   
-            else:
+            if self.project.check_if_entity_file_exists():
                 self.project.none_project_action = False
-                # self.main_window._enable_menus_at_start(True)
                 self.menu_items.modify_model_setup_items_access(False)
+                return True
+            else:
+                self.menu_items.modify_geometry_item_access(False)
                 return True
         else:
             self.project.none_project_action = True
-            self.menu_items.modify_model_setup_items_access(True)
-            return False                 
+            return False
 
     def reset_project(self):
         if not self.project.none_project_action:
@@ -266,8 +262,8 @@ class InputUi:
     def set_fluid_composition(self):
         self.processInput(SetFluidCompositionInput, self.project, self.opv)
 
-    def setAcousticPressure(self):
-        self.processInput(AcousticPressureInput, self.project, self.opv)
+    def set_acoustic_pressure(self):
+        self.processInput(AcousticPressureInput)
     
     def setVolumeVelocity(self):
         self.processInput(VolumeVelocityInput, self.project, self.opv)
@@ -346,7 +342,7 @@ class InputUi:
             return
         # self.project.time_to_checking_entries = time()-t0
 
-        read = self.processInput(RunAnalysisInput, self.project)
+        read = self.processInput(RunAnalysisInput)
         if read.complete:
             if self.analysis_ID == 2:
                 self.before_run.check_modal_analysis_imported_data()

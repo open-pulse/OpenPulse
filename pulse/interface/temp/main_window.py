@@ -263,10 +263,10 @@ class MainWindow(QMainWindow):
         self.setAcousticElementType_action.setStatusTip('Set Acoustic Element Type')
         self.setAcousticElementType_action.triggered.connect(self.getInputWidget().set_acoustic_element_type)
 
-        self.setAcousticPressure_action = QAction('&Set Acoustic Pressure', self)        
-        # self.setAcousticPressure_action.setShortcut('')
-        self.setAcousticPressure_action.setStatusTip('Set Acoustic Pressure')
-        self.setAcousticPressure_action.triggered.connect(self.getInputWidget().setAcousticPressure)
+        self.set_acoustic_pressure_action = QAction('&Set Acoustic Pressure', self)        
+        # self.set_acoustic_pressure_action.setShortcut('')
+        self.set_acoustic_pressure_action.setStatusTip('Set Acoustic Pressure')
+        self.set_acoustic_pressure_action.triggered.connect(self.getInputWidget().set_acoustic_pressure)
 
         self.setVolumeVelocity_action = QAction('&Set Volume Velocity', self)        
         # self.setVolumeVelocity_action.setShortcut('')
@@ -500,7 +500,7 @@ class MainWindow(QMainWindow):
         self.structuralModelSetupMenu.addAction(self.nodalLinks_action)
         #Acoustic model setup
         self.acousticModelSetupMenu.addAction(self.setAcousticElementType_action)
-        self.acousticModelSetupMenu.addAction(self.setAcousticPressure_action)
+        self.acousticModelSetupMenu.addAction(self.set_acoustic_pressure_action)
         self.acousticModelSetupMenu.addAction(self.setVolumeVelocity_action)
         self.acousticModelSetupMenu.addAction(self.setSpecificImpedance_action)
         self.acousticModelSetupMenu.addAction(self.set_radiation_impedance_action)
@@ -663,7 +663,7 @@ class MainWindow(QMainWindow):
             self._updateGeometryState("ok")
         # Check and update mesh state
         if len(self.project.preprocessor.structural_elements) == 0:
-            if self.project.check_mesh_setup():
+            if self.project.check_if_entity_file_exists():
                 self._updateMeshState("setup complete but not generated")
             else:
                 self._updateMeshState("pending")

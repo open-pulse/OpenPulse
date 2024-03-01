@@ -28,10 +28,11 @@ class Project:
         self.reset()
 
     def reset(self, reset_all=False):
+
         if reset_all:
             self.preprocessor.reset_variables()
             self.file.reset() 
-        self.empty_geometry = True
+
         self.analysis_ID = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
@@ -85,11 +86,8 @@ class Project:
             self.reset(reset_all=True)
             self.file.load(project_file_path)
     
-            self.empty_geometry = True
-            # if os.path.exists(self.file._geometry_path):
-            if self.check_mesh_setup():
+            if self.check_if_entity_file_exists():
                 self.process_geometry_and_mesh()
-                self.empty_geometry = False
                 self.entities = self.preprocessor.dict_tag_to_entity.values()
                 if not os.path.exists(self.file._entity_path):
                     self.file.create_entity_file(self.preprocessor.all_lines)                   
@@ -114,12 +112,11 @@ class Project:
         self.process_geometry_and_mesh()
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
-        self.empty_geometry = False
+
 
     def new_empty_project(self, *args, **kwargs):
         self.reset(reset_all=True)
         self.file.new(*args, **kwargs)
-        self.empty_geometry = True
         self.preprocessor._create_gmsh_geometry()
 
     def copy_project(self, *args, **kwargs):
@@ -140,18 +137,15 @@ class Project:
         self.file.reset_fluid_and_material_files(**kwargs)
         self.file.reset_project_setup(**kwargs)
         self.file.reset_entity_file(**kwargs)
-        if self.check_mesh_setup():
+        if self.check_if_entity_file_exists():
             self.process_geometry_and_mesh()
             self.load_project_files()
 
-    def check_mesh_setup(self):
-        #TODO: create a robust solution to avoid crashes
-        if self.file.get_element_size_from_project_file() != "":
-            return True
-        else:
-            return False
+    def check_if_entity_file_exists(self):
+        return os.path.exists(self.file._entity_path)
 
     def set_geometry_entities(self, entities_data, geometry_path, kernel, only_save=False):
+        return
         """
         """
         self.file.add_geometry_entities_to_file(entities_data)
@@ -210,7 +204,6 @@ class Project:
                                     "fillets_data" : fillets_data}
 
             self.preprocessor.generate_geometry_gmsh(output_entities_data)
-            self.empty_geometry = False
 
     def remove_selected_lines_from_geometry(self, lines):
 

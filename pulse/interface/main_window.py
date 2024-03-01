@@ -72,6 +72,7 @@ class MainWindow(QMainWindow):
             return 
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
+        self.use_structural_setup_workspace()
         self.update()
 
     def open_project(self, path=None):
@@ -413,7 +414,7 @@ class MainWindow(QMainWindow):
         self.input_widget.set_acoustic_element_type()
 
     def action_set_acoustic_pressure_callback(self):
-        self.input_widget.setAcousticPressure()
+        self.input_widget.set_acoustic_pressure()
 
     def action_set_volume_velocity_callback(self):
         self.input_widget.setVolumeVelocity()
@@ -522,7 +523,7 @@ class MainWindow(QMainWindow):
         project_path = self.file._project_path
         if not os.path.exists(project_path):
             project_path = ""
-        path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
+        path, _ = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
             self.opv_widget().savePNG(path)
     
@@ -583,7 +584,7 @@ class MainWindow(QMainWindow):
     #         self._updateGeometryState("ok")
     #     # Check and update mesh state
     #     if len(self.project.preprocessor.structural_elements) == 0:
-    #         if self.project.check_mesh_setup():
+    #         if self.project.check_if_entity_file_exists():
     #             self._updateMeshState("setup complete but not generated")
     #         else:
     #             self._updateMeshState("pending")
