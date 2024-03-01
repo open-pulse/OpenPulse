@@ -4,17 +4,12 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-import configparser
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse import app, UI_DIR
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+import os
 
 class GetStartedInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -41,7 +36,7 @@ class GetStartedInput(QDialog):
         self.complete = False
 
     def _load_icons(self):
-        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.icon = get_openpulse_icon()
         self.load_icon = QIcon(get_icons_path('loadProject.png'))
         self.new_icon = QIcon(get_icons_path('add.png'))
         self.reset_icon = QIcon(get_icons_path('refresh.png'))

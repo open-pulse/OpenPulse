@@ -3,20 +3,19 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5.QtGui import QColor
 from PyQt5 import uic
 
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+
 from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
-
-from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.formatters.icons import get_openpulse_icon
-from pulse import app, UI_DIR
 
 import os
 import sys
@@ -52,7 +51,7 @@ class MainWindow(QMainWindow):
 
     def configure_window(self):
 
-        self._load_icon()
+        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
@@ -151,8 +150,8 @@ class MainWindow(QMainWindow):
             self.menu_recent.addAction(import_action)
             self.menu_actions.append(import_action)
 
-    def _load_icon(self):
-        self.pulse_icon = get_openpulse_icon(QColor("#0055DD"))
+    def _load_icons(self):
+        self.pulse_icon = get_openpulse_icon()
 
     def _config_window(self):
         self.showMaximized()

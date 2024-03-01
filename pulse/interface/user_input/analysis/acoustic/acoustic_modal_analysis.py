@@ -7,6 +7,8 @@ import numpy as np
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.formatters.icons import *
+
 from math import pi
 
 window_title_1 = "Error"
@@ -32,8 +34,7 @@ class AcousticModalAnalysisInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

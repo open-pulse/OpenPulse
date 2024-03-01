@@ -4,17 +4,17 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
 from pathlib import Path
 
-from time import time, sleep
-
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
+
+from time import time, sleep
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -27,8 +27,9 @@ class RunAnalysisInput(QDialog):
 
         self.project = app().main_window.project
 
-        self._config_window()
         self._load_icons()
+        self._config_window()
+        
         self._reset_variables()
         self._load_analysis_info()
         self._define_qt_variables()
@@ -69,15 +70,14 @@ class RunAnalysisInput(QDialog):
             self.exec()
             self.check_warnings()
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("OpenPulse")
-
-    def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
     def _reset_variables(self):
         self.solution_acoustic = None

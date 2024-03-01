@@ -2,23 +2,17 @@ from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QPushButton, 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
-
+from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
-
-from pulse import UI_DIR
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+import numpy as np
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
+
 
 class FrequencyResponsePlotter(QDialog):
     def __init__(self, *args, **kwargs):
@@ -26,24 +20,24 @@ class FrequencyResponsePlotter(QDialog):
 
         uic.loadUi(UI_DIR / "plots/results/general/frequency_response_plot.ui", self)
 
-        self._config_window()
         self._load_icons()
-        self._reset_variables()
+        self._config_window()
+        self._initialize()
         self._initialize_canvas()
         self._define_qt_variables()
         self._create_connections()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+        self.search_icon = QIcon(get_icons_path('searchFile.png'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Frequency response plotter")
-
-    def _load_icons(self):
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
         self.setWindowIcon(self.icon)
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.imported_dB = False
         self._layout = None
         self.x_data = None

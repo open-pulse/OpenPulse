@@ -2,21 +2,16 @@ from PyQt5.QtWidgets import QCheckBox, QComboBox, QLineEdit, QPushButton, QRadio
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app, UI_DIR
+import numpy as np
+from pathlib import Path
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class GetStressesForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -31,9 +26,9 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self.opv.setInputObject(self)
         self.project = main_window.project
 
-        self._initialize()    
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.update()
@@ -58,14 +53,14 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self.solve = self.project.structural_solve 
         self.analysis_method = self.project.analysis_method_label
 
+    def _load_icons(self):
+        self.pulse_icon = get_openpulse_icon()
+        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.pulse_icon)
-
-    def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _define_qt_variables(self):
         # QCheckBox

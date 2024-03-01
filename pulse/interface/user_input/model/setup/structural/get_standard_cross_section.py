@@ -2,12 +2,13 @@ from PyQt5.QtWidgets import QDialog, QComboBox, QPushButton, QRadioButton, QTree
 from PyQt5.QtGui import QIcon, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-from pulse.libraries.standard_cross_sections import StandardCrossSections
 from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.libraries.standard_cross_sections import StandardCrossSections
 
 import numpy as np
+from pathlib import Path
 from collections import defaultdict
 
 class GetStandardCrossSection(QDialog):
@@ -42,8 +43,7 @@ class GetStandardCrossSection(QDialog):
         self.highlight_section = defaultdict(list)
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

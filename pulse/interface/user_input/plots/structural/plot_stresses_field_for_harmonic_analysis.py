@@ -2,12 +2,14 @@ from PyQt5.QtWidgets import QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
+from pathlib import Path
 
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse import app, UI_DIR
 
 class PlotStressesFieldForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -17,14 +19,13 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
-
         self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
         self.project = main_window.project
         
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connection()
         self.load_frequencies()
@@ -55,8 +56,7 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         self.dict_frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

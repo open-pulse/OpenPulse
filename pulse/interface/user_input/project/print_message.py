@@ -2,10 +2,11 @@ from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 
+from pathlib import Path
 from time import sleep, time 
 
 class PrintMessageInput(QDialog):
@@ -26,8 +27,7 @@ class PrintMessageInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

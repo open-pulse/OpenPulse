@@ -2,13 +2,14 @@ from PyQt5.QtWidgets import QCheckBox, QDialog, QFileDialog, QLineEdit, QPushBut
 from PyQt5.QtGui import QIcon, QKeyEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
-from pulse.tools.utils import get_new_path
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import get_new_path
 
 import os
+from pathlib import Path
 from shutil import copytree, rmtree
 
 window_title_1 = "Error"
@@ -52,8 +53,7 @@ class SaveProjectAsInput(QDialog):
         self.current_fluid_list_path = self.file._fluid_list_path
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_new_path
 from pulse import app, UI_DIR, __version__
@@ -50,8 +51,7 @@ class NewProjectInput(QDialog):
         self.desktop_path = str(desktop_path)
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
         
     def _config_window(self):
         self.setWindowIcon(self.icon)

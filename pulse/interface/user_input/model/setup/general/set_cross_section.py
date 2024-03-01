@@ -8,9 +8,10 @@ import numpy as np
 import configparser
 import matplotlib.pyplot as plt
 
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
-from pulse import app, UI_DIR
 
 from pulse.tools.utils import *
 
@@ -42,9 +43,9 @@ class SetCrossSectionInput(QDialog):
 
         # self.preprocessor.get_nodes_and_elements_with_expansion()
 
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.load_existing_sections()
@@ -76,8 +77,7 @@ class SetCrossSectionInput(QDialog):
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

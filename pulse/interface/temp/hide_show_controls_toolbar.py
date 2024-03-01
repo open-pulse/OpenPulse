@@ -2,13 +2,8 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QColor, QIcon, QFont
 from PyQt5.QtWidgets import QAction, QToolBar, QLabel, QSpinBox, QRadioButton
 
-from pathlib import Path
-import os
+from pulse.interface.formatters.icons import *
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class HideShowControlsToolbar(QToolBar):
     def __init__(self, parent):
