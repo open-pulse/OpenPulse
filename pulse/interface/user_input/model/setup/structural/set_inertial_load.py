@@ -6,6 +6,7 @@ import numpy as np
 from pathlib import Path
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -37,8 +38,7 @@ class SetInertialLoad(QDialog):
         self.gravity_vector = self.project.preprocessor.gravity_vector
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

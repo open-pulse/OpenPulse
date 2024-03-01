@@ -2,13 +2,12 @@ from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-import numpy as np
 
 from pulse import app, UI_DIR
-from pulse.tools.utils import remove_bc_from_file
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -56,8 +55,7 @@ class CappedEndInput(QDialog):
         self.complete = False
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

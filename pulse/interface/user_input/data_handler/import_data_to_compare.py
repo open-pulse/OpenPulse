@@ -2,20 +2,17 @@ from PyQt5.QtWidgets import QDialog, QCheckBox, QFileDialog, QLineEdit, QPushBut
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import os
 import numpy as np
 import pandas as pd
 import openpyxl
+from pathlib import Path
 
-from pulse import UI_DIR
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class ImportDataToCompare(QDialog):
     def __init__(self, plotter, *args, **kwargs):
@@ -25,21 +22,21 @@ class ImportDataToCompare(QDialog):
 
         self.plotter = plotter
 
-        self._config_window()
         self._load_icons()
+        self._config_window()
         self._reset_variables()
         self._define_and_configure_Qt_variables()
         self._create_connections()
         self.exec()
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+        self.search_icon = QIcon(get_icons_path('searchFile.png'))
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Import data to compare")
-
-    def _load_icons(self):
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
         self.setWindowIcon(self.icon)
 
     def _reset_variables(self):

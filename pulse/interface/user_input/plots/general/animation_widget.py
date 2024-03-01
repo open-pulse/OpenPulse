@@ -13,10 +13,6 @@ from pulse import app, UI_DIR
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class AnimationWidget(QWidget):
     def __init__(self):

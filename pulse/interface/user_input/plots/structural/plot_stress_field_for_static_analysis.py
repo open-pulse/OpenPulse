@@ -2,10 +2,13 @@ from PyQt5.QtWidgets import QComboBox, QFrame, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+
+import numpy as np
+from pathlib import Path
+
 
 class PlotStressesFieldForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -20,9 +23,9 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.opv.setInputObject(self)
         self.project = main_window.project
 
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.plot_stress_field()
@@ -47,8 +50,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.preprocessor = self.project.preprocessor
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

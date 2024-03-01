@@ -2,34 +2,33 @@ from PyQt5.QtWidgets import QDialog, QLabel, QProgressBar
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import UI_DIR
-from time import time, sleep
-import os
+from pulse.interface.formatters.icons import *
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class ProgressBar(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
+
         uic.loadUi(UI_DIR / "project/progress_bar2.ui", self)
-        
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.setWindowIcon(self.icon)
+
+        self._load_icons()
+        self._config_window()        
+        self._initialize()
+        self._define_qt_variables()
+        self.show()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
         # self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.NonModal)
         self.setWindowTitle("Loading project")
+        self.setWindowIcon(self.icon)
 
-        self._reset_variables()
-        self._define_qt_variables()
-        self.show()
-        # self.exec()
-
-    def _reset_variables(self):
+    def _initialize(self):
         pass
 
     def _define_qt_variables(self):

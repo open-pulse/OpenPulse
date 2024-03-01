@@ -2,11 +2,13 @@ from PyQt5.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QRadioBu
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
+from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.viewer_3d.renders.opvRenderer import PlotFilter, SelectionFilter
-from pulse import UI_DIR
+
+from pathlib import Path
 
 
 class RendererUserPreferencesInput(QDialog):
@@ -15,24 +17,15 @@ class RendererUserPreferencesInput(QDialog):
 
         uic.loadUi(UI_DIR / "project/render/renderer_user_preferences.ui", self)
         
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
         self.project = project
         self.opv = opv
         self.opv.setInputObject(self)
 
-        self.cache_setup = [self.opv.opvRenderer.nodes_color,
-                            self.opv.opvRenderer.lines_color,
-                            self.opv.opvRenderer.surfaces_color,
-                            self.opv.opvRenderer.elements_transparency]
-
-        self.initialize_Qt_variables()
-        self.create_connections()
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
         self.load_background_color_state()
         self.load_logo_state()
         self.load_reference_scale_state()
@@ -40,9 +33,22 @@ class RendererUserPreferencesInput(QDialog):
         # self.load_plot_state()
         # self.load_selection_state()
         self.exec()
-    
 
-    def initialize_Qt_variables(self):
+    def _load_icons(self):
+        self.pulse_icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+
+    def _initialize(self):
+        self.cache_setup = [self.opv.opvRenderer.nodes_color,
+                            self.opv.opvRenderer.lines_color,
+                            self.opv.opvRenderer.surfaces_color,
+                            self.opv.opvRenderer.elements_transparency]
+
+    def _define_qt_variables(self):
         """
         """
         # checkBox
@@ -80,7 +86,7 @@ class RendererUserPreferencesInput(QDialog):
         # toolButton
         self.toolButton_update_settings = self.findChild(QToolButton, 'toolButton_update_settings')
         
-    def create_connections(self):
+    def _create_connections(self):
         """
         """
         self.update_slider_tick()

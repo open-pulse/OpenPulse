@@ -2,20 +2,16 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QRadioButton, QTabWidget, QT
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse import app, UI_DIR
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+import os
+import numpy as np
+from pathlib import Path
 
 class GetReactionsForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -49,7 +45,7 @@ class GetReactionsForHarmonicAnalysis(QWidget):
         self.frequencies = self.project.frequencies
 
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.pulse_icon = get_openpulse_icon()
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
         
     def _config_window(self):

@@ -2,12 +2,14 @@ from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidg
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+import numpy as np
+from pathlib import Path
+
 
 class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -38,8 +40,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
                             2 : "real_uy",
                             3 : "real_uz"}
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

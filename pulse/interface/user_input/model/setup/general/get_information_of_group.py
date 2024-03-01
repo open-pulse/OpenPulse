@@ -2,12 +2,9 @@ from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QRadioButto
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-import numpy as np
 
 from pulse import app, UI_DIR
-from pulse.tools.utils import remove_bc_from_file
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.formatters.icons import *
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -35,14 +32,13 @@ class GetInformationOfGroup(QDialog):
     def _initialize(self):
         self.lines_removed = False
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
     def _config_windows(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
-
-    def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
 
     def _define_qt_variables(self):
         # QLineEdit

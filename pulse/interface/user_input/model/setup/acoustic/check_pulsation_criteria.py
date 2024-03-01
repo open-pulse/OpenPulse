@@ -4,14 +4,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import numpy as np
-
-from pulse.tools.utils import get_new_path
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import get_new_path
 
-from pulse import app, UI_DIR
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -60,8 +60,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.node_id = self.opv.getListPickedPoints()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

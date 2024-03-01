@@ -2,20 +2,14 @@ from PyQt5.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app, UI_DIR
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -50,7 +44,7 @@ class GetAcousticFrequencyResponseFunction(QWidget):
         self.list_node_IDs = self.opv.getListPickedPoints()
 
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.pulse_icon = get_openpulse_icon()
         self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 

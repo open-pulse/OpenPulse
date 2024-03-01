@@ -2,12 +2,14 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
 from math import pi
+from pathlib import Path
+
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -32,8 +34,7 @@ class StructuralModalAnalysisInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

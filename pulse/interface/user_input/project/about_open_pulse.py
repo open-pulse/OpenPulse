@@ -1,21 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QWidget
+from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
 from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5 import uic
 
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app, UI_DIR, __version__, __release_date__
-
-import os
-from pathlib import Path
+from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class AboutOpenPulseInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -35,7 +28,7 @@ class AboutOpenPulseInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.icon = get_openpulse_icon()
         self.load_icon = QIcon(get_icons_path('loadProject.png'))
         self.new_icon = QIcon(get_icons_path('add.png'))
         self.reset_icon = QIcon(get_icons_path('refresh.png'))

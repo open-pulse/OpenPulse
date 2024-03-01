@@ -2,12 +2,12 @@ from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QSpinB
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
-from pulse import app, UI_DIR
 
 import os
 import numpy as np
@@ -52,8 +52,7 @@ class AcousticPressureInput(QDialog):
         self.list_Nones = [None, None, None, None, None, None]
         
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

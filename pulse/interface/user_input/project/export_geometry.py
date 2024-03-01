@@ -2,21 +2,17 @@ from PyQt5.QtWidgets import QDialog, QFrame, QComboBox, QFileDialog, QLabel, QLi
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
-from pathlib import Path
 
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse import app, UI_DIR
-
 from pulse.tools.utils import get_new_path
 
 import os
+from pathlib import Path
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class ExportGeometry(QDialog):
     def __init__(self, *args, **kwargs):
@@ -48,12 +44,13 @@ class ExportGeometry(QDialog):
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
     def _config_window(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

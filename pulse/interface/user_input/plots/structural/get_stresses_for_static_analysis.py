@@ -2,12 +2,14 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 
 import numpy as np
+from pathlib import Path
 
-from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
-from pulse import app, UI_DIR
 
 class GetStressesForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -40,8 +42,7 @@ class GetStressesForStaticAnalysis(QWidget):
         self.solve = self.project.structural_solve
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)

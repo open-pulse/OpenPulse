@@ -2,17 +2,19 @@ from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
-from pathlib import Path
 
-import numpy as np
-
-from compressors.reciprocating.model import CompressorModel
 from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.tools.utils import get_new_path, remove_bc_from_file
-# from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+
+# from pulse.preprocessing.compressor_model import CompressorModel
+from compressors.reciprocating.model import CompressorModel
+
+import numpy as np
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -43,23 +45,22 @@ class CompressorModelInput(QDialog):
 
         self._config_window()
         self._load_icons()
-        self._reset_variables()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.update()
         self.load_compressor_excitation_tables_info()
         self.exec()
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-
-    def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
         self.setWindowIcon(self.icon)
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
