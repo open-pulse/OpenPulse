@@ -90,6 +90,7 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_bending_radius.textEdited.connect(self.coords_modified_callback)
 
         self.pushButton_add_segment.clicked.connect(self.create_segment_callback)
+        self.pushButton_remove_segment.clicked.connect(self.remove_segment_callback)
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
 
@@ -211,6 +212,11 @@ class AddStructuresWidget(QWidget):
         self.geometry_widget.commit_structure()
         self.reset_deltas()
         self._update_permissions()
+
+    def remove_segment_callback(self):
+        editor = app().geometry_toolbox.editor
+        editor.delete_selection()
+        app().update()
 
     def reset_deltas(self):
         self.lineEdit_delta_x.setText("")
