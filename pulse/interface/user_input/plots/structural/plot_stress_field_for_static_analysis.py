@@ -5,7 +5,6 @@ from PyQt5 import uic
 from pathlib import Path
 import numpy as np
 
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 from pulse import app, UI_DIR
 
 class PlotStressesFieldForStaticAnalysis(QWidget):

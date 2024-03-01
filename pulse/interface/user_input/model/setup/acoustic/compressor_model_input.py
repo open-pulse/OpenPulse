@@ -11,7 +11,7 @@ from pulse import UI_DIR
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 # from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
@@ -350,7 +350,7 @@ class CompressorModelInput(QDialog):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, window_title_1]) 
+                PrintMessageInput([window_title_1, title, message]) 
 
         self.not_update_event = False
 
@@ -496,7 +496,7 @@ class CompressorModelInput(QDialog):
                 if self.suction_node_ID == self.discharge_node_ID:
                     title = "ERROR IN NODES SELECTION"
                     message = "The nodes selected to the suction and discharge must differ. Try to choose another pair of nodes."
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     return True
 
             if index == 1:
@@ -526,17 +526,17 @@ class CompressorModelInput(QDialog):
                     value = int(value_string) 
                 if value < 0:
                     message = "You cannot input a negative value to the {}.".format(label)
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     return True
                 else:
                     self.value = value
             except Exception:
                 message = "You have typed an invalid value to the {}.".format(label)
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
         else:
             message = "None value has been typed to the {}.".format(label)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         return False
 
@@ -1006,7 +1006,7 @@ class CompressorModelInput(QDialog):
             if node_id == "":
                 title = "EMPTY NODE SELECTION"
                 message = "You should to select a node from the list before continue."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 return
             else:
                 self.selected_node = int(node_id)
@@ -1021,7 +1021,7 @@ class CompressorModelInput(QDialog):
                 title = "Compressor excitation removal finished"
                 message = f"The compressor excitation attributed to \n"
                 message += f"the {self.selected_node} node has been removed."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
             self.load_compressor_excitation_tables_info()
             self.opv.updateRendererMesh()
         
@@ -1030,7 +1030,7 @@ class CompressorModelInput(QDialog):
             message = "An error has been detected during the compressor \n"
             message += "excitation removal from selected node.\n\n"
             message += str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
         self.remove_message = True
 
     def remove_table(self):
@@ -1045,7 +1045,7 @@ class CompressorModelInput(QDialog):
         if self.selected_node == "":
             title = "EMPTY TABLE SELECTION"
             message = "You should to select a table from list before continue."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             return
 
         else:
@@ -1069,7 +1069,7 @@ class CompressorModelInput(QDialog):
             message = f"The following compressor excitation table attributed to \n"
             message += f"the {node_id} node has been removed from the model:\n\n"
             message += f"{self.selected_table}"
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
 
             self.load_compressor_excitation_tables_info()
             self.reset_node_and_reload(node_id)
@@ -1119,7 +1119,7 @@ class CompressorModelInput(QDialog):
                 self.node_ID_remove = None
                 title = "Reset of compressor excitations"
                 message = "All compressor excitations have been removed from the model."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
 
     def load_compressor_excitation_tables_info(self):
         self.treeWidget_compressor_excitation.clear()

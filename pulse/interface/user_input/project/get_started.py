@@ -8,7 +8,6 @@ import os
 import configparser
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse import app, UI_DIR
 
@@ -154,7 +153,7 @@ class GetStartedInput(QDialog):
             self.show()
 
     def about_project(self):
-        AboutOpenPulseInput(self.project, self.opv)
+        self.input_ui.about_OpenPulse()
 
     def load_recent_project(self, dir):
         if os.path.exists(dir):

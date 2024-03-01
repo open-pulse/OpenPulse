@@ -2,12 +2,13 @@ from PyQt5.QtWidgets import QDialog, QCheckBox, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import numpy as np
-from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+
+import numpy as np
+from pathlib import Path
+
 
 class StaticAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):

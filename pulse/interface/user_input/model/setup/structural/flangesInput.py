@@ -15,7 +15,7 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.tools.utils import create_new_folder, get_new_path
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
@@ -217,7 +217,7 @@ class FlangesInput(QDialog):
             message += "You should to select node(s) or element(s) separately to proceed. "
             self.multiple_selection = True
             self.reset_selection()
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
 
         elif self.opv.getListPickedLines() != []:
@@ -485,7 +485,7 @@ class FlangesInput(QDialog):
             message += "You should enter a positive value to proceed."
             self.value = None
         if message != "":
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         else:
             return False
@@ -622,7 +622,7 @@ class FlangesInput(QDialog):
                 title = "Invalid input to the outer/inner diameters"
                 message = "The outer diameter input should be greater than the inner diameter. \n"
                 message += "This condition must be satified to proceed."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
 
             section_parameters[element_id] = {  "outer_diameter" : outer_diameter,

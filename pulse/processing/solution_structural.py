@@ -3,7 +3,7 @@ import numpy as np
 from math import pi
 from scipy.sparse.linalg import eigs, spsolve
 from pulse.processing.assembly_structural import AssemblyStructural
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -598,7 +598,7 @@ class SolutionStructural:
                 if self.solution is None:
                     title = "Empty solution"
                     message = "A strutural analysis must be performed to obtain the stress field."
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     return {}
 
                 u = self.solution[structural_dofs, :]

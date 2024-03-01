@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pulse import UI_DIR
 from pulse.preprocessing.before_run import BeforeRun
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title = "Error"
 
@@ -207,7 +207,7 @@ class CheckBeamCriteriaInput(QDialog):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is allowed."
-                            PrintMessageInput([title, message, window_title])
+                            PrintMessageInput([window_title, title, message])
                             self.stop = True
                             return None
                     else:
@@ -215,14 +215,14 @@ class CheckBeamCriteriaInput(QDialog):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is not allowed."
-                            PrintMessageInput([title, message, window_title])
+                            PrintMessageInput([window_title, title, message])
                             self.stop = True
                             return None
             except Exception as _err:
         
                 message = f"Wrong input for {label}.\n\n"
                 message += "Error details: " + str(_err)
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 self.stop = True
                 return None
         else:
@@ -231,7 +231,7 @@ class CheckBeamCriteriaInput(QDialog):
             else: 
         
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([title, message, window_title])                   
+                PrintMessageInput([window_title, title, message])                   
                 self.stop = True
                 return None
         return out
@@ -256,4 +256,5 @@ class CheckBeamCriteriaInput(QDialog):
         message += "but to provide an additional filter to focus on segments that could lead to physically "
         message += "non-representative results."
         #
-        PrintMessageInput([title, message, "INFORMATION"], alignment=Qt.AlignJustify)
+        window_title = "Warning"
+        PrintMessageInput([window_title, title, message], alignment=Qt.AlignJustify)

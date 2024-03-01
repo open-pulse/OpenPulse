@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pulse import UI_DIR
 from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
 import matplotlib.pyplot as plt    
@@ -193,7 +193,7 @@ class PlotCrossSectionInput(QDialog):
 
         if self.preprocess_selection():
             if not self.stop:
-                PrintMessageInput([self.title, self.message, self.window_title])
+                PrintMessageInput([self.window_title, self.title, self.message])
             return
         
         if self.section_label == "Pipe section":

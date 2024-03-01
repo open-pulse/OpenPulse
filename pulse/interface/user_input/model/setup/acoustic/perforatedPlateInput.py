@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.preprocessing.perforated_plate import PerforatedPlate
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 
@@ -283,17 +283,17 @@ class PerforatedPlateInput(QDialog):
                 value = float(string)
                 if value < 0:
                     message = f"The {label} must be a positive number."
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     return True
                 else:
                     self.value = value
             except Exception:
                 message = f"You have typed an invalid value to the {label}."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
         elif not_None:
             message = f"The {label} must be given."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         else:
             self.value = None
@@ -306,7 +306,7 @@ class PerforatedPlateInput(QDialog):
             except Exception:
                 title = "INPUT ERROR"
                 message = "Wrong input for real part of dimensionless impedance."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 self.lineEdit_impedance_real.setFocus()
                 return True
         else:
@@ -318,7 +318,7 @@ class PerforatedPlateInput(QDialog):
             except Exception:
                 title = "INPUT ERROR"
                 message = "Wrong input for imaginary part of dimensionless impedance."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 self.lineEdit_impedance_imag.setFocus()
                 return True
         else:
@@ -356,7 +356,7 @@ class PerforatedPlateInput(QDialog):
         except Exception as log_error:
             title = "Error while loading dimensionless impedance table file"
             message = str(log_error) 
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return
 
         try:
@@ -365,14 +365,14 @@ class PerforatedPlateInput(QDialog):
         except Exception as log_error:
             title = "Dimensionless impedance input error"
             message = f"{str(log_error)} \n\nIt is recommended to skip the header rows." 
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return
         
         if imported_file.shape[1] < 3:
             title = "Dimensionless impedance input error"
             message = "The imported table has insufficient number of columns. The spectrum \ndata " 
             message += "must have frequencies, real and imaginary columns."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return
     
         try:
@@ -397,7 +397,7 @@ class PerforatedPlateInput(QDialog):
         except Exception as log_error:
             title = "Dimensionless impedance input error"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return
 
         self.dict_inputs['dimensionless impedance'] = self.imported_values
@@ -429,7 +429,7 @@ class PerforatedPlateInput(QDialog):
         except Exception as log_error:
             title = "Error reached while saving table files"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
 
     def check_perforated_plate(self):
@@ -464,7 +464,7 @@ class PerforatedPlateInput(QDialog):
             if self.value > self.min_diameter:
                 title = "Invalid hole diameter value"
                 message = "The hole diameter must be less than element inner diameter."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 self.lineEdit_HoleDiameter.setFocus()
                 return True
             self.dict_inputs['hole diameter'] = self.value
@@ -500,7 +500,7 @@ class PerforatedPlateInput(QDialog):
                 if self.value >= 1:
                     title = "Invalid area porosity value"
                     message = "The area porosity must be less than 1."
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     self.lineEdit_porosity.setFocus()
                     return True
                 self.dict_inputs['area porosity'] = self.value
@@ -513,7 +513,7 @@ class PerforatedPlateInput(QDialog):
                 if self.value > 1:
                     title = "Invalid discharge coefficient value"
                     message = "The discharge coefficient must be less than or equal to 1."
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     self.lineEdit_discharge.setFocus()
                     return True
                 self.dict_inputs['discharge coefficient'] = self.value
@@ -528,7 +528,7 @@ class PerforatedPlateInput(QDialog):
                 if self.value > 1:
                     title = "Invalid nonlinear discharge coefficient value"
                     message = "The nonlinear discharge coefficient must be less than or equal to 1."
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     self.lineEdit_nonlinDischarge.setFocus()
                     return True
                 self.dict_inputs['nonlinear discharge coefficient'] = self.value
@@ -646,7 +646,7 @@ class PerforatedPlateInput(QDialog):
         except Exception as log_error:
             title = "Error with the perforated plate data"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return
 
     def set_perforated_plate_to_elements(self, section, _print=False, remove_tables=False): 
@@ -785,13 +785,13 @@ class PerforatedPlateInput(QDialog):
             if len(specified_element) > 1:
                 title = "ERROR IN ELEMENT SELECTION"
                 message = "Please, select only one element in the group to plot the preview."
-                self.info_text = [title, message, window_title_1]
+                self.info_text = [window_title_1, title, message]
                 PrintMessageInput(self.info_text)
                 return True
             elif len(specified_element) == 0:
                 title = "ERROR IN ELEMENT SELECTION"
                 message = "Please, select an element in the group to plot the preview."
-                self.info_text = [title, message, window_title_1]
+                self.info_text = [window_title_1, title, message]
                 PrintMessageInput(self.info_text)
                 return True
             elif specified_element[0] in group_elements:
@@ -801,7 +801,7 @@ class PerforatedPlateInput(QDialog):
         else:
             title = "ERROR IN GROUP SELECTION"
             message = "Please, select a group in the list to plot the preview."
-            self.info_text = [title, message, window_title_1]
+            self.info_text = [window_title_1, title, message]
             PrintMessageInput(self.info_text)
             return True
 
@@ -809,7 +809,7 @@ class PerforatedPlateInput(QDialog):
         if self.frequencies is None:
             title = "Frequencies definition"
             message = "The frequencies of analysis must be defined to run the preview."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         else:
             return False
@@ -901,12 +901,12 @@ class PerforatedPlateInput(QDialog):
             else:
                 title = "ERROR IN GROUP SELECTION"
                 message = "Please, select a group in the list to get the information."
-                self.info_text = [title, message, window_title_1]
+                self.info_text = [window_title_1, title, message]
                 PrintMessageInput(self.info_text)
         except Exception as log_error:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(log_error)
-            self.info_text = [title, message, window_title_1]
+            self.info_text = [window_title_1, title, message]
             PrintMessageInput(self.info_text)
 
     def reset_input_fields(self, force_reset=False):

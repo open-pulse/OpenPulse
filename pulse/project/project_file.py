@@ -1,25 +1,21 @@
-
-from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
+from pulse.preprocessing.material import Material
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.libraries.default_libraries import default_material_library, default_fluid_library
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
 from pulse import app
-
-from opps.model import Pipe, Bend, Point
 
 import os
 import configparser
 import numpy as np
 from math import pi
-
+from pathlib import Path
 from collections import defaultdict
 from shutil import copyfile, rmtree
-from pathlib import Path
 
 window_title = "Error"
 
@@ -865,7 +861,7 @@ class ProjectFile:
             message = "An error has been reached while processing the 'get_cross_sections_from_file' method.\n\n"
             message += f"Last line id: {entity}\n\n"
             message += f"Details: \n\n {str(error_log)}"
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
             return {}, {}
     
         return section_info_lines, section_info_elements
@@ -1058,7 +1054,7 @@ class ProjectFile:
                             title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
                             message = str(log_error)
                             message += f"\n\n {entity}"
-                            PrintMessageInput([title, message, window_title])
+                            PrintMessageInput([window_title, title, message])
     
                 if str_joint_parameters != "" and str_joint_stiffness != "":
                     _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
@@ -1097,7 +1093,7 @@ class ProjectFile:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
                         message = str(err)
                         message += f"\n\nProblem detected at line: {entity}"
-                        PrintMessageInput([title, message, window_title])
+                        PrintMessageInput([window_title, title, message])
 
                 else:
 
@@ -1149,7 +1145,7 @@ class ProjectFile:
                             title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
                             message = str(err)
                             message += f"\n\nProblem detected at line: {entity}"
-                            PrintMessageInput([title, message, window_title])
+                            PrintMessageInput([window_title, title, message])
                 
                     if str_joint_parameters != "" and str_joint_stiffness != "":
                         _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
@@ -1345,7 +1341,7 @@ class ProjectFile:
                 except Exception as err:
                     title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE"
                     message = str(err)
-                    PrintMessageInput([title, message, window_title])
+                    PrintMessageInput([window_title, title, message])
 
         for section in list(element_file.sections()):
 
@@ -1361,7 +1357,7 @@ class ProjectFile:
             except Exception as log_error:  
                 title = "ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION FROM FILE"
                 message = str(log_error)
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
 
             try:
                 if "PERFORATED PLATE" in section:
@@ -1399,7 +1395,7 @@ class ProjectFile:
             except Exception as log_error:  
                 window_title = "Error while loading acoustic element perforated plate from file"
                 message = str(log_error)
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
 
             try:
                 if "CAPPED END" in section:
@@ -1410,7 +1406,7 @@ class ProjectFile:
             except Exception as err:  
                 title = "ERROR WHILE LOADING CAPPED END FROM FILE"
                 message = str(err)
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
 
             try:
                 if "STRESS STIFFENING" in section:
@@ -1424,7 +1420,7 @@ class ProjectFile:
             except Exception as err: 
                 title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE" 
                 message = str(err)
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
 
             try:
                 if "B2PX ROTATION DECOUPLING" in section:
@@ -1441,7 +1437,7 @@ class ProjectFile:
             except Exception as err: 
                 title = "ERROR WHILE LOADING B2PX ROTATION DECOUPLING FROM FILE" 
                 message = str(err)
-                PrintMessageInput([title, message, window_title]) 
+                PrintMessageInput([window_title, title, message]) 
 
     def add_cross_section_in_file(self, lines, cross_section):  
 
@@ -2506,7 +2502,7 @@ class ProjectFile:
                 except Exception as log_error:
                     title = f"{label} - Error while loading table of values"
                     message = str(log_error) 
-                    PrintMessageInput([title, message, window_title])       
+                    PrintMessageInput([window_title, title, message])       
 
         return output, table_name, self.frequencies
 
@@ -2542,7 +2538,7 @@ class ProjectFile:
                     except Exception as err:
                         title = "ERROR WHILE LOADING STRUCTURAL MODEL INFO"
                         message = str(err)
-                        PrintMessageInput([title, message, window_title])
+                        PrintMessageInput([window_title, title, message])
                         return None, None, None
         return output, table_names, list_frequencies
 
@@ -2586,7 +2582,7 @@ class ProjectFile:
                     except Exception as log_error:
                         title = f"Expansion joint: error while loading {labels[i]} table of values"
                         message = str(log_error)
-                        PrintMessageInput([title, message, window_title])
+                        PrintMessageInput([window_title, title, message])
                         return None, None, None
         return output, list_table_names, list_frequencies
 
@@ -2635,7 +2631,7 @@ class ProjectFile:
 
             title = "ERROR WHILE LOADING '{}' TABLE OF STRUCTURAL MODEL".format(label)
             message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label)  
-            PrintMessageInput([title, message, window_title]) 
+            PrintMessageInput([window_title, title, message]) 
 
         return output, self.frequencies
     

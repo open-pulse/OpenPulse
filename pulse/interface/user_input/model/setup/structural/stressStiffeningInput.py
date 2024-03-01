@@ -5,8 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 
 from pulse import UI_DIR
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -272,20 +271,20 @@ class StressStiffeningInput(QDialog):
                     if zero_included:
                         if out < 0:
                             message += "\n\nZero value is allowed."
-                            PrintMessageInput([title, message, window_title_1])
+                            PrintMessageInput([window_title_1, title, message])
                             self.stop = True
                             return None
                     else:
                         if out <= 0:
                             message += "\n\nZero value is not allowed."
-                            PrintMessageInput([title, message, window_title_1])
+                            PrintMessageInput([window_title_1, title, message])
                             self.stop = True
                             return None
             except Exception as log_error:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = f"Wrong input for {label}.\n\n"
                 message += str(log_error)
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 self.stop = True
                 return None
         else:
@@ -294,7 +293,7 @@ class StressStiffeningInput(QDialog):
             else: 
                 title = "INPUT CROSS-SECTION ERROR"
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([title, message, window_title_1])                   
+                PrintMessageInput([window_title_1, title, message])                   
                 self.stop = True
                 return None
         return out
@@ -313,7 +312,7 @@ class StressStiffeningInput(QDialog):
             title = "Empty entries at the input pressure fields"
             message = f"You should to insert a value different from zero at the external or internal "
             message += "pressure field inputs to continue."
-            PrintMessageInput([title, message, window_title_1])  
+            PrintMessageInput([window_title_1, title, message])  
             return
         else:
             self.stress_stiffening_parameters = [external_pressure, internal_pressure]
@@ -398,7 +397,7 @@ class StressStiffeningInput(QDialog):
         
         title = "STRESS STIFFENING REMOVAL"
         message = "The stress stiffening applied \nto all lines has been removed."
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([window_title_2, title, message])
 
     def remove_elements(self, key, reset=False):
         section = key        
@@ -434,12 +433,12 @@ class StressStiffeningInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF ELEMENTS"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                   
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
     def get_information_line(self):
         try:
@@ -451,12 +450,12 @@ class StressStiffeningInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF LINES"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 
         except Exception as log_error:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, values, label, *args, **kwargs):

@@ -8,7 +8,7 @@ import os
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -95,12 +95,12 @@ class ExportModelResults(QDialog):
             if self.save_path == "":
                 title = "None folder selected"
                 message = "Plese, choose a folder before trying export the results."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return
         else:
             title = "Empty file name"
             message = "Inform a file name before trying export the results."
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
             return
 
         file_name = self.lineEdit_file_name.text() + ".dat"
@@ -121,7 +121,7 @@ class ExportModelResults(QDialog):
         window_title = "Warning"
         title = "Information"
         message = "The results have been exported."
-        PrintMessageInput([title, message, window_title])
+        PrintMessageInput([window_title, title, message])
         self.close()
 
     def keyPressEvent(self, event):

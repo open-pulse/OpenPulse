@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import configparser
 
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app, UI_DIR
 
 window_title_1 = "Error"
@@ -81,12 +81,12 @@ class PlotStructuralModeShape(QWidget):
                 self.complete = True
 
     def check_selected_frequency(self):
-        message = ""
+        self.text_data = None
         if self.lineEdit_natural_frequency.text() == "":
             title = "Additional action required to plot the results"
             message = "You should select a natural frequency from the available "
             message += "list before trying to plot the structural mode shape."
-            self.text_data = [title, message, window_title_2]
+            self.text_data = [window_title_2, title, message]
         else:
             self.project.analysis_type_label = "Structural Modal Analysis"
             frequency = self.selected_natural_frequency
@@ -94,7 +94,7 @@ class PlotStructuralModeShape(QWidget):
             current_scaling = self.scaling_key[self.comboBox_color_scaling.currentIndex()]
             self.opv.plot_displacement_field(self.mode_index, current_scaling)
 
-        if message != "":
+        if self.text_data is not None:
             PrintMessageInput(self.text_data)
             return True
         else:

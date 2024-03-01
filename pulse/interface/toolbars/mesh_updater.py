@@ -1,7 +1,7 @@
 from time import time
 
 from pulse.tools.utils import get_new_path
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse import app
 
@@ -83,7 +83,7 @@ class MeshUpdater:
                     message += f"{coord};\n"
                 message = message[:-2] 
                 message += ".\n\nPlease, take this information into account henceforward."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
             elif read._continue:
                 self.undo_mesh_actions()
                 # self.process_intermediate_actions(undo_remesh=True, mapping=False)
@@ -130,7 +130,7 @@ class MeshUpdater:
             for list_elements in self.dict_non_mapped_subgroups_entity_file.values():
                 if len(list_elements) > 10:
                     message += f"{str(list_elements[0:3])[:-1]}...{str(list_elements[-3:])[1:]}\n"
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
 
         if len(self.dict_group_elements_to_update_element_info_file) > 0:
             self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,

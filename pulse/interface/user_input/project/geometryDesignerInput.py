@@ -12,7 +12,7 @@ from shutil import copyfile, rmtree
 
 from pulse.tools.utils import *
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
@@ -567,7 +567,7 @@ class GeometryDesignerInput(QDialog):
                 title = "Invalid point coordinates" 
                 message = f"The typed coordinates {coords} are the same coordinates of the \nalready existing Point ID {point_id}. "
                 message += "You should to modify the current Point \ncoordinates to proceed."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 self.lineEdit_coord_x.setFocus()
                 return
 
@@ -589,7 +589,7 @@ class GeometryDesignerInput(QDialog):
         if point_id1_typed not in self.points.keys():
             title = "Invalid typed point ID" 
             message = "The typed point ID 1 did not defined yet. Please, you should to add \nthis point before or type an alread defined point to proceed."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             self.lineEdit_line_point_id_1.setText("")
             return
 
@@ -601,7 +601,7 @@ class GeometryDesignerInput(QDialog):
         if point_id2_typed not in self.points.keys():
             title = "Invalid typed point ID" 
             message = "The typed point ID 2 did not defined yet. Please, you should to add \nthis point before or type an alread defined point to proceed."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             self.lineEdit_line_point_id_2.setText("")
             return
         
@@ -621,7 +621,7 @@ class GeometryDesignerInput(QDialog):
                         title = "Lines: invalid inputs for point IDs" 
                         message = f"The typed point ID 1 and point ID 2 has alread been attributed to the \nline ID #{_line_id}. "
                         message += "As suggestion, we recommend you to check all existent \nlines to proceed."
-                        PrintMessageInput([title, message, window_title_2])
+                        PrintMessageInput([window_title_2, title, message])
                         self.lineEdit_line_point_id_1.setText("")
                         self.lineEdit_line_point_id_2.setText("")
                         return
@@ -630,7 +630,7 @@ class GeometryDesignerInput(QDialog):
         else:
             title = "Invalid typed point ID" 
             message = "The typed point ID 1 and point ID 2 should differs. As suggestion, \nwe recommend you to change the typed point ID 2 to proceed."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             self.lineEdit_line_point_id_2.setText("")
 
     def add_fillet(self):
@@ -648,7 +648,7 @@ class GeometryDesignerInput(QDialog):
         if line_id1_typed not in self.lines.keys():
             title = "Invalid typed Line ID" 
             message = "The typed Line ID 1 did not defined yet. Please, you should to add \nthis line previously or type an alread defined line to proceed."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             self.lineEdit_fillet_line_id_1.setText("")
             return
 
@@ -660,7 +660,7 @@ class GeometryDesignerInput(QDialog):
         if line_id2_typed not in self.lines.keys():
             title = "Invalid typed point ID" 
             message = "The typed Line ID 2 did not defined yet. Please, you should to add \nthis line previously or type an alread defined line to proceed."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             self.lineEdit_fillet_line_id_2.setText("")
             return
 
@@ -668,7 +668,7 @@ class GeometryDesignerInput(QDialog):
             title = "Same Line ID inputs" 
             message = "The typed line IDs should be connected, share a common point and differ. It is necessary "
             message += "to accomplish this requisite to proceed with the fillet parameters processing."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             return
 
         if self.check_inputs(self.lineEdit_fillet_radius, label="fillet radius", only_positive=True):
@@ -692,7 +692,7 @@ class GeometryDesignerInput(QDialog):
             title = "Disconnected line inputs" 
             message = "The typed Line IDs should be connected and share a common point. It is necessary "
             message += "to accomplish this requisite to proceed with the fillet parameters processing."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             # self.lineEdit_fillet_line_id_1.setText("")
             # self.lineEdit_fillet_line_id_2.setText("")
             return
@@ -736,7 +736,7 @@ class GeometryDesignerInput(QDialog):
                             title = "Fillets: invalid inputs for line IDs" 
                             message = f"The typed line ID 1 and line ID 2 has alread been attributed to the \nfillet ID #{_fillet_id}. "
                             message += "As suggestion, we recommend you to check all existent \nfillets to proceed."
-                            PrintMessageInput([title, message, window_title_2])
+                            PrintMessageInput([window_title_2, title, message])
                             self.lineEdit_fillet_line_id_1.setText("")
                             self.lineEdit_fillet_line_id_2.setText("")
                             return
@@ -750,12 +750,12 @@ class GeometryDesignerInput(QDialog):
             else:
                 title = "Invalid typed Line ID" 
                 message = "The typed Line ID 1 and Line ID 2 should have a commom Point. \nAs suggestion, we recommend you to verify all line Points \nto proceed."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 
         else:
             title = "Invalid typed Line ID" 
             message = "The typed Line ID 1 and Line ID 2 should differs. As suggestion, we recommend you to change the typed Line ID 2 to proceed."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             self.lineEdit_line_point_id_2.setText("")
 
     def remove_point(self):
@@ -820,7 +820,7 @@ class GeometryDesignerInput(QDialog):
                 title = "None lines detected in geometry"
                 message = "There is no lines connecting points in geometry design. Please, it is necessary " 
                 message += "to define at least one line to proceed with the geometry and mesh processing."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 self.tabWidget_geometry_designer.setCurrentIndex(1)
                 return True
 
@@ -841,9 +841,9 @@ class GeometryDesignerInput(QDialog):
                     geometry_path = get_new_path(   self.file.project_path, 
                                                     self.new_filename   )
                 else:
-                    message_title = f"Invalid geometry name"
+                    title = f"Invalid geometry name"
                     message = "An empty entry was detecetd at 'Geometry name' input field. \nIt is necessary enter a valid geometry name to proceed."
-                    PrintMessageInput([message_title, message, window_title_1])  
+                    PrintMessageInput([window_title_1, title, message])  
                     self.lineEdit_geometry_name.setFocus()
                     return                  
 
@@ -873,7 +873,7 @@ class GeometryDesignerInput(QDialog):
             title = "Error ocurred while edit geometry (built-in)"
             message = "An error has been raised while processing the OpenPulse built-in geometry editor. \nDetails: "
             message += f"{log_error}"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
     def process_mesh(self):
  
@@ -969,11 +969,11 @@ class GeometryDesignerInput(QDialog):
         return False
 
     def print_error_message(self, label_1, label_2, text):
-        message_title = f"Invalid {label_1}"
+        title = f"Invalid {label_1}"
         message = f"Please, inform a valid entry at '{label_1}' input field to continue."
         message += "The input value should be a float or an integer number greater than zero."
         message += f"\n\n{text}"
-        PrintMessageInput([message_title, message, window_title_1])
+        PrintMessageInput([window_title_1, title, message])
 
     def reset_points(self):
 
@@ -1085,7 +1085,7 @@ class GeometryDesignerInput(QDialog):
             message = f"Wrong input for the {label} ID's! \n\n{str(log_error)}"
 
         if message != "":
-            PrintMessageInput([title, message, window_title_1])               
+            PrintMessageInput([window_title_1, title, message])               
             return True, [] 
 
         return False, list_nodes_typed[0]
@@ -1104,7 +1104,7 @@ class GeometryDesignerInput(QDialog):
                 if self.value <= 0:
                     title = f"Invalid entry to the {label}"
                     message = f"The allowable input values must be non-zero positive integers or float numbers."
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     lineEdit.setFocus()
                     # self.stop = True
                     return False
@@ -1112,7 +1112,7 @@ class GeometryDesignerInput(QDialog):
         except Exception:
             title = f"Invalid entry to the {label}"
             message = f"The allowable input values must be any real numbers."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             lineEdit.setFocus()
             # self.stop = True
             return False

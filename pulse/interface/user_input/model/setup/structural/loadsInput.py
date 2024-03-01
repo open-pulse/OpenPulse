@@ -9,7 +9,7 @@ import numpy as np
 
 from pulse import UI_DIR
 from pulse.tools.utils import remove_bc_from_file, get_new_path
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title ="Error"
@@ -166,7 +166,7 @@ class LoadsInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 self.stop = True
                 return
         else:
@@ -178,7 +178,7 @@ class LoadsInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for imaginary part of {label}."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 self.stop = True
                 return
         else:
@@ -232,7 +232,7 @@ class LoadsInput(QDialog):
             title = "Additional inputs required"
             message = "You must to inform at least one nodal load\n" 
             message += "before confirming the input!"
-            PrintMessageInput([title, message, window_title]) 
+            PrintMessageInput([window_title, title, message]) 
             
     def load_table(self, lineEdit, load_label, direct_load=False):
         title = "Error reached while loading table"
@@ -253,7 +253,7 @@ class LoadsInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum \n"
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
@@ -276,7 +276,7 @@ class LoadsInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -413,7 +413,7 @@ class LoadsInput(QDialog):
                 title = "Additional inputs required"
                 message = "You must inform at least one nodal load\n"
                 message += "table path before confirming the input!"
-                PrintMessageInput([title, message, window_title]) 
+                PrintMessageInput([window_title, title, message]) 
                 return 
 
             for basename in self.basenames:
@@ -570,6 +570,6 @@ class LoadsInput(QDialog):
     #     message += f"the frequency setup from previously imported tables.\n"
     #     message += f"All imported tables must have the same frequency\n"
     #     message += f"setup to avoid errors in the model processing."
-    #     PrintMessageInput([title, message, window_title])
+    #     PrintMessageInput([window_title, title, message])
     #     lineEdit.setText("")
     #     lineEdit.setFocus()

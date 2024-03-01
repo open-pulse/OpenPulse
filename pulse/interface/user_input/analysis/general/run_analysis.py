@@ -11,7 +11,7 @@ from matplotlib.animation import FuncAnimation
 
 from pulse import app, UI_DIR
 from pulse.processing.solution_acoustic import SolutionAcoustic
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
@@ -152,8 +152,9 @@ class RunAnalysisInput(QDialog):
         if self.project.preprocessor._process_beam_nodes_and_indexes():
             if self.analysis_ID not in [0, 1, 2]:
                 title = "INCORRECT ANALYSIS TYPE"
-                message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
-                info_text = [title, message, window_title_2]
+                message = "There are only BEAM_1 elements in the model, therefore, "
+                message += "only structural analysis are allowable."
+                info_text = [window_title_2, title, message]
                 PrintMessageInput(info_text)
                 return
 
@@ -342,7 +343,7 @@ class RunAnalysisInput(QDialog):
             if self.solve.flag_Modal_prescribed_NonNull_DOFs:
                 message = self.solve.warning_Modal_prescribedDOFs[0] 
         if message != "":
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

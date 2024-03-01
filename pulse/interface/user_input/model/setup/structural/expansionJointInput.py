@@ -15,7 +15,7 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.tools.utils import create_new_folder, get_new_path
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 
@@ -419,7 +419,7 @@ class ExpansionJointInput(QDialog):
                 message = "Multiples lines have been detected in the current list of elements. It's recommended "
                 message += "to reduces the joint length and/or choose another center node or element to avoid this"
                 message += "problem. The expansion joint should have to be applied inside a line from the model. "
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
             self.list_table_names_from_selection = self.get_list_tables_names_from_selected_elements(self.list_elements)
         return False
@@ -495,7 +495,7 @@ class ExpansionJointInput(QDialog):
             except Exception as _log_error:
                 title = "Error while loading info from entity"
                 message = str(_log_error)
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
 
     def get_nodes_elements_according_joint_length(self):
         if self.selection_by_node:
@@ -534,7 +534,7 @@ class ExpansionJointInput(QDialog):
             message += "You should to enter a positive value to proceed."
             self.value = None
         if message != "":
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         else:
             return False
@@ -762,7 +762,7 @@ class ExpansionJointInput(QDialog):
                 title = f"Error while loading {stiffness_label} table"
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return None, None
         
             imported_values = imported_file[:,1]
@@ -785,7 +785,7 @@ class ExpansionJointInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -857,7 +857,7 @@ class ExpansionJointInput(QDialog):
         title = 'None table selected to expansion joint stiffness'
         message = f"Please, define a table of values to the {label}\n"
         message += f"before confirming the attribution."
-        PrintMessageInput([title, message, window_title_1])
+        PrintMessageInput([window_title_1, title, message])
 
     def check_table_of_values(self):
 
@@ -928,7 +928,7 @@ class ExpansionJointInput(QDialog):
         except Exception as log_error:
             title = "Error while loading stiffness table of values"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
 
         # self.labels = [ "Axial stiffness", "Transversal stiffness", "Torsional stiffness", "Angular stiffness"  ]
@@ -947,7 +947,7 @@ class ExpansionJointInput(QDialog):
         #     title = 'None table selected to expansion joint stiffness'
         #     message = "Please, define a table of values to the:\n\n"
         #     message += f" {list_labels} \n\nbefore confirming the attribution."
-        #     PrintMessageInput([title, message, window_title_1])
+        #     PrintMessageInput([window_title_1, title, message])
         #     return True
         # else:
             # self.basenames = [  self.Kx_basename, self.Kyz_basename, self.Krx_basename, self.Kryz_basename  ]    
@@ -1053,7 +1053,7 @@ class ExpansionJointInput(QDialog):
                 message = "In the present element list, at least one 'valve' element was found. "
                 message += "To avoid unwanted valve setup modifications, we recommend removing any " 
                 message += "already existing valve in the vicinity of the 'new expansion joint' elements."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
         return False
 
@@ -1134,19 +1134,19 @@ class ExpansionJointInput(QDialog):
             else:
                 title = "UNSELECTED EXPANSION JOINT"
                 message = "Please, select an expansion joint in the list to get the information."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 
         except Exception as log_error:
             title = "Error while getting information of expansion joint"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
 
     def remove_selected_expansion_joint_by_line(self):
         if self.lineEdit_selected_info.text() == "":
             title = "Empty selection in expansion joint"
             message = "Please, select an expansion joint in the list\n before confirm the joint removal."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             return
 
         line_id = int(self.lineEdit_selected_info.text())
@@ -1171,14 +1171,14 @@ class ExpansionJointInput(QDialog):
             
             title = "Removal of the expansion joint"
             message = f"The expansion joint added to the line {line_id} \nhas been removed from the model."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
 
     def remove_selected_expansion_joint_by_group_elements(self):
         if self.lineEdit_selected_info.text() == "":
             title = "Empty selection in expansion joint"
             message = "Please, select an expansion joint in the list\n before confirm the joint removal."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             return
 
         selected_group = self.lineEdit_selected_info.text()
@@ -1200,7 +1200,7 @@ class ExpansionJointInput(QDialog):
                 
         title = "Removal of the expansion joint"
         message = f"The expansion joint added to the group {selected_group} \nhas been removed from the model."
-        PrintMessageInput([title, message, window_title_1])
+        PrintMessageInput([window_title_1, title, message])
 
 
     def remove_expansion_joint_by_line(self, line_id):
@@ -1261,7 +1261,7 @@ class ExpansionJointInput(QDialog):
 
             title = "Removal of expansion joints"
             message = "All expansion joints have been removed from the model."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
     def update_plots(self):
         self.load_expansion_joint_by_line_info()
@@ -1529,7 +1529,7 @@ def get_string_from_joint_paramters(parameters):
     #     message += f"the frequency setup from previously imported tables.\n"
     #     message += f"All imported tables must have the same frequency\n"
     #     message += f"setup to avoid errors in the model processing."
-    #     PrintMessageInput([title, message, window_title_1])
+    #     PrintMessageInput([window_title_1, title, message])
     #     lineEdit.setText("")
     #     lineEdit.setFocus()
 

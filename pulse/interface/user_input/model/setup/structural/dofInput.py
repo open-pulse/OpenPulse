@@ -11,7 +11,7 @@ from math import pi
 
 from pulse import UI_DIR
 from pulse.tools.utils import remove_bc_from_file, get_new_path
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title ="Error"
@@ -204,7 +204,7 @@ class DOFInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 lineEdit_real.setFocus()
                 self.stop = True
                 return
@@ -217,7 +217,7 @@ class DOFInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for imaginary part of {label}."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 lineEdit_imag.setFocus()
                 self.stop = True
                 return
@@ -298,7 +298,7 @@ class DOFInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one prescribed dof\n"
             message += "before confirming the input!"
-            PrintMessageInput([title, message, window_title]) 
+            PrintMessageInput([window_title, title, message]) 
 
     def load_table(self, lineEdit, dof_label, direct_load=False):
         title = "Error reached while loading table"
@@ -319,7 +319,7 @@ class DOFInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum \n"
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
@@ -342,7 +342,7 @@ class DOFInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -527,7 +527,7 @@ class DOFInput(QDialog):
                 title = "Additional inputs required"
                 message = "You must inform at least one prescribed dof\n"
                 message += "table path before confirming the input!"
-                PrintMessageInput([title, message, window_title]) 
+                PrintMessageInput([window_title, title, message]) 
                 return 
 
             for basename in self.basenames:
@@ -688,6 +688,6 @@ class DOFInput(QDialog):
     #     message += f"the frequency setup from previously imported tables.\n"
     #     message += f"All imported tables must have the same frequency\n"
     #     message += f"setup to avoid errors in the model processing."
-    #     PrintMessageInput([title, message, window_title])
+    #     PrintMessageInput([window_title, title, message])
     #     lineEdit.setText("")
     #     lineEdit.setFocus()

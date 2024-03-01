@@ -7,7 +7,7 @@ import numpy as np
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title = "Error"
 
@@ -166,7 +166,7 @@ class AnalysisSetupInput(QDialog):
                 message = "The maximum frequency (fmax) must be greater than \n"
                 message += "the sum between minimum frequency (fmin) and \n"
                 message += "frequency resolution (df)."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return True
 
         alpha_v = beta_v = alpha_h = beta_h = 0.0
@@ -245,7 +245,7 @@ class AnalysisSetupInput(QDialog):
                 message = f"Insert some value at the {label} input field."
         
         if message != "":
-            PrintMessageInput([title, message, window_title])                   
+            PrintMessageInput([window_title, title, message])                   
             self.stop = True
             return None
         return out

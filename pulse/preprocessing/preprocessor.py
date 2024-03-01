@@ -19,7 +19,7 @@ from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.tools.utils import *
 
@@ -703,7 +703,7 @@ class Preprocessor:
                         except Exception as _log_error:
                             title = "Error while checking mesh at the line edges"
                             message = str(_log_error)
-                            PrintMessageInput([title, message, window_title_1])
+                            PrintMessageInput([window_title_1, title, message])
             
             if len(list_node_ids)>0:
                 title = "Problem detected in connectivity between neighbor nodes"
@@ -712,7 +712,7 @@ class Preprocessor:
                 message += "We strongly recommend reducing the element size or correcting the problem "
                 message += "in the geometry file before proceeding with the model setup.\n\n"
                 message += f"List of disconnected node(s): \n{list_node_ids}"
-                PrintMessageInput([title, message, window_title_1])                
+                PrintMessageInput([window_title_1, title, message])                
         
     def get_line_from_node_id(self, node_ids):
 
@@ -2401,7 +2401,7 @@ class Preprocessor:
         except Exception as log_error:
             title = "Error while setting acoustic pressure"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True  
 
 
@@ -2448,7 +2448,7 @@ class Preprocessor:
         except Exception as error:
             title = "Error while setting volume velocity"
             message = str(error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True  
 
     def set_vol_flow_by_element(self, elements, vol_flow):
@@ -2530,7 +2530,7 @@ class Preprocessor:
                             message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
                             message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
                             message += "New array length: {}".format(str(values.shape).replace(",", ""))
-                            PrintMessageInput([title, message, window_title_1])
+                            PrintMessageInput([window_title_1, title, message])
                             return True
 
                 if values is not None: 
@@ -2555,7 +2555,7 @@ class Preprocessor:
         except Exception as error:
             title = "Error while setting compressor excitation"
             message = str(error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True  
 
     def set_specific_impedance_bc_by_node(self, nodes, data):
@@ -2593,7 +2593,7 @@ class Preprocessor:
         except Exception as error:
             title = "Error while setting specific impedance"
             message = str(error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True  
 
 
@@ -2634,7 +2634,7 @@ class Preprocessor:
         except Exception as log_error:
             title = "Error while setting radiation impedance"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True  
 
     def set_inertia_load(self, gravity):
@@ -2838,7 +2838,7 @@ class Preprocessor:
 
                 if neigh_elements[0].element_type == "pipe_1":
                     if neigh_elements[0].cross_section is None:
-                        PrintMessageInput([title, message, window_title_1])
+                        PrintMessageInput([window_title_1, title, message])
                         return
                     else:
                         check_complete = True
@@ -2846,7 +2846,7 @@ class Preprocessor:
                         
                 if neigh_elements[1].element_type == "pipe_1":
                     if neigh_elements[1].cross_section is None:
-                        PrintMessageInput([title, message, window_title_1])
+                        PrintMessageInput([window_title_1, title, message])
                         return
                     else:
                         check_complete = True
@@ -3491,7 +3491,7 @@ class Preprocessor:
 
         if message != "":
             title = "Error while processing generate_geometry_gmsh method"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         else:
             return False

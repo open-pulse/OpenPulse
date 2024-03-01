@@ -11,10 +11,11 @@ import configparser
 
 from pulse import UI_DIR
 from pulse.tools.utils import get_new_path
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class SetFluidCompositionInput(QDialog):
     def __init__(self, project, opv, selected_fluid_to_edit=None, *args, **kwargs):
@@ -232,7 +233,7 @@ class SetFluidCompositionInput(QDialog):
         else:
             title = "None 'Fluid' selected"
             message = "Dear user, it is necessary to select a fluid in the list to proceed"
-            PrintMessageInput([title, message, window_title_1])   
+            PrintMessageInput([window_title_1, title, message])   
     
     def update_remainig_composition(self):
         self.remaining_composition = 1
@@ -377,13 +378,13 @@ class SetFluidCompositionInput(QDialog):
                         self.fluid_to_composition.pop(self.selected_fluid)       
                 return False
             else:
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
         else:
             title = "Empty entry at molar fraction input field"
             message = "An Empty entry has been detected at molar fraction input field. "
             message += "You should to inform a valid positive float number less than 1 to proceed."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
 
     def update_label_selected_fluid_font(self):
@@ -526,11 +527,11 @@ class SetFluidCompositionInput(QDialog):
                 self.lineEdit_fluid_name.setFocus()
         else:
             title = "Fluid composition not finished"
-            message = "Dear user, you should to complete the fluid mixture composition to proceed.\n"
+            message = "Dear user, you should to complete the fluid mixture composition to proceed. "
             message += "The sum of all fluids molar fractions must be equals to 1. It is recommended "
             message += "to check the inserted molar fractions until this requirement is met."
         if message != "":
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
     def process_errors(self):
         if len(self.errors) != 0:
@@ -539,7 +540,7 @@ class SetFluidCompositionInput(QDialog):
             for key, _error in self.errors.items():
                 message += f"{str(key)}: {str(_error)}\n\n"
             message += "It is recommended to check the fluid composition and state properties to proceed."
-            PrintMessageInput([title, message, window_title_1], fontsizes=[13, 12])
+            PrintMessageInput([window_title_1, title, message])
             return True
 
     def get_fluid_state_index(self):
@@ -562,7 +563,7 @@ class SetFluidCompositionInput(QDialog):
                 message += f"\nPressure (suction) = {self.compressor_info['pressure (suction)']} [Pa]"
                 message += f"\nPressure (discharge) = {round(self.compressor_info['pressure (discharge)'],4)} [Pa]"
                 message += f"\nMolar mass = {round(self.fluid_properties['molar mass'],6)} [kg/mol]"   
-                PrintMessageInput([title, message, "WARNING"])
+                PrintMessageInput([window_title_2, title, message])
 
     def add_fluid_state(self):
         self.get_fluid_state_index()
@@ -586,11 +587,11 @@ class SetFluidCompositionInput(QDialog):
                 title = "Invalid entry to the temperature"
                 message = "Dear user, you have typed an invalid value at the temperature input field."
                 message += "You should to inform a valid float number to proceed."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
         else:
             title = "Empty temperature input field"
             message = "Dear user, the temperature input field is empty. Please, inform a valid float number to proceed."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             lineEdit_temperature.setFocus()
         return temperature
 
@@ -604,11 +605,11 @@ class SetFluidCompositionInput(QDialog):
                 title = "Invalid entry to the pressure"
                 message = "Dear user, you have typed an invalid value at the pressure input field."
                 message += "You should to inform a valid float number to proceed."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
         else:
             title = "Empty pressure input field"
             message = "Dear user, the pressure input field is empty. Please, inform a valid float number to proceed."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             lineEdit_pressure.setFocus()        
         return pressure
 
@@ -642,7 +643,7 @@ class SetFluidCompositionInput(QDialog):
             message = "The typed value at temperature input field reaches a negative value in Kelvin scale."
             message += "It is necessary to enter a value that maintains the physicall coherence and consistence "
             message += "to proceed with the fluid setup."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return None
 
         _pressure_value = self.check_pressure_value(lineEdit_pressure)
@@ -664,10 +665,10 @@ class SetFluidCompositionInput(QDialog):
 
         if _pressure_value < 0:
             title = "Invalid entry to the pressure"
-            message = "The typed value at pressure input field reaches a negative value in Pascal scale."
+            message = "The typed value at pressure input field reaches a negative value in Pascal scale. "
             message += "It is necessary to enter a value that maintains the physicall coherence and consistence "
             message += "to proceed with the fluid setup."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return None
 
         return [round(_temperature_value, 5), round(_pressure_value, 5)]
@@ -842,7 +843,7 @@ class SetFluidCompositionInput(QDialog):
                 title = "REFPROP installation not detected"
                 message = "Dear user, REFPROP application files were not found in the computer's default paths. "
                 message += "Please, install the REFPROP on your computer to enable the set-up of the fluids mixture."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
 
         except Exception as log_error:
@@ -851,7 +852,7 @@ class SetFluidCompositionInput(QDialog):
             message += "installed we recommend running the 'pip install ctREFPROP' command at the terminal to install the "
             message += "necessary libraries."
             message += f"\n\n{str(log_error)}"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         
     def keyPressEvent(self, event):

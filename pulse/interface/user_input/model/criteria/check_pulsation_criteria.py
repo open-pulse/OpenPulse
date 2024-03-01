@@ -9,7 +9,7 @@ import numpy as np
 from pulse.tools.utils import get_new_path
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse import app, UI_DIR
 
@@ -161,7 +161,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
 
     def update_compressor_data(self, stage_data):
         self.suction_pressure = stage_data["pressure at suction"]

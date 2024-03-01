@@ -7,7 +7,7 @@ from pathlib import Path
 from PyQt5.uic.uiparser import QtWidgets
 
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -280,7 +280,7 @@ class StructuralElementTypeInput(QDialog):
                     message = f"The element type previously defined in {size} lines \n"
                 message += "has been modified, therefore, it is necessary to update \n"
                 message += "the cross-section(s) of this(ese) line(s) to continue."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
             
     def update_modified_cross_sections(self):
         lines_to_reset = self.list_lines_to_update_cross_section
@@ -353,11 +353,11 @@ class StructuralElementTypeInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF LINES"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
 
 class GetInformationOfGroup(QDialog):

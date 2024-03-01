@@ -8,7 +8,7 @@ from scipy.sparse import issparse
 from pathlib import Path
 from scipy.spatial.transform import Rotation
 
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -538,10 +538,12 @@ def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys
                     config.write(config_file)
 
         if message is not None and bc_removed:
-            PrintMessageInput(["Removal of selected boundary condition" , message, "WARNING"])
+            title = "Removal of selected boundary condition"
+            PrintMessageInput([window_title_2, title, message])
 
     except Exception as log_error:
-        PrintMessageInput(["Error while removing BC from file", str(log_error), window_title_1])
+        title = "Error while removing BC from file"
+        PrintMessageInput([window_title_1, title, str(log_error)])
 
 
 def getColorRGB(color):

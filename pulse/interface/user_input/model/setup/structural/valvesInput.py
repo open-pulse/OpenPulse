@@ -2,20 +2,20 @@ from PyQt5.QtWidgets import QDialog, QCheckBox, QFrame, QLabel, QLineEdit, QPush
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QSize, QPoint
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
+from pulse.preprocessing.cross_section import CrossSection
+from pulse.preprocessing.before_run import BeforeRun
+from pulse.tools.utils import get_V_linear_distribution, remove_bc_from_file
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse import UI_DIR
 
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
-
-from pulse import UI_DIR
-from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.before_run import BeforeRun
-from pulse.tools.utils import get_V_linear_distribution, remove_bc_from_file
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -436,7 +436,7 @@ class ValvesInput(QDialog):
             message += "You should enter a positive value to proceed."
             self.value = None
         if message != "":
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
         else:
             return False
@@ -525,7 +525,7 @@ class ValvesInput(QDialog):
             message += "We recommend reducing the flange number of elements to proceed.\n"
             message += f"\nLine: {line_id}"
             message += f"\nNumber of elements: {number_flange_elements}"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return []
 
     def get_valve_diameters(self, valve_diameter):
@@ -689,7 +689,7 @@ class ValvesInput(QDialog):
             title = "No pipe cross-section has been detected in the valve neighborhood"
             message = "There are no pipe cross-sections defined in the valve neighbor elements. " 
             message += "You must define cross-sections to the neighbor valve elements to proceed."    
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
         else:
             self.actions_to_finalize()
 
@@ -709,7 +709,7 @@ class ValvesInput(QDialog):
                         title = "Invalid input to the outer/inner diameters"
                         message = "The outer diameter input should be greater than the inner diameter. \n"
                         message += "This condition must  be satified to proceed."
-                        PrintMessageInput([title, message, window_title_1])
+                        PrintMessageInput([window_title_1, title, message])
                         return True
                     else:
                         outer_diameter = self.flange_outer_diameter
@@ -742,7 +742,7 @@ class ValvesInput(QDialog):
                     message += "Please, define a pipe cross-section before proceed."
             
             if message != "":
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
 
     def set_valve_by_elements(self, valve_data):
@@ -761,7 +761,7 @@ class ValvesInput(QDialog):
                         title = "Invalid input to the outer/inner diameters"
                         message = "The outer diameter input should be greater than the inner diameter. \n"
                         message += "This condition must  be satified to proceed."
-                        PrintMessageInput([title, message, window_title_1])
+                        PrintMessageInput([window_title_1, title, message])
                         return True
                     else:
                         outer_diameter = self.flange_outer_diameter
@@ -794,7 +794,7 @@ class ValvesInput(QDialog):
                     message += "Please, define a pipe cross-section before proceed."
             
             if message != "":
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
 
     def set_cross_section_to_list_elements(self, list_elements, section_parameters, valve_diameters): 
@@ -816,7 +816,7 @@ class ValvesInput(QDialog):
                 message = "In the present element list, at least one 'expansion joint' element was found. "
                 message += "To avoid unwanted expansion joint setup modifications, we recommend removing any " 
                 message += "already existing expansion joint in the vicinity of the 'new valve' elements."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
         return False
 
@@ -827,7 +827,7 @@ class ValvesInput(QDialog):
             message += "We recommend reducing the flange number of elements to proceed.\n"
             message += f"\nNumber of valve elements: {number_valve_elements}"
             message += f"\nNumber of flange elements: {number_flange_elements}"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
 
     def search_for_cross_section_in_neighborhood(self, valve_elements, set_by_elements=False):
@@ -980,7 +980,7 @@ class ValvesInput(QDialog):
         title = "Valve removal complete"
         message = "The selectect valve has been removed from model."
         message += f"\n\n ID: {key}"
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([window_title_2, title, message])
         self.opv.opvRenderer.plot()
         self.opv.plot_entities_with_cross_section()
 
@@ -1000,7 +1000,7 @@ class ValvesInput(QDialog):
             self.remove_valve_function(key)
         title = "Valves resetting complete"
         message = "The valves has been removed from all elements."
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([window_title_2, title, message])
         self.opv.opvRenderer.plot()
         self.opv.plot_entities_with_cross_section()
 

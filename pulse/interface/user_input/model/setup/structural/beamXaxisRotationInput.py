@@ -7,7 +7,7 @@ from pathlib import Path
 import configparser
 
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
@@ -231,10 +231,10 @@ class BeamXaxisRotationInput(QDialog):
         return False
 
     def print_error_message(self):
-        message_title = f"Invalid X-axis Rotation Angle"
+        title = f"Invalid X-axis Rotation Angle"
         message = f"Please, inform a valid number at the 'Rotation angle' input field to continue."
         message += "The input value should be a float or an integer number."
-        PrintMessageInput([message_title, message, window_title_1])
+        PrintMessageInput([window_title_1, title, message])
 
     def load_beam_xaxis_rotation_info(self):
         self.treeWidget_xaxis_rotation_angle.clear()
@@ -264,7 +264,7 @@ class BeamXaxisRotationInput(QDialog):
         title = "X-axis rotation angle removal"
         message = f"The x-axis rotation angle attributed to the lines {lines} has been removed from the current model setup.\n\n\n "
         message += "Press Close button to continue."
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([window_title_2, title, message])
     
     def reset_all(self):
         title = "Remove all x-axis rotations attributed to the model"
@@ -293,11 +293,11 @@ class BeamXaxisRotationInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF LINES"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
 
 class GetInformationOfGroup(QDialog):

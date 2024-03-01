@@ -68,7 +68,7 @@ from pulse.interface.user_input.model.info.structuralModel_InfoInput import Stru
 from pulse.interface.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
 from pulse.interface.user_input.model.criteria.checkBeamCriteriaInput import CheckBeamCriteriaInput
 #
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 #
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
 #
@@ -111,7 +111,7 @@ class InputUi:
         except Exception as log_error:
             title = "Error detected in process Input method"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return None
 
     def new_project(self):
@@ -333,8 +333,9 @@ class InputUi:
         if self.analysis_ID is None or not self.project.setup_analysis_complete:
             
             title = "INCOMPLETE SETUP ANALYSIS" 
-            message = "Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model."
-            PrintMessageInput([title, message, window_title_1])
+            message = "Please, it is necessary to choose an analysis type and "
+            message += "setup it before trying to solve the model."
+            PrintMessageInput([window_title_1, title, message])
             return
 
         self.before_run = self.project.get_pre_solution_model_checks(opv=self.opv)
@@ -483,11 +484,11 @@ class InputUi:
         self.processInput(CheckBeamCriteriaInput, self.project, self.opv)
 
     def about_OpenPulse(self):
-        self.processInput(AboutOpenPulseInput, self.project, self.opv)
+        self.processInput(AboutOpenPulseInput)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'
-        message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
-        message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' buttons to continue."
+        message = "Please, you should create a new project or load an already existing one before start to set up the model. "
+        message += "It is recommended to use the 'New Project' or the 'Import Project' buttons to continue."
         window_title = 'ERROR'
-        PrintMessageInput([title, message, window_title])
+        PrintMessageInput([window_title, title, message])

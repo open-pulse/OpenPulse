@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app, UI_DIR
 
 class PlotStressesFieldForHarmonicAnalysis(QWidget):
@@ -95,9 +95,9 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         window_title = "WARNING"
         if self.lineEdit_selected_frequency.text() == "":
             title = "Aditional action required"
-            message = "Select a frequency from the available list \n"
+            message = "Select a frequency from the available list "
             message += "of frequencies to continue."
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
             return
         else:
             frequency_selected = float(self.lineEdit_selected_frequency.text())
@@ -108,7 +108,7 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
             #     title = "Aditional action required"
             #     message = "You have typed an invalid frequency. It's recommended "
             #     message += "to select a frequency from the available list of frequencies."
-            #     PrintMessageInput([title, message, window_title])
+            #     PrintMessageInput([window_title, title, message])
             #     return
 
     def get_stress_data(self):

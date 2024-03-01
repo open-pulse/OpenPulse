@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from pulse.uix.menu.border_item_delegate import BorderItemDelegate
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 
 class MenuItems(QTreeWidget):

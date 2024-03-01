@@ -7,7 +7,7 @@ from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -151,7 +151,7 @@ class SetInertialLoad(QDialog):
                 message = f"Insert some value at the {label} input field."
         
         if message != "":
-            PrintMessageInput([title, message, window_title_1])                   
+            PrintMessageInput([window_title_1, title, message])                   
             self.stop = True
             return None
         return out

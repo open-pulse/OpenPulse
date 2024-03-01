@@ -10,7 +10,7 @@ import pandas as pd
 import openpyxl
 
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 def get_icons_path(filename):
     path = f"data/icons/{filename}"
@@ -176,7 +176,7 @@ class ImportDataToCompare(QDialog):
             return
         
         if message != "":
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
