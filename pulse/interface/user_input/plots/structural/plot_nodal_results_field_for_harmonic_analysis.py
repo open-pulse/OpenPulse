@@ -35,10 +35,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
-        self.scaling_key = {0 : "absolute",
-                            1 : "real_ux",
-                            2 : "real_uy",
-                            3 : "real_uz"}
+
     def _load_icons(self):
         self.icon = get_openpulse_icon()
 
@@ -49,7 +46,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
+        self.comboBox_color_scale = self.findChild(QComboBox, 'comboBox_color_scale')
         # QFrame
         self.frame_button = self.findChild(QFrame, 'frame_button')
         self.frame_button.setVisible(False)
@@ -62,10 +59,18 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self._config_treeWidget()
 
     def _create_connections(self):
-        self.comboBox_color_scaling.currentIndexChanged.connect(self.update_plot)
+        self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.pushButton_plot.clicked.connect(self.update_plot)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.update_animation_widget_visibility()
+
+    def update_animation_widget_visibility(self):
+        index = self.comboBox_color_scale.currentIndex()
+        if index <= 9:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+        else:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
 
     def _config_treeWidget(self):
         widths = [80, 140]
@@ -74,26 +79,81 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def update_plot(self):
-        self.complete = False
-        if self.lineEdit_selected_frequency.text() != "":
-            if self.check_selected_frequency():
-                self.complete = True
-
-    def check_selected_frequency(self):
+        self.update_animation_widget_visibility()
         if self.lineEdit_selected_frequency.text() == "":
-            window_title = "Warning"
-            title = "Additional action required to plot the results"
-            message = "You should select a frequency from the available list "
-            message += "before trying to plot the displacement/rotation field."
-            PrintMessageInput([window_title, title, message], auto_close=True)
             return
         else:
             frequency_selected = float(self.lineEdit_selected_frequency.text())
             if frequency_selected in self.frequencies:
                 self.frequency = self.frequency_to_index[frequency_selected]
-                index = self.comboBox_color_scaling.currentIndex()
-                scaling_type = self.scaling_key[index]
-                self.opv.plot_displacement_field(self.frequency, scaling_type)
+                color_scale_setup = self.get_user_color_scale_setup()
+                self.project.set_color_scale_setup(color_scale_setup)
+                self.opv.plot_displacement_field(self.frequency)
+
+    def get_user_color_scale_setup(self):
+
+        absolute = False
+        ux_abs_values = False
+        uy_abs_values = False
+        uz_abs_values = False
+        ux_real_values = False
+        uy_real_values = False
+        uz_real_values = False
+        ux_imag_values = False
+        uy_imag_values = False
+        uz_imag_values = False
+        absolute_animation = False
+        ux_animation = False
+        uy_animation = False
+        uz_animation = False
+
+        index = self.comboBox_color_scale.currentIndex()
+
+        if index == 0:
+            absolute = True
+        elif index == 1:
+            ux_abs_values = True
+        elif index == 2:
+            uy_abs_values = True
+        elif index == 3:
+            uz_abs_values = True
+        elif index == 4:
+            ux_real_values = True
+        elif index == 5:
+            uy_real_values = True
+        elif index == 6:
+            uz_real_values = True
+        elif index == 7:
+            ux_imag_values = True
+        elif index == 8:
+            uy_imag_values = True
+        elif index == 9:
+            uz_imag_values = True
+        elif index == 10:
+            absolute_animation = True
+        elif index == 11:
+            ux_animation = True
+        elif index == 12:
+            uy_animation = True
+        else:
+            uz_animation = True  
+
+        color_scale_setup = {   "absolute" : absolute,
+                                "ux_abs_values" : ux_abs_values,
+                                "uy_abs_values" : uy_abs_values,
+                                "uz_abs_values" : uz_abs_values,
+                                "ux_real_values" : ux_real_values,
+                                "uy_real_values" : uy_real_values,
+                                "uz_real_values" : uz_real_values,
+                                "ux_imag_values" : ux_imag_values,
+                                "uy_imag_values" : uy_imag_values,
+                                "uz_imag_values" : uz_imag_values,
+                                "absolute_animation" : absolute_animation,
+                                "ux_animation" : ux_animation,
+                                "uy_animation" : uy_animation,
+                                "uz_animation" : uz_animation   }
+
+        return color_scale_setup
 
     def load_frequencies_vector(self):
 
@@ -112,9 +172,9 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.treeWidget_frequencies.setDisabled(True)
         self.frequency = [0]
         self.lineEdit_selected_frequency.setText(str(self.frequency[0]))
-        index = self.comboBox_color_scaling.currentIndex()
-        current_scaling = self.scaling_key[index]
-        self.opv.plot_displacement_field(self.frequency[0], current_scaling)
+        color_scale_setup = self.get_user_color_scale_setup()
+        self.project.set_color_scale_setup(color_scale_setup)
+        self.opv.plot_displacement_field(self.frequency[0])
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))

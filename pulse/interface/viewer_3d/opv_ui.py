@@ -168,11 +168,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
-    def plot_displacement_field(self, frequency_indice, current_scaling):
+    def plot_displacement_field(self, *args, **kwargs):
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-        self.opvAnalysisRenderer.showDisplacementField(frequency_indice, 
-                                                       current_scaling)
+        self.opvAnalysisRenderer.showDisplacementField(*args, **kwargs)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #
@@ -180,11 +179,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-    def plot_stress_field(self, frequency_indice, scaling_type): 
+    def plot_stress_field(self, frequency_indice): 
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-        self.opvAnalysisRenderer.show_stress_field(frequency_indice, 
-                                                   scaling_type)
+        self.opvAnalysisRenderer.show_stress_field(frequency_indice)
+
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #
@@ -192,10 +191,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-    def plot_pressure_field(self, *args, **kwargs): 
+    def plot_pressure_field(self, *args): 
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-        self.opvAnalysisRenderer.showPressureField(*args, **kwargs)
+        self.opvAnalysisRenderer.showPressureField(*args)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #

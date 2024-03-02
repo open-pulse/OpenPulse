@@ -413,49 +413,18 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
          <property name="bottomMargin">
           <number>2</number>
          </property>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_2">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="text">
-            <string>Color scaling:</string>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QComboBox" name="comboBox_color_scaling">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <item>
-            <property name="text">
-             <string> Absolute</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Ux</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Uy</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Uz</string>
-            </property>
-           </item>
-          </widget>
+          </spacer>
          </item>
          <item row="0" column="0">
           <spacer name="horizontalSpacer">
@@ -470,18 +439,123 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
           </spacer>
          </item>
-         <item row="0" column="3">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_2">
+           <property name="minimumSize">
             <size>
-             <width>40</width>
-             <height>20</height>
+             <width>0</width>
+             <height>26</height>
             </size>
            </property>
-          </spacer>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Color scaling:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QComboBox" name="comboBox_color_scale">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <item>
+            <property name="text">
+             <string> Absolute (resultant)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Absolute (Ux)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Absolute (Uy)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Absolute (Uz)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Real - Ux</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Real - Uy</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Real - Uz</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Imaginary - Ux</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Imaginary - Uy</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Imaginary - Uz</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (absolute)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (Ux)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (Uy)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (Uz)</string>
+            </property>
+           </item>
+          </widget>
          </item>
         </layout>
        </widget>

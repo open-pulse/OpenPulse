@@ -55,4 +55,3 @@ class ColorTable(vtk.vtkLookupTable):
         color_temp = [  int(color_temp[0]*255), int(color_temp[1]*255), int(color_temp[2]*255)  ]
                 
         return color_temp
-        

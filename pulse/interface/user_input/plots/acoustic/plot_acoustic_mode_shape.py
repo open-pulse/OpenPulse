@@ -73,7 +73,7 @@ class PlotAcousticModeShape(QWidget):
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
-        if index in [0, 1, 2]:
+        if index <= 2:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
         else:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
@@ -98,8 +98,8 @@ class PlotAcousticModeShape(QWidget):
         frequency = self.selected_natural_frequency
         self.mode_index = self.natural_frequencies.index(frequency)
             
-        coloring_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(coloring_setup)
+        color_scale_setup = self.get_user_color_scale_setup()
+        self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_pressure_field(self.mode_index)
 
     def get_user_color_scale_setup(self):
@@ -108,7 +108,6 @@ class PlotAcousticModeShape(QWidget):
         real_values = False
         imag_values = False
         absolute_animation = False
-        real_animation = False
 
         index = self.comboBox_color_scale.currentIndex()
 
@@ -121,22 +120,21 @@ class PlotAcousticModeShape(QWidget):
         elif index == 3:
             absolute_animation = True
         else:
-            real_animation = True
+            pass
         
-        coloring_setup = {  "absolute" : absolute,
-                            "real_values" : real_values,
-                            "imag_values" : imag_values,
-                            "absolute_animation" : absolute_animation,
-                            "real_animation" : real_animation   }
+        color_scale_setup = {   "absolute" : absolute,
+                                "real_values" : real_values,
+                                "imag_values" : imag_values,
+                                "absolute_animation" : absolute_animation   }
 
         labels = list()
         labels.append("Absolute")
         labels.append("Real values")
         labels.append("Imaginary values")
-        labels.append("Absolute (animation)")
-        labels.append("Real (animation)")
+        labels.append("Animation (absolute)")
+        labels.append("Animation (non absolute)")
 
-        return coloring_setup
+        return color_scale_setup
 
     def load_natural_frequencies(self):
         self.get_dict_modes_frequencies()

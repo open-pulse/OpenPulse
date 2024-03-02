@@ -213,7 +213,7 @@ class PlotTransmissionLoss(QWidget):
 
     def get_TL_NR(self):
 
-        P_out = get_acoustic_frf(self.output_node_ID)
+        P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
         
         # the zero_shift constant is summed to avoid zero values either in P_input2 or P_output2 variables
         zero_shift = 1e-12
@@ -236,7 +236,7 @@ class PlotTransmissionLoss(QWidget):
             return TL
 
         if index == 1:
-            P_in = get_acoustic_frf(self.input_node_ID)
+            P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
             Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
             NR = 10*np.log10(Prms_in2/Prms_out2)
             return NR

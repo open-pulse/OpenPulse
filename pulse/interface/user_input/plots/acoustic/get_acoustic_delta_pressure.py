@@ -42,6 +42,7 @@ class GetAcousticDeltaPressure(QWidget):
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
+        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -135,8 +136,8 @@ class GetAcousticDeltaPressure(QWidget):
 
     def get_delta_pressures(self):
 
-        P_input = get_acoustic_frf(self.input_node_id)
-        P_output = get_acoustic_frf(self.output_node_id)
+        P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
+        P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
 
         delta_pressure = P_input - P_output
         

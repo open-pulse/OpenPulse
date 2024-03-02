@@ -47,9 +47,6 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                                 "Transversal shear xy", 
                                 "Transversal shear xz"])
 
-        self.scaling_key = {0 : "absolute",
-                            1 : "real"}
-
         self.solve = self.project.structural_solve
         self.preprocessor = self.project.preprocessor
         self.frequencies = self.project.frequencies
@@ -67,7 +64,7 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         # QCheckBox
         self.checkBox_damping_effect = self.findChild(QCheckBox, 'checkBox_damping_effect')
         # QComboBox
-        self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
+        self.comboBox_color_scale = self.findChild(QComboBox, 'comboBox_color_scale')
         self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
         # QFrame
         self.frame_button = self.findChild(QFrame, 'frame_button')
@@ -81,35 +78,67 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
     
     def _create_connection(self):
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
-        self.comboBox_color_scaling.currentIndexChanged.connect(self.plot_stress_field)
+        self.comboBox_color_scale.currentIndexChanged.connect(self.plot_stress_field)
         self.comboBox_stress_type.currentIndexChanged.connect(self.plot_stress_field)
         self.pushButton_plot.clicked.connect(self.plot_stress_field)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.update_animation_widget_visibility()
 
     def _update_damping_effect(self):
         self.update_damping = True
         self.plot_stress_field()
-        
+
+    def update_animation_widget_visibility(self):
+        index = self.comboBox_color_scale.currentIndex()
+        if index <= 2:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+        else:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+
     def plot_stress_field(self):
-        window_title = "WARNING"
+        self.update_animation_widget_visibility()
         if self.lineEdit_selected_frequency.text() == "":
-            title = "Aditional action required"
-            message = "Select a frequency from the available list "
-            message += "of frequencies to continue."
-            PrintMessageInput([window_title, title, message])
             return
         else:
             frequency_selected = float(self.lineEdit_selected_frequency.text())
             if frequency_selected in self.frequencies:
                 self.selected_index = self.dict_frequency_to_index[frequency_selected]
                 self.get_stress_data()
-            # else:
-            #     title = "Aditional action required"
-            #     message = "You have typed an invalid frequency. It's recommended "
-            #     message += "to select a frequency from the available list of frequencies."
-            #     PrintMessageInput([window_title, title, message])
-            #     return
+
+    def get_user_color_scale_setup(self):
+
+        absolute = False
+        real_values = False
+        imag_values = False
+        absolute_animation = False
+
+        index = self.comboBox_color_scale.currentIndex()
+
+        if index == 0:
+            absolute = True
+        elif index == 1:
+            real_values = True
+        elif index == 2:
+            imag_values = True
+        elif index == 3:
+            absolute_animation = True
+        else:
+            pass
+        
+        color_scale_setup = {   "absolute" : absolute,
+                                "real_values" : real_values,
+                                "imag_values" : imag_values,
+                                "absolute_animation" : absolute_animation   }
+
+        labels = list()
+        labels.append("Absolute")
+        labels.append("Real values")
+        labels.append("Imaginary values")
+        labels.append("Animation (absolute)")
+        labels.append("Animation (non absolute)")
+
+        return color_scale_setup
 
     def get_stress_data(self):
 
@@ -129,9 +158,9 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                                                 np.max(list(self.stress_field.values())), 
                                                 self.stress_label )
         
-        scale_index = self.comboBox_color_scaling.currentIndex()
-        scaling_type = self.scaling_key[scale_index]
-        self.opv.plot_stress_field(self.selected_index, scaling_type)
+        color_scale_setup = self.get_user_color_scale_setup()
+        self.project.set_color_scale_setup(color_scale_setup)
+        self.opv.plot_stress_field(self.selected_index)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))

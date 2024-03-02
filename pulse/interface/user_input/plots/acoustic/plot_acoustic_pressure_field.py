@@ -35,8 +35,6 @@ class PlotAcousticPressureField(QWidget):
         self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
-        self.scaling_key = {0 : "absolute",
-                            1 : "real_part"}
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -95,8 +93,8 @@ class PlotAcousticPressureField(QWidget):
         frequency_selected = float(self.lineEdit_selected_frequency.text())
         self.frequency = self.frequency_to_index[frequency_selected]
 
-        coloring_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(coloring_setup)
+        color_scale_setup = self.get_user_color_scale_setup()
+        self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_pressure_field(self.frequency)
 
     def get_user_color_scale_setup(self):
@@ -105,7 +103,6 @@ class PlotAcousticPressureField(QWidget):
         real_values = False
         imag_values = False
         absolute_animation = False
-        real_animation = False
 
         index = self.comboBox_color_scale.currentIndex()
 
@@ -118,22 +115,21 @@ class PlotAcousticPressureField(QWidget):
         elif index == 3:
             absolute_animation = True
         else:
-            real_animation = True
+            pass
         
-        coloring_setup = {  "absolute" : absolute,
-                            "real_values" : real_values,
-                            "imag_values" : imag_values,
-                            "absolute_animation" : absolute_animation,
-                            "real_animation" : real_animation   }
+        color_scale_setup = {   "absolute" : absolute,
+                                "real_values" : real_values,
+                                "imag_values" : imag_values,
+                                "absolute_animation" : absolute_animation   }
 
         labels = list()
         labels.append("Absolute")
         labels.append("Real values")
         labels.append("Imaginary values")
-        labels.append("Absolute (animation)")
-        labels.append("Real (animation)")
+        labels.append("Animation (absolute)")
+        labels.append("Animation (non absolute)")
 
-        return coloring_setup
+        return color_scale_setup
 
     def load_frequencies_vector(self):
         self.treeWidget_frequencies.clear()

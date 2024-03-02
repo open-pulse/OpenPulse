@@ -300,11 +300,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="layoutDirection">
@@ -566,11 +562,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="font">
             <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="layoutDirection">

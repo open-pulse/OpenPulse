@@ -958,7 +958,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
+             <width>200</width>
              <height>140</height>
             </size>
            </property>
@@ -984,37 +984,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="horizontalSpacing">
              <number>2</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="radioButton_Fx">
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>10</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-                <kerning>false</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>Fx</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
+            <item row="0" column="3">
              <widget class="QRadioButton" name="radioButton_Mx">
               <property name="maximumSize">
                <size>
-                <width>40</width>
+                <width>52</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1035,11 +1009,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="1" column="1">
              <widget class="QRadioButton" name="radioButton_Fy">
               <property name="maximumSize">
                <size>
-                <width>40</width>
+                <width>52</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1063,11 +1037,37 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="0" column="1">
+             <widget class="QRadioButton" name="radioButton_Fx">
+              <property name="maximumSize">
+               <size>
+                <width>52</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>10</pointsize>
+                <weight>50</weight>
+                <italic>false</italic>
+                <bold>false</bold>
+                <kerning>false</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>Fx</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
              <widget class="QRadioButton" name="radioButton_My">
               <property name="maximumSize">
                <size>
-                <width>40</width>
+                <width>52</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1088,11 +1088,49 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="0" column="2">
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="2" column="3">
+             <widget class="QRadioButton" name="radioButton_Mz">
+              <property name="maximumSize">
+               <size>
+                <width>52</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>MS Shell Dlg 2</family>
+                <pointsize>10</pointsize>
+                <weight>50</weight>
+                <italic>false</italic>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Mz</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
              <widget class="QRadioButton" name="radioButton_Fz">
               <property name="maximumSize">
                <size>
-                <width>40</width>
+                <width>52</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -1113,30 +1151,31 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QRadioButton" name="radioButton_Mz">
-              <property name="maximumSize">
+            <item row="0" column="0">
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
-                <height>16777215</height>
+                <height>20</height>
                </size>
               </property>
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>10</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
+             </spacer>
+            </item>
+            <item row="0" column="4">
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
-              <property name="text">
-               <string>Mz</string>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
               </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
+             </spacer>
             </item>
            </layout>
           </widget>

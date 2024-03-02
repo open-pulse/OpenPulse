@@ -125,10 +125,10 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         return False
 
     def get_response(self):
-        response = get_structural_frf(self.preprocessor, 
-                                      self.solution,
-                                      self.node_ID, 
-                                      self.local_dof)
+        response = get_structural_frf(  self.preprocessor,
+                                        self.solution,
+                                        self.node_ID, 
+                                        self.local_dof  )
         return response
 
     def join_model_data(self):

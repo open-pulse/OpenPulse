@@ -171,7 +171,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_acoustic_pressure(self):
         self.solution = self.project.get_acoustic_solution()
-        response = get_acoustic_frf(self.node_id[0])
+        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_id[0])
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-12)
         return response

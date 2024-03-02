@@ -261,8 +261,7 @@ class GetReactionsForHarmonicAnalysis(QWidget):
             self.reaction_label = "Moment reactions"
 
     def get_reactions(self):
-        response = get_reactions(   self.preprocessor, 
-                                    self.reactions, 
+        response = get_reactions(   self.reactions, 
                                     self.node_ID, 
                                     self.local_dof   )
         return response

@@ -50,14 +50,17 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.table_name = None
         self.not_update_event = False
 
+        self.nodes = self.preprocessor.nodes
+
         self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.project.frequencies
-        self.nodes = self.preprocessor.nodes
 
         self.project_folder_path = self.project.file._project_path
         self.node_acoustic_path = self.project.file._node_acoustic_path   
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.node_id = self.opv.getListPickedPoints()
+
+        self.solution = self.project.get_acoustic_solution()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -170,8 +173,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_unfiltered_criteria.setText(str(round(self.unfiltered_criteria, 4)))
 
     def get_acoustic_pressure(self):
-        self.solution = self.project.get_acoustic_solution()
-        response = get_acoustic_frf(self.node_id[0])
+        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_id[0])
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-12)
         return response

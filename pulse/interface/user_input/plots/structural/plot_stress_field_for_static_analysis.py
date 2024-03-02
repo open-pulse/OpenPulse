@@ -43,9 +43,6 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
                                 "Transversal shear xy",
                                 "Transversal shear xz"])
 
-        self.scaling_key = {0 : "absolute",
-                            1 : "real"}
-
         self.solve = self.project.structural_solve
         self.preprocessor = self.project.preprocessor
 
@@ -71,6 +68,14 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.comboBox_color_scaling.currentIndexChanged.connect(self.plot_stress_field)
         self.comboBox_stress_type.currentIndexChanged.connect(self.plot_stress_field)
         self.pushButton_plot.clicked.connect(self.plot_stress_field)
+        self.update_animation_widget_visibility()
+
+    def update_animation_widget_visibility(self):
+        index = self.comboBox_color_scale.currentIndex()
+        if index <= 2:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+        else:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
 
     def get_stress_data(self):
 
@@ -88,11 +93,12 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
                                                 np.max(list(self.stress_field.values())), 
                                                 self.stress_label )
 
-        scale_index = self.comboBox_color_scaling.currentIndex()
-        scaling_type = self.scaling_key[scale_index]
-        self.opv.plot_stress_field(self.selected_index, scaling_type)
+        color_scale_setup = self.get_user_color_scale_setup()
+        self.project.set_color_scale_setup(color_scale_setup)
+        self.opv.plot_stress_field(self.selected_index)
         
     def plot_stress_field(self):
+        self.update_animation_widget_visibility()
         self.selected_index = 0
         self.get_stress_data()
 

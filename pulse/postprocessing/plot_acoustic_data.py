@@ -11,36 +11,39 @@ def get_preprocessor():
     project = app().main_window.project
     return project.preprocessor
 
+
 def get_acoustic_solution():
     project = app().main_window.project
     return project.get_acoustic_solution()
+
 
 def get_color_scale_setup():
     project = app().main_window.project
     return project.color_scale_setup
 
-def get_acoustic_frf(node, absolute=False, real=False, imag=False, dB=False):
 
-    preprocessor = get_preprocessor()
-    solution = get_acoustic_solution()
+def get_acoustic_frf(preprocessor, solution, node, **kwargs):
+
+    absolute = kwargs.get("absolute", False)
+    real_values = kwargs.get("real_values", False)
+    imag_values = kwargs.get("imag_values", False)
+    dB_scale = kwargs.get("dB_scale", False)
 
     position = preprocessor.nodes[node].global_index * DOF_PER_NODE_ACOUSTIC
     if absolute:
-        results = np.abs(solution[position])
-    elif real:
-        results = np.real(solution[position])
-    elif imag:
-        results = np.imag(solution[position])
-    elif dB:
+        return np.abs(solution[position])
+    elif real_values:
+        return np.real(solution[position])
+    elif imag_values:
+        return np.imag(solution[position])
+    elif dB_scale:
         p_ref = 20e-6
-        results = 20*np.log10(np.abs(solution[position]/(np.sqrt(2)*p_ref)))
+        return 20*np.log10(np.abs(solution[position]/(np.sqrt(2)*p_ref)))
     else:
-        results = solution[position]
-    return results
+        return solution[position]
 
-def get_max_min_values_of_pressures(column, **kwargs):
 
-    solution = get_acoustic_solution()
+def get_max_min_values_of_pressures(solution, column, **kwargs):
 
     absolute = kwargs.get("absolute", False)
     real_values = kwargs.get("real_values", False)
@@ -87,10 +90,8 @@ def get_max_min_values_of_pressures(column, **kwargs):
    
     return p_min, p_max
 
-def get_acoustic_response(column, **kwargs):
 
-    preprocessor = get_preprocessor()
-    solution = get_acoustic_solution()
+def get_acoustic_response(preprocessor, solution, column, **kwargs):
 
     phase_step = kwargs.get("phase_step", False)
     absolute = kwargs.get("absolute", False)
@@ -112,17 +113,17 @@ def get_acoustic_response(column, **kwargs):
     
     if absolute:
         pressures_to_plot = np.abs(data)
-        min_max_values = get_max_min_values_of_pressures(column, **kwargs)
+        min_max_values = get_max_min_values_of_pressures(solution, column, **kwargs)
         return connect, coord, pressures_to_plot, min_max_values
 
     if real_values:
         pressures_to_plot = np.real(data)
-        min_max_values = get_max_min_values_of_pressures(column, **kwargs)
+        min_max_values = get_max_min_values_of_pressures(solution, column, **kwargs)
         return connect, coord, pressures_to_plot, min_max_values
 
     if imag_values:
         pressures_to_plot = np.imag(data)
-        min_max_values = get_max_min_values_of_pressures(column, **kwargs)
+        min_max_values = get_max_min_values_of_pressures(solution, column, **kwargs)
         return connect, coord, pressures_to_plot, min_max_values
 
     _pressures = np.abs(data)
@@ -137,6 +138,7 @@ def get_acoustic_response(column, **kwargs):
         
     return connect, coord, pressures_plot, min_max_values
 
+
 def get_acoustic_absortion(element, frequencies):
     if isinstance(element.pp_impedance, np.ndarray):
         zpp = -element.pp_impedance
@@ -147,6 +149,7 @@ def get_acoustic_absortion(element, frequencies):
     R = (zpp - z0)/(zpp + z0)
     alpha = 1 - R*np.conj(R)
     return np.real(alpha)
+
 
 def get_perforated_plate_impedance(element, frequencies, real_part):
     if isinstance(element.pp_impedance, np.ndarray):
