@@ -192,11 +192,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-    def plot_pressure_field(self, frequency_indice, absolute=False): 
+    def plot_pressure_field(self, *args, **kwargs): 
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-        self.opvAnalysisRenderer.showPressureField(frequency_indice, 
-                                                   absolute=absolute)
+        self.opvAnalysisRenderer.showPressureField(*args, **kwargs)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #

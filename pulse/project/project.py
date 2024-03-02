@@ -63,6 +63,7 @@ class Project:
         self.internal_pressure_load = True
         self.external_nodal_loads = True
         self.element_distributed_load = True
+        self.color_scale_setup = dict()
 
         self.time_to_load_or_create_project = 0
         self.time_to_checking_entries = 0
@@ -1941,6 +1942,9 @@ class Project:
     
     def set_perforated_plate_convergence_dataLog(self, data):
         self.perforated_plate_data_log = data
+
+    def set_color_scale_setup(self, color_scale_setup):
+        self.color_scale_setup = color_scale_setup
 
     def get_map_nodes(self):
         return self.preprocessor.map_nodes

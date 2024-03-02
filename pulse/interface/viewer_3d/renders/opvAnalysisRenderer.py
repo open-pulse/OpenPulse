@@ -26,7 +26,6 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.hidden_elements = set()
 
-        self._absolute = False
         self._scaling_type = None
         self._magnificationFactor = 1
         self._currentFrequencyIndex = 0
@@ -240,11 +239,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index 
         self._plotOnce(self._currentPhase)
 
-    def showPressureField(self, frequency_index, absolute=False):
+    def showPressureField(self, frequency_index, **kwargs):
         self.cache_plot_state(pressure=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
@@ -336,20 +334,15 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvDeformedTubes.getActor().SetVisibility(True)
             self.opvPressureTubes.getActor().SetVisibility(False)
 
-
-
     def get_min_max_values_to_pressure(self, frequency_index):
-        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures( frequency_index, 
-                                                                                absolute = self._absolute )
+        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures( frequency_index )
 
     def computePressureField(self, frequency, phase_step):
 
         self._currentFrequencyIndex = frequency
-        self._colorScalling = 'absolute' if self._absolute else 'real part'
 
         *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  frequency, 
-                                                                                                    phase_step = phase_step,
-                                                                                                    absolute = self._absolute  )
+                                                                                                    phase_step=phase_step  )
         
         self.opvPressureTubes.build()
         min_max_values_all = [self.pressure_min, self.pressure_max]

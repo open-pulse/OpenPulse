@@ -108,7 +108,7 @@
           <widget class="QLabel" name="label_color_scalling">
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="text">
@@ -134,6 +134,21 @@
            <item>
             <property name="text">
              <string> Real part</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Imaginary part</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Absolute anim.</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Normal anim.</string>
             </property>
            </item>
           </widget>
@@ -360,7 +375,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
+              <pointsize>9</pointsize>
              </font>
             </property>
             <property name="textAlignment">
@@ -374,7 +389,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
+              <pointsize>9</pointsize>
               <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
