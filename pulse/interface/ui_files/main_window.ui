@@ -115,12 +115,12 @@
     <addaction name="menu_recent"/>
     <addaction name="action_save_project"/>
     <addaction name="action_save_project_as"/>
+    <addaction name="action_reset"/>
     <addaction name="separator"/>
     <addaction name="action_import_geometry"/>
     <addaction name="action_export_geometry"/>
     <addaction name="action_import_piping"/>
     <addaction name="action_export_png"/>
-    <addaction name="action_reset"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
     <addaction name="action_set_dark_theme"/>
@@ -301,7 +301,7 @@
      <normaloff>../../../data/icons/refresh.png</normaloff>../../../data/icons/refresh.png</iconset>
    </property>
    <property name="text">
-    <string>Reset</string>
+    <string>Reset Project</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+R</string>

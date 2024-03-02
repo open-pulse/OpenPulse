@@ -139,7 +139,7 @@ class InputUi:
         self.main_window.update_export_geometry_file_access()
         self.menu_items.modify_model_setup_items_access(True)
         if finalized:
-            if self.project.check_if_entity_file_exists():
+            if self.project.file.check_if_entity_file_is_active():
                 self.project.none_project_action = False
                 self.menu_items.modify_model_setup_items_access(False)
                 return True

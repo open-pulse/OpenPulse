@@ -1,27 +1,21 @@
-from collections import deque
-from collections import defaultdict
+from pulse.preprocessing.cross_section import *
+from pulse.preprocessing.entity import Entity
+from pulse.preprocessing.geometry import Geometry
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
+from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
+from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
+from pulse.preprocessing.compressor_model import CompressorModel
+from pulse.preprocessing.before_run import BeforeRun
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import *
 
 import os
 import gmsh 
 import numpy as np
-from scipy.spatial.transform import Rotation
 from time import time
-
-from pulse.preprocessing import structural_element
-from pulse.preprocessing.cross_section import *
-
-from pulse.interface.handler.geometry_handler import GeometryHandler
-
-from pulse.preprocessing.geometry import Geometry
-from pulse.preprocessing.entity import Entity
-from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
-from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
-from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
-from pulse.preprocessing.compressor_model import CompressorModel
-from pulse.preprocessing.before_run import BeforeRun
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-from pulse.tools.utils import *
+from collections import defaultdict, deque
+from scipy.spatial.transform import Rotation
 
 window_title_1 = "Error"
 
@@ -211,7 +205,7 @@ class Preprocessor:
         
         """
         if self.geometry_handler is None:
-            build_data = self.file.load_segment_build_data_from_file()
+            build_data = self.file.get_segment_build_data_from_file()
             self.geometry_handler = GeometryHandler()
             pipeline = self.geometry_handler.process_pipeline(build_data)
             self.geometry_handler.set_length_unit(self.file.length_unit)

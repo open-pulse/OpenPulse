@@ -130,7 +130,7 @@ class ExportGeometry(QDialog):
         if self.check_inputs():
             return
 
-        build_data = self.file.load_segment_build_data_from_file()
+        build_data = self.file.get_segment_build_data_from_file()
         self.geometry_handler = GeometryHandler()
         pipeline = self.geometry_handler.process_pipeline(build_data)
         self.geometry_handler.set_length_unit(self.file.length_unit)

@@ -169,6 +169,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
           <height>500</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>

@@ -83,17 +83,18 @@ class Project:
 
     def initial_load_project_actions(self, project_file_path):
         try:
+
             self.reset(reset_all=True)
             self.file.load(project_file_path)
-    
-            if self.check_if_entity_file_exists():
+
+            if self.file.check_if_entity_file_is_active():
                 self.process_geometry_and_mesh()
                 self.entities = self.preprocessor.dict_tag_to_entity.values()
                 if not os.path.exists(self.file._entity_path):
                     self.file.create_entity_file(self.preprocessor.all_lines)                   
-            return True
-            # else:
-            #     return False
+                return True
+            else:
+                return False
             
         except Exception as log_error:
             title = "Error while processing initial load project actions"
@@ -137,12 +138,10 @@ class Project:
         self.file.reset_fluid_and_material_files(**kwargs)
         self.file.reset_project_setup(**kwargs)
         self.file.reset_entity_file(**kwargs)
-        if self.check_if_entity_file_exists():
+        print("State: ", self.file.check_if_entity_file_is_active())
+        if self.file.check_if_entity_file_is_active():
             self.process_geometry_and_mesh()
             self.load_project_files()
-
-    def check_if_entity_file_exists(self):
-        return os.path.exists(self.file._entity_path)
 
     def set_geometry_entities(self, entities_data, geometry_path, kernel, only_save=False):
         return

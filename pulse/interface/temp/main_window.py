@@ -663,7 +663,7 @@ class MainWindow(QMainWindow):
             self._updateGeometryState("ok")
         # Check and update mesh state
         if len(self.project.preprocessor.structural_elements) == 0:
-            if self.project.check_if_entity_file_exists():
+            if self.project.file.check_if_entity_file_is_active():
                 self._updateMeshState("setup complete but not generated")
             else:
                 self._updateMeshState("pending")

@@ -477,6 +477,9 @@ project</string>
     <property name="wordWrap">
      <bool>true</bool>
     </property>
+    <property name="margin">
+     <number>4</number>
+    </property>
    </widget>
   </widget>
   <widget class="QWidget" name="widget_project2" native="true">
@@ -559,6 +562,9 @@ Project</string>
     <property name="wordWrap">
      <bool>true</bool>
     </property>
+    <property name="margin">
+     <number>4</number>
+    </property>
    </widget>
   </widget>
   <widget class="QWidget" name="widget_project3" native="true">
@@ -637,6 +643,9 @@ Project</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
+    </property>
+    <property name="margin">
+     <number>4</number>
     </property>
    </widget>
   </widget>
@@ -717,6 +726,9 @@ Project</string>
     <property name="wordWrap">
      <bool>true</bool>
     </property>
+    <property name="margin">
+     <number>4</number>
+    </property>
    </widget>
   </widget>
   <widget class="QWidget" name="widget_project5" native="true">
@@ -795,6 +807,9 @@ Project</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
+    </property>
+    <property name="margin">
+     <number>4</number>
     </property>
    </widget>
   </widget>

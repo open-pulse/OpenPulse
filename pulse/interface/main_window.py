@@ -444,7 +444,7 @@ class MainWindow(QMainWindow):
     def action_run_analysis_callback(self):
         self.input_widget.run_analysis()
 
-    def action_about_openpulse(self):
+    def action_about_openpulse_callback(self):
         self.input_widget.about_OpenPulse()
 
     def action_show_points_callback(self, cond):
@@ -582,7 +582,7 @@ class MainWindow(QMainWindow):
     #         self._updateGeometryState("ok")
     #     # Check and update mesh state
     #     if len(self.project.preprocessor.structural_elements) == 0:
-    #         if self.project.check_if_entity_file_exists():
+    #         if self.project.file.check_if_entity_file_is_active():
     #             self._updateMeshState("setup complete but not generated")
     #         else:
     #             self._updateMeshState("pending")

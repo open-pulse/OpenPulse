@@ -365,6 +365,17 @@ class ProjectFile:
             self.write_data_in_file(self._project_ini_file_path, config)
             self.load(self._project_ini_file_path)
 
+    def check_if_entity_file_is_active(self):
+        if os.path.exists(self._entity_path):
+            config = configparser.ConfigParser()
+            config.read(self._entity_path)
+            if len(config.sections()):
+                return True
+            else:
+                return False
+        else:
+            return False
+
     def add_geometry_entities_to_file(self, entities_data):
         
         geometry_file_path = self.get_geometry_entities_path()
@@ -595,18 +606,17 @@ class ProjectFile:
         config = configparser.ConfigParser()
         config.read(self._entity_path)
 
-        for tag in config.sections():
+        if os.path.exists(self._entity_path):
 
-            keys = list(config[tag].keys())
+            for tag in config.sections():
+                keys = list(config[tag].keys())
+                for key in keys:
+                    if key in keys_to_ignore:
+                        continue
+                    else:
+                        config.remove_option(tag, key)
 
-            # config[tag] = {}
-            for key in keys:
-                if key in keys_to_ignore:
-                    continue
-                else:
-                    config.remove_option(tag, key)
-
-        self.write_data_in_file(self._entity_path, config)
+            self.write_data_in_file(self._entity_path, config)
 
     def add_user_preferences_to_file(self, preferences):
 
@@ -2110,7 +2120,7 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config)
 
-    def load_segment_build_data_from_file(self):
+    def get_segment_build_data_from_file(self):
         '''
         This method returns the all required data to build pipeline segments.
         '''

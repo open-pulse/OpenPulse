@@ -61,7 +61,7 @@ class GeometryDesignerInput(QDialog):
         self.exec()
 
     def check_mesh_and_update_controls(self):
-        if self.project.check_if_entity_file_exists():
+        if self.project.file.check_if_entity_file_is_active():
             self.checkBox_process_geometry_and_mesh.setChecked(True)
             # self.checkBox_process_geometry_and_mesh.setDisabled(True)
 
@@ -199,7 +199,7 @@ class GeometryDesignerInput(QDialog):
         _bool = self.checkBox_process_geometry_and_mesh.isChecked()
         self.lineEdit_element_size.setDisabled(not _bool)
         self.lineEdit_geometry_tolerance.setDisabled(not _bool)
-        if _bool or self.project.check_if_entity_file_exists():
+        if _bool or self.project.file.check_if_entity_file_is_active():
             self.pushButton_generate_geometry.setGeometry(QRect(410, 508, 260, 36))
             self.pushButton_generate_geometry.setText("Generate geometry and mesh")
         else:
@@ -860,7 +860,7 @@ class GeometryDesignerInput(QDialog):
                
                 self.opv.plot_raw_geometry()
      
-                if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.check_if_entity_file_exists():
+                if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.file.check_if_entity_file_is_active():
                     if self.process_mesh():
                         return
                     self.complete = True
