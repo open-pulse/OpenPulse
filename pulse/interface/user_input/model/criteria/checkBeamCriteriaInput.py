@@ -2,11 +2,13 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTreeW
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from pathlib import Path
 
 window_title = "Error"
 
@@ -16,73 +18,57 @@ class CheckBeamCriteriaInput(QDialog):
 
         uic.loadUi(UI_DIR / "criterias/check_beam_criteria.ui", self)
         
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
         self.project = project
         self.opv = opv
         self.opv.setInputObject(self)
         self.before_run = BeforeRun(project, opv)
 
-        self.initialize_Qt_variables()
+        self._load_icons()
+        self._config_window()
+        self.define_qt_variables()
         self.create_connections()
         self.load_existing_sections()
 
         self.exec()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:
-            self.close()
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
 
-    def initialize_Qt_variables(self):
-        """
-        """
-        self.lineEdit_beam_criteria = self.findChild(QLineEdit, "lineEdit_beam_criteria")
-        self.lineEdit_section_id = self.findChild(QLineEdit, "lineEdit_section_id")
-        self.lineEdit_segment_id = self.findChild(QLineEdit, "lineEdit_segment_id")
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
 
-        self.pushButton_check_criteria = self.findChild(QPushButton, "pushButton_check_criteria")
-        self.pushButton_more_info = self.findChild(QPushButton, "pushButton_more_info")
-        self.treeWidget_non_beam_segments = self.findChild(QTreeWidget, "treeWidget_non_beam_segments")
-        self.treeWidget_sections_parameters_by_lines = self.findChild(QTreeWidget, "treeWidget_sections_parameters_by_lines")
+    def define_qt_variables(self):
+        # QLineEdit
+        self.lineEdit_beam_criteria : QLineEdit
+        self.lineEdit_section_id : QLineEdit
+        self.lineEdit_segment_id : QLineEdit
+        # QPushButton
+        self.pushButton_check_criteria : QPushButton
+        self.pushButton_more_info : QPushButton
+        # QTreeWidget
+        self.treeWidget_non_beam_segments : QTreeWidget
+        self.treeWidget_sections_parameters_by_lines : QTreeWidget
 
     def create_connections(self):
-        """
-        """
         self.pushButton_check_criteria.clicked.connect(self.check_beam_theory_criteria)
         self.pushButton_more_info.clicked.connect(self.get_beam_validity_criteria_info)
         self.treeWidget_non_beam_segments.itemClicked.connect(self.on_click_non_beam_segments)
         self.treeWidget_non_beam_segments.itemDoubleClicked.connect(self.on_double_click_non_beam_segments)
         self.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.on_click_treeWidget_section_parameters_by_line)
         self.treeWidget_sections_parameters_by_lines.itemDoubleClicked.connect(self.on_doubleClick_treeWidget_section_parameters_by_line)
+        self.config_treeWidget()
 
     def config_treeWidget(self):
-        """
-        """
-        font = QFont()
-        font.setFamily("Arial")
-        font.setPointSize(9)
-        font.setBold(True)
-        font.setWeight(75)
-        #
         self.treeWidget_sections_parameters_by_lines.setColumnWidth(0,40)
         self.treeWidget_sections_parameters_by_lines.setColumnWidth(1,120)
-        self.treeWidget_sections_parameters_by_lines.setFont(font)
-        #
         self.treeWidget_non_beam_segments.setColumnWidth(0,40)
         self.treeWidget_non_beam_segments.setColumnWidth(1,80)
         self.treeWidget_non_beam_segments.setColumnWidth(2,240)
-        self.treeWidget_non_beam_segments.setFont(font)
-
 
     def load_existing_sections(self):
-        """
-        """
-        self.config_treeWidget()
+
         self.section_id_data_lines = {}
         self.section_id_data_elements = {}
         self.treeWidget_sections_parameters_by_lines.clear()
@@ -96,10 +82,8 @@ class CheckBeamCriteriaInput(QDialog):
                 new.setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
 
-
     def check_beam_theory_criteria(self):
-        """
-        """
+
         self.non_beam_data = {}
         self.treeWidget_non_beam_segments.clear()
         self.before_run.check_beam_theory_criteria()
@@ -157,13 +141,11 @@ class CheckBeamCriteriaInput(QDialog):
                     new.setTextAlignment(i, Qt.AlignCenter)
                 self.treeWidget_non_beam_segments.addTopLevelItem(new)
 
-
     def on_click_non_beam_segments(self, item):
         self.lineEdit_segment_id.setText("")
         section_id = item.text(0)
         if section_id != "":
             self.lineEdit_segment_id.setText(section_id)
-
 
     def on_double_click_non_beam_segments(self, item):
         self.lineEdit_segment_id.setText("")
@@ -174,14 +156,12 @@ class CheckBeamCriteriaInput(QDialog):
                 data = self.non_beam_data[int(section_id)]
                 self.opv.opvRenderer.highlight_lines(data[4])
 
-
     def on_click_treeWidget_section_parameters_by_line(self, item):
         self.lineEdit_section_id.setText("")
         key = item.text(0)
         if key != "":
             if int(key) in self.section_data_lines.keys():
                 self.lineEdit_section_id.setText(key)               
-
 
     def on_doubleClick_treeWidget_section_parameters_by_line(self, item):
         self.lineEdit_section_id.setText("")
@@ -192,10 +172,8 @@ class CheckBeamCriteriaInput(QDialog):
                 [_element_type, _section_parameters, _, section_lines] = self.section_data_lines[int(key)]
                 self.opv.opvRenderer.highlight_lines(section_lines)
 
-
     def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False):
-        """
-        """
+
         self.stop = False
         title = "Invalid value typed at criteria input field"
         if lineEdit.text() != "":
@@ -237,8 +215,7 @@ class CheckBeamCriteriaInput(QDialog):
         return out
     
     def get_beam_validity_criteria_info(self):
-        """
-        """
+
         title = "Beam validity criteria relevant information"
         message = "1) The Beam Validity Criteria Tool has been developed to aid the user to find "
         message += "segments in the structure that potentially do not attempt the 3D Timoshenko beam theory. "
@@ -258,3 +235,7 @@ class CheckBeamCriteriaInput(QDialog):
         #
         window_title = "Warning"
         PrintMessageInput([window_title, title, message], alignment=Qt.AlignJustify)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:
+            self.close()

@@ -184,22 +184,6 @@ class ProjectFile:
                     else:
                         rmtree(file_path)
 
-    def get_element_size_from_project_file(self):
-        if self._project_path != "":
-
-            config = configparser.ConfigParser()
-            config.read(self.project_ini_file_path)
-
-            if config.has_option('PROJECT', 'element size'):
-                if 'element size' in config['PROJECT'].keys():
-
-                    element_size = config['PROJECT']['element size']
-                    if element_size != "":
-                        return float(element_size)
-
-                else:
-                    return ""
-
     def get_mesh_attributes_from_project_file(self):
         element_size = None
         geometry_tolerance = None
@@ -370,14 +354,18 @@ class ProjectFile:
                             "end point", 
                             "section label", 
                             "section parameters"   ]
+        import_type = self.get_import_type()
         if os.path.exists(self._entity_path):
             config = configparser.ConfigParser()
             config.read(self._entity_path)
             if len(config.sections()):
                 for tag in config.sections():
-                    for key in keys_to_check:
-                        if key not in config[tag].keys():
-                            return False
+                    if import_type == 0:
+                        return True
+                    else:
+                        for key in keys_to_check:
+                            if key not in config[tag].keys():
+                                return False
                 return True
             else:
                 return False

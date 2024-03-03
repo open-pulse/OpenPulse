@@ -1,22 +1,20 @@
-from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-
-import configparser
-import numpy as np
-import matplotlib.pyplot as plt
 
 from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.preprocessing.cross_section import get_beam_section_properties, get_points_to_plot_section
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.utils import check_inputs
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 window_title = "Error"
 window_title2 = "Warning"
-
 
 class CrossSectionWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -24,19 +22,23 @@ class CrossSectionWidget(QWidget):
 
         uic.loadUi(UI_DIR / "model/setup/general/cross_section_widget.ui", self)
 
-        self.reset()
-        self.define_qt_variables()
-        self.create_connections()
+        self._initialize()
+        self._load_icons()
+        self._config_window()
+        self._define_qt_variables()
+        self._create_connections()
         self.create_lists_of_entries()
-        self.config_treeWidget()
         
-    def _add_icon_and_title(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 
-    def reset(self):
+    def _initialize(self):
         
         self.section_type = None
         self.section_label = None
@@ -53,140 +55,111 @@ class CrossSectionWidget(QWidget):
         self.section_data_elements = {}
         self.variable_parameters = []
 
-    def define_qt_variables(self):
+    def _define_qt_variables(self):
 
         # QFrame
-        self.bottom_frame = self.findChild(QFrame, 'bottom_frame')
-        self.top_frame = self.findChild(QFrame, 'top_frame')
-        self.selection_frame = self.findChild(QFrame, 'selection_frame')
+        self.bottom_frame : QFrame
+        self.top_frame : QFrame
+        self.selection_frame : QFrame
         
         # QLineEdit
-        self.lineEdit_element_id_initial = self.findChild(QLineEdit, 'lineEdit_element_id_initial')
-        self.lineEdit_element_id_final = self.findChild(QLineEdit, 'lineEdit_element_id_final')
+        self.lineEdit_element_id_initial : QLineEdit
+        self.lineEdit_element_id_final : QLineEdit
         
-        self.lineEdit_outside_diameter = self.findChild(QLineEdit, 'lineEdit_outside_diameter')
-        self.lineEdit_wall_thickness = self.findChild(QLineEdit, 'lineEdit_wall_thickness')
-        self.lineEdit_offset_y = self.findChild(QLineEdit, 'lineEdit_offset_y')
-        self.lineEdit_offset_z = self.findChild(QLineEdit, 'lineEdit_offset_z')
-        self.lineEdit_insulation_density = self.findChild(QLineEdit, 'lineEdit_insulation_density')
-        self.lineEdit_insulation_thickness = self.findChild(QLineEdit, 'lineEdit_insulation_thickness')
+        self.lineEdit_outside_diameter : QLineEdit
+        self.lineEdit_wall_thickness : QLineEdit
+        self.lineEdit_offset_y : QLineEdit
+        self.lineEdit_offset_z : QLineEdit
+        self.lineEdit_insulation_density : QLineEdit
+        self.lineEdit_insulation_thickness : QLineEdit
 
-        self.lineEdit_outside_diameter_initial = self.findChild(QLineEdit, 'lineEdit_outside_diameter_initial')
-        self.lineEdit_wall_thickness_initial = self.findChild(QLineEdit, 'lineEdit_wall_thickness_initial')
-        self.lineEdit_offset_y_initial = self.findChild(QLineEdit, 'lineEdit_offset_y_initial')
-        self.lineEdit_offset_z_initial = self.findChild(QLineEdit, 'lineEdit_offset_z_initial')
+        self.lineEdit_outside_diameter_initial : QLineEdit
+        self.lineEdit_wall_thickness_initial : QLineEdit
+        self.lineEdit_offset_y_initial : QLineEdit
+        self.lineEdit_offset_z_initial : QLineEdit
 
-        self.lineEdit_outside_diameter_final = self.findChild(QLineEdit, 'lineEdit_outside_diameter_final')
-        self.lineEdit_wall_thickness_final = self.findChild(QLineEdit, 'lineEdit_wall_thickness_final')
-        self.lineEdit_offset_y_final = self.findChild(QLineEdit, 'lineEdit_offset_y_final')
-        self.lineEdit_offset_z_final = self.findChild(QLineEdit, 'lineEdit_offset_z_final')
+        self.lineEdit_outside_diameter_final : QLineEdit
+        self.lineEdit_wall_thickness_final : QLineEdit
+        self.lineEdit_offset_y_final : QLineEdit
+        self.lineEdit_offset_z_final : QLineEdit
 
-        self.lineEdit_insulation_thickness_variable_section = self.findChild(QLineEdit, 'lineEdit_insulation_thickness_variable_section')
-        self.lineEdit_insulation_density_variable_section = self.findChild(QLineEdit, 'lineEdit_insulation_density_variable_section')
+        self.lineEdit_insulation_thickness_variable_section : QLineEdit
+        self.lineEdit_insulation_density_variable_section : QLineEdit
 
-        self.lineEdit_base_rectangular_section = self.findChild(QLineEdit, 'lineEdit_base_rectangular_section')
-        self.lineEdit_height_rectangular_section = self.findChild(QLineEdit, 'lineEdit_height_rectangular_section')
-        self.lineEdit_wall_thickness_rectangular_section = self.findChild(QLineEdit, 'lineEdit_wall_thickness_rectangular_section')
-        self.lineEdit_offsety_rectangular_section = self.findChild(QLineEdit, 'lineEdit_offsety_rectangular_section')
-        self.lineEdit_offsetz_rectangular_section = self.findChild(QLineEdit, 'lineEdit_offsetz_rectangular_section')
+        self.lineEdit_base_rectangular_section : QLineEdit
+        self.lineEdit_height_rectangular_section : QLineEdit
+        self.lineEdit_wall_thickness_rectangular_section : QLineEdit
+        self.lineEdit_offsety_rectangular_section : QLineEdit
+        self.lineEdit_offsetz_rectangular_section : QLineEdit
 
-        self.lineEdit_outside_diameter_circular_section = self.findChild(QLineEdit, 'lineEdit_outside_diameter_circular_section')
-        self.lineEdit_wall_thickness_circular_section = self.findChild(QLineEdit, 'lineEdit_wall_thickness_circular_section')
-        self.lineEdit_offsety_circular_section = self.findChild(QLineEdit, 'lineEdit_offsety_circular_section')
-        self.lineEdit_offsetz_circular_section = self.findChild(QLineEdit, 'lineEdit_offsetz_circular_section')
+        self.lineEdit_outside_diameter_circular_section : QLineEdit
+        self.lineEdit_wall_thickness_circular_section : QLineEdit
+        self.lineEdit_offsety_circular_section : QLineEdit
+        self.lineEdit_offsetz_circular_section : QLineEdit
 
-        self.lineEdit_height_C_section = self.findChild(QLineEdit, 'lineEdit_height_C_section')
-        self.lineEdit_w1_C_section = self.findChild(QLineEdit, 'lineEdit_w1_C_section')
-        self.lineEdit_t1_C_section = self.findChild(QLineEdit, 'lineEdit_t1_C_section')
-        self.lineEdit_w2_C_section = self.findChild(QLineEdit, 'lineEdit_w2_C_section')
-        self.lineEdit_t2_C_section = self.findChild(QLineEdit, 'lineEdit_t2_C_section')    
-        self.lineEdit_tw_C_section = self.findChild(QLineEdit, 'lineEdit_tw_C_section')         
-        self.lineEdit_offsety_C_section = self.findChild(QLineEdit, 'lineEdit_offsety_C_section')
-        self.lineEdit_offsetz_C_section = self.findChild(QLineEdit, 'lineEdit_offsetz_C_section')
+        self.lineEdit_height_C_section : QLineEdit
+        self.lineEdit_w1_C_section : QLineEdit
+        self.lineEdit_t1_C_section : QLineEdit
+        self.lineEdit_w2_C_section : QLineEdit
+        self.lineEdit_t2_C_section : QLineEdit 
+        self.lineEdit_tw_C_section : QLineEdit      
+        self.lineEdit_offsety_C_section : QLineEdit
+        self.lineEdit_offsetz_C_section : QLineEdit
 
-        self.lineEdit_height_I_section = self.findChild(QLineEdit, 'lineEdit_height_I_section')
-        self.lineEdit_w1_I_section = self.findChild(QLineEdit, 'lineEdit_w1_I_section')
-        self.lineEdit_t1_I_section = self.findChild(QLineEdit, 'lineEdit_t1_I_section')
-        self.lineEdit_w2_I_section = self.findChild(QLineEdit, 'lineEdit_w2_I_section')
-        self.lineEdit_t2_I_section = self.findChild(QLineEdit, 'lineEdit_t2_I_section')    
-        self.lineEdit_tw_I_section = self.findChild(QLineEdit, 'lineEdit_tw_I_section') 
-        self.lineEdit_offsety_I_section = self.findChild(QLineEdit, 'lineEdit_offsety_I_section')
-        self.lineEdit_offsetz_I_section = self.findChild(QLineEdit, 'lineEdit_offsetz_I_section')
+        self.lineEdit_height_I_section : QLineEdit
+        self.lineEdit_w1_I_section : QLineEdit
+        self.lineEdit_t1_I_section : QLineEdit
+        self.lineEdit_w2_I_section : QLineEdit
+        self.lineEdit_t2_I_section : QLineEdit  
+        self.lineEdit_tw_I_section : QLineEdit
+        self.lineEdit_offsety_I_section : QLineEdit
+        self.lineEdit_offsetz_I_section : QLineEdit
 
-        self.lineEdit_height_T_section = self.findChild(QLineEdit, 'lineEdit_height_T_section')
-        self.lineEdit_w1_T_section = self.findChild(QLineEdit, 'lineEdit_w1_T_section')
-        self.lineEdit_t1_T_section = self.findChild(QLineEdit, 'lineEdit_t1_T_section')
-        self.lineEdit_tw_T_section = self.findChild(QLineEdit, 'lineEdit_tw_T_section')  
-        self.lineEdit_offsety_T_section = self.findChild(QLineEdit, 'lineEdit_offsety_T_section')
-        self.lineEdit_offsetz_T_section = self.findChild(QLineEdit, 'lineEdit_offsetz_T_section')
+        self.lineEdit_height_T_section : QLineEdit
+        self.lineEdit_w1_T_section : QLineEdit
+        self.lineEdit_t1_T_section : QLineEdit
+        self.lineEdit_tw_T_section : QLineEdit 
+        self.lineEdit_offsety_T_section : QLineEdit
+        self.lineEdit_offsetz_T_section : QLineEdit
 
-        self.lineEdit_area = self.findChild(QLineEdit, 'lineEdit_area')
-        self.lineEdit_Iyy = self.findChild(QLineEdit, 'lineEdit_Iyy')
-        self.lineEdit_Izz = self.findChild(QLineEdit, 'lineEdit_Izz')
-        self.lineEdit_Iyz = self.findChild(QLineEdit, 'lineEdit_Iyz')
-        self.lineEdit_shear_coefficient = self.findChild(QLineEdit, 'lineEdit_shear_coefficient')
+        self.lineEdit_area : QLineEdit
+        self.lineEdit_Iyy : QLineEdit
+        self.lineEdit_Izz : QLineEdit
+        self.lineEdit_Iyz : QLineEdit
+        self.lineEdit_shear_coefficient : QLineEdit
 
         # QPushButton
-        self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
-        self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')
-        self.pushButton_flip_element_ids_initial = self.findChild(QPushButton, 'pushButton_flip_element_ids_initial')
-        self.pushButton_flip_element_ids_final = self.findChild(QPushButton, 'pushButton_flip_element_ids_final')
-        self.pushButton_load_section_info = self.findChild(QPushButton, "pushButton_load_section_info")
-        self.pushButton_plot_pipe_cross_section = self.findChild(QPushButton, 'pushButton_plot_pipe_cross_section')
-        self.pushButton_plot_beam_cross_section = self.findChild(QPushButton, 'pushButton_plot_beam_cross_section')
-        self.pushButton_select_standard_section = self.findChild(QPushButton, 'pushButton_select_standard_section')
-        self.pushButton_select_standard_section_initial = self.findChild(QPushButton, 'pushButton_select_standard_section_initial')
-        self.pushButton_select_standard_section_final = self.findChild(QPushButton, 'pushButton_select_standard_section_final')
-        self.pushButton_check_if_section_is_normalized = self.findChild(QPushButton, 'pushButton_check_if_section_is_normalized')
+        self.pushButton_confirm_pipe : QPushButton
+        self.pushButton_confirm_beam : QPushButton
+        self.pushButton_flip_element_ids_initial : QPushButton
+        self.pushButton_flip_element_ids_final : QPushButton
+        self.pushButton_load_section_info : QPushButton
+        self.pushButton_plot_pipe_cross_section : QPushButton
+        self.pushButton_plot_beam_cross_section : QPushButton
+        self.pushButton_select_standard_section : QPushButton
+        self.pushButton_select_standard_section_initial : QPushButton
+        self.pushButton_select_standard_section_final : QPushButton
+        self.pushButton_check_if_section_is_normalized : QPushButton
 
         # QTabWidget
-        self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
-        self.tabWidget_pipe_section = self.findChild(QTabWidget, 'tabWidget_pipe_section')
-        self.tabWidget_beam_section = self.findChild(QTabWidget, 'tabWidget_beam_section')
-        self.tabWidget_sections_data = self.findChild(QTabWidget, 'tabWidget_sections_data')
-        
-        # QWidget
-        self.tab_pipe = self.tabWidget_general.findChild(QWidget, "tab_pipe")
-        self.tab_beam = self.tabWidget_general.findChild(QWidget, "tab_beam")
-        self.tab_sections =  self.tabWidget_general.findChild(QTabWidget, 'tab_sections')
-
-        self.tab_straight_pipe_section = self.tabWidget_pipe_section.findChild(QWidget, "tab_straight_pipe_section")
-        self.tab_variable_pipe_section = self.tabWidget_pipe_section.findChild(QWidget, "tab_variable_pipe_section")
-        self.tab_rectangular_section = self.tabWidget_beam_section.findChild(QWidget, "tab_rectangular_section")
-        self.tab_circular_section = self.tabWidget_beam_section.findChild(QWidget, "tab_circular_section")
-        self.tab_C_section = self.tabWidget_beam_section.findChild(QWidget, "tab_C_section")
-        self.tab_I_section = self.tabWidget_beam_section.findChild(QWidget, "tab_I_section")
-        self.tab_T_section = self.tabWidget_beam_section.findChild(QWidget, "tab_T_section")
-        self.tab_generic_section = self.tabWidget_beam_section.findChild(QWidget, "tab_generic_section")
-        self.tab_attributed_by_lines = self.tabWidget_sections_data.findChild(QWidget, 'tab_attributed_by_lines')
-        self.tab_attributed_by_elements = self.tabWidget_sections_data.findChild(QWidget, 'tab_attributed_by_elements')
+        self.tabWidget_general : QTabWidget
+        self.tabWidget_pipe_section : QTabWidget
+        self.tabWidget_beam_section : QTabWidget
+        self.tabWidget_sections_data : QTabWidget
         
         # QTreeWidget
-        self.treeWidget_sections_parameters_by_lines = self.findChild(QTreeWidget, 'treeWidget_sections_parameters_by_lines')
-        self.treeWidget_sections_parameters_by_elements = self.findChild(QTreeWidget, 'treeWidget_sections_parameters_by_elements')  
+        self.treeWidget_sections_parameters_by_lines : QTreeWidget
+        self.treeWidget_sections_parameters_by_elements : QTreeWidget
             
-    def create_connections(self):
-                
-        # self.pushButton_confirm_pipe.clicked.connect(self.confirm_pipe_section)
-        # self.pushButton_confirm_beam.clicked.connect(self.confirm_beam_section)
+    def _create_connections(self):
+        #
         self.pushButton_select_standard_section.clicked.connect(self.select_standard_section)
         self.pushButton_select_standard_section_initial.clicked.connect(self.select_standard_section_initial)
         self.pushButton_select_standard_section_final.clicked.connect(self.select_standard_section_final)
         self.pushButton_check_if_section_is_normalized.clicked.connect(self.check_if_section_is_normalized)
         self.pushButton_plot_pipe_cross_section.clicked.connect(self.plot_section)
         self.pushButton_plot_beam_cross_section.clicked.connect(self.plot_section)
-        # self.pushButton_load_section_info.clicked.connect(self.load_section_info)
-        # self.pushButton_load_section_info.setDisabled(True)
-    
-        # self.tabWidget_general.currentChanged.connect(self.tabEvent_cross_section)
-        # self.tabWidget_pipe_section.currentChanged.connect(self.tabEvent_pipe)
-        # self.currentTab_pipe = self.tabWidget_pipe_section.currentIndex()
-
-        # self.tabWidget_beam_section.currentChanged.connect(self.tabEvent_beam)
-        # self.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.on_click_treeWidget_section_parameters_by_line)
-        # self.treeWidget_sections_parameters_by_lines.itemDoubleClicked.connect(self.on_doubleClick_treeWidget_section_parameters_by_line)
-        # self.treeWidget_sections_parameters_by_elements.itemClicked.connect(self.on_click_treeWidget_section_parameters_by_element)
-        # self.treeWidget_sections_parameters_by_elements.itemDoubleClicked.connect(self.on_doubleClick_treeWidget_section_parameters_by_element)
+        self.config_treeWidget()
 
     def create_lists_of_entries(self):
         self.list_pipe_section_entries = [  self.lineEdit_outside_diameter,
@@ -264,34 +237,16 @@ class CrossSectionWidget(QWidget):
                                                 self.lineEdit_insulation_density_variable_section   ] 
 
     def reset_all_input_texts(self):
-        """
-        """
         for lineEdit in self.list_pipe_section_entries:
             lineEdit.setText("")
         for lineEdit in self.list_beam_section_entries:
             lineEdit.setText("")
 
     def config_treeWidget(self):
-
-        font = QFont()
-        font.setFamily("Arial")
-        font.setPointSize(9)
-        font.setBold(True)
-        font.setWeight(75)
-
         self.treeWidget_sections_parameters_by_lines.setColumnWidth(0,40)
         self.treeWidget_sections_parameters_by_lines.setColumnWidth(1,120)
-        self.treeWidget_sections_parameters_by_lines.setFont(font)
-        # self.treeWidget_sections_parameters_by_lines.setFont(1, font)
-        # self.treeWidget_sections_parameters_by_lines.setFont(2, font)
-        # self.treeWidget_sections_parameters_by_lines.setColumnWidth(2,20)
-
         self.treeWidget_sections_parameters_by_elements.setColumnWidth(0,40)
         self.treeWidget_sections_parameters_by_elements.setColumnWidth(1,120)
-        self.treeWidget_sections_parameters_by_elements.setFont(font)
-        # self.treeWidget_sections_parameters_by_elements.setFont(1, font)
-        # self.treeWidget_sections_parameters_by_elements.setFont(2, font)
-        # self.treeWidget_sections_parameters_by_elements.setColumnWidth(2,20)
 
     def select_standard_section(self):
         read = GetStandardCrossSection()

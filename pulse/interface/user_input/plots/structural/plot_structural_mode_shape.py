@@ -1,14 +1,13 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 
 import numpy as np
-import configparser
-
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse import app, UI_DIR
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -26,21 +25,23 @@ class PlotStructuralModeShape(QWidget):
         self.opv.setInputObject(self)
         self.project = main_window.project
 
-        self.reset()
+        self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.load_natural_frequencies()
 
-    def reset(self):
+    def _initialize(self):
         self.mode_index = None
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
     def _config_window(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon) 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
         # QComboBox

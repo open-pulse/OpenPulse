@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QComboBox, QWidget, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTextEdit, QGridLayout
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QTextCursor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -129,6 +129,7 @@ class AddStructuresWidget(QWidget):
         self.update_legth_units()
 
     def show_cross_section_widget(self):
+        # self.run_help()
         self.cross_section_widget._add_icon_and_title()
         section_type = self.comboBox_section_type.currentIndex()
         self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
@@ -316,14 +317,71 @@ class AddStructuresWidget(QWidget):
         self.textEdit_segment_information.setText("")
 
     def run_help(self):
+
+        self.list_buttons_highlighted = list()
+        self.list_lineEdits_highlighted = list()
+
+        self.set_button_highlighted(self.pushButton_set_cross_section, True)
         self.main_window.positioning_cursor_on_widget(self.pushButton_set_cross_section)
-        sleep(2)
+        # sleep(2)
+        self.set_button_highlighted(self.pushButton_set_material, True)
         self.main_window.positioning_cursor_on_widget(self.pushButton_set_material)
-        sleep(2)
+        # sleep(2)
+        self.set_lineEdit_highlighted(self.lineEdit_delta_x, True)
         self.main_window.positioning_cursor_on_widget(self.lineEdit_delta_x)
-        sleep(2)
+        # sleep(2)
+        self.set_lineEdit_highlighted(self.lineEdit_delta_y, True)
         self.main_window.positioning_cursor_on_widget(self.lineEdit_delta_y)
-        sleep(2)
+        # sleep(2)
+        self.set_lineEdit_highlighted(self.lineEdit_delta_z, True)
         self.main_window.positioning_cursor_on_widget(self.lineEdit_delta_z)
-        sleep(2)
+        # sleep(2)
+        self.set_button_highlighted(self.pushButton_add_segment, True)
         self.main_window.positioning_cursor_on_widget(self.pushButton_add_segment)
+        # sleep(2)
+        # self.revert_highlights()
+
+    def set_button_highlighted(self, button, _bool):
+        """
+        """
+        if _bool:
+            key = "QPushButton{ border-radius: 6px; border-color: rgb(255, 0, 0); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240) }"
+            key += "QPushButton:hover{ border-radius: 6px; border-color: rgb(255, 0, 0); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240) }"
+            key += "QPushButton:disabled{ border-radius: 6px; border-color: rgb(255, 0, 0); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240) }"
+        else:
+            key = "QPushButton{ border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240) }"
+            key += "QPushButton:hover{ border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100) }"
+            key += "QPushButton:pressed{ border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255) }"    
+            key += "QPushButton:disabled{ border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220) }"
+
+        if isinstance(button, QPushButton):
+            button.setStyleSheet(key)
+            if _bool:
+                self.list_buttons_highlighted.append(button)
+
+    def set_lineEdit_highlighted(self, lineEdit, _bool):
+        """
+        """
+        if _bool:
+            key = "QLineEdit{ border-radius: 6px; border-color: rgb(0, 0, 250); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(250, 250, 250) }"
+            key = "QLineEdit:hover{ border-radius: 6px; border-color: rgb(0, 0, 250); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(250, 250, 250) }"
+            key += "QLineEdit:disabled{ border-radius: 6px; border-color: rgb(0, 0, 250); border-style: ridge; border-width: 2px; color: rgb(100, 100, 100); background-color: rgb(240, 240, 240) }"
+        else:
+            key = "QLineEdit{ color: rgb(0, 0, 0); background-color: rgb(250, 250, 250) }"
+            key += "QLineEdit:disabled{ color: rgb(100, 100, 100); background-color: rgb(240, 240, 240) }"   
+
+        if isinstance(lineEdit, QLineEdit):
+            lineEdit.setStyleSheet(key)
+            if _bool:
+                self.list_lineEdits_highlighted.append(lineEdit)
+
+    def revert_highlights(self):
+
+        for button in self.list_buttons_highlighted:
+            self.set_button_highlighted(button, False)
+
+        for lineEdit in self.list_lineEdits_highlighted:
+            self.set_lineEdit_highlighted(lineEdit, False)
+
+        self.list_buttons_highlighted.clear()
+        self.list_lineEdits_highlighted.clear()
