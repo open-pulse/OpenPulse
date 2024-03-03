@@ -115,12 +115,14 @@ class InputUi:
             return None
 
     def new_project(self):
+        self.reset_geometry_render()
         new_project = self.processInput(NewProjectInput)
         if new_project.complete:
             self.main_window._update_status_bar()
             return self.initial_project_action(new_project.complete)
 
     def load_project(self, path=None):
+        self.reset_geometry_render()
         load_project = self.processInput(LoadProjectInput, path=path)
         self.main_window.mesh_toolbar.update_mesh_attributes()
         self.main_window._update_status_bar()
@@ -133,8 +135,6 @@ class InputUi:
         return get_started
 
     def initial_project_action(self, finalized):
-        editor = app().geometry_toolbox.editor
-        editor.reset()
         self.main_window.action_front_view_callback()
         self.main_window.update_export_geometry_file_access()
         self.menu_items.modify_model_setup_items_access(True)
@@ -149,6 +149,10 @@ class InputUi:
         else:
             self.project.none_project_action = True
             return False
+
+    def reset_geometry_render(self):
+        editor = app().geometry_toolbox.editor
+        editor.reset()
 
     def reset_project(self):
         if not self.project.none_project_action:
