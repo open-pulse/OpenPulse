@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
+from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
@@ -507,6 +507,7 @@ class MainWindow(QMainWindow):
             # self.dark_theme_configuration()
             self.action_set_light_theme.setDisabled(False)
             self.action_set_dark_theme.setDisabled(True)
+            self.geometry_widget.set_theme("dark")
 
     def action_set_light_theme_callback(self):
         # self.action_remove_themes_callback()
@@ -516,6 +517,7 @@ class MainWindow(QMainWindow):
             # self.light_theme_configuration()
             self.action_set_light_theme.setDisabled(True)
             self.action_set_dark_theme.setDisabled(False)
+            self.geometry_widget.set_theme("light")
 
     def savePNG_call(self):
         project_path = self.file._project_path
@@ -525,12 +527,18 @@ class MainWindow(QMainWindow):
         if path != "":
             self.opv_widget().savePNG(path)
     
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.ShortcutOverride:
-            if event.key() == Qt.Key_Space:
-                self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
-        return super(MainWindow, self).eventFilter(obj, event)
+    # def eventFilter(self, obj, event):
+    #     if event.type() == QEvent.ShortcutOverride:
+    #         if event.key() == Qt.Key_Space:
+    #             return
+    #             self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
+    #     return super(MainWindow, self).eventFilter(obj, event)
     
+    def positioning_cursor_on_widget(self, widget):
+        width, height = widget.width(), widget.height()
+        final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
+        QCursor.setPos(final_pos)
+
     def closeEvent(self, event):
         title = "OpenPulse"
         message = "Would you like to exit from the OpenPulse application?"

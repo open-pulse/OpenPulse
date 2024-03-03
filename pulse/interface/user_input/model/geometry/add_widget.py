@@ -2,16 +2,16 @@ from PyQt5.QtWidgets import QComboBox, QWidget, QDialog, QFrame, QLabel, QLineEd
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-
+from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse import app, UI_DIR
+import os
+import numpy as np
+from time import sleep
+from pathlib import Path
 
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
@@ -19,6 +19,7 @@ class AddStructuresWidget(QWidget):
         uic.loadUi(UI_DIR / "model/geometry/add_widget.ui", self)
 
         self.geometry_widget = geometry_widget
+        self.main_window = app().main_window
         self.project = app().project
         self.file = self.project.file
 
@@ -206,8 +207,19 @@ class AddStructuresWidget(QWidget):
         # put usefull data inside the structures
         editor = app().geometry_toolbox.editor
         for structure in editor.staged_structures:
+
+            if self.cross_section_info is None:
+                return
+
             structure.extra_info["cross_section_info"] = self.cross_section_info
-            structure.extra_info["material_info"] = self.current_material_index
+
+            if self.current_material_index is not None:
+                structure.extra_info["material_info"] = self.current_material_index
+
+            if "beam section type" in self.cross_section_info.keys():
+                structure.extra_info["structural_element_type"] = "beam_1"
+            else:
+                structure.extra_info["structural_element_type"] = "pipe_1"
 
         self.geometry_widget.commit_structure()
         self.reset_deltas()
@@ -302,3 +314,16 @@ class AddStructuresWidget(QWidget):
 
     def update_cross_section_info(self):
         self.textEdit_segment_information.setText("")
+
+    def run_help(self):
+        self.main_window.positioning_cursor_on_widget(self.pushButton_set_cross_section)
+        sleep(2)
+        self.main_window.positioning_cursor_on_widget(self.pushButton_set_material)
+        sleep(2)
+        self.main_window.positioning_cursor_on_widget(self.lineEdit_delta_x)
+        sleep(2)
+        self.main_window.positioning_cursor_on_widget(self.lineEdit_delta_y)
+        sleep(2)
+        self.main_window.positioning_cursor_on_widget(self.lineEdit_delta_z)
+        sleep(2)
+        self.main_window.positioning_cursor_on_widget(self.pushButton_add_segment)

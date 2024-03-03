@@ -123,20 +123,29 @@ class OPPGeometryDesignerInput(QWidget):
         tag = 1
         points_info = dict()
         section_info = dict()
+        element_type_info = dict()
         material_info = dict()
         pipeline = app().geometry_toolbox.pipeline
 
         for structure in pipeline.structures:
             
             build_data = self.get_segment_build_info(structure)
+
             if build_data is not None:
                 points_info[tag] = build_data
             
             if isinstance(structure, Bend) and structure.is_colapsed():               
                 continue
+
+            if "cross_section_info" in structure.extra_info.keys():
+                section_info[tag] = structure.extra_info["cross_section_info"]
             
-            section_info[tag] = structure.extra_info["cross_section_info"]
-            material_info[tag] = structure.extra_info["material_info"]
+            if "material_info" in structure.extra_info.keys():
+                material_info[tag] = structure.extra_info["material_info"]
+            
+            if "structural_element_type" in structure.extra_info.keys():
+                element_type_info[tag] = structure.extra_info["structural_element_type"]
+
             tag += 1
 
         if os.path.exists(self.file._entity_path):
@@ -148,6 +157,9 @@ class OPPGeometryDesignerInput(QWidget):
 
         for tag, section in section_info.items():
             self.file.add_cross_section_segment_in_file(tag, section)
+
+        for tag, e_type in element_type_info.items():
+            self.file.modify_structural_element_type_in_file(tag, e_type)
 
         for tag, material_id in material_info.items():
             self.file.add_material_segment_in_file(tag, material_id)

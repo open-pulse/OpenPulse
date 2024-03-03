@@ -366,10 +366,18 @@ class ProjectFile:
             self.load(self._project_ini_file_path)
 
     def check_if_entity_file_is_active(self):
+        keys_to_check = [   "start point", 
+                            "end point", 
+                            "section label", 
+                            "section parameters"   ]
         if os.path.exists(self._entity_path):
             config = configparser.ConfigParser()
             config.read(self._entity_path)
             if len(config.sections()):
+                for tag in config.sections():
+                    for key in keys_to_check:
+                        if key not in config[tag].keys():
+                            return False
                 return True
             else:
                 return False
@@ -2133,47 +2141,40 @@ class ProjectFile:
 
             tag = int(section)
             keys = config[section].keys()
+            aux = dict()
 
             if "start point" in keys:
-                start_point = get_list_of_values_from_string(config[section]["start point"], int_values=False)
+                aux["start point"] = get_list_of_values_from_string(config[section]["start point"], int_values=False)
 
             if "end point" in keys:
-                end_point = get_list_of_values_from_string(config[section]["end point"], int_values=False)
+                aux["end point"] = get_list_of_values_from_string(config[section]["end point"], int_values=False)
 
             if "corner point" in keys:
-                corner_point = get_list_of_values_from_string(config[section]["corner point"], int_values=False)
+                aux["corner point"] = get_list_of_values_from_string(config[section]["corner point"], int_values=False)
 
             if "curvature" in keys:
-                curvature = float(config[section]["curvature"])
+                aux["curvature"] = float(config[section]["curvature"])
 
             if 'section label' in keys:
-                section_label = config[section]["section label"]
+                aux["section label"] = config[section]["section label"]
 
             if 'section parameters' in keys:
-                section_parameters = get_list_of_values_from_string(config[section]["section parameters"], int_values=False)
+                aux["section parameters"] = get_list_of_values_from_string(config[section]["section parameters"], int_values=False)
 
-            material_id = None
             if 'material id' in keys:
-                material_id = int(config[section]["material id"])
+                try:
+                    aux["material id"] = int(config[section]["material id"])
+                except:
+                    pass
+            
+            if 'structural element type' in keys:
+                aux["structural element type"] = config[section]["structural element type"]
 
             is_bend = ('corner point' in keys) and ('curvature' in keys)
             if is_bend:
-                
-                segment_build_data[tag, "Bend"] = { 'start point' : start_point,
-                                                    'corner point' : corner_point,
-                                                    'end point' : end_point,
-                                                    'curvature' : curvature,
-                                                    'section label' : section_label,
-                                                    'section parameters' : section_parameters,
-                                                    'material id' : material_id }
-
+                segment_build_data[tag, "Bend"] = aux
             else:
-
-                segment_build_data[tag, "Pipe"] = { 'start point' : start_point,
-                                                    'end point' : end_point,
-                                                    'section label' : section_label,
-                                                    'section parameters' : section_parameters,
-                                                    'material id' : material_id }
+                segment_build_data[tag, "Pipe"] = aux
 
         return segment_build_data
 

@@ -96,11 +96,17 @@ class GeometryHandler:
         structures = []
         for key, data in build_data.items():
 
-            self.cross_section_info = { 
-                "section label" : data['section label'],
-                "section parameters" : data['section parameters'],
-            }
-            self.material_id = data['material id']
+            if "section label" not in data.keys():
+                continue
+
+            if "section parameters" not in data.keys():
+                continue
+
+            section_info = {"section label" : data['section label'],
+                            "section parameters" : data['section parameters'] }
+
+            if "material id" in data.keys():
+                material_id = data['material id']
 
             if data["section label"] == "pipe (constant)":
                 diameter = data["section parameters"][0]
@@ -121,10 +127,11 @@ class GeometryHandler:
                 curvature = data['curvature']
 
                 bend = Bend(start, end, corner, curvature)
-                bend.extra_info["cross_section_info"] = self.cross_section_info
-                bend.extra_info["material_info"] = self.material_id
+                bend.extra_info["cross_section_info"] = section_info
+                pipe.extra_info["structural element type"] = "pipe_1"
+                if "material id" in data.keys():
+                    bend.extra_info["material_info"] = material_id
                 bend.set_diameter(diameter)
-
                 structures.append(bend)
 
             else:
@@ -136,10 +143,11 @@ class GeometryHandler:
                 end = Point(*end_coords)
 
                 pipe = Pipe(start, end)
-                pipe.extra_info["cross_section_info"] = self.cross_section_info
-                pipe.extra_info["material_info"] = self.material_id
+                pipe.extra_info["cross_section_info"] = section_info
+                pipe.extra_info["structural_element_type"] = "pipe_1"
+                if "material id" in data.keys():
+                    pipe.extra_info["material_info"] = material_id
                 pipe.set_diameter(diameter)
-
                 structures.append(pipe)
 
         pipeline = app().geometry_toolbox.pipeline
