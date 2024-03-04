@@ -167,6 +167,7 @@ class MainWindow(QMainWindow):
         help future maintainers and the code editor with
         type inference.
         '''
+        
         # QAction
         self.action_geometry_workspace: QAction
         self.action_structural_setup_workspace: QAction
@@ -174,6 +175,7 @@ class MainWindow(QMainWindow):
         self.action_analysis_setup_workspace: QAction
         self.action_results_workspace: QAction
         self.action_export_geometry: QAction
+        self.action_import_geometry : QAction
         self.action_set_dark_theme : QAction
         self.action_set_light_theme : QAction
         self.action_save_project_as : QAction
@@ -181,17 +183,16 @@ class MainWindow(QMainWindow):
         self.action_show_lines: QAction
         self.action_show_tubes: QAction
         self.action_show_symbols: QAction
+        self.action_import_geometry.setVisible(False)
+        
         # QMenu
         self.menu_recent: QMenu
         self.menu_project: QMenu
         self.menu_graphic: QMenu
         self.menu_general_settings: QMenu
-        self.menu_structural_model: QMenu
-        self.menu_acoustic_model: QMenu
         self.menu_model_info: QMenu
-        self.menu_analysis: QMenu
-        self.menu_results_viewer: QMenu
         self.menu_help: QMenu
+
         # QSplitter
         self.splitter: QSplitter
         # QStackedWidget

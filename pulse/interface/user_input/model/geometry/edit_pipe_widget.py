@@ -59,7 +59,7 @@ class EditPipeWidget(QWidget):
     def show_material_widget(self):
         self.material_widget._add_icon_and_title()
         self.material_widget.setVisible(True)
-        self.material_widget.reset()
+        self.material_widget._initialize()
         self.material_widget.load_data_from_materials_library()
 
     def define_cross_section(self):
@@ -68,25 +68,22 @@ class EditPipeWidget(QWidget):
 
         if is_pipe and is_constant_section:
             self.cross_section_widget.get_straight_pipe_parameters()
-            section_parameters = list(self.cross_section_widget.section_parameters.values())
-            self.cross_section_info = { "section label" : "pipe (constant)",
-                                        "section parameters" : section_parameters }
-            diameter = self.cross_section_widget.section_parameters["outer_diameter"]
+            self.cross_section_info = self.cross_section_widget.pipe_section_info
+            diameter = self.cross_section_widget.section_parameters[0]
             self.geometry_widget.update_default_diameter(diameter)
 
         elif is_pipe and not is_constant_section:
             self.cross_section_widget.get_variable_section_pipe_parameters()
-            section_parameters =self.cross_section_widget.variable_parameters
-            self.cross_section_info = { "section label" : "pipe (variable)",
-                                        "section parameters" : section_parameters }
+            self.cross_section_info = self.cross_section_widget.pipe_section_info
+            diameter_initial = self.cross_section_widget.section_parameters[0]
+            diameter_final = self.cross_section_widget.section_parameters[6]
+            self.geometry_widget.update_default_diameter(diameter_initial)
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
-            section_label = self.cross_section_widget.section_label
-            section_parameters = self.cross_section_widget.section_parameters
-            self.cross_section_info = { "section label" : "beam",
-                                        "beam section type" : section_label,
-                                        "section parameters" : section_parameters }
+            self.cross_section_info = self.cross_section_widget.beam_section_info
+            # temporary strategy
+            self.geometry_widget.update_default_diameter(0.05)
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)

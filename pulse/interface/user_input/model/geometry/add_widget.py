@@ -214,13 +214,13 @@ class AddStructuresWidget(QWidget):
 
             structure.extra_info["cross_section_info"] = self.cross_section_info
 
+            if self.cross_section_info["section_type_label"] == "Pipe section":
+                structure.extra_info["structural_element_type"] = "pipe_1"
+            else:
+                structure.extra_info["structural_element_type"] = "beam_1"
+
             if self.current_material_index is not None:
                 structure.extra_info["material_info"] = self.current_material_index
-
-            if "beam section type" in self.cross_section_info.keys():
-                structure.extra_info["structural_element_type"] = "beam_1"
-            else:
-                structure.extra_info["structural_element_type"] = "pipe_1"
 
         self.geometry_widget.commit_structure()
         self.reset_deltas()
@@ -267,7 +267,7 @@ class AddStructuresWidget(QWidget):
             self.cross_section_widget.get_beam_section_parameters()
             self.cross_section_info = self.cross_section_widget.beam_section_info
             # temporary strategy
-            self.geometry_widget.update_default_diameter(0.05)
+            self.geometry_widget.update_default_diameter(0.01)
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
@@ -281,14 +281,12 @@ class AddStructuresWidget(QWidget):
         self.update_segment_information_text()
 
     def update_segment_information_text(self):
-
-        self.textEdit_segment_information.clear()
         
         section_label = ""
         section_parameters = ""
         if self.cross_section_info:
-            section_label = self.cross_section_info["section label"]
-            section_parameters = self.cross_section_info["section parameters"]
+            section_label = self.cross_section_info["section_type_label"]
+            section_parameters = self.cross_section_info["section_parameters"]
 
         material_id = ""
         material_data = None
@@ -296,11 +294,17 @@ class AddStructuresWidget(QWidget):
             material_id = self.current_material_index
             material_data = self.file.get_material_properties(material_id)
 
-        message = "SEGMENT INFORMATION\n\n"
+        message = "Segment information\n\n"
 
         if self.cross_section_info:
             # message = "Cross-section info:\n"
-            message += f"Section type: {section_label}\n"
+            if section_label == "Pipe section":
+                if len(section_parameters) == 6:
+                    message += f"Section type: {section_label} (constant)\n"
+                else:
+                    message += f"Section type: {section_label} (variable)\n"
+            else:
+                message += f"Section type: {section_label}\n"
             message += f"Section data: {section_parameters}\n\n"
 
         if material_data is not None:
@@ -308,10 +312,10 @@ class AddStructuresWidget(QWidget):
             message += f"Material name: {material_data[0]}\n"
             message += f"Material data: {material_data[1:]}\n\n"
 
-        self.textEdit_segment_information.setText(message)
+        self.geometry_widget.set_info_text(message)
 
     def update_cross_section_info(self):
-        self.textEdit_segment_information.setText("")
+        self.geometry_widget.set_info_text("")
 
     def run_help(self):
 

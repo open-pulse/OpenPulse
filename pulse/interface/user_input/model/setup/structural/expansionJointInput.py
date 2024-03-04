@@ -1063,16 +1063,6 @@ class ExpansionJointInput(QDialog):
         new.setTextAlignment(1, Qt.AlignCenter)
         treeWidget.addTopLevelItem(new)
     
-    def _get_offset_from_string(self, offset):
-        offset = offset[1:-1].split(',')
-        offset_y = offset_z = 0.0
-        if len(offset) == 2:
-            if offset[0] != '0.0':
-                offset_y = float(offset[0])
-            if offset[1] != '0.0':
-                offset_z = float(offset[1])
-        return offset_y, offset_z
-
     def load_expansion_joint_by_line_info(self):
         self.treeWidget_expansion_joint_by_lines.clear()
         for line_id, parameters in self.preprocessor.dict_lines_with_expansion_joints.items():

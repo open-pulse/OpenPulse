@@ -45,7 +45,7 @@ class LoadProjectData:
         # print(self.structural_element_type_data)
         # print(self.variable_sections_data)
         # print(self.material_data)
-        dt = time() - t0
+        # dt = time() - t0
         # print(f"Elapsed time to load project data: {dt} [s]")
 
     def initialize_dictionaries_for_load_data(self):
@@ -214,6 +214,9 @@ class LoadProjectData:
                 if 'structural element type' in keys:
                     structural_element_type = section['structural element type']
                 
+                if 'section type' in keys:
+                    section_type_label = section['section type']
+
                 if structural_element_type != "":
                     if 'list of elements' in keys:
                         if "-" in tag:
@@ -258,7 +261,7 @@ class LoadProjectData:
                         
                         if 'offset [e_y, e_z]' in keys: 
                             offset = section['offset [e_y, e_z]']
-                            offset_y, offset_z = self._get_offset_from_string(offset)
+                            offset_y, offset_z = get_offset_from_string(offset)
                             section_parameters.append(offset_y)
                             section_parameters.append(offset_z)
                         
@@ -274,14 +277,14 @@ class LoadProjectData:
             
                         if len(section_parameters) == 6:
             
-                                pipe_section_info = {   "section_type_label" : "Pipe section" ,
+                                pipe_section_info = {   "section_type_label" : section_type_label ,
                                                         "section_parameters" : section_parameters  }
 
                                 self.cross_section_data[tag, "pipe"] = [list_elements, pipe_section_info]
                         
                         elif len(section_parameters) == 12:
                                 
-                                pipe_section_info = {   "section_type_label" : "Pipe section" ,
+                                pipe_section_info = {   "section_type_label" : section_type_label ,
                                                         "section_parameters" : section_parameters  }
 
                                 self.variable_sections_data[tag, "pipe"] = [list_elements, pipe_section_info]
@@ -295,23 +298,20 @@ class LoadProjectData:
             
                     if structural_element_type == 'beam_1':
 
-                        if 'beam section type' in keys:
-                            section_type = section['beam section type']
-
     
-                        if section_type == "Generic section":                 
+                        if section_type_label == "Generic section":                 
                             if 'section properties' in keys:
                                 str_section_properties =  section['section properties']
                                 section_properties = get_list_of_values_from_string(str_section_properties, int_values=False)
-                                section_properties = get_beam_section_properties(section_type, section_properties)
+                                section_properties = get_beam_section_properties(section_type_label, section_properties)
                                 section_parameters = None
                         else:
                             if 'section parameters' in keys:
                                 str_section_parameters = section['section parameters']
                                 section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                                section_properties = get_beam_section_properties(section_type, section_parameters)
+                                section_properties = get_beam_section_properties(section_type_label, section_parameters)
     
-                        beam_section_info = {   "section_type_label" : section_type,
+                        beam_section_info = {   "section_type_label" : section_type_label,
                                                 "section_parameters" : section_parameters,
                                                 "section_properties" : section_properties   }
 
@@ -339,7 +339,7 @@ class LoadProjectData:
                             
                             if 'offset [e_y, e_z]' in keys: 
                                 offset = section['offset [e_y, e_z]']
-                                offset_y, offset_z = self._get_offset_from_string(offset)
+                                offset_y, offset_z = get_offset_from_string(offset)
                                 section_parameters.append(offset_y)
                                 section_parameters.append(offset_z)
                             
@@ -770,18 +770,6 @@ class LoadProjectData:
                 title = "Error while loading B2PX rotationg decoupling from file" 
                 message = str(err)
                 PrintMessageInput([window_title, title, message]) 
-
-
-
-    def _get_offset_from_string(self, offset):
-        offset = offset[1:-1].split(',')
-        offset_y = offset_z = 0.0
-        if len(offset) == 2:
-            if offset[0] != '0.0':
-                offset_y = float(offset[0])
-            if offset[1] != '0.0':
-                offset_z = float(offset[1])
-        return offset_y, offset_z
     
     def _get_expansion_joint_stiffness_from_string(self, input_string):   
         labels = ['Kx', 'Kyz', 'Krx', 'Kryz']

@@ -610,6 +610,16 @@ def get_edited_filename(path):
                     break
     return new_path, new_basename
 
+def get_offset_from_string(offset):
+    offset = offset[1:-1].split(',')
+    offset_y = offset_z = 0.0
+    if len(offset) == 2:
+        if offset[0] != '0.0':
+            offset_y = float(offset[0])
+        if offset[1] != '0.0':
+            offset_z = float(offset[1])
+    return offset_y, offset_z
+
 def get_list_of_values_from_string(input_string, int_values=True):
     """ 
     This function returns a list of values for a given string of a list.

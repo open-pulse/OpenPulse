@@ -96,56 +96,77 @@ class GeometryHandler:
         structures = []
         for key, data in build_data.items():
 
-            if "section label" not in data.keys():
+            if "structural_element_type" not in data.keys():
                 continue
 
-            if "section parameters" not in data.keys():
+            if "section_type_label" not in data.keys():
                 continue
 
-            section_info = {"section label" : data['section label'],
-                            "section parameters" : data['section parameters'] }
+            if "section_parameters" not in data.keys():
+                continue
 
-            if "material id" in data.keys():
-                material_id = data['material id']
+            structural_element_type = data["structural_element_type"]
+            section_type_label = data["section_type_label"]
+            section_parameters = data["section_parameters"]
 
-            if data["section label"] == "pipe (constant)":
-                diameter = data["section parameters"][0]
+            if structural_element_type == "pipe_1":
+                section_info = {"section_type_label" : "Pipe section",
+                                "section_parameters" : section_parameters}
+            
+            elif structural_element_type == "beam_1":
+                if section_type_label == "Generic section":
+                    section_parameters = None
+                
+                section_properties = data["section_properties"]
+                section_info = {"section_type_label" : section_type_label,
+                                "section_parameters" : section_parameters,
+                                "section_properties" : section_properties  }
+
+            else:
+                continue
+
+            if "material_id" in data.keys():
+                material_id = data['material_id']
+
+            if data["section_type_label"] == "Pipe section":
+                diameter = data["section_parameters"][0]
             else:
                 diameter = 0.01
 
             if key[1] == "Bend":
 
-                start_coords = data['start point']
+                start_coords = data['start_point']
                 start = Point(*start_coords)
 
-                end_coords = data['end point']
+                end_coords = data['end_point']
                 end = Point(*end_coords)
 
-                corner_coords = data['corner point']
+                corner_coords = data['corner_point']
                 corner = Point(*corner_coords)
 
                 curvature = data['curvature']
 
                 bend = Bend(start, end, corner, curvature)
                 bend.extra_info["cross_section_info"] = section_info
-                pipe.extra_info["structural element type"] = "pipe_1"
-                if "material id" in data.keys():
+                bend.extra_info["structural_element_type"] = structural_element_type
+                if "material_id" in data.keys():
                     bend.extra_info["material_info"] = material_id
                 bend.set_diameter(diameter)
+
                 structures.append(bend)
 
             else:
 
-                start_coords = data['start point']
+                start_coords = data['start_point']
                 start = Point(*start_coords)
 
-                end_coords = data['end point']
+                end_coords = data['end_point']
                 end = Point(*end_coords)
 
                 pipe = Pipe(start, end)
                 pipe.extra_info["cross_section_info"] = section_info
-                pipe.extra_info["structural_element_type"] = "pipe_1"
-                if "material id" in data.keys():
+                pipe.extra_info["structural_element_type"] = structural_element_type
+                if "material_id" in data.keys():
                     pipe.extra_info["material_info"] = material_id
                 pipe.set_diameter(diameter)
                 structures.append(pipe)

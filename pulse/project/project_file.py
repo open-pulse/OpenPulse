@@ -368,8 +368,8 @@ class ProjectFile:
                         keys_to_check = list() 
                         keys_to_check.append("start point")
                         keys_to_check.append("end point")
-                        keys_to_check.append("section label")
                         keys_to_check.append("section parameters")
+                        keys_to_check.append("structural element type")
                         for key in keys_to_check:
                             if key not in config[tag].keys():
                                 return False
@@ -593,7 +593,7 @@ class ProjectFile:
         reset_materials = kwargs.get('reset_materials', False)
 
         keys_to_ignore = list()
-        keys_to_ignore.append("section label")
+        keys_to_ignore.append("structural element type")
         keys_to_ignore.append("section parameters")
         keys_to_ignore.append("start point")
         keys_to_ignore.append("corner point")
@@ -772,6 +772,11 @@ class ProjectFile:
                 else:
                     structural_element_type = "pipe_1"
 
+                if 'section type' in keys:
+                    section_type_label = section['section type']
+                else:
+                    section_type_label = "Pipe section"
+
                 if structural_element_type == "pipe_1":
 
                     if 'section parameters' in keys:
@@ -793,7 +798,7 @@ class ProjectFile:
                         
                         if 'offset [e_y, e_z]' in keys: 
                             offset = section['offset [e_y, e_z]']
-                            offset_y, offset_z = self._get_offset_from_string(offset)
+                            offset_y, offset_z = get_offset_from_string(offset)
                             section_parameters.append(offset_y)
                             section_parameters.append(offset_z)
                         
@@ -817,17 +822,14 @@ class ProjectFile:
                             str_list_elements = section['list of elements']
                             list_elements = get_list_of_values_from_string(str_list_elements)                 
 
-                elif 'beam section type' in keys:
+                else:
 
-                        section_type = section['beam section type']
-                        structural_element_type = f"beam_1 - {section_type}"
-
-                        if section_type == "Generic section":   
+                        structural_element_type = f"beam_1 - {section_type_label}"
+                        if section_type_label == "Generic section":   
                             continue              
-                        
+
                         else:
                             if 'section parameters' in keys:
-
                                 str_section_parameters = section['section parameters']
                                 section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
 
@@ -901,7 +903,7 @@ class ProjectFile:
                             'insulation thickness', 
                             'insulation density',
                             'variable section parameters',
-                            'beam section type',
+                            'section type',
                             'section parameters',
                             'section properties',
                             'expansion joint parameters',
@@ -918,9 +920,10 @@ class ProjectFile:
                     config.remove_option(section=line_id, option=str_key)
 
             if cross_section is not None:
+                config[line_id]['section type'] = cross_section.section_label
                 if cross_section.beam_section_info is not None:
                     if line_id in list(config.sections()):
-                        config[line_id]['beam section type'] = cross_section.section_label
+                        
                         if "Generic section" == cross_section.section_label:
                             config[line_id]['section properties'] = str(cross_section.section_properties)
                         else:
@@ -934,56 +937,59 @@ class ProjectFile:
 
     def add_cross_section_segment_in_file(self, segments, data):
         
-        if isinstance(segments, int):
-            segments = [segments]
+        try:
 
-        config = configparser.ConfigParser()
-        config.read(self._entity_path)
+            if isinstance(segments, int):
+                segments = [segments]
 
-        for segment_id in segments:
-            segment_id = str(segment_id)
+            config = configparser.ConfigParser()
+            config.read(self._entity_path)
 
-            str_keys = [    'section parameters',
-                            'section properties',
-                            'variable section parameters',
-                            'beam section type',
-                            'expansion joint parameters',
-                            'expansion joint stiffness',
-                            'valve parameters',
-                            'valve center coordinates',
-                            'valve section parameters',
-                            'flange section parameters'   ]
+            for segment_id in segments:
+                segment_id = str(segment_id)
 
-            for str_key in str_keys:
-                if str_key in list(config[segment_id].keys()):
-                    config.remove_option(section=segment_id, option=str_key)
+                str_keys = [    'section parameters',
+                                'section properties',
+                                'variable section parameters',
+                                'section type',
+                                'expansion joint parameters',
+                                'expansion joint stiffness',
+                                'valve parameters',
+                                'valve center coordinates',
+                                'valve section parameters',
+                                'flange section parameters'   ]
 
-            if data is not None:
+                for str_key in str_keys:
+                    if str_key in list(config[segment_id].keys()):
+                        config.remove_option(section=segment_id, option=str_key)
 
-                section_label = data["section label"]
+                if data is not None:
 
-                if segment_id in list(config.sections()):
-                    config[segment_id]['section label'] = section_label
+                    section_type_label = data["section_type_label"]
+                    config[segment_id]['section type'] = section_type_label
 
-                if "pipe" in section_label:
-                    if segment_id in list(config.sections()):
-                        section_parameters = data["section parameters"]
-                        config[segment_id]['section parameters'] = str(section_parameters)
-                else:
+                    if section_type_label == "Pipe section":
+                        if segment_id in list(config.sections()):
+                            section_parameters = data["section_parameters"]
+                            config[segment_id]['section parameters'] = str(section_parameters)
 
-                    beam_section_type = data["beam section type"]
+                    else:
 
-                    if segment_id in list(config.sections()):
+                        if segment_id in list(config.sections()):
 
-                        config[segment_id]['beam section type'] = beam_section_type
+                            if section_type_label == "Generic section":
+                                section_properties = data["section_properties"]
+                                config[segment_id]['section properties'] = str(section_properties)
 
-                        if section_label == "Generic section":
-                            section_properties = data["section properties"]
-                            config[segment_id]['section properties'] = str(section_properties)
-                       
-                        else:
-                            section_parameters = data["section parameters"]
-                            config[segment_id]['section parameters'] = str(section_parameters)                    
+                            else:
+                                section_parameters = data["section_parameters"]
+                                config[segment_id]['section parameters'] = str(section_parameters)                    
+        
+        except Exception as error_log:
+            title = "Error while writing cross-section data in file"
+            message = str(error_log)
+            PrintMessageInput([window_title_1, title, message])
+            return
 
         self.write_data_in_file(self._entity_path, config)
 
@@ -994,14 +1000,14 @@ class ProjectFile:
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        
+
         str_keys = [    'structural element type',
                         'outer diameter', 
                         'thickness', 
                         'offset [e_y, e_z]', 
                         'insulation thickness', 
                         'insulation density',
-                        'beam section type',
+                        'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1074,7 +1080,7 @@ class ProjectFile:
                         'insulation thickness', 
                         'insulation density',
                         'variable section parameters',
-                        'beam section type',
+                        'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1139,7 +1145,7 @@ class ProjectFile:
                         'insulation thickness', 
                         'insulation density',
                         'variable section parameters',
-                        'beam section type',
+                        'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1195,7 +1201,7 @@ class ProjectFile:
                         'offset [e_y, e_z]', 
                         'insulation thickness', 
                         'insulation density',
-                        'beam section type',
+                        'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1569,35 +1575,50 @@ class ProjectFile:
             aux = dict()
 
             if "start point" in keys:
-                aux["start point"] = get_list_of_values_from_string(config[section]["start point"], int_values=False)
+                start_point = config[section]["start point"]
+                aux["start_point"] = get_list_of_values_from_string(start_point, int_values=False)
 
             if "end point" in keys:
-                aux["end point"] = get_list_of_values_from_string(config[section]["end point"], int_values=False)
+                end_point = config[section]["end point"]
+                aux["end_point"] = get_list_of_values_from_string(end_point, int_values=False)
 
             if "corner point" in keys:
-                aux["corner point"] = get_list_of_values_from_string(config[section]["corner point"], int_values=False)
+                corner_point = config[section]["corner point"]
+                aux["corner_point"] = get_list_of_values_from_string(corner_point, int_values=False)
 
             if "curvature" in keys:
-                aux["curvature"] = float(config[section]["curvature"])
+                curvature = config[section]["curvature"]
+                aux["curvature"] = float(curvature)
 
-            if 'section label' in keys:
-                aux["section label"] = config[section]["section label"]
+            if 'structural element type' in keys:
+                structural_element_type = config[section]["structural element type"]
+                aux["structural_element_type"] = structural_element_type
+
+            if 'section type' in keys:
+                section_type_label = config[section]["section type"]
+                aux["section_type_label"] = section_type_label
 
             if 'section parameters' in keys:
-                aux["section parameters"] = get_list_of_values_from_string(config[section]["section parameters"], int_values=False)
+                section_parameters = config[section]["section parameters"]
+                aux["section_parameters"] = get_list_of_values_from_string(section_parameters, int_values=False)
+
+            if structural_element_type == "beam_1":
+                if 'section properties' in keys:
+                    section_properties = config[section]["section properties"]
+                    aux["section_properties"] = get_list_of_values_from_string(section_properties, int_values=False)
+                else:
+                    aux["section_properties"] = get_beam_section_properties(section_type_label, aux["section_parameters"])
 
             if 'material id' in keys:
                 try:
-                    aux["material id"] = int(config[section]["material id"])
+                    aux["material_id"] = int(config[section]["material id"])
                 except:
                     pass
-            
-            if 'structural element type' in keys:
-                aux["structural element type"] = config[section]["structural element type"]
-
+         
             is_bend = ('corner point' in keys) and ('curvature' in keys)
             if is_bend:
                 segment_build_data[tag, "Bend"] = aux
+
             else:
                 segment_build_data[tag, "Pipe"] = aux
 
