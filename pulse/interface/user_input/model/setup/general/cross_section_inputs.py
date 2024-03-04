@@ -47,7 +47,7 @@ class CrossSectionWidget(QWidget):
         self.section_parameters = None
         self.section_properties = None
         self.beam_section_info = None
-        self.pipe_section_info = None
+        self.pipe_section_info = dict()
 
         self.complete = False
         self.flip = False
@@ -292,38 +292,47 @@ class CrossSectionWidget(QWidget):
 
     def get_straight_pipe_parameters(self):
 
-        message = ""
+        self.section_label = None
+        self.section_parameters = list()
+        self.pipe_section_info = dict()
 
         outside_diameter = check_inputs(self.lineEdit_outside_diameter, "'outside diameter (Pipe section)'")
         if outside_diameter is None:
             self.lineEdit_outside_diameter.setFocus()
             return True
+        self.section_parameters.append(outside_diameter)
 
         thickness = check_inputs(self.lineEdit_wall_thickness, "'thickness (Pipe section)'")
         if thickness is None:
             self.lineEdit_wall_thickness.setFocus()
             return True
+        self.section_parameters.append(thickness)
         
         offset_y = check_inputs(self.lineEdit_offset_y, "'offset y (Pipe section)'", only_positive=False, zero_included=True)
         if offset_y is None:
             self.lineEdit_offset_y.setFocus()
             return True
+        self.section_parameters.append(offset_y)
 
         offset_z = check_inputs(self.lineEdit_offset_z, "'offset z (Pipe section)'", only_positive=False, zero_included=True)
         if offset_z is None:
             self.lineEdit_offset_z.setFocus()
             return True
+        self.section_parameters.append(offset_z)
 
         insulation_density = check_inputs(self.lineEdit_insulation_density, "'insulation density'", zero_included=True)
         if insulation_density is None:
             self.lineEdit_insulation_density.setFocus()
             return True
+        self.section_parameters.append(insulation_density)
 
         insulation_thickness = check_inputs(self.lineEdit_insulation_thickness, "'insulation thickness'", zero_included=True)
         if insulation_thickness is None:
             self.lineEdit_insulation_thickness.setFocus()
             return True
-        
+        self.section_parameters.append(insulation_thickness)
+
+        message = ""
         if np.isclose(outside_diameter, 2*thickness, atol=1e-5) or 2*thickness > outside_diameter:
             message = "The THICKNESS must be less than \nthe outside radius."
             
@@ -334,19 +343,13 @@ class CrossSectionWidget(QWidget):
             title = "Input cross-section error"
             PrintMessageInput([window_title, title, message]) 
             return True
-           
-        self.section_label = "Pipe section"
+        
+        if len(self.section_parameters) == 6:
+            
+            self.section_label = "Pipe section"
+            self.pipe_section_info = {  "section_type_label" : self.section_label ,
+                                        "section_parameters" : self.section_parameters  }
 
-        self.section_parameters = { "outer_diameter" : outside_diameter,
-                                    "thickness" : thickness, 
-                                    "offset_y" : offset_y, 
-                                    "offset_z" : offset_z, 
-                                    "insulation_thickness" : insulation_thickness, 
-                                    "insulation_density" : insulation_density }
-        
-        self.pipe_section_info = {  "section_type_label" : self.section_label ,
-                                    "section_parameters" : self.section_parameters  }
-        
     def get_variable_section_pipe_parameters(self):
         
         message = ""
@@ -444,6 +447,10 @@ class CrossSectionWidget(QWidget):
                                             offset_z_final,
                                             insulation_thickness, 
                                             insulation_density  ]
+
+        self.section_label = "Pipe section"
+        self.pipe_section_info = {  "section_type_label" : self.section_label ,
+                                    "section_parameters" : self.variable_parameters  }
 
     def get_beam_section_parameters(self):
 

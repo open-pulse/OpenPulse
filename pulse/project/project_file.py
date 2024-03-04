@@ -767,83 +767,83 @@ class ProjectFile:
                 section = entityFile[entity]
                 keys = section.keys()
 
-                if 'section label' in keys:
-                    section_label = section['section label']
-                    if "pipe" in section_label:
+                if 'structural element type' in keys:
+                    structural_element_type = section['structural element type']
+                else:
+                    structural_element_type = "pipe_1"
 
-                        if 'structural element type' in keys:
-                            structural_element_type = section['structural element type']
-                        else:
-                            structural_element_type = "pipe_1"
+                if structural_element_type == "pipe_1":
 
-                        if 'variable' in section_label:
-                            if line_prefix not in variable_section_line_ids:
-                                variable_section_line_ids.append(entity)
-                        
+                    if 'section parameters' in keys:
+
                         str_section_parameters = section['section parameters']
                         section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
 
-                        if "-" in entity:
-                            line_prefix = entity.split("-")[0]
-                            if line_prefix in variable_section_line_ids:
-                                continue
-                            elif 'list of elements' in keys:
-                                str_list_elements = section['list of elements']
-                                list_elements = get_list_of_values_from_string(str_list_elements)                 
+                    else:
+                        
+                        section_parameters = list()
+                        
+                        if 'outer diameter' in keys:
+                            outer_diameter = float(section['outer diameter'])
+                            section_parameters.append(outer_diameter)
+                        
+                        if 'thickness' in keys:
+                            thickness = float(section['thickness'])
+                            section_parameters.append(thickness)
+                        
+                        if 'offset [e_y, e_z]' in keys: 
+                            offset = section['offset [e_y, e_z]']
+                            offset_y, offset_z = self._get_offset_from_string(offset)
+                            section_parameters.append(offset_y)
+                            section_parameters.append(offset_z)
+                        
+                        if 'insulation thickness' in keys:
+                            insulation_thickness = float(section['insulation thickness'])
+                            section_parameters.append(insulation_thickness)
+                        
+                        if 'insulation density' in keys:
+                            insulation_density = float(section['insulation density'])
+                            section_parameters.append(insulation_density)
+
+                    if len(section_parameters) == 12:
+                        if line_prefix not in variable_section_line_ids:
+                            variable_section_line_ids.append(entity)
+
+                    if "-" in entity:
+                        line_prefix = entity.split("-")[0]
+                        if line_prefix in variable_section_line_ids:
+                            continue
+                        elif 'list of elements' in keys:
+                            str_list_elements = section['list of elements']
+                            list_elements = get_list_of_values_from_string(str_list_elements)                 
+
+                elif 'beam section type' in keys:
+
+                        section_type = section['beam section type']
+                        structural_element_type = f"beam_1 - {section_type}"
+
+                        if section_type == "Generic section":   
+                            continue              
                         
                         else:
-                            # just to maintain the compatibility with older versions
-                            # TODO: remove as soons as possible
-                            if 'outer diameter' in keys:
-                                outer_diameter = section['outer diameter']
-                            
-                            if 'thickness' in keys:
-                                thickness = section['thickness']
-                            
-                            if 'offset [e_y, e_z]' in keys:
-                                offset = section['offset [e_y, e_z]']
-                                offset_y, offset_z = self._get_offset_from_string(offset) 
-                            
-                            if 'insulation thickness' in keys:
-                                insulation_thickness = section['insulation thickness']
-                            
-                            if 'insulation density' in keys:
-                                insulation_density = section['insulation density']
+                            if 'section parameters' in keys:
+
+                                str_section_parameters = section['section parameters']
+                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+
+                str_section_parameters = str(section_parameters)
+                if str_section_parameters not in parameters_to_entity_id.keys():
+                    section_info[_id] = [structural_element_type, section_parameters]
+                    _id += 1
                 
-                            if outer_diameter != "" and thickness != "":
-                                outer_diameter = float(outer_diameter)
-                                thickness = float(thickness)
-                                offset_y = float(offset_y)
-                                offset_z = float(offset_z)
-                                insulation_thickness = float(insulation_thickness)
-                                insulation_density = float(insulation_density)
-                                section_parameters = [outer_diameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
-
-                    elif 'beam section type' in keys:
-
-                            section_type = section['beam section type']
-                            structural_element_type = f"beam_1 - {section_type}"
-
-                            if section_type == "Generic section":   
-                                continue              
-                            else:
-                                if 'section parameters' in keys:
-                                    str_section_parameters = section['section parameters']
-                                    section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-                    str_section_parameters = str(section_parameters)
-                    if str_section_parameters not in parameters_to_entity_id.keys():
-                        section_info[_id] = [structural_element_type, section_parameters]
-                        _id += 1
-                    
-                    if line_prefix == "":
-                        parameters_to_entity_id[str_section_parameters].append(int(entity))
-                    else:   
-                        if list_elements == []:
-                            parameters_to_entity_id[str_section_parameters].append(int(entity)) 
-                        else:
-                            if str_section_parameters not in parameters_to_elements_id.keys():
-                                parameters_to_elements_id[str_section_parameters] = list_elements
+                if line_prefix == "":
+                    parameters_to_entity_id[str_section_parameters].append(int(entity))
+                else:   
+                    if list_elements == []:
+                        parameters_to_entity_id[str_section_parameters].append(int(entity)) 
+                    else:
+                        if str_section_parameters not in parameters_to_elements_id.keys():
+                            parameters_to_elements_id[str_section_parameters] = list_elements
             
             section_info_elements = {}
             section_info_lines = {}
@@ -927,12 +927,7 @@ class ProjectFile:
                             config[line_id]['section parameters'] = str(cross_section.section_parameters)
                 else:
                     if line_id in list(config.sections()):
-                        # config[line_id]['outer diameter'] = str(cross_section.outer_diameter)
-                        # config[line_id]['thickness'] = str(cross_section.thickness)
-                        # config[line_id]['offset [e_y, e_z]'] = str(cross_section.offset)
-                        # config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
-                        # config[line_id]['insulation density'] = str(cross_section.insulation_density)
-                        section_parameters = list(cross_section.section_parameters.values())
+                        section_parameters = cross_section.section_parameters
                         config[line_id]['section parameters'] = str(section_parameters)
         
         self.write_data_in_file(self._entity_path, config)      
@@ -965,19 +960,27 @@ class ProjectFile:
 
             if data is not None:
 
-                if segment_id in list(config.sections()):
-                    config[segment_id]['section label'] = data["section label"]
+                section_label = data["section label"]
 
-                if "pipe" in data["section label"]:
+                if segment_id in list(config.sections()):
+                    config[segment_id]['section label'] = section_label
+
+                if "pipe" in section_label:
                     if segment_id in list(config.sections()):
                         section_parameters = data["section parameters"]
                         config[segment_id]['section parameters'] = str(section_parameters)
                 else:
+
+                    beam_section_type = data["beam section type"]
+
                     if segment_id in list(config.sections()):
-                        config[segment_id]['beam section type'] = data["section label"]
-                        if data["section label"] == "Generic section":
+
+                        config[segment_id]['beam section type'] = beam_section_type
+
+                        if section_label == "Generic section":
                             section_properties = data["section properties"]
                             config[segment_id]['section properties'] = str(section_properties)
+                       
                         else:
                             section_parameters = data["section parameters"]
                             config[segment_id]['section parameters'] = str(section_parameters)                    

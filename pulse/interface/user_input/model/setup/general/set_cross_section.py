@@ -157,8 +157,10 @@ class SetCrossSectionInput(QDialog):
 
         if len(self.section_data_elements) + len(self.section_data_lines) == 0:
             self.tabWidget_general.setTabVisible(2, False)
+
         elif len(self.section_data_lines) == 0:
             self.tabWidget_sections_data.setTabVisible(0, False)
+
         elif len(self.section_data_elements) == 0:
             self.tabWidget_sections_data.setTabVisible(1, False)
 
@@ -189,14 +191,16 @@ class SetCrossSectionInput(QDialog):
             self.tabWidget_general.setTabEnabled(1, False)
         
         if self.lines_to_update_cross_section != []:
-            self.label_selected_id.setText("Lines IDs:")
+            # self.label_selected_id.setText("Lines IDs:")
             self.comboBox_selection.setCurrentIndex(1)
             self.write_ids(self.lines_to_update_cross_section)
 
         elif self.elements_to_update_cross_section != []:
-            self.label_selected_id.setText("Elements IDs:")
+            # self.label_selected_id.setText("Elements IDs:")
             self.comboBox_selection.setCurrentIndex(2)
-            self.write_ids(self.elements_to_update_cross_section)  
+            self.write_ids(self.elements_to_update_cross_section)
+
+        self.update_selection()
 
     def update_QDialog_info(self):
 
@@ -427,8 +431,8 @@ class SetCrossSectionInput(QDialog):
                 lineEdit.setText(str(section_parameters[index]))
             
             return
-        
-        if self.section_label == 'Pipe section':
+
+        if 'Pipe section' in self.section_label:
 
             outside_diameter = self.section_parameters[0]
             thickness = self.section_parameters[1]
@@ -440,12 +444,16 @@ class SetCrossSectionInput(QDialog):
             self.section_type = 0
             self.input_widget.lineEdit_outside_diameter.setText(str(outside_diameter))
             self.input_widget.lineEdit_wall_thickness.setText(str(thickness))
+
             if offset_y != 0:
                 self.input_widget.lineEdit_offset_y.setText(str(offset_y))
+
             if offset_z != 0:
                 self.input_widget.lineEdit_offset_z.setText(str(offset_z))
+
             if insulation_density != 0:
                 self.input_widget.lineEdit_insulation_density.setText(str(insulation_density))
+
             if insulation_thickness != 0:
                 self.input_widget.lineEdit_insulation_thickness.setText(str(insulation_thickness))
 

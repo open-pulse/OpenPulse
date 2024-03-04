@@ -219,16 +219,17 @@ class CrossSection:
         if self.pipe_section_info:
             self.load_pipe_section_data()            
 
-        # Unwrap cluster data for valve sections 
-        if self.valve_section_info:
-            self.load_valve_section_data()
-
         # Unwrap cluster data for beam sections 
         if self.beam_section_info:
             self.load_beam_section_data()
 
+        # Unwrap cluster data for valve sections 
+        if self.valve_section_info:
+            self.load_valve_section_data()
+
         if self.expansion_joint_info is not None:
             self.load_expansion_joint_data()
+
 
     def load_pipe_section_data(self):
 
@@ -244,20 +245,6 @@ class CrossSection:
         self.offset = [self.offset_y, self.offset_z]
         self.section_info = self.pipe_section_info
 
-    def load_valve_section_data(self):
-
-        self.section_label = self.valve_section_info["section_type_label"]
-        self.section_parameters = self.valve_section_info["section_parameters"]
-
-        self.outer_diameter = self.section_parameters["outer_diameter"]
-        self.thickness =  self.section_parameters["thickness"]
-        self.offset_y = self.section_parameters["offset_y"]
-        self.offset_z = self.section_parameters["offset_z"]
-        self.insulation_thickness = self.section_parameters["insulation_thickness"]
-        self.insulation_density = self.section_parameters["insulation_density"]
-        self.offset = [self.offset_y, self.offset_z]
-        self.outer_diameter_to_plot, self.inner_diameter_to_plot = self.valve_section_info["diameters_to_plot"]
-        self.section_info = self.valve_section_info
 
     def load_beam_section_data(self):
 
@@ -277,6 +264,22 @@ class CrossSection:
             self.shear_coefficient = self.section_properties['shear factor']
         
         self.section_info = self.beam_section_info
+
+
+    def load_valve_section_data(self):
+
+        self.section_label = self.valve_section_info["section_type_label"]
+        self.section_parameters = self.valve_section_info["section_parameters"]
+
+        self.outer_diameter = self.section_parameters["outer_diameter"]
+        self.thickness =  self.section_parameters["thickness"]
+        self.offset_y = self.section_parameters["offset_y"]
+        self.offset_z = self.section_parameters["offset_z"]
+        self.insulation_thickness = self.section_parameters["insulation_thickness"]
+        self.insulation_density = self.section_parameters["insulation_density"]
+        self.offset = [self.offset_y, self.offset_z]
+        self.outer_diameter_to_plot, self.inner_diameter_to_plot = self.valve_section_info["diameters_to_plot"]
+        self.section_info = self.valve_section_info
 
     def load_expansion_joint_data(self):
         self.section_label = self.expansion_joint_info[0]

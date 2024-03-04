@@ -12,6 +12,7 @@ from pulse import app
 
 import configparser
 from collections import defaultdict
+from time import time
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -28,6 +29,7 @@ class LoadProjectData:
         self.element_type_is_structural = False
 
     def load_project_data_from_files(self):
+        t0 = time()
         self.initialize_dictionaries_for_load_data()
         self.load_material_data_from_file()
         self.load_fluid_data_from_file()
@@ -43,6 +45,8 @@ class LoadProjectData:
         # print(self.structural_element_type_data)
         # print(self.variable_sections_data)
         # print(self.material_data)
+        dt = time() - t0
+        # print(f"Elapsed time to load project data: {dt} [s]")
 
     def initialize_dictionaries_for_load_data(self):
         self.material_data = dict()
@@ -241,11 +245,6 @@ class LoadProjectData:
                     if 'list of elements' in keys:
                         str_list_elements = section['list of elements']
                         list_elements = get_list_of_values_from_string(str_list_elements)
-
-                    if structural_element_type == "":
-                        line_id = tag.split("-")[0]
-                        if 'structural element type' in entity_file[line_id].keys():
-                            structural_element_type = entity_file[line_id]['structural element type']
                 
                     if structural_element_type == 'pipe_1':
 
@@ -279,6 +278,13 @@ class LoadProjectData:
                                                         "section_parameters" : section_parameters  }
 
                                 self.cross_section_data[tag, "pipe"] = [list_elements, pipe_section_info]
+                        
+                        elif len(section_parameters) == 12:
+                                
+                                pipe_section_info = {   "section_type_label" : "Pipe section" ,
+                                                        "section_parameters" : section_parameters  }
+
+                                self.variable_sections_data[tag, "pipe"] = [list_elements, pipe_section_info]
         
                     if str_joint_parameters != "" and str_joint_stiffness != "":
                         _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
@@ -313,20 +319,11 @@ class LoadProjectData:
 
                     else:
 
-                        if "section label" in keys:
-                            if "section parameters" in keys:
-                                
-                                str_section_parameters = section['section parameters']
-                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-                                pipe_section_info = {  "section_type_label" : "Pipe section",
-                                                        "section_parameters" : section_parameters  }
-
-                                if section["section label"] == "pipe (constant)":
-                                    self.cross_section_data[tag, "pipe"] = pipe_section_info
-
-                                elif section["section label"] == "pipe (variable)":
-                                    self.variable_sections_data[tag] = pipe_section_info
+                        
+                        if "section parameters" in keys:
+                            
+                            str_section_parameters = section['section parameters']
+                            section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
 
                         else:
 
@@ -363,12 +360,20 @@ class LoadProjectData:
                                 section_variable_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)
                                 self.variable_sections_data[tag] = section_variable_parameters
 
-                            if len(section_parameters) == 6:
-                
+                        if len(section_parameters) == 6:
+            
                                 pipe_section_info = {   "section_type_label" : "Pipe section" ,
                                                         "section_parameters" : section_parameters  }
 
                                 self.cross_section_data[tag, "pipe"] = pipe_section_info
+                        
+                        elif len(section_parameters) == 12:
+                                
+                                pipe_section_info = {   "section_type_label" : "Pipe section" ,
+                                                        "section_parameters" : section_parameters  }
+
+                                self.variable_sections_data[tag, "pipe"] = pipe_section_info
+        
                     
                         if str_joint_parameters != "" and str_joint_stiffness != "":
                             _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
