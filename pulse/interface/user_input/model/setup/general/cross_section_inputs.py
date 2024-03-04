@@ -585,7 +585,7 @@ class CrossSectionWidget(QWidget):
             self.section_label = "I-section"
 
             h = check_inputs(self.lineEdit_height_I_section, 'Height (I-profile)')
-            if height is None:
+            if h is None:
                 self.lineEdit_height_I_section.setFocus()
                 return True
 
