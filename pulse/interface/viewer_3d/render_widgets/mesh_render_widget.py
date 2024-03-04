@@ -162,7 +162,7 @@ class MeshRenderWidget(CommonRenderWidget):
     def set_theme(self, theme):
         super().set_theme(theme)
         try:
-            self.create_logos(theme)
+            self.create_logos(theme=theme)
         except:
             return
 

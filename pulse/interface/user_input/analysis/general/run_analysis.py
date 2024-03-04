@@ -134,7 +134,6 @@ class RunAnalysisInput(QDialog):
                     self.anime._stop()
 
     def process_cross_sections(self):
-
         t0 = time()
         self.complete = False
         self.project.process_cross_sections_mapping()

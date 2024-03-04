@@ -173,6 +173,11 @@
           <height>1000</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -235,7 +240,7 @@
           <number>2</number>
          </property>
          <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEdit_selected_ID">
+          <widget class="QLineEdit" name="lineEdit_selected_id">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -295,7 +300,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <item>
@@ -362,7 +367,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_selected_id_2">
+          <widget class="QLabel" name="label_attribute">
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -377,7 +382,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
             </font>
            </property>
            <property name="text">
@@ -404,7 +409,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>50</weight>
              <bold>false</bold>
             </font>

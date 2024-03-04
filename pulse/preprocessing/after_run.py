@@ -1,21 +1,25 @@
-import numpy as np
+from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class AfterRun:
-    def __init__(self, project, opv):
-        self.project = project
-        self.opv = opv
+    def __init__(self):
 
-        self.solution_acoustic = project.solution_acoustic
-        self.frequencies = project.frequencies
-        self.map_nodes = project.preprocessor.map_global_to_external_index
-        self.nodes = project.preprocessor.nodes
-        self.structural_elements = project.preprocessor.structural_elements
-        self.acoustic_elements = project.preprocessor.acoustic_elements
-        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
+        self.preprocessor = self.project.preprocessor
+
+        self.solution_acoustic = self.project.solution_acoustic
+        self.frequencies = self.project.frequencies
+        self.map_nodes = self.preprocessor.map_global_to_external_index
+        self.nodes = self.preprocessor.nodes
+        self.structural_elements = self.preprocessor.structural_elements
+        self.acoustic_elements = self.preprocessor.acoustic_elements
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
         # self.acoustic_criteria = defaultdict(list)
 
     def check_the_acoustic_criterias_related_to_elements(self, nl_criteria=0.08):

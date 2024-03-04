@@ -508,6 +508,7 @@ class MainWindow(QMainWindow):
             self.action_set_light_theme.setDisabled(False)
             self.action_set_dark_theme.setDisabled(True)
             self.geometry_widget.set_theme("dark")
+            self.mesh_widget.set_theme("dark")
 
     def action_set_light_theme_callback(self):
         # self.action_remove_themes_callback()
@@ -518,6 +519,7 @@ class MainWindow(QMainWindow):
             self.action_set_light_theme.setDisabled(True)
             self.action_set_dark_theme.setDisabled(False)
             self.geometry_widget.set_theme("light")
+            self.mesh_widget.set_theme("light")
 
     def savePNG_call(self):
         project_path = self.file._project_path

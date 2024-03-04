@@ -66,7 +66,7 @@ from pulse.interface.user_input.plots.structural.plot_cross_section_input import
 from pulse.interface.user_input.project.render.renderer_user_preferences import RendererUserPreferencesInput
 from pulse.interface.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from pulse.interface.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
-from pulse.interface.user_input.model.criteria.checkBeamCriteriaInput import CheckBeamCriteriaInput
+from pulse.interface.user_input.model.criteria.check_beam_criteria_input import CheckBeamCriteriaInput
 #
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 #
@@ -344,7 +344,7 @@ class InputUi:
             PrintMessageInput([window_title_1, title, message])
             return
 
-        self.before_run = self.project.get_pre_solution_model_checks(opv=self.opv)
+        self.before_run = self.project.get_pre_solution_model_checks()
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0
@@ -356,7 +356,7 @@ class InputUi:
             elif self.analysis_ID in [3, 5, 6]:
                 self.before_run.check_all_acoustic_criteria()
 
-            self.after_run = self.project.get_post_solution_model_checks(opv=self.opv)
+            self.after_run = self.project.get_post_solution_model_checks()
             self.after_run.check_all_acoustic_criterias()
             self.main_window.use_results_workspace()
         
