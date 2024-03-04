@@ -14,6 +14,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - New geometry interface: now the user can draw geometry through an intuitive interface, following the conventions of popular piping software.
 - Standardization of sections and materials, along with using various unit systems.
 - Adjustments and validation of the reciprocating compressor model.
+- Physics validation of several analysis after comparing with 3D FEM commercial softwares.
 - New interface and visualization tools.
 - Enhancements of project files management.
 - Enhanced animation of results (real and imaginary parts, phase monitoring, etc).
