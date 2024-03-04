@@ -34,14 +34,13 @@ class ProjectFile:
         self._fluid_list_path = ""
         self._geometry_path = ""
         self._geometry_filename = ""
-        self._geometry_tolerance = 1e-8 # default value to gmsh geometry tolerance (in milimeters)
+        self._geometry_tolerance = 1e-6 # default value to gmsh geometry tolerance (in milimeters)
         self._entity_path = ""
         self._backup_geometry_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
         self._element_info_path = ""
         self._analysis_path = ""
-        self.element_type_is_structural = False
         self.default_filenames()
         self.reset_frequency_setup()
 
@@ -297,6 +296,12 @@ class ProjectFile:
             geometry_tolerance = section['geometry tolerance']
             self._geometry_tolerance = float(geometry_tolerance)
 
+        if 'material list file' in keys:
+            self._material_file_name = section['material list file']
+
+        if 'fluid list file' in keys:
+            self._fluid_file_name = section['fluid list file']
+
         self._project_name = project_name
         self._import_type = import_type
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
@@ -350,10 +355,7 @@ class ProjectFile:
             self.load(self._project_ini_file_path)
 
     def check_if_entity_file_is_active(self):
-        keys_to_check = [   "start point", 
-                            "end point", 
-                            "section label", 
-                            "section parameters"   ]
+        
         import_type = self.get_import_type()
         if os.path.exists(self._entity_path):
             config = configparser.ConfigParser()
@@ -363,6 +365,11 @@ class ProjectFile:
                     if import_type == 0:
                         return True
                     else:
+                        keys_to_check = list() 
+                        keys_to_check.append("start point")
+                        keys_to_check.append("end point")
+                        keys_to_check.append("section label")
+                        keys_to_check.append("section parameters")
                         for key in keys_to_check:
                             if key not in config[tag].keys():
                                 return False
@@ -752,7 +759,7 @@ class ProjectFile:
 
             for entity in sections:
 
-                outerDiameter = ""
+                outer_diameter = ""
                 thickness = ""
                 line_prefix = ""
                 list_elements = []
@@ -772,8 +779,9 @@ class ProjectFile:
                         if 'variable' in section_label:
                             if line_prefix not in variable_section_line_ids:
                                 variable_section_line_ids.append(entity)
-                            str_section_variable_parameters = section['variable section parameters']
-                            section_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)                  
+                        
+                        str_section_parameters = section['section parameters']
+                        section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
 
                         if "-" in entity:
                             line_prefix = entity.split("-")[0]
@@ -781,17 +789,13 @@ class ProjectFile:
                                 continue
                             elif 'list of elements' in keys:
                                 str_list_elements = section['list of elements']
-                                list_elements = get_list_of_values_from_string(str_list_elements)
-
-                        if 'section parameters' in keys:
-                            str_section_parameters = section['section parameters']
-                            section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)                  
+                                list_elements = get_list_of_values_from_string(str_list_elements)                 
                         
                         else:
                             # just to maintain the compatibility with older versions
                             # TODO: remove as soons as possible
                             if 'outer diameter' in keys:
-                                outerDiameter = section['outer diameter']
+                                outer_diameter = section['outer diameter']
                             
                             if 'thickness' in keys:
                                 thickness = section['thickness']
@@ -806,14 +810,14 @@ class ProjectFile:
                             if 'insulation density' in keys:
                                 insulation_density = section['insulation density']
                 
-                            if outerDiameter != "" and thickness != "":
-                                outerDiameter = float(outerDiameter)
+                            if outer_diameter != "" and thickness != "":
+                                outer_diameter = float(outer_diameter)
                                 thickness = float(thickness)
                                 offset_y = float(offset_y)
                                 offset_z = float(offset_z)
                                 insulation_thickness = float(insulation_thickness)
                                 insulation_density = float(insulation_density)
-                                section_parameters = [outerDiameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
+                                section_parameters = [outer_diameter, thickness, offset_y, offset_z, insulation_thickness, insulation_density]
 
                     elif 'beam section type' in keys:
 
@@ -846,14 +850,17 @@ class ProjectFile:
             id_1 = 0
             id_2 = 0
             for _id, _data in section_info.items():
+                
                 _section_parameters = _data[1]
                 str_section_parameters = str(_section_parameters)
+                
                 if str_section_parameters in parameters_to_entity_id.keys():
                     id_1 += 1
                     data_lines = _data.copy()
                     data_lines.append("line ids")
                     data_lines.append(parameters_to_entity_id[str_section_parameters])
                     section_info_lines[id_1] = data_lines
+                
                 if str_section_parameters in parameters_to_elements_id.keys():
                     id_2 += 1
                     data_elements = _data.copy()
@@ -864,587 +871,14 @@ class ProjectFile:
         except Exception as error_log:
 
             title = "Error while processing cross-sections"
-            message = "An error has been reached while processing the 'get_cross_sections_from_file' method.\n\n"
+            message = "Error detected while processing the 'get_cross_sections_from_file' method.\n\n"
             message += f"Last line id: {entity}\n\n"
             message += f"Details: \n\n {str(error_log)}"
             PrintMessageInput([window_title, title, message])
             return {}, {}
-    
+
         return section_info_lines, section_info_elements
-                    
-    def get_dict_of_entities_from_file(self):
-
-        material_list = configparser.ConfigParser()
-        material_list.read(self._material_list_path)
-
-        fluid_list = configparser.ConfigParser()
-        fluid_list.read(self._fluid_list_path)
-
-        entityFile = configparser.ConfigParser()
-        entityFile.read(self._entity_path)
-
-        element_file = configparser.ConfigParser()
-        element_file.read(self._element_info_path)
-   
-        self.dict_material = {}
-        self.dict_cross = {}
-        self.dict_variable_sections = {}
-        self.dict_expansion_joint_parameters = {}
-        self.dict_expansion_joint_sections = {}
-        self.dict_valve = {}
-        self.dict_valve_sections = {}
-        self.dict_beam_xaxis_rotation = {}
-        self.dict_structural_element_type = {}
-        self.dict_structural_element_force_offset = {}
-        self.dict_structural_element_wall_formulation = {}
-        self.dict_acoustic_element_type = {}
-        self.dict_fluid = {}
-        self.compressor_info = {}
-        self.dict_length_correction = {}
-        self.dict_perforated_plate = {}
-        self.temp_dict = {}
-        self.dict_stress_stiffening = {}
-        self.dict_capped_end = defaultdict(list)
-        self.dict_B2XP_rotation_decoupling = {}
-
-        window_title = "Error"
-        title = "Error while loading data from project file"
-        
-        for entity in entityFile.sections():
-
-            structural_element_type = ""
-            acoustic_element_type = ""
-            list_elements = ""
-
-            if 'structural element type' in entityFile[entity].keys():
-                structural_element_type = entityFile[entity]['structural element type']
-                if structural_element_type != "":
-                    if 'list of elements' in entityFile[entity].keys():
-                        if "-" in entity:
-                            str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)
-                            self.dict_structural_element_type[entity] = [list_elements, structural_element_type]
-                    else:
-                        self.dict_structural_element_type[entity] = structural_element_type
-                    self.element_type_is_structural = True
-                else:
-                    self.dict_structural_element_type[entity] = 'pipe_1'
-       
-            if 'structural element wall formulation' in entityFile[entity].keys():
-                wall_formulation = entityFile[entity]['structural element wall formulation']
-                if wall_formulation != "":
-                    if "-" in entity:
-                        if 'list of elements' in entityFile[entity].keys():
-                            str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)
-                            self.dict_structural_element_wall_formulation[entity] = [list_elements, wall_formulation]
-                    else:
-                        self.dict_structural_element_wall_formulation[entity] = wall_formulation
-                    self.element_type_is_structural = True
-                else:
-                    self.dict_structural_element_wall_formulation[entity] = 'thick_wall'
-
-            if 'force offset' in entityFile[entity].keys():
-                force_offset = entityFile[entity]['force offset']
-                if force_offset != "":
-                    if "-" in entity:
-                        if 'list of elements' in entityFile[entity].keys():
-                            str_list_elements = entityFile[entity]['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)
-                            self.dict_structural_element_force_offset[entity] = [list_elements, int(force_offset)]
-                    else:
-                        self.dict_structural_element_force_offset[entity] = int(force_offset)
-                    self.element_type_is_structural = True
-                else:
-                    self.dict_structural_element_force_offset[entity] = None
-
-            if 'acoustic element type' in entityFile[entity].keys():
-                acoustic_element_type = entityFile[entity]['acoustic element type']
-                if acoustic_element_type != "":
-                    if acoustic_element_type == 'proportional':
-                        proportional_damping = entityFile[entity]['proportional damping']
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(proportional_damping), None]
-                    elif acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                        vol_flow = entityFile[entity]['volume flow rate']
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, float(vol_flow)]
-                    else:
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, None]
-                    self.element_type_is_acoustic = True
-                else:
-                    self.dict_acoustic_element_type[int(entity)] = 'undamped'
-
-            if 'compressor info' in entityFile[entity].keys():
-                str_compressor_info = entityFile[entity]['compressor info']
-                _data = get_list_of_values_from_string(str_compressor_info, int_values=False)
-                self.compressor_info[int(entity)] = {   "temperature (suction)" : _data[0],
-                                                        "pressure (suction)" : _data[1],
-                                                        "line_id" : int(_data[2]),
-                                                        "node_id" : int(_data[3]),
-                                                        "pressure ratio" : _data[4],
-                                                        "connection type" : int(_data[5])   }
-                                           
-            str_joint_parameters = ""
-            if 'expansion joint parameters' in entityFile[entity].keys():
-                str_joint_parameters = entityFile[entity]['expansion joint parameters']
-                joint_parameters = get_list_of_values_from_string(str_joint_parameters, int_values=False)
-
-            str_joint_stiffness = ""
-            if 'expansion joint stiffness' in entityFile[entity].keys():
-                str_joint_stiffness = entityFile[entity]['expansion joint stiffness']
-                joint_stiffness, joint_table_names, joint_list_freq = self._get_expansion_joint_stiffness_from_string(str_joint_stiffness)
-
-            outerDiameter = ""
-            thickness = ""
-            offset_y, offset_z = 0., 0.
-            insulation_thickness = 0.
-            insulation_density = 0.
-
-            if "-" in entity:
-
-                if 'list of elements' in entityFile[entity].keys():
-                    str_list_elements = entityFile[entity]['list of elements']
-                    list_elements = get_list_of_values_from_string(str_list_elements)
-
-                if structural_element_type == "":
-                    line_id = entity.split("-")[0]
-                    if 'structural element type' in entityFile[line_id].keys():
-                        structural_element_type = entityFile[line_id]['structural element type']
-            
-                if structural_element_type == 'pipe_1':
-
-                    if 'outer diameter' in entityFile[entity].keys():
-                        outerDiameter = entityFile[entity]['outer diameter']
-                    if 'thickness' in entityFile[entity].keys():
-                        thickness = entityFile[entity]['thickness']
-                    if 'offset [e_y, e_z]' in entityFile[entity].keys():
-                        offset = entityFile[entity]['offset [e_y, e_z]']
-                        offset_y, offset_z = self._get_offset_from_string(offset) 
-                    if 'insulation thickness' in entityFile[entity].keys():
-                        insulation_thickness = entityFile[entity]['insulation thickness']
-                    if 'insulation density' in entityFile[entity].keys():
-                        insulation_density = entityFile[entity]['insulation density']
-                    
-                    if 'section parameters' in entityFile[entity].keys():
-                        str_section_parameters = entityFile[entity]['section parameters']
-                        parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                        outerDiameter = parameters[0]
-                        thickness = parameters[1] 
-                        offset_y = parameters[2] 
-                        offset_z = parameters[3] 
-                        insulation_thickness = parameters[4]
-                        insulation_density = parameters[5]
-        
-                    if outerDiameter != "" and thickness != "":
-                        try:
-                            outerDiameter = float(outerDiameter)
-                            thickness = float(thickness)
-                            offset_y = float(offset_y)
-                            offset_z = float(offset_z)
-                            insulation_thickness = float(insulation_thickness)
-                            insulation_density = float(insulation_density)
-
-                            section_parameters = {  "outer_diameter" : outerDiameter,
-                                                    "thickness" : thickness, 
-                                                    "offset_y" : offset_y, 
-                                                    "offset_z" : offset_z, 
-                                                    "insulation_thickness" : insulation_thickness, 
-                                                    "insulation_density" : insulation_density }
-            
-                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                    "section_parameters" : section_parameters  }
-
-                            cross = CrossSection(pipe_section_info=pipe_section_info)
-                            
-                            self.dict_cross[entity] = [cross, list_elements]
-                        except Exception as log_error:
-                            title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                            message = str(log_error)
-                            message += f"\n\n {entity}"
-                            PrintMessageInput([window_title, title, message])
     
-                if str_joint_parameters != "" and str_joint_stiffness != "":
-                    _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                    _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
-                    self.dict_expansion_joint_parameters[entity]= [_list_elements, _data]
-            
-            else:
-        
-                if structural_element_type == 'beam_1':
-
-                    if 'beam section type' in entityFile[entity].keys():
-                        section_type = entityFile[entity]['beam section type']
-
-                    try:
-    
-                        if section_type == "Generic section":                 
-                            if 'section properties' in entityFile[entity].keys():
-                                str_section_properties =  entityFile[entity]['section properties']
-                                section_properties = get_list_of_values_from_string(str_section_properties, int_values=False)
-                                section_properties = get_beam_section_properties(section_type, section_properties)
-                                section_parameters = None
-                        else:
-                            if 'section parameters' in entityFile[entity].keys():
-                                str_section_parameters = entityFile[entity]['section parameters']
-                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                                section_properties = get_beam_section_properties(section_type, section_parameters)
-    
-                        beam_section_info = {   "section_type_label" : section_type,
-                                                "section_parameters" : section_parameters,
-                                                "section_properties" : section_properties   }
-
-                        cross = CrossSection(beam_section_info=beam_section_info)
-                        self.dict_cross[entity] = cross
-                        
-                    except Exception as err:
-                        title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                        message = str(err)
-                        message += f"\n\nProblem detected at line: {entity}"
-                        PrintMessageInput([window_title, title, message])
-
-                else:
-
-                    if 'outer diameter' in entityFile[entity].keys():
-                        outerDiameter = entityFile[entity]['outer Diameter']
-                    if 'thickness' in entityFile[entity].keys():    
-                        thickness = entityFile[entity]['thickness']
-                    if 'offset [e_y, e_z]' in entityFile[entity].keys(): 
-                        offset = entityFile[entity]['offset [e_y, e_z]']
-                        offset_y, offset_z = self._get_offset_from_string(offset) 
-                    if 'insulation thickness' in entityFile[entity].keys():
-                        insulation_thickness = entityFile[entity]['insulation thickness']
-                    if 'insulation density' in entityFile[entity].keys():
-                        insulation_density = entityFile[entity]['insulation density']
-
-                    if 'section parameters' in entityFile[entity].keys():
-                        str_section_parameters = entityFile[entity]['section parameters']
-                        parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                        outerDiameter = parameters[0]
-                        thickness = parameters[1] 
-                        offset_y = parameters[2] 
-                        offset_z = parameters[3] 
-                        insulation_thickness = parameters[4] 
-                        insulation_density = parameters[5]
-
-                    if 'variable section parameters' in entityFile[entity].keys():
-                        str_section_variable_parameters = entityFile[entity]['variable section parameters']
-                        section_variable_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)
-                        self.dict_variable_sections[entity] = section_variable_parameters
-
-                    if outerDiameter != "" and thickness != "":
-                        try:
-
-                            section_parameters = {  "outer_diameter" : float(outerDiameter),
-                                                    "thickness" : float(thickness), 
-                                                    "offset_y" : float(offset_y), 
-                                                    "offset_z" : float(offset_z), 
-                                                    "insulation_thickness" : float(insulation_thickness), 
-                                                    "insulation_density" : float(insulation_density) }
-        
-                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                    "section_parameters" : section_parameters  }
-
-                            cross = CrossSection(pipe_section_info=pipe_section_info)
-
-                            self.dict_cross[entity] = cross
-
-                        except Exception as err:
-                            title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                            message = str(err)
-                            message += f"\n\nProblem detected at line: {entity}"
-                            PrintMessageInput([window_title, title, message])
-                
-                    if str_joint_parameters != "" and str_joint_stiffness != "":
-                        _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
-                        self.dict_expansion_joint_parameters[entity] = _data
-            
-            valve_data = {}
-            dict_element_to_diameters = {}
-            valve_section_parameters = []
-            flange_section_parameters = []
-            valve_cross, flange_cross = [], []
-            number_valve_elements = 0
-            number_flange_elements = 0
-
-            if structural_element_type == "valve":
-
-                if "valve parameters" in entityFile[entity].keys():
-                    str_valve_parameters = entityFile[entity]['valve parameters']
-                    valve_parameters = get_list_of_values_from_string(str_valve_parameters, int_values=False)
-                    [valve_length, stiffening_factor, valve_mass] = valve_parameters
-                    valve_data["valve_length"] = valve_length
-                    valve_data["stiffening_factor"] = stiffening_factor
-                    valve_data["valve_mass"] = valve_mass
-                
-                if "valve center coordinates" in entityFile[entity].keys():
-                    str_valve_coord = entityFile[entity]['valve center coordinates']
-                    valve_data["valve_center_coordinates"] = get_list_of_values_from_string(str_valve_coord, int_values=False)
-                
-                if "valve section parameters" in entityFile[entity].keys():
-                    str_valve_section_parameters = entityFile[entity]['valve section parameters'] 
-                    valve_section_parameters = get_list_of_values_from_string(str_valve_section_parameters, int_values=False)
-                
-                if "flange section parameters" in entityFile[entity].keys():
-                    str_flange_section_parameters = entityFile[entity]['flange section parameters']
-                    flange_section_parameters = get_list_of_values_from_string(str_flange_section_parameters, int_values=False)
-                
-                if 'list of elements' in entityFile[entity].keys():
-                    str_valve_list_elements = entityFile[entity]['list of elements']
-                    valve_data["valve_elements"] = get_list_of_values_from_string(str_valve_list_elements)
-                    number_valve_elements = len(valve_data["valve_elements"])
-                    
-                if 'number of flange elements' in entityFile[entity].keys():
-                    str_number_flange_elements = entityFile[entity]['number of flange elements']
-                    number_flange_elements = int(str_number_flange_elements)
-                    valve_data["number_flange_elements"] = number_flange_elements
-
-                cross_section_labels = ["outer_diameter", "thickness", "offset_y", "offset_z", "insulation_thickness", "insulation_density"]
-                if len(valve_section_parameters) == 6:
-                    valve_data["valve_section_parameters"] = dict(zip(cross_section_labels, valve_section_parameters))
-                    valve_section_info = {  "section_type_label" : "Valve section",
-                                            "section_parameters" : valve_data["valve_section_parameters"]  }
-                                        
-                    list_valve_elements = valve_data["valve_elements"]
-                    valve_thickness = valve_section_parameters[1]
-
-                    N = number_valve_elements - number_flange_elements
-                    nf = int(number_flange_elements/2) 
-                    if number_flange_elements == 0:
-                        list_inner_elements = valve_data["valve_elements"]
-                        list_outer_diameters =  get_V_linear_distribution(valve_section_parameters[0], N)
-                        list_inner_diameters = list_outer_diameters - 2*valve_thickness
-                    else:
-                        flange_thickness = flange_section_parameters[1]
-                        list_inner_elements = valve_data["valve_elements"][nf:-nf]
-
-                        flange_diameter = flange_section_parameters[0]
-                        list_outer_diameters = np.ones(number_valve_elements)*flange_diameter
-                        list_inner_diameters = list_outer_diameters - 2*flange_thickness
-
-                        list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_section_parameters[0], N)
-                        list_inner_diameters[nf:-nf] = list_outer_diameters[nf:-nf] - 2*valve_thickness
-
-                        lists_flange_elements = [list_valve_elements[0:nf], list_valve_elements[-nf:]]
-                        list_flange_elements = [element_id for _list_elements in lists_flange_elements for element_id in _list_elements]
-                        valve_data["flange_elements"] = list_flange_elements
-                    
-                    dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, decimals=6)))                      
-                    dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, decimals=6)))
-
-                    for _id in list_inner_elements:
-                        dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
-                        valve_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]
-                        valve_cross.append(CrossSection(valve_section_info=valve_section_info)) 
-                
-                if len(flange_section_parameters) == 6:
-                    valve_data["flange_section_parameters"] = dict(zip(cross_section_labels, flange_section_parameters))
-                    flange_section_info = { "section_type_label" : "Valve section",
-                                            "section_parameters" : valve_data["flange_section_parameters"]  }
-
-                    for _id in list_flange_elements:
-                        dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]   
-                        flange_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]       
-                        flange_cross.append(CrossSection(valve_section_info=flange_section_info))
-                
-                valve_data["valve_diameters"] = dict_element_to_diameters
-
-                if valve_data:
-                    cross_sections = [valve_cross, flange_cross] 
-                    self.dict_valve[entity] = [valve_data, cross_sections]
-
-            if 'material id' in entityFile[entity].keys():
-                material_id = entityFile[entity]['material id']
-
-                if material_id.isnumeric():
-                    material_id = int(material_id)
-                    for material in material_list.sections():
-                        if int(material_list[material]['identifier']) == material_id:
-                            name = str(material_list[material]['name'])
-                            identifier = str(material_list[material]['identifier'])
-                            density =  str(material_list[material]['density'])
-                            youngmodulus =  str(material_list[material]['young modulus'])
-                            poisson =  str(material_list[material]['poisson'])
-                            thermal_expansion_coefficient = str(material_list[material]['thermal expansion coefficient'])
-                            color =  str(material_list[material]['color'])
-                            youngmodulus = float(youngmodulus)*(10**(9))
-                            if thermal_expansion_coefficient == "":
-                                thermal_expansion_coefficient = float(0)
-                            else:
-                                thermal_expansion_coefficient = float(thermal_expansion_coefficient)
-                            temp_material = Material(name, float(density), 
-                                                            young_modulus = youngmodulus, 
-                                                            poisson_ratio = float(poisson), 
-                                                            thermal_expansion_coefficient = thermal_expansion_coefficient,
-                                                            color = color,
-                                                            identifier = int(identifier))
-                            self.dict_material[int(entity)] = temp_material
-
-            if 'fluid id' in entityFile[entity].keys():    
-                fluid_id = entityFile[entity]['fluid id']
-
-                if fluid_id.isnumeric():
-                    fluid_id = int(fluid_id)
-                    for fluid in fluid_list.sections():
-                        keys = list(fluid_list[fluid].keys())
-                        if int(fluid_list[fluid]['identifier']) == fluid_id:
-                            name = fluid_list[fluid]['name']
-                            identifier = fluid_list[fluid]['identifier']
-                            fluid_density =  float(fluid_list[fluid]['fluid density'])
-                            speed_of_sound =  float(fluid_list[fluid]['speed of sound'])
-
-                            temperature = None
-                            if 'temperature' in keys:
-                                temperature = float(fluid_list[fluid]['temperature'])
-
-                            pressure = None
-                            if 'pressure' in keys:
-                                pressure = float(fluid_list[fluid]['pressure'])
-
-                            isentropic_exponent = None
-                            if 'isentropic exponent' in keys:
-                                isentropic_exponent =  float(fluid_list[fluid]['isentropic exponent'])
-                            
-                            thermal_conductivity = None
-                            if 'thermal conductivity' in keys:
-                                thermal_conductivity =  float(fluid_list[fluid]['thermal conductivity'])
-
-                            specific_heat_Cp = None
-                            if 'specific heat cp' in keys:
-                                specific_heat_Cp =  float(fluid_list[fluid]['specific heat cp'])
-                            
-                            dynamic_viscosity = None
-                            if 'dynamic viscosity' in keys:
-                                dynamic_viscosity =  float(fluid_list[fluid]['dynamic viscosity'])
-                            
-                            # acoustic_impedance =  fluid_list[fluid]['impedance']
-                            color =  fluid_list[fluid]['color']
-                            temp_fluid = Fluid( name,
-                                                fluid_density,
-                                                speed_of_sound,
-                                                isentropic_exponent = isentropic_exponent,
-                                                thermal_conductivity = thermal_conductivity,
-                                                specific_heat_Cp = specific_heat_Cp,
-                                                dynamic_viscosity = dynamic_viscosity,
-                                                color=color, identifier = int(identifier),
-                                                temperature = temperature,
-                                                pressure = pressure )
-
-                            self.dict_fluid[int(entity)] = temp_fluid
-                                
-            if 'capped end' in entityFile[entity].keys():
-                capped_end = entityFile[entity]['capped end']
-                if capped_end != "":
-                    self.dict_capped_end[capped_end].append(int(entity))
-            
-            if 'beam x-axis rotation' in entityFile[entity].keys():
-                beam_xaxis_rotation = entityFile[entity]['beam x-axis rotation']
-                self.dict_beam_xaxis_rotation[int(entity)] = float(beam_xaxis_rotation)
-
-            if 'stress stiffening parameters' in entityFile[entity].keys():
-                list_parameters = entityFile[entity]['stress stiffening parameters']
-                _list_parameters = get_list_of_values_from_string(list_parameters, int_values=False)
-                try:
-                    self.dict_stress_stiffening[int(entity)] = _list_parameters
-                except Exception as err:
-                    title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE"
-                    message = str(err)
-                    PrintMessageInput([window_title, title, message])
-
-        for section in list(element_file.sections()):
-
-            try:
-                if "ACOUSTIC ELEMENT LENGTH CORRECTION" in section:
-                    if 'length correction type' in  element_file[section].keys():
-                        length_correction_type = int(element_file[section]['length correction type'])   
-                    if 'list of elements' in  element_file[section].keys():
-                        list_elements = element_file[section]['list of elements']
-                        get_list_elements = get_list_of_values_from_string(list_elements)
-                    if length_correction_type in [0,1,2] and get_list_elements != []:
-                        self.dict_length_correction[section] = [get_list_elements, length_correction_type]
-            except Exception as log_error:  
-                title = "ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION FROM FILE"
-                message = str(log_error)
-                PrintMessageInput([window_title, title, message])
-
-            try:
-                if "PERFORATED PLATE" in section:
-                    if 'perforated plate data' in  element_file[section].keys():
-                        list_data = element_file[section]['perforated plate data']   
-                        pp_data = get_list_of_values_from_string(list_data, False)
-
-                    if 'list of elements' in  element_file[section].keys():
-                        list_elements = element_file[section]['list of elements']
-                        get_list_elements = get_list_of_values_from_string(list_elements)
-                    
-                    if pp_data != [] and get_list_elements != []:
-                        perforated_plate = PerforatedPlate( float(pp_data[0]), 
-                                                            float(pp_data[1]),
-                                                            float(pp_data[2]),
-                                                            discharge_coefficient = float(pp_data[3]),
-                                                            single_hole = bool(pp_data[4]),
-                                                            nonlinear_effect = bool(pp_data[5]),
-                                                            nonlinear_discharge_coefficient = float(pp_data[6]),
-                                                            correction_factor = float(pp_data[7]),
-                                                            bias_effect = bool(pp_data[8]),
-                                                            bias_coefficient = float(pp_data[9]),
-                                                            type = int(pp_data[10]) )
-
-                        if 'dimensionless impedance' in  element_file[section].keys():
-                            dimensionless_data = element_file[section]['dimensionless impedance'] 
-
-                            [dim_impedance, dim_impedance_table_name, frequencies] = self._get_acoustic_bc_from_string( dimensionless_data, 
-                                                                                                                        "dimensionless impedance", 
-                                                                                                                        "perforated_plate_files" )
-                            perforated_plate.dimensionless_impedance = dim_impedance 
-                            perforated_plate.dimensionless_impedance_table_name = dim_impedance_table_name
-                            
-                        self.dict_perforated_plate[section] = [get_list_elements, perforated_plate, frequencies]
-            except Exception as log_error:  
-                window_title = "Error while loading acoustic element perforated plate from file"
-                message = str(log_error)
-                PrintMessageInput([window_title, title, message])
-
-            try:
-                if "CAPPED END" in section:
-                    if 'list of elements' in element_file[section].keys():
-                        _list_elements = element_file[section]['list of elements']
-                        get_list_elements = get_list_of_values_from_string(_list_elements)
-                        self.dict_capped_end[section] = get_list_elements
-            except Exception as err:  
-                title = "ERROR WHILE LOADING CAPPED END FROM FILE"
-                message = str(err)
-                PrintMessageInput([window_title, title, message])
-
-            try:
-                if "STRESS STIFFENING" in section:
-                    if 'stress stiffening parameters' in  element_file[section].keys():
-                        _list_parameters = element_file[section]['stress stiffening parameters']
-                        get_list_parameters = get_list_of_values_from_string(_list_parameters, int_values=False)
-                    if 'list of elements' in  element_file[section].keys():
-                        _list_elements = element_file[section]['list of elements']
-                        get_list_elements = get_list_of_values_from_string(_list_elements)
-                    self.dict_stress_stiffening[section] = [get_list_elements, get_list_parameters]
-            except Exception as err: 
-                title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE" 
-                message = str(err)
-                PrintMessageInput([window_title, title, message])
-
-            try:
-                if "B2PX ROTATION DECOUPLING" in section:
-                    if 'list of elements' in  element_file[section].keys():
-                        _list_elements = element_file[section]['list of elements']
-                        get_list_elements = get_list_of_values_from_string(_list_elements)
-                    if 'list of nodes' in  element_file[section].keys():
-                        _list_nodes = element_file[section]['list of nodes']
-                        get_list_nodes = get_list_of_values_from_string(_list_nodes)
-                    if 'rotation dofs mask' in  element_file[section].keys():
-                        _dofs_mask = element_file[section]['rotation dofs mask']
-                        get_dofs_mask = get_list_bool_from_string(_dofs_mask)
-                    self.dict_B2XP_rotation_decoupling[section] = [get_list_elements, get_list_nodes, get_dofs_mask]
-            except Exception as err: 
-                title = "ERROR WHILE LOADING B2PX ROTATION DECOUPLING FROM FILE" 
-                message = str(err)
-                PrintMessageInput([window_title, title, message]) 
-
     def add_cross_section_in_file(self, lines, cross_section):  
 
         if isinstance(lines, int):
@@ -2456,16 +1890,6 @@ class ProjectFile:
 
         return output_list
 
-    def _get_offset_from_string(self, offset):
-        offset = offset[1:-1].split(',')
-        offset_y = offset_z = 0.0
-        if len(offset) == 2:
-            if offset[0] != '0.0':
-                offset_y = float(offset[0])
-            if offset[1] != '0.0':
-                offset_z = float(offset[1])
-        return offset_y, offset_z
-
     def _get_acoustic_bc_from_string(self, str_value, label, folder_table_name):
         
         load_path_table = ""
@@ -2540,50 +1964,6 @@ class ProjectFile:
                         PrintMessageInput([window_title, title, message])
                         return None, None, None
         return output, table_names, list_frequencies
-
-    def _get_expansion_joint_stiffness_from_string(self, input_string):   
-        labels = ['Kx', 'Kyz', 'Krx', 'Kryz']
-        read = input_string[1:-1].replace(" ","").split(',')
-        N = len(read)
-        output = [None, None, None, None]
-        list_table_names = [None, None, None, None]
-        list_frequencies = [None, None, None, None]
-
-        if N==4:
-            for i in range(N):
-                if read[i] == "None":
-                    continue
-                try:
-                    output[i] = float(read[i])
-                except Exception:
-                    try:
-
-                        load_path_table = ""    
-                        expansion_joints_tables_folder_path = get_new_path( self._structural_imported_data_folder_path, 
-                                                                            "expansion_joints_files" )
-                        load_path_table = get_new_path(expansion_joints_tables_folder_path, read[i])
-        
-                        data = np.loadtxt(load_path_table, delimiter=",")
-                        output[i] = data[:,1]
-                        
-                        self.frequencies = data[:,0]
-                        self.f_min = self.frequencies[0]
-                        self.f_max = self.frequencies[-1]
-                        self.f_step = self.frequencies[1] - self.frequencies[0]
-                        list_table_names[i] = read[i]
-
-                        if self.f_min != 0:
-                            self.non_zero_frequency_info = [False, self.f_min, read[i]]
-                        else:
-                            self.zero_frequency = True
-                        list_frequencies[i] = self.frequencies
-
-                    except Exception as log_error:
-                        title = f"Expansion joint: error while loading {labels[i]} table of values"
-                        message = str(log_error)
-                        PrintMessageInput([window_title, title, message])
-                        return None, None, None
-        return output, list_table_names, list_frequencies
 
     def structural_tables_load(self, table_name, label, folder_table_name):
         output = None

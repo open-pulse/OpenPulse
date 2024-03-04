@@ -21,7 +21,7 @@ class CheckBeamCriteriaInput(QDialog):
         self.project = project
         self.opv = opv
         self.opv.setInputObject(self)
-        self.before_run = BeforeRun(project, opv)
+        self.before_run = BeforeRun()
 
         self._load_icons()
         self._config_window()

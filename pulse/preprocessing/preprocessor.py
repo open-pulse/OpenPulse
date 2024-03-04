@@ -1181,7 +1181,12 @@ class Preprocessor:
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
     
-    def set_cross_section_by_element(self, elements, cross_section, update_cross_section=False, update_section_points=True, variable_section=False):
+    def set_cross_section_by_element(self, 
+                                     elements, 
+                                     cross_section, 
+                                     update_cross_section = False, 
+                                     update_section_points = True, 
+                                     variable_section = False):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
 

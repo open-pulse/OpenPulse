@@ -136,7 +136,7 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.setVisible(True)
 
     def show_material_widget(self):
-        self.material_widget.reset()
+        self.material_widget._initialize()
         self.material_widget._add_icon_and_title()
         self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)

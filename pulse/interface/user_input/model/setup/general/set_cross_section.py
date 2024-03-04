@@ -200,8 +200,9 @@ class SetCrossSectionInput(QDialog):
 
     def update_QDialog_info(self):
 
-        if len(self.lines_id) > 0:   
-            self.input_widget.reset_all_input_texts()
+        self.input_widget.reset_all_input_texts()
+
+        if len(self.lines_id) == 1:   
             self.selection = self.dict_tag_to_entity[self.lines_id[0]]
             element_type = self.selection.structural_element_type
             if element_type is None:
@@ -212,11 +213,11 @@ class SetCrossSectionInput(QDialog):
                         break
             _variable_cross_section_data = self.selection.variable_cross_section_data
 
-        elif len(self.elements_id) > 0:   
-            self.input_widget.reset_all_input_texts()
+        elif len(self.elements_id) == 1:
             self.selection = self.structural_elements[self.elements_id[0]]
             element_type = self.selection.element_type
             _variable_cross_section_data = None
+
         else:
             return
 
@@ -243,8 +244,8 @@ class SetCrossSectionInput(QDialog):
                 if self.selection.variable_cross_section_data:
                     self.tabWidget_pipe_section.setCurrentIndex(1)
                     self.update_section_entries(variable_section=True)
-            elif element_type in ['beam_1']:
-                self.tabWidget_general.setCurrentIndex(1)
+            # elif element_type in ['beam_1']:
+            #     self.tabWidget_general.setCurrentIndex(1)
 
         self.update_tabs()
         self.update_line_and_element_ids()
@@ -420,21 +421,21 @@ class SetCrossSectionInput(QDialog):
         if variable_section:
 
             self.update_variable_section_element_ids()   
-            data = self.selection.variable_cross_section_data
+            section_parameters = self.selection.variable_cross_section_data["section_parameters"]
 
-            for index, lineEdit in enumerate(self.list_pipe_section_entries[6:-2]):
-                lineEdit.setText(str(data[index]))
+            for index, lineEdit in enumerate(self.input_widget.list_pipe_section_entries[6:-2]):
+                lineEdit.setText(str(section_parameters[index]))
             
             return
         
         if self.section_label == 'Pipe section':
 
-            outside_diameter = self.section_parameters["outer_diameter"]
-            thickness = self.section_parameters["thickness"]
-            offset_y = self.section_parameters["offset_y"] 
-            offset_z = self.section_parameters["offset_z"]
-            insulation_thickness = self.section_parameters["insulation_thickness"]
-            insulation_density = self.section_parameters["insulation_density"]
+            outside_diameter = self.section_parameters[0]
+            thickness = self.section_parameters[1]
+            offset_y = self.section_parameters[2] 
+            offset_z = self.section_parameters[3]
+            insulation_thickness = self.section_parameters[4]
+            insulation_density = self.section_parameters[5]
 
             self.section_type = 0
             self.input_widget.lineEdit_outside_diameter.setText(str(outside_diameter))
@@ -523,7 +524,7 @@ class SetCrossSectionInput(QDialog):
 
         for i in range(6):
             if i+1 == self.section_type:
-                self.tabWidget_beam_section.setCurrentWidget(i)
+                self.tabWidget_beam_section.setCurrentIndex(i)
 
     def update(self):
         self.lines_id = self.opv.getListPickedLines()

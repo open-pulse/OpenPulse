@@ -23,8 +23,6 @@ class CrossSectionWidget(QWidget):
         uic.loadUi(UI_DIR / "model/setup/general/cross_section_widget.ui", self)
 
         self._initialize()
-        self._load_icons()
-        self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.create_lists_of_entries()
@@ -38,6 +36,10 @@ class CrossSectionWidget(QWidget):
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 
+    def _add_icon_and_title(self):
+        self._load_icons()
+        self._config_window()
+
     def _initialize(self):
         
         self.section_type = None
@@ -45,15 +47,14 @@ class CrossSectionWidget(QWidget):
         self.section_parameters = None
         self.section_properties = None
         self.beam_section_info = None
+        self.pipe_section_info = None
 
         self.complete = False
         self.flip = False
  
-        self.currentTab = 0
-        self.list_elements = []
-        self.section_data_lines = {}
-        self.section_data_elements = {}
-        self.variable_parameters = []
+        self.section_data_lines = dict()
+        self.section_data_elements = dict()
+        self.variable_parameters = list()
 
     def _define_qt_variables(self):
 
@@ -716,9 +717,11 @@ class CrossSectionWidget(QWidget):
             
         else:
             self.section_properties = get_beam_section_properties(self.section_label, self.section_parameters)
+
         self.beam_section_info = {  "section_type_label" : self.section_label,
                                     "section_parameters" : self.section_parameters,
                                     "section_properties" : self.section_properties  }
+
         return False
 
     def check_if_section_is_normalized(self):

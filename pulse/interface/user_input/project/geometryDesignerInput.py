@@ -960,7 +960,7 @@ class GeometryDesignerInput(QDialog):
         return False
 
     def check_geometry_tolerance_input_value(self):
-        self.geometry_tolerance = 1e-8
+        self.geometry_tolerance = 1e-6
         try:
             self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
         except Exception as _error:

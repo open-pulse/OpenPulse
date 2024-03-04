@@ -3,18 +3,22 @@ from collections import defaultdict
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 import numpy as np
 
+from pulse import app
+
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class BeforeRun:
-    def __init__(self, project, opv, **kwargs):
-        self.project = project
-        self.opv = opv
-        self.preprocessor = project.preprocessor
-        self.nodes = project.preprocessor.nodes
-        self.structural_elements = project.preprocessor.structural_elements
-        self.acoustic_elements = project.preprocessor.acoustic_elements
-        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
+    def __init__(self, **kwargs):
+
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
+
+        self.preprocessor = self.project.preprocessor
+        self.nodes = self.preprocessor.nodes
+        self.structural_elements = self.preprocessor.structural_elements
+        self.acoustic_elements = self.preprocessor.acoustic_elements
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
 
     def check_modal_analysis_imported_data(self):
         message = ""
