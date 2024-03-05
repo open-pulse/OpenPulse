@@ -266,9 +266,9 @@ class GeometryHandler:
                             corner = Point(*corner_coords)
                             unconnected_points.remove(point)
 
-                            print(f"\nÉ colinear: {corner_coords}")
-                            print(f"Start coords: {start_coords}")
-                            print(f"End coords: {end_coords}")
+                            # print(f"\nÉ colinear: {corner_coords}")
+                            # print(f"Start coords: {start_coords}")
+                            # print(f"End coords: {end_coords}")
 
                         elif self.is_orthogonal(start_coords, start_point, point):
                             
@@ -289,9 +289,9 @@ class GeometryHandler:
 
                             unconnected_points.remove(point)
 
-                            print(f"\nÉ ortogonal: {corner_coords}")
-                            print(f"Start coords: {start_coords}")
-                            print(f"End coords: {end_coords}")
+                            # print(f"\nÉ ortogonal: {corner_coords}")
+                            # print(f"Start coords: {start_coords}")
+                            # print(f"End coords: {end_coords}")
 
                         else:
 
