@@ -183,7 +183,7 @@ def mm_to_m(value):
 
     '''
     if isinstance(value, list):
-        return value * 1e-3
+        return np.array(value) * 1e-3
     elif isinstance(value, np.ndarray):
         return value * 1e-3
     return float(value) * 1e-3

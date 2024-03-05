@@ -45,10 +45,6 @@ class AddStructuresWidget(QWidget):
         self.comboBox_section_type : QComboBox
         self.comboBox_bending_type : QComboBox
 
-        # QFrame
-        self.information_frame : QFrame
-        self.information_frame.setVisible(False)
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
@@ -74,10 +70,6 @@ class AddStructuresWidget(QWidget):
 
         # QTabWidget
         # self.tabWidget_main : QTabWidget
-
-        # QTextEdit
-        self.textEdit_segment_information: QTextEdit
-        self.textEdit_segment_information.setDisabled(True)
 
     def _create_connections(self):
         self.comboBox_length_unit.currentIndexChanged.connect(self.update_legth_units)

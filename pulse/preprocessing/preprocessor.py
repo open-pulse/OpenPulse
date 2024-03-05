@@ -26,6 +26,7 @@ class Preprocessor:
     def __init__(self, project):
         self.project = project
         self.file = project.file
+        # self.geometry_handler = GeometryHandler()
         self.reset_variables()
 
     def reset_variables(self):
@@ -191,10 +192,20 @@ class Preprocessor:
         ----------
 
         """
-        gmsh.initialize('', False)
-        gmsh.option.setNumber("General.Terminal",0)
-        gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.open(str(self.geometry_path))
+        # TODO: check consistency of opps cad interpreter
+
+        # gmsh.initialize('', False)
+        # gmsh.option.setNumber("General.Terminal",0)
+        # gmsh.option.setNumber("General.Verbosity", 0)
+        # gmsh.open(str(self.geometry_path))
+
+        if self.geometry_handler is None:
+            self.geometry_handler = GeometryHandler()
+            self.geometry_handler.set_length_unit(self.file.length_unit)
+       
+        if isinstance(self.geometry_handler, GeometryHandler):        
+            path = str(self.geometry_path)
+            self.geometry_handler.open_cad_file(path)
 
     def _create_gmsh_geometry(self):
         """
@@ -207,11 +218,12 @@ class Preprocessor:
         if self.geometry_handler is None:
             build_data = self.file.get_segment_build_data_from_file()
             self.geometry_handler = GeometryHandler()
+
+        if isinstance(self.geometry_handler, GeometryHandler):
             pipeline = self.geometry_handler.process_pipeline(build_data)
             self.geometry_handler.set_length_unit(self.file.length_unit)
             self.geometry_handler.set_pipeline(pipeline)
-        
-        self.geometry_handler.create_geometry()
+            self.geometry_handler.create_geometry()
 
     def _set_gmsh_options(self):
         """
