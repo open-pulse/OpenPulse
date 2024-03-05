@@ -245,7 +245,7 @@ class GeometryHandler:
                 pipe = Pipe(start, end)
 
             elif line_type == 'Circle':
-                #
+
                 cache_unconnected_points = unconnected_points.copy()
 
                 for point in cache_unconnected_points:
@@ -266,9 +266,10 @@ class GeometryHandler:
                             corner = Point(*corner_coords)
                             unconnected_points.remove(point)
 
-                            print(f"\nÉ colinear: {corner_coords}")
-                            print(f"Start coords: {start_coords}")
-                            print(f"End coords: {end_coords}")
+                            # print(f"\nÉ colinear: {corner_coords}")
+                            # print(f"Start coords: {start_coords}")
+                            # print(f"End coords: {end_coords}")
+                            # print(f"Radius: {radius}")
 
                         elif self.is_orthogonal(start_coords, start_point, point):
                             
@@ -289,15 +290,16 @@ class GeometryHandler:
 
                             unconnected_points.remove(point)
 
-                            print(f"\nÉ ortogonal: {corner_coords}")
-                            print(f"Start coords: {start_coords}")
-                            print(f"End coords: {end_coords}")
+                            # print(f"\nÉ ortogonal: {corner_coords}")
+                            # print(f"Start coords: {start_coords}")
+                            # print(f"End coords: {end_coords}")
+                            # print(f"Radius: {radius}")
 
                         else:
 
                             continue
 
-                pipe = Bend(start, end, corner, radius)
+                        pipe = Bend(start, end, corner, radius)
 
             structures.append(pipe)
 
