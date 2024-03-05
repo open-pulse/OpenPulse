@@ -237,45 +237,64 @@ class GeometryHandler:
         # np.savetxt("coordenadas_pontos.dat", _data, delimiter=",", fmt="%i %e %e %e")
 
         for line in lines:
- 
-            start_point = gmsh.model.get_adjacencies(*line)[1][0]
-            end_point = gmsh.model.get_adjacencies(*line)[1][1]
-            line_type = gmsh.model.get_type(*line)
 
-            start_coords = (points_coords[start_point -1][1])
-            end_coords = (points_coords[end_point -1][1])
+            try:
 
-            start = Point(*start_coords)
-            end = Point(*end_coords)
+                start_point = gmsh.model.get_adjacencies(*line)[1][0]
+                end_point = gmsh.model.get_adjacencies(*line)[1][1]
+                line_type = gmsh.model.get_type(*line)
 
-            line_length = math.dist(start_coords, end_coords)
+                start_coords = (points_coords[start_point -1][1])
+                end_coords = (points_coords[end_point -1][1])
 
-            if line_length < 0.001:
-                window_title = "Warning"
-                title = "Small line length detected"
-                message = f"The line {line} has small length which may cause problems "
-                message += "in model processing. We reccomend to check the imported geometry "
-                message += "to avoid physical inconsistency in model results."
-                message += f"\n\nLine length: {round(line_length, 6)} [m]"
+                start = Point(*start_coords)
+                end = Point(*end_coords)
+
+                line_length = math.dist(start_coords, end_coords)
+
+                if line_length < 0.001:
+                    window_title = "Warning"
+                    title = "Small line length detected"
+                    message = f"The line {line} has small length which may cause problems "
+                    message += "in model processing. We reccomend to check the imported geometry "
+                    message += "to avoid physical inconsistency in model results."
+                    message += f"\n\nLine length: {round(line_length, 6)} [m]"
+                    PrintMessageInput([window_title, title, message])
+
+                if line_type == 'Line':
+                    pipe = Pipe(start, end)
+
+                elif line_type == 'Circle':
+
+                    corner_coords = self.get_corner_point_coords(start_point, end_point)
+
+                    if corner_coords is None:
+                        message = f"The connecting lines from 'Circle curve' {line} are parallel "
+                        message += "and will be ignored in geometry construction."
+                        print(message)
+                        continue
+
+                    radius = self.get_radius(corner_coords, start_point, end_point)
+                    
+                    corner = Point(*corner_coords)
+                    pipe = Bend(start, end, corner, radius)
+
+            except Exception as error_log:
+
+                # coords_start = mm_to_m(gmsh.model.getValue(0, start_point, []))
+                # coords_end = mm_to_m(gmsh.model.getValue(0, end_point, []))
+                # _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
+                # _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
+                # print(start_point, coords_start, points_Lstart)
+                # print(end_point, coords_end, points_Lend)
+
+                window_title = "Error"
+                title = "Error while processing geometry data"
+                message = str(error_log)
+                message += f"\n\nLine: {line}"
                 PrintMessageInput([window_title, title, message])
-
-            if line_type == 'Line':
-                pipe = Pipe(start, end)
-
-            elif line_type == 'Circle':
-
-                corner_coords = self.get_corner_point_coords(start_point, end_point)
-
-                if corner_coords is None:
-                    message = f"The connecting lines from 'Circle curve' {line} are parallel "
-                    message += "and will be ignored in geometry construction."
-                    print(message)
-                    continue
-
-                radius = self.get_radius(corner_coords, start_point, end_point)
                 
-                corner = Point(*corner_coords)
-                pipe = Bend(start, end, corner, radius)
+                continue
 
             structures.append(pipe)
 
