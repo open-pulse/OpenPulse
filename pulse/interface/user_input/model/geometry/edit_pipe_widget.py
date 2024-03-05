@@ -83,7 +83,7 @@ class EditPipeWidget(QWidget):
             self.cross_section_widget.get_beam_section_parameters()
             self.cross_section_info = self.cross_section_widget.beam_section_info
             # temporary strategy
-            self.geometry_widget.update_default_diameter(0.05)
+            self.geometry_widget.update_default_diameter(0.02)
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)

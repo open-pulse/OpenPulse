@@ -228,15 +228,15 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_y.setText("")
         self.lineEdit_delta_z.setText("")
 
-    def get_segment_tag(self):
-        tag = 1
-        stop = False
-        while not stop:
-            if tag in self.segment_information.keys():
-                tag += 1
-            else:
-                stop = True
-        return tag
+    # def get_segment_tag(self):
+    #     tag = 1
+    #     stop = False
+    #     while not stop:
+    #         if tag in self.segment_information.keys():
+    #             tag += 1
+    #         else:
+    #             stop = True
+    #     return tag
 
     def define_cross_section(self):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
@@ -259,7 +259,7 @@ class AddStructuresWidget(QWidget):
             self.cross_section_widget.get_beam_section_parameters()
             self.cross_section_info = self.cross_section_widget.beam_section_info
             # temporary strategy
-            self.geometry_widget.update_default_diameter(0.01)
+            self.geometry_widget.update_default_diameter(0.02)
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)

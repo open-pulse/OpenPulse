@@ -1,5 +1,7 @@
 from opps.model import Pipe, Bend, Point, Flange
 
+from collections import defaultdict
+
 from pulse.tools.utils import m_to_mm, in_to_mm, mm_to_m
 from pulse import app
 
@@ -215,25 +217,26 @@ class GeometryHandler:
             coords = gmsh.model.getValue(*point, [])
             points_coords.append((point[1], mm_to_m(coords)))
 
+        self.map_points_according_to_coordinates(points_coords)
+
         associated_points = []
         for line in lines:
             associated_points.append(gmsh.model.get_adjacencies(*line)[1][0])
             associated_points.append(gmsh.model.get_adjacencies(*line)[1][1])
 
-        center_points = []
+        unconnected_points = []
         for point in points:
             if point[1] not in associated_points:
-                center_points.append(point[1])
+                unconnected_points.append(point[1])
 
-        for line in lines: 
+        for line in lines:
+ 
             start_point = gmsh.model.get_adjacencies(*line)[1][0]
             end_point = gmsh.model.get_adjacencies(*line)[1][1]
             line_type = gmsh.model.get_type(*line)
 
             start_coords = (points_coords[start_point -1][1])
             end_coords = (points_coords[end_point -1][1])
-
-            # print(line, start_coords, end_coords)
 
             start = Point(*start_coords)
             end = Point(*end_coords)
@@ -242,32 +245,58 @@ class GeometryHandler:
                 pipe = Pipe(start, end)
 
             elif line_type == 'Circle':
-                for point in center_points:
+                #
+                cache_unconnected_points = unconnected_points.copy()
+
+                for point in cache_unconnected_points:
+
                     # the second argument is the coords of the tested center point
                     start_radius = math.dist(start_coords, points_coords[point-1][1])
                     end_radius = math.dist(end_coords, points_coords[point-1][1])
                     
                     if abs(start_radius - end_radius) <= 1e-10:
+
                         start_radius_center = start_radius
                         end_radius_center = end_radius
-                        center_point = point
+                        radius = (start_radius_center + end_radius_center) / 2
 
-                center_coords = np.array(points_coords[center_point - 1][1])
-                start_coords = np.array(start_coords)
-                end_coords = np.array(end_coords)
+                        if self.is_colinear(start_coords, start_point, point):
 
-                a_vector = start_coords - center_coords
-                b_vector = end_coords - center_coords
-                a_vector_normalized = a_vector / np.linalg.norm(a_vector)
-                b_vector_normalized = b_vector / np.linalg.norm(b_vector)
-                c_vector = a_vector_normalized + b_vector_normalized
-                c_vector_normalized = c_vector / np.linalg.norm(c_vector)
+                            corner_coords = np.array(points_coords[point - 1][1])
+                            corner = Point(*corner_coords)
+                            unconnected_points.remove(point)
 
-                radius = (start_radius_center + end_radius_center) / 2
-                corner_distance = (radius**2)*np.sqrt(2 / (np.dot(a_vector, b_vector) + radius**2))
-                corner_coords = center_coords + c_vector_normalized * corner_distance
+                            print(f"\nÉ colinear: {corner_coords}")
+                            print(f"Start coords: {start_coords}")
+                            print(f"End coords: {end_coords}")
 
-                corner = Point(*corner_coords)
+                        elif self.is_orthogonal(start_coords, start_point, point):
+                            
+                            center_coords = np.array(points_coords[point - 1][1])
+                            start_coords = np.array(start_coords)
+                            end_coords = np.array(end_coords)
+
+                            a_vector = start_coords - center_coords
+                            b_vector = end_coords - center_coords
+                            a_vector_normalized = a_vector / np.linalg.norm(a_vector)
+                            b_vector_normalized = b_vector / np.linalg.norm(b_vector)
+                            c_vector = a_vector_normalized + b_vector_normalized
+                            c_vector_normalized = c_vector / np.linalg.norm(c_vector)
+
+                            corner_distance = (radius**2)*np.sqrt(2 / (np.dot(a_vector, b_vector) + radius**2))
+                            corner_coords = center_coords + c_vector_normalized * corner_distance
+                            corner = Point(*corner_coords)
+
+                            unconnected_points.remove(point)
+
+                            print(f"\nÉ ortogonal: {corner_coords}")
+                            print(f"Start coords: {start_coords}")
+                            print(f"End coords: {end_coords}")
+
+                        else:
+
+                            continue
+
                 pipe = Bend(start, end, corner, radius)
 
             structures.append(pipe)
@@ -283,3 +312,92 @@ class GeometryHandler:
         #     editor.merge_coincident_points()
 
         # return pipeline
+
+    def map_points_according_to_coordinates(self, points_data):
+        """ This method maps points according to its nodal coordinates.
+        """
+        self.points_map  = defaultdict(list)
+        for (index, coords) in points_data:
+            key = str(list(np.round(coords, 8)))
+            self.points_map[key].append(index)
+            
+    def get_point_by_coords(self, coords):
+        """ This method returns the points with 'coords' nodal coordinates. 
+        """
+        key = str(list(np.round(coords, 8)))
+        try:
+            points = self.points_map[key]
+            return points
+        except:
+            return None
+        
+    def get_connecting_line_data(self, coords, point_i):
+        """ This method returns the line and its points of duplicated point
+            'point_i', where 'point_i' belongs to the line and curve simultaneously.
+        """
+        line = None
+        points = None
+        for point in self.get_point_by_coords(coords):
+            if point != point_i:
+                line = gmsh.model.get_adjacencies(0, point)[0][0]
+                points = list(gmsh.model.get_adjacencies(1, line)[1])
+        return line, points
+    
+    def is_colinear(self, _coords, _point, point_t):
+        """ This method returns True if the line 'point_t-pint_a' is colinear to 
+            the line connected to the curve and returns False elsewhere.
+        """
+        _, line_points = self.get_connecting_line_data(_coords, _point)
+        
+        if len(line_points) == 2:
+
+            point_a = line_points[0]
+            point_b = line_points[1]
+
+            coords_a = gmsh.model.getValue(0, point_a, [])
+            coords_b = gmsh.model.getValue(0, point_b, [])
+            coords_t = gmsh.model.getValue(0, point_t, [])
+            
+            coords_a = mm_to_m(coords_a)
+            coords_b = mm_to_m(coords_b)
+            coords_t = mm_to_m(coords_t)
+
+            vect_ab = coords_b - coords_a
+            vect_at = coords_t - coords_a
+
+            cross_product = np.linalg.norm(np.cross(vect_ab, vect_at))
+            # dot_product = np.dot(vect_ab, (coords_t-_coords))
+
+            if np.round(cross_product, 8) == 0:
+                return True
+            else:
+                return False
+            
+    def is_orthogonal(self, _coords, _point, point_t):
+        """ This method returns True if the line 'point_t-pint_a' is othogonal to 
+            the line connected to the curve and returns False elsewhere.
+        """
+        _, line_points = self.get_connecting_line_data(_coords, _point)
+        
+        if len(line_points) == 2:
+
+            point_a = line_points[0]
+            point_b = line_points[1]
+
+            coords_a = gmsh.model.getValue(0, point_a, [])
+            coords_b = gmsh.model.getValue(0, point_b, [])
+            coords_t = gmsh.model.getValue(0, point_t, [])
+            
+            coords_a = mm_to_m(coords_a)
+            coords_b = mm_to_m(coords_b)
+            coords_t = mm_to_m(coords_t)
+
+            vect_ab = coords_b - coords_a
+            # vect_at = coords_t - coords_a
+
+            dot_product = np.dot(vect_ab, (coords_t-_coords))
+
+            if np.round(dot_product, 8) == 0:
+                return True
+            else:
+                return False

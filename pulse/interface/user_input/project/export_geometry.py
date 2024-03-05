@@ -29,6 +29,7 @@ class ExportGeometry(QDialog):
         self.config = self.main_window.config
 
         self._initialize()
+        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_qt_actions()
