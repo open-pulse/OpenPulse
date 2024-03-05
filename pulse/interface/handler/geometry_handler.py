@@ -1,16 +1,14 @@
+from pulse import app
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import m_to_mm, in_to_mm, mm_to_m
+
 from opps.model import Pipe, Bend, Point, Flange
 
+import math
+import gmsh
+import numpy as np
 from collections import defaultdict
 
-from pulse.tools.utils import m_to_mm, in_to_mm, mm_to_m
-from pulse import app
-
-import math
-import numpy as np
-import sys
-import gmsh
-
-np.loadtxt
 
 def normalize(vector):
     return vector / np.linalg.norm(vector)
@@ -250,6 +248,17 @@ class GeometryHandler:
             start = Point(*start_coords)
             end = Point(*end_coords)
 
+            line_length = math.dist(start_coords, end_coords)
+
+            if line_length < 0.001:
+                window_title = "Warning"
+                title = "Small line length detected"
+                message = f"The line {line} has small length which may cause problems "
+                message += "in model processing. We reccomend to check the imported geometry "
+                message += "to avoid physical inconsistency in model results."
+                message += f"\n\nLine length: {round(line_length, 6)} [m]"
+                PrintMessageInput([window_title, title, message])
+
             if line_type == 'Line':
                 pipe = Pipe(start, end)
 
@@ -333,23 +342,19 @@ class GeometryHandler:
         b = X4 - X3
         c = X3 - X1
 
-        cross = np.linalg.norm(np.cross(a, b))
-        if np.round(cross, 8) != 0:
+        cross_ab = np.cross(a, b)
+        cross_cb = np.cross(c, b)
 
-            s = np.linalg.norm(np.cross(c, b)*np.cross(a, b))/(((np.linalg.norm(np.cross(a, b))))**2)
-
+        if np.round(np.linalg.norm(cross_ab), 8) != 0:
+            s = np.dot(cross_cb, cross_ab)/(((np.linalg.norm(cross_ab)))**2)
             Xc = X1 + a*s
-
             # print(start_point, self.get_point_by_coords(coords_start), points_Lstart)
             # print(end_point, self.get_point_by_coords(coords_end), points_Lend)
             # print(f"Corner coords: {Xc}")
             # print("start_point", X1, X2)
             # print("end_point", X3, X4, "\n")
-        
             return Xc
-        
         else:
-
             return None
 
     def get_radius(self, corner_coords, start_point, end_point):
