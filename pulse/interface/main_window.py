@@ -295,17 +295,20 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+        self.mesh_toolbar.setDisabled(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
         self.geometry_input_wigdet.add_widget.load_defined_unit()
 
     def action_structural_setup_workspace_callback(self):
+        self.mesh_toolbar.setDisabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
         self.plot_entities_with_cross_section()
 
     def action_acoustic_setup_workspace_callback(self):
+        self.mesh_toolbar.setDisabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)

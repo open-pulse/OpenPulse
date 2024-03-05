@@ -42,6 +42,7 @@ class OPPGeometryDesignerInput(QWidget):
         self.add_tab: QWidget
         self.edit_tab: QWidget
         self.empty_widget: QWidget
+        # self.pushButton_finalize.setDisabled(True)
 
     def _create_layout(self):
 
@@ -54,6 +55,8 @@ class OPPGeometryDesignerInput(QWidget):
         self.edit_stack.addWidget(self.edit_pipe_widget)
         self.edit_stack.addWidget(self.edit_bend_widget)
         self.edit_stack.addWidget(self.edit_point_widget)
+
+        self.setMinimumWidth(360)
 
     def _create_connections(self):
         self.geometry_widget.selection_changed.connect(self.selection_callback)
@@ -119,7 +122,7 @@ class OPPGeometryDesignerInput(QWidget):
         self.complete = True
 
     def export_entity_file(self):
-       
+
         tag = 1
         points_info = dict()
         section_info = dict()
@@ -128,21 +131,21 @@ class OPPGeometryDesignerInput(QWidget):
         pipeline = app().geometry_toolbox.pipeline
 
         for structure in pipeline.structures:
-            
+
             build_data = self.get_segment_build_info(structure)
 
             if build_data is not None:
                 points_info[tag] = build_data
-            
+
             if isinstance(structure, Bend) and structure.is_colapsed():               
                 continue
 
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
-            
+
             if "material_info" in structure.extra_info.keys():
                 material_info[tag] = structure.extra_info["material_info"]
-            
+
             if "structural_element_type" in structure.extra_info.keys():
                 element_type_info[tag] = structure.extra_info["structural_element_type"]
 
@@ -152,6 +155,7 @@ class OPPGeometryDesignerInput(QWidget):
             os.remove(self.file._entity_path)
 
         self.file.create_entity_file(section_info.keys())
+
         for tag, coords in points_info.items():
             self.file.add_segment_build_data_in_file(tag, coords)
 
