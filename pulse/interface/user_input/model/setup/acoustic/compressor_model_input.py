@@ -43,8 +43,8 @@ class CompressorModelInput(QDialog):
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
 
-        self._config_window()
         self._load_icons()
+        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
