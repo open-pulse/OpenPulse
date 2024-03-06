@@ -134,7 +134,7 @@
     <property name="title">
      <string>Graphic</string>
     </property>
-    <addaction name="action_plot_raw_lines"/>
+    <addaction name="action_plot_geometry_editor"/>
     <addaction name="action_plot_lines"/>
     <addaction name="action_plot_lines_with_cross_section"/>
     <addaction name="action_plot_mesh"/>
@@ -142,7 +142,6 @@
     <addaction name="action_plot_material"/>
     <addaction name="action_plot_fluid"/>
     <addaction name="action_user_preferences"/>
-    <addaction name="action_plot_geometry_editor"/>
    </widget>
    <widget class="QMenu" name="menu_general_settings">
     <property name="title">
@@ -450,9 +449,6 @@
    <property name="text">
     <string>Plot Raw Lines</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+1</string>
-   </property>
   </action>
   <action name="action_plot_lines">
    <property name="text">
@@ -510,6 +506,9 @@
   <action name="action_plot_geometry_editor">
    <property name="text">
     <string>Plot Geometry Editor</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="action_create_edit_geometry">

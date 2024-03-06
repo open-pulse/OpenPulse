@@ -207,6 +207,10 @@ class MainWindow(QMainWindow):
         self.action_show_lines: QAction
         self.action_show_tubes: QAction
         self.action_show_symbols: QAction
+        self.action_plot_geometry_editor: QAction
+        self.action_plot_lines: QAction
+        self.action_plot_lines_with_cross_section: QAction
+        self.action_plot_mesh: QAction
         
         # QMenu
         self.menu_recent: QMenu
@@ -359,7 +363,11 @@ class MainWindow(QMainWindow):
     def action_reset_callback(self):
         self.input_widget.reset_project()
 
-    def action_plot_raw_lines_callback(self):
+    def action_plot_geometry_editor_callback(self):
+        self.action_show_points.setChecked(True)
+        self.action_show_lines.setChecked(True)
+        self.action_show_tubes.setChecked(True)
+        self.action_show_symbols.setChecked(True)
         self.use_geometry_workspace()
 
     def action_plot_lines_callback(self):
