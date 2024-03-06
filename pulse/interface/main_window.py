@@ -6,16 +6,15 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-
 from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
-
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+from opps.io.pcf.pcf_exporter import PCFExporter
 
 import os
 import sys
@@ -90,6 +89,16 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
         app().update()
+
+    def export_pcf(self):
+        path, ok = QFileDialog.getSaveFileName(self, 'Export PCF', '', 'PCF (*.pcf)')
+        if not ok:
+            return
+
+        pipeline = app().geometry_toolbox.pipeline
+        self.pcf_exporter = PCFExporter()
+        self.pcf_exporter.save(path, pipeline)
+        self.update()
 
     def export_geometry(self):
         self.input_widget.export_geometry()
@@ -211,6 +220,8 @@ class MainWindow(QMainWindow):
         self.action_plot_lines: QAction
         self.action_plot_lines_with_cross_section: QAction
         self.action_plot_mesh: QAction
+        action_export_piping: QAction
+
         
         # QMenu
         self.menu_recent: QMenu
@@ -320,6 +331,9 @@ class MainWindow(QMainWindow):
 
     def action_save_project_as_callback(self):
         self.input_widget.save_project_as()
+
+    def action_export_piping_callback(self):
+        self.export_pcf()
 
     def action_export_geometry_callback(self):
         self.export_geometry()
