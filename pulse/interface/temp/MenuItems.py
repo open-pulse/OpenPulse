@@ -393,7 +393,7 @@ class MenuItems(QTreeWidget):
         elif item == self.item_child_setPrescribedDofs:
             if not self.item_child_setPrescribedDofs.isDisabled():
                 self.update_plot_mesh()
-                self.mainWindow.getInputWidget().setDOF()
+                self.mainWindow.getInputWidget().set_dof()
                 self.mainWindow.plot_mesh()
 
         elif item == self.item_child_setNodalLoads:

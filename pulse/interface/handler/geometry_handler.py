@@ -468,6 +468,7 @@ class GeometryHandler:
                     self.merged_points.append(point)
 
             self.map_points_according_to_coordinates()
+            print(self.merged_points)
             # print(np.array(list(self.points_coords.values())))
 
     def print_merged_nodes_message(self):

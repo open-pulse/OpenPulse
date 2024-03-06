@@ -142,7 +142,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_set_prescribed_dofs_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.setDOF()
+        self.mainWindow.input_widget.set_dof()
         self.mainWindow.plot_mesh()
 
     def item_child_set_nodal_loads_callback(self):

@@ -16,6 +16,7 @@ from pathlib import Path
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
+
         uic.loadUi(UI_DIR / "model/geometry/add_widget.ui", self)
 
         self.geometry_widget = geometry_widget
@@ -42,7 +43,6 @@ class AddStructuresWidget(QWidget):
     def _define_qt_variables(self):
         # QComboBox
         self.comboBox_length_unit : QComboBox
-        self.comboBox_section_type : QComboBox
         self.comboBox_bending_type : QComboBox
 
         # QGridLayout
@@ -91,8 +91,12 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material)
 
-    def _update_permissions(self):
-        enable_pipe = self.cross_section_info is not None
+    def _update_permissions(self, force_disable=False):
+        
+        if force_disable:
+            enable_pipe = False
+        else:
+            enable_pipe = self.cross_section_info is not None
 
         self.lineEdit_delta_x.setEnabled(enable_pipe)
         self.lineEdit_delta_y.setEnabled(enable_pipe)
@@ -123,8 +127,7 @@ class AddStructuresWidget(QWidget):
     def show_cross_section_widget(self):
         # self.run_help()
         self.cross_section_widget._add_icon_and_title()
-        section_type = self.comboBox_section_type.currentIndex()
-        self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
+        self.cross_section_widget.set_inputs_to_geometry_creator()            
         self.cross_section_widget.setVisible(True)
 
     def show_material_widget(self):
@@ -176,8 +179,12 @@ class AddStructuresWidget(QWidget):
         return dx, dy, dz
 
     def coords_modified_callback(self):
+        self._disable_add_segment_button()
         try:
             dx, dy, dz = self.get_segment_deltas()
+            if (dx, dy, dz) == (0, 0, 0):
+                return
+            self.pushButton_add_segment.setDisabled(False)
         except ValueError:
             return
 
@@ -187,6 +194,20 @@ class AddStructuresWidget(QWidget):
         else:
             bend_pipe = False
         self.geometry_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
+
+    def _disable_add_segment_button(self, _bool=True):
+        self.pushButton_add_segment.setDisabled(_bool)
+
+    def update(self):
+        super().update()
+        *_, point = app().get_selected_points()
+        if point is None:
+            return
+        
+        print(point)
+        # self.dx_box.setText(str(point.x))
+        # self.dy_box.setText(str(point.y))
+        # self.dz_box.setText(str(point.z))
 
     def create_segment_callback(self):
         try:

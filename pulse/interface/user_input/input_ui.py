@@ -16,7 +16,7 @@ from pulse.interface.user_input.model.setup.general.fluid_input import FluidInpu
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
-from pulse.interface.user_input.model.setup.structural.dofInput import DOFInput
+from pulse.interface.user_input.model.setup.structural.dof_input import DOFInput
 from pulse.interface.user_input.model.setup.structural.loadsInput import LoadsInput
 from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
 from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
@@ -234,8 +234,8 @@ class InputUi:
     def set_beam_xaxis_rotation(self):
         self.processInput(BeamXaxisRotationInput, self.project, self.opv)
         
-    def setDOF(self):
-        self.processInput(DOFInput, self.project, self.opv)   
+    def set_dof(self):
+        self.processInput(DOFInput)
         
     def setRotationDecoupling(self):
         self.processInput(DecouplingRotationDOFsInput, self.project, self.opv)

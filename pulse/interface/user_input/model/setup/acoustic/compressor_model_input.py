@@ -71,82 +71,83 @@ class CompressorModelInput(QDialog):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_connection_setup = self.findChild(QComboBox, 'comboBox_connection_setup')
-        self.comboBox_cylinder_acting = self.findChild(QComboBox, 'comboBox_cylinder_acting')
-        self.comboBox_frequency_resolution = self.findChild(QComboBox, 'comboBox_frequency_resolution')
-        self.comboBox_compressors_tables = self.findChild(QComboBox, 'comboBox_compressors_tables')
-        self.comboBox_stage = self.findChild(QComboBox, 'comboBox_stage')
-        self.comboBox_suction_pressure_units = self.findChild(QComboBox, 'comboBox_suction_pressure_units')
-        self.comboBox_suction_temperature_units = self.findChild(QComboBox, 'comboBox_suction_temperature_units')
+        self.comboBox_connection_setup : QComboBox
+        self.comboBox_cylinder_acting : QComboBox
+        self.comboBox_frequency_resolution : QComboBox
+        self.comboBox_compressors_tables : QComboBox
+        self.comboBox_stage : QComboBox
+        self.comboBox_suction_pressure_units : QComboBox
+        self.comboBox_suction_temperature_units : QComboBox
         # QLabel
-        self.label_molar_mass = self.findChild(QLabel, 'label_molar_mass')
-        self.label_molar_mass_unit = self.findChild(QLabel, 'label_molar_mass_unit')
-        self.label_isentropic_exp = self.findChild(QLabel, 'label_isentropic_exp')
-        self.label_isentropic_exp_unit = self.findChild(QLabel, 'label_isentropic_exp_unit') 
+        self.label_molar_mass : QLabel
+        self.label_molar_mass_unit : QLabel
+        self.label_isentropic_exp : QLabel
+        self.label_isentropic_exp_unit : QLabel
         # QLineEdit
-        self.lineEdit_suction_node_ID = self.findChild(QLineEdit, 'lineEdit_suction_node_ID')
-        self.lineEdit_discharge_node_ID = self.findChild(QLineEdit, 'lineEdit_discharge_node_ID')
-        self.lineEdit_frequency_resolution = self.findChild(QLineEdit, 'lineEdit_frequency_resolution')
-        self.lineEdit_number_of_revolutions = self.findChild(QLineEdit, 'lineEdit_number_of_revolutions')
-        self.lineEdit_bore_diameter = self.findChild(QLineEdit, 'lineEdit_bore_diameter')
-        self.lineEdit_stroke = self.findChild(QLineEdit, 'lineEdit_stroke')
-        self.lineEdit_connecting_rod_length = self.findChild(QLineEdit, 'lineEdit_connecting_rod_length')
-        self.lineEdit_rod_diameter = self.findChild(QLineEdit, 'lineEdit_rod_diameter')
-        self.lineEdit_pressure_ratio = self.findChild(QLineEdit, 'lineEdit_pressure_ratio')
-        self.lineEdit_clearance_head_end = self.findChild(QLineEdit, 'lineEdit_clearance_head_end')
-        self.lineEdit_clearance_crank_end = self.findChild(QLineEdit, 'lineEdit_clearance_crank_end')
-        self.lineEdit_rotational_speed = self.findChild(QLineEdit, 'lineEdit_rotational_speed')
-        self.lineEdit_isentropic_exponent = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent')
-        self.lineEdit_molar_mass = self.findChild(QLineEdit, 'lineEdit_molar_mass')
-        self.lineEdit_pressure_at_suction = self.findChild(QLineEdit, 'lineEdit_pressure_at_suction')
-        self.lineEdit_temperature_at_suction = self.findChild(QLineEdit, 'lineEdit_temperature_at_suction')
-        self.lineEdit_selection_info = self.findChild(QLineEdit, 'lineEdit_selection_info')
-        self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
-        self.lineEdit_table_name_info = self.findChild(QLineEdit, 'lineEdit_table_name_info')
+        self.lineEdit_suction_node_ID : QLineEdit
+        self.lineEdit_discharge_node_ID : QLineEdit
+        self.lineEdit_frequency_resolution : QLineEdit
+        self.lineEdit_number_of_revolutions : QLineEdit
+        self.lineEdit_bore_diameter : QLineEdit
+        self.lineEdit_stroke : QLineEdit
+        self.lineEdit_connecting_rod_length : QLineEdit
+        self.lineEdit_rod_diameter : QLineEdit
+        self.lineEdit_pressure_ratio : QLineEdit
+        self.lineEdit_clearance_head_end : QLineEdit
+        self.lineEdit_clearance_crank_end : QLineEdit
+        self.lineEdit_rotational_speed : QLineEdit
+        self.lineEdit_isentropic_exponent : QLineEdit
+        self.lineEdit_molar_mass : QLineEdit
+        self.lineEdit_pressure_at_suction : QLineEdit
+        self.lineEdit_temperature_at_suction : QLineEdit
+        self.lineEdit_selection_info : QLineEdit
+        self.lineEdit_node_ID_info : QLineEdit
+        self.lineEdit_table_name_info : QLineEdit
         self.current_lineEdit = self.lineEdit_suction_node_ID
         # QPushButton
-        self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
-        self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
-        self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
-        self.pushButton_plot_PV_diagram_crank_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_crank_end')
-        self.pushButton_plot_PV_diagram_both_ends = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_both_ends')
-        self.pushButton_plot_piston_position_and_velocity_time = self.findChild(QPushButton, 'pushButton_plot_piston_position_and_velocity_time')
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_time')
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
-        self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
-        self.pushButton_plot_rod_pressure_load_time = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_time')
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_frequency')
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_frequency')
-        self.pushButton_plot_pressure_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_head_end_angle')
-        self.pushButton_plot_volume_head_end_angle = self.findChild(QPushButton, 'pushButton_plot_volume_head_end_angle')
-        self.pushButton_plot_pressure_crank_end_angle = self.findChild(QPushButton, 'pushButton_plot_pressure_crank_end_angle')
-        self.pushButton_plot_volume_crank_end_angle = self.findChild(QPushButton, 'pushButton_plot_volume_crank_end_angle')
-        self.pushButton_process_aquisition_parameters = self.findChild(QPushButton, 'pushButton_process_aquisition_parameters')
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_remove_table = self.findChild(QPushButton, 'pushButton_remove_table')
-        self.pushButton_reset_node = self.findChild(QPushButton, 'pushButton_reset_node')
-        self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
+        self.pushButton_flipNodes : QPushButton
+        self.pushButton_reset_entries : QPushButton
+        self.pushButton_plot_PV_diagram_head_end : QPushButton
+        self.pushButton_plot_PV_diagram_crank_end : QPushButton
+        self.pushButton_plot_PV_diagram_both_ends : QPushButton
+        self.pushButton_plot_piston_position_and_velocity_time : QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time : QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time : QPushButton
+        self.pushButton_plot_rod_pressure_load_frequency : QPushButton
+        self.pushButton_plot_rod_pressure_load_time : QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency : QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency : QPushButton
+        self.pushButton_plot_pressure_head_end_angle : QPushButton
+        self.pushButton_plot_volume_head_end_angle : QPushButton
+        self.pushButton_plot_pressure_crank_end_angle : QPushButton
+        self.pushButton_plot_volume_crank_end_angle : QPushButton
+        self.pushButton_process_aquisition_parameters : QPushButton
+        self.pushButton_confirm : QPushButton
+        self.pushButton_remove_table : QPushButton
+        self.pushButton_reset_node : QPushButton
+        self.pushButton_reset_all : QPushButton
+        self.pushButton_cancel : QPushButton
         #
         self.pushButton_reset_entries.setCursor(Qt.PointingHandCursor)
         self.pushButton_process_aquisition_parameters.setCursor(Qt.PointingHandCursor)
         self.pushButton_confirm.setCursor(Qt.PointingHandCursor)
+        self.pushButton_cancel.setCursor(Qt.PointingHandCursor)
         #
         # QRadioButton
         #
         # QSpinBox
-        self.spinBox_number_of_points = self.findChild(QSpinBox, 'spinBox_number_of_points')
-        self.spinBox_max_frequency = self.findChild(QSpinBox, 'spinBox_max_frequency')
-        self.spinBox_number_of_cylinders = self.findChild(QSpinBox, 'spinBox_number_of_cylinders')
-        self.spinBox_tdc1_crank_angle = self.findChild(QSpinBox, 'spinBox_tdc1_crank_angle')
-        self.spinBox_tdc2_crank_angle = self.findChild(QSpinBox, 'spinBox_tdc2_crank_angle')
-        self.spinBox_capacity = self.findChild(QSpinBox, 'spinBox_capacity')
+        self.spinBox_number_of_points : QSpinBox
+        self.spinBox_max_frequency : QSpinBox
+        self.spinBox_number_of_cylinders : QSpinBox
+        self.spinBox_tdc1_crank_angle : QSpinBox
+        self.spinBox_tdc2_crank_angle : QSpinBox
+        self.spinBox_capacity : QSpinBox
         # QTabWidget
-        self.tabWidget_compressor = self.findChild(QTabWidget, 'tabWidget_compressor')
+        self.tabWidget_compressor : QTabWidget
         # QWidget
-        self.tab_setup = self.findChild(QWidget, "tab_setup")
-        self.tab_plots = self.findChild(QWidget, "tab_plots")
-        self.tab_remove = self.findChild(QWidget, "tab_remove")
+        self.tab_setup : QWidget
+        self.tab_plots : QWidget
+        self.tab_remove : QWidget
         # QTreeWidget
         self.treeWidget_compressor_excitation = self.findChild(QTreeWidget, 'treeWidget_compressor_excitation')
         self.treeWidget_compressor_excitation.setColumnWidth(0, 70)
@@ -186,7 +187,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_remove_table.clicked.connect(self.remove_table)
         self.pushButton_reset_node.clicked.connect(self.reset_node)
         self.pushButton_reset_all.clicked.connect(self.reset_all)
-        self.pushButton_close.clicked.connect(self.force_to_close)
+        self.pushButton_cancel.clicked.connect(self.force_to_close)
         #
         self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)        
         self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)

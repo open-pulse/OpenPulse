@@ -273,15 +273,8 @@ class CrossSectionWidget(QWidget):
             self.lineEdit_outside_diameter_final.setText(str(outside_diameter))
             self.lineEdit_wall_thickness_final.setText(str(thickness))
 
-    def set_inputs_to_geometry_creator(self, section_type=0):
+    def set_inputs_to_geometry_creator(self):
         self.tabWidget_general.setTabVisible(2,False)
-        # self.tabWidget_pipe_section.setCurrentTab(0)
-        if section_type == 0:
-            self.tabWidget_general.setTabVisible(0,True)
-            self.tabWidget_general.setTabVisible(1,False)
-        else:
-            self.tabWidget_general.setTabVisible(0,False)
-            self.tabWidget_general.setTabVisible(1,True)
         self.lineEdit_element_id_initial.setVisible(False)
         self.lineEdit_element_id_final.setVisible(False)
         self.pushButton_flip_element_ids_initial.setVisible(False)
