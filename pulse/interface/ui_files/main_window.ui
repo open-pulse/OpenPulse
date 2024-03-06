@@ -124,6 +124,7 @@
     <addaction name="action_import_geometry"/>
     <addaction name="action_export_geometry"/>
     <addaction name="action_import_piping"/>
+    <addaction name="action_export_piping"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
     <addaction name="action_set_dark_theme"/>
@@ -295,10 +296,10 @@
   </action>
   <action name="action_import_piping">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-    <string>Import piping</string>
+    <string>Import Piping</string>
    </property>
    <property name="toolTip">
     <string>Import Piping</string>
@@ -832,6 +833,11 @@
   <action name="action_remove_themes">
    <property name="text">
     <string>Remove themes</string>
+   </property>
+  </action>
+  <action name="action_export_piping">
+   <property name="text">
+    <string>Export Piping</string>
    </property>
   </action>
  </widget>
