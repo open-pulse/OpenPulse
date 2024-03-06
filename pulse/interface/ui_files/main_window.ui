@@ -479,16 +479,25 @@
    </property>
   </action>
   <action name="action_plot_cross_section">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Plot Cross-section</string>
    </property>
   </action>
   <action name="action_plot_material">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Plot Material</string>
    </property>
   </action>
   <action name="action_plot_fluid">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Plot Fluid</string>
    </property>
