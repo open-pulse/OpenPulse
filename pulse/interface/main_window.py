@@ -15,6 +15,7 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
+from opps.io.pcf.pcf_handler import PCFHandler
 
 import os
 import sys
@@ -89,6 +90,50 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
         app().update()
+    
+    def open_pcf(self):
+        '''
+        This function is absolutelly disgusting. I will refactor this next week, 
+        but for now it will be like this just in order to make the bosses happy =)
+        '''
+        from opps.model import Pipe, Bend, Flange
+
+        path, ok = QFileDialog.getOpenFileName(self, 'Load PCF', '', 'PCF (*.pcf)')
+        if not ok:
+            return
+
+        app().geometry_toolbox.open(path)
+        pipeline = app().geometry_toolbox.pipeline
+
+        for structure in pipeline.structures:
+            if isinstance(structure, Pipe | Bend):
+                if structure.start_diameter == structure.end_diameter:
+                    section_label = 'Pipe section'
+                    start_thickness = structure.start_diameter * 0.05
+                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0]
+                else:
+                    section_label = 'Pipe variable section'  # not sure if it is the correct string
+                    start_thickness = structure.start_diameter * 0.05
+                    end_thickness = structure.end_diameter * 0.05
+                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0, 
+                                          structure.end_diameter, end_thickness, 0, 0, 0, 0]
+
+            elif isinstance(structure, Flange):
+                section_label = 'Pipe section'
+                thickness = structure.diameter * 0.05
+                section_parameters = [structure.diameter, thickness, 0, 0, 0, 0]
+
+            cross_section_info = {
+                'section_type_label': section_label, 
+                'section_parameters': section_parameters
+            }
+
+            # There are no beans in pcf files, therefore it is pipe_1
+            structure.extra_info["structural_element_type"] = "pipe_1"
+            structure.extra_info["cross_section_info"] = cross_section_info
+
+        app().update()
+        # self.geometry_input_wigdet.export_entity_file()
 
     def export_pcf(self):
         path, ok = QFileDialog.getSaveFileName(self, 'Export PCF', '', 'PCF (*.pcf)')
@@ -96,8 +141,8 @@ class MainWindow(QMainWindow):
             return
 
         pipeline = app().geometry_toolbox.pipeline
-        self.pcf_exporter = PCFExporter()
-        self.pcf_exporter.save(path, pipeline)
+        pcf_exporter = PCFExporter()
+        pcf_exporter.save(path, pipeline)
         self.update()
 
     def export_geometry(self):
@@ -331,6 +376,9 @@ class MainWindow(QMainWindow):
 
     def action_save_project_as_callback(self):
         self.input_widget.save_project_as()
+
+    def action_import_piping_callback(self):
+        self.open_pcf()
 
     def action_export_piping_callback(self):
         self.export_pcf()
