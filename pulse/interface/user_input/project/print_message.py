@@ -81,6 +81,14 @@ class PrintMessageInput(QDialog):
         self.label_title.setText(self.title2)
         self.label_message.setText(self.message)
         self.setWindowTitle(self.window_title)
+
+        if self.window_title in ["Error", "ERROR"]:
+            icon = get_error_icon(QColor(255,0,0,200))
+            self.setWindowIcon(icon)
+        elif self.window_title in ["Warning", "WARNING"]:
+            icon = get_warning_icon()
+            self.setWindowIcon(icon)
+        
         self.adjustSize()
         self.label_message.setAlignment(Qt.AlignCenter)
         if self.auto_close:

@@ -18,3 +18,19 @@ def get_formatted_icon(path: Path | str, color: QColor):
 def get_openpulse_icon(color=QColor("#0055DD")):
     icon_path = str(Path('data/icons/pulse.png'))
     return get_formatted_icon(icon_path, color)
+
+def get_warning_icon(color=None):
+    if color is None:
+        icon_path = str(Path('data/icons/warnings/warning_2.png'))
+        return QIcon(icon_path)
+    else:
+        icon_path = str(Path('data/icons/warnings/transparent_warning.png'))
+        return get_formatted_icon(icon_path, color)
+
+def get_error_icon(color=None):
+    if color is None:
+        icon_path = str(Path('data/icons/warnings/warning_2.png'))
+        return QIcon(icon_path)
+    else:
+        icon_path = str(Path('data/icons/warnings/transparent_warning.png'))
+        return get_formatted_icon(icon_path, color)

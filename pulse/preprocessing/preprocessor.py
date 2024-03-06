@@ -718,7 +718,7 @@ class Preprocessor:
                 message += "We strongly recommend reducing the element size or correcting the problem "
                 message += "in the geometry file before proceeding with the model setup.\n\n"
                 message += f"List of disconnected node(s): \n{list_node_ids}"
-                PrintMessageInput([window_title_1, title, message])                
+                PrintMessageInput([window_title_2, title, message])                
         
     def get_line_from_node_id(self, node_ids):
 

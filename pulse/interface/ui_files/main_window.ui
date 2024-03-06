@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -107,6 +107,10 @@
     <widget class="QMenu" name="menu_recent">
      <property name="title">
       <string>Recent Projects</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>../../../data/icons/common/recent.png</normaloff>../../../data/icons/common/recent.png</iconset>
      </property>
      <addaction name="actionfiles"/>
     </widget>
@@ -120,7 +124,6 @@
     <addaction name="action_import_geometry"/>
     <addaction name="action_export_geometry"/>
     <addaction name="action_import_piping"/>
-    <addaction name="action_export_png"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
     <addaction name="action_set_dark_theme"/>
@@ -186,7 +189,6 @@
    <addaction name="action_new_project"/>
    <addaction name="action_open_project"/>
    <addaction name="action_reset"/>
-   <addaction name="action_export_png"/>
    <addaction name="separator"/>
    <addaction name="action_top_view"/>
    <addaction name="action_bottom_view"/>
@@ -201,13 +203,11 @@
    <addaction name="action_show_tubes"/>
    <addaction name="action_show_symbols"/>
    <addaction name="separator"/>
-   <addaction name="action_hide_selection"/>
-   <addaction name="action_unhide_all"/>
   </widget>
   <action name="action_new_project">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/add.png</normaloff>../../../data/icons/add.png</iconset>
+     <normaloff>../../../data/icons/common/new_file.png</normaloff>../../../data/icons/common/new_file.png</iconset>
    </property>
    <property name="text">
     <string>New Project</string>
@@ -219,7 +219,7 @@
   <action name="action_open_project">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/009-download.png</normaloff>../../../data/icons/009-download.png</iconset>
+     <normaloff>../../../data/icons/common/import.png</normaloff>../../../data/icons/common/import.png</iconset>
    </property>
    <property name="text">
     <string>Open Project</string>
@@ -243,7 +243,7 @@
   <action name="action_reset">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/refresh.png</normaloff>../../../data/icons/refresh.png</iconset>
+     <normaloff>../../../data/icons/common/reset-image (2).png</normaloff>../../../data/icons/common/reset-image (2).png</iconset>
    </property>
    <property name="text">
     <string>Reset Project</string>
@@ -256,6 +256,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../data/icons/common/save.png</normaloff>../../../data/icons/common/save.png</iconset>
+   </property>
    <property name="text">
     <string>Save Project</string>
    </property>
@@ -267,6 +271,10 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../data/icons/common/save_as.png</normaloff>../../../data/icons/common/save_as.png</iconset>
+   </property>
    <property name="text">
     <string>Save Project As</string>
    </property>
@@ -277,6 +285,10 @@
   <action name="action_import_geometry">
    <property name="enabled">
     <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../data/icons/geometry_icon.png</normaloff>../../../data/icons/geometry_icon.png</iconset>
    </property>
    <property name="text">
     <string>Import Geometry</string>
@@ -425,7 +437,7 @@
   <action name="action_exit">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/exit.png</normaloff>../../../data/icons/exit.png</iconset>
+     <normaloff>../../../data/icons/common/exit.png</normaloff>../../../data/icons/common/exit.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -780,11 +792,19 @@
    </property>
   </action>
   <action name="action_set_dark_theme">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../data/icons/common/moon_icon.png</normaloff>../../../data/icons/common/moon_icon.png</iconset>
+   </property>
    <property name="text">
     <string>Use dark theme</string>
    </property>
   </action>
   <action name="action_set_light_theme">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../data/icons/common/sun_icon.png</normaloff>../../../data/icons/common/sun_icon.png</iconset>
+   </property>
    <property name="text">
     <string>Use light theme</string>
    </property>

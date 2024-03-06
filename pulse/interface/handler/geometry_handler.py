@@ -9,6 +9,8 @@ import gmsh
 import numpy as np
 from collections import defaultdict
 
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 def normalize(vector):
     return vector / np.linalg.norm(vector)
@@ -20,6 +22,9 @@ class GeometryHandler:
     def _initialize(self):
         self.length_unit = "meter"
         self.pipeline = list()
+        self.merged_points = list()
+        self.points_coords = dict()
+        self.points_coords_cache = dict()
 
     def set_pipeline(self, pipeline):
         self.pipeline = pipeline
@@ -203,19 +208,16 @@ class GeometryHandler:
         gmsh.option.setNumber('Geometry.Tolerance', 0.001)
         gmsh.open(str(path))
 
-        editor = app().geometry_toolbox.editor
-        editor.reset()
-
-        structures = [] 
         points = gmsh.model.get_entities(0)
         lines = gmsh.model.get_entities(1)
-        
-        points_coords = []
+
+        self.points_coords = dict()
         for point in points:
             coords = gmsh.model.getValue(*point, [])
-            points_coords.append((point[1], mm_to_m(coords)))
+            self.points_coords[point[1]] = mm_to_m(coords)
 
-        self.map_points_according_to_coordinates(points_coords)
+        self.points_coords_cache = self.points_coords.copy()
+        self.map_points_according_to_coordinates()
 
         associated_points = []
         for line in lines:
@@ -227,14 +229,36 @@ class GeometryHandler:
             if point[1] not in associated_points:
                 unconnected_points.append(point[1])
 
-        # # temporary
+        # # # temporary
         # N = len(points_coords)
         # _data = np.zeros((N, 4), dtype=float)
-        # for i, (_index, _coords) in enumerate(points_coords):
+        # for i, _index, _coords in enumerate(points_coords.items()):
         #     _data[i, 0 ] = _index
-        #     _data[i, 1:] = _coords 
+        #     _data[i, 1:] = _coords
 
         # np.savetxt("coordenadas_pontos.dat", _data, delimiter=",", fmt="%i %e %e %e")
+
+        editor = app().geometry_toolbox.editor
+        editor.reset()
+
+        structures = list()
+
+        for structure_a in self.process_curved_lines(lines):
+            structures.append(structure_a)
+
+        for structure_b in self.process_straight_lines(lines):
+            structures.append(structure_b)
+
+        editor.pipeline.structures = structures
+        # editor.structures.extend(structures)
+        editor.merge_coincident_points()
+
+        if len(self.merged_points):
+            self.print_merged_nodes_message()
+    
+    def process_curved_lines(self, lines):
+
+        curved_structures = []
 
         for line in lines:
 
@@ -244,27 +268,26 @@ class GeometryHandler:
                 end_point = gmsh.model.get_adjacencies(*line)[1][1]
                 line_type = gmsh.model.get_type(*line)
 
-                start_coords = (points_coords[start_point -1][1])
-                end_coords = (points_coords[end_point -1][1])
+                start_coords = self.get_point_coords(start_point)
+                end_coords = self.get_point_coords(end_point)
 
                 start = Point(*start_coords)
                 end = Point(*end_coords)
 
                 line_length = math.dist(start_coords, end_coords)
-
+                
                 if line_length < 0.001:
-                    window_title = "Warning"
-                    title = "Small line length detected"
-                    message = f"The line {line} has small length which may cause problems "
-                    message += "in model processing. We reccomend to check the imported geometry "
-                    message += "to avoid physical inconsistency in model results."
-                    message += f"\n\nLine length: {round(line_length, 6)} [m]"
-                    PrintMessageInput([window_title, title, message])
+                    self.print_warning_for_small_length(line, line_length)
 
-                if line_type == 'Line':
-                    pipe = Pipe(start, end)
+                if line_type == 'Circle':
 
-                elif line_type == 'Circle':
+                    if len(self.get_point_by_coords(start_coords)) < 2:
+                        self.merge_near_points(start_coords)
+                        start_coords = self.get_point_coords(start_point)
+
+                    if len(self.get_point_by_coords(end_coords)) < 2:
+                        self.merge_near_points(end_coords)
+                        end_coords = self.get_point_coords(end_point)                    
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
 
@@ -277,39 +300,71 @@ class GeometryHandler:
                     radius = self.get_radius(corner_coords, start_point, end_point)
                     
                     corner = Point(*corner_coords)
+
                     pipe = Bend(start, end, corner, radius)
+                    curved_structures.append(pipe)
 
             except Exception as error_log:
 
-                # coords_start = mm_to_m(gmsh.model.getValue(0, start_point, []))
-                # coords_end = mm_to_m(gmsh.model.getValue(0, end_point, []))
-                # _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
-                # _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
-                # print(start_point, coords_start, points_Lstart)
-                # print(end_point, coords_end, points_Lend)
-
-                window_title = "Error"
-                title = "Error while processing geometry data"
+                title = "Error while processing curved structures"
                 message = str(error_log)
                 message += f"\n\nLine: {line}"
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([window_title_1, title, message])
+                
+                continue
+        
+        return curved_structures
+
+    def process_straight_lines(self, lines):
+
+        straight_structures = []
+
+        for line in lines:
+
+            try:
+
+                start_point = gmsh.model.get_adjacencies(*line)[1][0]
+                end_point = gmsh.model.get_adjacencies(*line)[1][1]
+                line_type = gmsh.model.get_type(*line)
+
+                start_coords = self.get_point_coords(start_point)
+                end_coords = self.get_point_coords(end_point)
+
+                line_length = math.dist(start_coords, end_coords)
+                
+                if line_length < 0.001:
+                    self.print_warning_for_small_length(line, line_length)
+
+                if line_type == 'Line':
+
+                    start = Point(*start_coords)
+                    end = Point(*end_coords)
+
+                    pipe = Pipe(start, end)
+                    straight_structures.append(pipe)
+
+            except Exception as error_log:
+
+                title = "Error while processing straight structures"
+                message = str(error_log)
+                message += f"\n\nLine: {line}"
+                PrintMessageInput([window_title_1, title, message])
                 
                 continue
 
-            structures.append(pipe)
+        return straight_structures
 
-        editor.pipeline.structures = structures
-        # editor.structures.extend(structures)
-        editor.merge_coincident_points()
-
-    def map_points_according_to_coordinates(self, points_data):
+    def map_points_according_to_coordinates(self):
         """ This method maps points according to its nodal coordinates.
         """
         self.points_map  = defaultdict(list)
-        for (index, coords) in points_data:
+        for index, coords in self.points_coords.items():
             key = str(list(np.round(coords, 8)))
             self.points_map[key].append(index)
-            
+
+    def get_point_coords(self, point):
+        return self.points_coords[point]
+
     def get_point_by_coords(self, coords):
         """ This method returns the points with 'coords' nodal coordinates. 
         """
@@ -319,7 +374,7 @@ class GeometryHandler:
             return points
         except:
             return None
-        
+
     def get_connecting_line_data(self, coords, point_i):
         """ This method returns the line and its points of duplicated point
             'point_i', where 'point_i' belongs to the line and curve simultaneously.
@@ -359,11 +414,6 @@ class GeometryHandler:
         if np.round(np.linalg.norm(cross_ab), 8) != 0:
             s = np.dot(cross_cb, cross_ab)/(((np.linalg.norm(cross_ab)))**2)
             Xc = X1 + a*s
-            # print(start_point, self.get_point_by_coords(coords_start), points_Lstart)
-            # print(end_point, self.get_point_by_coords(coords_end), points_Lend)
-            # print(f"Corner coords: {Xc}")
-            # print("start_point", X1, X2)
-            # print("end_point", X3, X4, "\n")
             return Xc
         else:
             return None
@@ -371,7 +421,6 @@ class GeometryHandler:
     def get_radius(self, corner_coords, start_point, end_point):
         """
         """
-
         start_coords = mm_to_m(gmsh.model.getValue(0, start_point, []))
         end_coords = mm_to_m(gmsh.model.getValue(0, end_point, []))
 
@@ -393,58 +442,39 @@ class GeometryHandler:
 
         return radius
 
-            
-                # cache_unconnected_points = unconnected_points.copy()
+    def print_warning_for_small_length(self, line, line_length):
 
-                # for point in cache_unconnected_points:
+        title = "Small line length detected"
+        message = f"The line {line} has a small length which may cause problems "
+        message += "in model processing. We reccomend to check the imported geometry "
+        message += "to avoid physical inconsistency in model results."
+        message += f"\n\nLine length: {round(line_length, 6)} [m]"
+        
+        PrintMessageInput([window_title_2, title, message])
 
-                #     # the second argument is the coords of the tested center point
-                #     start_radius = math.dist(start_coords, points_coords[point-1][1])
-                #     end_radius = math.dist(end_coords, points_coords[point-1][1])
-                    
-                #     if abs(start_radius - end_radius) <= 1e-10:
+    def merge_near_points(self, point_coords, tolerance=5e-3):
 
-                #         start_radius_center = start_radius
-                #         end_radius_center = end_radius
-                #         radius = (start_radius_center + end_radius_center) / 2
+        points = np.array(list(self.points_coords.keys()))
+        coords = np.array(list(self.points_coords.values()))
+        dist = np.linalg.norm((coords - point_coords), axis=1)
 
-                #         if self.is_colinear(start_coords, start_point, point):
+        mask = dist <  tolerance
+        if True in mask:
+            print(np.array(list(self.points_coords.values())))
+            points_to_merge = points[mask]
+            for point in points_to_merge:
+                self.points_coords[point] = point_coords
+                if point not in self.merged_points:
+                    self.merged_points.append(point)
+            print(np.array(list(self.points_coords.values())))
+            self.map_points_according_to_coordinates()
 
-                #             corner_coords = np.array(points_coords[point - 1][1])
-                #             corner = Point(*corner_coords)
-                #             unconnected_points.remove(point)
+    def print_merged_nodes_message(self):
 
-                #             # print(f"\nÉ colinear: {corner_coords}")
-                #             # print(f"Start coords: {start_coords}")
-                #             # print(f"End coords: {end_coords}")
-                #             # print(f"Radius: {radius}")
+        title = "Points merging detected"
+        message = f"The points {self.merged_points} were merged in geometry processing.\n\n"
 
-                #         elif self.is_orthogonal(start_coords, start_point, point):
-                            
-                #             center_coords = np.array(points_coords[point - 1][1])
-                #             start_coords = np.array(start_coords)
-                #             end_coords = np.array(end_coords)
+        for point in self.merged_points:
+            message += f"{point} : {self.points_coords_cache[point]}\n"
 
-                #             a_vector = start_coords - center_coords
-                #             b_vector = end_coords - center_coords
-                #             a_vector_normalized = a_vector / np.linalg.norm(a_vector)
-                #             b_vector_normalized = b_vector / np.linalg.norm(b_vector)
-                #             c_vector = a_vector_normalized + b_vector_normalized
-                #             c_vector_normalized = c_vector / np.linalg.norm(c_vector)
-
-                #             corner_distance = (radius**2)*np.sqrt(2 / (np.dot(a_vector, b_vector) + radius**2))
-                #             corner_coords = center_coords + c_vector_normalized * corner_distance
-                #             corner = Point(*corner_coords)
-
-                #             unconnected_points.remove(point)
-
-                #             # print(f"\nÉ ortogonal: {corner_coords}")
-                #             # print(f"Start coords: {start_coords}")
-                #             # print(f"End coords: {end_coords}")
-                #             # print(f"Radius: {radius}")
-
-                #         else:
-
-                #             continue
-
-                # pipe = Bend(start, end, corner, radius)
+        PrintMessageInput([window_title_2, title, message])
