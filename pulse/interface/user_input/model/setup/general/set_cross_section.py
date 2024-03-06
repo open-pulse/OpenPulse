@@ -296,7 +296,7 @@ class SetCrossSectionInput(QDialog):
             if self._element_type == "pipe_1":
 
                 if len(self._section_parameters) == 6:
-                    for index, lineEdit in enumerate(self.input_widget.list_straight_pipe_entries):
+                    for index, lineEdit in enumerate(self.input_widget.list_constant_pipe_entries):
                         lineEdit.setText(str(self._section_parameters[index]))
                     self.tabWidget_general.setCurrentIndex(0)
                     self.tabWidget_pipe_section.setCurrentIndex(0)
@@ -636,9 +636,9 @@ class SetCrossSectionInput(QDialog):
         self.opv.plot_entities_with_cross_section()
         self.close()
 
-    def check_straight_pipe(self, plot=False):
+    def check_constant_pipe(self, plot=False):
 
-        if self.input_widget.get_straight_pipe_parameters():
+        if self.input_widget.get_constant_pipe_parameters():
             return
 
         self.section_label = self.input_widget.section_label
@@ -674,7 +674,7 @@ class SetCrossSectionInput(QDialog):
                 return True 
 
         if self.tabWidget_pipe_section.currentIndex() == 0:
-            self.check_straight_pipe()
+            self.check_constant_pipe()
 
         elif self.tabWidget_pipe_section.currentIndex() == 1:
             self.check_variable_section_pipe()

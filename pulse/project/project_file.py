@@ -814,7 +814,7 @@ class ProjectFile:
                             insulation_density = float(section['insulation density'])
                             section_parameters.append(insulation_density)
 
-                    if len(section_parameters) == 12:
+                    if len(section_parameters) == 10:
                         if line_prefix not in variable_section_line_ids:
                             variable_section_line_ids.append(entity)
 

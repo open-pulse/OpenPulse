@@ -62,6 +62,9 @@ class CrossSectionWidget(QWidget):
         self.bottom_frame : QFrame
         self.top_frame : QFrame
         self.selection_frame : QFrame
+
+        # QLabel
+        self.label_element_id : QLabel
         
         # QLineEdit
         self.lineEdit_element_id_initial : QLineEdit
@@ -219,7 +222,7 @@ class CrossSectionWidget(QWidget):
                                             self.lineEdit_Iyz,
                                             self.lineEdit_shear_coefficient  ]     
 
-        self.list_straight_pipe_entries =   [   self.lineEdit_outside_diameter,
+        self.list_constant_pipe_entries =   [   self.lineEdit_outside_diameter,
                                                 self.lineEdit_wall_thickness,
                                                 self.lineEdit_offset_y,
                                                 self.lineEdit_offset_z,
@@ -275,6 +278,7 @@ class CrossSectionWidget(QWidget):
 
     def set_inputs_to_geometry_creator(self):
         self.tabWidget_general.setTabVisible(2,False)
+        self.label_element_id.setVisible(False)
         self.lineEdit_element_id_initial.setVisible(False)
         self.lineEdit_element_id_final.setVisible(False)
         self.pushButton_flip_element_ids_initial.setVisible(False)
@@ -283,7 +287,7 @@ class CrossSectionWidget(QWidget):
     def set_geometry_creator(self, geometry_creator):
         self.geometry_creator_input = geometry_creator
 
-    def get_straight_pipe_parameters(self):
+    def get_constant_pipe_parameters(self):
 
         self.section_label = None
         self.section_parameters = list()
@@ -748,7 +752,7 @@ class CrossSectionWidget(QWidget):
         plt.close()
 
         if self.tabWidget_general.currentIndex() == 0:
-            if self.get_straight_pipe_parameters():
+            if self.get_constant_pipe_parameters():
                 return
         
         elif self.tabWidget_general.currentIndex() == 1:

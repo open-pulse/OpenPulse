@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set: prescribed DOFs</string>
+   <string/>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -2415,7 +2415,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>Set values to DOFs</string>
+         <string>DOFs prescription setup</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
