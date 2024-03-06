@@ -460,14 +460,15 @@ class GeometryHandler:
 
         mask = dist <  tolerance
         if True in mask:
-            print(np.array(list(self.points_coords.values())))
+
             points_to_merge = points[mask]
             for point in points_to_merge:
                 self.points_coords[point] = point_coords
                 if point not in self.merged_points:
                     self.merged_points.append(point)
-            print(np.array(list(self.points_coords.values())))
+
             self.map_points_according_to_coordinates()
+            # print(np.array(list(self.points_coords.values())))
 
     def print_merged_nodes_message(self):
 
