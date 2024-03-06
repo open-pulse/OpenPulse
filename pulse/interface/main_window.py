@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
         self.use_structural_setup_workspace()
-        self.update()
+        app().update()
 
     def open_project(self, path=None):
         if not self.input_widget.load_project(path):
@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
 
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
-        self.update()
+        app().update()
 
     def export_geometry(self):
         self.input_widget.export_geometry()
