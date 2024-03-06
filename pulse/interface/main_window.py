@@ -23,6 +23,15 @@ import qdarktheme
 from functools import partial
 from pathlib import Path
 
+from enum import IntEnum
+
+
+class Workspace(IntEnum):
+    GEOMETRY = 0 
+    STRUCTURAL_SETUP = 1
+    ACOUSTIC_SETUP = 2
+    RESULTS = 3
+
 
 class MainWindow(QMainWindow):
     permission_changed = pyqtSignal()
@@ -60,7 +69,7 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self._add_mesh_toolbar()
     
-        self.plot_entities_with_cross_section()
+        self.plot_mesh()
         self.use_structural_setup_workspace()
         self.action_set_light_theme_callback()
         self.load_recent_project()
@@ -90,33 +99,48 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update_plot(reset_camera=True)
         self.opv_widget.updatePlots()
 
+    def get_current_workspace(self):
+        return self.combo_box_workspaces.currentIndex()
+
     def use_geometry_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(0)
+        self.combo_box_workspaces.setCurrentIndex(Workspace.GEOMETRY)
 
     def use_structural_setup_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(1)
+        self.combo_box_workspaces.setCurrentIndex(Workspace.STRUCTURAL_SETUP)
 
     def use_acoustic_setup_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(2)
+        self.combo_box_workspaces.setCurrentIndex(Workspace.ACOUSTIC_SETUP)
 
     def use_results_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(3)
+        self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
 
     def plot_entities(self):
-        # self.use_structural_setup_workspace()
-        self.opv_widget.plot_entities()
+        # Configure the mesh plot as a combination of the interface buttons
+        self.action_show_points.setChecked(False)
+        self.action_show_lines.setChecked(True)
+        self.action_show_tubes.setChecked(False)
+        self.action_show_symbols.setChecked(False)
+        self._update_visualization()
 
     def plot_entities_with_cross_section(self):
-        # self.use_structural_setup_workspace()
-        self.opv_widget.plot_entities_with_cross_section()
+        # Configure the mesh plot as a combination of the interface buttons
+        self.action_show_points.setChecked(False)
+        self.action_show_lines.setChecked(False)
+        self.action_show_tubes.setChecked(True)
+        self.action_show_symbols.setChecked(False)
+        self._update_visualization()
 
     def plot_mesh(self):
-        # self.use_structural_setup_workspace()
-        self.opv_widget.plot_mesh()
+        # Configure the mesh plot as a combination of the interface buttons
+        self.action_show_points.setChecked(True)
+        self.action_show_lines.setChecked(True)
+        self.action_show_tubes.setChecked(True)
+        self.action_show_symbols.setChecked(True)
+        self._update_visualization()
 
     def plot_raw_geometry(self):
         # self.use_structural_setup_workspace()
-        self.opv_widget.plot_raw_geometry()
+        self.action_show_points.setChecked()
     
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
@@ -221,21 +245,24 @@ class MainWindow(QMainWindow):
                 action.triggered.connect(function)
 
     def _create_workspaces_toolbar(self):
-
-        actions = [ self.action_geometry_workspace,
-                    self.action_structural_setup_workspace,
-                    self.action_acoustic_setup_workspace,
-                    self.action_results_workspace ]
+        actions = {
+            Workspace.GEOMETRY: self.action_geometry_workspace,
+            Workspace.STRUCTURAL_SETUP: self.action_structural_setup_workspace,
+            Workspace.ACOUSTIC_SETUP: self.action_acoustic_setup_workspace,
+            Workspace.RESULTS: self.action_results_workspace,
+        }
 
         self.combo_box_workspaces = QComboBox()
-        for action in actions:
+        # iterating sorted items make the icons appear in the same 
+        # order as defined in the Workspace enumerator
+        for _, action in sorted(actions.items()):
             self.combo_box_workspaces.addItem(action.text())
 
-        self.combo_box_workspaces.currentIndexChanged.connect(self.update_combox_indexes)
+        self.combo_box_workspaces.currentIndexChanged.connect(self.update_combobox_indexes)
         self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
         self.tool_bar.addWidget(self.combo_box_workspaces)
 
-    def update_combox_indexes(self):
+    def update_combobox_indexes(self):
         index = self.combo_box_workspaces.currentIndex()
         self.cache_indexes.append(index)
 
@@ -304,20 +331,17 @@ class MainWindow(QMainWindow):
         self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-        self.plot_entities_with_cross_section()
 
     def action_acoustic_setup_workspace_callback(self):
         self.mesh_toolbar.setDisabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-        self.plot_entities_with_cross_section()
 
     def action_coupled_setup_workspace_callback(self):
         self.model_and_analysis_setup_widget.update_visibility_for_coupled_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-        self.plot_entities_with_cross_section()
 
     def action_results_workspace_callback(self):
         if self.project.is_the_solution_finished():
@@ -334,6 +358,24 @@ class MainWindow(QMainWindow):
     
     def action_reset_callback(self):
         self.input_widget.reset_project()
+
+    def action_plot_raw_lines_callback(self):
+        self.use_geometry_workspace()
+
+    def action_plot_lines_callback(self):
+        self.use_structural_setup_workspace()
+        self.plot_entities()
+    
+    def action_plot_lines_with_cross_section_callback(self):
+        self.use_structural_setup_workspace()
+        self.plot_entities_with_cross_section()
+    
+    def action_plot_mesh_callback(self):
+        self.use_structural_setup_workspace()
+        self.plot_mesh()
+    
+    def action_plot_cross_section_callback(self):
+        self.input_widget.plot_cross_section()
     
     def action_isometric_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
