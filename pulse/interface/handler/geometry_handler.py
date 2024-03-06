@@ -299,16 +299,8 @@ class GeometryHandler:
             structures.append(pipe)
 
         editor.pipeline.structures = structures
+        # editor.structures.extend(structures)
         editor.merge_coincident_points()
-
-        # pipeline = app().geometry_toolbox.pipeline
-        # # pipeline.structures.clear()
-
-        # if len(structures):
-        #     pipeline.structures.extend(structures)
-        #     editor.merge_coincident_points()
-
-        # return pipeline
 
     def map_points_according_to_coordinates(self, points_data):
         """ This method maps points according to its nodal coordinates.
@@ -401,64 +393,6 @@ class GeometryHandler:
 
         return radius
 
-    def is_colinear(self, _coords, _point, point_t):
-        """ This method returns True if the line 'point_t-pint_a' is colinear to 
-            the line connected to the curve and returns False elsewhere.
-        """
-        _, line_points = self.get_connecting_line_data(_coords, _point)
-        
-        if len(line_points) == 2:
-
-            point_a = line_points[0]
-            point_b = line_points[1]
-
-            coords_a = gmsh.model.getValue(0, point_a, [])
-            coords_b = gmsh.model.getValue(0, point_b, [])
-            coords_t = gmsh.model.getValue(0, point_t, [])
-            
-            coords_a = mm_to_m(coords_a)
-            coords_b = mm_to_m(coords_b)
-            coords_t = mm_to_m(coords_t)
-
-            vect_ab = coords_b - coords_a
-            vect_at = coords_t - coords_a
-
-            cross_product = np.linalg.norm(np.cross(vect_ab, vect_at))
-            # dot_product = np.dot(vect_ab, (coords_t-_coords))
-
-            if np.round(cross_product, 8) == 0:
-                return True
-            else:
-                return False
-            
-    def is_orthogonal(self, _coords, _point, point_t):
-        """ This method returns True if the line 'point_t-pint_a' is othogonal to 
-            the line connected to the curve and returns False elsewhere.
-        """
-        _, line_points = self.get_connecting_line_data(_coords, _point)
-        
-        if len(line_points) == 2:
-
-            point_a = line_points[0]
-            point_b = line_points[1]
-
-            coords_a = gmsh.model.getValue(0, point_a, [])
-            coords_b = gmsh.model.getValue(0, point_b, [])
-            coords_t = gmsh.model.getValue(0, point_t, [])
-            
-            coords_a = mm_to_m(coords_a)
-            coords_b = mm_to_m(coords_b)
-            coords_t = mm_to_m(coords_t)
-
-            vect_ab = coords_b - coords_a
-            # vect_at = coords_t - coords_a
-
-            dot_product = np.dot(vect_ab, (coords_t-_coords))
-
-            if np.round(dot_product, 8) == 0:
-                return True
-            else:
-                return False
             
                 # cache_unconnected_points = unconnected_points.copy()
 

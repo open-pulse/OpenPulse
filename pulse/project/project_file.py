@@ -319,6 +319,7 @@ class ProjectFile:
     def modify_project_attributes(self, **kwargs):
 
         project_name = kwargs.get('project_name', None)
+        import_type = kwargs.get('import_type', None)
         length_unit = kwargs.get('length_unit', None)
         element_size = kwargs.get('element_size', None)
         geometry_tolerance = kwargs.get('geometry_tolerance', None)
@@ -333,6 +334,9 @@ class ProjectFile:
 
             if project_name is not None:
                 section['Name'] = project_name
+
+            if import_type is not None:
+                section['Import type'] = str(import_type)
 
             if length_unit is not None:
                 section['Length unit'] = length_unit

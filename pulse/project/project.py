@@ -114,12 +114,13 @@ class Project:
     def new_project(self, *args, **kwargs):
         self.reset(reset_all=True)
         self.file.new(*args, **kwargs)
-        
         self.file.create_backup_geometry_folder()
         self.process_geometry_and_mesh()
+        self.create_entity_file()
+
+    def create_entity_file(self):
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
-
 
     def new_empty_project(self, *args, **kwargs):
         self.reset(reset_all=True)

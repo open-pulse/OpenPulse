@@ -183,7 +183,6 @@ class MainWindow(QMainWindow):
         self.action_show_lines: QAction
         self.action_show_tubes: QAction
         self.action_show_symbols: QAction
-        self.action_import_geometry.setVisible(False)
         
         # QMenu
         self.menu_recent: QMenu
@@ -469,6 +468,9 @@ class MainWindow(QMainWindow):
             self.action_export_geometry.setDisabled(True)
         elif import_type == 1:
             self.action_export_geometry.setDisabled(False)
+
+    def action_import_geometry_callback(self):
+        self.input_widget.import_geometry()
     
     def draw(self):
         self.update()
