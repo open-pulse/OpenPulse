@@ -132,8 +132,7 @@ class MainWindow(QMainWindow):
             structure.extra_info["structural_element_type"] = "pipe_1"
             structure.extra_info["cross_section_info"] = cross_section_info
 
-        app().update()
-        # self.geometry_input_wigdet.export_entity_file()
+        self.geometry_input_wigdet.process_geometry_callback()
 
     def export_pcf(self):
         path, ok = QFileDialog.getSaveFileName(self, 'Export PCF', '', 'PCF (*.pcf)')
