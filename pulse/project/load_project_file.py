@@ -120,8 +120,8 @@ class LoadProjectFile:
         except Exception as error_log:
 
             title = "Error while loading material data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
     def load_fluid_data_from_file(self):
@@ -193,8 +193,8 @@ class LoadProjectFile:
         except Exception as error_log:
             
             title = "Error while loading fluid data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
 
@@ -384,8 +384,8 @@ class LoadProjectFile:
         except Exception as error_log:
 
             title = "Error while loading cross-section data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
 
@@ -467,8 +467,8 @@ class LoadProjectFile:
         except Exception as error_log:
 
             title = "Error while loading element type data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
 
@@ -586,8 +586,8 @@ class LoadProjectFile:
         except Exception as error_log:
 
             title = "Error while loading valves data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
 
@@ -615,8 +615,8 @@ class LoadProjectFile:
         except Exception as error_log:
 
             title = "Error while loading compressor info data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
 
@@ -640,8 +640,8 @@ class LoadProjectFile:
         except Exception as error_log:
 
             title = "Error while loading capped-end data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
 
@@ -665,8 +665,8 @@ class LoadProjectFile:
         except Exception as error_log:
 
             title = "Error while loading stress-stiffening data from file"
-            message = str(error_log)
-            message += f"\n\nProblem detected at line: {tag}"
+            message = f"Problem detected at line: {tag}\n\n"
+            message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
 
