@@ -143,7 +143,7 @@ class Preprocessor:
         gmsh_geometry : bool
             This variable reaches True value if the geometry is created by user or False if it is imported.
         """
-
+        self.import_type = kwargs.get("import_type", 1)
         self.geometry_path = kwargs.get('geometry_path', "")
         self.element_size = kwargs.get('element_size', 0.01)
         self.tolerance = kwargs.get('tolerance', 1e-6)
@@ -151,10 +151,13 @@ class Preprocessor:
 
         self.reset_variables()
 
-        if os.path.exists(self.geometry_path):
-            self._initialize_gmsh()
-        else:
-            self._create_gmsh_geometry()
+        if self.import_type == 0:
+            if os.path.exists(self.geometry_path):
+                self._load_cad_geometry_on_gmsh()
+            else:
+                return
+
+        self._create_gmsh_geometry()
         
         self._set_gmsh_options()
         self._create_entities()
@@ -184,7 +187,7 @@ class Preprocessor:
         # dt = time() - t0
         # print("Time to process all rotations matrices: ", dt)
 
-    def _initialize_gmsh(self):
+    def _load_cad_geometry_on_gmsh(self):
         """
         This method initializes mesher algorithm gmsh.
 
@@ -199,13 +202,12 @@ class Preprocessor:
         # gmsh.option.setNumber("General.Verbosity", 0)
         # gmsh.open(str(self.geometry_path))
 
-        if self.geometry_handler is None:
-            self.geometry_handler = GeometryHandler()
-            self.geometry_handler.set_length_unit(self.file.length_unit)
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_length_unit(self.file.length_unit)
        
-        if isinstance(self.geometry_handler, GeometryHandler):        
+        if isinstance(geometry_handler, GeometryHandler):        
             path = str(self.geometry_path)
-            self.geometry_handler.open_cad_file(path)
+            geometry_handler.open_cad_file(path)
 
     def _create_gmsh_geometry(self):
         """
@@ -215,14 +217,14 @@ class Preprocessor:
         ----------
 
         """
-        if self.geometry_handler is None:
-            build_data = self.file.get_segment_build_data_from_file()
-            self.geometry_handler = GeometryHandler()
+        
+        build_data = self.file.get_segment_build_data_from_file()
+        geometry_handler = GeometryHandler()
 
-        if isinstance(self.geometry_handler, GeometryHandler):
-            self.geometry_handler.process_pipeline(build_data)
-            self.geometry_handler.set_length_unit(self.file.length_unit)
-            self.geometry_handler.create_geometry()
+        if isinstance(geometry_handler, GeometryHandler):
+            geometry_handler.process_pipeline(build_data)
+            geometry_handler.set_length_unit(self.file.length_unit)
+            geometry_handler.create_geometry()
 
     def _set_gmsh_options(self):
         """

@@ -3,21 +3,16 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
+from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.geometry.add_widget import AddStructuresWidget
 from pulse.interface.user_input.model.geometry.edit_bend_widget import EditBendWidget
 from pulse.interface.user_input.model.geometry.edit_point_widget import EditPointWidget
 from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
 from pulse.tools.utils import get_new_path
-from pulse import app, UI_DIR
 
 from opps.model import Pipe, Bend
 
-import os
-import numpy as np
-
-def get_data(data):
-    return list(np.round(data, 6))
 
 class OPPGeometryDesignerInput(QWidget):
     def __init__(self, geometry_widget, parent=None):
@@ -26,8 +21,11 @@ class OPPGeometryDesignerInput(QWidget):
         uic.loadUi(UI_DIR / "model/geometry/geometry_designer_tabs.ui", self)
 
         self.geometry_widget = geometry_widget
+        self.geometry_handler = GeometryHandler()
+
         self.project = app().project
         self.file = self.project.file
+
 
         self._define_qt_variables()
         self._create_layout()
@@ -98,7 +96,7 @@ class OPPGeometryDesignerInput(QWidget):
 
     def process_geometry_callback(self):
         self.geometry_widget.unstage_structure()
-        self.export_entity_file()
+        self.geometry_handler.export_entity_file()
         self.update_project_attributes()
         self.load_project()
         app().update()
@@ -118,76 +116,6 @@ class OPPGeometryDesignerInput(QWidget):
         self.project.load_project_files()
         app().main_window.input_widget.initial_project_action(True)
         self.complete = True
-
-    def export_entity_file(self):
-
-        tag = 1
-        points_info = dict()
-        section_info = dict()
-        element_type_info = dict()
-        material_info = dict()
-        pipeline = app().geometry_toolbox.pipeline
-
-        for structure in pipeline.structures:
-
-            if isinstance(structure, Bend) and structure.is_colapsed():               
-                continue
-
-            build_data = self.get_segment_build_info(structure)
-
-            if build_data is None:
-                continue
-
-            points_info[tag] = build_data
-
-            if "cross_section_info" in structure.extra_info.keys():
-                section_info[tag] = structure.extra_info["cross_section_info"]
-
-            if "material_info" in structure.extra_info.keys():
-                material_info[tag] = structure.extra_info["material_info"]
-
-            if "structural_element_type" in structure.extra_info.keys():
-                element_type_info[tag] = structure.extra_info["structural_element_type"]
-
-            tag += 1
-
-        if os.path.exists(self.file._entity_path):
-            os.remove(self.file._entity_path)
-
-        self.file.create_entity_file(points_info.keys())
-
-        # print(list(points_info.keys()))
-
-        for tag, coords in points_info.items():
-            self.file.add_segment_build_data_in_file(tag, coords)
-
-        for tag, section in section_info.items():
-            self.file.add_cross_section_segment_in_file(tag, section)
-
-        # print(list(element_type_info.keys()))
-
-        for tag, e_type in element_type_info.items():
-            self.file.modify_structural_element_type_in_file(tag, e_type)
-
-        # print(list(material_info.keys()))
-
-        for tag, material_id in material_info.items():
-            self.file.add_material_segment_in_file(tag, material_id)
-
-    def get_segment_build_info(self, structure):
-        if isinstance(structure, Bend):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            corner_coords = get_data(structure.corner.coords())
-            curvature = structure.curvature
-            return [start_coords, corner_coords, end_coords, curvature]
-
-        elif isinstance(structure, Pipe):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            return [start_coords, end_coords]
-        else:
-            return None
 
     def get_file_path_inside_project_directory(self, filename):
         return get_new_path(self.file._project_path, filename)

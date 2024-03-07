@@ -266,6 +266,8 @@ class GeometryHandler:
 
         if len(self.merged_points):
             self.print_merged_nodes_message()
+
+        gmsh.finalize()
     
     def process_curved_lines(self, lines):
 
@@ -497,9 +499,9 @@ class GeometryHandler:
 
         tag = 1
         points_info = dict()
-        # section_info = dict()
-        # element_type_info = dict()
-        # material_info = dict()
+        section_info = dict()
+        element_type_info = dict()
+        material_info = dict()
         pipeline = app().geometry_toolbox.pipeline
 
         for structure in pipeline.structures:
@@ -514,26 +516,41 @@ class GeometryHandler:
 
             points_info[tag] = build_data
 
-            # if "cross_section_info" in structure.extra_info.keys():
-            #     section_info[tag] = structure.extra_info["cross_section_info"]
+            if "cross_section_info" in structure.extra_info.keys():
+                section_info[tag] = structure.extra_info["cross_section_info"]
 
-            # if "material_info" in structure.extra_info.keys():
-            #     material_info[tag] = structure.extra_info["material_info"]
+            if "material_info" in structure.extra_info.keys():
+                material_info[tag] = structure.extra_info["material_info"]
 
-            # if "structural_element_type" in structure.extra_info.keys():
-            #     element_type_info[tag] = structure.extra_info["structural_element_type"]
+            if "structural_element_type" in structure.extra_info.keys():
+                element_type_info[tag] = structure.extra_info["structural_element_type"]
 
             tag += 1
 
-        if os.path.exists(self.file._entity_path):
-            os.remove(self.file._entity_path)
+        if len(points_info):
 
-        self.file.create_entity_file(points_info.keys())
+            if os.path.exists(self.file._entity_path):
+                os.remove(self.file._entity_path)
 
-        # print(list(points_info.keys()))
+            self.file.create_entity_file(points_info.keys())
 
-        for tag, coords in points_info.items():
-            self.file.add_segment_build_data_in_file(tag, coords)
+            for tag, coords in points_info.items():
+                self.file.add_segment_build_data_in_file(tag, coords)
+
+            if len(section_info):
+                for tag, section in section_info.items():
+                    self.file.add_cross_section_segment_in_file(tag, section)
+
+            if len(element_type_info):
+                for tag, e_type in element_type_info.items():
+                    self.file.modify_structural_element_type_in_file(tag, e_type)
+
+            if len(material_info):
+                for tag, material_id in material_info.items():
+                    self.file.add_material_segment_in_file(tag, material_id)
+
+            self.file.modify_project_attributes(import_type = 1)
+            # self.load_project()
 
     def get_segment_build_info(self, structure):
         if isinstance(structure, Bend):

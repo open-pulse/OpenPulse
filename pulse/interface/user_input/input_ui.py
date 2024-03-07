@@ -118,20 +118,17 @@ class InputUi:
         self.reset_geometry_render()
         new_project = self.processInput(NewProjectInput)
         if new_project.complete:
-            self.main_window._update_status_bar()
             return self.initial_project_action(new_project.complete)
 
     def load_project(self, path=None):
         self.reset_geometry_render()
         load_project = self.processInput(LoadProjectInput, path=path)
         self.main_window.mesh_toolbar.update_mesh_attributes()
-        self.main_window._update_status_bar()
         return self.initial_project_action(load_project.complete)
 
     def get_started(self):
         self.menu_items.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput)
-        self.main_window._update_status_bar()
         return get_started
 
     def initial_project_action(self, finalized):

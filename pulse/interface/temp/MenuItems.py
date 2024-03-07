@@ -349,7 +349,6 @@ class MenuItems(QTreeWidget):
         # elif item == self.item_child_createGeometry:
         #     if not self.item_child_createGeometry.isDisabled():
         #         read = self.mainWindow.getInputWidget().call_geometry_designer()
-        #         self.mainWindow._update_status_bar()
         #         if read is None:
         #             self.modify_general_settings_items_access(False)
         #         elif read:

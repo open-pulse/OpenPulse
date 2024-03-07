@@ -94,9 +94,9 @@ class Project:
 
             if self.file.check_if_entity_file_is_active():
                 self.process_geometry_and_mesh()
-                self.entities = self.preprocessor.dict_tag_to_entity.values()
-                if not os.path.exists(self.file._entity_path):
-                    self.file.create_entity_file(self.preprocessor.all_lines)                   
+                # self.entities = self.preprocessor.dict_tag_to_entity.values()
+                # if not os.path.exists(self.file._entity_path):
+                #     self.file.create_entity_file(self.preprocessor.all_lines)                   
                 return True
             else:
                 return False
@@ -115,11 +115,11 @@ class Project:
         self.file.new(*args, **kwargs)
         self.file.create_backup_geometry_folder()
         self.process_geometry_and_mesh()
-        self.create_entity_file()
+        # self.create_entity_file()
 
-    def create_entity_file(self):
-        self.entities = self.preprocessor.dict_tag_to_entity.values()
-        # self.file.create_entity_file(self.preprocessor.all_lines)
+    # def create_entity_file(self):
+    #     self.entities = self.preprocessor.dict_tag_to_entity.values()
+    #     # self.file.create_entity_file(self.preprocessor.all_lines)
 
     def new_empty_project(self, *args, **kwargs):
         self.reset(reset_all=True)
@@ -369,14 +369,15 @@ class Project:
 
     def process_geometry_and_mesh(self):
         # t0 = time()
-        import_type = self.file.get_import_type()
-        if import_type == 0:
-            self.preprocessor.generate(geometry_path = self.file.geometry_path, 
-                                       element_size = self.file.element_size, 
-                                       tolerance = self.file.geometry_tolerance)
-        elif import_type == 1:
-            self.preprocessor.generate(element_size = self.file.element_size, 
-                                       tolerance = self.file.geometry_tolerance)
+        # import_type = self.file.get_import_type()
+        # if import_type == 0:
+        self.preprocessor.generate( import_type = self.file.get_import_type(),
+                                    geometry_path = self.file.geometry_path, 
+                                    element_size = self.file.element_size, 
+                                    tolerance = self.file.geometry_tolerance )
+        # elif import_type == 1:
+        #     self.preprocessor.generate(element_size = self.file.element_size, 
+                                    #    tolerance = self.file.geometry_tolerance)
         # dt = time()-t0
         # print(f"process_geometry_and_mesh: {dt} [s]")
 
@@ -1467,7 +1468,7 @@ class Project:
             entity.material = material
 
     def _set_material_to_all_lines(self, material):
-        for entity in self.entities:
+        for entity in self.preprocessor.dict_tag_to_entity.values():
             entity.material = material
 
     def _set_fluid_to_selected_lines(self, lines, fluid):
@@ -1498,7 +1499,7 @@ class Project:
                     entity.compressor_info = {}
 
     def _set_fluid_to_all_lines(self, fluid):
-        for entity in self.entities:
+        for entity in self.preprocessor.dict_tag_to_entity.values():
             if entity.structural_element_type in ['beam_1']:
                 entity.fluid = None
             else:
@@ -1525,7 +1526,7 @@ class Project:
             entity.structural_element_type = element_type
 
     def _set_structural_element_type_to_all_lines(self, element_type):
-        for entity in self.entities:
+        for entity in self.preprocessor.dict_tag_to_entity.values():
             entity.structural_element_type = element_type
 
     def _set_acoustic_element_type_to_selected_lines(self, lines, element_type, proportional_damping=None, vol_flow=None):
@@ -1538,7 +1539,7 @@ class Project:
             entity.vol_flow = vol_flow
 
     def _set_acoustic_element_type_to_all_lines(self, element_type, proportional_damping=None):
-        for entity in self.entities: 
+        for entity in self.preprocessor.dict_tag_to_entity.values(): 
             entity.acoustic_element_type = element_type
             entity.proportional_damping = proportional_damping
 
@@ -1554,7 +1555,7 @@ class Project:
             entity.stress_stiffening_parameters = pressures
             
     # def _set_stress_stiffening_to_all_entities(self, pressures):
-    #     for entity in self.entities:
+    #     for entity in self.preprocessor.dict_tag_to_entity.values():
     #         entity.external_pressure = pressures[0]
     #         entity.internal_pressure = pressures[1]
 
@@ -1828,18 +1829,6 @@ class Project:
 
     def get_element_size(self):
         return self.file.element_size
-
-    def check_line_material(self):
-        for line in self.entities:
-            if line.getMaterial() is None:
-                return False
-        return True
-
-    def check_line_crossSection(self):
-        for line in self.entities:
-            if line.getCrossSection() is None:
-                return False
-        return True
 
     def set_modes_sigma(self, modes, sigma=1e-2):
         self.modes = modes

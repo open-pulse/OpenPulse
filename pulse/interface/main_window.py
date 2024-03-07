@@ -623,9 +623,6 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.mesh_toolbar)
         self.insertToolBarBreak(self.mesh_toolbar)
 
-    def _update_status_bar(self):
-        pass
-
     def _enable_menus_at_start(self):
         pass
 
@@ -713,18 +710,3 @@ class MainWindow(QMainWindow):
     #     if label != "":
     #         _state = f" Mesh: {label} "           
     #     self.label_mesh_state.setText(_state)
-
-    # def _update_status_bar(self):
-    #     # Check and update geometry state
-    #     if self.project.empty_geometry:
-    #         self._updateGeometryState("pending")
-    #     else:
-    #         self._updateGeometryState("ok")
-    #     # Check and update mesh state
-    #     if len(self.project.preprocessor.structural_elements) == 0:
-    #         if self.project.file.check_if_entity_file_is_active():
-    #             self._updateMeshState("setup complete but not generated")
-    #         else:
-    #             self._updateMeshState("pending")
-    #     else:
-    #         self._updateMeshState("ok")
