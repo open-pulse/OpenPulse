@@ -180,7 +180,7 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([100, 400])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
-        # self.opv_widget.plot_entities_with_cross_section()
+        self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
 

@@ -20,7 +20,7 @@ a = Analysis(
 )
 pyz = PYZ(a.pure)
 splash = Splash(
-    'data/icons/OpenPulse_logo_black.png',
+    'data/icons/logos/OpenPulse_logo_black.png',
     binaries=a.binaries,
     datas=a.datas,
     text_pos=None,
