@@ -20,7 +20,7 @@ class TubeActor(ActorBase):
         
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
 
-        self.transparent = True
+        self.transparent = False
         self.bff = 5  # bug fix factor 
 
         self._data = vtk.vtkPolyData()
