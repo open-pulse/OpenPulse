@@ -41,9 +41,6 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         uic.loadUi(UI_DIR / 'main_window.ui', self)
 
-        # i am keeping these atributes here to make
-        # the transition easier, but it should be
-        # defined only in the app.
         self.ui_dir = UI_DIR
         self.config = app().config
         self.project = app().project
