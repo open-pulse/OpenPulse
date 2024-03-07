@@ -189,19 +189,16 @@ class GeometryHandler:
         if len(structures):
             pipeline.structures.extend(structures)
             editor.merge_coincident_points()
-
+            # app().update()
     
     def export_cad_file(self, path):
         self.create_geometry()
-
         # if '-nopopup' not in sys.argv:
         #     gmsh.option.setNumber('General.FltkColorScheme', 1)
         #     gmsh.fltk.run()
-
         gmsh.write(str(path))
         gmsh.finalize()
 
-    
     def open_cad_file(self, path):
 
         gmsh.initialize('', False)

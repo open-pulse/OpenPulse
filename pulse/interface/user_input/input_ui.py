@@ -199,7 +199,7 @@ class InputUi:
         return self.opv
 
     def set_material(self):
-        self.processInput(SetMaterialInput, self.project, self.opv)   
+        self.processInput(SetMaterialInput)   
          
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
         read = self.processInput(   SetCrossSectionInput,
