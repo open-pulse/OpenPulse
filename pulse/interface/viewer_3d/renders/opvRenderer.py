@@ -118,6 +118,9 @@ class opvRenderer(vtkRendererBase):
         self._style.set_default_center_of_rotation(self.project.preprocessor.camera_rotation_center)
         self._renderer.ResetCameraClippingRange()
 
+        # update plot filter according to previous configuration
+        self.setPlotFilter(self._plotFilter)
+
     def buildSymbols(self):
         self.opvAcousticNodesSymbols.build()
         self.opvAcousticElementsSymbols.build()

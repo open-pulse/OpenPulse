@@ -180,7 +180,7 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([100, 400])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
-        self.opv_widget.plot_entities_with_cross_section()
+        # self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
 
@@ -193,7 +193,7 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self._add_mesh_toolbar()
     
-        self.plot_mesh()
+        self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
         self.action_set_light_theme_callback()
         self.load_recent_project()
@@ -376,7 +376,7 @@ class MainWindow(QMainWindow):
         tubes = self.action_show_tubes.isChecked()
         symbols = self.action_show_symbols.isChecked()
         self.opv_widget.update_visualization(points, lines, tubes, symbols)
-        self.mesh_widget.update_visualization(points, lines, tubes, symbols)
+        # self.mesh_widget.update_visualization(points, lines, tubes, symbols)
 
     # callbacks
     def action_new_project_callback(self):
