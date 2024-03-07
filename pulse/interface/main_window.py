@@ -376,7 +376,7 @@ class MainWindow(QMainWindow):
         tubes = self.action_show_tubes.isChecked()
         symbols = self.action_show_symbols.isChecked()
         self.opv_widget.update_visualization(points, lines, tubes, symbols)
-        self.mesh_widget.update_visualization(points, lines, tubes, symbols)
+        # self.mesh_widget.update_visualization(points, lines, tubes, symbols)
 
     # callbacks
     def action_new_project_callback(self):
