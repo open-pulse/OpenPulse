@@ -88,7 +88,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    [Lucas V. Q. Kulakauskas](https://www.linkedin.com/in/lucas-kulakauskas-5a0314182/) - Engineer (Former Member);
    [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer (Former Member);
    [Andre F. Fernandes](https://www.linkedin.com/in/andrefernandes2001/) - Computer Scientist; 
-   [José L. Souza](https://www.linkedin.com/in/jos%C3%A9-luiz-de-souza-8669b5114/) - Computer Scientist;
+   [José L. Souza](https://www.linkedin.com/in/jos%C3%A9-luiz-de-souza-8669b5114/) - Computer Scientist (Former Member);
    [Danilo Espindola](https://www.linkedin.com/in/danilo-espindola-7b47a626b/) - Interface with other softwares;
    [Vitor Slongo](https://www.linkedin.com/in/vitor-slongo-45298a270/) - Mesh and Geometry Specialist;
    [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
