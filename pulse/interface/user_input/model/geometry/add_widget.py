@@ -31,6 +31,7 @@ class AddStructuresWidget(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self._update_permissions()
+        self.reset_text_info()
 
     def _initialize(self):
         self.complete = False
@@ -66,10 +67,7 @@ class AddStructuresWidget(QWidget):
         self.pushButton_set_cross_section : QPushButton
         self.pushButton_set_material : QPushButton
         self.pushButton_add_segment : QPushButton
-        self.pushButton_remove_segment : QPushButton
-
-        # QTabWidget
-        # self.tabWidget_main : QTabWidget
+        self.pushButton_remove_selection : QPushButton
 
     def _create_connections(self):
         self.comboBox_length_unit.currentIndexChanged.connect(self.update_legth_units)
@@ -83,7 +81,7 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_bending_radius.textEdited.connect(self.coords_modified_callback)
 
         self.pushButton_add_segment.clicked.connect(self.create_segment_callback)
-        self.pushButton_remove_segment.clicked.connect(self.remove_segment_callback)
+        self.pushButton_remove_selection.clicked.connect(self.remove_selection_callback)
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
 
@@ -202,9 +200,9 @@ class AddStructuresWidget(QWidget):
     def selection_callback(self): 
         editor = self.geometry_widget.editor
         if editor.selected_structures or editor.selected_points:
-            self.pushButton_remove_segment.setDisabled(False)
+            self.pushButton_remove_selection.setDisabled(False)
         else:
-            self.pushButton_remove_segment.setDisabled(True)
+            self.pushButton_remove_selection.setDisabled(True)
 
     def update(self):
         super().update()
@@ -246,7 +244,7 @@ class AddStructuresWidget(QWidget):
         self.reset_deltas()
         self._update_permissions()
 
-    def remove_segment_callback(self):
+    def remove_selection_callback(self):
         editor = app().geometry_toolbox.editor
         editor.delete_selection()
         app().update()
@@ -325,7 +323,7 @@ class AddStructuresWidget(QWidget):
 
         self.geometry_widget.set_info_text(message)
 
-    def update_cross_section_info(self):
+    def reset_text_info(self):
         self.geometry_widget.set_info_text("")
 
     def run_help(self):

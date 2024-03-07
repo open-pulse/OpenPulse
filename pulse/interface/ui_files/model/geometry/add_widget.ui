@@ -905,7 +905,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
        <number>4</number>
       </property>
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_remove_segment">
+       <widget class="QPushButton" name="pushButton_remove_selection">
         <property name="minimumSize">
          <size>
           <width>120</width>
@@ -937,7 +937,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
 QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
         </property>
         <property name="text">
-         <string>Remove segment</string>
+         <string>Remove selection</string>
         </property>
         <property name="shortcut">
          <string>Del</string>

@@ -20,9 +20,11 @@ from opps.model import Point
 class EditPointWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
-        uic.loadUi(UI_DIR / "model/geometry/edit_point2.ui", self)
+        uic.loadUi(UI_DIR / "model/geometry/edit_point.ui", self)
 
         self.geometry_widget = geometry_widget
+        self.project = app().project
+        self.file = self.project.file
 
         self._define_qt_variables()
         self._create_connections()
@@ -87,6 +89,7 @@ class EditPointWidget(QWidget):
         return dx, dy, dz
 
     def position_edited_callback(self):
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
         editor = self.geometry_widget.editor
         if not editor.selected_points:
             return
@@ -102,24 +105,31 @@ class EditPointWidget(QWidget):
 
         last_point.set_coords(x, y, z)
         app().update()
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
     def add_flange_callback(self):
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
         editor = self.geometry_widget.editor
         editor.add_flange()
         editor.commit()
         editor.clear_selection()
         app().update()
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
     def add_bend_callback(self):
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
         editor = self.geometry_widget.editor
         editor.add_bend()
         editor.commit()
         editor.clear_selection()
         app().update()
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
     def add_elbow_callback(self):
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
         editor = self.geometry_widget.editor
         editor.add_elbow()
         editor.commit()
         editor.clear_selection()
         app().update()
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)

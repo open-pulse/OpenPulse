@@ -371,7 +371,7 @@ class MaterialInputs(QWidget):
     def get_selected_material_id(self):
         material = self.get_selected_material()
         if material is None:
-            return
+            return None
         return material.identifier
             
     def get_confirmation_to_proceed(self, title : str, message : str):

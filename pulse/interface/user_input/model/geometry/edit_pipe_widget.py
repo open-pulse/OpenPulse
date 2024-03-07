@@ -16,7 +16,7 @@ class EditPipeWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
 
-        uic.loadUi(UI_DIR / "model/geometry/edit_pipe2.ui", self)
+        uic.loadUi(UI_DIR / "model/geometry/edit_pipe.ui", self)
 
         self.geometry_widget = geometry_widget
         self.project = app().project
@@ -27,6 +27,8 @@ class EditPipeWidget(QWidget):
         self._create_connections()        
 
     def _initialize(self):
+        self.cross_section_info = None
+        self.current_material_index = None
         self.cross_section_widget = CrossSectionWidget()
         self.material_widget = MaterialInputs()
 
@@ -52,9 +54,7 @@ class EditPipeWidget(QWidget):
 
     def show_cross_section_widget(self):
         self.cross_section_widget._add_icon_and_title()
-        self.cross_section_widget.setVisible(True)
-        # section_type = self.comboBox_section_type.currentIndex()
-        # self.cross_section_widget.set_inputs_to_geometry_creator(section_type=section_type)            
+        self.cross_section_widget.setVisible(True)          
 
     def show_material_widget(self):
         self.material_widget._add_icon_and_title()
@@ -87,14 +87,14 @@ class EditPipeWidget(QWidget):
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
+        self.update_pipe_cross_section()
         # self._update_permissions()
-        # self.update_segment_information_text()
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
+        self.update_pipe_material()
         # self._update_permissions()
-        # self.update_segment_information_text()
 
     def update(self):
         super().update()
@@ -119,11 +119,89 @@ class EditPipeWidget(QWidget):
         self.coord_z_end.setText(str(end_coords[2]))
 
     def reset_lineEdits(self):
-
         self.coord_x_start.setText("")
         self.coord_y_start.setText("")
         self.coord_z_start.setText("")
-
         self.coord_x_end.setText("")
         self.coord_y_end.setText("")
         self.coord_z_end.setText("")
+
+    def update_pipe_cross_section(self):
+
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
+
+        editor = self.geometry_widget.editor
+        *_, structure = editor.selected_structures
+        if not isinstance(structure, Pipe):
+            return
+        
+        if self.cross_section_info is None:
+            return
+        
+        structure.extra_info["cross_section_info"] = self.cross_section_info
+        if self.cross_section_info["section_type_label"] == "Pipe section":
+            structure.extra_info["structural_element_type"] = "pipe_1"
+        else:
+            structure.extra_info["structural_element_type"] = "beam_1"
+        
+        self.update_segment_information_text()
+        
+        # self.geometry_widget.commit_structure()
+        app().update()
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
+
+    def update_pipe_material(self):
+
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
+
+        editor = self.geometry_widget.editor
+        *_, structure = editor.selected_structures
+        if not isinstance(structure, Pipe):
+            return            
+        
+        if self.current_material_index is None:
+            return
+
+        structure.extra_info["material_info"] = self.current_material_index
+        self.update_segment_information_text()
+
+        # self.geometry_widget.commit_structure()
+        app().update()
+        app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
+    
+    def update_segment_information_text(self):
+        
+        section_label = ""
+        section_parameters = ""
+        if self.cross_section_info:
+            section_label = self.cross_section_info["section_type_label"]
+            section_parameters = self.cross_section_info["section_parameters"]
+
+        material_id = ""
+        material_data = None
+        if self.current_material_index is not None:
+            material_id = self.current_material_index
+            material_data = self.file.get_material_properties(material_id)
+
+        message = "Segment information\n\n"
+
+        if self.cross_section_info:
+            # message = "Cross-section info:\n"
+            if section_label == "Pipe section":
+                if len(section_parameters) == 6:
+                    message += f"Section type: {section_label} (constant)\n"
+                else:
+                    message += f"Section type: {section_label} (variable)\n"
+            else:
+                message += f"Section type: {section_label}\n"
+            message += f"Section data: {section_parameters}\n\n"
+
+        if material_data is not None:
+            # message = "Material info:\n"
+            message += f"Material name: {material_data[0]}\n"
+            message += f"Material data: {material_data[1:]}\n\n"
+
+        self.geometry_widget.set_info_text(message)
+
+    def reset_text_info(self):
+        self.geometry_widget.set_info_text("")

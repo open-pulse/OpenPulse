@@ -62,7 +62,7 @@ class OPPGeometryDesignerInput(QWidget):
         self.pushButton_cancel.clicked.connect(self.close_callback)
         self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
         self.add_widget.pushButton_add_segment.clicked.connect(self._disable_finalize_button)
-        self.add_widget.pushButton_remove_segment.clicked.connect(self._disable_finalize_button)
+        self.add_widget.pushButton_remove_selection.clicked.connect(self._disable_finalize_button)
 
     def _disable_finalize_button(self, _bool=False):
         self.pushButton_finalize.setDisabled(_bool)
@@ -105,6 +105,7 @@ class OPPGeometryDesignerInput(QWidget):
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
         app().main_window.action_front_view_callback()
+        self.geometry_widget.set_info_text("")
 
     def update_project_attributes(self):
         self.file.modify_project_attributes(length_unit = self.add_widget.length_unit,
