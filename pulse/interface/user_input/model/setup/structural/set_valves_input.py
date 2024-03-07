@@ -884,7 +884,7 @@ class ValvesInput(QDialog):
 
     def actions_to_finalize(self):
         self.complete = True
-        self.opv.updateEntityRadius()
+        self.opv.update_section_radius()
         self.opv.plot_mesh()
         # self.opv.plot_entities_with_cross_section()   
         self.close()

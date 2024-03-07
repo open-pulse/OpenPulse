@@ -5,6 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import *
@@ -632,8 +633,14 @@ class SetCrossSectionInput(QDialog):
     def actions_to_finalize(self):
         plt.close()
         self.complete = True
-        self.opv.updateEntityRadius()
+        self.opv.update_section_radius()
         self.opv.plot_entities_with_cross_section()
+        #
+        build_data = self.file.get_segment_build_data_from_file()
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_length_unit(self.file.length_unit)
+        geometry_handler.process_pipeline(build_data)
+        #
         self.close()
 
     def check_constant_pipe(self, plot=False):
