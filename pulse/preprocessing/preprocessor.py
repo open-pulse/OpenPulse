@@ -213,7 +213,7 @@ class Preprocessor:
 
         Parameters
         ----------
-        
+
         """
         if self.geometry_handler is None:
             build_data = self.file.get_segment_build_data_from_file()

@@ -119,7 +119,7 @@ class Project:
 
     def create_entity_file(self):
         self.entities = self.preprocessor.dict_tag_to_entity.values()
-        self.file.create_entity_file(self.preprocessor.all_lines)
+        # self.file.create_entity_file(self.preprocessor.all_lines)
 
     def new_empty_project(self, *args, **kwargs):
         self.reset(reset_all=True)

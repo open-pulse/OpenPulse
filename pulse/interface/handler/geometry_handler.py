@@ -4,19 +4,26 @@ from pulse.tools.utils import m_to_mm, in_to_mm, mm_to_m
 
 from opps.model import Pipe, Bend, Point, Flange
 
-import math
 import gmsh
+import math
+import os
 import numpy as np
 from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
+
+def get_data(data):
+    return list(np.round(data, 6))
+
 def normalize(vector):
     return vector / np.linalg.norm(vector)
 
 class GeometryHandler:
     def __init__(self):
+
+        self.project = app().project
         self._initialize()
 
     def _initialize(self):
@@ -25,6 +32,7 @@ class GeometryHandler:
         self.merged_points = list()
         self.points_coords = dict()
         self.points_coords_cache = dict()
+        self.file = self.project.file
 
     def set_pipeline(self, pipeline):
         self.pipeline = pipeline
@@ -107,43 +115,43 @@ class GeometryHandler:
 
         structures = []
         for key, data in build_data.items():
-
-            if "structural_element_type" not in data.keys():
-                continue
-
-            if "section_type_label" not in data.keys():
-                continue
-
-            if "section_parameters" not in data.keys():
-                continue
-
-            structural_element_type = data["structural_element_type"]
-            section_type_label = data["section_type_label"]
-            section_parameters = data["section_parameters"]
-
-            if structural_element_type == "pipe_1":
-                section_info = {"section_type_label" : "Pipe section",
-                                "section_parameters" : section_parameters}
             
-            elif structural_element_type == "beam_1":
-                if section_type_label == "Generic section":
-                    section_parameters = None
-                
-                section_properties = data["section_properties"]
-                section_info = {"section_type_label" : section_type_label,
-                                "section_parameters" : section_parameters,
-                                "section_properties" : section_properties  }
+            structural_element_type = None
+            if "structural_element_type" in data.keys():
+                structural_element_type = data["structural_element_type"]
 
-            else:
-                continue
+            section_type_label = None
+            if "section_type_label" in data.keys():
+                section_type_label = data["section_type_label"]
+
+            section_info = None
+            if "section_parameters" in data.keys():
+                section_parameters = data["section_parameters"]
+
+                if structural_element_type == "pipe_1":
+                    section_info = {"section_type_label" : "Pipe section",
+                                    "section_parameters" : section_parameters}
+                
+                elif structural_element_type == "beam_1":
+                    if section_type_label == "Generic section":
+                        section_parameters = None
+                    
+                    section_properties = data["section_properties"]
+                    section_info = {"section_type_label" : section_type_label,
+                                    "section_parameters" : section_parameters,
+                                    "section_properties" : section_properties  }
+            
+            diameter = 0.01
+            if section_type_label == "Pipe section":
+                if "section_parameters" in data.keys():
+                    if len(section_parameters) == 6:
+                        diameter = data["section_parameters"][0]
+                    else:
+                        initial_diameter = data["section_parameters"][0]
+                        final_diameter = data["section_parameters"][4]
 
             if "material_id" in data.keys():
                 material_id = data['material_id']
-
-            if data["section_type_label"] == "Pipe section":
-                diameter = data["section_parameters"][0]
-            else:
-                diameter = 0.01
 
             if key[1] == "Bend":
 
@@ -161,10 +169,11 @@ class GeometryHandler:
                 bend = Bend(start, end, corner, curvature)
                 bend.extra_info["cross_section_info"] = section_info
                 bend.extra_info["structural_element_type"] = structural_element_type
+
                 if "material_id" in data.keys():
                     bend.extra_info["material_info"] = material_id
-                bend.set_diameter(diameter)
 
+                bend.set_diameter(diameter)
                 structures.append(bend)
 
             else:
@@ -178,8 +187,10 @@ class GeometryHandler:
                 pipe = Pipe(start, end)
                 pipe.extra_info["cross_section_info"] = section_info
                 pipe.extra_info["structural_element_type"] = structural_element_type
+
                 if "material_id" in data.keys():
                     pipe.extra_info["material_info"] = material_id
+
                 pipe.set_diameter(diameter)
                 structures.append(pipe)
 
@@ -238,7 +249,7 @@ class GeometryHandler:
         # np.savetxt("coordenadas_pontos.dat", _data, delimiter=",", fmt="%i %e %e %e")
 
         editor = app().geometry_toolbox.editor
-        editor.reset()
+        # editor.reset()
 
         structures = list()
 
@@ -248,9 +259,10 @@ class GeometryHandler:
         for structure_b in self.process_straight_lines(lines):
             structures.append(structure_b)
 
-        editor.pipeline.structures = structures
-        # editor.structures.extend(structures)
+        # editor.pipeline.structures = structures
+        editor.pipeline.structures.extend(structures)
         editor.merge_coincident_points()
+        self.export_entity_file()
 
         if len(self.merged_points):
             self.print_merged_nodes_message()
@@ -439,7 +451,7 @@ class GeometryHandler:
         end_curve_radius = math.dist(center_coords, end_coords)
         radius = (start_curve_radius + end_curve_radius) / 2
 
-        return radius
+        return np.round(radius, 8)
 
     def print_warning_for_small_length(self, line, line_length):
 
@@ -467,7 +479,7 @@ class GeometryHandler:
                     self.merged_points.append(point)
 
             self.map_points_according_to_coordinates()
-            print(self.merged_points)
+            # print(self.merged_points)
             # print(np.array(list(self.points_coords.values())))
 
     def print_merged_nodes_message(self):
@@ -479,3 +491,61 @@ class GeometryHandler:
             message += f"{point} : {self.points_coords_cache[point]}\n"
 
         PrintMessageInput([window_title_2, title, message])
+
+
+    def export_entity_file(self):
+
+        tag = 1
+        points_info = dict()
+        # section_info = dict()
+        # element_type_info = dict()
+        # material_info = dict()
+        pipeline = app().geometry_toolbox.pipeline
+
+        for structure in pipeline.structures:
+
+            if isinstance(structure, Bend) and structure.is_colapsed():               
+                continue
+
+            build_data = self.get_segment_build_info(structure)
+
+            if build_data is None:
+                continue
+
+            points_info[tag] = build_data
+
+            # if "cross_section_info" in structure.extra_info.keys():
+            #     section_info[tag] = structure.extra_info["cross_section_info"]
+
+            # if "material_info" in structure.extra_info.keys():
+            #     material_info[tag] = structure.extra_info["material_info"]
+
+            # if "structural_element_type" in structure.extra_info.keys():
+            #     element_type_info[tag] = structure.extra_info["structural_element_type"]
+
+            tag += 1
+
+        if os.path.exists(self.file._entity_path):
+            os.remove(self.file._entity_path)
+
+        self.file.create_entity_file(points_info.keys())
+
+        # print(list(points_info.keys()))
+
+        for tag, coords in points_info.items():
+            self.file.add_segment_build_data_in_file(tag, coords)
+
+    def get_segment_build_info(self, structure):
+        if isinstance(structure, Bend):
+            start_coords = get_data(structure.start.coords())
+            end_coords = get_data(structure.end.coords())
+            corner_coords = get_data(structure.corner.coords())
+            curvature = structure.curvature
+            return [start_coords, corner_coords, end_coords, curvature]
+
+        elif isinstance(structure, Pipe):
+            start_coords = get_data(structure.start.coords())
+            end_coords = get_data(structure.end.coords())
+            return [start_coords, end_coords]
+        else:
+            return None

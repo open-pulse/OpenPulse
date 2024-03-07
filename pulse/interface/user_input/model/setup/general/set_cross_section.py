@@ -631,17 +631,26 @@ class SetCrossSectionInput(QDialog):
             self.update_variable_section_element_ids()
 
     def actions_to_finalize(self):
+
         plt.close()
         self.complete = True
         self.opv.update_section_radius()
         self.opv.plot_entities_with_cross_section()
-        #
+
         build_data = self.file.get_segment_build_data_from_file()
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
         geometry_handler.process_pipeline(build_data)
-        #
+        if self.file.get_import_type() == 0:
+            self.load_project()
+            self.file.modify_project_attributes(import_type = 1)
         self.close()
+
+    def load_project(self):
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+        self.complete = True
 
     def check_constant_pipe(self, plot=False):
 

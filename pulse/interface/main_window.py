@@ -180,7 +180,6 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([100, 400])
         # self.splitter.widget(0).setFixedWidth(340)
         self.opv_widget.updatePlots()
-        # self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
 
@@ -193,7 +192,7 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self._add_mesh_toolbar()
     
-        self.plot_entities_with_cross_section()
+        self.plot_entities()
         self.use_structural_setup_workspace()
         self.action_set_light_theme_callback()
         self.load_recent_project()
@@ -451,18 +450,18 @@ class MainWindow(QMainWindow):
     def action_plot_lines_callback(self):
         self.use_structural_setup_workspace()
         self.plot_entities()
-    
+
     def action_plot_lines_with_cross_section_callback(self):
         self.use_structural_setup_workspace()
         self.plot_entities_with_cross_section()
-    
+
     def action_plot_mesh_callback(self):
         self.use_structural_setup_workspace()
         self.plot_mesh()
-    
+
     def action_plot_cross_section_callback(self):
         self.input_widget.plot_cross_section()
-    
+
     def action_isometric_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
         if render_widget == self.opv_widget:
@@ -603,7 +602,7 @@ class MainWindow(QMainWindow):
     def draw(self):
         self.update()
         self.opv_widget.updatePlots()
-        self.plot_entities_with_cross_section()
+        self.plot_mesh()
         self.action_front_view_callback()
         # self.opv_widget.setCameraView(5)
         

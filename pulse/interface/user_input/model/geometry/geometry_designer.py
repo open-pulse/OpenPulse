@@ -110,7 +110,8 @@ class OPPGeometryDesignerInput(QWidget):
     def update_project_attributes(self):
         self.file.modify_project_attributes(length_unit = self.add_widget.length_unit,
                                             element_size = 0.01, 
-                                            geometry_tolerance = 1e-6)
+                                            geometry_tolerance = 1e-6,
+                                            import_type = 1)
 
     def load_project(self):
         self.project.initial_load_project_actions(self.file.project_ini_file_path)

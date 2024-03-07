@@ -2702,7 +2702,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
           </font>
          </property>
          <property name="currentIndex">
-          <number>5</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_rectangular_section">
           <attribute name="title">

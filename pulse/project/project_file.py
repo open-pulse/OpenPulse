@@ -372,8 +372,8 @@ class ProjectFile:
                         keys_to_check = list() 
                         keys_to_check.append("start point")
                         keys_to_check.append("end point")
-                        keys_to_check.append("section parameters")
-                        keys_to_check.append("structural element type")
+                        # keys_to_check.append("section parameters")
+                        # keys_to_check.append("structural element type")
                         for key in keys_to_check:
                             if key not in config[tag].keys():
                                 return False
@@ -1597,6 +1597,8 @@ class ProjectFile:
             if 'structural element type' in keys:
                 structural_element_type = config[section]["structural element type"]
                 aux["structural_element_type"] = structural_element_type
+            else:
+                structural_element_type = "pipe_1"
 
             if 'section type' in keys:
                 section_type_label = config[section]["section type"]

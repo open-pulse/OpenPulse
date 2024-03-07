@@ -194,7 +194,16 @@ class SetMaterialInput(QDialog):
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
         geometry_handler.process_pipeline(build_data)
+        if self.file.get_import_type() == 0:
+            self.load_project()
+            self.file.modify_project_attributes(import_type = 1)
         self.close()
+
+    def load_project(self):
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+        self.complete = True
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

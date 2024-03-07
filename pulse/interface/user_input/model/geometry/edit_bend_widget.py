@@ -80,7 +80,7 @@ class EditBendWidget(QWidget):
             self.cross_section_widget.get_variable_section_pipe_parameters()
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter_initial = self.cross_section_widget.section_parameters[0]
-            diameter_final = self.cross_section_widget.section_parameters[6]
+            diameter_final = self.cross_section_widget.section_parameters[4]
             self.geometry_widget.update_default_diameter(diameter_initial)
 
         else:  # is beam
