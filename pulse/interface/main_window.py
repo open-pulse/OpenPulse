@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
                 'section_parameters': section_parameters
             }
 
-            # There are no beans in pcf files, therefore it is pipe_1
+            # There are no beams in pcf files, therefore it is pipe_1
             structure.extra_info["structural_element_type"] = "pipe_1"
             structure.extra_info["cross_section_info"] = cross_section_info
 
