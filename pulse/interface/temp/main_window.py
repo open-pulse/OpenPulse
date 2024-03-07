@@ -715,6 +715,7 @@ class MainWindow(QMainWindow):
 
     def use_geometry_workspace(self):
         geometry_input = OPPGeometryDesignerInput(self.geometry_widget)
+        geometry_input._reset_finalize_button()
         self._set_menu_widget(geometry_input)
         self._set_render_widget(self.geometry_widget)
         self.working_area.setSizes([100,400])

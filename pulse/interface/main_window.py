@@ -387,6 +387,7 @@ class MainWindow(QMainWindow):
 
     def action_geometry_workspace_callback(self):
         self.mesh_toolbar.setDisabled(True)
+        self.geometry_input_wigdet._disable_finalize_button(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
         self.geometry_input_wigdet.add_widget.load_defined_unit()
@@ -502,7 +503,7 @@ class MainWindow(QMainWindow):
         self.input_widget.add_flanges()
 
     def action_set_prescribed_dofs_callback(self):
-        self.input_widget.setDOF()
+        self.input_widget.set_dof()
 
     def action_set_nodal_loads_callback(self):
         self.input_widget.setNodalLoads()

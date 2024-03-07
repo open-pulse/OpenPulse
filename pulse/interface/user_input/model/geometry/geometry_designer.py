@@ -42,7 +42,6 @@ class OPPGeometryDesignerInput(QWidget):
         self.add_tab: QWidget
         self.edit_tab: QWidget
         self.empty_widget: QWidget
-        # self.pushButton_finalize.setDisabled(True)
 
     def _create_layout(self):
 
@@ -62,6 +61,13 @@ class OPPGeometryDesignerInput(QWidget):
         self.geometry_widget.selection_changed.connect(self.selection_callback)
         self.pushButton_cancel.clicked.connect(self.close_callback)
         self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
+        self.add_widget.pushButton_add_segment.clicked.connect(self._disable_finalize_button)
+
+    def _disable_finalize_button(self, _bool=False):
+        self.pushButton_finalize.setDisabled(_bool)
+        self.add_widget._disable_add_segment_button()
+        if _bool:
+            self.add_widget._update_permissions(force_disable=True)
 
     def selection_callback(self):
 
@@ -101,12 +107,9 @@ class OPPGeometryDesignerInput(QWidget):
         self.export_cad_file()
 
     def export_cad_file(self):
-        pipeline = app().geometry_toolbox.pipeline
-        geometry_filename = "geometry_pipeline.step"
-        geometry_path = self.get_file_path_inside_project_directory(geometry_filename)
-        geometry_filename = os.path.basename(geometry_path)
-        geometry_filename = ""
 
+        pipeline = app().geometry_toolbox.pipeline
+ 
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.add_widget.length_unit)
         geometry_handler.set_pipeline(pipeline)

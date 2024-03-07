@@ -456,7 +456,7 @@ class Project:
             for key, _info in self.loader.compressor_info.items():
                 self.load_compressor_info_by_line(key, _info)
 
-            # Straight Cross-section to the entities
+            # Constant cross-section to the entities
             for key, section_data in self.loader.cross_section_data.items():
                 # key[0] = tag : str
                 # key[1] = label ("pipe", "beam")
@@ -471,8 +471,10 @@ class Project:
                     
                     else:
                         self.number_sections_by_line[prefix_key] = 1
+
                 else:
-                    if key[0] not in self.loader.variable_sections_data.keys():
+
+                    if key not in self.loader.variable_sections_data.keys():
 
                         cross = None
                         if key[1] == "pipe":
@@ -486,7 +488,7 @@ class Project:
             
             # Variable Cross-section to the entities
             for key, value in self.loader.variable_sections_data.items():
-                self.load_variable_cross_section_by_line(int(key), value)
+                self.load_variable_cross_section_by_line(int(key[0]), value)
 
             # Beam X-axis rotation to the entities
             for key, angle in self.loader.beam_xaxis_rotation_data.items():

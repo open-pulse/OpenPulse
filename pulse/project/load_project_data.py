@@ -283,7 +283,7 @@ class LoadProjectData:
 
                                 self.cross_section_data[tag, "pipe"] = [list_elements, pipe_section_info]
                         
-                        elif len(section_parameters) == 12:
+                        elif len(section_parameters) == 10:
                                 
                                 pipe_section_info = {   "section_type_label" : section_type_label ,
                                                         "section_parameters" : section_parameters  }
@@ -368,7 +368,7 @@ class LoadProjectData:
 
                                 self.cross_section_data[tag, "pipe"] = pipe_section_info
                         
-                        elif len(section_parameters) == 12:
+                        elif len(section_parameters) == 10:
                                 
                                 pipe_section_info = {   "section_type_label" : "Pipe section" ,
                                                         "section_parameters" : section_parameters  }

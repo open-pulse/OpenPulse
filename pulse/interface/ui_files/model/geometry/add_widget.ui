@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
+    <width>381</width>
     <height>781</height>
    </rect>
   </property>
@@ -118,13 +118,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>180</height>
+       <height>140</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>180</height>
+       <height>140</height>
       </size>
      </property>
      <property name="frameShape">
@@ -146,33 +146,9 @@
       <property name="bottomMargin">
        <number>4</number>
       </property>
-      <item row="2" column="1">
-       <widget class="QLabel" name="label_6">
-        <property name="minimumSize">
-         <size>
-          <width>132</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>132</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Bending radius:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
+      <property name="horizontalSpacing">
+       <number>8</number>
+      </property>
       <item row="0" column="2">
        <widget class="QComboBox" name="comboBox_length_unit">
         <property name="minimumSize">
@@ -233,8 +209,8 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
-       <widget class="QComboBox" name="comboBox_section_type">
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_6">
         <property name="minimumSize">
          <size>
           <width>110</width>
@@ -249,32 +225,55 @@
         </property>
         <property name="font">
          <font>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
-        <item>
-         <property name="text">
-          <string> pipe section</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string> beam section</string>
-         </property>
-        </item>
+        <property name="text">
+         <string>Bending radius:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label_5">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Bending options:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="label_4">
         <property name="minimumSize">
          <size>
-          <width>132</width>
+          <width>110</width>
           <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>132</width>
+          <width>110</width>
           <height>30</height>
          </size>
         </property>
@@ -303,84 +302,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="label_5">
-        <property name="minimumSize">
-         <size>
-          <width>132</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>132</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Bending options:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QLabel" name="label_9">
-        <property name="minimumSize">
-         <size>
-          <width>132</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>132</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Section type:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="label_unit_bending_radius">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>[m]</string>
-        </property>
-       </widget>
       </item>
       <item row="1" column="2">
        <widget class="QComboBox" name="comboBox_bending_type">
@@ -435,6 +356,30 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLabel" name="label_unit_bending_radius">
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>[m]</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -660,61 +605,10 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       <property name="bottomMargin">
        <number>4</number>
       </property>
+      <property name="horizontalSpacing">
+       <number>8</number>
+      </property>
       <item row="2" column="2">
-       <widget class="QLabel" name="label_unit_delta_y">
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>[m]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Δx:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
        <widget class="QLineEdit" name="lineEdit_delta_y">
         <property name="minimumSize">
          <size>
@@ -738,8 +632,38 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_unit_delta_x">
+      <item row="1" column="1">
+       <widget class="QLabel" name="label">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Δx:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLabel" name="label_unit_delta_y">
         <property name="minimumSize">
          <size>
           <width>60</width>
@@ -748,7 +672,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>60</width>
           <height>16777215</height>
          </size>
         </property>
@@ -762,17 +686,71 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="1" column="3">
+       <widget class="QLabel" name="label_unit_delta_x">
         <property name="minimumSize">
          <size>
-          <width>100</width>
+          <width>60</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>[m]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label_3">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
           <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>110</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Δz:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
           <height>30</height>
          </size>
         </property>
@@ -792,7 +770,31 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="3" column="3">
+       <widget class="QLabel" name="label_unit_delta_z">
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>[m]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
        <widget class="QLineEdit" name="lineEdit_delta_z">
         <property name="minimumSize">
          <size>
@@ -816,61 +818,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Δz:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_unit_delta_z">
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>[m]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
+      <item row="1" column="2">
        <widget class="QLineEdit" name="lineEdit_delta_x">
         <property name="minimumSize">
          <size>
@@ -893,6 +841,32 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
+      </item>
+      <item row="1" column="0">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="4">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -972,6 +946,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
       </item>
       <item row="0" column="1">
        <widget class="QPushButton" name="pushButton_add_segment">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>120</width>
@@ -1035,7 +1012,6 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
   <tabstop>comboBox_length_unit</tabstop>
   <tabstop>comboBox_bending_type</tabstop>
   <tabstop>lineEdit_bending_radius</tabstop>
-  <tabstop>comboBox_section_type</tabstop>
  </tabstops>
  <resources/>
  <connections/>

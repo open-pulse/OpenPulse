@@ -1142,11 +1142,11 @@ def get_points_to_plot_section(section_label, section_parameters):
     if "Pipe section" in section_label:
 
         N = 60
-        d_out = section_parameters["outer_diameter"]
-        thickness = section_parameters["thickness"]
-        offset_y = section_parameters["offset_y"]
-        offset_z = section_parameters["offset_z"]
-        insulation_thickness = section_parameters["insulation_thickness"]
+        d_out = section_parameters[0]
+        thickness = section_parameters[1]
+        offset_y = section_parameters[2]
+        offset_z = section_parameters[3]
+        insulation_thickness = section_parameters[5]
 
         Yc = 0
         Zc = 0    
