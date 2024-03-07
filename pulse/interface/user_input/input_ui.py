@@ -3,7 +3,6 @@ from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.load_project import LoadProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.export_geometry import ExportGeometry
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 #
@@ -158,9 +157,6 @@ class InputUi:
     def reset_project(self):
         if not self.project.none_project_action:
             self.processInput(ResetProjectInput)
-
-    def export_geometry(self):
-        self.processInput(ExportGeometry)
 
     def import_geometry(self):
         obj = self.processInput(ImportGeometry)

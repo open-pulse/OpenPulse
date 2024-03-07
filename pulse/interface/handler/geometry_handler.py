@@ -37,7 +37,10 @@ class GeometryHandler:
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        for structure in self.pipeline.structures: 
+        
+        pipeline = app().geometry_toolbox.pipeline
+
+        for structure in pipeline.structures: 
 
             if isinstance(structure, Pipe):
                 
@@ -187,7 +190,6 @@ class GeometryHandler:
             pipeline.structures.extend(structures)
             editor.merge_coincident_points()
 
-        return pipeline
     
     def export_cad_file(self, path):
         self.create_geometry()

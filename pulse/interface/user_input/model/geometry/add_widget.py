@@ -90,6 +90,7 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material)
+        self.main_window.geometry_widget.selection_changed.connect(self.selection_callback)
 
     def _update_permissions(self, force_disable=False):
         
@@ -197,14 +198,20 @@ class AddStructuresWidget(QWidget):
 
     def _disable_add_segment_button(self, _bool=True):
         self.pushButton_add_segment.setDisabled(_bool)
+    
+    def selection_callback(self): 
+        editor = self.geometry_widget.editor
+        if editor.selected_structures or editor.selected_points:
+            self.pushButton_remove_segment.setDisabled(False)
+        else:
+            self.pushButton_remove_segment.setDisabled(True)
 
     def update(self):
         super().update()
         *_, point = app().get_selected_points()
         if point is None:
             return
-        
-        print(point)
+
         # self.dx_box.setText(str(point.x))
         # self.dy_box.setText(str(point.y))
         # self.dz_box.setText(str(point.z))
@@ -243,21 +250,12 @@ class AddStructuresWidget(QWidget):
         editor = app().geometry_toolbox.editor
         editor.delete_selection()
         app().update()
+        self.selection_callback()
 
     def reset_deltas(self):
         self.lineEdit_delta_x.setText("")
         self.lineEdit_delta_y.setText("")
         self.lineEdit_delta_z.setText("")
-
-    # def get_segment_tag(self):
-    #     tag = 1
-    #     stop = False
-    #     while not stop:
-    #         if tag in self.segment_information.keys():
-    #             tag += 1
-    #         else:
-    #             stop = True
-    #     return tag
 
     def define_cross_section(self):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)

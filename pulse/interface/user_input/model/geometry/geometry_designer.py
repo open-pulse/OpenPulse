@@ -62,10 +62,12 @@ class OPPGeometryDesignerInput(QWidget):
         self.pushButton_cancel.clicked.connect(self.close_callback)
         self.pushButton_finalize.clicked.connect(self.process_geometry_callback)
         self.add_widget.pushButton_add_segment.clicked.connect(self._disable_finalize_button)
+        self.add_widget.pushButton_remove_segment.clicked.connect(self._disable_finalize_button)
 
     def _disable_finalize_button(self, _bool=False):
         self.pushButton_finalize.setDisabled(_bool)
         self.add_widget._disable_add_segment_button()
+        self.add_widget.selection_callback()
         if _bool:
             self.add_widget._update_permissions(force_disable=True)
 
@@ -96,29 +98,20 @@ class OPPGeometryDesignerInput(QWidget):
 
     def process_geometry_callback(self):
         self.geometry_widget.unstage_structure()
-        self.export_files()
+        self.export_entity_file()
+        self.update_project_attributes()
+        self.load_project()
         app().update()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
         app().main_window.action_front_view_callback()
 
-    def export_files(self):
-        self.export_entity_file()
-        self.export_cad_file()
-
-    def export_cad_file(self):
-
-        pipeline = app().geometry_toolbox.pipeline
- 
-        geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(self.add_widget.length_unit)
-        geometry_handler.set_pipeline(pipeline)
-        self.project.preprocessor.set_geometry_handler(geometry_handler)
-
+    def update_project_attributes(self):
         self.file.modify_project_attributes(length_unit = self.add_widget.length_unit,
                                             element_size = 0.01, 
                                             geometry_tolerance = 1e-6)
 
+    def load_project(self):
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
         app().main_window.input_widget.initial_project_action(True)
@@ -157,7 +150,7 @@ class OPPGeometryDesignerInput(QWidget):
         if os.path.exists(self.file._entity_path):
             os.remove(self.file._entity_path)
 
-        self.file.create_entity_file(section_info.keys())
+        self.file.create_entity_file(points_info.keys())
 
         for tag, coords in points_info.items():
             self.file.add_segment_build_data_in_file(tag, coords)

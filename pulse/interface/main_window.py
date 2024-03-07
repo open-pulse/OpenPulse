@@ -12,6 +12,7 @@ from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+from pulse.interface.handler.geometry_handler import GeometryHandler
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
@@ -135,7 +136,11 @@ class MainWindow(QMainWindow):
         self.geometry_input_wigdet.process_geometry_callback()
 
     def export_pcf(self):
-        path, ok = QFileDialog.getSaveFileName(self, 'Export PCF', '', 'PCF (*.pcf)')
+        init_path = os.path.expanduser("~")
+        path, ok = QFileDialog.getSaveFileName(self, 
+                                               'Export PCF file', 
+                                               init_path, 
+                                               'PCF (*.pcf)')
         if not ok:
             return
 
@@ -145,7 +150,16 @@ class MainWindow(QMainWindow):
         self.update()
 
     def export_geometry(self):
-        self.input_widget.export_geometry()
+        init_path = os.path.expanduser("~")
+        path, ok = QFileDialog.getSaveFileName(self, 
+                                               'Export geometry file', 
+                                               init_path, 
+                                               'STEP (*.step)')
+        if not ok:
+            return
+
+        geometry_handler = GeometryHandler()
+        geometry_handler.export_cad_file(path)
 
     def update(self):
         self.geometry_widget.update_plot(reset_camera=True)

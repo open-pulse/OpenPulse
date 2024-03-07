@@ -122,8 +122,8 @@ class Preprocessor:
     def set_element_size(self, element_size):
         self.element_size = element_size
 
-    def set_geometry_handler(self, geometry_handler):
-        self.geometry_handler = geometry_handler
+    # def set_geometry_handler(self, geometry_handler):
+    #     self.geometry_handler = geometry_handler
 
     def generate(self, **kwargs):
         """
@@ -220,9 +220,8 @@ class Preprocessor:
             self.geometry_handler = GeometryHandler()
 
         if isinstance(self.geometry_handler, GeometryHandler):
-            pipeline = self.geometry_handler.process_pipeline(build_data)
+            self.geometry_handler.process_pipeline(build_data)
             self.geometry_handler.set_length_unit(self.file.length_unit)
-            self.geometry_handler.set_pipeline(pipeline)
             self.geometry_handler.create_geometry()
 
     def _set_gmsh_options(self):
