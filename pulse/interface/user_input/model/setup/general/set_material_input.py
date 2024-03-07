@@ -195,12 +195,6 @@ class SetMaterialInput(QDialog):
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
         geometry_handler.process_pipeline(build_data)
-
-        if self.file.get_import_type() == 0:
-            self.file.modify_project_attributes(import_type = 1)
-            self.load_project()
-            self.opv.updatePlots()
-            # self.main_window.plot_entities()
     
         self.close()
 

@@ -131,7 +131,11 @@ class Preprocessor:
 
         Parameters
         ----------
-        path : str
+        import_type : int
+            This number is equal to 0 if there is an imported geometry file or
+            assumes value equals to 1 otherwise.
+
+        geometry_path : str
             CAD file path '*.igs' and '*.step' are the file formats supported.
 
         element_size : float
@@ -142,6 +146,10 @@ class Preprocessor:
 
         gmsh_geometry : bool
             This variable reaches True value if the geometry is created by user or False if it is imported.
+
+        unit_length: : str
+            The unit length in use.
+            
         """
         self.import_type = kwargs.get("import_type", 1)
         self.geometry_path = kwargs.get('geometry_path', "")
