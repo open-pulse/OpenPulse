@@ -59,6 +59,129 @@ class MainWindow(QMainWindow):
         self.cache_indexes = list()
         self.last_index = None
 
+    def _load_icons(self):
+        self.pulse_icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.showMaximized()
+        self.installEventFilter(self)
+        self.setWindowIcon(self.pulse_icon)
+    
+    def _define_qt_variables(self):
+        '''
+        This function is doing nothing. Every variable was
+        already defined in the UI file.
+
+        Despite that, it is nice to list the variables to
+        help future maintainers and the code editor with
+        type inference.
+        '''
+        
+        # QAction
+        self.action_geometry_workspace: QAction
+        self.action_structural_setup_workspace: QAction
+        self.action_acoustic_setup_workspace: QAction
+        self.action_analysis_setup_workspace: QAction
+        self.action_results_workspace: QAction
+        self.action_export_geometry: QAction
+        self.action_import_geometry : QAction
+        self.action_set_dark_theme : QAction
+        self.action_set_light_theme : QAction
+        self.action_save_project_as : QAction
+        self.action_show_points: QAction
+        self.action_show_lines: QAction
+        self.action_show_tubes: QAction
+        self.action_show_symbols: QAction
+        self.action_plot_geometry_editor: QAction
+        self.action_plot_lines: QAction
+        self.action_plot_lines_with_cross_section: QAction
+        self.action_plot_mesh: QAction
+        self.action_export_piping: QAction
+
+        # QMenu
+        self.menu_recent: QMenu
+        self.menu_project: QMenu
+        self.menu_graphic: QMenu
+        self.menu_general_settings: QMenu
+        self.menu_model_info: QMenu
+        self.menu_help: QMenu
+
+        # QSplitter
+        self.splitter: QSplitter
+        # QStackedWidget
+        self.setup_widgets_stack: QStackedWidget
+        self.render_widgets_stack: QStackedWidget
+        # QToolBar
+        self.tool_bar: QToolBar
+
+    def _connect_actions(self):
+        '''
+        Instead of connecting every action manually, one by one,
+        this function loops through every action and connects it
+        to a function ending with "_callback".
+
+        For example an action named "action_new" will be connected to 
+        the function named "action_new_callback" if it exists.
+        '''
+        for action in self.findChildren(QAction):
+            function_name = action.objectName() + "_callback"
+            function_exists = hasattr(self, function_name)
+            if not function_exists:
+                continue
+
+            function = getattr(self, function_name)
+            if callable(function):
+                action.triggered.connect(function)
+
+    def _create_workspaces_toolbar(self):
+        actions = {
+            Workspace.GEOMETRY: self.action_geometry_workspace,
+            Workspace.STRUCTURAL_SETUP: self.action_structural_setup_workspace,
+            Workspace.ACOUSTIC_SETUP: self.action_acoustic_setup_workspace,
+            Workspace.RESULTS: self.action_results_workspace,
+        }
+
+        self.combo_box_workspaces = QComboBox()
+        # iterating sorted items make the icons appear in the same 
+        # order as defined in the Workspace enumerator
+        for _, action in sorted(actions.items()):
+            self.combo_box_workspaces.addItem(action.text())
+
+        self.combo_box_workspaces.currentIndexChanged.connect(self.update_combobox_indexes)
+        self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
+        self.tool_bar.addWidget(self.combo_box_workspaces)
+
+    def update_combobox_indexes(self):
+        index = self.combo_box_workspaces.currentIndex()
+        self.cache_indexes.append(index)
+
+    def _create_layout(self):
+
+        self.opv_widget = OPVUi(self.project, self)
+        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
+        self.results_viewer_wigdet = ResultsViewerWidget()
+        self.opv_widget.opvAnalysisRenderer._createPlayer()
+        self.input_widget = InputUi(self)
+
+        editor = app().geometry_toolbox.editor
+        self.mesh_widget = MeshRenderWidget()
+        self.geometry_widget = EditorRenderWidget(editor)
+        self.geometry_widget.set_theme("light")
+
+        self.render_widgets_stack.addWidget(self.mesh_widget)
+        self.render_widgets_stack.addWidget(self.geometry_widget)
+        self.render_widgets_stack.addWidget(self.opv_widget)
+
+        self.geometry_input_wigdet = OPPGeometryDesignerInput(self.geometry_widget)
+        self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
+        self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
+
+        self.splitter.setSizes([100, 400])
+        # self.splitter.widget(0).setFixedWidth(340)
+        self.opv_widget.updatePlots()
+        self.opv_widget.plot_entities_with_cross_section()
+
     def configure_window(self):
 
         self._load_icons()
@@ -240,131 +363,6 @@ class MainWindow(QMainWindow):
             import_action.triggered.connect(partial(self.open_project, path))
             self.menu_recent.addAction(import_action)
             self.menu_actions.append(import_action)
-
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
-
-    def _config_window(self):
-        self.showMaximized()
-        self.installEventFilter(self)
-        self.setWindowIcon(self.pulse_icon)
-    
-    def _define_qt_variables(self):
-        '''
-        This function is doing nothing. Every variable was
-        already defined in the UI file.
-
-        Despite that, it is nice to list the variables to
-        help future maintainers and the code editor with
-        type inference.
-        '''
-        
-        # QAction
-        self.action_geometry_workspace: QAction
-        self.action_structural_setup_workspace: QAction
-        self.action_acoustic_setup_workspace: QAction
-        self.action_analysis_setup_workspace: QAction
-        self.action_results_workspace: QAction
-        self.action_export_geometry: QAction
-        self.action_import_geometry : QAction
-        self.action_set_dark_theme : QAction
-        self.action_set_light_theme : QAction
-        self.action_save_project_as : QAction
-        self.action_show_points: QAction
-        self.action_show_lines: QAction
-        self.action_show_tubes: QAction
-        self.action_show_symbols: QAction
-        self.action_plot_geometry_editor: QAction
-        self.action_plot_lines: QAction
-        self.action_plot_lines_with_cross_section: QAction
-        self.action_plot_mesh: QAction
-        action_export_piping: QAction
-
-        
-        # QMenu
-        self.menu_recent: QMenu
-        self.menu_project: QMenu
-        self.menu_graphic: QMenu
-        self.menu_general_settings: QMenu
-        self.menu_model_info: QMenu
-        self.menu_help: QMenu
-
-        # QSplitter
-        self.splitter: QSplitter
-        # QStackedWidget
-        self.setup_widgets_stack: QStackedWidget
-        self.render_widgets_stack: QStackedWidget
-        # QToolBar
-        self.tool_bar: QToolBar
-
-
-    def _connect_actions(self):
-        '''
-        Instead of connecting every action manually, one by one,
-        this function loops through every action and connects it
-        to a function ending with "_callback".
-
-        For example an action named "action_new" will be connected to 
-        the function named "action_new_callback" if it exists.
-        '''
-        for action in self.findChildren(QAction):
-            function_name = action.objectName() + "_callback"
-            function_exists = hasattr(self, function_name)
-            if not function_exists:
-                continue
-
-            function = getattr(self, function_name)
-            if callable(function):
-                action.triggered.connect(function)
-
-    def _create_workspaces_toolbar(self):
-        actions = {
-            Workspace.GEOMETRY: self.action_geometry_workspace,
-            Workspace.STRUCTURAL_SETUP: self.action_structural_setup_workspace,
-            Workspace.ACOUSTIC_SETUP: self.action_acoustic_setup_workspace,
-            Workspace.RESULTS: self.action_results_workspace,
-        }
-
-        self.combo_box_workspaces = QComboBox()
-        # iterating sorted items make the icons appear in the same 
-        # order as defined in the Workspace enumerator
-        for _, action in sorted(actions.items()):
-            self.combo_box_workspaces.addItem(action.text())
-
-        self.combo_box_workspaces.currentIndexChanged.connect(self.update_combobox_indexes)
-        self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
-        self.tool_bar.addWidget(self.combo_box_workspaces)
-
-    def update_combobox_indexes(self):
-        index = self.combo_box_workspaces.currentIndex()
-        self.cache_indexes.append(index)
-
-    def _create_layout(self):
-
-        self.opv_widget = OPVUi(self.project, self)
-        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
-        self.results_viewer_wigdet = ResultsViewerWidget()
-        self.opv_widget.opvAnalysisRenderer._createPlayer()
-        self.input_widget = InputUi(self)
-
-        editor = app().geometry_toolbox.editor
-        self.mesh_widget = MeshRenderWidget()
-        self.geometry_widget = EditorRenderWidget(editor)
-        self.geometry_widget.set_theme("light")
-
-        self.render_widgets_stack.addWidget(self.mesh_widget)
-        self.render_widgets_stack.addWidget(self.geometry_widget)
-        self.render_widgets_stack.addWidget(self.opv_widget)
-
-        self.geometry_input_wigdet = OPPGeometryDesignerInput(self.geometry_widget)
-        self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
-        self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
-        self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
-
-        self.splitter.setSizes([100, 400])
-        # self.splitter.widget(0).setFixedWidth(340)
-        self.opv_widget.updatePlots()
-        self.opv_widget.plot_entities_with_cross_section()
 
     def change_window_title(self, msg = ""):
         self.set_window_title(msg)

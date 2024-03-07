@@ -44,7 +44,7 @@ class SetCrossSectionInput(QDialog):
         self._create_connections()
         self.load_existing_sections()
         self.initial_condition()
-        self.update_QDialog_info()       
+        self.update()  
         self.exec()
 
     def _load_icons(self):
@@ -205,6 +205,7 @@ class SetCrossSectionInput(QDialog):
     def update_QDialog_info(self):
 
         self.input_widget.reset_all_input_texts()
+        self.update_line_and_element_ids()
 
         if len(self.lines_id) == 1:   
             self.selection = self.dict_tag_to_entity[self.lines_id[0]]
@@ -252,7 +253,6 @@ class SetCrossSectionInput(QDialog):
             #     self.tabWidget_general.setCurrentIndex(1)
 
         self.update_tabs()
-        self.update_line_and_element_ids()
 
     def on_click_treeWidget_section_parameters_by_line(self, item):
         self.input_widget.reset_all_input_texts()

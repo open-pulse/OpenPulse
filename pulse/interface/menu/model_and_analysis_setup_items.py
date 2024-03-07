@@ -16,7 +16,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     """
     def __init__(self, main_window):
         super().__init__()
-        self.mainWindow = main_window
+        self.main_window = main_window
         self.project = main_window.project
 
         self._create_items()
@@ -101,152 +101,173 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_run_analysis.clicked.connect(self.item_child_run_analysis_callback)
 
     def update_plot_mesh(self):
-        if not self.mainWindow.opv_widget.change_plot_to_mesh:
-            self.mainWindow.plot_mesh()
+
+        key = list()
+        key.append(self.main_window.action_show_points.isChecked())
+        key.append(self.main_window.action_show_lines.isChecked())
+        key.append(self.main_window.action_show_tubes.isChecked())
+        key.append(self.main_window.action_show_symbols.isChecked())
+
+        if key != [True, True, True, True]:
+            self.main_window.plot_mesh()
 
     def update_plot_entities(self):
-        if not (self.mainWindow.opv_widget.change_plot_to_entities or self.mainWindow.opv_widget.change_plot_to_entities_with_cross_section):
-            self.mainWindow.plot_entities()  
+
+        key = list()
+        key.append(self.main_window.action_show_points.isChecked())
+        key.append(self.main_window.action_show_lines.isChecked())
+        key.append(self.main_window.action_show_tubes.isChecked())
+        key.append(self.main_window.action_show_symbols.isChecked())
+
+        if key != [False, True, False, False]:
+            self.main_window.plot_entities()  
 
     def update_plot_entities_with_cross_section(self):
-        if not self.mainWindow.opv_widget.change_plot_to_entities_with_cross_section:
-            self.mainWindow.plot_entities_with_cross_section()   
+
+        key = list()
+        key.append(self.main_window.action_show_points.isChecked())
+        key.append(self.main_window.action_show_lines.isChecked())
+        key.append(self.main_window.action_show_tubes.isChecked())
+        key.append(self.main_window.action_show_symbols.isChecked())
+
+        if key != [False, False, True, False]:
+            self.main_window.plot_entities_with_cross_section()   
 
     # def create_plot_convergence_data(self):
     #     self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
 
     # Callbacks
     def item_child_create_geometry_callback(self):
-        self.mainWindow.input_widget.call_geometry_editor()
+        self.main_window.input_widget.call_geometry_editor()
 
     def item_child_edit_geometry_callback(self):
-        read = self.mainWindow.input_widget.edit_an_imported_geometry()
+        read = self.main_window.input_widget.edit_an_imported_geometry()
 
     def item_child_set_material_callback(self):
         self.update_plot_entities()
-        self.mainWindow.input_widget.set_material()
-        self.mainWindow.plot_entities()
+        self.main_window.input_widget.set_material()
+        self.main_window.plot_entities()
 
     def item_child_set_fluid_callback(self):
         self.update_plot_entities()
-        self.mainWindow.input_widget.set_fluid()
-        self.mainWindow.plot_entities()
+        self.main_window.input_widget.set_fluid()
+        self.main_window.plot_entities()
 
     def item_child_set_cross_section_callback(self):
-        if self.mainWindow.input_widget.set_cross_section():
-            self.mainWindow.plot_entities_with_cross_section()
+        if self.main_window.input_widget.set_cross_section():
+            self.main_window.plot_entities_with_cross_section()
 
     def item_child_set_structural_element_type_callback(self):
         self.update_plot_entities()
-        self.mainWindow.input_widget.setStructuralElementType()
+        self.main_window.input_widget.setStructuralElementType()
 
     def item_child_set_prescribed_dofs_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.set_dof()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.set_dof()
+        self.main_window.plot_mesh()
 
     def item_child_set_nodal_loads_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.setNodalLoads()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.setNodalLoads()
+        self.main_window.plot_mesh()
 
     def item_child_add_mass_spring_damper_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.addMassSpringDamper()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.addMassSpringDamper()
+        self.main_window.plot_mesh()
 
     def item_child_add_elastic_nodal_links_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.add_elastic_nodal_links()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.add_elastic_nodal_links()
+        self.main_window.plot_mesh()
 
     def item_child_set_inertial_loads_callback(self):
-        obj = self.mainWindow.input_widget.set_inertial_load()
+        obj = self.main_window.input_widget.set_inertial_load()
         if obj.complete:
-            self.mainWindow.plot_mesh()
+            self.main_window.plot_mesh()
 
     def item_child_set_stress_stiffening_callback(self):
-        self.mainWindow.input_widget.set_stress_stress_stiffening()
-        # self.mainWindow.plot_entities()
+        self.main_window.input_widget.set_stress_stress_stiffening()
+        # self.main_window.plot_entities()
 
     def item_child_set_capped_end_callback(self):
-        self.mainWindow.input_widget.set_capped_end()
-        # self.mainWindow.plot_entities()
+        self.main_window.input_widget.set_capped_end()
+        # self.main_window.plot_entities()
 
     def item_child_add_valve_callback(self):
-        read = self.mainWindow.input_widget.add_valve()
+        read = self.main_window.input_widget.add_valve()
         if read.complete:
-            self.mainWindow.plot_mesh()
-        # self.mainWindow.plot_entities_with_cross_section()
+            self.main_window.plot_mesh()
+        # self.main_window.plot_entities_with_cross_section()
 
     def item_child_add_flanges_callback(self):
-        self.mainWindow.input_widget.add_flanges()
+        self.main_window.input_widget.add_flanges()
 
     def item_child_add_expansion_joint_callback(self):
-        self.mainWindow.input_widget.add_expansion_joint()
-        # self.mainWindow.plot_entities_with_cross_section()
+        self.main_window.input_widget.add_expansion_joint()
+        # self.main_window.plot_entities_with_cross_section()
 
     def item_child_set_beam_x_axis_rotation_callback(self):
         self.update_plot_entities_with_cross_section()
-        self.mainWindow.input_widget.set_beam_xaxis_rotation()
+        self.main_window.input_widget.set_beam_xaxis_rotation()
 
     def item_child_set_rotation_decoupling_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.setRotationDecoupling()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.setRotationDecoupling()
+        self.main_window.plot_mesh()
 
     def item_child_set_acoustic_element_type_callback(self):
         self.update_plot_entities()
-        self.mainWindow.input_widget.set_acoustic_element_type()
-        self.mainWindow.plot_entities()
+        self.main_window.input_widget.set_acoustic_element_type()
+        self.main_window.plot_entities()
 
     def item_child_set_acoustic_pressure_callback(self):
         self.update_plot_mesh()      
-        self.mainWindow.input_widget.set_acoustic_pressure()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.set_acoustic_pressure()
+        self.main_window.plot_mesh()
 
     def item_child_set_volume_velocity_callback(self):
         self.update_plot_mesh()  
-        self.mainWindow.input_widget.setVolumeVelocity()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.setVolumeVelocity()
+        self.main_window.plot_mesh()
 
     def item_child_set_specific_impedance_callback(self):
         self.update_plot_mesh() 
-        self.mainWindow.input_widget.setSpecificImpedance()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.setSpecificImpedance()
+        self.main_window.plot_mesh()
 
     def item_child_set_radiation_impedance_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.set_radiation_impedance()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.set_radiation_impedance()
+        self.main_window.plot_mesh()
 
     def item_child_add_perforated_plate_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.add_perforated_plate()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.add_perforated_plate()
+        self.main_window.plot_mesh()
 
     def item_child_set_acoustic_element_length_correction_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.set_acoustic_element_length_correction()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.set_acoustic_element_length_correction()
+        self.main_window.plot_mesh()
 
     def item_child_add_compressor_excitation_callback(self):
         self.update_plot_mesh()
-        self.mainWindow.input_widget.add_compressor_excitation()
-        self.mainWindow.plot_mesh()
+        self.main_window.input_widget.add_compressor_excitation()
+        self.main_window.plot_mesh()
 
     def item_child_select_analysis_type_callback(self):
-        self.mainWindow.input_widget.analysisTypeInput()
+        self.main_window.input_widget.analysisTypeInput()
         self._update_items()
     
     def item_child_analisys_setup_callback(self):
-        self.mainWindow.input_widget.analysis_setup()
+        self.main_window.input_widget.analysis_setup()
         self._update_items()
 
     def item_child_run_analysis_callback(self):
-        self.mainWindow.input_widget.run_analysis()
+        self.main_window.input_widget.run_analysis()
         self._update_items()
-        self.mainWindow.use_results_workspace()
+        self.main_window.use_results_workspace()
 
     def enable_actions_according_to_import_type(self):
         import_type = self.project.file.get_import_type()
