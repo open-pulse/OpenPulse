@@ -33,7 +33,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading material data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -46,7 +46,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading fluid data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -85,7 +85,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading constant section data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -98,7 +98,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading variable section data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -118,7 +118,7 @@ class LoadProjectData:
                                                                   etype_data) 
         except Exception as log_error:
             title = "Error while loading structural element type data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -137,7 +137,7 @@ class LoadProjectData:
    
         except Exception as log_error:
             title = "Error while loading structural element force offset data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -156,7 +156,7 @@ class LoadProjectData:
    
         except Exception as log_error:
             title = "Error while loading structural element wall formulation data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -170,7 +170,7 @@ class LoadProjectData:
    
         except Exception as log_error:
             title = "Error while loading acoustic element type data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -182,7 +182,7 @@ class LoadProjectData:
    
         except Exception as log_error:
             title = "Error while loading acoustic element length correction data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -201,7 +201,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading perforated plate data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -214,7 +214,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading compressor data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -229,7 +229,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading x-axis beam rotation data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -245,7 +245,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading B2PX rotation data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -281,7 +281,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading expansion joint data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -298,7 +298,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading valve data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -314,7 +314,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading capped end data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
@@ -330,7 +330,7 @@ class LoadProjectData:
 
         except Exception as log_error:
             title = "Error while loading stress stiffening data"
-            message = "Local: project class\n\n"
+            message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
