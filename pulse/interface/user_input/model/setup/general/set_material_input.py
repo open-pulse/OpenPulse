@@ -21,12 +21,12 @@ def getColorRGB(color):
     return list(map(int, tokens))
 
 class SetMaterialInput(QDialog):
-    def __init__(   self, cache_selected_lines=[], *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "model/setup/general/set_material.ui", self)
 
-        self.cache_selected_lines = cache_selected_lines
+        self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
         self.project = app().project
         self.opv = app().main_window.opv_widget
