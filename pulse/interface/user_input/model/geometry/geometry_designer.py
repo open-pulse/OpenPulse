@@ -139,9 +139,6 @@ class OPPGeometryDesignerInput(QWidget):
 
             points_info[tag] = build_data
 
-            # if isinstance(structure, Bend) and structure.is_colapsed():               
-            #     continue
-
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
 
@@ -158,7 +155,7 @@ class OPPGeometryDesignerInput(QWidget):
 
         self.file.create_entity_file(points_info.keys())
 
-        print(list(points_info.keys()))
+        # print(list(points_info.keys()))
 
         for tag, coords in points_info.items():
             self.file.add_segment_build_data_in_file(tag, coords)
@@ -166,12 +163,12 @@ class OPPGeometryDesignerInput(QWidget):
         for tag, section in section_info.items():
             self.file.add_cross_section_segment_in_file(tag, section)
 
-        print(list(element_type_info.keys()))
+        # print(list(element_type_info.keys()))
 
         for tag, e_type in element_type_info.items():
             self.file.modify_structural_element_type_in_file(tag, e_type)
 
-        print(list(material_info.keys()))
+        # print(list(material_info.keys()))
 
         for tag, material_id in material_info.items():
             self.file.add_material_segment_in_file(tag, material_id)
