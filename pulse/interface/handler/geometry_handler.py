@@ -189,7 +189,7 @@ class GeometryHandler:
         if len(structures):
             pipeline.structures.extend(structures)
             editor.merge_coincident_points()
-            # app().update()
+            app().update()
     
     def export_cad_file(self, path):
         self.create_geometry()
