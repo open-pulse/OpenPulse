@@ -187,12 +187,9 @@ class AddStructuresWidget(QWidget):
         except ValueError:
             return
 
-        # TODO: change this to pass the bend radius directly
-        if self.bending_factor:
-            bend_pipe = True
-        else:
-            bend_pipe = False
-        self.geometry_widget.stage_pipe_deltas(dx, dy, dz, bend_pipe)
+        editor = app().geometry_toolbox.editor
+        radius = self.bending_factor * editor.default_diameter
+        self.geometry_widget.stage_pipe_deltas(dx, dy, dz, radius)
 
     def _disable_add_segment_button(self, _bool=True):
         self.pushButton_add_segment.setDisabled(_bool)
