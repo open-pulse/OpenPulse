@@ -409,12 +409,16 @@ class MainWindow(QMainWindow):
         self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        # update the internal renderer to the setup mode
+        self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
 
     def action_acoustic_setup_workspace_callback(self):
         self.mesh_toolbar.setDisabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        # update the internal renderer to the setup mode
+        self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
 
     def action_coupled_setup_workspace_callback(self):
         self.model_and_analysis_setup_widget.update_visibility_for_coupled_analysis()
