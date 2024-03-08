@@ -62,8 +62,8 @@ from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceDat
 #
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
 from pulse.interface.user_input.project.render.renderer_user_preferences import RendererUserPreferencesInput
-from pulse.interface.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
-from pulse.interface.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
+from pulse.interface.user_input.model.info.structural_model_info import StructuralModelInfo
+from pulse.interface.user_input.model.info.acoustic_model_Info import AcousticModelInfo
 from pulse.interface.user_input.model.criteria.check_beam_criteria_input import CheckBeamCriteriaInput
 #
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -461,10 +461,10 @@ class InputUi:
         return self.processInput(CheckAPI618PulsationCriteriaInput)
 
     def structural_model_info(self):
-        self.processInput(StructuralModelInfoInput, self.project, self.opv)
+        self.processInput(StructuralModelInfo, self.project, self.opv)
 
     def acoustic_model_info(self):
-        self.processInput(AcousticModelInfoInput, self.project, self.opv)
+        self.processInput(AcousticModelInfo, self.project, self.opv)
 
     def check_beam_criteria(self):
         self.processInput(CheckBeamCriteriaInput, self.project, self.opv)

@@ -167,6 +167,26 @@ def in_to_mm(value):
         return value * 25.4
     return float(value) * 25.4
 
+def in_to_m(value):
+    ''' 
+    Converts inches to meters.
+
+    Parameters
+    ----------
+    value: int, float, list, np.ndarray
+        Value in inches
+
+    Returns
+    -------
+    out: float or np.ndarray
+        Value in meters
+    '''
+    if isinstance(value, list):
+        return np.array(value) * 0.0254
+    elif isinstance(value, np.ndarray):
+        return value * 0.0254
+    return float(value) * 0.0254
+
 def mm_to_m(value):
     ''' 
     Converts millimeters to meters.

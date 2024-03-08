@@ -202,7 +202,6 @@ class Preprocessor:
         ----------
 
         """
-
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
         geometry_handler.open_cad_file(str(self.geometry_path))
@@ -215,7 +214,6 @@ class Preprocessor:
         ----------
 
         """
-        
         build_data = self.file.get_segment_build_data_from_file()
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
@@ -280,8 +278,7 @@ class Preprocessor:
 
                 # Nodes
                 line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
-                
-                line_node_coordinates = (line_node_coordinates/1000).reshape(-1,3)
+                line_node_coordinates = mm_to_m(line_node_coordinates).reshape(-1,3)
                 line_node_data = np.zeros((len(line_node_indexes), 4))
                 line_node_data[:,0] = line_node_indexes
                 line_node_data[:,1:] = line_node_coordinates
@@ -444,6 +441,7 @@ class Preprocessor:
         This method finalize the mesher gmsh algorithm.
         """
         gmsh.finalize()
+        self.length_unit = "meter"
 
     def get_line_length(self, line_ID):
         """

@@ -282,6 +282,17 @@ class GeometryHandler:
         editor.merge_coincident_points()
         self.export_entity_file()
 
+        if self.length_unit == "millimeter":
+            element_size = mm_to_m(self.file._element_size)
+
+        if self.length_unit == "inch":
+            element_size = in_to_m(self.file._element_size)
+
+        if self.length_unit !=  "meter":
+            self.file.modify_project_attributes(length_unit = "meter",
+                                                element_size = element_size)
+            app().main_window.mesh_toolbar.update_mesh_attributes()
+
         if len(self.merged_points):
             self.print_merged_nodes_message()
 

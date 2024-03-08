@@ -8,11 +8,11 @@ import numpy as np
 
 from pulse import UI_DIR
 
-class StructuralModelInfoInput(QDialog):
+class StructuralModelInfo(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(UI_DIR / "model/info/structuralModel_Info.ui", self)
+        uic.loadUi(UI_DIR / "model/info/structural_model_Info.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)

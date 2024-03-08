@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLineEdit, QPushButton, QWidget
+from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -33,7 +33,7 @@ class NewProjectInput(QDialog):
         self._config_window()
         self._initialize()
         self._define_qt_variables()
-        self._create_qt_actions()
+        self._create_connections()
         self.update_project_directory()
         self.exec()
 
@@ -67,6 +67,9 @@ class NewProjectInput(QDialog):
         self.frame_geometry_file : QFrame
         self.frame_element_size : QFrame
         self.frame_geometry_tolerance : QFrame
+        # QLabel
+        self.label_element_size : QLabel
+        self.label_geometry_tolerance : QLabel
         # QLineEdit
         self.lineEdit_project_name : QLineEdit
         self.lineEdit_project_folder : QLineEdit
@@ -81,13 +84,25 @@ class NewProjectInput(QDialog):
         self.pushButton_cancel : QPushButton
         self.pushButton_start_project : QPushButton
 
-    def _create_qt_actions(self):
+    def _create_connections(self):
         self.comboBox_start_project.currentIndexChanged.connect(self.update_available_inputs)
+        self.comboBox_length_unit.currentIndexChanged.connect(self.update_unit_length_event)
         self.pushButton_start_project.clicked.connect(self.start_project)
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_import_geometry.clicked.connect(self.import_geometry)
         self.pushButton_search_project_folder.clicked.connect(self.search_project_folder)
         self.update_available_inputs()
+
+    def update_unit_length_event(self):
+        unit = self.comboBox_length_unit.currentText().replace(" ", "")
+        if unit == "millimeter":
+            label = "mm"
+        elif unit == "inch":
+            label = "in"
+        else:
+            label = "m"
+        self.label_element_size.setText(f"Element size: [{label}]")
+        self.label_geometry_tolerance.setText(f"Geometry tolerance: [{label}]")
 
     def create_project_folder(self):
         if self.lineEdit_project_name.text() == "":

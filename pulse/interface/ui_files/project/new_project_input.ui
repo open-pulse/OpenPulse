@@ -184,26 +184,6 @@
          <property name="verticalSpacing">
           <number>4</number>
          </property>
-         <item row="0" column="3">
-          <widget class="QFrame" name="frame_16">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_13">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QLabel" name="label_length_unit">
            <property name="minimumSize">
@@ -235,13 +215,13 @@
           <widget class="QComboBox" name="comboBox_length_unit">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>30</height>
             </size>
            </property>
@@ -266,6 +246,32 @@ QComboBox:pressed{border-radius: 2px; border-color: rgb(0, 170, 255); border-sty
             </property>
            </item>
           </widget>
+         </item>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -421,16 +427,6 @@ QComboBox:pressed{border-radius: 2px; border-color: rgb(0, 170, 255); border-sty
          <property name="verticalSpacing">
           <number>4</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_11">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="2">
           <widget class="QLineEdit" name="lineEdit_element_size">
            <property name="enabled">
@@ -438,13 +434,13 @@ QComboBox:pressed{border-radius: 2px; border-color: rgb(0, 170, 255); border-sty
            </property>
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>30</height>
             </size>
            </property>
@@ -514,15 +510,31 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
           </widget>
          </item>
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item row="0" column="3">
-          <widget class="QFrame" name="frame_12">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
            </property>
-          </widget>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -872,16 +884,6 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
          <property name="verticalSpacing">
           <number>4</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QFrame" name="frame_14">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QLabel" name="label_geometry_tolerance">
            <property name="minimumSize">
@@ -916,13 +918,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>90</width>
              <height>30</height>
             </size>
            </property>
@@ -965,15 +967,31 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
           </widget>
          </item>
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item row="0" column="3">
-          <widget class="QFrame" name="frame_15">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
            </property>
-          </widget>
+          </spacer>
          </item>
         </layout>
        </widget>
