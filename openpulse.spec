@@ -10,7 +10,8 @@ a = Analysis(
     datas=[
         ('data/', 'data/'),
         ('pulse/interface/ui_files/', 'pulse/interface/ui_files/'),
-        ('pulse/lib/', 'pulse/lib/'),
+        ('pulse/interface/icons/', 'pulse/interface/icons/'),
+        ('pulse/libraries/', 'pulse/libraries/'),
     ],
     hiddenimports=[],
     hookspath=[],
