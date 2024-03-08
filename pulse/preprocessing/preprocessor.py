@@ -26,7 +26,6 @@ class Preprocessor:
     def __init__(self, project):
         self.project = project
         self.file = project.file
-        # self.geometry_handler = GeometryHandler()
         self.reset_variables()
 
     def reset_variables(self):
@@ -147,15 +146,15 @@ class Preprocessor:
         gmsh_geometry : bool
             This variable reaches True value if the geometry is created by user or False if it is imported.
 
-        unit_length: : str
-            The unit length in use.
+        length_unit: : str
+            The length unit in use.
             
         """
         self.import_type = kwargs.get("import_type", 1)
         self.geometry_path = kwargs.get('geometry_path', "")
         self.element_size = kwargs.get('element_size', 0.01)
         self.tolerance = kwargs.get('tolerance', 1e-6)
-        self.unit_length = kwargs.get('unit_length', 'meter')
+        self.length_unit = kwargs.get('length_unit', 'meter')
 
         self.reset_variables()
 
@@ -166,8 +165,8 @@ class Preprocessor:
                 return
 
         self._create_gmsh_geometry()
-        
         self._set_gmsh_options()
+
         self._create_entities()
         self._map_lines_to_elements()
         self._map_lines_to_nodes()
@@ -203,19 +202,10 @@ class Preprocessor:
         ----------
 
         """
-        # TODO: check consistency of opps cad interpreter
-
-        # gmsh.initialize('', False)
-        # gmsh.option.setNumber("General.Terminal",0)
-        # gmsh.option.setNumber("General.Verbosity", 0)
-        # gmsh.open(str(self.geometry_path))
 
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
-       
-        if isinstance(geometry_handler, GeometryHandler):        
-            path = str(self.geometry_path)
-            geometry_handler.open_cad_file(path)
+        geometry_handler.open_cad_file(str(self.geometry_path))
 
     def _create_gmsh_geometry(self):
         """
@@ -228,11 +218,9 @@ class Preprocessor:
         
         build_data = self.file.get_segment_build_data_from_file()
         geometry_handler = GeometryHandler()
-
-        if isinstance(geometry_handler, GeometryHandler):
-            geometry_handler.process_pipeline(build_data)
-            geometry_handler.set_length_unit(self.file.length_unit)
-            geometry_handler.create_geometry()
+        geometry_handler.set_length_unit(self.file.length_unit)
+        geometry_handler.process_pipeline(build_data)
+        geometry_handler.create_geometry()
 
     def _set_gmsh_options(self):
         """
@@ -247,13 +235,15 @@ class Preprocessor:
         except:
             pass
 
-        if self.unit_length == 'meter':
-            conv_function = m_to_mm
-        elif self.unit_length == 'inch':
-            conv_function = in_to_mm
+        if self.length_unit == 'meter':
+            length = m_to_mm(self.element_size)
+        elif self.length_unit == 'inch':
+            length = in_to_mm(self.element_size)
+        else:
+            length = self.element_size
 
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', conv_function(self.element_size))
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', conv_function(self.element_size))
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', length)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', length)
         gmsh.option.setNumber('Mesh.Optimize', 1)
         gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
         gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)
@@ -3406,115 +3396,6 @@ class Preprocessor:
     
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
-
-    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="Open Cascade"):
-        """
-        """
-        try:
-            message = ""
-            self.geometry = Geometry()
-
-            gmsh.initialize('', False)
-            gmsh.option.setNumber("General.Terminal", 0)
-            gmsh.option.setNumber("General.Verbosity", 0)
-
-            points = entities_data["points_data"]
-            lines = entities_data["lines_data"]
-            fillet_data = entities_data["fillets_data"]
-
-            corner_points = []
-            list_lines = []
-            
-            for point_id, coords in points.items():
-
-                if unit_length == "m":
-                    coords = m_to_mm(coords)
-
-                if kernel == "built-in":
-                    gmsh.model.geo.addPoint(coords[0], coords[1], coords[2], tag=point_id)
-                elif kernel == "Open Cascade":
-                    gmsh.model.occ.addPoint(coords[0], coords[1], coords[2], tag=point_id)
-                self.geometry.set_points(point_id, coords/1000)
-
-            connected_points = defaultdict(list)
-            for data in fillet_data.values():
-                corner_points.append(data[4])
-
-            for line_points in lines.values():
-                if (line_points[0] not in corner_points) and (line_points[1] not in corner_points):
-                    if kernel == "built-in":
-                        seg4 = gmsh.model.geo.addLine(line_points[0], line_points[1], tag=-1)
-                    elif kernel == "Open Cascade":
-                        seg4 = gmsh.model.occ.addLine(line_points[0], line_points[1], tag=-1)
-                    list_lines.append(seg4)
-                    self.geometry.set_lines(len(list_lines), line_points)
-
-            for data in fillet_data.values():   
-
-                min_L1 = min([data[3], data[4]])
-                max_L1 = max([data[3], data[4]])
-                min_L2 = min([data[4], data[5]])
-                max_L2 = max([data[4], data[5]])
-                
-                key_L1 = f"{min_L1}-{max_L1}"
-                key_L2 = f"{min_L2}-{max_L2}"
-
-                connected_points[key_L1].append(data[7])
-                if data[3] not in corner_points:
-                    connected_points[key_L1].append(data[3])
-                
-                connected_points[key_L2].append(data[8])
-                if data[5] not in corner_points:
-                    connected_points[key_L2].append(data[5])
-            
-            for _, _points in connected_points.items():
-                if len(_points)==2:
-                    if kernel == "built-in":
-                        seg1 = gmsh.model.geo.addLine(_points[0], _points[1], tag=-1)
-                    elif kernel == "Open Cascade":
-                        seg1 = gmsh.model.occ.addLine(_points[0], _points[1], tag=-1)
-                    list_lines.append(seg1)  
-                    self.geometry.set_lines(len(list_lines), _points)            
-
-            for data in fillet_data.values():
-                Q1, Q2, Q3 = data[7], data[8], data[6]
-                if kernel == "built-in":
-                    seg2 = gmsh.model.geo.addCircleArc(Q1, Q3, Q2, tag=-1)
-                elif kernel == "Open Cascade":
-                    seg2 = gmsh.model.occ.addCircleArc(Q1, Q3, Q2, tag=-1)
-                list_lines.append(seg2)
-                self.geometry.set_lines(len(list_lines), data[6:])
-
-            if os.path.exists(self.file._backup_geometry_path):
-                if os.path.exists(self.file._geometry_path):
-                    if os.path.basename(self.file._geometry_path) != "":
-                        gmsh.merge(self.file._geometry_path)
-
-            gmsh.model.addPhysicalGroup(1, list_lines, 1)
-            
-            if kernel == "built-in":
-                gmsh.model.geo.synchronize()
-            elif kernel == "Open Cascade":
-                gmsh.model.occ.synchronize()
-
-            if geometry_path != "":
-                gmsh.write(geometry_path)
-                gmsh.finalize()
-                if os.path.exists(self.file._backup_geometry_path):
-                    filenames = os.listdir(self.file._backup_geometry_path)
-                    if len(filenames) == 1:
-                        if os.path.basename(self.file._geometry_path) == filenames[0]:
-                            os.remove(self.file._geometry_path)
-
-        except Exception as _error:
-            message = str(_error)
-
-        if message != "":
-            title = "Error while processing generate_geometry_gmsh method"
-            PrintMessageInput([window_title_1, title, message])
-            return True
-        else:
-            return False
 
     def remove_selected_lines_and_process_geometry(self, geometry_path, lines):
         """

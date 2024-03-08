@@ -1,6 +1,6 @@
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import m_to_mm, in_to_mm, mm_to_m
+from pulse.tools.utils import *
 
 from opps.model import Pipe, Bend, Point, Flange
 
@@ -24,6 +24,7 @@ class GeometryHandler:
     def __init__(self):
 
         self.project = app().project
+        self.file = app().project
         self._initialize()
 
     def _initialize(self):
@@ -38,7 +39,7 @@ class GeometryHandler:
         self.pipeline = pipeline
 
     def set_length_unit(self, unit):
-        if unit in ["meter", "milimiter", "inch"]:
+        if unit in ["meter", "millimeter", "inch"]:
             self.length_unit = unit
 
     def create_geometry(self):
@@ -63,6 +64,10 @@ class GeometryHandler:
                     start_coords = in_to_mm(_start_coords)
                     end_coords = in_to_mm(_end_coords)
 
+                else:
+                    start_coords = _start_coords
+                    end_coords = _end_coords
+
                 start_point = gmsh.model.occ.add_point(*start_coords)
                 end_point = gmsh.model.occ.add_point(*end_coords)
 
@@ -85,6 +90,11 @@ class GeometryHandler:
                     start_coords = in_to_mm(_start_coords)
                     end_coords = in_to_mm(_end_coords)
                     center_coords = in_to_mm(_center_coords)
+
+                else:
+                    start_coords = _start_coords
+                    end_coords = _end_coords
+                    center_coords = _center_coords
 
                 start_point = gmsh.model.occ.add_point(*start_coords)
                 end_point = gmsh.model.occ.add_point(*end_coords)
@@ -218,13 +228,21 @@ class GeometryHandler:
         gmsh.option.setNumber('Geometry.Tolerance', 0.001)
         gmsh.open(str(path))
 
+        if self.length_unit == "meter":
+            self.conv_unit = mm_to_m
+        elif self.length_unit == "millimeter":
+            self.conv_unit = um_to_m
+        else:
+            self.conv_unit = in_to_mm
+
         points = gmsh.model.get_entities(0)
         lines = gmsh.model.get_entities(1)
 
         self.points_coords = dict()
         for point in points:
             coords = gmsh.model.getValue(*point, [])
-            self.points_coords[point[1]] = mm_to_m(coords)
+            self.points_coords[point[1]] = self.conv_unit(coords)
+            # print(point[1], self.conv_unit(coords))
 
         self.points_coords_cache = self.points_coords.copy()
         self.map_points_according_to_coordinates()
@@ -405,17 +423,17 @@ class GeometryHandler:
             Reference: https://mathworld.wolfram.com/Line-LineIntersection.html
         """
 
-        coords_start = mm_to_m(gmsh.model.getValue(0, start_point, []))
-        coords_end = mm_to_m(gmsh.model.getValue(0, end_point, []))
+        coords_start = self.conv_unit(gmsh.model.getValue(0, start_point, []))
+        coords_end = self.conv_unit(gmsh.model.getValue(0, end_point, []))
 
         _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
         _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
 
-        X1 = mm_to_m(gmsh.model.getValue(0, points_Lstart[0], []))
-        X2 = mm_to_m(gmsh.model.getValue(0, points_Lstart[1], []))
+        X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
+        X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
 
-        X3 = mm_to_m(gmsh.model.getValue(0, points_Lend[0], []))
-        X4 = mm_to_m(gmsh.model.getValue(0, points_Lend[1], []))
+        X3 = self.conv_unit(gmsh.model.getValue(0, points_Lend[0], []))
+        X4 = self.conv_unit(gmsh.model.getValue(0, points_Lend[1], []))
 
         a = X2 - X1
         b = X4 - X3
@@ -434,8 +452,8 @@ class GeometryHandler:
     def get_radius(self, corner_coords, start_point, end_point):
         """
         """
-        start_coords = mm_to_m(gmsh.model.getValue(0, start_point, []))
-        end_coords = mm_to_m(gmsh.model.getValue(0, end_point, []))
+        start_coords = self.conv_unit(gmsh.model.getValue(0, start_point, []))
+        end_coords = self.conv_unit(gmsh.model.getValue(0, end_point, []))
 
         a_vector = start_coords - corner_coords
         b_vector = end_coords - corner_coords

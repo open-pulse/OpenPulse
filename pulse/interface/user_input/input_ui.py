@@ -6,8 +6,6 @@ from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 #
-from pulse.interface.user_input.project.geometryDesignerInput import GeometryDesignerInput
-from pulse.interface.user_input.project.editImportedGeometryInput import EditImportedGeometryInput
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
 from pulse.interface.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
@@ -175,22 +173,9 @@ class InputUi:
     def set_geometry_file(self):
         self.processInput(SetGeometryFileInput, self.project, self.opv)
 
-    def call_geometry_designer(self):
-        read = self.processInput(GeometryDesignerInput, self.project, self.opv)
-        return read.complete
-
     def call_geometry_editor(self):
         main_window = self.main_window
         main_window.use_geometry_workspace()
-
-    def edit_an_imported_geometry(self):
-        self.opv.Disable()
-        read = self.processInput(EditImportedGeometryInput, self.project)
-        self.opv.Enable()
-        if read.complete:
-            self.opv.updatePlots()
-            self.opv.plot_entities()
-        return read.complete
     
     def get_opv(self):
         return self.opv

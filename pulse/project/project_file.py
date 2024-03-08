@@ -34,7 +34,7 @@ class ProjectFile:
         self._fluid_list_path = ""
         self._geometry_path = ""
         self._geometry_filename = ""
-        self._geometry_tolerance = 1e-6 # default value to gmsh geometry tolerance (in milimeters)
+        self._geometry_tolerance = 1e-6 # default value to gmsh geometry tolerance (in millimeters)
         self._entity_path = ""
         self._backup_geometry_path = ""
         self._node_structural_path = ""

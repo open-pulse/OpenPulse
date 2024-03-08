@@ -40,9 +40,9 @@ class EditPointWidget(QWidget):
         if not isinstance(last_point, Point):
             return
 
-        self.coord_x.setText(str(round(last_point.x, 3)))
-        self.coord_y.setText(str(round(last_point.y, 3)))
-        self.coord_z.setText(str(round(last_point.z, 3)))
+        self.coord_x.setText(str(round(last_point.x, 8)))
+        self.coord_y.setText(str(round(last_point.y, 8)))
+        self.coord_z.setText(str(round(last_point.z, 8)))
 
         enable = last_point in app().geometry_toolbox.pipeline.control_points
         self.coord_x.setEnabled(enable)

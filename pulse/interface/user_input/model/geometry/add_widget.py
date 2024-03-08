@@ -8,6 +8,8 @@ from pulse.interface.user_input.model.setup.general.cross_section_inputs import 
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
+from opps.model import Point
+
 import os
 import numpy as np
 from time import sleep
@@ -51,12 +53,18 @@ class AddStructuresWidget(QWidget):
         self.grid_layout.setContentsMargins(0,0,0,0)
 
         # QLabel
+        self.label_unit_coord_x : QLabel
+        self.label_unit_coord_y : QLabel
+        self.label_unit_coord_z : QLabel
         self.label_unit_delta_x : QLabel
         self.label_unit_delta_y : QLabel
         self.label_unit_delta_z : QLabel
         self.label_unit_bending_radius : QLabel
 
         # QLineEdit
+        self.lineEdit_coord_x : QLineEdit
+        self.lineEdit_coord_y : QLineEdit
+        self.lineEdit_coord_z : QLineEdit
         self.lineEdit_delta_x : QLineEdit
         self.lineEdit_delta_y : QLineEdit
         self.lineEdit_delta_z : QLineEdit
@@ -79,6 +87,7 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_y.textEdited.connect(self.coords_modified_callback)
         self.lineEdit_delta_z.textEdited.connect(self.coords_modified_callback)
         self.lineEdit_bending_radius.textEdited.connect(self.coords_modified_callback)
+        self.reset_coords(0.)
 
         self.pushButton_add_segment.clicked.connect(self.create_segment_callback)
         self.pushButton_remove_selection.clicked.connect(self.remove_selection_callback)
@@ -115,9 +124,9 @@ class AddStructuresWidget(QWidget):
 
     def load_defined_unit(self):
         self.length_unit = self.file.length_unit
-        if self.length_unit == "milimeter":
+        if self.length_unit == "meter":
             self.comboBox_length_unit.setCurrentIndex(0)
-        elif self.length_unit == "milimeter":
+        elif self.length_unit == "millimeter":
             self.comboBox_length_unit.setCurrentIndex(1)
         elif self.length_unit == "inch":
             self.comboBox_length_unit.setCurrentIndex(2)
@@ -140,6 +149,9 @@ class AddStructuresWidget(QWidget):
         self.unit_labels.append(self.label_unit_delta_x)
         self.unit_labels.append(self.label_unit_delta_y)
         self.unit_labels.append(self.label_unit_delta_z)
+        self.unit_labels.append(self.label_unit_coord_x)
+        self.unit_labels.append(self.label_unit_coord_y)
+        self.unit_labels.append(self.label_unit_coord_z)
         self.unit_labels.append(self.label_unit_bending_radius)
 
     def update_legth_units(self):
@@ -149,7 +161,7 @@ class AddStructuresWidget(QWidget):
             self.length_unit = "meter"
         elif index == 1:
             unit_label = "mm"
-            self.length_unit = "milimeter"
+            self.length_unit = "millimeter"
         else:
             unit_label = "in"
             self.length_unit = "inch"
@@ -158,17 +170,24 @@ class AddStructuresWidget(QWidget):
             _label.setText(f"[{unit_label}]")
 
     def update_bending_type(self):
+        
         self.bending_factor = 0
         self.lineEdit_bending_radius.setText("")
         self.lineEdit_bending_radius.setDisabled(True)
+        
         index = self.comboBox_bending_type.currentIndex()
         if index == 0:
             self.bending_factor = 1.5
+            self.lineEdit_bending_radius.setText("1.5*D")
+        
         elif index == 1:
             self.bending_factor = 1
+            self.lineEdit_bending_radius.setText("1.0*D")
+    
         elif index == 2:
             self.lineEdit_bending_radius.setDisabled(False)
             self.lineEdit_bending_radius.setFocus()
+
         self.coords_modified_callback()
 
     def get_segment_deltas(self):
@@ -176,6 +195,17 @@ class AddStructuresWidget(QWidget):
         dy = float(self.lineEdit_delta_y.text() or 0)
         dz = float(self.lineEdit_delta_z.text() or 0)
         return dx, dy, dz
+
+    def get_user_defined_radius(self):
+        try:
+            radius = float(self.lineEdit_bending_radius.text())
+        except:
+            return None
+        
+        if radius != 0:
+            return radius
+        else:
+            return None
 
     def coords_modified_callback(self):
         self._disable_add_segment_button()
@@ -188,7 +218,13 @@ class AddStructuresWidget(QWidget):
             return
 
         editor = app().geometry_toolbox.editor
-        radius = self.bending_factor * editor.default_diameter
+        if self.comboBox_bending_type.currentIndex() == 2:
+            radius = self.get_user_defined_radius()
+            if radius is None:
+                return
+        else:
+            radius = self.bending_factor * editor.default_diameter
+
         self.geometry_widget.stage_pipe_deltas(dx, dy, dz, radius)
 
     def _disable_add_segment_button(self, _bool=True):
@@ -197,19 +233,22 @@ class AddStructuresWidget(QWidget):
     def selection_callback(self): 
         editor = self.geometry_widget.editor
         if editor.selected_structures or editor.selected_points:
+            if editor.selected_points:
+                *_, _point = editor.selected_points
+                if not isinstance(_point, Point):
+                    return
+                self.lineEdit_coord_x.setText(str(round(_point.x, 8)))
+                self.lineEdit_coord_y.setText(str(round(_point.y, 8)))
+                self.lineEdit_coord_z.setText(str(round(_point.z, 8)))
+
             self.pushButton_remove_selection.setDisabled(False)
         else:
             self.pushButton_remove_selection.setDisabled(True)
 
-    def update(self):
-        super().update()
-        *_, point = app().get_selected_points()
-        if point is None:
-            return
-
-        # self.dx_box.setText(str(point.x))
-        # self.dy_box.setText(str(point.y))
-        # self.dz_box.setText(str(point.z))
+    def reset_coords(self, value=""):
+        self.lineEdit_coord_x.setText(str(value))
+        self.lineEdit_coord_y.setText(str(value))
+        self.lineEdit_coord_z.setText(str(value))
 
     def create_segment_callback(self):
         try:

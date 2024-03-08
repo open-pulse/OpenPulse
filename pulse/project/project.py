@@ -93,10 +93,7 @@ class Project:
             self.file.load(project_file_path)
 
             if self.file.check_if_entity_file_is_active():
-                self.process_geometry_and_mesh()
-                # self.entities = self.preprocessor.dict_tag_to_entity.values()
-                # if not os.path.exists(self.file._entity_path):
-                #     self.file.create_entity_file(self.preprocessor.all_lines)                   
+                self.process_geometry_and_mesh()                 
                 return True
             else:
                 return False
@@ -115,11 +112,6 @@ class Project:
         self.file.new(*args, **kwargs)
         self.file.create_backup_geometry_folder()
         self.process_geometry_and_mesh()
-        # self.create_entity_file()
-
-    # def create_entity_file(self):
-    #     self.entities = self.preprocessor.dict_tag_to_entity.values()
-    #     # self.file.create_entity_file(self.preprocessor.all_lines)
 
     def new_empty_project(self, *args, **kwargs):
         self.reset(reset_all=True)
@@ -147,67 +139,16 @@ class Project:
         if self.file.check_if_entity_file_is_active():
             self.process_geometry_and_mesh()
             self.load_project_files()
-
-    def set_geometry_entities(self, entities_data, geometry_path, kernel, only_save=False):
-        return
-        """
-        """
-        self.file.add_geometry_entities_to_file(entities_data)
-        geometry_filename = os.path.basename(geometry_path)
-        self.file.modify_project_attributes(geometry_filename=geometry_filename)
-
-        if only_save:
-            self.empty_geometry = False
-            return False
-
-        if self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path = geometry_path, kernel = kernel):
-            return True
-        else:
-            self.empty_geometry = False
-            self.file.update_geometry_path(geometry_path)
-            return False
     
-    def edit_project_geometry(self, geometry_filename):
-        self.file.modify_project_attributes(geometry_filename=geometry_filename)
-        # self.initial_load_project_actions(self.project_ini_file_path)
-
-    def load_geometry_entities(self):
-        """ This method loads geometry data from file a creates a geometry based on
-            GMSH built-in functions.
-        """
-
-        path = get_new_path(self.file._project_path, self.file._geometry_entities_file_name)
-
-        if os.path.exists(path):
-            input_entities_data = self.file.load_geometry_entities_file()
-            if input_entities_data is None:
-                return
-            
-            points_data = {}
-            if 'points_data' in input_entities_data.keys():
-                points_data = input_entities_data['points_data']
-
-            lines_data = {}
-            if 'lines_data' in input_entities_data.keys():
-                lines_data = input_entities_data['lines_data']
-            
-            fillets_data = {}
-            if 'fillets_data' in input_entities_data.keys():
-                for fillet_id, data in input_entities_data['fillets_data'].items():
-                    aux = []
-                    for index, value in enumerate(data):
-                        if index == 2:
-                            aux.append(value)
-                        else:
-                            aux.append(int(value))
-
-                    fillets_data[fillet_id] = aux
-
-            output_entities_data = {"points_data" : points_data,
-                                    "lines_data" : lines_data,
-                                    "fillets_data" : fillets_data}
-
-            self.preprocessor.generate_geometry_gmsh(output_entities_data)
+    def process_geometry_and_mesh(self):
+        # t0 = time()
+        self.preprocessor.generate( import_type = self.file.get_import_type(),
+                                    length_unit = self.file._length_unit,
+                                    geometry_path = self.file.geometry_path, 
+                                    element_size = self.file.element_size, 
+                                    tolerance = self.file.geometry_tolerance )
+        # dt = time()-t0
+        # print(f"process_geometry_and_mesh: {dt} [s]")
 
     def remove_selected_lines_from_geometry(self, lines):
 
@@ -366,20 +307,6 @@ class Project:
             base_folders = os.listdir(self.file._imported_data_folder_path).copy()
             if len(base_folders) == 0:
                 rmtree(self.file._imported_data_folder_path)
-
-    def process_geometry_and_mesh(self):
-        # t0 = time()
-        # import_type = self.file.get_import_type()
-        # if import_type == 0:
-        self.preprocessor.generate( import_type = self.file.get_import_type(),
-                                    geometry_path = self.file.geometry_path, 
-                                    element_size = self.file.element_size, 
-                                    tolerance = self.file.geometry_tolerance )
-        # elif import_type == 1:
-        #     self.preprocessor.generate(element_size = self.file.element_size, 
-                                    #    tolerance = self.file.geometry_tolerance)
-        # dt = time()-t0
-        # print(f"process_geometry_and_mesh: {dt} [s]")
 
     def add_user_preferences_to_file(self, preferences):
         self.file.add_user_preferences_to_file(preferences)

@@ -26,7 +26,6 @@ class OPPGeometryDesignerInput(QWidget):
         self.project = app().project
         self.file = self.project.file
 
-
         self._define_qt_variables()
         self._create_layout()
         self._create_connections()

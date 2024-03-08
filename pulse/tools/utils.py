@@ -169,7 +169,7 @@ def in_to_mm(value):
 
 def mm_to_m(value):
     ''' 
-    Converts milimeters to meters.
+    Converts millimeters to meters.
 
     Parameters
     ----------
@@ -187,6 +187,47 @@ def mm_to_m(value):
     elif isinstance(value, np.ndarray):
         return value * 1e-3
     return float(value) * 1e-3
+
+def mm_to_in(value):
+    ''' 
+    Converts inches to millimeters.
+
+    Parameters
+    ----------
+    m: int, float
+        Value in meters
+
+    Returns
+    -------
+    out: float
+        Value in millimeters
+    '''
+    if isinstance(value, list):
+        return np.array(value) / 25.4
+    elif isinstance(value, np.ndarray):
+        return value / 25.4
+    return float(value) / 25.4
+
+def um_to_m(value):
+    ''' 
+    Converts millimeters to meters.
+
+    Parameters
+    ----------
+    mm: int, float
+        Value in millimeters
+
+    Returns
+    -------
+    out: float
+        Value in meters
+
+    '''
+    if isinstance(value, list):
+        return np.array(value) * 1e-6
+    elif isinstance(value, np.ndarray):
+        return value * 1e-6
+    return float(value) * 1e-6
 
 def inverse_matrix_Nx3x3(A):
     ''' 
