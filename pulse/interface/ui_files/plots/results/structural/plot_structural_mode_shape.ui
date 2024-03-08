@@ -208,8 +208,7 @@
            </property>
            <property name="font">
             <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>50</weight>
              <bold>false</bold>
             </font>
@@ -229,13 +228,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>80</width>
              <height>28</height>
             </size>
            </property>
@@ -249,33 +248,39 @@
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 255);</string>
+            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="QFrame" name="frame_6">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
-          <widget class="QFrame" name="frame_7">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
            </property>
-          </widget>
+          </spacer>
+         </item>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -408,49 +413,18 @@ color: rgb(0, 0, 255);</string>
          <property name="bottomMargin">
           <number>2</number>
          </property>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_2">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-           <property name="text">
-            <string>Color scaling:</string>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QComboBox" name="comboBox_color_scaling">
-           <property name="font">
-            <font>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <item>
-            <property name="text">
-             <string> Absolute</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Ux</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Uy</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string> Uz</string>
-            </property>
-           </item>
-          </widget>
+          </spacer>
          </item>
          <item row="0" column="0">
           <spacer name="horizontalSpacer">
@@ -465,18 +439,123 @@ color: rgb(0, 0, 255);</string>
            </property>
           </spacer>
          </item>
-         <item row="0" column="3">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_2">
+           <property name="minimumSize">
             <size>
-             <width>40</width>
-             <height>20</height>
+             <width>0</width>
+             <height>26</height>
             </size>
            </property>
-          </spacer>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Color scaling:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QComboBox" name="comboBox_color_scale">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <item>
+            <property name="text">
+             <string> Absolute (resultant)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Absolute (Ux)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Absolute (Uy)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Absolute (Uz)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Real - Ux</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Real - Uy</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Real - Uz</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Imaginary - Ux</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Imaginary - Uy</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Imaginary - Uz</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (absolute)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (Ux)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (Uy)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string> Animation (Uz)</string>
+            </property>
+           </item>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -521,29 +600,30 @@ color: rgb(0, 0, 255);</string>
           <widget class="QPushButton" name="pushButton_plot">
            <property name="minimumSize">
             <size>
-             <width>180</width>
-             <height>28</height>
+             <width>160</width>
+             <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>180</width>
-             <height>28</height>
+             <width>160</width>
+             <height>30</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
-             <weight>9</weight>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 11pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 11pt &quot;MS Shell Dlg 2&quot;}</string>
+            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
            </property>
            <property name="text">
             <string>Plot the mode shape</string>

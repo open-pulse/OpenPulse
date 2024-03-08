@@ -4,8 +4,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.preprocessing.material import Material
 
@@ -19,34 +21,37 @@ def getColorRGB(color):
     return list(map(int, tokens))
 
 class SetMaterialInput(QDialog):
-    def __init__(   self, project, opv, cache_selected_lines=[], *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         uic.loadUi(UI_DIR / "model/setup/general/set_material.ui", self)
 
-        self.project = project
-        self.opv = opv
-        self.cache_selected_lines = cache_selected_lines
+        self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.lines_ids = self.opv.getListPickedLines()
+        self.file = self.project.file
         
+        self._load_icons()
         self._config_window()
-        self._reset_variables()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._loading_info_at_start()
         self.exec()
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
     def _config_window(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Set material")
+        self.setWindowIcon(self.icon)
         self.setFixedSize(680,600)
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.selected_row = None
         self.material = None
         self.main_window = self.opv.parent
@@ -79,7 +84,7 @@ class SetMaterialInput(QDialog):
         self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
 
     def _add_material_input_widget(self):
-        self.material_widget = MaterialInputs(self.main_window)
+        self.material_widget = MaterialInputs()
         self.grid_layout.addWidget(self.material_widget)
 
     def _create_connections(self):
@@ -142,24 +147,26 @@ class SetMaterialInput(QDialog):
     def _loading_info_at_start(self):
         if self.cache_selected_lines != []:
             self.lines_ids = self.cache_selected_lines
-        self.update_selection()
+            self.update_selection()
+        else:
+            self.update()        
 
     def update(self):
         self.lines_ids = self.opv.getListPickedLines()
         self.update_selection()
 
     def confirm_material_attribution(self):
-        new_material = self.material_widget.get_selected_material()
 
+        new_material = self.material_widget.get_selected_material()
         if new_material is None:
             self.title = "No materials selected"
             self.message = "Select a material in the list before confirming the material attribution."
             PrintMessageInput([window_title, self.title, self.message])
             return
-        
+
         try:
+
             self.material = new_material
-            
             if self.comboBox_attribution_type.currentIndex():
 
                 lineEdit = self.lineEdit_selected_id.text()
@@ -174,7 +181,7 @@ class SetMaterialInput(QDialog):
                 self.project.set_material_to_all_lines(self.material)       
                 print("[Set Material] - {} defined in all entities".format(self.material.name))
                 # self.opv.changeColorEntities(entities, self.material.getNormalizedColorRGB())
-            self.close()
+            self.actions_to_finalize()
 
         except Exception as error_log:
             self.title = "Error detected on material list data"
@@ -182,10 +189,25 @@ class SetMaterialInput(QDialog):
             PrintMessageInput([window_title, self.title, self.message])
             return
     
+    def actions_to_finalize(self):
+    
+        build_data = self.file.get_segment_build_data_from_file()
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_length_unit(self.file.length_unit)
+        geometry_handler.process_pipeline(build_data)
+    
+        self.close()
+
+    def load_project(self):
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+        self.complete = True
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.confirm_material_attribution()
         elif event.key() == Qt.Key_Delete:
-            self.confirm_material_removal()
+            self.material_widget.remove_selected_row()
         elif event.key() == Qt.Key_Escape:
             self.close()

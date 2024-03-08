@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from pulse import UI_DIR
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -137,8 +137,9 @@ class DecouplingRotationDOFsInput(QDialog):
         self.rotations_mask = [self.flag_rotation_x, self.flag_rotation_y, self.flag_rotation_z]
         if self.rotations_mask.count(False) == 3:
             title = "INVALID DECOUPLING SETUP"
-            message = "There are no rotation DOFs decoupling in the current setup. \nYou should tick at least one rotation DOF before continue."
-            PrintMessageInput([title, message, window_title_1])
+            message = "There are no rotation DOFs decoupling in the current setup. "
+            message += "You should tick at least one rotation DOF before continue."
+            PrintMessageInput([window_title_1, title, message])
             return  
 
     def radioButtonEvent(self):
@@ -200,13 +201,13 @@ class DecouplingRotationDOFsInput(QDialog):
         if len(neighboor_elements)<3:
             message = "The decoupling of rotation dofs can only \nbe applied to the T connections." 
             title = "Incorrect Node ID selection"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return
 
         if self.rotations_mask.count(False) == 3:
             title = "INVALID DECOUPLING SETUP"
             message = "There are no rotation DOFs decoupling in the current setup. \nYou should tick at least one rotation DOF before continue."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return 
         
         if self.structural_elements[self.element_id].element_type in ['beam_1']:
@@ -217,16 +218,17 @@ class DecouplingRotationDOFsInput(QDialog):
         else:
             title = "INVALID DECOUPLING SETUP"
             element_type = self.structural_elements[self.element_id]
-            message = f"The selected element have a '{element_type.upper()}' formulation, you should have a \n'BEAM_1' element type in selection"
-            message += " to decouple the rotation dofs. \nTry to choose another element or change the element type formulation."
-            PrintMessageInput([title, message, window_title_1])
+            message = f"The selected element have a '{element_type.upper()}' formulation, you should have a "
+            message += "'BEAM_1' element type in selection to decouple the rotation dofs. "
+            message += " Try to choose another element or change the element type formulation."
+            PrintMessageInput([window_title_1, title, message])
             return
 
     def check_reset_all(self):
         self.project.reset_B2PX_totation_decoupling()
         message = "The rotation decoupling applied \nto all dofs has been reseted." 
         title = "Rotations dofs decoupling"
-        PrintMessageInput([title, message, window_title_2])
+        PrintMessageInput([window_title_2, title, message])
         self.load_decoupling_info()
         self.clear_texts()
     
@@ -272,12 +274,12 @@ class DecouplingRotationDOFsInput(QDialog):
             else:
                 title = "UNSELECTED GROUP"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, decoupled_DOFs_bool, decoupled_DOFs_labels, *args, **kwargs):

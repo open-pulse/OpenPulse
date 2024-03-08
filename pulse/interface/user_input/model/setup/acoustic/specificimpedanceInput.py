@@ -8,8 +8,8 @@ import os
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.utils import remove_bc_from_file, get_new_path
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.tools.utils import remove_bc_from_file, get_new_path
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
@@ -123,7 +123,7 @@ class SpecificImpedanceInput(QDialog):
                 real_F = float(lineEdit_real.text())
             except Exception:
                 message = "Wrong input for real part of specific impedance."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 self.lineEdit_specific_impedance_real.setFocus()
                 self.stop = True
                 return
@@ -135,7 +135,7 @@ class SpecificImpedanceInput(QDialog):
                 imag_F = float(lineEdit_imag.text())
             except Exception:
                 message = "Wrong input for imaginary part of specific impedance."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 self.lineEdit_specific_impedance_imag.setFocus()
                 self.stop = True
                 return
@@ -173,7 +173,7 @@ class SpecificImpedanceInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one specific impedance\n"
             message += "before confirming the input!"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             self.lineEdit_specific_impedance_real.setFocus()
 
     def load_table(self, lineEdit, direct_load=False):
@@ -196,7 +196,7 @@ class SpecificImpedanceInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return None, None
         
             imported_values = imported_file[:,1]
@@ -218,7 +218,7 @@ class SpecificImpedanceInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -248,7 +248,7 @@ class SpecificImpedanceInput(QDialog):
         except Exception as log_error:
             title = "Error reached while saving table files"
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return None, None
 
     def load_specific_impedance_table(self):
@@ -286,7 +286,7 @@ class SpecificImpedanceInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one specific impedance\n" 
             message += "table path before confirming the input!"
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             self.lineEdit_load_table_path.setFocus()
 
     def get_list_table_names_from_selected_nodes(self, list_node_ids):
@@ -368,7 +368,7 @@ class SpecificImpedanceInput(QDialog):
                 title = "Specific impedance resetting process complete"
                 message = "All specific impedances applied to the acoustic\n" 
                 message += "model have been removed from the model."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
 
                 self.opv.updateRendererMesh()
                 self.close()

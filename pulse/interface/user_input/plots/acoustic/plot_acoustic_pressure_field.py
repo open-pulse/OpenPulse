@@ -2,12 +2,14 @@ from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidg
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+import numpy as np
+from pathlib import Path
+
 
 class PlotAcousticPressureField(QWidget):
     def __init__(self, *args, **kwargs):
@@ -18,13 +20,13 @@ class PlotAcousticPressureField(QWidget):
         ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui")
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.load_frequencies_vector()
@@ -33,12 +35,9 @@ class PlotAcousticPressureField(QWidget):
         self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
-        self.scaling_key = {0 : "absolute",
-                            1 : "real_part"}
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
@@ -47,7 +46,7 @@ class PlotAcousticPressureField(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
+        self.comboBox_color_scale = self.findChild(QComboBox, 'comboBox_color_scale')
         # QFrame
         self.frame_button = self.findChild(QFrame, 'frame_button')
         self.frame_button.setVisible(False)
@@ -60,10 +59,11 @@ class PlotAcousticPressureField(QWidget):
         self._config_treeWidget()
 
     def _create_connections(self):
-        self.comboBox_color_scaling.currentIndexChanged.connect(self.update_plot)
+        self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.pushButton_plot.clicked.connect(self.update_plot)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.update_animation_widget_visibility()
 
     def _config_treeWidget(self):
         widths = [80, 140]
@@ -71,22 +71,65 @@ class PlotAcousticPressureField(QWidget):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-    def update_plot(self):
-        if self.lineEdit_selected_frequency.text() == "":
-            window_title = "Warning"
-            title = "Additional action required to plot the results"
-            message = "You should select a frequency from the available list"
-            message += "before trying to plot the acoustic pressure field."
-            PrintMessageInput([window_title, title, message], auto_close=True)
-            return
+    def update_animation_widget_visibility(self):
+        index = self.comboBox_color_scale.currentIndex()
+        if index in [0, 1, 2]:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
         else:
-            frequency_selected = float(self.lineEdit_selected_frequency.text())
-            self.frequency = self.frequency_to_index[frequency_selected]
-            if self.comboBox_color_scaling.currentIndex() == 0:
-                absolute = True
-            else:
-                absolute = False
-            self.opv.plot_pressure_field(self.frequency, absolute=absolute)
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+
+    def update_plot(self):
+
+        self.update_animation_widget_visibility()
+        if self.lineEdit_selected_frequency.text() == "":
+            return
+            # window_title = "Warning"
+            # title = "Additional action required to plot the results"
+            # message = "You should select a frequency from the available list"
+            # message += "before trying to plot the acoustic pressure field."
+            # PrintMessageInput([window_title, title, message], auto_close=True)
+            # return
+
+        frequency_selected = float(self.lineEdit_selected_frequency.text())
+        self.frequency = self.frequency_to_index[frequency_selected]
+
+        color_scale_setup = self.get_user_color_scale_setup()
+        self.project.set_color_scale_setup(color_scale_setup)
+        self.opv.plot_pressure_field(self.frequency)
+
+    def get_user_color_scale_setup(self):
+
+        absolute = False
+        real_values = False
+        imag_values = False
+        absolute_animation = False
+
+        index = self.comboBox_color_scale.currentIndex()
+
+        if index == 0:
+            absolute = True
+        elif index == 1:
+            real_values = True
+        elif index == 2:
+            imag_values = True
+        elif index == 3:
+            absolute_animation = True
+        else:
+            pass
+        
+        color_scale_setup = {   "absolute" : absolute,
+                                "real_values" : real_values,
+                                "imag_values" : imag_values,
+                                "absolute_animation" : absolute_animation   }
+
+        labels = list()
+        labels.append("Absolute")
+        labels.append("Real values")
+        labels.append("Imaginary values")
+        labels.append("Animation (absolute)")
+        labels.append("Animation (non absolute)")
+
+        return color_scale_setup
 
     def load_frequencies_vector(self):
         self.treeWidget_frequencies.clear()

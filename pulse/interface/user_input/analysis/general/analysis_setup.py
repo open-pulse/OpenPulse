@@ -2,12 +2,14 @@ from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QTabWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+import numpy as np
+from pathlib import Path
 
 window_title = "Error"
 
@@ -33,6 +35,8 @@ class AnalysisSetupInput(QDialog):
         self.main_window = app().main_window
         self.project = self.main_window.project
         self.analysis_ID = self.project.analysis_ID
+        self.opv = self.main_window.opv_widget
+        self.opv.setInputObject(self)
 
         if self.analysis_ID in [1, 6]:
             ui_path = Path(f"{UI_DIR}/analysis/structural/harmonic_analysis_mode_superposition_method.ui")
@@ -73,8 +77,7 @@ class AnalysisSetupInput(QDialog):
         self.global_damping = self.project.global_damping
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
@@ -83,41 +86,35 @@ class AnalysisSetupInput(QDialog):
         self.setWindowTitle("Analysis setup")
 
     def _define_qt_variables(self):
-        # QLabel objects
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_subtitle = self.findChild(QLabel, 'label_subtitle')
+        # QLabel
+        self.label_title : QLabel
+        self.label_subtitle : QLabel
         self.label_title.setText(self.title)
         self.label_subtitle.setText(self.subtitle)
         
-        # QLineEdit objects
+        # QLineEdit
         if self.analysis_ID == 1:
-            self.lineEdit_modes = self.findChild(QLineEdit, 'lineEdit_modes')
-        self.lineEdit_av = self.findChild(QLineEdit, 'lineEdit_av')
-        self.lineEdit_bv = self.findChild(QLineEdit, 'lineEdit_bv')
-        self.lineEdit_ah = self.findChild(QLineEdit, 'lineEdit_ah')
-        self.lineEdit_bh = self.findChild(QLineEdit, 'lineEdit_bh')
-        self.lineEdit_fmin = self.findChild(QLineEdit, 'lineEdit_min')
-        self.lineEdit_fmax = self.findChild(QLineEdit, 'lineEdit_max')
-        self.lineEdit_fstep = self.findChild(QLineEdit, 'lineEdit_step')
+            self.lineEdit_modes : QLineEdit
+        self.lineEdit_av : QLineEdit
+        self.lineEdit_bv : QLineEdit
+        self.lineEdit_ah : QLineEdit
+        self.lineEdit_bh : QLineEdit
+        self.lineEdit_fmin : QLineEdit
+        self.lineEdit_fmax : QLineEdit
+        self.lineEdit_fstep : QLineEdit
         
-        # QPushButton objects
-        self.pushButton_confirm_close = self.findChild(QPushButton, 'pushButton_confirm_close')
-        self.pushButton_confirm_run_analysis = self.findChild(QPushButton, 'pushButton_confirm_run_analysis')
+        # QPushButton
+        self.enter_setup_button : QPushButton
+        self.run_analysis_button : QPushButton
 
-        # QTabWidget objects
+        # QTabWidget
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.currentTab = self.tabWidget.currentIndex()
 
     def _create_connections(self):
-        self.pushButton_confirm_close.clicked.connect(self.check_exit)
-        self.pushButton_confirm_run_analysis.clicked.connect(self.check_run)
+        self.enter_setup_button.clicked.connect(self.check_exit)
+        self.run_analysis_button.clicked.connect(self.check_run)
         self.tabWidget.currentChanged.connect(self.tabEvent)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check_run()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
 
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
@@ -170,7 +167,7 @@ class AnalysisSetupInput(QDialog):
                 message = "The maximum frequency (fmax) must be greater than \n"
                 message += "the sum between minimum frequency (fmin) and \n"
                 message += "frequency resolution (df)."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return True
 
         alpha_v = beta_v = alpha_h = beta_h = 0.0
@@ -249,7 +246,7 @@ class AnalysisSetupInput(QDialog):
                 message = f"Insert some value at the {label} input field."
         
         if message != "":
-            PrintMessageInput([title, message, window_title])                   
+            PrintMessageInput([window_title, title, message])                   
             self.stop = True
             return None
         return out
@@ -258,4 +255,9 @@ class AnalysisSetupInput(QDialog):
         if self.check_exit():
             return
         self.flag_run = True
-        
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.check_run()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

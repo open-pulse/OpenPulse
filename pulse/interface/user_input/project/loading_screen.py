@@ -5,7 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import __version__, __release_date__
 
 window_title_1 = "Error"
@@ -22,9 +22,9 @@ class QWorker(QObject):
             try:
                 self.target()
             except Exception as log_error:
-                print(log_error)
                 title = "An error has been reached in LoadingScreen"
-                PrintMessageInput([title, str(log_error), window_title_1])
+                message = str(log_error)
+                PrintMessageInput([window_title_1, title, message])
                 
         self.finished.emit()
         self.thread().quit()
@@ -56,7 +56,7 @@ class LoadingScreen(QDialog):
 
 
     def _config_window(self):
-        self.setWindowTitle(f"Pulse v{__version__} ({__release_date__})")
+        self.setWindowTitle(f"Pulse v{__version__}")
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
         self.setWindowIcon(self.pvfat_icon)

@@ -1,62 +1,63 @@
-from PyQt5.QtWidgets import QDialog, QFrame, QGridLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
+from pulse.preprocessing.cross_section import CrossSection
+from pulse.tools.utils import *
 
 import numpy as np
 import configparser
+from pathlib import Path
 import matplotlib.pyplot as plt
-
-from pulse import UI_DIR
-from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
-from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
-from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import *
 
 window_title = "ERROR MESSAGE"
 
 class SetCrossSectionInput(QDialog):
-    def __init__(   self, project, opv, 
-                    pipe_to_beam = False,
-                    beam_to_pipe = False,
-                    lines_to_update_cross_section = [], 
-                    elements_to_update_cross_section = [],
-                    *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__()
 
         uic.loadUi(UI_DIR / "model/setup/general/set_cross_section.ui", self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
+        self.pipe_to_beam = kwargs.get("pipe_to_beam", False)
+        self.beam_to_pipe = kwargs.get("beam_to_pipe", False)
+        self.lines_to_update_cross_section = kwargs.get("lines_to_update_cross_section", [])
+        self.elements_to_update_cross_section = kwargs.get("elements_to_update_cross_section", [])
 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        self.main_window = app().main_window
+        self.project = self.main_window.project
+        self.opv = self.main_window.opv_widget
+        self.opv.setInputObject(self)
 
+        self.preprocessor = self.project.preprocessor
+        self.file = self.project.file
+       
         self.input_widget = CrossSectionWidget()
 
-        self.opv = opv
-        self.opv.setInputObject(self)
-        self.lines_id = self.opv.getListPickedLines()
-        self.elements_id = self.opv.getListPickedElements()
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self.load_existing_sections()
+        self.initial_condition()
+        self.update()  
+        self.exec()
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.file = project.file
-        self.before_run = project.get_pre_solution_model_checks()
-        # self.preprocessor.get_nodes_and_elements_with_expansion()
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
 
-        self.structural_elements = self.project.preprocessor.structural_elements
-        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
-        self.pipe_to_beam = pipe_to_beam
-        self.beam_to_pipe = beam_to_pipe
-        self.lines_to_update_cross_section = lines_to_update_cross_section
-        self.elements_to_update_cross_section = elements_to_update_cross_section
-        self.remove_expansion_joint_tables_files = True
-
+    def _initialize(self):
         self.section_id_by_lines = None
         self.section_id_by_elements = None
         self.section_type = None
@@ -68,32 +69,26 @@ class SetCrossSectionInput(QDialog):
         self.complete = False
         self.stop = False
         self.flip = False
- 
+
         self.currentTab = 0
         self.list_elements = []
         self.section_data_lines = {}
         self.section_data_elements = {}
+        self.remove_expansion_joint_tables_files = True
 
-        self.define_qt_variables()
-        self.create_connections()
-        self.load_existing_sections()
-        self.initial_condition()
-        self.update_QDialog_info()       
-        self.exec()
+        self.structural_elements = self.project.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+        self.lines_id = self.opv.getListPickedLines()
+        self.elements_id = self.opv.getListPickedElements()
+        self.before_run = self.project.get_pre_solution_model_checks()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_general.currentIndex() == 0:
-                self.confirm_pipe()
-            if self.tabWidget_general.currentIndex() == 1:
-                self.confirm_beam()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+    def _define_qt_variables(self):
 
-    def define_qt_variables(self):
+        # QComboBox
+        self.comboBox_selection : QComboBox
 
         # QFrame
-        self.main_frame = self.findChild(QFrame, 'main_frame')
+        self.main_frame : QFrame
 
         # QGridLayout
         self.grid_layout = self.main_frame.layout()
@@ -105,8 +100,8 @@ class SetCrossSectionInput(QDialog):
         self.label_selected_id = self.findChild(QLabel, 'label_selected_id')
         
         # QLineEdit
-        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_selected_ID.setEnabled(True)
+        self.lineEdit_selected_id = self.findChild(QLineEdit, 'lineEdit_selected_id')
+        self.lineEdit_selected_id.setEnabled(True)
 
         # QPushButton
         self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
@@ -121,75 +116,54 @@ class SetCrossSectionInput(QDialog):
         self.pushButton_select_standard_section_final = self.findChild(QPushButton, 'pushButton_select_standard_section_final')
         self.pushButton_check_if_section_is_normalized = self.findChild(QPushButton, 'pushButton_check_if_section_is_normalized')
 
-        # QRadioButton
-        self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
-        self.radioButton_selected_elements = self.findChild(QRadioButton, 'radioButton_selected_elements')
+        # QTabWidget
         self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
         self.tabWidget_pipe_section = self.findChild(QTabWidget, 'tabWidget_pipe_section')
         self.tabWidget_beam_section = self.findChild(QTabWidget, 'tabWidget_beam_section')
         self.tabWidget_sections_data = self.findChild(QTabWidget, 'tabWidget_sections_data')
 
-        # QWidget
-        self.tab_pipe = self.tabWidget_general.findChild(QWidget, "tab_pipe")
-        self.tab_beam = self.tabWidget_general.findChild(QWidget, "tab_beam")
-        self.tab_straight_pipe_section = self.tabWidget_pipe_section.findChild(QWidget, "tab_straight_pipe_section")
-        self.tab_variable_pipe_section = self.tabWidget_pipe_section.findChild(QWidget, "tab_variable_pipe_section")
-        self.tab_rectangular_section = self.tabWidget_beam_section.findChild(QWidget, "tab_rectangular_section")
-        self.tab_circular_section = self.tabWidget_beam_section.findChild(QWidget, "tab_circular_section")
-        self.tab_C_section = self.tabWidget_beam_section.findChild(QWidget, "tab_C_section")
-        self.tab_I_section = self.tabWidget_beam_section.findChild(QWidget, "tab_I_section")
-        self.tab_T_section = self.tabWidget_beam_section.findChild(QWidget, "tab_T_section")
-        self.tab_generic_section = self.tabWidget_beam_section.findChild(QWidget, "tab_generic_section")
-        self.tab_attributed_by_lines = self.tabWidget_sections_data.findChild(QWidget, 'tab_attributed_by_lines')
-        self.tab_attributed_by_elements = self.tabWidget_sections_data.findChild(QWidget, 'tab_attributed_by_elements')
-        
-        # QTabWidget
-        self.tab_sections =  self.tabWidget_general.findChild(QTabWidget, 'tab_sections')
-
         # QTreeWidget
         self.treeWidget_sections_parameters_by_lines = self.findChild(QTreeWidget, 'treeWidget_sections_parameters_by_lines')
         self.treeWidget_sections_parameters_by_elements = self.findChild(QTreeWidget, 'treeWidget_sections_parameters_by_elements')  
             
-    def create_connections(self):
-
-        self.lineEdit_selected_ID.editingFinished.connect(self.update_highlights)
-
-        self.radioButton_all_lines.toggled.connect(self.radioButtonEvent)
-        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
-        self.radioButton_selected_elements.toggled.connect(self.radioButtonEvent)
-                
+    def _create_connections(self):
+        #
+        self.comboBox_selection.currentIndexChanged.connect(self.update_selection)
+        #
+        self.lineEdit_selected_id.editingFinished.connect(self.update_highlights)
+        #
         self.pushButton_confirm_pipe.clicked.connect(self.confirm_pipe)
         self.pushButton_confirm_beam.clicked.connect(self.confirm_beam)
         self.pushButton_flip_element_ids_initial.clicked.connect(self.flip_element_ids)
         self.pushButton_flip_element_ids_final.clicked.connect(self.flip_element_ids)
-
+        #
         self.tabWidget_general.currentChanged.connect(self.tabEvent_cross_section)
         self.tabWidget_pipe_section.currentChanged.connect(self.tabEvent_pipe)
-
+        #
         self.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.on_click_treeWidget_section_parameters_by_line)
         self.treeWidget_sections_parameters_by_lines.itemDoubleClicked.connect(self.on_doubleClick_treeWidget_section_parameters_by_line)
         self.treeWidget_sections_parameters_by_elements.itemClicked.connect(self.on_click_treeWidget_section_parameters_by_element)
         self.treeWidget_sections_parameters_by_elements.itemDoubleClicked.connect(self.on_doubleClick_treeWidget_section_parameters_by_element)
         self.pushButton_load_section_info.clicked.connect(self.load_section_info)
         self.pushButton_load_section_info.setDisabled(True)
+        # self.config_treeWidget()
 
     def load_existing_sections(self):
-        """
-        """
-        # self.config_treeWidget()
+
         self.section_id_data_lines = {}
         self.section_id_data_elements = {}
         self.treeWidget_sections_parameters_by_lines.clear()
         self.treeWidget_sections_parameters_by_elements.clear()
         self.section_data_lines, self.section_data_elements = self.file.get_cross_sections_from_file()
 
-        if len(self.section_data_elements) == 0 and len(self.section_data_lines) == 0:
-            self.tabWidget_general.removeTab(2)
+        if len(self.section_data_elements) + len(self.section_data_lines) == 0:
+            self.tabWidget_general.setTabVisible(2, False)
+
         elif len(self.section_data_lines) == 0:
-            self.tabWidget_sections_data.removeTab(0)
+            self.tabWidget_sections_data.setTabVisible(0, False)
+
         elif len(self.section_data_elements) == 0:
-            self.tabWidget_sections_data.removeTab(1)
+            self.tabWidget_sections_data.setTabVisible(1, False)
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
             self.section_id_data_lines[section_id] = [tag_type, tags]
@@ -208,30 +182,33 @@ class SetCrossSectionInput(QDialog):
             self.treeWidget_sections_parameters_by_elements.addTopLevelItem(new)
 
     def initial_condition(self):
-        """
-        """
+
         if self.pipe_to_beam:
-            self.tabWidget_general.setCurrentWidget(self.tab_beam)
+            self.tabWidget_general.setCurrentIndex(1)
             self.tabWidget_general.setTabEnabled(0, False)
 
         if self.beam_to_pipe:
-            self.tabWidget_general.setCurrentWidget(self.tab_pipe)
+            self.tabWidget_general.setCurrentIndex(0)
             self.tabWidget_general.setTabEnabled(1, False)
         
         if self.lines_to_update_cross_section != []:
-            self.label_selected_id.setText("Lines IDs:")
-            self.radioButton_selected_lines.setChecked(True)
+            # self.label_selected_id.setText("Lines IDs:")
+            self.comboBox_selection.setCurrentIndex(1)
             self.write_ids(self.lines_to_update_cross_section)
 
         elif self.elements_to_update_cross_section != []:
-            self.label_selected_id.setText("Elements IDs:")
-            self.radioButton_selected_elements.setChecked(True)
-            self.write_ids(self.elements_to_update_cross_section)  
+            # self.label_selected_id.setText("Elements IDs:")
+            self.comboBox_selection.setCurrentIndex(2)
+            self.write_ids(self.elements_to_update_cross_section)
+
+        self.update_selection()
 
     def update_QDialog_info(self):
 
-        if len(self.lines_id) > 0:   
-            self.input_widget.reset_all_input_texts()
+        self.input_widget.reset_all_input_texts()
+        self.update_line_and_element_ids()
+
+        if len(self.lines_id) == 1:   
             self.selection = self.dict_tag_to_entity[self.lines_id[0]]
             element_type = self.selection.structural_element_type
             if element_type is None:
@@ -242,26 +219,27 @@ class SetCrossSectionInput(QDialog):
                         break
             _variable_cross_section_data = self.selection.variable_cross_section_data
 
-        elif len(self.elements_id) > 0:   
-            self.input_widget.reset_all_input_texts()
+        elif len(self.elements_id) == 1:
             self.selection = self.structural_elements[self.elements_id[0]]
             element_type = self.selection.element_type
             _variable_cross_section_data = None
+
         else:
             return
 
         if _variable_cross_section_data is None:
             if self.selection.cross_section is not None:
+
                 cross = self.selection.cross_section
                 self.section_label = cross.section_info["section_type_label"]
                 self.section_parameters = cross.section_info["section_parameters"]
                         
                 if element_type == 'pipe_1':
-                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-                    self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
+                    self.tabWidget_general.setCurrentIndex(0)
+                    self.tabWidget_pipe_section.setCurrentIndex(0)
                                 
                 elif element_type in ['beam_1']:
-                    self.tabWidget_general.setCurrentWidget(self.tab_beam)
+                    self.tabWidget_general.setCurrentIndex(1)
 
                 self.update_section_entries()
 
@@ -272,11 +250,10 @@ class SetCrossSectionInput(QDialog):
                 if self.selection.variable_cross_section_data:
                     self.tabWidget_pipe_section.setCurrentIndex(1)
                     self.update_section_entries(variable_section=True)
-            elif element_type in ['beam_1']:
-                self.tabWidget_general.setCurrentWidget(self.tab_beam)
+            # elif element_type in ['beam_1']:
+            #     self.tabWidget_general.setCurrentIndex(1)
 
         self.update_tabs()
-        self.update_line_and_element_ids()
 
     def on_click_treeWidget_section_parameters_by_line(self, item):
         self.input_widget.reset_all_input_texts()
@@ -315,31 +292,29 @@ class SetCrossSectionInput(QDialog):
                 self.load_section_info()
 
     def load_section_info(self):
-        """
-        """
         self.input_widget.reset_all_input_texts()
         if self._element_type is not None:
             if self._element_type == "pipe_1":
 
                 if len(self._section_parameters) == 6:
-                    for index, lineEdit in enumerate(self.input_widget.list_straight_pipe_entries):
+                    for index, lineEdit in enumerate(self.input_widget.list_constant_pipe_entries):
                         lineEdit.setText(str(self._section_parameters[index]))
-                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-                    self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
+                    self.tabWidget_general.setCurrentIndex(0)
+                    self.tabWidget_pipe_section.setCurrentIndex(0)
 
                 elif len(self._section_parameters) == 10:
                     for index, lineEdit in enumerate(self.input_widget.list_variable_pipe_entries):
                         lineEdit.setText(str(self._section_parameters[index]))
-                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-                    self.tabWidget_pipe_section.setCurrentWidget(self.tab_variable_pipe_section)
+                    self.tabWidget_general.setCurrentIndex(0)
+                    self.tabWidget_pipe_section.setCurrentIndex(1)
             
             elif "beam_1" in self._element_type:
                 
                 section_type = self._element_type.split("beam_1 - ")[1]
-                self.tabWidget_general.setCurrentWidget(self.tab_beam)
+                self.tabWidget_general.setCurrentIndex(1)
                 
                 if section_type == "Rectangular section":
-                    self.tabWidget_beam_section.setCurrentWidget(self.tab_rectangular_section)
+                    self.tabWidget_beam_section.setCurrentIndex(0)
                     [base, height, base_in, height_in, offset_y, offset_z] = self._section_parameters
                     self.section_type = 1
                     self.input_widget.lineEdit_base_rectangular_section.setText(str(base))
@@ -350,7 +325,7 @@ class SetCrossSectionInput(QDialog):
                         self.input_widget.lineEdit_wall_thickness_rectangular_section.setText(str(round((base-base_in)/2,4))) 
 
                 if section_type == "Circular section":
-                    self.tabWidget_beam_section.setCurrentWidget(self.tab_circular_section)
+                    self.tabWidget_beam_section.setCurrentIndex(1)
                     [outside_diameter_beam, thickness, offset_y, offset_z] = self._section_parameters
                     self.section_type = 2
                     self.input_widget.lineEdit_outside_diameter_circular_section.setText(str(outside_diameter_beam))
@@ -360,7 +335,7 @@ class SetCrossSectionInput(QDialog):
                         self.input_widget.lineEdit_wall_thickness_circular_section.setText(str(thickness))
 
                 if section_type == "C-section":
-                    self.tabWidget_beam_section.setCurrentWidget(self.tab_C_section)
+                    self.tabWidget_beam_section.setCurrentIndex(2)
                     [h, w1, t1, w2, t2, tw, offset_y, offset_z] = self._section_parameters
                     self.section_type = 3
                     self.input_widget.lineEdit_height_C_section.setText(str(h))
@@ -373,7 +348,7 @@ class SetCrossSectionInput(QDialog):
                     self.input_widget.lineEdit_offsetz_C_section.setText(str(offset_z))  
 
                 if section_type == "I-section":
-                    self.tabWidget_beam_section.setCurrentWidget(self.tab_I_section)
+                    self.tabWidget_beam_section.setCurrentIndex(3)
                     [h, w1, t1, w2, t2, tw, offset_y, offset_z] = self._section_parameters
                     self.section_type = 4
                     self.input_widget.lineEdit_height_I_section.setText(str(h))
@@ -386,7 +361,7 @@ class SetCrossSectionInput(QDialog):
                     self.input_widget.lineEdit_offsetz_I_section.setText(str(offset_z))
 
                 if section_type == "T-section":
-                    self.tabWidget_beam_section.setCurrentWidget(self.tab_T_section)
+                    self.tabWidget_beam_section.setCurrentIndex(4)
                     [h, w1, t1, tw, offset_y, offset_z] = self._section_parameters
                     self.section_type = 5
                     self.input_widget.lineEdit_height_T_section.setText(str(h))
@@ -397,13 +372,13 @@ class SetCrossSectionInput(QDialog):
                     self.input_widget.lineEdit_offsetz_T_section.setText(str(offset_z))
 
                 if section_type == "Generic section":
-                    self.tabWidget_beam_section.setCurrentWidget(self.tab_generic_section)
+                    self.tabWidget_beam_section.setCurrentIndex(5)
         
         if self.section_id_by_lines in self.section_id_data_lines.keys():
             [tag_type, tags] = self.section_id_data_lines[self.section_id_by_lines]
             str_tags = str(tags)
             if tag_type == "line ids":
-                self.radioButton_selected_lines.setChecked(True)                
+                self.comboBox_selection.setCurrentIndex(1)               
                 self.opv.opvRenderer.highlight_lines(tags)
                 if len(self._section_parameters) == 10:
                     if len(tags) == 1:
@@ -415,10 +390,10 @@ class SetCrossSectionInput(QDialog):
             [tag_type, tags] = self.section_id_data_elements[self.section_id_by_elements]
             str_tags = str(tags)
             if tag_type == "element ids":
-                self.radioButton_selected_elements.setChecked(True)
+                self.comboBox_selection.setCurrentIndex(2)
                 self.opv.opvRenderer.highlight_elements(tags)
 
-        self.lineEdit_selected_ID.setText(str_tags[1:-1])
+        self.lineEdit_selected_id.setText(str_tags[1:-1])
         
         self.section_id_by_lines = None
         self.section_id_by_elements = None
@@ -426,33 +401,17 @@ class SetCrossSectionInput(QDialog):
         self._section_parameters = None
 
     def config_treeWidget(self):
-
-        font = QFont()
-        font.setFamily("Arial")
-        font.setPointSize(9)
-        font.setBold(True)
-        font.setWeight(75)
-
         self.treeWidget_sections_parameters_by_lines.setColumnWidth(0,40)
         self.treeWidget_sections_parameters_by_lines.setColumnWidth(1,120)
-        self.treeWidget_sections_parameters_by_lines.setFont(font)
-        # self.treeWidget_sections_parameters_by_lines.setFont(1, font)
-        # self.treeWidget_sections_parameters_by_lines.setFont(2, font)
-        # self.treeWidget_sections_parameters_by_lines.setColumnWidth(2,20)
-
         self.treeWidget_sections_parameters_by_elements.setColumnWidth(0,40)
         self.treeWidget_sections_parameters_by_elements.setColumnWidth(1,120)
-        self.treeWidget_sections_parameters_by_elements.setFont(font)
-        # self.treeWidget_sections_parameters_by_elements.setFont(1, font)
-        # self.treeWidget_sections_parameters_by_elements.setFont(2, font)
-        # self.treeWidget_sections_parameters_by_elements.setColumnWidth(2,20)
-
 
     def check_variable_section_pipe(self):
         
-        self.input_widget.get_variable_section_pipe_parameters()
+        if self.input_widget.get_variable_section_pipe_parameters():
+            return
+
         variable_parameters = self.input_widget.variable_parameters
-        
         self.project.set_variable_cross_section_by_line(self.lines_typed[0], variable_parameters)
         # self.project.add_cross_sections_expansion_joints_valves_in_file(self.list_elements)
         self.project.set_structural_element_type_by_lines(self.lines_typed[0], self.element_type)
@@ -463,36 +422,39 @@ class SetCrossSectionInput(QDialog):
         self.actions_to_finalize()
 
     def update_section_entries(self, variable_section=False):
-        """
-        """
+ 
         if variable_section:
 
             self.update_variable_section_element_ids()   
-            data = self.selection.variable_cross_section_data
+            section_parameters = self.selection.variable_cross_section_data["section_parameters"]
 
-            for index, lineEdit in enumerate(self.list_pipe_section_entries[6:-2]):
-                lineEdit.setText(str(data[index]))
+            for index, lineEdit in enumerate(self.input_widget.list_pipe_section_entries[6:-2]):
+                lineEdit.setText(str(section_parameters[index]))
             
             return
-        
-        if self.section_label == 'Pipe section':
 
-            outside_diameter = self.section_parameters["outer_diameter"]
-            thickness = self.section_parameters["thickness"]
-            offset_y = self.section_parameters["offset_y"] 
-            offset_z = self.section_parameters["offset_z"]
-            insulation_thickness = self.section_parameters["insulation_thickness"]
-            insulation_density = self.section_parameters["insulation_density"]
+        if 'Pipe section' in self.section_label:
+
+            outside_diameter = self.section_parameters[0]
+            thickness = self.section_parameters[1]
+            offset_y = self.section_parameters[2] 
+            offset_z = self.section_parameters[3]
+            insulation_thickness = self.section_parameters[4]
+            insulation_density = self.section_parameters[5]
 
             self.section_type = 0
             self.input_widget.lineEdit_outside_diameter.setText(str(outside_diameter))
             self.input_widget.lineEdit_wall_thickness.setText(str(thickness))
+
             if offset_y != 0:
                 self.input_widget.lineEdit_offset_y.setText(str(offset_y))
+
             if offset_z != 0:
                 self.input_widget.lineEdit_offset_z.setText(str(offset_z))
+
             if insulation_density != 0:
                 self.input_widget.lineEdit_insulation_density.setText(str(insulation_density))
+
             if insulation_thickness != 0:
                 self.input_widget.lineEdit_insulation_thickness.setText(str(insulation_thickness))
 
@@ -550,8 +512,6 @@ class SetCrossSectionInput(QDialog):
             self.input_widget.lineEdit_offsetz_T_section.setText(str(offset_z))  
 
     def update_variable_section_element_ids(self):
-        """
-        """
         if len(self.lines_id) > 0:
             line_id = self.lines_id[0]
             # entity = self.dict_tag_to_entity[line_id]
@@ -563,70 +523,53 @@ class SetCrossSectionInput(QDialog):
                 self.input_widget.lineEdit_element_id_final.setText(str(self.list_elements[-1]))
     
     def update_tabs(self):
-        """
-        """
         if self.tabWidget_general.currentIndex() == 0:
             if self.tabWidget_pipe_section.currentIndex() == 1:
                 return
        
         if self.section_type == 0:
-            self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
+            self.tabWidget_pipe_section.setCurrentIndex(0)
             return
-
-        beam_tabs = [   self.tab_rectangular_section, 
-                        self.tab_circular_section, 
-                        self.tab_C_section, 
-                        self.tab_I_section, 
-                        self.tab_T_section,
-                        self.tab_generic_section  ]
 
         for i in range(6):
             if i+1 == self.section_type:
-                # self.tabWidget_beam_section.setTabEnabled(i, True)
-                self.tabWidget_beam_section.setCurrentWidget(beam_tabs[i])
-            # else:
-                # self.tabWidget_beam_section.setTabEnabled(i, False)
+                self.tabWidget_beam_section.setCurrentIndex(i)
 
     def update(self):
-        """
-        """
         self.lines_id = self.opv.getListPickedLines()
         self.elements_id = self.opv.getListPickedElements()
         self.update_QDialog_info()
 
     def update_line_and_element_ids(self):
-        """
-        """
         if self.lines_id != []:
             self.label_selected_id.setText("Lines IDs:")
-            self.radioButton_selected_lines.setChecked(True)
+            self.comboBox_selection.setCurrentIndex(1)
             self.write_ids(self.lines_id)
             
         elif self.elements_id != []:
             self.label_selected_id.setText("Elements IDs:")
-            self.radioButton_selected_elements.setChecked(True)
+            self.comboBox_selection.setCurrentIndex(2)
             self.write_ids(self.elements_id)
             
         else:
             if self.tabWidget_general.currentIndex() == 0:
                 if self.tabWidget_pipe_section.currentIndex() == 1:
-                    self.lineEdit_selected_ID.setText("")
+                    self.lineEdit_selected_id.setText("")
                     return
+            self.comboBox_selection.setCurrentIndex(0)
             self.label_selected_id.setText("Lines IDs:")
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all_lines.setChecked(True)
+            self.lineEdit_selected_id.setText("All lines")
 
     def update_highlights(self):
-        """
-        """
-        lineEdit = self.lineEdit_selected_ID.text()
+        lineEdit = self.lineEdit_selected_id.text()
+        selection_index = self.comboBox_selection.currentIndex()
         if lineEdit != "":
-            if self.radioButton_selected_lines.isChecked():
+            if selection_index == 1:
                 _stop, _lines_typed = self.before_run.check_input_LineID(lineEdit)
                 if _stop:
                     return
                 self.opv.opvRenderer.highlight_lines(_lines_typed)
-            if self.radioButton_selected_elements.isChecked():
+            if selection_index == 2:
                 _stop, _elements_typed = self.before_run.check_input_ElementID(lineEdit)
                 if _stop:
                     return
@@ -639,21 +582,22 @@ class SetCrossSectionInput(QDialog):
         self.input_widget.lineEdit_element_id_initial.setText(temp_final)
         self.input_widget.lineEdit_element_id_final.setText(temp_initial)
 
-    def radioButtonEvent(self):
+    def update_selection(self):
+        
+        self.lineEdit_selected_id.setEnabled(True)
+        self.lineEdit_selected_id.setText("")
+        selection_index = self.comboBox_selection.currentIndex()
 
-        self.lineEdit_selected_ID.setEnabled(True)
-        self.lineEdit_selected_ID.setText("")
+        if selection_index == 0:
+            self.lineEdit_selected_id.setText("All lines")
+            self.lineEdit_selected_id.setEnabled(False)
 
-        if self.radioButton_all_lines.isChecked():
-            self.lineEdit_selected_ID.setText("All lines")
-            self.lineEdit_selected_ID.setEnabled(False)
-
-        elif self.radioButton_selected_lines.isChecked():
+        elif selection_index == 1:
             self.label_selected_id.setText("Lines IDs:")
             # if self.lines_id != []:
             #     self.write_ids(self.lines_id)
                     
-        elif self.radioButton_selected_elements.isChecked():
+        elif selection_index == 2:
             self.label_selected_id.setText("Elements IDs:")
             # if self.elements_id != []:
             #     self.write_ids(self.elements_id)
@@ -662,49 +606,54 @@ class SetCrossSectionInput(QDialog):
         text = ""
         for _id in list_ids:
             text += "{}, ".format(_id)
-        self.lineEdit_selected_ID.setText(text)
+        self.lineEdit_selected_id.setText(text)
     
     def tabEvent_cross_section(self):
-        """
-        """
         if self.tabWidget_general.currentIndex() == 0:
             if self.tabWidget_pipe_section.currentIndex() == 1:
                 self.tabEvent_pipe()
             for i in range(2):
                 self.tabWidget_pipe_section.setTabEnabled(i, True)
         else:
-            self.set_disable_radioButtons(False)
+            self.comboBox_selection.setDisabled(True)
             for i in range(6):
                 self.tabWidget_beam_section.setTabEnabled(i, True)
 
     def tabEvent_pipe(self):
-        """
-        """
+        self.comboBox_selection.setDisabled(False)
         if self.tabWidget_pipe_section.currentIndex() == 0:
             self.pushButton_plot_pipe_cross_section.setDisabled(False)
-            self.set_disable_radioButtons(False)
+
         if self.tabWidget_pipe_section.currentIndex() == 1:
             self.pushButton_plot_pipe_cross_section.setDisabled(True)
-            self.radioButton_selected_lines.setChecked(True)
-            self.radioButton_selected_elements.setDisabled(True)
-            self.radioButton_all_lines.setDisabled(True)
+            self.comboBox_selection.setCurrentIndex(1)
+            self.comboBox_selection.setDisabled(True)
             self.update_variable_section_element_ids()
 
-    def set_disable_radioButtons(self, _bool):
-        self.radioButton_selected_lines.setDisabled(_bool)
-        self.radioButton_selected_elements.setDisabled(_bool)
-        self.radioButton_all_lines.setDisabled(_bool)
-
     def actions_to_finalize(self):
+
         plt.close()
         self.complete = True
-        self.opv.updateEntityRadius()
-        self.opv.changePlotToEntitiesWithCrossSection()
+        self.opv.update_section_radius()
+        self.opv.plot_entities_with_cross_section()
+
+        build_data = self.file.get_segment_build_data_from_file()
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_length_unit(self.file.length_unit)
+        geometry_handler.process_pipeline(build_data)
+
         self.close()
 
-    def check_straight_pipe(self, plot=False):
+    def load_project(self):
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+        self.complete = True
 
-        self.input_widget.get_straight_pipe_parameters()
+    def check_constant_pipe(self, plot=False):
+
+        if self.input_widget.get_constant_pipe_parameters():
+            return
 
         self.section_label = self.input_widget.section_label
         self.section_parameters = self.input_widget.section_parameters
@@ -722,23 +671,24 @@ class SetCrossSectionInput(QDialog):
     def confirm_pipe(self):
         
         self.element_type = 'pipe_1'
+        selection_index = self.comboBox_selection.currentIndex()
 
-        if self.radioButton_selected_elements.isChecked():
+        if selection_index == 2:
 
-            lineEdit = self.lineEdit_selected_ID.text()
+            lineEdit = self.lineEdit_selected_id.text()
             self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
             if self.stop:
                 return
 
-        elif self.radioButton_selected_lines.isChecked():
+        elif selection_index == 1:
 
-            lineEdit = self.lineEdit_selected_ID.text()
+            lineEdit = self.lineEdit_selected_id.text()
             self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True 
 
         if self.tabWidget_pipe_section.currentIndex() == 0:
-            self.check_straight_pipe()
+            self.check_constant_pipe()
 
         elif self.tabWidget_pipe_section.currentIndex() == 1:
             self.check_variable_section_pipe()
@@ -749,14 +699,16 @@ class SetCrossSectionInput(QDialog):
 
     def check_beam(self):
 
-        if self.radioButton_selected_lines.isChecked():
-            lineEdit = self.lineEdit_selected_ID.text()
+        selection_index = self.comboBox_selection.currentIndex()
+        
+        if selection_index == 0:
+            self.lines_typed = self.preprocessor.all_lines
+
+        elif selection_index == 1:
+            lineEdit = self.lineEdit_selected_id.text()
             self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True        
-        
-        elif self.radioButton_all_lines.isChecked():
-            self.lines_typed = self.preprocessor.all_lines
 
         if self.tabWidget_general.currentIndex() == 1:
 
@@ -779,8 +731,8 @@ class SetCrossSectionInput(QDialog):
         self.actions_to_finalize()
 
     def set_cross_sections(self):
-
-        if self.radioButton_selected_lines.isChecked():
+        selection_index = self.comboBox_selection.currentIndex()
+        if selection_index == 1:
             if self.remove_expansion_joint_tables_files:
                 self.process_expansion_joint_table_files_removal(self.lines_typed)
             for line_id in self.lines_typed:
@@ -796,7 +748,7 @@ class SetCrossSectionInput(QDialog):
             else:
                 print("[Set Cross-section] - defined at {} selected lines".format(len(self.lines_typed)))
 
-        elif self.radioButton_selected_elements.isChecked():
+        elif selection_index == 2:
             self.project.set_cross_section_by_elements(self.elements_typed, self.cross_section)
             self.project.add_cross_sections_expansion_joints_valves_in_file(self.elements_typed)
             # self.preprocessor.set_structural_element_type_by_element(self.elements_typed, self.element_type)
@@ -839,3 +791,12 @@ class SetCrossSectionInput(QDialog):
                     if joint_table_names is not None:
                         for table_name in joint_table_names:
                             self.project.remove_structural_table_files_from_folder(table_name, "expansion_joints_files")
+   
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            if self.tabWidget_general.currentIndex() == 0:
+                self.confirm_pipe()
+            if self.tabWidget_general.currentIndex() == 1:
+                self.confirm_beam()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

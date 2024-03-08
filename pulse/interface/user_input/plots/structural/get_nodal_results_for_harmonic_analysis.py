@@ -2,20 +2,15 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QRadioButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app, UI_DIR
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+import os
+from pathlib import Path
 
 class GetNodalResultsForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -26,9 +21,9 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()
         self._load_icons()
@@ -48,7 +43,7 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self.solution = self.project.get_structural_solution()
     
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.pulse_icon = get_openpulse_icon()
         self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
 
     def _config_window(self):
@@ -130,10 +125,10 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         return False
 
     def get_response(self):
-        response = get_structural_frf(self.preprocessor, 
-                                      self.solution,
-                                      self.node_ID, 
-                                      self.local_dof)
+        response = get_structural_frf(  self.preprocessor,
+                                        self.solution,
+                                        self.node_ID, 
+                                        self.local_dof  )
         return response
 
     def join_model_data(self):

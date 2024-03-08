@@ -20,7 +20,7 @@ class ResultsViewerItems(CommonMenuItems):
         super().__init__()
 
         self.main_window = app().main_window
-        self.project = self.main_window.getProject()
+        self.project = self.main_window.project
 
         self.setObjectName("results_viewer_items")
         self._create_items()
@@ -57,28 +57,27 @@ class ResultsViewerItems(CommonMenuItems):
         if not self.main_window.opv_widget.change_plot_to_entities_with_cross_section:
             self.main_window.plot_entities_with_cross_section()
 
-    def _updateItems(self):
+    def _update_items(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
 
-        if True:
-            # self.item_top_analysis.setHidden(True)
-            self.item_top_resultsViewer_structural.setHidden(True)
-            self.item_top_resultsViewer_acoustic.setHidden(True)
-            self.item_child_plot_structural_mode_shapes.setDisabled(True)
-            self.item_child_plot_displacement_field.setDisabled(True)
-            self.item_child_plot_structural_frequency_response.setDisabled(True)
-            self.item_child_plot_reaction_frequency_response.setDisabled(True)
-            self.item_child_plot_stress_field.setDisabled(True)
-            self.item_child_plot_stress_frequency_response.setDisabled(True)
-            self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
-            self.item_child_plot_acoustic_frequency_response.setDisabled(True)
-            self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
-            self.item_child_plot_acoustic_pressure_field.setDisabled(True)
-            self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
-            self.item_child_check_pulsation_criteria.setDisabled(True)
-            self.item_child_plot_transmission_loss.setDisabled(True)
-            self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
-            self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
+        self.item_top_resultsViewer_structural.setHidden(True)
+        self.item_child_plot_structural_mode_shapes.setDisabled(True)
+        self.item_child_plot_displacement_field.setDisabled(True)
+        self.item_child_plot_structural_frequency_response.setDisabled(True)
+        self.item_child_plot_reaction_frequency_response.setDisabled(True)
+        self.item_child_plot_stress_field.setDisabled(True)
+        self.item_child_plot_stress_frequency_response.setDisabled(True)
+        #
+        self.item_top_resultsViewer_acoustic.setHidden(True)
+        self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
+        self.item_child_plot_acoustic_frequency_response.setDisabled(True)
+        self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
+        self.item_child_plot_acoustic_pressure_field.setDisabled(True)
+        self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
+        self.item_child_check_pulsation_criteria.setDisabled(True)
+        self.item_child_plot_transmission_loss.setDisabled(True)
+        self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
+        self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
                             
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
 
@@ -153,11 +152,10 @@ class ResultsViewerItems(CommonMenuItems):
                 self.item_child_plot_stress_frequency_response.setDisabled(False)
 
             self.modify_item_names_according_to_analysis()
-            # self.update_TreeVisibility_after_solution()
             
-    def update_TreeVisibility_after_solution(self):
-        """Expands and collapses the Top Level Items ont the menu after the solution is done.
-        
+    def update_tree_visibility_after_solution(self):
+        """ Expands and collapses the Top Level Items on 
+            the menu after the solution is done.
         """
 
         if self.project.analysis_ID in [0, 1, 2, 7]:
@@ -183,10 +181,3 @@ class ResultsViewerItems(CommonMenuItems):
             self.item_child_plot_structural_frequency_response.setText(0, "Plot structural frequency response")
             self.item_child_plot_reaction_frequency_response.setText(0, "Plot reactions frequency response")
             self.item_child_plot_stress_frequency_response.setText(0, "Plot stress frequency response")
-
-    def empty_project_action_message(self):
-        window_title = 'Error'
-        title = 'EMPTY PROJECT'
-        message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
-        message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' \nbuttons to continue."
-        PrintMessageInput([window_title, title, message])

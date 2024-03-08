@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pulse import UI_DIR
 from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
 import matplotlib.pyplot as plt    
@@ -18,7 +18,7 @@ class PlotCrossSectionInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(UI_DIR / "plots/model/plot_section_input.ui", self)
+        uic.loadUi(UI_DIR / "plots/model/plot_section.ui", self)
 
         icons_path = str(Path('data/icons/pulse.png'))
         self.icon = QIcon(icons_path)
@@ -85,13 +85,13 @@ class PlotCrossSectionInput(QDialog):
             self.lineEdit_id_labels.setText("Line ID:")
             self.write_ids(self.line_id)
             if self.opv.change_plot_to_mesh:
-                self.opv.changePlotToEntitiesWithCrossSection()
+                self.opv.plot_entities_with_cross_section()
 
         elif self.flagElements:
             self.lineEdit_id_labels.setText("Element ID:")
             self.write_ids(self.element_id)
             if not self.opv.change_plot_to_mesh:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
 
     def write_ids(self, list_ids):
         text = ""
@@ -193,7 +193,7 @@ class PlotCrossSectionInput(QDialog):
 
         if self.preprocess_selection():
             if not self.stop:
-                PrintMessageInput([self.title, self.message, self.window_title])
+                PrintMessageInput([self.window_title, self.title, self.message])
             return
         
         if self.section_label == "Pipe section":

@@ -6,17 +6,13 @@ from PyQt5 import uic
 from pathlib import Path
 import os
 
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import get_new_path
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import get_new_path
 from pulse import app, UI_DIR
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class AnimationWidget(QWidget):
     def __init__(self):
@@ -92,10 +88,10 @@ class AnimationWidget(QWidget):
                 title = "Invalid folder path"
                 message = "Inform a valid folder path before trying export the animation.\n\n"
                 message += f"{self.label_export_path.text()}"
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 self.label_export_path.setText("<Folder path>")
         else:
             title = "Empty file name"
             message = "Inform a file name before trying export the animation."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             self.lineEdit_file_name.setFocus()

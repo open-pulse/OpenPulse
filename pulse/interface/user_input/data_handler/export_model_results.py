@@ -8,22 +8,19 @@ import os
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class ExportModelResults(QDialog):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         uic.loadUi(UI_DIR / "data_handler/export_model_results.ui", self)
 
         self._config_window()
         self._load_icons()
-        self._reset_variables()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
 
@@ -33,12 +30,12 @@ class ExportModelResults(QDialog):
         self.setWindowTitle("Import data to compare")
 
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.pulse_icon = get_openpulse_icon()
         self.search_icon = QIcon(get_icons_path('searchFile.png'))
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
         self.setWindowIcon(self.pulse_icon)
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
         self.data = dict()
@@ -95,12 +92,12 @@ class ExportModelResults(QDialog):
             if self.save_path == "":
                 title = "None folder selected"
                 message = "Plese, choose a folder before trying export the results."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 return
         else:
             title = "Empty file name"
             message = "Inform a file name before trying export the results."
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
             return
 
         file_name = self.lineEdit_file_name.text() + ".dat"
@@ -121,7 +118,7 @@ class ExportModelResults(QDialog):
         window_title = "Warning"
         title = "Information"
         message = "The results have been exported."
-        PrintMessageInput([title, message, window_title])
+        PrintMessageInput([window_title, title, message])
         self.close()
 
     def keyPressEvent(self, event):

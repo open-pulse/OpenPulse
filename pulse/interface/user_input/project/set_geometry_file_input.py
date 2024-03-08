@@ -10,9 +10,9 @@ from shutil import copyfile
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.utils import get_new_path
-from pulse.project import Project
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.tools.utils import get_new_path
+from pulse.project.project import Project
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -54,19 +54,17 @@ class SetGeometryFileInput(QDialog):
         self.project_name = self.project.file._project_name
         self.element_size = self.project.file._element_size
         self.geometry_tolerance = self.project.file._geometry_tolerance
-        self.project_ini = self.project.file._project_base_name
+        self.project_ini = self.project.file.project_ini_name
 
         self.current_geometry_path = self.project.file._geometry_path
         self.current_material_list_path = self.project.file._material_list_path
         self.current_fluid_list_path = self.project.file._fluid_list_path
 
-        # self.current_conn_path = self.project.file._conn_path
-        # self.current_coord_path_path = self.project.file._coord_path
         self.import_type = self.project.file._import_type
 
         self.materialListName = self.project.file._material_file_name
         self.fluidListName = self.project.file._fluid_file_name
-        self.project_file_name = self.project.file._project_base_name
+        self.project_file_name = self.project.file.project_ini_name
 
 
     def define_qt_variables(self):
@@ -130,7 +128,7 @@ class SetGeometryFileInput(QDialog):
             self.project.file.reset_project_setup()
             # self.remove_other_files()
             self.opv.opvRenderer.plot()
-            self.opv.changePlotToEntities()
+            self.opv.plot_entities()
             self.close()
 
     def search_new_geometry_file(self):
@@ -177,13 +175,13 @@ class SetGeometryFileInput(QDialog):
         message_title = "Error in the geometry file selection"
         message = "The same geometry file has been selected inside the project's directory. Please, "
         message += "you should to select a different geometry file to update the current model setup."
-        PrintMessageInput([message_title, message, window_title_2])
+        PrintMessageInput([window_title_2, message_title, message])
 
     def print_error_message(self, label_1, label_2):
         message_title = f"Invalid {label_1}"
         message = f"Please, inform a valid {label_1} at '{label_2}' input field to continue."
         message += "The input value should be a float or an integer number greater than zero."
-        PrintMessageInput([message_title, message, window_title_1])
+        PrintMessageInput([window_title_1, message_title, message])
 
     def copy_geometry_file_to_project_folder(self):
         self.new_geometry_path = get_new_path(self.current_project_file_path, self.geometry_filename)

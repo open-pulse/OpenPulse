@@ -10,9 +10,9 @@ import configparser
 from shutil import copyfile
 
 from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse.utils import remove_bc_from_file, get_new_path, create_new_folder
+from pulse.tools.utils import remove_bc_from_file, get_new_path, create_new_folder
 
 window_title ="Error"
 
@@ -340,7 +340,7 @@ class MassSpringDamperInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 self.stop = True
                 return
         else:
@@ -477,7 +477,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n"
             message += "before confirming the input!"
-            PrintMessageInput([title, message, window_title]) 
+            PrintMessageInput([window_title, title, message]) 
             return
         
         if self.lumped_masses is not None:
@@ -509,7 +509,7 @@ class MassSpringDamperInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The imported \n"
                 message += "data must have two columns of values."
-                PrintMessageInput([title, message, window_title])
+                PrintMessageInput([window_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
@@ -531,7 +531,7 @@ class MassSpringDamperInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -938,7 +938,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n" 
             message += "table path before confirming the input!"
-            PrintMessageInput([title, message, window_title]) 
+            PrintMessageInput([window_title, title, message]) 
             return
 
         if self.lumped_masses is not None:

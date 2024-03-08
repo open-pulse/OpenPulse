@@ -67,14 +67,14 @@ class TubeActor(vtk.vtkActor):
         if cross_section is None:
             return None
 
-        if cross_section.section_label == "Pipe section":
+        if "Pipe section" in cross_section.section_label:
             d_out = cross_section.outer_diameter
             t = cross_section.thickness
             return cross_section_sources.pipe_data(element.length, d_out, t)
 
         elif cross_section.section_label == "Rectangular section":
-            b, h, *_ = cross_section.section_parameters
-            return cross_section_sources.rectangular_beam_data(element.length, b, h)
+            b, h, t, *_ = cross_section.section_parameters
+            return cross_section_sources.rectangular_beam_data(element.length, b, h, t)
 
         elif cross_section.section_label == "Circular section":
             d_out, t, *_ = cross_section.section_parameters

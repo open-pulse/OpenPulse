@@ -630,7 +630,7 @@ vtkat = {git = "https://github.com/andrefpf/vtkat"}
 type = "git"
 url = "https://github.com/andrefpf/opps"
 reference = "open_pulse_integration"
-resolved_reference = "26dce7250c4d392994b4f52e8ef5e15df1d19458"
+resolved_reference = "ea59f5a33d14ab8e5f1e93ae0d6d08282ff3d397"
 
 [[package]]
 name = "packaging"
@@ -1211,7 +1211,7 @@ vtk = "^9.3.0"
 type = "git"
 url = "https://github.com/andrefpf/vtkat"
 reference = "HEAD"
-resolved_reference = "d8bb5b331419fa0387b5472e997a9d337638921a"
+resolved_reference = "2675952fc40c5280fce7aa6a809cae3725a7ecb6"
 
 [metadata]
 lock-version = "2.0"

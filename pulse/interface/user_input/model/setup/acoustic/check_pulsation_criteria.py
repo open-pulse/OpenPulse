@@ -4,14 +4,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import numpy as np
-
-from pulse.utils import get_new_path
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import get_new_path
 
-from pulse import app, UI_DIR
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -28,9 +28,9 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()        
         self._load_icons()
@@ -60,8 +60,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.node_id = self.opv.getListPickedPoints()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -161,7 +160,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
 
     def update_compressor_data(self, stage_data):
         self.suction_pressure = stage_data["pressure at suction"]
@@ -172,9 +171,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_acoustic_pressure(self):
         self.solution = self.project.get_acoustic_solution()
-        response = get_acoustic_frf(self.preprocessor, 
-                                    self.solution,
-                                    self.node_id[0])
+        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_id[0])
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-12)
         return response

@@ -1,16 +1,9 @@
-from time import time
-import numpy as np
-from numpy.lib.type_check import real
-from numpy.linalg import norm
-from scipy.sparse.linalg import eigs, spsolve
-
-import matplotlib
-# matplotlib.use("Qt5Agg")
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+
+import numpy as np
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+from scipy.sparse.linalg import eigs, spsolve
 
 def relative_error(vect_1, vect_2):
     return norm((vect_2-vect_1))/norm(vect_1)

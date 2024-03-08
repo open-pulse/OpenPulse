@@ -10,6 +10,5 @@ from pathlib import Path
 OPEN_PULSE_DIR = Path(__file__).parent
 UI_DIR = OPEN_PULSE_DIR / "interface/ui_files/"
 
-
 def app() -> "Application":
     return QApplication.instance()

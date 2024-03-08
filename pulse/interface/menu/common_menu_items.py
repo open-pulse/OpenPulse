@@ -3,8 +3,8 @@ from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, 
 from PyQt5.QtCore import Qt, QSize, QRect, pyqtSignal, QObject, pyqtBoundSignal
 from pathlib import Path
 
+from pulse.interface.formatters.icons import *
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 
 class CommonMenuItems(QTreeWidget):
@@ -122,9 +122,9 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
         if cond:
             font = QFont()
             font.setBold(True)
-            warning_icon = QIcon(str(Path("data/icons/warning.png")))
             self.setFont(0, font)
             self.setForeground(0, QColor(210, 144, 0))
+            warning_icon = get_warning_icon()
             self.setIcon(0, warning_icon)
         else:
             # Resets data to default

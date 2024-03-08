@@ -2,10 +2,11 @@ from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 
+from pathlib import Path
 from time import sleep, time 
 
 class PrintMessageInput(QDialog):
@@ -26,8 +27,7 @@ class PrintMessageInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
@@ -66,12 +66,12 @@ class PrintMessageInput(QDialog):
     def update_progress_bar(self):
         self.timer.stop()
         t0 = time()
-        dt = 0
+        elapsed_time = 0
         duration = 2.5
-        while dt <= duration:
+        while elapsed_time <= duration:
             sleep(0.1)
-            dt = time() - t0
-            value = int(100*(dt/duration))
+            elapsed_time = time() - t0
+            value = int(100*(elapsed_time/duration))
             self.progress_bar_timer.setValue(value)
         self.close()
 
@@ -81,6 +81,14 @@ class PrintMessageInput(QDialog):
         self.label_title.setText(self.title2)
         self.label_message.setText(self.message)
         self.setWindowTitle(self.window_title)
+
+        if self.window_title in ["Error", "ERROR"]:
+            icon = get_error_icon(QColor(255,0,0,200))
+            self.setWindowIcon(icon)
+        elif self.window_title in ["Warning", "WARNING"]:
+            icon = get_warning_icon()
+            self.setWindowIcon(icon)
+        
         self.adjustSize()
         self.label_message.setAlignment(Qt.AlignCenter)
         if self.auto_close:

@@ -2,11 +2,12 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTr
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+
+import numpy as np
+from pathlib import Path
 
 class GetReactionsForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -17,9 +18,9 @@ class GetReactionsForStaticAnalysis(QWidget):
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
         
         self._initialize()
         self._load_icons()
@@ -35,8 +36,7 @@ class GetReactionsForStaticAnalysis(QWidget):
         self.preprocessor = self.project.preprocessor
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

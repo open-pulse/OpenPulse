@@ -4,18 +4,12 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-import configparser
-
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+import os
 
 class GetStartedInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -42,7 +36,7 @@ class GetStartedInput(QDialog):
         self.complete = False
 
     def _load_icons(self):
-        self.icon = QIcon(get_icons_path('pulse.png'))
+        self.icon = get_openpulse_icon()
         self.load_icon = QIcon(get_icons_path('loadProject.png'))
         self.new_icon = QIcon(get_icons_path('add.png'))
         self.reset_icon = QIcon(get_icons_path('refresh.png'))
@@ -51,6 +45,7 @@ class GetStartedInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Get started")
         
     def _define_qt_variables(self):
         # QLable
@@ -110,15 +105,15 @@ class GetStartedInput(QDialog):
             self.project_buttons[i].setVisible(False)
             self.project_path_labels[i].setVisible(False)
 
-        self.recentProjectsList = list(self.config.recentProjects.items())[::-1]
-        for i in range(5 if len(self.recentProjectsList) > 5 else len(self.recentProjectsList)):
+        self.recent_projectsList = list(self.config.recent_projects.items())[::-1]
+        for i in range(5 if len(self.recent_projectsList) > 5 else len(self.recent_projectsList)):
             self.project_buttons[i].setVisible(True)
             self.project_path_labels[i].setVisible(True)
-            self.project_dir[i] = self.recentProjectsList[i][1]
-            # text = str(self.recentProjectsList[i][0]) + "\n" + str(self.recentProjectsList[i][1])
+            self.project_dir[i] = self.recent_projectsList[i][1]
+            # text = str(self.recent_projectsList[i][0]) + "\n" + str(self.recent_projectsList[i][1])
             # self.project_buttons[i].setText(text)
             # self.project_buttons[i].setStyleSheet("text-align:right;")
-            self.project_path_labels[i].setText(str(self.recentProjectsList[i][1]))
+            self.project_path_labels[i].setText(str(self.recent_projectsList[i][1]))
             stylesheet =    """ QLabel{ 
                                         border-radius: 6px; 
                                         border-color: rgb(150, 150, 150); 
@@ -153,16 +148,16 @@ class GetStartedInput(QDialog):
             self.show()
 
     def about_project(self):
-        AboutOpenPulseInput(self.project, self.opv)
+        self.input_ui.about_OpenPulse()
 
     def load_recent_project(self, dir):
         if os.path.exists(dir):
             if self.input_ui.load_project(path=dir):
                 self.close()
         else:
-            for item, value in self.config.recentProjects.items():
+            for key, value in self.config.recent_projects.items():
                 if value == dir:
-                    self.config.remove_path_from_config_file(item)
+                    self.config.remove_path_from_config_file(key)
                     self.update_buttons_visibility()
                     break
 

@@ -8,8 +8,8 @@ import configparser
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.utils import remove_bc_from_file
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.tools.utils import remove_bc_from_file
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title = "Error"
 
@@ -250,7 +250,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         window_title = "WARNING" 
         title = "INFO MESSAGE"
         message = "The element length correction has been \nremoved from all elements."
-        PrintMessageInput([title, message, window_title])
+        PrintMessageInput([window_title, title, message])
 
     def get_information_of_group(self):
         try:
@@ -261,12 +261,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
             else:
                 title = "ERROR IN GROUP SELECTION"
                 message = "Please, select a group in the list to get the information."
-                self.info_text = [title, message, window_title]
+                self.info_text = [window_title, title, message]
                 PrintMessageInput(self.info_text)
         except Exception as er:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(er)
-            self.info_text = [title, message, window_title]
+            self.info_text = [window_title, title, message]
             PrintMessageInput(self.info_text)
 
     def update(self):

@@ -26,3 +26,6 @@ envpulse/
 # Local directory
 measured_data/
 temporary_data/
+
+# Do not ignore
+!pulse/libraries/*.dat

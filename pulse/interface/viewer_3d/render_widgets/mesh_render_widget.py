@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import QApplication
 
 from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
 from pulse.interface.viewer_3d.text_templates import TreeInfo, format_long_sequence
-from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
-from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
+from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
+from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse import app
 
 @dataclass
@@ -162,7 +162,7 @@ class MeshRenderWidget(CommonRenderWidget):
     def set_theme(self, theme):
         super().set_theme(theme)
         try:
-            self.create_logos(theme)
+            self.create_logos(theme=theme)
         except:
             return
 
@@ -173,11 +173,11 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.AddViewProp(self.mopt_logo)
 
         if theme == "light":
-            open_pulse_path = Path('data/icons/OpenPulse_logo_black.png')
-            mopt_path = Path('data/icons/mopt_logo_black.png')     
+            open_pulse_path = Path('data/icons/logos/OpenPulse_logo_black.png')
+            mopt_path = Path('data/icons/logos/mopt_logo_black.png')     
         elif theme == "dark":
-            open_pulse_path = Path('data/icons/OpenPulse_logo_white.png')
-            mopt_path = Path('data/icons/mopt_logo_white.png')
+            open_pulse_path = Path('data/icons/logos/OpenPulse_logo_white.png')
+            mopt_path = Path('data/icons/logos/mopt_logo_white.png')
         else:
             raise NotImplementedError()
 

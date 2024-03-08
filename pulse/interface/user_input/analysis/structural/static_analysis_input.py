@@ -2,12 +2,14 @@ from PyQt5.QtWidgets import QDialog, QCheckBox, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
+
 import numpy as np
 from pathlib import Path
 
-from pulse import app, UI_DIR
-from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 class StaticAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -19,27 +21,28 @@ class StaticAnalysisInput(QDialog):
         self.main_window = app().main_window
         self.project = self.main_window.project
         
+        self._load_icons()
+        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._load_current_state()
         self.exec()
 
-    def _initialize(self):
-        self.complete = False
-        self.global_damping = [0, 0, 0, 0]
-        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
-        self.gravity_vector = self.project.preprocessor.gravity_vector
-
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Static Analysis Setup")
+
+    def _initialize(self):
+        self.complete = False
+        self.global_damping = [0, 0, 0, 0]
+        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
+        self.gravity_vector = self.project.preprocessor.gravity_vector
 
     def _define_qt_variables(self):
         # QCheckBox

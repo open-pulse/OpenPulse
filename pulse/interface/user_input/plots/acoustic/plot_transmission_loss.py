@@ -2,23 +2,18 @@ from PyQt5.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse import app, UI_DIR
+import numpy as np
+from pathlib import Path
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
-    
+
 class PlotTransmissionLoss(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,13 +23,13 @@ class PlotTransmissionLoss(QWidget):
         ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_transmission_loss.ui")
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.update()
@@ -51,7 +46,7 @@ class PlotTransmissionLoss(QWidget):
         self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
 
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.pulse_icon = get_openpulse_icon()
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _config_window(self):

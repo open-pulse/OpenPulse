@@ -2,20 +2,15 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app, UI_DIR
+from pathlib import Path
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class GetAcousticDeltaPressure(QWidget):
     def __init__(self, *args, **kwargs):
@@ -26,9 +21,9 @@ class GetAcousticDeltaPressure(QWidget):
         ui_path = Path(f"{UI_DIR}/plots/results/acoustic/get_acoustic_delta_pressures.ui")
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()
         self._load_icons()
@@ -46,13 +41,13 @@ class GetAcousticDeltaPressure(QWidget):
         self.before_run = self.project.get_pre_solution_model_checks()
 
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.icon = get_openpulse_icon()
         self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
         # QLineEdit

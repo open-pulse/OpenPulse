@@ -2,20 +2,18 @@ from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRa
 from PyQt5.QtGui import QCloseEvent, QIcon, QFont, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import configparser
-import numpy as np
-import matplotlib.pyplot as plt
-from itertools import count
-
-from pulse import UI_DIR
-from pulse.lib.default_libraries import default_material_library
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.libraries.default_libraries import default_material_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.preprocessing.material import Material
+
+import configparser
+from itertools import count
+from pathlib import Path
 
 window_title = "Error"
 window_title2 = "Warning"
@@ -28,20 +26,32 @@ def getColorRGB(color):
     return list(map(int, tokens))
 
 class MaterialInputs(QWidget):
-    def __init__(self, main_window, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "model/setup/general/material_input_widget.ui", self)
 
-        self.main_window = main_window
+        self.main_window = app().main_window
 
-        self.reset()
+        self._initialize()
         self.define_qt_variables()
         self.create_connections()
-
         self.load_data_from_materials_library()
 
-    def reset(self):
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _add_icon_and_title(self):
+        self._load_icons()
+        self._config_window()
+
+    def _initialize(self):
         self.row = None
         self.col = None
         self.project = self.main_window.project
@@ -361,7 +371,7 @@ class MaterialInputs(QWidget):
     def get_selected_material_id(self):
         material = self.get_selected_material()
         if material is None:
-            return
+            return None
         return material.identifier
             
     def get_confirmation_to_proceed(self, title : str, message : str):

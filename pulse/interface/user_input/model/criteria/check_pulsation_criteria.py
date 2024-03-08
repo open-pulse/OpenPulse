@@ -2,16 +2,16 @@ from PyQt5.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-
-import numpy as np
-
-from pulse.utils import get_new_path
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
+from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import get_new_path
+
+import numpy as np
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -28,13 +28,14 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
+        self.preprocessor = main_window.project.preprocessor
 
-        self._initialize()        
         self._load_icons()
         self._config_window()
+        self._initialize()        
         self._define_qt_variables()
         self._create_connections()
         self.update()
@@ -49,19 +50,20 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.table_name = None
         self.not_update_event = False
 
-        self.preprocessor = self.project.preprocessor
+        self.nodes = self.preprocessor.nodes
+
         self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.project.frequencies
-        self.nodes = self.preprocessor.nodes
 
         self.project_folder_path = self.project.file._project_path
         self.node_acoustic_path = self.project.file._node_acoustic_path   
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.node_id = self.opv.getListPickedPoints()
 
+        self.solution = self.project.get_acoustic_solution()
+
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -161,7 +163,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
 
     def update_compressor_data(self, stage_data):
         self.suction_pressure = stage_data["pressure at suction"]
@@ -171,10 +173,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_unfiltered_criteria.setText(str(round(self.unfiltered_criteria, 4)))
 
     def get_acoustic_pressure(self):
-        self.solution = self.project.get_acoustic_solution()
-        response = get_acoustic_frf(self.preprocessor, 
-                                    self.solution,
-                                    self.node_id[0])
+        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_id[0])
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-12)
         return response

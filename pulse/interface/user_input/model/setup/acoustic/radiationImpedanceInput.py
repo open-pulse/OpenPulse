@@ -8,8 +8,8 @@ import os
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.utils import remove_bc_from_file
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.tools.utils import remove_bc_from_file
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
@@ -183,9 +183,9 @@ class RadiationImpedanceInput(QDialog):
                     self.preprocessor.set_radiation_impedance_bc_by_node(node_id, None)
                 
                 title = "Radiation impedance resetting process complete"
-                message = "All radiation impedances applied to the acoustic\n" 
+                message = "All radiation impedances applied to the acoustic " 
                 message += "model have been removed from the model."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
 
                 self.opv.updateRendererMesh()
                 self.close()

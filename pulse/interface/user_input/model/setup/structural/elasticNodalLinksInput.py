@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 from pulse import UI_DIR
-from pulse.utils import get_new_path, remove_bc_from_file
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.tools.utils import get_new_path, remove_bc_from_file
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 window_title_1 = "Error"
@@ -293,7 +293,7 @@ class ElasticNodalLinksInput(QDialog):
         if temp_nodeID_1 == temp_nodeID_2:
             title = "ERROR IN NODES SELECTION"
             message = "The selected nodes must differ. Try to choose another pair of nodes."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return True
 
         if temp_nodeID_2 > temp_nodeID_1:
@@ -316,13 +316,13 @@ class ElasticNodalLinksInput(QDialog):
                     value = int(value_string) 
                 if value < 0:
                     message = "You cannot input a negative value to the {}.".format(label)
-                    PrintMessageInput([title, message, window_title_1])
+                    PrintMessageInput([window_title_1, title, message])
                     return True
                 else:
                     self.value = value
             except Exception:
                 message = "You have typed an invalid value to the {}.".format(label)
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 return True
         else:
             self.value = None
@@ -405,7 +405,7 @@ class ElasticNodalLinksInput(QDialog):
         if list_K.count(None) == 6 and list_C.count(None) == 6:
             title = 'EMPTY INPUTS FOR STIFFNESS AND DAMPING'
             message = 'Please insert at least a stiffness or damping value before confirming the attribution.'
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
     def constant_input_confirm(self):
         if self.check_all_inputs():
@@ -442,7 +442,7 @@ class ElasticNodalLinksInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The imported \n"
                 message += "data must have two columns of values."
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
                 lineEdit.setFocus()
                 return None, None
 
@@ -464,7 +464,7 @@ class ElasticNodalLinksInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -737,7 +737,7 @@ class ElasticNodalLinksInput(QDialog):
             title = 'NONE TABLE SELECTED FOR STIFFNESS OR DAMPING'
             message = "Please, define at least a table of values to the stiffness or damping" 
             message += "before confirming the elastic link attribution."
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
             return
       
         self.opv.updateRendererMesh()
@@ -852,7 +852,7 @@ class ElasticNodalLinksInput(QDialog):
         if key == "":
             title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
             message = "Please, select a stiffness elastic link in the list before confirm the link removal."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             return
         else:
             str_ids = key.split("-")
@@ -881,7 +881,7 @@ class ElasticNodalLinksInput(QDialog):
         if key == "":
             title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
             message = "Please, select a damping elastic link in the list before confirm the link removal."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             return
         else:
             str_ids = key.split("-")
@@ -926,7 +926,7 @@ class ElasticNodalLinksInput(QDialog):
                 self.remove_selected_link_damping()
             title = "Reseting process complete"
             message = "All elastic nodal links have been removed from the model."
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
             self.ext_key = None
             self.reset_nodes_input_fields()
             self.close()
@@ -939,12 +939,12 @@ class ElasticNodalLinksInput(QDialog):
             else:
                 title = "UNSELECTED ELASTIC LINK"
                 message = "Please, select an elastic link in the list to get the information."
-                PrintMessageInput([title, message, window_title_2])
+                PrintMessageInput([window_title_2, title, message])
                 
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED ELASTIC LINK"
             message = str(e)
-            PrintMessageInput([title, message, window_title_1])
+            PrintMessageInput([window_title_1, title, message])
 
     def force_to_close(self):
         self.close()
