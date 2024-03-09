@@ -66,6 +66,11 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_analysis_setup = self.add_item('Analysis Setup')
         self.item_child_run_analysis = self.add_item('Run Analysis')
 
+        self.top_level_items = [self.item_top_general_settings,
+                                self.item_top_structural_model_setup,
+                                self.item_top_acoustic_model_setup,
+                                self.item_top_analysis]
+
     def _create_connections(self):
         # General Settings
         self.item_child_create_geometry.clicked.connect(self.item_child_create_geometry_callback)
@@ -144,41 +149,41 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         read = self.main_window.input_widget.edit_an_imported_geometry()
 
     def item_child_set_material_callback(self):
-        self.update_plot_entities()
+        self.main_window.update_plot_entities()
         self.main_window.input_widget.set_material()
 
     def item_child_set_fluid_callback(self):
-        self.update_plot_entities()
+        self.main_window.update_plot_entities()
         self.main_window.input_widget.set_fluid()
 
     def item_child_set_cross_section_callback(self):
         if self.main_window.input_widget.set_cross_section():
-            self.update_plot_entities_with_cross_section()
+            self.main_window.update_plot_entities_with_cross_section()
 
     def item_child_set_structural_element_type_callback(self):
-        self.update_plot_entities()
+        self.main_window.update_plot_entities()
         self.main_window.input_widget.setStructuralElementType()
 
     def item_child_set_prescribed_dofs_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.set_dof()
 
     def item_child_set_nodal_loads_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.setNodalLoads()
 
     def item_child_add_mass_spring_damper_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.addMassSpringDamper()
 
     def item_child_add_elastic_nodal_links_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.add_elastic_nodal_links()
 
     def item_child_set_inertial_loads_callback(self):
         obj = self.main_window.input_widget.set_inertial_load()
         if obj.complete:
-            self.update_plot_mesh()
+            self.main_window.update_plot_mesh()
 
     def item_child_set_stress_stiffening_callback(self):
         self.main_window.input_widget.set_stress_stress_stiffening()
@@ -189,7 +194,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_add_valve_callback(self):
         read = self.main_window.input_widget.add_valve()
         if read.complete:
-            self.update_plot_mesh()
+            self.main_window.update_plot_mesh()
 
     def item_child_add_flanges_callback(self):
         self.main_window.input_widget.add_flanges()
@@ -198,43 +203,43 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.main_window.input_widget.add_expansion_joint()
 
     def item_child_set_beam_x_axis_rotation_callback(self):
-        self.update_plot_entities_with_cross_section()
+        self.main_window.update_plot_entities_with_cross_section()
         self.main_window.input_widget.set_beam_xaxis_rotation()
 
     def item_child_set_rotation_decoupling_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.setRotationDecoupling()
 
     def item_child_set_acoustic_element_type_callback(self):
-        self.update_plot_entities()
+        self.main_window.update_plot_entities()
         self.main_window.input_widget.set_acoustic_element_type()
 
     def item_child_set_acoustic_pressure_callback(self):
-        self.update_plot_mesh()      
+        self.main_window.update_plot_mesh()      
         self.main_window.input_widget.set_acoustic_pressure()
 
     def item_child_set_volume_velocity_callback(self):
-        self.update_plot_mesh()  
+        self.main_window.update_plot_mesh()  
         self.main_window.input_widget.setVolumeVelocity()
 
     def item_child_set_specific_impedance_callback(self):
-        self.update_plot_mesh() 
+        self.main_window.update_plot_mesh() 
         self.main_window.input_widget.setSpecificImpedance()
 
     def item_child_set_radiation_impedance_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.set_radiation_impedance()
 
     def item_child_add_perforated_plate_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.add_perforated_plate()
 
     def item_child_set_acoustic_element_length_correction_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.set_acoustic_element_length_correction()
 
     def item_child_add_compressor_excitation_callback(self):
-        self.update_plot_mesh()
+        self.main_window.update_plot_mesh()
         self.main_window.input_widget.add_compressor_excitation()
 
     def item_child_select_analysis_type_callback(self):
@@ -327,3 +332,26 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def update_coupled_analysis_visibility_items(self):
         self.item_top_structural_model_setup.setHidden(False)
         self.item_top_acoustic_model_setup.setHidden(False)
+
+    def set_theme(self, theme : str):
+
+        if theme == "dark":
+            # self.line_color = QColor(220,220,220)
+            # self.line_color = QColor(26,115,232,150)
+            self.line_color = QColor(107,137,185)
+            self.background_color = QColor(60,60,70)
+
+        else:
+            # self.line_color = QColor(60,60,60)
+            # self.line_color = QColor(26,115,232,150)
+            self.line_color = QColor(107,137,185)
+            self.background_color = QColor(230,230,230)
+
+        border_role = Qt.UserRole + 1
+        # border_pen = QPen(self.background_color)
+        border_pen = QPen(self.line_color)
+        border_pen.setWidth(1)
+            
+        for item in self.top_level_items:
+            item.setBackground(0, self.background_color)
+            item.setData(0, border_role, border_pen)

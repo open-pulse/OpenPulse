@@ -16,16 +16,10 @@ class vtkRendererBase(ABC):
         self._textActor = vtk.vtkTextActor()
         self.textActorStress = vtk.vtkTextActor()
         self.textProperty = vtk.vtkTextProperty()
-
-        self.nodes_color = (255, 255, 63)
-        self.lines_color = (255, 255, 255)
-        self.surfaces_color = (255, 255, 255)
-        self.elements_transparency = 0.8
-
-        default_background_color = (1,1,1)
-        self.background_color = default_background_color
         self._renderer = vtk.vtkRenderer()
-        self.changeBackgroundColor(default_background_color)
+
+        self._load_default_preferences()
+        self._createConfigLogos()   
 
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
@@ -36,11 +30,16 @@ class vtkRendererBase(ABC):
         self.textProperty.SetFontSize(17)
         self.textProperty.SetColor((0,0,0))
 
-        self.textProperty.BoldOn()
+        # self.textProperty.BoldOn()
         # self.textProperty.SetItalic(1)
 
-        self.changeLogosToGetBetterContrast()
-        self._createConfigLogos()        
+    def _load_default_preferences(self):
+        self.background_color = None
+        self.nodes_color = (255, 255, 63)
+        self.lines_color = (255, 255, 255)
+        self.surfaces_color = (255, 255, 255)
+        self.elements_transparency = 0.8
+        self.set_render_theme("light")
 
     def _createConfigLogos(self):
         
@@ -82,40 +81,42 @@ class vtkRendererBase(ABC):
             self._renderer.AddViewProp(self._logo_mopt)
             self._logo_mopt.SetRenderer(self._renderer)
 
-    def changeBackgroundColor(self, color):
-        self.background_color = color
-
-        # I would preffer to use only two themes like
-        # we do inside Vibra.
-        # But this way is much more convenient and
-        # probably good enought
-        if self.background_color == (0,0,0):
+    def set_render_theme(self, theme):
+        self.render_theme = theme
+        if self.render_theme == "dark":
             self._renderer.GradientBackgroundOn()
             self._renderer.SetBackground(0.06, 0.08, 0.12)
-            self._renderer.SetBackground2(color)
-        elif self.background_color == (1,1,1):
+            self._renderer.SetBackground2(1,1,1)
+        elif self.render_theme == "light":
             self._renderer.GradientBackgroundOn()
             self._renderer.SetBackground(0.5, 0.5, 0.65)
-            self._renderer.SetBackground2(color)
-        else:
-            self._renderer.GradientBackgroundOff()
-            self._renderer.SetBackground(color)
+            self._renderer.SetBackground2(1,1,1)
+        self.update_logos_to_get_better_contrast()
 
-        self.changeLogosToGetBetterContrast()
+    def set_background_color(self, color):
+        self.background_color = color
+        self._renderer.GradientBackgroundOff()
+        self._renderer.SetBackground(color)
+        self.update_logos_to_get_better_contrast()
 
-    def changeLogosToGetBetterContrast(self):
-        if self.background_color == (0,0,0):
+    def update_logos_to_get_better_contrast(self):
+
+        if self.background_color == (0,0,0) or self.render_theme == "dark":
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_white.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_white.png'))
-        elif self.background_color == (0.25,0.25,0.25):
+
+        elif self.background_color == (0.25,0.25,0.25) or self.render_theme == "dark":
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_white.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_white.png'))
-        elif self.background_color == (0.7,0.7,0.7):
+
+        elif self.background_color == (0.7,0.7,0.7) or self.render_theme == "light":
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_black.png'))
-        elif self.background_color == (1,1,1):
+
+        elif self.background_color == (1,1,1) or self.render_theme == "light":
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_black.png'))
+
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
         

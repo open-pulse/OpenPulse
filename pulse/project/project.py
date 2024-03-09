@@ -177,7 +177,6 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
         self.load_analysis_file()
-        self.load_visibility_preferences()
         self.load_inertia_load_setup()
 
     def update_node_ids_in_file_after_remesh(self, dict_mapped_indexes, dict_non_mapped_indexes):
@@ -307,9 +306,6 @@ class Project:
             base_folders = os.listdir(self.file._imported_data_folder_path).copy()
             if len(base_folders) == 0:
                 rmtree(self.file._imported_data_folder_path)
-
-    def add_user_preferences_to_file(self, preferences):
-        self.file.add_user_preferences_to_file(preferences)
 
     def set_entity(self, tag):
         return Entity(tag)
@@ -630,9 +626,6 @@ class Project:
 
     def load_analysis_file(self):
         self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
-
-    def load_visibility_preferences(self):
-        self.preferences = self.file.load_visibility_preferences_file()
 
     def load_inertia_load_setup(self):
         gravity, stiffening_effect = self.file.load_inertia_load_setup()

@@ -204,7 +204,7 @@ class InputUi:
         self.processInput(PlotCrossSectionInput, self.project, self.opv)
 
     def mesh_setup_visibility(self):
-        self.processInput(RendererUserPreferencesInput, self.project, self.opv)
+        self.processInput(RendererUserPreferencesInput)
         
     def set_beam_xaxis_rotation(self):
         self.processInput(BeamXaxisRotationInput, self.project, self.opv)

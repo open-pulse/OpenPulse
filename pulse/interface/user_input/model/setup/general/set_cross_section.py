@@ -10,9 +10,7 @@ from pulse.interface.user_input.model.setup.general.cross_section_inputs import 
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import *
 
-import numpy as np
 import configparser
-from pathlib import Path
 import matplotlib.pyplot as plt
 
 window_title = "ERROR MESSAGE"

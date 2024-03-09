@@ -326,7 +326,7 @@ class AddStructuresWidget(QWidget):
         self.update_segment_information_text()
 
     def update_segment_information_text(self):
-        
+
         section_label = ""
         section_parameters = ""
         if self.cross_section_info:
