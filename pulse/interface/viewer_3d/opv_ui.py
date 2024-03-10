@@ -33,7 +33,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self._createAxes()        
 
     def _load_default_preferences(self):
-        self.background_color = None
+        self.background_color = "light"
         self.render_theme = "light"
         self.font_color = (0,0,0)
         self.nodes_color = (255, 255, 63)
@@ -59,7 +59,7 @@ class OPVUi(QVTKRenderWindowInteractor):
             if "render theme" in preferences.keys():
                 self.render_theme = preferences['render theme']
 
-            if "backgound color" in preferences.keys():
+            if "background color" in preferences.keys():
                 self.background_color = preferences['background color']
 
             if "font color" in preferences.keys():
@@ -86,14 +86,9 @@ class OPVUi(QVTKRenderWindowInteractor):
             if "reference scale" in preferences.keys():
                 self.show_reference_scale = preferences['reference scale']
 
-        if self.background_color is not None:
-            self.opvRenderer.set_background_color(self.background_color)
-            self.opvAnalysisRenderer.set_background_color(self.background_color)
-            self.opvGeometryRenderer.set_background_color(self.background_color)
-        else:
-            self.opvRenderer.set_render_theme(self.render_theme)
-            self.opvAnalysisRenderer.set_render_theme(self.render_theme)
-            self.opvGeometryRenderer.set_render_theme(self.render_theme)
+        self.opvRenderer.set_background_color(self.background_color)
+        self.opvAnalysisRenderer.set_background_color(self.background_color)
+        self.opvGeometryRenderer.set_background_color(self.background_color)
 
         self.opvRenderer.changeFontColor(self.font_color)
         self.opvAnalysisRenderer.changeFontColor(self.font_color)

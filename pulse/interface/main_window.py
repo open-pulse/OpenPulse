@@ -654,6 +654,7 @@ class MainWindow(QMainWindow):
         pass
 
     def load_user_preferences(self):
+        self.update_theme = False
         self.user_preferences = self.config.get_user_preferences()
         if "interface theme" in self.user_preferences:
             if self.user_preferences["interface theme"] == "dark":
@@ -663,6 +664,7 @@ class MainWindow(QMainWindow):
         else:
             self.action_set_light_theme_callback()
         self.opv_widget.set_user_interface_preferences(self.user_preferences)
+        self.update_theme = True
 
     def action_set_dark_theme_callback(self):
         self.update_themes_in_file(theme="dark")
@@ -679,7 +681,6 @@ class MainWindow(QMainWindow):
 
     def action_set_light_theme_callback(self):
         self.update_themes_in_file(theme="light")
-        # self.action_remove_themes_callback()
         if self.interface_theme in [None, "dark"]:
             self.interface_theme = "light"
             qdarktheme.setup_theme("light")
@@ -691,10 +692,12 @@ class MainWindow(QMainWindow):
             self.results_viewer_wigdet.results_viewer_items.set_theme("light")
 
     def update_themes_in_file(self, theme):
-        self.user_preferences = self.config.get_user_preferences()
-        self.user_preferences["interface theme"] = theme
-        self.user_preferences["render theme"] = theme
-        self.config.write_theme_in_file(theme)
+        if self.update_theme:
+            self.user_preferences = self.config.get_user_preferences()
+            self.user_preferences["interface theme"] = theme
+            self.user_preferences["background color"] = theme
+            self.config.write_theme_in_file(theme)
+            self.opv_widget.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
         project_path = self.file._project_path

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QFrame, QLineEdit, QPushButton, QRadioButton, QSlider, QTabWidget
+from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QSlider, QTabWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -6,7 +6,6 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
-from pulse.interface.viewer_3d.renders.opvRenderer import PlotFilter, SelectionFilter
 
 
 class RendererUserPreferencesInput(QDialog):
@@ -29,8 +28,6 @@ class RendererUserPreferencesInput(QDialog):
         self._load_logo_state()
         self._load_reference_scale_state()
         self._load_color_state()
-        # self.load_plot_state()
-        # self.load_selection_state()
         self.exec()
 
     def _load_icons(self):
@@ -54,7 +51,8 @@ class RendererUserPreferencesInput(QDialog):
         self.checkBox_OpenPulse_logo : QCheckBox
         self.checkBox_MOPT_logo : QCheckBox
         self.checkBox_reference_scale : QCheckBox
-        self.checkBox_background_color : QCheckBox
+        # QComboBox
+        self.comboBox_background_theme : QComboBox
         # QFrame
         self.frame_background_color : QFrame
         # QSlider
@@ -82,7 +80,7 @@ class RendererUserPreferencesInput(QDialog):
         self.tabWidget_main : QTabWidget
 
     def _create_connections(self):
-        self.checkBox_background_color.stateChanged.connect(self.update_background_color_controls_visibility)
+        self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
         self.pushButton_background_color.clicked.connect(self.update_background_color)
         self.pushButton_font_color.clicked.connect(self.update_font_color)
         self.pushButton_nodes_color.clicked.connect(self.update_nodes_color)
@@ -93,9 +91,13 @@ class RendererUserPreferencesInput(QDialog):
         self.update_slider_transparency()
 
     def update_background_color_controls_visibility(self):
-        _bool = self.checkBox_background_color.isChecked()
-        self.pushButton_background_color.setDisabled(not _bool)
-        self.lineEdit_background_color.setDisabled(not _bool)
+        index = self.comboBox_background_theme.currentIndex()
+        if index == 2:
+            _bool = False
+        else:
+            _bool = True
+            self.lineEdit_background_color.setStyleSheet("")
+        self.pushButton_background_color.setDisabled(_bool)
 
     def _load_reference_scale_state(self):
         self.checkBox_reference_scale.setChecked(self.opv.show_reference_scale)
@@ -109,12 +111,15 @@ class RendererUserPreferencesInput(QDialog):
         self.surfaces_color = self.opv.opvRenderer.surfaces_color
         self.elements_transparency = self.opv.opvRenderer.elements_transparency
 
-        if self.background_color is None:
-            self.checkBox_background_color.setChecked(False)
+        if self.background_color in ["light", "dark"]:
+            if self.background_color == "light":
+                self.comboBox_background_theme.setCurrentIndex(0)
+            elif self.background_color == "dark":
+                self.comboBox_background_theme.setCurrentIndex(1)
             self.pushButton_background_color.setDisabled(True)
             self.lineEdit_background_color.setDisabled(True)
         else:
-            self.checkBox_background_color.setChecked(True)
+            self.comboBox_background_theme.setCurrentIndex(2)
             self.pushButton_background_color.setDisabled(False)
             self.lineEdit_background_color.setDisabled(False)
             str_color = str(self.background_color)[1:-1]
@@ -137,9 +142,20 @@ class RendererUserPreferencesInput(QDialog):
         self.checkBox_MOPT_logo.setChecked(self.opv.add_MOPT_logo)
 
     def update_background_color_state(self):
+        index = self.comboBox_background_theme.currentIndex()
+        if index == 0:
+            self.background_color = "light"
+        elif index == 1:
+            self.background_color = "dark"
+        elif index == 2:
+            if self.background_color in ["light", "dark"]:
+                if self.update_background_color():
+                    return
+
         self.opv.background_color = self.background_color
         self.opv.opvRenderer.set_background_color(self.background_color)
         self.opv.opvAnalysisRenderer.set_background_color(self.background_color)
+        self.opv.opvGeometryRenderer.set_background_color(self.background_color)
 
     def update_font_color_state(self):
         self.opv.font_color = self.font_color
@@ -222,20 +238,13 @@ class RendererUserPreferencesInput(QDialog):
     def confirm_and_update_user_preferences(self):
 
         self.update_logo_state()
-
-        if self.checkBox_background_color.isChecked():
-            if self.background_color is None:
-                if self.update_background_color():
-                    return
-                self.update_background_color_state()
-
+        self.update_background_color_state()
         self.update_font_color_state()
         self.update_reference_scale_state()
         self.update_nodes_lines_elements_settings()
         self.update_transparency_value()
 
         preferences = { 'interface theme' : self.main_window.interface_theme,
-                        'render theme' : self.opv.render_theme,
                         'background color' : str(self.opv.background_color),
                         'font color' : str(self.opv.font_color),
                         'nodes color' : str(self.opv.opvRenderer.nodes_color),
@@ -247,10 +256,10 @@ class RendererUserPreferencesInput(QDialog):
                         'Reference scale' : str(int(self.opv.show_reference_scale)) }
         
         self.config.write_user_preferences_in_file(preferences)
-        # self.project.elements_transparency = self.transparency
         
         self.update_renders()
-        self.close()
+        self._initialize()
+        # self.close()
 
     def update_renders(self):
 

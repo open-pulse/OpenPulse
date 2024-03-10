@@ -124,10 +124,10 @@ class Config:
 
             if config.has_section('User preferences'):
                 config["User preferences"]["interface theme"] = theme
-                config["User preferences"]["render theme"] = theme
+                config["User preferences"]["background color"] = theme
             else:
                 config["User preferences"] = {"interface theme" : theme,
-                                              "render theme" : theme}
+                                              "background color" : theme}
 
         except:
             return
@@ -181,14 +181,11 @@ class Config:
                 if "interface theme" in section.keys():
                     user_preferences["interface theme"] = section["interface theme"]
 
-                if "render theme" in section.keys():
-                    user_preferences["render theme"] = section["render theme"]
-
                 if "background color" in section.keys():
-                    if section["background color"] == "None":
-                        user_preferences["background color"] = None
+                    if section["background color"] in ["light", "dark"]:
+                        user_preferences["background color"] = section["background color"]
                     else:
-                        background_color = section["background color"][1:-1].split(",") 
+                        background_color = section["background color"][1:-1].split(",")
                         user_preferences["background color"] = tuple([float(val) for val in background_color])
 
                 if "font color" in section.keys():
