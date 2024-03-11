@@ -27,10 +27,10 @@ jobs:
           draft: false
           prerelease: false
 
-      # - name: download artifacts
-      #   uses: actions/download-artifact@v1
-      #   with:
-      #     name: uploads
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        # with:
+        #   name: uploads
 
       - name: upload linux
         id: upload-linux
