@@ -225,7 +225,14 @@ class AddStructuresWidget(QWidget):
         else:
             radius = self.bending_factor * editor.default_diameter
 
-        self.geometry_widget.stage_pipe_deltas(dx, dy, dz, radius)
+        editor.dismiss()
+        editor.clear_selection()
+
+        if self.cross_section_info["section_type_label"] == "Pipe section":
+            editor.add_bent_pipe((dx,dy,dz), radius)
+        else:
+            editor.add_pipe((dx,dy,dz))  # actually it is a beam =)
+        self.geometry_widget.update_plot(reset_camera=False)
 
     def _disable_add_segment_button(self, _bool=True):
         self.pushButton_add_segment.setDisabled(_bool)
@@ -318,6 +325,7 @@ class AddStructuresWidget(QWidget):
         self.cross_section_widget.setVisible(False)
         self._update_permissions()
         self.update_segment_information_text()
+        self.coords_modified_callback()
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
