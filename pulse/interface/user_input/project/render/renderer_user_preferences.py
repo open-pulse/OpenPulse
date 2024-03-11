@@ -49,7 +49,6 @@ class RendererUserPreferencesInput(QDialog):
     def _define_qt_variables(self):
         # QCheckBox
         self.checkBox_OpenPulse_logo : QCheckBox
-        self.checkBox_MOPT_logo : QCheckBox
         self.checkBox_reference_scale : QCheckBox
         # QComboBox
         self.comboBox_background_theme : QComboBox
@@ -70,12 +69,8 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_nodes_color : QPushButton
         self.pushButton_lines_color : QPushButton
         self.pushButton_surfaces_color : QPushButton
+        self.pushButton_reset_to_default : QPushButton
         self.pushButton_update_settings : QPushButton
-        # QRadioButton
-        self.radioButton_black_color : QRadioButton
-        self.radioButton_dark_gray_color : QRadioButton
-        self.radioButton_light_gray_color : QRadioButton
-        self.radioButton_white_color : QRadioButton
         # QTabWidget
         self.tabWidget_main : QTabWidget
 
@@ -86,8 +81,9 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_nodes_color.clicked.connect(self.update_nodes_color)
         self.pushButton_lines_color.clicked.connect(self.update_lines_color)
         self.pushButton_surfaces_color.clicked.connect(self.update_surfaces_color)
-        self.slider_transparency.valueChanged.connect(self.update_transparency_value)
+        self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
+        self.slider_transparency.valueChanged.connect(self.update_transparency_value)
         self.update_slider_transparency()
 
     def update_background_color_controls_visibility(self):
@@ -139,7 +135,6 @@ class RendererUserPreferencesInput(QDialog):
     
     def _load_logo_state(self):
         self.checkBox_OpenPulse_logo.setChecked(self.opv.add_OpenPulse_logo)
-        self.checkBox_MOPT_logo.setChecked(self.opv.add_MOPT_logo)
 
     def update_background_color_state(self):
         index = self.comboBox_background_theme.currentIndex()
@@ -159,10 +154,8 @@ class RendererUserPreferencesInput(QDialog):
 
     def update_font_color_state(self):
         self.opv.font_color = self.font_color
-        self.opv.opvRenderer.changeFontColor(self.font_color)
-        self.opv.opvAnalysisRenderer.changeFontColor(self.font_color)
-        self.opv.opvRenderer._updateFontColor(self.font_color)
-        self.opv.opvAnalysisRenderer._updateFontColor(self.font_color)
+        self.opv.opvRenderer.change_font_color(self.font_color)
+        self.opv.opvAnalysisRenderer.change_font_color(self.font_color)
     
     def update_reference_scale_state(self):
         self.opv.show_reference_scale = self.checkBox_reference_scale.isChecked()
@@ -171,9 +164,8 @@ class RendererUserPreferencesInput(QDialog):
             
     def update_logo_state(self):     
         self.opv.add_OpenPulse_logo = self.checkBox_OpenPulse_logo.isChecked()
-        self.opv.add_MOPT_logo = self.checkBox_MOPT_logo.isChecked()
-        self.opv.opvRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
-        self.opv.opvAnalysisRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self.opv.opvRenderer.add_logos(OpenPulse=self.opv.add_OpenPulse_logo)
+        self.opv.opvAnalysisRenderer.add_logos(OpenPulse=self.opv.add_OpenPulse_logo)
 
     def update_transparency_value(self):
         self.elements_transparency = (self.slider_transparency.value()/100)
@@ -252,7 +244,6 @@ class RendererUserPreferencesInput(QDialog):
                         'surfaces color' : str(self.opv.opvRenderer.surfaces_color),
                         'transparency' : str(self.opv.opvRenderer.elements_transparency),
                         'OpenPulse logo' : str(int(self.opv.add_OpenPulse_logo)),
-                        'mopt logo' : str(int(self.opv.add_MOPT_logo)),
                         'Reference scale' : str(int(self.opv.show_reference_scale)) }
         
         self.config.write_user_preferences_in_file(preferences)
@@ -273,6 +264,76 @@ class RendererUserPreferencesInput(QDialog):
         if final_setup != self.cache_setup:
             self.opv.updateRendererMesh()
             self.main_window.update_plot_mesh()
+
+    def reset_to_default(self):
+        self.reset_logo_state()
+        self.reset_background_color_state()
+        self.reset_font_color_state()
+        self.reset_reference_scale_state()
+        self.reset_nodes_lines_elements_settings()
+        self.reset_transparency_value()
+
+        preferences = { 'interface theme' : self.main_window.interface_theme,
+                        'background color' : str(self.opv.background_color),
+                        'font color' : str(self.opv.font_color),
+                        'nodes color' : str(self.opv.opvRenderer.nodes_color),
+                        'lines color' : str(self.opv.opvRenderer.lines_color),
+                        'surfaces color' : str(self.opv.opvRenderer.surfaces_color),
+                        'transparency' : str(self.opv.opvRenderer.elements_transparency),
+                        'OpenPulse logo' : str(int(self.opv.add_OpenPulse_logo)),
+                        'Reference scale' : str(int(self.opv.show_reference_scale)) }
+        
+        self.config.write_user_preferences_in_file(preferences)
+        
+        self.update_renders()
+        self._initialize()
+
+    def reset_logo_state(self):
+        self.checkBox_OpenPulse_logo.setChecked(True)
+        self.update_logo_state()
+
+    def reset_background_color_state(self):
+        if self.main_window.interface_theme == "light":
+            self.comboBox_background_theme.setCurrentIndex(0)
+        else:
+            self.comboBox_background_theme.setCurrentIndex(1)
+        self.update_background_color_state()
+
+    def reset_font_color_state(self):
+        if self.main_window.interface_theme == "light":
+            self.font_color = (0,0,0)
+        else:
+            self.font_color = (255,255,255)
+        self.update_font_color_state()
+
+    def reset_reference_scale_state(self):
+        self.checkBox_reference_scale.setChecked(True)
+        self.update_reference_scale_state()
+
+    def reset_nodes_lines_elements_settings(self):
+
+        self.nodes_color = (255,255,63)
+        self.lines_color = (255,255,255)
+        self.surfaces_color = (255,255,255)
+        self.elements_transparency = 0.8
+
+        str_color = str(self.font_color)[1:-1]
+        self.lineEdit_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+
+        str_color = str(self.nodes_color)[1:-1]
+        self.lineEdit_nodes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+
+        str_color = str(self.lines_color)[1:-1]
+        self.lineEdit_lines_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+
+        str_color = str(self.surfaces_color)[1:-1]
+        self.lineEdit_surfaces_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+
+        self.update_nodes_lines_elements_settings()
+
+    def reset_transparency_value(self):
+        self.slider_transparency.setValue(80)
+        self.update_transparency_value()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

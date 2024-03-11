@@ -296,13 +296,15 @@ class AddStructuresWidget(QWidget):
         is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
 
         if is_pipe and is_constant_section:
-            self.cross_section_widget.get_constant_pipe_parameters()
+            if self.cross_section_widget.get_constant_pipe_parameters():
+                return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter = self.cross_section_widget.section_parameters[0]
             self.geometry_widget.update_default_diameter(diameter)
 
         elif is_pipe and not is_constant_section:
-            self.cross_section_widget.get_variable_section_pipe_parameters()
+            if  self.cross_section_widget.get_variable_section_pipe_parameters():
+                return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter_initial = self.cross_section_widget.variable_parameters[0]
             diameter_final = self.cross_section_widget.variable_parameters[6]
