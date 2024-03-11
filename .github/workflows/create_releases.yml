@@ -39,8 +39,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./openpulse-linux/OpenPulse
-          asset_name: OpenPulse
+          asset_path: ./openpulse-linux/
+          asset_name: openpulse-linux
           asset_content_type: application/zip
 
       - name: upload windows
@@ -50,8 +50,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./openpulse-windows/OpenPulse.exe
-          asset_name: OpenPulse.exe
+          asset_path: ./openpulse-windows/
+          asset_name: openpulse-windows
           asset_content_type: application/zip                        
 
   build-windows:
