@@ -1,24 +1,23 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QRadioButton, QSlider, QTabWidget, QToolButton, QWidget
+from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QSlider, QTabWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
-from pulse.interface.viewer_3d.renders.opvRenderer import PlotFilter, SelectionFilter
-
-from pathlib import Path
 
 
 class RendererUserPreferencesInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "project/render/renderer_user_preferences.ui", self)
-        
-        self.project = project
-        self.opv = opv
+
+        self.main_window = app().main_window
+        self.config = app().config
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
         self._load_icons()
@@ -26,16 +25,13 @@ class RendererUserPreferencesInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self.load_background_color_state()
-        self.load_logo_state()
-        self.load_reference_scale_state()
-        self.load_nodes_lines_elements_color_state()
-        # self.load_plot_state()
-        # self.load_selection_state()
+        self._load_logo_state()
+        self._load_reference_scale_state()
+        self._load_color_state()
         self.exec()
 
     def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -43,196 +39,94 @@ class RendererUserPreferencesInput(QDialog):
         self.setWindowIcon(self.icon)
 
     def _initialize(self):
-        self.cache_setup = [self.opv.opvRenderer.nodes_color,
+        self.cache_setup = [self.opv.background_color,
+                            self.opv.font_color,
+                            self.opv.opvRenderer.nodes_color,
                             self.opv.opvRenderer.lines_color,
                             self.opv.opvRenderer.surfaces_color,
                             self.opv.opvRenderer.elements_transparency]
 
     def _define_qt_variables(self):
-        """
-        """
-        # checkBox
-        self.checkBox_nodes_viewer = self.findChild(QCheckBox, 'checkBox_nodes_viewer')
-        self.checkBox_elements_viewer = self.findChild(QCheckBox, 'checkBox_elements_viewer')
-        self.checkBox_acoustic_symbols_viewer = self.findChild(QCheckBox, 'checkBox_acoustic_symbols_viewer')
-        self.checkBox_structural_symbols_viewer = self.findChild(QCheckBox, 'checkBox_structural_symbols_viewer')
-        self.checkBox_nodes_selector = self.findChild(QCheckBox, 'checkBox_nodes_selector')
-        self.checkBox_elements_selector = self.findChild(QCheckBox, 'checkBox_elements_selector')
-        self.checkBox_lines_selector = self.findChild(QCheckBox, 'checkBox_lines_selector')
-        self.checkBox_OpenPulse_logo = self.findChild(QCheckBox, 'checkBox_OpenPulse_logo')
-        self.checkBox_MOPT_logo = self.findChild(QCheckBox, 'checkBox_MOPT_logo')
-        self.checkBox_reference_scale = self.findChild(QCheckBox, 'checkBox_reference_scale')
-        # horizontalSlider
-        self.horizontalSlider = self.findChild(QSlider, 'horizontalSlider')
-        # lineEdit
-        self.lineEdit_nodes_color = self.findChild(QLineEdit, 'lineEdit_nodes_color')
-        self.lineEdit_lines_color = self.findChild(QLineEdit, 'lineEdit_lines_color')
-        self.lineEdit_surfaces_color = self.findChild(QLineEdit, 'lineEdit_surfaces_color')
-        self.lineEdit_elements_transparency = self.findChild(QLineEdit, 'lineEdit_elements_transparency')
-        # pushButton
-        self.pushButton_nodes_colorPicker = self.findChild(QPushButton, 'pushButton_pickColor_nodes')
-        self.pushButton_lines_colorPicker = self.findChild(QPushButton, 'pushButton_pickColor_lines')
-        self.pushButton_elements_colorPicker = self.findChild(QPushButton, 'pushButton_pickColor_surfaces')
-        # radioButton
-        self.radioButton_black_color = self.findChild(QRadioButton, 'radioButton_black_color')
-        self.radioButton_dark_gray_color = self.findChild(QRadioButton, 'radioButton_dark_gray_color')
-        self.radioButton_light_gray_color = self.findChild(QRadioButton, 'radioButton_light_gray_color')
-        self.radioButton_white_color = self.findChild(QRadioButton, 'radioButton_white_color')
-        # tabWidget
-        self.tabWidget_main = self.findChild(QTabWidget, 'tabWidget_main')
-        self.tab_hide_show = self.tabWidget_main.findChild(QWidget, 'tab_hide_show')
-        self.tab_user_preferences = self.tabWidget_main.findChild(QWidget, 'tab_user_preferences')
-        self.tabWidget_main.removeTab(0)
-        # toolButton
-        self.toolButton_update_settings = self.findChild(QToolButton, 'toolButton_update_settings')
-        
+        # QCheckBox
+        self.checkBox_OpenPulse_logo : QCheckBox
+        self.checkBox_MOPT_logo : QCheckBox
+        self.checkBox_reference_scale : QCheckBox
+        # QComboBox
+        self.comboBox_background_theme : QComboBox
+        # QFrame
+        self.frame_background_color : QFrame
+        # QSlider
+        self.slider_transparency : QSlider
+        # QLineEdit
+        self.lineEdit_background_color : QLineEdit
+        self.lineEdit_font_color : QLineEdit
+        self.lineEdit_nodes_color : QLineEdit
+        self.lineEdit_lines_color : QLineEdit
+        self.lineEdit_surfaces_color : QLineEdit
+        self.lineEdit_elements_transparency : QLineEdit
+        # QPushButton
+        self.pushButton_background_color : QPushButton
+        self.pushButton_font_color : QPushButton
+        self.pushButton_nodes_color : QPushButton
+        self.pushButton_lines_color : QPushButton
+        self.pushButton_surfaces_color : QPushButton
+        self.pushButton_update_settings : QPushButton
+        # QRadioButton
+        self.radioButton_black_color : QRadioButton
+        self.radioButton_dark_gray_color : QRadioButton
+        self.radioButton_light_gray_color : QRadioButton
+        self.radioButton_white_color : QRadioButton
+        # QTabWidget
+        self.tabWidget_main : QTabWidget
+
     def _create_connections(self):
-        """
-        """
-        self.update_slider_tick()
-        self.horizontalSlider.valueChanged.connect(self.update_transparency_value)
-        self.pushButton_nodes_colorPicker.clicked.connect(self.update_nodes_color)
-        self.pushButton_lines_colorPicker.clicked.connect(self.update_lines_color)
-        self.pushButton_elements_colorPicker.clicked.connect(self.update_surfaces_color)
-        self.toolButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
-    
+        self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
+        self.pushButton_background_color.clicked.connect(self.update_background_color)
+        self.pushButton_font_color.clicked.connect(self.update_font_color)
+        self.pushButton_nodes_color.clicked.connect(self.update_nodes_color)
+        self.pushButton_lines_color.clicked.connect(self.update_lines_color)
+        self.pushButton_surfaces_color.clicked.connect(self.update_surfaces_color)
+        self.slider_transparency.valueChanged.connect(self.update_transparency_value)
+        self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
+        self.update_slider_transparency()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_and_update_user_preferences()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+    def update_background_color_controls_visibility(self):
+        index = self.comboBox_background_theme.currentIndex()
+        if index == 2:
+            _bool = False
+        else:
+            _bool = True
+            self.lineEdit_background_color.setStyleSheet("")
+        self.pushButton_background_color.setDisabled(_bool)
 
-    def load_plot_state(self):
-        '''
-        Check over the renderer wich components are being plotted to update the checkbox states.
-        '''
-
-        plot_filter = self.opv.opvRenderer._plotFilter
-        self.checkBox_nodes_viewer.setChecked(plot_filter.nodes)
-        self.checkBox_elements_viewer.setChecked(plot_filter.tubes)
-        self.checkBox_acoustic_symbols_viewer.setChecked(plot_filter.acoustic_symbols)
-        self.checkBox_structural_symbols_viewer.setChecked(plot_filter.structural_symbols)
-
-    def load_selection_state(self):
-        '''
-        Check over the renderer wich components are being selected to update the checkbox states.
-        '''
-
-        selection_filter = self.opv.opvRenderer._selectionFilter
-        self.checkBox_nodes_selector.setChecked(selection_filter.nodes)
-        self.checkBox_elements_selector.setChecked(selection_filter.elements)
-        self.checkBox_lines_selector.setChecked(selection_filter.entities)
-    
-    def update_selection_state(self):
-        '''
-        Reads the users options and updates selection behavior.
-        '''
-
-        plot_nodes = self.checkBox_nodes_viewer.isChecked()
-        select_nodes = self.checkBox_nodes_selector.isChecked()
-        select_elements = self.checkBox_elements_selector.isChecked()
-        select_entities = self.checkBox_lines_selector.isChecked()
-
-        selection_filter = SelectionFilter(
-            nodes = plot_nodes and select_nodes,
-            elements = select_elements,
-            entities = select_entities,
-        )
-
-        self.opv.opvRenderer.setSelectionFilter(selection_filter)
-    
-    def update_plot_state(self):
-        '''
-        Reads the users options and updates the plot.
-        '''
-
-        plot_nodes = self.checkBox_nodes_viewer.isChecked()
-        plot_tubes = self.checkBox_elements_viewer.isChecked()
-        plot_acoustic = self.checkBox_acoustic_symbols_viewer.isChecked()
-        plot_structural = self.checkBox_structural_symbols_viewer.isChecked()
-
-        plot_filter = PlotFilter(
-            lines = True,
-            nodes = plot_nodes,
-            tubes = plot_tubes,
-            acoustic_symbols = plot_acoustic,
-            structural_symbols = plot_structural,
-            transparent = plot_nodes or plot_acoustic or plot_structural
-        )
-
-        self.opv.opvRenderer.setPlotFilter(plot_filter)
-
-    def load_background_color_state(self):
-        """
-        """
-        if self.opv.background_color == (0,0,0):
-            self.radioButton_black_color.setChecked(True)
-        elif self.opv.background_color == (0.25,0.25,0.25):
-            self.radioButton_dark_gray_color.setChecked(True)
-        elif self.opv.background_color == (0.7,0.7,0.7):
-            self.radioButton_light_gray_color.setChecked(True)
-        elif self.opv.background_color == (1,1,1):
-            self.radioButton_white_color.setChecked(True)
-
-    def update_background_color_state(self):
-        """
-        """
-        if self.radioButton_black_color.isChecked():
-            color = (0,0,0)
-            font_color = (1,1,1)
-        elif self.radioButton_dark_gray_color.isChecked():
-            color = (0.25,0.25,0.25)
-            font_color = (1,1,1)
-        elif self.radioButton_light_gray_color.isChecked():
-            color = (0.7,0.7,0.7)
-            font_color = (0,0,0)
-        elif self.radioButton_white_color.isChecked():
-            color = (1,1,1)
-            font_color = (0,0,0)
-        self.opv.background_color = color
-        self.opv.font_color = font_color
-
-        self.opv.opvRenderer.changeBackgroundColor(color)
-        self.opv.opvAnalysisRenderer.changeBackgroundColor(color)
-        self.opv.opvRenderer.changeFontColor(font_color)
-        self.opv.opvAnalysisRenderer.changeFontColor(font_color)
-        self.opv.opvRenderer._updateFontColor(font_color)
-        self.opv.opvAnalysisRenderer._updateFontColor(font_color)
-    
-    def load_reference_scale_state(self):
-        """
-        """
+    def _load_reference_scale_state(self):
         self.checkBox_reference_scale.setChecked(self.opv.show_reference_scale)
 
-    def update_reference_scale_state(self):
-        """
-        """
-        self.opv.show_reference_scale = self.checkBox_reference_scale.isChecked()
-        self.opv.opvRenderer._createScaleBar()
-        self.opv.opvAnalysisRenderer._createScaleBar()
+    def _load_color_state(self):
 
-    def load_logo_state(self):
-        """
-        """
-        self.checkBox_OpenPulse_logo.setChecked(self.opv.add_OpenPulse_logo)
-        self.checkBox_MOPT_logo.setChecked(self.opv.add_MOPT_logo)
-            
-    def update_logo_state(self):
-        """
-        """       
-        self.opv.add_OpenPulse_logo = self.checkBox_OpenPulse_logo.isChecked()
-        self.opv.add_MOPT_logo = self.checkBox_MOPT_logo.isChecked()
-        self.opv.opvRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
-        self.opv.opvAnalysisRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
-
-    def load_nodes_lines_elements_color_state(self):
-        """
-        """
+        self.background_color = self.opv.background_color
+        self.font_color = self.opv.font_color
         self.nodes_color = self.opv.opvRenderer.nodes_color
         self.lines_color = self.opv.opvRenderer.lines_color
         self.surfaces_color = self.opv.opvRenderer.surfaces_color
         self.elements_transparency = self.opv.opvRenderer.elements_transparency
+
+        if self.background_color in ["light", "dark"]:
+            if self.background_color == "light":
+                self.comboBox_background_theme.setCurrentIndex(0)
+            elif self.background_color == "dark":
+                self.comboBox_background_theme.setCurrentIndex(1)
+            self.pushButton_background_color.setDisabled(True)
+            self.lineEdit_background_color.setDisabled(True)
+        else:
+            self.comboBox_background_theme.setCurrentIndex(2)
+            self.pushButton_background_color.setDisabled(False)
+            self.lineEdit_background_color.setDisabled(False)
+            str_color = str(self.background_color)[1:-1]
+            self.lineEdit_background_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+
+        str_color = str(self.font_color)[1:-1]
+        self.lineEdit_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
         str_color = str(self.nodes_color)[1:-1]
         self.lineEdit_nodes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
@@ -242,35 +136,83 @@ class RendererUserPreferencesInput(QDialog):
 
         str_color = str(self.surfaces_color)[1:-1]
         self.lineEdit_surfaces_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+    
+    def _load_logo_state(self):
+        self.checkBox_OpenPulse_logo.setChecked(self.opv.add_OpenPulse_logo)
+        self.checkBox_MOPT_logo.setChecked(self.opv.add_MOPT_logo)
+
+    def update_background_color_state(self):
+        index = self.comboBox_background_theme.currentIndex()
+        if index == 0:
+            self.background_color = "light"
+        elif index == 1:
+            self.background_color = "dark"
+        elif index == 2:
+            if self.background_color in ["light", "dark"]:
+                if self.update_background_color():
+                    return
+
+        self.opv.background_color = self.background_color
+        self.opv.opvRenderer.set_background_color(self.background_color)
+        self.opv.opvAnalysisRenderer.set_background_color(self.background_color)
+        self.opv.opvGeometryRenderer.set_background_color(self.background_color)
+
+    def update_font_color_state(self):
+        self.opv.font_color = self.font_color
+        self.opv.opvRenderer.changeFontColor(self.font_color)
+        self.opv.opvAnalysisRenderer.changeFontColor(self.font_color)
+        self.opv.opvRenderer._updateFontColor(self.font_color)
+        self.opv.opvAnalysisRenderer._updateFontColor(self.font_color)
+    
+    def update_reference_scale_state(self):
+        self.opv.show_reference_scale = self.checkBox_reference_scale.isChecked()
+        self.opv.opvRenderer._createScaleBar()
+        self.opv.opvAnalysisRenderer._createScaleBar()
+            
+    def update_logo_state(self):     
+        self.opv.add_OpenPulse_logo = self.checkBox_OpenPulse_logo.isChecked()
+        self.opv.add_MOPT_logo = self.checkBox_MOPT_logo.isChecked()
+        self.opv.opvRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self.opv.opvAnalysisRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
     def update_transparency_value(self):
-        """
-        """
-        self.elements_transparency = (self.horizontalSlider.value()/100)
+        self.elements_transparency = (self.slider_transparency.value()/100)
         self.lineEdit_elements_transparency.setText(str(self.elements_transparency))
 
-    def update_slider_tick(self):
-        """
-        """
+    def update_slider_transparency(self):
         value = self.opv.opvRenderer.elements_transparency
-        self.horizontalSlider.setValue(int(100*value))
+        self.slider_transparency.setValue(int(100*value))
         self.lineEdit_elements_transparency.setText(str(value))
 
+    def update_background_color(self):
+        read = PickColorInput(title="Pick the background color")
+        if read.complete:
+            self.background_color = tuple(read.color)
+            str_color = str(self.background_color)[1:-1]
+            self.lineEdit_background_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+            return False
+        return True
+
+    def update_font_color(self):
+        read = PickColorInput(title="Pick the font color")
+        if read.complete:
+            self.font_color = tuple(read.color)
+            str_color = str(self.font_color)[1:-1]
+            self.lineEdit_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+        else:
+            return
+
     def update_nodes_color(self):
-        """
-        """
-        read = PickColorInput()
+        read = PickColorInput(title="Pick the nodes color")
         if read.complete:
             self.nodes_color = tuple(read.color)
             str_color = str(self.nodes_color)[1:-1]
             self.lineEdit_nodes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
         else:
-            return        
+            return 
         
     def update_lines_color(self):
-        """
-        """
-        read = PickColorInput()
+        read = PickColorInput(title="Pick the lines color")
         if read.complete:
             self.lines_color = tuple(read.color)
             str_color = str(self.lines_color)[1:-1]
@@ -279,9 +221,7 @@ class RendererUserPreferencesInput(QDialog):
             return
 
     def update_surfaces_color(self):
-        """
-        """
-        read = PickColorInput()
+        read = PickColorInput(title="Pick the surfaces color")
         if read.complete:
             self.surfaces_color = tuple(read.color)
             str_color = str(self.surfaces_color)[1:-1]
@@ -290,53 +230,52 @@ class RendererUserPreferencesInput(QDialog):
             return        
 
     def update_nodes_lines_elements_settings(self):
-        """
-        """
         self.opv.opvRenderer.changeNodesColor(self.nodes_color)
         self.opv.opvRenderer.changeLinesColor(self.lines_color)
         self.opv.opvRenderer.changeSurfacesColor(self.surfaces_color)
         self.opv.opvRenderer.changeElementsTransparency(self.elements_transparency)
 
     def confirm_and_update_user_preferences(self):
-        """
-        """
-        self.update_plot_state()
-        self.update_selection_state()
+
         self.update_logo_state()
         self.update_background_color_state()
+        self.update_font_color_state()
         self.update_reference_scale_state()
         self.update_nodes_lines_elements_settings()
         self.update_transparency_value()
 
-        preferences = { 'background color' : self.opv.background_color,
-                        'font color' : self.opv.font_color,
-                        'nodes color' : self.opv.opvRenderer.nodes_color,
-                        'lines color' : self.opv.opvRenderer.lines_color,
-                        'surfaces color' : self.opv.opvRenderer.surfaces_color,
-                        'transparency' : self.opv.opvRenderer.elements_transparency,
-                        'OpenPulse logo' : int(self.opv.add_OpenPulse_logo),
-                        'mopt logo' : int(self.opv.add_MOPT_logo),
-                        'Reference scale' : int(self.opv.show_reference_scale) }
+        preferences = { 'interface theme' : self.main_window.interface_theme,
+                        'background color' : str(self.opv.background_color),
+                        'font color' : str(self.opv.font_color),
+                        'nodes color' : str(self.opv.opvRenderer.nodes_color),
+                        'lines color' : str(self.opv.opvRenderer.lines_color),
+                        'surfaces color' : str(self.opv.opvRenderer.surfaces_color),
+                        'transparency' : str(self.opv.opvRenderer.elements_transparency),
+                        'OpenPulse logo' : str(int(self.opv.add_OpenPulse_logo)),
+                        'mopt logo' : str(int(self.opv.add_MOPT_logo)),
+                        'Reference scale' : str(int(self.opv.show_reference_scale)) }
         
-        self.project.add_user_preferences_to_file(preferences)
-        # self.project.elements_transparency = self.transparency
+        self.config.write_user_preferences_in_file(preferences)
         
         self.update_renders()
-        self.close()
+        self._initialize()
+        # self.close()
 
     def update_renders(self):
-        """
-        """
-        final_setup = [ self.opv.opvRenderer.nodes_color,
+
+        final_setup = [ self.opv.background_color,
+                        self.opv.font_color,
+                        self.opv.opvRenderer.nodes_color,
                         self.opv.opvRenderer.lines_color,
                         self.opv.opvRenderer.surfaces_color,
-                        self.opv.opvRenderer.elements_transparency]
+                        self.opv.opvRenderer.elements_transparency ]
 
         if final_setup != self.cache_setup:
             self.opv.updateRendererMesh()
-            if self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
-            elif self.opv.change_plot_to_entities:
-                self.opv.plot_entities()
-            elif self.opv.change_plot_to_entities_with_cross_section:
-                self.opv.plot_entities_with_cross_section()
+            self.main_window.update_plot_mesh()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.confirm_and_update_user_preferences()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

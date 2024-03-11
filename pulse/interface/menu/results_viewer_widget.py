@@ -98,7 +98,7 @@ class ResultsViewerWidget(QWidget):
     def add_structural_frequency_response_widget(self):
         widget = self.main_window.input_widget.plot_structural_frequency_response()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_stress_field_widget(self):
         widget = self.main_window.input_widget.plot_stress_field()
@@ -107,12 +107,12 @@ class ResultsViewerWidget(QWidget):
     def add_stress_frequency_response_widget(self):
         widget = self.main_window.input_widget.plot_stress_frequency_response()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_reaction_frequency_response_widget(self):
         widget = self.main_window.input_widget.plot_reaction_frequency_response()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_acoustic_mode_shape_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_mode_shapes()
@@ -125,32 +125,32 @@ class ResultsViewerWidget(QWidget):
     def add_acoustic_frequency_response_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_frequency_response()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_acoustic_frequency_response_function_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_frequency_response_function()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_acoustic_delta_pressures_widget(self):
         widget = self.main_window.input_widget.plot_acoustic_delta_pressures()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_transmission_loss_widget(self):
         widget = self.main_window.input_widget.plot_transmission_loss()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_perforated_plate_convergence_widget(self):
         widget = self.main_window.input_widget.plot_perforated_plate_convergence_data()
         self.add_widget(widget)
-        # self.main_window.plot_mesh()
+        # self.main_window.update_plot_mesh()
 
     def add_pulsation_criteria_widget(self):
         widget = self.main_window.input_widget.check_api618_pulsation_criteria()
         self.add_widget(widget)
-        self.main_window.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_widget(self, widget, animation_widget=False):
         self.remove_widget()

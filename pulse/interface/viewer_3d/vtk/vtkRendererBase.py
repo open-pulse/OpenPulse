@@ -16,16 +16,10 @@ class vtkRendererBase(ABC):
         self._textActor = vtk.vtkTextActor()
         self.textActorStress = vtk.vtkTextActor()
         self.textProperty = vtk.vtkTextProperty()
-
-        self.nodes_color = (255, 255, 63)
-        self.lines_color = (255, 255, 255)
-        self.surfaces_color = (255, 255, 255)
-        self.elements_transparency = 0.8
-
-        default_background_color = (1,1,1)
-        self.background_color = default_background_color
         self._renderer = vtk.vtkRenderer()
-        self.changeBackgroundColor(default_background_color)
+
+        self._load_default_preferences()
+        self._createConfigLogos()   
 
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
@@ -36,11 +30,16 @@ class vtkRendererBase(ABC):
         self.textProperty.SetFontSize(17)
         self.textProperty.SetColor((0,0,0))
 
-        self.textProperty.BoldOn()
+        # self.textProperty.BoldOn()
         # self.textProperty.SetItalic(1)
 
-        self.changeLogosToGetBetterContrast()
-        self._createConfigLogos()        
+    def _load_default_preferences(self):
+        self.background_color = "light"
+        self.nodes_color = (255, 255, 63)
+        self.lines_color = (255, 255, 255)
+        self.surfaces_color = (255, 255, 255)
+        self.elements_transparency = 0.8
+        self.set_background_color("light")
 
     def _createConfigLogos(self):
         
@@ -82,40 +81,39 @@ class vtkRendererBase(ABC):
             self._renderer.AddViewProp(self._logo_mopt)
             self._logo_mopt.SetRenderer(self._renderer)
 
-    def changeBackgroundColor(self, color):
-        self.background_color = color
-
-        # I would preffer to use only two themes like
-        # we do inside Vibra.
-        # But this way is much more convenient and
-        # probably good enought
-        if self.background_color == (0,0,0):
+    def set_background_color(self, color):
+        if color == "dark":
             self._renderer.GradientBackgroundOn()
             self._renderer.SetBackground(0.06, 0.08, 0.12)
-            self._renderer.SetBackground2(color)
-        elif self.background_color == (1,1,1):
+            self._renderer.SetBackground2(1,1,1)
+        elif color == "light":
             self._renderer.GradientBackgroundOn()
             self._renderer.SetBackground(0.5, 0.5, 0.65)
-            self._renderer.SetBackground2(color)
+            self._renderer.SetBackground2(1,1,1)
         else:
+            self.background_color = [value/255 for value in color]
             self._renderer.GradientBackgroundOff()
-            self._renderer.SetBackground(color)
+            self._renderer.SetBackground(self.background_color)
+        # self.update_logos_to_get_better_contrast()
 
-        self.changeLogosToGetBetterContrast()
+    def update_logos_to_get_better_contrast(self):
 
-    def changeLogosToGetBetterContrast(self):
-        if self.background_color == (0,0,0):
+        if self.background_color in [(0,0,0), "dark"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_white.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_white.png'))
-        elif self.background_color == (0.25,0.25,0.25):
+
+        elif self.background_color in [(0.25,0.25,0.25), "dark"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_white.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_white.png'))
-        elif self.background_color == (0.7,0.7,0.7):
+
+        elif self.background_color in [(0.7,0.7,0.7), "light"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_black.png'))
-        elif self.background_color == (1,1,1):
+
+        elif self.background_color in [(1,1,1), "light"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
             self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_black.png'))
+
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
         
@@ -132,7 +130,8 @@ class vtkRendererBase(ABC):
         self.elements_transparency = transparency
 
     def changeFontColor(self, color):
-        self.textProperty.SetColor(color)
+        font_color = [value/255 for value in color]
+        self.textProperty.SetColor(font_color)
 
     def changeSliderFontColor(self, color):
         self.SetColor(color)
@@ -141,8 +140,9 @@ class vtkRendererBase(ABC):
         self.SetColor(color)
 
     def changeReferenceScaleFontColor(self, color):
-        self.scaleBarTitleProperty.SetColor(color)
-        self.scaleBarLabelProperty.SetColor(color)
+        font_color = [value/255 for value in color]
+        self.scaleBarTitleProperty.SetColor(font_color)
+        self.scaleBarLabelProperty.SetColor(font_color)
 
     def _createScaleBar(self):
         

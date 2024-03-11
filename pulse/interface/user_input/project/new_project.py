@@ -45,6 +45,7 @@ class NewProjectInput(QDialog):
         self.project_directory = ""
         self.project_folder_path = ""
         self.project_file_path = ""
+        self.project_ini_name = self.file.project_ini_name
     
         user_path = os.path.expanduser('~')
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
@@ -76,13 +77,21 @@ class NewProjectInput(QDialog):
         self.lineEdit_geometry_path : QLineEdit
         self.lineEdit_element_size : QLineEdit
         self.lineEdit_geometry_tolerance : QLineEdit
-        self.lineEdit_project_folder.setText(self.desktop_path)
+        self.update_project_path()
         self.focus_lineEdit_project_name_if_blank()
         # QPushButton
         self.pushButton_import_geometry : QPushButton
         self.pushButton_search_project_folder : QPushButton
         self.pushButton_cancel : QPushButton
         self.pushButton_start_project : QPushButton
+
+    def update_project_path(self):
+        last_project_path = self.config.get_last_project_folder()
+        if last_project_path is None:
+            self.initial_project_folder_path = self.desktop_path
+        else:
+            self.initial_project_folder_path = last_project_path
+        self.lineEdit_project_folder.setText(self.initial_project_folder_path)
 
     def _create_connections(self):
         self.comboBox_start_project.currentIndexChanged.connect(self.update_available_inputs)
@@ -143,11 +152,26 @@ class NewProjectInput(QDialog):
             self.project_directory = self.desktop_path        
 
     def search_project_folder(self):
-        self.project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.desktop_path)
+        last_project_path = self.config.get_last_project_folder()
+        if last_project_path is None:
+            path = self.desktop_path
+        else:
+            path = last_project_path
+        title = 'Choose a folder to save the project files'
+        self.project_directory = QFileDialog.getExistingDirectory(None, title, path)
         self.update_project_directory()
 
     def import_geometry(self):
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.desktop_path, 'Files (*.iges *.igs *.step *.stp)')
+        last_geometry_file = self.config.get_last_geometry_folder()
+        if last_geometry_file is None:
+            geometry_folder = self.desktop_path
+        else:
+            geometry_folder = last_geometry_file
+        
+        self.path, _type = QFileDialog.getOpenFileName(None, 
+                                                       'Open file', 
+                                                       geometry_folder, 
+                                                       'Files (*.iges *.igs *.step *.stp)')
         if self.path != "":
             self.lineEdit_geometry_path.setText(str(self.path))
 
@@ -208,8 +232,7 @@ class NewProjectInput(QDialog):
         if self.create_project():
             return
         
-        project_ini_file_path = get_new_path(self.project_folder_path, 
-                                                self.file.project_ini_name)
+        project_ini_file_path = get_new_path(self.project_folder_path, self.project_ini_name)
         self.config.write_recent_project(project_ini_file_path)
         self.project.time_to_load_or_create_project = time() - t0
         self.complete = True
@@ -238,6 +261,8 @@ class NewProjectInput(QDialog):
                                                 self.element_size,
                                                 self.geometry_tolerance,
                                                 self.import_type )
+                
+                self.main_window.action_plot_geometry_editor_callback()
 
             elif index == 1:
 
@@ -253,6 +278,8 @@ class NewProjectInput(QDialog):
                                             self.import_type,
                                             geometry_path = new_geometry_path   )
                 
+                self.config.write_last_geometry_folder_path_in_file(current_geometry_path)
+
             self.create_fluid_and_material_files()
 
         except Exception as error_log:

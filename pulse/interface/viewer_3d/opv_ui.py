@@ -19,7 +19,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.project = project
 
         self.inputObject = None
-        self.defaultPreferences()
+        self._load_default_preferences()
     
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
@@ -32,43 +32,76 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self._createAxes()        
 
-    def defaultPreferences(self):
-        self.background_color = (1,1,1)
+    def _load_default_preferences(self):
+        self.background_color = "light"
+        self.render_theme = "light"
         self.font_color = (0,0,0)
+        self.nodes_color = (255, 255, 63)
+        self.lines_color = (255, 255, 255)
+        self.surfaces_color = (255, 255, 255)
+        self.elements_transparency = 0.8
         self.add_OpenPulse_logo = True
         self.add_MOPT_logo = True
         self.show_reference_scale = True
 
     def set_user_interface_preferences(self, preferences):
+        """ This method updates the render appearance according to the user preferences.
+
+            Parameters:
+            -----------
+                preferences : dict
+                    a dicitonary containing all required data to update the render
+
         """
-        """
+        self.background_color = None
         if preferences:
 
-            self.background_color = preferences['background_color']
-            self.font_color = preferences['font_color']
-            self.nodes_color = preferences['nodes_color']
-            self.lines_color = preferences['lines_color']
-            self.surfaces_color = preferences['surfaces_color']
-            self.add_OpenPulse_logo = preferences['OpenPulse_logo']
-            self.add_MOPT_logo = preferences['mopt_logo']
-            self.show_reference_scale = preferences['reference_scale']
-            self.elements_transparency = preferences['transparency']
-            #
-            self.opvRenderer.changeBackgroundColor(self.background_color)
-            self.opvAnalysisRenderer.changeBackgroundColor(self.background_color)
-            self.opvGeometryRenderer.changeBackgroundColor(self.background_color)
+            if "render theme" in preferences.keys():
+                self.render_theme = preferences['render theme']
 
-            self.opvRenderer.changeFontColor(self.font_color)
-            self.opvAnalysisRenderer.changeFontColor(self.font_color)
-            self.opvGeometryRenderer.changeFontColor(self.font_color)
+            if "background color" in preferences.keys():
+                self.background_color = preferences['background color']
 
-            self.opvRenderer.changeReferenceScaleFontColor(self.font_color)
-            self.opvAnalysisRenderer.changeReferenceScaleFontColor(self.font_color)
-            self.opvGeometryRenderer.changeReferenceScaleFontColor(self.font_color)
+            if "font color" in preferences.keys():
+                self.font_color = preferences['font color']
 
-            self.opvRenderer.changeNodesColor(self.nodes_color)
-            self.opvRenderer.changeSurfacesColor(self.surfaces_color)
-            self.opvRenderer.changeElementsTransparency(self.elements_transparency)
+            if "nodes color" in preferences.keys():
+                self.nodes_color = preferences['nodes color']
+
+            if "lines color" in preferences.keys():
+                self.lines_color = preferences['lines color']
+
+            if "surfaces color" in preferences.keys():
+                self.surfaces_color = preferences['surfaces color']
+    
+            if "transparency" in preferences.keys():
+                self.elements_transparency = preferences['transparency']
+
+            if "OpenPulse logo" in preferences.keys():
+                self.add_OpenPulse_logo = preferences['OpenPulse logo']
+
+            if "mopt logo" in preferences.keys():
+                self.add_MOPT_logo = preferences['mopt logo']
+
+            if "reference scale" in preferences.keys():
+                self.show_reference_scale = preferences['reference scale']
+
+        self.opvRenderer.set_background_color(self.background_color)
+        self.opvAnalysisRenderer.set_background_color(self.background_color)
+        self.opvGeometryRenderer.set_background_color(self.background_color)
+
+        self.opvRenderer.changeFontColor(self.font_color)
+        self.opvAnalysisRenderer.changeFontColor(self.font_color)
+        self.opvGeometryRenderer.changeFontColor(self.font_color)
+
+        self.opvRenderer.changeReferenceScaleFontColor(self.font_color)
+        self.opvAnalysisRenderer.changeReferenceScaleFontColor(self.font_color)
+        self.opvGeometryRenderer.changeReferenceScaleFontColor(self.font_color)
+
+        self.opvRenderer.changeNodesColor(self.nodes_color)
+        self.opvRenderer.changeLinesColor(self.lines_color)
+        self.opvRenderer.changeSurfacesColor(self.surfaces_color)
+        self.opvRenderer.changeElementsTransparency(self.elements_transparency)
         
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
@@ -91,7 +124,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         #               target = callback)
 
     def plot_raw_geometry(self):
-        
+
         if self.opvGeometryRenderer.plot():
             return
 
