@@ -696,7 +696,11 @@ class MainWindow(QMainWindow):
             self.user_preferences = self.config.get_user_preferences()
             self.user_preferences["interface theme"] = theme
             self.user_preferences["background color"] = theme
-            self.config.write_theme_in_file(theme)
+            if theme == "dark":
+                self.user_preferences["font color"] = (255,255,255)
+            else:
+                self.user_preferences["font color"] = (0,0,0)
+            self.config.write_user_preferences_in_file(self.user_preferences)
             self.opv_widget.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):

@@ -149,8 +149,8 @@ class vtkRendererBase(ABC):
         if self.opv.show_reference_scale:
             self.scaleBarTitleProperty.ShadowOff()
             self.scaleBarLabelProperty.ShadowOff()
-            self.scaleBarTitleProperty.SetFontSize(16)
-            self.scaleBarLabelProperty.SetFontSize(16)
+            self.scaleBarTitleProperty.SetFontSize(14)
+            self.scaleBarLabelProperty.SetFontSize(14)
             self.scaleBarTitleProperty.SetVerticalJustificationToTop()
             self.scaleBarTitleProperty.SetLineOffset(-40)
             self.scaleBarLabelProperty.SetLineOffset(-25)
