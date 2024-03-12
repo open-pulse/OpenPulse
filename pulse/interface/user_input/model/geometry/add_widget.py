@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
+from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -69,12 +70,12 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_y : QLineEdit
         self.lineEdit_delta_z : QLineEdit
         self.lineEdit_bending_radius : QLineEdit
-        self.create_list_of_unit_labels()
         
         # QPushButton
         self.pushButton_set_cross_section : QPushButton
         self.pushButton_set_material : QPushButton
         self.pushButton_add_segment : QPushButton
+        self.pushButton_quick_manual : QPushButton
         self.pushButton_remove_selection : QPushButton
 
     def _create_connections(self):
@@ -90,6 +91,7 @@ class AddStructuresWidget(QWidget):
         self.reset_coords(0.)
 
         self.pushButton_add_segment.clicked.connect(self.create_segment_callback)
+        self.pushButton_quick_manual.clicked.connect(self.show_geometry_editor_help)
         self.pushButton_remove_selection.clicked.connect(self.remove_selection_callback)
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
@@ -144,16 +146,6 @@ class AddStructuresWidget(QWidget):
         self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)
 
-    def create_list_of_unit_labels(self):
-        self.unit_labels = list()
-        self.unit_labels.append(self.label_unit_delta_x)
-        self.unit_labels.append(self.label_unit_delta_y)
-        self.unit_labels.append(self.label_unit_delta_z)
-        self.unit_labels.append(self.label_unit_coord_x)
-        self.unit_labels.append(self.label_unit_coord_y)
-        self.unit_labels.append(self.label_unit_coord_z)
-        self.unit_labels.append(self.label_unit_bending_radius)
-
     def update_legth_units(self):
         index = self.comboBox_length_unit.currentIndex()
         if index == 0:
@@ -166,9 +158,15 @@ class AddStructuresWidget(QWidget):
             unit_label = "in"
             self.length_unit = "inch"
         #
-        for _label in self.unit_labels:
-            _label.setText(f"[{unit_label}]")
-
+        self.label_unit_delta_x.setText(f"[{unit_label}]")
+        self.label_unit_delta_y.setText(f"[{unit_label}]")
+        self.label_unit_delta_z.setText(f"[{unit_label}]")
+        self.label_unit_bending_radius.setText(f"[{unit_label}]")
+        #
+        self.label_unit_coord_x.setText(f"Coords. x [{unit_label}]")
+        self.label_unit_coord_y.setText(f"Coords. y [{unit_label}]")
+        self.label_unit_coord_z.setText(f"Coords. z [{unit_label}]")
+        
     def update_bending_type(self):
         
         self.bending_factor = 0
@@ -297,6 +295,9 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_x.setText("")
         self.lineEdit_delta_y.setText("")
         self.lineEdit_delta_z.setText("")
+
+    def show_geometry_editor_help(self):
+        GeometryEditorHelp()
 
     def define_cross_section(self):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
