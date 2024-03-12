@@ -236,7 +236,7 @@ class AddStructuresWidget(QWidget):
         else:
             editor.add_pipe((dx,dy,dz))  # actually it is a beam =)
 
-        self.geometry_widget.update_plot(reset_camera=False)
+        self.geometry_widget.update_plot()
 
     def _disable_add_segment_button(self, _bool=True):
         self.pushButton_add_segment.setDisabled(_bool)
