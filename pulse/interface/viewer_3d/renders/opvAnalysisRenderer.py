@@ -266,7 +266,10 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.opvDeformedTubes.build()
         min_max_values_all = [self.result_disp_min, self.result_disp_max]
-        colorTable = ColorTable(self.project, u_def, min_max_values_all)
+        colorTable = ColorTable(self.project, 
+                                u_def, 
+                                min_max_values_all, 
+                                self.colormap)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
 
@@ -303,7 +306,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(phase_step=phase_step)
 
         min_max_values_all = [self.stress_min, self.stress_max]
-        colorTable = ColorTable(self.project, stresses_data, min_max_values_all, stress_field_plot=True)
+        colorTable = ColorTable(self.project, 
+                                stresses_data, 
+                                min_max_values_all,
+                                self.colormap, 
+                                stress_field_plot=True)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
 
@@ -337,7 +344,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         
         self.opvPressureTubes.build()
         min_max_values_all = [self.pressure_min, self.pressure_max]
-        colorTable = ColorTable(self.project, pressure_field_data, min_max_values_all, pressure_field_plot=True)
+        colorTable = ColorTable(self.project, 
+                                pressure_field_data, 
+                                min_max_values_all, 
+                                self.colormap,
+                                pressure_field_plot=True)
         self.opvPressureTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
 

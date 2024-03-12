@@ -2,10 +2,12 @@ import vtk
 import numpy as np
 
 class ColorTable(vtk.vtkLookupTable):
-    def __init__(self, project, data, min_max_values, stress_field_plot=False, pressure_field_plot=False):
+    def __init__(self, project, data, min_max_values, colormap, stress_field_plot=False, pressure_field_plot=False):
         super().__init__()
 
         self.project = project
+
+        self.colormap = colormap
 
         if isinstance(data, dict):
             self.valueVector = list(data.values())
@@ -21,8 +23,14 @@ class ColorTable(vtk.vtkLookupTable):
         self.structural_elements = project.preprocessor.structural_elements
 
         self.SetTableRange(self.min_value, self.max_value)
-        self.SetHueRange( 2/3, 0 )
+        self.update_colormap()
         self.ForceBuild()
+
+    def update_colormap(self):
+        if self.colormap == "jet":
+            self.SetHueRange( 2/3, 0 )
+        elif self.colormap == "viridis":
+            self.SetHueRange( 2/3, 1 )
 
     def is_empty(self):
         return len(self.valueVector) == 0

@@ -85,17 +85,18 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
     
     def _create_connection(self):
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
-        self.comboBox_color_scale.currentIndexChanged.connect(self.plot_stress_field)
+        self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
-        self.comboBox_stress_type.currentIndexChanged.connect(self.plot_stress_field)
-        self.pushButton_plot.clicked.connect(self.plot_stress_field)
+        self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
+        self.pushButton_plot.clicked.connect(self.update_plot)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.update_animation_widget_visibility()
+        self.update_colormap_type()
 
     def _update_damping_effect(self):
         self.update_damping = True
-        self.plot_stress_field()
+        self.update_plot()
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
@@ -117,9 +118,10 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        #TODO: update analysis render
+        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        self.update_plot()
 
-    def plot_stress_field(self):
+    def update_plot(self):
         self.update_animation_widget_visibility()
         if self.lineEdit_selected_frequency.text() == "":
             return
@@ -178,11 +180,11 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))
-        self.plot_stress_field()
+        self.update_plot()
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))
-        self.plot_stress_field()
+        self.update_plot()
 
     def load_frequencies(self):
         for index, frequency in enumerate(self.frequencies):
@@ -193,6 +195,6 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.plot_stress_field()
+            self.update_plot()
         elif event.key() == Qt.Key_Escape:
             self.close()

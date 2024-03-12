@@ -65,6 +65,7 @@ class PlotAcousticModeShape(QWidget):
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.update_animation_widget_visibility()
+        self.update_colormap_type()
 
     def _config_treeWidget(self):
         widths = [80, 140]
@@ -92,8 +93,9 @@ class PlotAcousticModeShape(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        #TODO: update analysis render
-
+        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        self.update_plot()
+        
     def get_dict_modes_frequencies(self):
         self.natural_frequencies = self.project.natural_frequencies_acoustic
         modes = np.arange(1,len(self.natural_frequencies)+1,1)

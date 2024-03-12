@@ -45,6 +45,7 @@ class vtkRendererBase(ABC):
         self.lines_color = (255, 255, 255)
         self.surfaces_color = (255, 255, 255)
         self.elements_transparency = 0.8
+        self.colormap = "jet"
         self.set_background_color("light")
 
     def _create_and_config_logos(self):
@@ -109,6 +110,9 @@ class vtkRendererBase(ABC):
 
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
+
+    def set_colormap(self, colormap):
+        self.colormap = colormap
         
     def changeNodesColor(self, color):
         self.nodes_color = color 

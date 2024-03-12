@@ -27,7 +27,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self.plot_stress_field()
+        self.update_plot()
         self.load_user_preference_colormap()
 
     def _initialize(self):
@@ -74,10 +74,11 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
     def _create_connections(self):
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
-        self.comboBox_color_scale.currentIndexChanged.connect(self.plot_stress_field)
-        self.comboBox_stress_type.currentIndexChanged.connect(self.plot_stress_field)
-        self.pushButton_plot.clicked.connect(self.plot_stress_field)
+        self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
+        self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
+        self.pushButton_plot.clicked.connect(self.update_plot)
         self.update_animation_widget_visibility()
+        self.update_colormap_type()
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
@@ -99,7 +100,8 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        #TODO: update analysis render
+        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        self.update_plot()
 
     def get_stress_data(self):
 
@@ -146,16 +148,16 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
         return color_scale_setup
 
-    def plot_stress_field(self):
+    def update_plot(self):
         self.update_animation_widget_visibility()
         self.selected_index = 0
         self.get_stress_data()
 
     def confirm_button(self):
-        self.plot_stress_field()
+        self.update_plot()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.plot_stress_field()
+            self.update_plot()
         elif event.key() == Qt.Key_Escape:
             self.close()
