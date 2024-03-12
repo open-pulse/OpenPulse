@@ -107,6 +107,17 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.min_max_pressures_values_current = None
         self.plot_state = [False, False, False]
 
+    def set_colormap(self, colormap):
+        super().set_colormap(colormap)
+
+        colortable_structural: ColorTable = self.opvDeformedTubes.colorTable
+        if colortable_structural is not None:
+            colortable_structural.set_colormap(colormap)
+
+        colortable_acoustic: ColorTable = self.opvPressureTubes.colorTable
+        if colortable_acoustic is not None:
+            colortable_acoustic.set_colormap(colormap)
+
     def plot(self):
         self.reset()
     

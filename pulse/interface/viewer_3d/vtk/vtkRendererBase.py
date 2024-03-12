@@ -45,7 +45,7 @@ class vtkRendererBase(ABC):
         self.lines_color = (255, 255, 255)
         self.surfaces_color = (255, 255, 255)
         self.elements_transparency = 0.8
-        self.colormap = "jet"
+        self.colormap = "viridis"
         self.set_background_color("light")
 
     def _create_and_config_logos(self):
