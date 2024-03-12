@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../data/icons/pulse.png</normaloff>../../../data/icons/pulse.png</iconset>
+    <normaloff>../../../data/icons/pulse_icon.png</normaloff>../../../data/icons/pulse_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>29</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -125,15 +125,13 @@
     <addaction name="action_export_geometry"/>
     <addaction name="action_import_piping"/>
     <addaction name="action_export_piping"/>
+    <addaction name="separator"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
-    <addaction name="action_set_dark_theme"/>
-    <addaction name="action_set_light_theme"/>
-    <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menu_graphic">
+   <widget class="QMenu" name="menu_plots">
     <property name="title">
-     <string>Graphic</string>
+     <string>Plots</string>
     </property>
     <addaction name="action_plot_geometry_editor"/>
     <addaction name="action_plot_lines"/>
@@ -142,18 +140,6 @@
     <addaction name="action_plot_cross_section"/>
     <addaction name="action_plot_material"/>
     <addaction name="action_plot_fluid"/>
-    <addaction name="action_user_preferences"/>
-   </widget>
-   <widget class="QMenu" name="menu_general_settings">
-    <property name="title">
-     <string>General Settings</string>
-    </property>
-    <addaction name="action_create_edit_geometry"/>
-    <addaction name="action_edit_geometry"/>
-    <addaction name="action_set_geometry_file"/>
-    <addaction name="action_set_material"/>
-    <addaction name="action_set_fluid"/>
-    <addaction name="action_set_cross_section"/>
    </widget>
    <widget class="QMenu" name="menu_model_info">
     <property name="title">
@@ -169,9 +155,17 @@
     </property>
     <addaction name="action_about_openpulse"/>
    </widget>
+   <widget class="QMenu" name="menu_general_settings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="action_set_dark_theme"/>
+    <addaction name="action_set_light_theme"/>
+    <addaction name="action_user_preferences"/>
+   </widget>
    <addaction name="menu_project"/>
-   <addaction name="menu_graphic"/>
    <addaction name="menu_general_settings"/>
+   <addaction name="menu_plots"/>
    <addaction name="menu_model_info"/>
    <addaction name="menu_help"/>
   </widget>

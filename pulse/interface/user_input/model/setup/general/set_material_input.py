@@ -188,14 +188,14 @@ class SetMaterialInput(QDialog):
             self.message = str(error_log)
             PrintMessageInput([window_title, self.title, self.message])
             return
-    
+
     def actions_to_finalize(self):
-    
+
         build_data = self.file.get_segment_build_data_from_file()
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
         geometry_handler.process_pipeline(build_data)
-    
+
         self.close()
 
     def load_project(self):

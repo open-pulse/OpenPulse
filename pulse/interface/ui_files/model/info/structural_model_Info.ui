@@ -159,6 +159,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Nodal loads:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -192,6 +195,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Constrained dofs:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -224,6 +230,9 @@
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Prescribed dofs:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -375,6 +384,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Lumped masses:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -447,6 +459,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Lumped springs:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -518,6 +533,9 @@
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Lumped dampers:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

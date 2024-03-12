@@ -31,14 +31,21 @@ class LoadProjectInput(QDialog):
         self.desktop_path = str(desktop_path)
 
     def _get_project_path(self):
+
+        last_project_path = self.config.get_last_project_folder()
+        if last_project_path is None:
+            initial_project_folder_path = self.desktop_path
+        else:
+            initial_project_folder_path = last_project_path
+
         if self.path is None:
-            self.project_ini_file_path, _ = QFileDialog.getOpenFileName(None, 
+            self.project_ini_file_path, _ = QFileDialog.getOpenFileName( None, 
                                                                         'Open file', 
-                                                                        self.desktop_path, 
-                                                                        'OpenPulse Project (*.ini)')
+                                                                        initial_project_folder_path, 
+                                                                        'OpenPulse Project (*.ini)' )
         else:
             self.project_ini_file_path = self.path
-        
+
     def _load_project(self):
         try:
             if self.project_ini_file_path != "":

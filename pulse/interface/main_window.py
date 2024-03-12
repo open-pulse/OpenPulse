@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
         self.reset()
 
     def reset(self):
-        self.theme = None
+        self.interface_theme = None
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
         self.opv_widget = None
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
     def _config_window(self):
         self.showMaximized()
         self.installEventFilter(self)
-        self.setWindowIcon(self.pulse_icon)
+        # self.setWindowIcon(self.pulse_icon)
     
     def _define_qt_variables(self):
         '''
@@ -85,31 +85,34 @@ class MainWindow(QMainWindow):
         self.action_set_dark_theme : QAction
         self.action_set_light_theme : QAction
         self.action_save_project_as : QAction
-        self.action_show_points: QAction
-        self.action_show_lines: QAction
-        self.action_show_tubes: QAction
-        self.action_show_symbols: QAction
-        self.action_plot_geometry_editor: QAction
-        self.action_plot_lines: QAction
-        self.action_plot_lines_with_cross_section: QAction
-        self.action_plot_mesh: QAction
-        self.action_export_piping: QAction
+        self.action_show_points : QAction
+        self.action_show_lines : QAction
+        self.action_show_tubes : QAction
+        self.action_show_symbols : QAction
+        self.action_plot_geometry_editor : QAction
+        self.action_plot_lines : QAction
+        self.action_plot_lines_with_cross_section : QAction
+        self.action_plot_mesh : QAction
+        self.action_export_piping : QAction
+        self.action_user_preferences : QAction
 
         # QMenu
-        self.menu_recent: QMenu
-        self.menu_project: QMenu
-        self.menu_graphic: QMenu
-        self.menu_general_settings: QMenu
-        self.menu_model_info: QMenu
-        self.menu_help: QMenu
+        self.menu_recent : QMenu
+        self.menu_project : QMenu
+        self.menu_plots : QMenu
+        self.menu_settings : QMenu
+        self.menu_model_info : QMenu
+        self.menu_help : QMenu
 
         # QSplitter
-        self.splitter: QSplitter
+        self.splitter : QSplitter
+
         # QStackedWidget
-        self.setup_widgets_stack: QStackedWidget
-        self.render_widgets_stack: QStackedWidget
+        self.setup_widgets_stack : QStackedWidget
+        self.render_widgets_stack : QStackedWidget
+
         # QToolBar
-        self.tool_bar: QToolBar
+        self.tool_bar : QToolBar
 
     def _connect_actions(self):
         '''
@@ -180,7 +183,7 @@ class MainWindow(QMainWindow):
 
     def configure_window(self):
 
-        self._load_icons()
+        # self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
@@ -188,12 +191,12 @@ class MainWindow(QMainWindow):
         self._create_workspaces_toolbar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
-    
+
         self.plot_entities()
         self.use_structural_setup_workspace()
-        self.action_set_light_theme_callback()
+        self.load_user_preferences()
         self.load_recent_project()
-        
+ 
     # public
     def new_project(self):
         if not self.input_widget.new_project():
@@ -324,6 +327,39 @@ class MainWindow(QMainWindow):
         self.action_show_symbols.setChecked(True)
         self._update_visualization()
 
+    def update_plot_mesh(self):
+
+        key = list()
+        key.append(self.action_show_points.isChecked())
+        key.append(self.action_show_lines.isChecked())
+        key.append(self.action_show_tubes.isChecked())
+        key.append(self.action_show_symbols.isChecked())
+
+        if key != [True, True, True, True]:
+            self.plot_mesh()
+
+    def update_plot_entities(self):
+
+        key = list()
+        key.append(self.action_show_points.isChecked())
+        key.append(self.action_show_lines.isChecked())
+        key.append(self.action_show_tubes.isChecked())
+        key.append(self.action_show_symbols.isChecked())
+
+        if key != [False, True, False, False]:
+            self.plot_entities()  
+
+    def update_plot_entities_with_cross_section(self):
+
+        key = list()
+        key.append(self.action_show_points.isChecked())
+        key.append(self.action_show_lines.isChecked())
+        key.append(self.action_show_tubes.isChecked())
+        key.append(self.action_show_symbols.isChecked())
+
+        if key != [False, False, True, False]:
+            self.plot_entities_with_cross_section()
+
     def plot_raw_geometry(self):
         # self.use_structural_setup_workspace()
         self.action_show_points.setChecked()
@@ -339,7 +375,7 @@ class MainWindow(QMainWindow):
 
     def load_recent_project(self):
         if self.config.open_last_project and self.config.haveRecentProjects():
-            self.importProject_call(self.config.getMostRecentProjectDir())
+            self.import_project_call(self.config.getMostRecentProjectDir())
         elif self.input_widget.get_started():
             self.update()  # update the renders before change the view
             self.action_front_view_callback()
@@ -365,7 +401,7 @@ class MainWindow(QMainWindow):
 
     def _update_permissions(self):
         pass
-    
+
     def _update_visualization(self):
         points = self.action_show_points.isChecked()
         lines = self.action_show_lines.isChecked()
@@ -443,6 +479,9 @@ class MainWindow(QMainWindow):
         self.action_show_tubes.setChecked(True)
         self.action_show_symbols.setChecked(True)
         self.use_geometry_workspace()
+    
+    def action_user_preferences_callback(self):
+        self.input_widget.mesh_setup_visibility()
 
     def action_plot_lines_callback(self):
         self.use_structural_setup_workspace()
@@ -582,7 +621,7 @@ class MainWindow(QMainWindow):
 
     def action_show_tubes_callback(self, cond):
         self._update_visualization()
-    
+
     def action_show_symbols_callback(self, cond):
         self._update_visualization()
 
@@ -595,28 +634,16 @@ class MainWindow(QMainWindow):
 
     def action_import_geometry_callback(self):
         self.input_widget.import_geometry()
-    
-    def draw(self):
-        self.update()
-        self.opv_widget.updatePlots()
-        self.plot_mesh()
-        self.action_front_view_callback()
-        # self.opv_widget.setCameraView(5)
-        
-    def _loadProjectMenu(self):
-        self._update_recent_projects()
 
-    def importProject_call(self, path=None):
+    def import_project_call(self, path=None):
         if self.input_widget.load_project(path):
-            self._loadProjectMenu()
+            self._update_recent_projects()
             self.change_window_title(self.file.project_name)
-            self.draw()
-
-    def newProject_call(self):
-        if self.input_widget.new_project(self.config):
-            self._loadProjectMenu()
-            self.change_window_title(self.file.project_name)
-            self.draw()
+            self.update()
+            self.opv_widget.updatePlots()
+            self.plot_mesh()
+            self.action_front_view_callback()
+            # self.opv_widget.setCameraView(5)
 
     def _add_mesh_toolbar(self):
         self.mesh_toolbar = MeshToolbar()
@@ -626,27 +653,55 @@ class MainWindow(QMainWindow):
     def _enable_menus_at_start(self):
         pass
 
+    def load_user_preferences(self):
+        self.update_theme = False
+        self.user_preferences = self.config.get_user_preferences()
+        if "interface theme" in self.user_preferences:
+            if self.user_preferences["interface theme"] == "dark":
+                self.action_set_dark_theme_callback()
+            else:
+                self.action_set_light_theme_callback()
+        else:
+            self.action_set_light_theme_callback()
+        self.opv_widget.set_user_interface_preferences(self.user_preferences)
+        self.update_theme = True
+
     def action_set_dark_theme_callback(self):
-        if self.theme in [None, "light"]:
-            self.theme = "dark"
+        self.update_themes_in_file(theme="dark")
+        if self.interface_theme in [None, "light"]:
+            self.interface_theme = "dark"
             self.custom_colors = { "[dark]": { "toolbar.background": "#202124"} }
             qdarktheme.setup_theme("dark", custom_colors=self.custom_colors)
-            # self.dark_theme_configuration()
             self.action_set_light_theme.setDisabled(False)
             self.action_set_dark_theme.setDisabled(True)
             self.geometry_widget.set_theme("dark")
             self.mesh_widget.set_theme("dark")
+            self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("dark")
+            self.results_viewer_wigdet.results_viewer_items.set_theme("dark")
 
     def action_set_light_theme_callback(self):
-        # self.action_remove_themes_callback()
-        if self.theme in [None, "dark"]:
-            self.theme = "light"
+        self.update_themes_in_file(theme="light")
+        if self.interface_theme in [None, "dark"]:
+            self.interface_theme = "light"
             qdarktheme.setup_theme("light")
-            # self.light_theme_configuration()
             self.action_set_light_theme.setDisabled(True)
             self.action_set_dark_theme.setDisabled(False)
             self.geometry_widget.set_theme("light")
             self.mesh_widget.set_theme("light")
+            self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("light")
+            self.results_viewer_wigdet.results_viewer_items.set_theme("light")
+
+    def update_themes_in_file(self, theme):
+        if self.update_theme:
+            self.user_preferences = self.config.get_user_preferences()
+            self.user_preferences["interface theme"] = theme
+            self.user_preferences["background color"] = theme
+            if theme == "dark":
+                self.user_preferences["font color"] = (255,255,255)
+            else:
+                self.user_preferences["font color"] = (0,0,0)
+            self.config.write_user_preferences_in_file(self.user_preferences)
+            self.opv_widget.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
         project_path = self.file._project_path
@@ -655,18 +710,18 @@ class MainWindow(QMainWindow):
         path, _ = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
             self.opv_widget().savePNG(path)
-    
+
+    def positioning_cursor_on_widget(self, widget):
+        width, height = widget.width(), widget.height()
+        final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
+        QCursor.setPos(final_pos)
+
     # def eventFilter(self, obj, event):
     #     if event.type() == QEvent.ShortcutOverride:
     #         if event.key() == Qt.Key_Space:
     #             return
     #             self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
     #     return super(MainWindow, self).eventFilter(obj, event)
-    
-    def positioning_cursor_on_widget(self, widget):
-        width, height = widget.width(), widget.height()
-        final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
-        QCursor.setPos(final_pos)
 
     def closeEvent(self, event):
         title = "OpenPulse"
@@ -676,15 +731,6 @@ class MainWindow(QMainWindow):
             sys.exit()
         else:
             event.ignore()
-
-    # def remove_selected_lines(self):
-    #     lines = self.opv_widget.getListPickedLines()
-    #     if len(lines) > 0:
-    #         if self.project.remove_selected_lines_from_geometry(lines):
-    #             self.opv_widget.updatePlots()
-    #             self.opv_widget.plot_entities()
-    #             # self.cameraFront_call()
-    #             # self.opv_widget.plot_mesh()
             
     # def _createStatusBar(self):
     #     self.status_bar = QStatusBar()
@@ -698,15 +744,3 @@ class MainWindow(QMainWindow):
     #     self.label_mesh_state = QLabel("", self)
     #     self.label_mesh_state.setFont(label_font)
     #     self.status_bar.addPermanentWidget(self.label_mesh_state)
-
-    # def _updateGeometryState(self, label):
-    #     _state = ""
-    #     if label != "":
-    #         _state = f" Geometry: {label} "            
-    #     self.label_geometry_state.setText(_state)
-
-    # def _updateMeshState(self, label):
-    #     _state = ""
-    #     if label != "":
-    #         _state = f" Mesh: {label} "           
-    #     self.label_mesh_state.setText(_state)
