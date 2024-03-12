@@ -1,13 +1,11 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -18,7 +16,7 @@ class PlotAcousticModeShape(QWidget):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/acoustic_mode_shape.ui")
+        ui_path = UI_DIR / "plots/results/acoustic/acoustic_mode_shape.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.opv_widget
@@ -29,34 +27,44 @@ class PlotAcousticModeShape(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self.load_natural_frequencies()
+        self.load_user_preference_colormap()
        
     def _initialize(self):
         self.mode_index = None
+        self.colormaps = ["jet",
+                          "viridis",
+                          "inferno",
+                          "magma",
+                          "plasma",
+                          "grayscale"]
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_color_scale = self.findChild(QComboBox, 'comboBox_color_scale')
+        self.comboBox_color_scale : QComboBox
+        self.comboBox_colormaps : QComboBox
         # QFrame
-        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button : QFrame
         self.frame_button.setVisible(False)
         # QLineEdit
-        self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
+        self.lineEdit_natural_frequency : QLineEdit
         self.lineEdit_natural_frequency.setDisabled(True)
         # QPushButton
-        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.pushButton_plot : QPushButton
         # QLineEdit
-        self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
+        self.lineEdit_selected_frequency : QLineEdit
         # QPushButton
-        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.pushButton_plot : QPushButton
         # QTreeWidget
-        self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
+        self.treeWidget_frequencies : QTreeWidget
         self._config_treeWidget()
 
     def _create_connections(self):
+        self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.pushButton_plot.clicked.connect(self.update_plot)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.update_animation_widget_visibility()
 
     def _config_treeWidget(self):
         widths = [80, 140]
@@ -64,19 +72,27 @@ class PlotAcousticModeShape(QWidget):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-    def _create_connections(self):
-        self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
-        self.pushButton_plot.clicked.connect(self.update_plot)
-        self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
-        self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
-        self.update_animation_widget_visibility()
-
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
-        if index <= 2:
+        if index >= 2:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
         else:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+
+    def load_user_preference_colormap(self):
+        try:
+            colormap = app().main_window.user_preferences["colormap"]
+            if colormap in self.colormaps:
+                index = self.colormaps.index(colormap)
+                self.comboBox_colormaps.setCurrentIndex(index)
+        except:
+            self.comboBox_colormaps.setCurrentIndex(0)
+
+    def update_colormap_type(self):
+        index = self.comboBox_colormaps.currentIndex()
+        colormap = self.colormaps[index]
+        app().config.write_colormap_in_file(colormap)
+        #TODO: update analysis render
 
     def get_dict_modes_frequencies(self):
         self.natural_frequencies = self.project.natural_frequencies_acoustic
@@ -88,11 +104,6 @@ class PlotAcousticModeShape(QWidget):
         self.update_animation_widget_visibility()
         if self.lineEdit_natural_frequency.text() == "":
             return
-            # window_title = "Warning"
-            # title = "Additional action required to plot the results"
-            # message = "You should select a natural frequency from the available "
-            # message += "list before trying to plot the acoustic mode shape."
-            # PrintMessageInput([window_title, title, message], auto_close=True)
         
         self.project.analysis_type_label = "Acoustic Modal Analysis"
         frequency = self.selected_natural_frequency
@@ -112,33 +123,23 @@ class PlotAcousticModeShape(QWidget):
         index = self.comboBox_color_scale.currentIndex()
 
         if index == 0:
-            absolute = True
-        elif index == 1:
-            real_values = True
-        elif index == 2:
-            imag_values = True
-        elif index == 3:
             absolute_animation = True
-        else:
-            pass
-        
+        if index == 2:
+            absolute = True
+        elif index == 3:
+            real_values = True
+        elif index == 4:
+            imag_values = True
+
         color_scale_setup = {   "absolute" : absolute,
                                 "real_values" : real_values,
                                 "imag_values" : imag_values,
                                 "absolute_animation" : absolute_animation   }
 
-        labels = list()
-        labels.append("Absolute")
-        labels.append("Real values")
-        labels.append("Imaginary values")
-        labels.append("Animation (absolute)")
-        labels.append("Animation (non absolute)")
-
         return color_scale_setup
 
     def load_natural_frequencies(self):
         self.get_dict_modes_frequencies()
-
         self.treeWidget_frequencies.clear()
         for mode, natural_frequency in self.dict_modes_frequencies.items():
             new = QTreeWidgetItem([str(mode), str(round(natural_frequency,4))])

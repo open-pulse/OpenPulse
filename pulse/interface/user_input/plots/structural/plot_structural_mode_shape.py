@@ -7,7 +7,6 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -18,7 +17,7 @@ class PlotStructuralModeShape(QWidget):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/plot_structural_mode_shape.ui")
+        ui_path = UI_DIR / "plots/results/structural/plot_structural_mode_shape.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.opv_widget
@@ -31,9 +30,16 @@ class PlotStructuralModeShape(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self.load_natural_frequencies()
+        self.load_user_preference_colormap()
 
     def _initialize(self):
         self.mode_index = None
+        self.colormaps = ["jet",
+                          "viridis",
+                          "inferno",
+                          "magma",
+                          "plasma",
+                          "grayscale"]
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -45,20 +51,26 @@ class PlotStructuralModeShape(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_color_scale = self.findChild(QComboBox, 'comboBox_color_scale')
+        self.comboBox_color_scale : QComboBox
+        self.comboBox_colormaps : QComboBox
         # QFrame
-        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button : QFrame
         self.frame_button.setVisible(False)
         # QLineEdit
-        self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
+        self.lineEdit_natural_frequency : QLineEdit
         self.lineEdit_natural_frequency.setDisabled(True)
         # QPushButton
-        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.pushButton_plot : QPushButton
+        # QLineEdit
+        self.lineEdit_selected_frequency : QLineEdit
+        # QPushButton
+        self.pushButton_plot : QPushButton
         # QTreeWidget
-        self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
+        self.treeWidget_frequencies : QTreeWidget
         self._config_treeWidget()
 
     def _create_connections(self):
+        self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.pushButton_plot.clicked.connect(self.update_plot)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
@@ -67,10 +79,25 @@ class PlotStructuralModeShape(QWidget):
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
-        if index <= 9:
+        if index >= 4:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
         else:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False)
+
+    def load_user_preference_colormap(self):
+        try:
+            colormap = app().main_window.user_preferences["colormap"]
+            if colormap in self.colormaps:
+                index = self.colormaps.index(colormap)
+                self.comboBox_colormaps.setCurrentIndex(index)
+        except:
+            self.comboBox_colormaps.setCurrentIndex(0)
+
+    def update_colormap_type(self):
+        index = self.comboBox_colormaps.currentIndex()
+        colormap = self.colormaps[index]
+        app().config.write_colormap_in_file(colormap)
+        #TODO: update analysis render
 
     def _config_treeWidget(self):
         widths = [80, 140]
@@ -110,33 +137,33 @@ class PlotStructuralModeShape(QWidget):
         index = self.comboBox_color_scale.currentIndex()
 
         if index == 0:
-            absolute = True
-        elif index == 1:
-            ux_abs_values = True
-        elif index == 2:
-            uy_abs_values = True
-        elif index == 3:
-            uz_abs_values = True
-        elif index == 4:
-            ux_real_values = True
-        elif index == 5:
-            uy_real_values = True
-        elif index == 6:
-            uz_real_values = True
-        elif index == 7:
-            ux_imag_values = True
-        elif index == 8:
-            uy_imag_values = True
-        elif index == 9:
-            uz_imag_values = True
-        elif index == 10:
             absolute_animation = True
-        elif index == 11:
+        elif index == 1:
             ux_animation = True
-        elif index == 12:
+        elif index == 2:
             uy_animation = True
-        else:
-            uz_animation = True  
+        elif index == 3:
+            uz_animation = True
+        elif index == 4:
+            absolute = True
+        elif index == 5:
+            ux_abs_values = True
+        elif index == 6:
+            uy_abs_values = True
+        elif index == 7:
+            uz_abs_values = True
+        elif index == 8:
+            ux_real_values = True
+        elif index == 9:
+            uy_real_values = True
+        elif index == 10:
+            uz_real_values = True
+        elif index == 11:
+            ux_imag_values = True
+        elif index == 12:
+            uy_imag_values = True
+        elif index == 13:
+            uz_imag_values = True
 
         color_scale_setup = {   "absolute" : absolute,
                                 "ux_abs_values" : ux_abs_values,

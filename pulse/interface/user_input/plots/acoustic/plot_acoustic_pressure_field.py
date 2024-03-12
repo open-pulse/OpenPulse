@@ -5,10 +5,8 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
-from pathlib import Path
 
 
 class PlotAcousticPressureField(QWidget):
@@ -17,7 +15,7 @@ class PlotAcousticPressureField(QWidget):
 
         main_window = app().main_window
         
-        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui")
+        ui_path = UI_DIR / "plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.opv_widget
@@ -30,11 +28,18 @@ class PlotAcousticPressureField(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self.load_frequencies_vector()
+        self.load_user_preference_colormap()
 
     def _initialize(self):
         self.frequencies = self.project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
+        self.colormaps = ["jet",
+                          "viridis",
+                          "inferno",
+                          "magma",
+                          "plasma",
+                          "grayscale"]
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -46,19 +51,21 @@ class PlotAcousticPressureField(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_color_scale = self.findChild(QComboBox, 'comboBox_color_scale')
+        self.comboBox_color_scale : QComboBox
+        self.comboBox_colormaps : QComboBox
         # QFrame
-        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button : QFrame
         self.frame_button.setVisible(False)
         # QLineEdit
-        self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
+        self.lineEdit_selected_frequency : QLineEdit
         # QPushButton
-        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.pushButton_plot : QPushButton
         # QTreeWidget
-        self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
+        self.treeWidget_frequencies : QTreeWidget
         self._config_treeWidget()
 
     def _create_connections(self):
+        self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.pushButton_plot.clicked.connect(self.update_plot)
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
@@ -73,22 +80,31 @@ class PlotAcousticPressureField(QWidget):
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
-        if index in [0, 1, 2]:
+        if index >= 2:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
         else:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+
+    def load_user_preference_colormap(self):
+        try:
+            colormap = app().main_window.user_preferences["colormap"]
+            if colormap in self.colormaps:
+                index = self.colormaps.index(colormap)
+                self.comboBox_colormaps.setCurrentIndex(index)
+        except:
+            self.comboBox_colormaps.setCurrentIndex(0)
+
+    def update_colormap_type(self):
+        index = self.comboBox_colormaps.currentIndex()
+        colormap = self.colormaps[index]
+        app().config.write_colormap_in_file(colormap)
+        #TODO: update analysis render
 
     def update_plot(self):
 
         self.update_animation_widget_visibility()
         if self.lineEdit_selected_frequency.text() == "":
             return
-            # window_title = "Warning"
-            # title = "Additional action required to plot the results"
-            # message = "You should select a frequency from the available list"
-            # message += "before trying to plot the acoustic pressure field."
-            # PrintMessageInput([window_title, title, message], auto_close=True)
-            # return
 
         frequency_selected = float(self.lineEdit_selected_frequency.text())
         self.frequency = self.frequency_to_index[frequency_selected]
@@ -107,27 +123,18 @@ class PlotAcousticPressureField(QWidget):
         index = self.comboBox_color_scale.currentIndex()
 
         if index == 0:
-            absolute = True
-        elif index == 1:
-            real_values = True
-        elif index == 2:
-            imag_values = True
-        elif index == 3:
             absolute_animation = True
-        else:
-            pass
+        if index == 2:
+            absolute = True
+        elif index == 3:
+            real_values = True
+        elif index == 4:
+            imag_values = True
         
         color_scale_setup = {   "absolute" : absolute,
                                 "real_values" : real_values,
                                 "imag_values" : imag_values,
                                 "absolute_animation" : absolute_animation   }
-
-        labels = list()
-        labels.append("Absolute")
-        labels.append("Real values")
-        labels.append("Imaginary values")
-        labels.append("Animation (absolute)")
-        labels.append("Animation (non absolute)")
 
         return color_scale_setup
 

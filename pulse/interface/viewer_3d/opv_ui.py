@@ -76,11 +76,14 @@ class OPVUi(QVTKRenderWindowInteractor):
             if "transparency" in preferences.keys():
                 self.elements_transparency = preferences['transparency']
 
-            if "OpenPulse logo" in preferences.keys():
-                self.add_OpenPulse_logo = preferences['OpenPulse logo']
+            if "openpulse logo" in preferences.keys():
+                self.add_OpenPulse_logo = preferences['openpulse logo']
 
             if "reference scale" in preferences.keys():
                 self.show_reference_scale = preferences['reference scale']
+
+            if "colormap" in preferences.keys():
+                self.colormap = preferences['colormap']
 
         self.opvRenderer.set_background_color(self.background_color)
         self.opvAnalysisRenderer.set_background_color(self.background_color)

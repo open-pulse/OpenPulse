@@ -243,7 +243,7 @@ class RendererUserPreferencesInput(QDialog):
                         'lines color' : str(self.opv.opvRenderer.lines_color),
                         'surfaces color' : str(self.opv.opvRenderer.surfaces_color),
                         'transparency' : str(self.opv.opvRenderer.elements_transparency),
-                        'OpenPulse logo' : str(int(self.opv.add_OpenPulse_logo)),
+                        'openpulse logo' : str(int(self.opv.add_OpenPulse_logo)),
                         'Reference scale' : str(int(self.opv.show_reference_scale)) }
         
         self.config.write_user_preferences_in_file(preferences)
@@ -280,7 +280,7 @@ class RendererUserPreferencesInput(QDialog):
                         'lines color' : str(self.opv.opvRenderer.lines_color),
                         'surfaces color' : str(self.opv.opvRenderer.surfaces_color),
                         'transparency' : str(self.opv.opvRenderer.elements_transparency),
-                        'OpenPulse logo' : str(int(self.opv.add_OpenPulse_logo)),
+                        'openpulse logo' : str(int(self.opv.add_OpenPulse_logo)),
                         'Reference scale' : str(int(self.opv.show_reference_scale)) }
         
         self.config.write_user_preferences_in_file(preferences)

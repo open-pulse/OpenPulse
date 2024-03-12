@@ -7,14 +7,13 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 
 import numpy as np
-from pathlib import Path
 
 
 class PlotStressesFieldForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/plot_stresses_field_for_static_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/plot_stresses_field_for_static_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
@@ -29,6 +28,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self.plot_stress_field()
+        self.load_user_preference_colormap()
 
     def _initialize(self):
         self.selected_index = None
@@ -46,6 +46,13 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.solve = self.project.structural_solve
         self.preprocessor = self.project.preprocessor
 
+        self.colormaps = ["jet",
+                          "viridis",
+                          "inferno",
+                          "magma",
+                          "plasma",
+                          "grayscale"]
+
     def _load_icons(self):
         self.icon = get_openpulse_icon()
 
@@ -56,26 +63,43 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
-        self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
+        self.comboBox_color_scale : QComboBox
+        self.comboBox_colormaps : QComboBox
+        self.comboBox_stress_type : QComboBox
         # QFrame
-        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button : QFrame
         self.frame_button.setVisible(False)
         # QPushButton
-        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.pushButton_plot : QPushButton
 
     def _create_connections(self):
-        self.comboBox_color_scaling.currentIndexChanged.connect(self.plot_stress_field)
+        self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
+        self.comboBox_color_scale.currentIndexChanged.connect(self.plot_stress_field)
         self.comboBox_stress_type.currentIndexChanged.connect(self.plot_stress_field)
         self.pushButton_plot.clicked.connect(self.plot_stress_field)
         self.update_animation_widget_visibility()
 
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
-        if index <= 2:
+        if index >= 2:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
         else:
             app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+
+    def load_user_preference_colormap(self):
+        try:
+            colormap = app().main_window.user_preferences["colormap"]
+            if colormap in self.colormaps:
+                index = self.colormaps.index(colormap)
+                self.comboBox_colormaps.setCurrentIndex(index)
+        except:
+            self.comboBox_colormaps.setCurrentIndex(0)
+
+    def update_colormap_type(self):
+        index = self.comboBox_colormaps.currentIndex()
+        colormap = self.colormaps[index]
+        app().config.write_colormap_in_file(colormap)
+        #TODO: update analysis render
 
     def get_stress_data(self):
 
@@ -96,7 +120,32 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_stress_field(self.selected_index)
+
+    def get_user_color_scale_setup(self):
+
+        absolute = False
+        real_values = False
+        imag_values = False
+        absolute_animation = False
+
+        index = self.comboBox_color_scale.currentIndex()
+
+        if index == 0:
+            absolute_animation = True
+        if index == 2:
+            absolute = True
+        elif index == 3:
+            real_values = True
+        elif index == 4:
+            imag_values = True
         
+        color_scale_setup = {   "absolute" : absolute,
+                                "real_values" : real_values,
+                                "imag_values" : imag_values,
+                                "absolute_animation" : absolute_animation   }
+
+        return color_scale_setup
+
     def plot_stress_field(self):
         self.update_animation_widget_visibility()
         self.selected_index = 0

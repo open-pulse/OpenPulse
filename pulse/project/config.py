@@ -151,6 +151,22 @@ class Config:
 
         self.write_data_in_file(self.recents_filename, config) 
 
+    def write_colormap_in_file(self, colormap : str):
+        try:
+
+            config = configparser.ConfigParser()
+            config.read(self.recents_filename)
+
+            if config.has_section('User preferences'):
+                config["User preferences"]["colormap"] = colormap
+            else:
+                config["User preferences"] = {"colormap" : colormap}
+
+        except:
+            return
+
+        self.write_data_in_file(self.recents_filename, config)
+
     def write_user_preferences_in_file(self, preferences):
 
         config = configparser.ConfigParser()
@@ -207,11 +223,11 @@ class Config:
                 if "transparency" in section.keys():
                     user_preferences["transparency"] = float(section["transparency"])
 
-                if "OpenPulse logo" in section.keys():
-                    user_preferences["OpenPulse logo"] = bool(int(section["OpenPulse logo"]))
+                if "openpulse logo" in section.keys():
+                    user_preferences["openpulse logo"] = bool(int(section["openpulse logo"]))
 
-                if "mopt logo" in section.keys():
-                    user_preferences["mopt logo"] = bool(int(section["mopt logo"]))
+                if "colormap" in section.keys():
+                    user_preferences["colormap"] = section["colormap"]
 
                 if "Reference scale" in section.keys():
                     user_preferences["Reference scale"] = bool(int(section["Reference scale"]))
