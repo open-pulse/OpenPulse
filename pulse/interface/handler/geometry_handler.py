@@ -183,7 +183,7 @@ class GeometryHandler:
                 if "material_id" in data.keys():
                     bend.extra_info["material_info"] = material_id
 
-                bend.set_diameter(diameter)
+                bend.set_diameter(diameter, diameter)
                 structures.append(bend)
 
             else:
@@ -202,10 +202,9 @@ class GeometryHandler:
                     pipe.extra_info["material_info"] = material_id
                 
                 if len(section_parameters) == 6:
-                    pipe.set_diameter(diameter)
+                    pipe.set_diameter(diameter, diameter)
                 else:
-                    pipe.set_diameter(initial_diameter, point=start)
-                    pipe.set_diameter(final_diameter, point=end)
+                    pipe.set_diameter(initial_diameter, final_diameter)
 
                 structures.append(pipe)
 

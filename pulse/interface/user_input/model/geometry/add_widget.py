@@ -221,15 +221,21 @@ class AddStructuresWidget(QWidget):
             if radius is None:
                 return
         else:
-            radius = self.bending_factor * editor.default_diameter
+            radius = self.bending_factor * editor.default_initial_diameter
 
         editor.dismiss()
         editor.clear_selection()
 
-        if self.cross_section_info["section_type_label"] == "Pipe section":
+        can_bend = (
+            self.cross_section_info["section_type_label"] == "Pipe section"
+            and len(self.cross_section_info["section_parameters"]) != 10
+        )
+
+        if can_bend:
             editor.add_bent_pipe((dx,dy,dz), radius)
         else:
             editor.add_pipe((dx,dy,dz))  # actually it is a beam =)
+
         self.geometry_widget.update_plot(reset_camera=False)
 
     def _disable_add_segment_button(self, _bool=True):
@@ -315,8 +321,8 @@ class AddStructuresWidget(QWidget):
                 return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter_initial = self.cross_section_widget.variable_parameters[0]
-            diameter_final = self.cross_section_widget.variable_parameters[6]
-            self.geometry_widget.update_default_diameter(diameter_initial)
+            diameter_final = self.cross_section_widget.variable_parameters[4]
+            self.geometry_widget.update_default_diameter(diameter_initial, diameter_final)
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
