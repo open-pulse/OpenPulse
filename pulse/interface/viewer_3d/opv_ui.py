@@ -52,7 +52,7 @@ class OPVUi(QVTKRenderWindowInteractor):
                     a dicitonary containing all required data to update the render
 
         """
-        self.background_color = None
+
         if preferences:
 
             if "render theme" in preferences.keys():
