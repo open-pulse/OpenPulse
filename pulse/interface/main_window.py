@@ -401,7 +401,7 @@ class MainWindow(QMainWindow):
 
     def _update_permissions(self):
         pass
-    
+
     def _update_visualization(self):
         points = self.action_show_points.isChecked()
         lines = self.action_show_lines.isChecked()
