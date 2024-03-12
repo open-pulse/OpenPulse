@@ -27,10 +27,13 @@ class ColorTable(vtk.vtkLookupTable):
         self.structural_elements = project.preprocessor.structural_elements
 
         self.SetTableRange(self.min_value, self.max_value)
-        self.set_colormap("viridis")
+        self.set_colormap(self.colormap)
 
-    def set_colormap(self, colormap):
-        if colormap == "greys":
+    def set_colormap(self, colormap:str):
+        # just to make sure it has no uppercases or extra spaces
+        colormap = colormap.strip().lower()
+
+        if colormap == "grayscale":
             self.set_colors(grey_colors)
         elif colormap == "jet":
             self.set_colors(jet_colors)
@@ -42,6 +45,9 @@ class ColorTable(vtk.vtkLookupTable):
             self.set_colors(magma_colors)
         elif colormap == "plasma":
             self.set_colors(plasma_colors)
+        else:
+            print(f'Invalid colormap "{colormap}". Using "viridis" instead.')
+            self.set_colors(viridis_colors)
 
     def set_colors(self, colors, shades=256):
         color_transfer = vtk.vtkColorTransferFunction()

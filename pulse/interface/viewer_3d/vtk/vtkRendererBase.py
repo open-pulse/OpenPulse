@@ -2,7 +2,7 @@ import vtk
 
 from abc import ABC, abstractmethod 
 from pathlib import Path
-
+from vtkat import VTKAT_DIR
 
 class vtkRendererBase(ABC):
     def __init__(self, style):
@@ -32,8 +32,12 @@ class vtkRendererBase(ABC):
         self.actors = {}
         self._inUse = False
         self._usePicker = True
-        self.textProperty.SetFontSize(17)
+
+        font_file = VTKAT_DIR / "fonts/LiberationMono-Bold.ttf"
+        self.textProperty.SetFontSize(14)
         self.textProperty.SetColor((0,0,0))
+        self.textProperty.SetFontFamily(vtk.VTK_FONT_FILE)
+        self.textProperty.SetFontFile(font_file)
 
         # self.textProperty.BoldOn()
         # self.textProperty.SetItalic(1)
@@ -45,7 +49,7 @@ class vtkRendererBase(ABC):
         self.lines_color = (255, 255, 255)
         self.surfaces_color = (255, 255, 255)
         self.elements_transparency = 0.8
-        self.colormap = "jet"
+        self.colormap = "viridis"
         self.set_background_color("light")
 
     def _create_and_config_logos(self):
