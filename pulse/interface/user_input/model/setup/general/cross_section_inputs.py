@@ -332,9 +332,11 @@ class CrossSectionWidget(QWidget):
         message = ""
         if np.isclose(outside_diameter, 2*thickness, atol=1e-5) or 2*thickness > outside_diameter:
             message = "The THICKNESS must be less than \nthe outside radius."
+            return True
             
-        elif thickness == 0.0:
+        if thickness == 0.0:
             message = "The THICKNESS must be greater than zero."
+            return True
 
         if message != "":
             title = "Input cross-section error"
@@ -354,73 +356,77 @@ class CrossSectionWidget(QWidget):
         outside_diameter_initial = check_inputs(self.lineEdit_outside_diameter_initial, "'outside diameter (initial)'")
         if outside_diameter_initial is None:
             self.lineEdit_outside_diameter_initial.setFocus()
-            return
+            return True
         
         outside_diameter_final = check_inputs(self.lineEdit_outside_diameter_final, "'outside diameter (final)'")
         if outside_diameter_final is None:
             self.lineEdit_outside_diameter_final.setFocus()
-            return
+            return True
 
         thickness_initial = check_inputs(self.lineEdit_wall_thickness_initial, "'thickness (initial)'")
         if thickness_initial is None:
             self.lineEdit_wall_thickness_initial.setFocus()
-            return
+            return True
         
         thickness_final = check_inputs(self.lineEdit_wall_thickness_final, "'thickness (final)'")
         if thickness_final is None:
             self.lineEdit_wall_thickness_final.setFocus()
-            return
+            return True
 
         if np.isclose(outside_diameter_initial, 2*thickness_initial, atol=1e-5) or 2*thickness_initial > outside_diameter_initial:
-            message = "The INITIAL THICKNESS must be less than \nthe initial outside radius." 
+            message = "The INITIAL THICKNESS must be less than \nthe initial outside radius."
+            return True
 
-        elif thickness_initial == 0.0:
-            message = "The INITIAL THICKNESS must be greater than zero." 
+        if thickness_initial == 0.0:
+            message = "The INITIAL THICKNESS must be greater than zero."
+            return True
 
         if np.isclose(outside_diameter_final, 2*thickness_final, atol=1e-5) or 2*thickness_final > outside_diameter_final:
-            message = "The FINAL THICKNESS must be less than \nthe final outside radius." 
+            message = "The FINAL THICKNESS must be less than \nthe final outside radius."
+            return True
 
-        elif thickness_final == 0.0:
-            message = "The FINAL THICKNESS must be greater than zero." 
+        if thickness_final == 0.0:
+            message = "The FINAL THICKNESS must be greater than zero."
+            return True
         
         if message != "":
             title = "Input cross-section error"
             PrintMessageInput([window_title, title, message])
-            return
+            return True
 
         offset_y_initial = check_inputs(self.lineEdit_offset_y_initial, "'offset y (initial)'", only_positive=False, zero_included=True)
         if offset_y_initial is None:
             self.lineEdit_offset_y_initial.setFocus()
-            return
+            return True
 
         offset_y_final = check_inputs(self.lineEdit_offset_y_final, "'offset y (final)'", only_positive=False, zero_included=True)
         if offset_y_final is None:
             self.lineEdit_offset_y_final.setFocus()
-            return
+            return True
 
         offset_z_initial = check_inputs(self.lineEdit_offset_z_initial, "'offset z (initial)'", only_positive=False, zero_included=True)
         if offset_z_initial is None:
             self.lineEdit_offset_z_initial.setFocus()
-            return
+            return True
         
         offset_z_final = check_inputs(self.lineEdit_offset_z_final, "'offset z (final)'", only_positive=False, zero_included=True)
         if offset_z_final is None:
             self.lineEdit_offset_z_final.setFocus()
-            return
+            return True
         
         insulation_thickness = check_inputs(self.lineEdit_insulation_thickness_variable_section, 
                                             "'insulation thickness (variable pipe section)'",
                                             zero_included=True)
         if insulation_thickness is None:
             self.lineEdit_insulation_thickness_variable_section.setFocus()
-            return
+            return True
         
         insulation_density = check_inputs(  self.lineEdit_insulation_density_variable_section, 
                                             "'density thickness (variable pipe section)'",
                                             zero_included=True  )
         if insulation_density is None:
             self.lineEdit_insulation_density_variable_section.setFocus()
-            return    
+            return True
 
         if self.flip:
             self.variable_parameters = [    outside_diameter_final, 

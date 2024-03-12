@@ -18,8 +18,13 @@ class vtkRendererBase(ABC):
         self.textProperty = vtk.vtkTextProperty()
         self._renderer = vtk.vtkRenderer()
 
+        self.colorBarTitleProperty = vtk.vtkTextProperty()
+        self.colorBarLabelProperty = vtk.vtkTextProperty()
+        self.scaleBar = vtk.vtkLegendScaleActor()
+        self.colorbar = vtk.vtkScalarBarActor()
+
         self._load_default_preferences()
-        self._createConfigLogos()   
+        self._create_and_config_logos()
 
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
@@ -35,26 +40,23 @@ class vtkRendererBase(ABC):
 
     def _load_default_preferences(self):
         self.background_color = "light"
+        self.font_color = (0, 0, 0)
         self.nodes_color = (255, 255, 63)
         self.lines_color = (255, 255, 255)
         self.surfaces_color = (255, 255, 255)
         self.elements_transparency = 0.8
+        self.colormap = "jet"
         self.set_background_color("light")
 
-    def _createConfigLogos(self):
+    def _create_and_config_logos(self):
         
-        self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
-        self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_black.png'))
+        # self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
+        self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_gray.png'))
         self._imageReader_pulse.Update()
-        self._imageReader_mopt.Update()
         
         self._logo_pulse_input = self._imageReader_pulse.GetOutput()
         self._logo_pulse.SetImage(self._logo_pulse_input)
         self._logo_pulse.ProportionalResizeOn()
-
-        self._logo_mopt_input = self._imageReader_mopt.GetOutput()
-        self._logo_mopt.SetImage(self._logo_mopt_input)
-        self._logo_mopt.ProportionalResizeOn()
         
         self._logo_pulse.SetPosition(0.845, 0.89)
         self._logo_pulse.SetPosition2(0.15, 0.15)   
@@ -62,13 +64,7 @@ class vtkRendererBase(ABC):
         self._logo_pulse.GetImageProperty().SetOpacity(0.9)
         self._logo_pulse.GetImageProperty().SetDisplayLocationToBackground()
 
-        self._logo_mopt.SetPosition(0.01, -0.015)
-        self._logo_mopt.SetPosition2(0.07, 0.1)
-     
-        self._logo_mopt.GetImageProperty().SetOpacity(0.9)
-        self._logo_mopt.GetImageProperty().SetDisplayLocationToBackground()  
-
-    def _createLogos(self, OpenPulse=True, MOPT=True):
+    def add_logos(self, OpenPulse=True):
 
         self._renderer.RemoveViewProp(self._logo_pulse)
         self._renderer.RemoveViewProp(self._logo_mopt)
@@ -76,16 +72,12 @@ class vtkRendererBase(ABC):
         if OpenPulse:   
             self._renderer.AddViewProp(self._logo_pulse)
             self._logo_pulse.SetRenderer(self._renderer)
-        
-        if MOPT:
-            self._renderer.AddViewProp(self._logo_mopt)
-            self._logo_mopt.SetRenderer(self._renderer)
 
     def set_background_color(self, color):
         if color == "dark":
             self._renderer.GradientBackgroundOn()
             self._renderer.SetBackground(0.06, 0.08, 0.12)
-            self._renderer.SetBackground2(1,1,1)
+            self._renderer.SetBackground2(0.9,0.9,0.9)
         elif color == "light":
             self._renderer.GradientBackgroundOn()
             self._renderer.SetBackground(0.5, 0.5, 0.65)
@@ -97,6 +89,8 @@ class vtkRendererBase(ABC):
         # self.update_logos_to_get_better_contrast()
 
     def update_logos_to_get_better_contrast(self):
+        # Leave it disabled for now
+        return
 
         if self.background_color in [(0,0,0), "dark"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_white.png'))
@@ -116,6 +110,9 @@ class vtkRendererBase(ABC):
 
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
+
+    def set_colormap(self, colormap):
+        self.colormap = colormap
         
     def changeNodesColor(self, color):
         self.nodes_color = color 
@@ -129,23 +126,16 @@ class vtkRendererBase(ABC):
     def changeElementsTransparency(self, transparency):
         self.elements_transparency = transparency
 
-    def changeFontColor(self, color):
-        font_color = [value/255 for value in color]
-        self.textProperty.SetColor(font_color)
-
-    def changeSliderFontColor(self, color):
-        self.SetColor(color)
-
-    def changeColorbarFontColor(self, color):
-        self.SetColor(color)
-
-    def changeReferenceScaleFontColor(self, color):
-        font_color = [value/255 for value in color]
-        self.scaleBarTitleProperty.SetColor(font_color)
-        self.scaleBarLabelProperty.SetColor(font_color)
+    def change_font_color(self, color):
+        self.font_color = [value/255 for value in color]
+        self.textProperty.SetColor(self.font_color)
+        self.scaleBarTitleProperty.SetColor(self.font_color)
+        self.scaleBarLabelProperty.SetColor(self.font_color)
+        self.colorBarTitleProperty.SetColor(self.font_color)
+        self.colorBarLabelProperty.SetColor(self.font_color)
 
     def _createScaleBar(self):
-        
+
         self._renderer.RemoveActor(self.scaleBar)
         width, height = self.getSize()
         self.scaleBar = vtk.vtkLegendScaleActor()
@@ -157,8 +147,6 @@ class vtkRendererBase(ABC):
             self.scaleBarLabelProperty.ShadowOff()
             self.scaleBarTitleProperty.SetFontSize(16)
             self.scaleBarLabelProperty.SetFontSize(16)
-            self.scaleBarTitleProperty.SetColor(self.opv.font_color)
-            self.scaleBarLabelProperty.SetColor(self.opv.font_color)
             self.scaleBarTitleProperty.SetVerticalJustificationToTop()
             self.scaleBarTitleProperty.SetLineOffset(-40)
             self.scaleBarLabelProperty.SetLineOffset(-25)
@@ -169,19 +157,15 @@ class vtkRendererBase(ABC):
 
     def _createColorBar(self):
 
-        self.colorBarTitleProperty = vtk.vtkTextProperty()
         self.colorBarTitleProperty.SetFontSize(20)
         self.colorBarTitleProperty.ShadowOff()
-        self.colorBarTitleProperty.BoldOn()
+        # self.colorBarTitleProperty.BoldOn()
         # self.colorBarTitleProperty.SetItalic(1)
-        self.colorBarTitleProperty.SetColor(self.opv.font_color)
         self.colorBarTitleProperty.SetJustificationToLeft()
         
-        self.colorBarLabelProperty = vtk.vtkTextProperty()
         self.colorBarLabelProperty.SetFontSize(14)
         self.colorBarLabelProperty.ShadowOff()
         # self.colorBarLabelProperty.SetItalic(1)
-        self.colorBarLabelProperty.SetColor(self.opv.font_color)
         self.colorBarLabelProperty.SetJustificationToLeft()   
 
         unit = self.project.get_unit()
@@ -230,7 +214,7 @@ class vtkRendererBase(ABC):
         self._style.releaseButtons()
         self._inUse = value
 
-    def createInfoText(self, text, color=None):
+    def createInfoText(self, text):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
 
@@ -240,9 +224,6 @@ class vtkRendererBase(ABC):
         self.textProperty.SetVerticalJustificationToTop()
         self.textProperty.SetJustificationToLeft()
         self._textActor.SetInput(text)
-        if color is not None:
-            if isinstance(color, (tuple, list)) and len(color)==3:
-                self.textProperty.SetColor(color)
         self._textActor.SetTextProperty(self.textProperty)
         self._textActor.SetDisplayPosition(width, height)
         self._renderer.AddActor2D(self._textActor)

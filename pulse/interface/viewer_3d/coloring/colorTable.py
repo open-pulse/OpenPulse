@@ -6,10 +6,12 @@ from pulse.interface.viewer_3d.coloring.color_palettes import (
 )
 
 class ColorTable(vtk.vtkLookupTable):
-    def __init__(self, project, data, min_max_values, stress_field_plot=False, pressure_field_plot=False):
+    def __init__(self, project, data, min_max_values, colormap, stress_field_plot=False, pressure_field_plot=False):
         super().__init__()
 
         self.project = project
+
+        self.colormap = colormap
 
         if isinstance(data, dict):
             self.valueVector = list(data.values())

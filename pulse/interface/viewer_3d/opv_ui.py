@@ -41,7 +41,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.surfaces_color = (255, 255, 255)
         self.elements_transparency = 0.8
         self.add_OpenPulse_logo = True
-        self.add_MOPT_logo = True
         self.show_reference_scale = True
 
     def set_user_interface_preferences(self, preferences):
@@ -77,32 +76,28 @@ class OPVUi(QVTKRenderWindowInteractor):
             if "transparency" in preferences.keys():
                 self.elements_transparency = preferences['transparency']
 
-            if "OpenPulse logo" in preferences.keys():
-                self.add_OpenPulse_logo = preferences['OpenPulse logo']
-
-            if "mopt logo" in preferences.keys():
-                self.add_MOPT_logo = preferences['mopt logo']
+            if "openpulse logo" in preferences.keys():
+                self.add_OpenPulse_logo = preferences['openpulse logo']
 
             if "reference scale" in preferences.keys():
                 self.show_reference_scale = preferences['reference scale']
+
+            if "colormap" in preferences.keys():
+                self.colormap = preferences['colormap']
 
         self.opvRenderer.set_background_color(self.background_color)
         self.opvAnalysisRenderer.set_background_color(self.background_color)
         self.opvGeometryRenderer.set_background_color(self.background_color)
 
-        self.opvRenderer.changeFontColor(self.font_color)
-        self.opvAnalysisRenderer.changeFontColor(self.font_color)
-        self.opvGeometryRenderer.changeFontColor(self.font_color)
-
-        self.opvRenderer.changeReferenceScaleFontColor(self.font_color)
-        self.opvAnalysisRenderer.changeReferenceScaleFontColor(self.font_color)
-        self.opvGeometryRenderer.changeReferenceScaleFontColor(self.font_color)
+        self.opvRenderer.change_font_color(self.font_color)
+        self.opvAnalysisRenderer.change_font_color(self.font_color)
+        self.opvGeometryRenderer.change_font_color(self.font_color)
 
         self.opvRenderer.changeNodesColor(self.nodes_color)
         self.opvRenderer.changeLinesColor(self.lines_color)
         self.opvRenderer.changeSurfacesColor(self.surfaces_color)
         self.opvRenderer.changeElementsTransparency(self.elements_transparency)
-        
+
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.opvAnalysisRenderer.getRenderer())

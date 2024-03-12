@@ -130,7 +130,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         # plt(self.opvSymbols)
         self._renderer.AddActor(self.plane_actor)
 
-        self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self.add_logos(OpenPulse=self.opv.add_OpenPulse_logo)
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
@@ -266,7 +266,10 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.opvDeformedTubes.build()
         min_max_values_all = [self.result_disp_min, self.result_disp_max]
-        colorTable = ColorTable(self.project, u_def, min_max_values_all)
+        colorTable = ColorTable(self.project, 
+                                u_def, 
+                                min_max_values_all, 
+                                self.colormap)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
 
@@ -303,7 +306,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(phase_step=phase_step)
 
         min_max_values_all = [self.stress_min, self.stress_max]
-        colorTable = ColorTable(self.project, stresses_data, min_max_values_all, stress_field_plot=True)
+        colorTable = ColorTable(self.project, 
+                                stresses_data, 
+                                min_max_values_all,
+                                self.colormap, 
+                                stress_field_plot=True)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
 
@@ -337,7 +344,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         
         self.opvPressureTubes.build()
         min_max_values_all = [self.pressure_min, self.pressure_max]
-        colorTable = ColorTable(self.project, pressure_field_data, min_max_values_all, pressure_field_plot=True)
+        colorTable = ColorTable(self.project, 
+                                pressure_field_data, 
+                                min_max_values_all, 
+                                self.colormap,
+                                pressure_field_plot=True)
         self.opvPressureTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
 
@@ -486,15 +497,6 @@ class opvAnalysisRenderer(vtkRendererBase):
     #         writer.append_data(im)
     #     writer.close()
 
-    def _updateFontColor(self, color):
-        self.colorBarTitleProperty.SetColor(color)
-        self.stressesTextProperty.SetColor(color)
-        self.scaleBarTitleProperty.SetColor(color)
-        self.colorBarLabelProperty.SetColor(color)
-        self.scaleBarLabelProperty.SetColor(color)
-        self.colorBarTitleProperty.SetColor(color)
-        self.changeReferenceScaleFontColor(color)
-
     # info text
     def updateInfoText(self, *args, **kwargs):
         
@@ -517,7 +519,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         #     text += "\nMagnification factor: {:.4e}\n".format(self._magnification_factor)
         
         # vertical_position_adjust = None
-        self.createInfoText(text, color=self.opv.font_color)
+        self.createInfoText(text)
 
     def update_min_max_stresses_text(self):
                 
@@ -533,7 +535,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         
         self.textActorStress.SetInput(text)
         self.stressesTextProperty.SetFontSize(17)
-        self.stressesTextProperty.SetBold(1)
+        # self.stressesTextProperty.SetBold(1)
         # self.stressesTextProperty.SetItalic(1)
         self.stressesTextProperty.ShadowOff()
         self.stressesTextProperty.SetColor(self.opv.font_color)
