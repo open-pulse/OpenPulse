@@ -34,7 +34,7 @@ jobs:
           path: ./uploads/
 
       - name: show path
-        run: ls -r ./uploads/openpulse-linux
+        run: ls -r ./uploads/ openpulse-linux
 
       - name: upload release linux
         id: upload-linux
@@ -44,19 +44,19 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./uploads/openpulse-linux/
-          asset_name: open-pulse-windows-x64.exe
+          asset_name: open-pulse-linux-x64.so
           asset_content_type: application/zip
 
-      - name: upload release windows
-        id: upload-windows
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/
-          asset_name: open-pulse-linux-x64.so
-          asset_content_type: application/zip                        
+      # - name: upload release windows
+      #   id: upload-windows
+      #   uses: actions/upload-release-asset@v1.0.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./uploads/openpulse-windows
+      #     asset_name: open-pulse-windows-x64.exe
+      #     asset_content_type: application/zip                        
 
   # build-windows:
   #   runs-on: windows-2019
