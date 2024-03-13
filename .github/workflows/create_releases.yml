@@ -114,7 +114,9 @@ jobs:
       #   run: |
       #     mv dist/OpenPulse dist/open-pulse-linux-x64.so
       
-      - name: blin blon
+      - name: blin
+        run: mkdir dist
+      - name: blon
         run: touch dist/open-pulse-linux-x64.so
 
       - uses: actions/upload-artifact@v4
