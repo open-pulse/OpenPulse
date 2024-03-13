@@ -201,7 +201,7 @@ class InputUi:
                                         lines_to_update_cross_section=read.list_lines_to_update_cross_section )
 
     def plot_cross_section(self):
-        self.processInput(PlotCrossSectionInput, self.project, self.opv)
+        self.processInput(PlotCrossSectionInput)
 
     def mesh_setup_visibility(self):
         self.processInput(RendererUserPreferencesInput)
