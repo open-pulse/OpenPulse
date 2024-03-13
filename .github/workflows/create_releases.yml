@@ -27,10 +27,15 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: download artifacts
+      - name: download linux artifacts
         uses: actions/download-artifact@v4
-        # with:
-        #   name: uploads
+        with:
+          name: openpulse-linux
+
+      - name: download windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openpulse-windows
 
       - name: upload linux
         id: upload-linux

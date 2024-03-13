@@ -233,6 +233,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Volume velocity:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -303,6 +306,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Specific impedance:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -336,6 +342,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Acoustic pressure:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -368,6 +377,9 @@
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Radiation impedance:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -439,6 +451,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Perforated plate:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -509,6 +524,9 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Elements with length correction:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -575,7 +593,7 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>

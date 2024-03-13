@@ -94,7 +94,9 @@ class OPPGeometryDesignerInput(QWidget):
             self.edit_stack.setCurrentWidget(self.empty_widget)
 
     def process_geometry_callback(self):
-        self.geometry_widget.unstage_structure()
+        editor = app().geometry_toolbox.editor
+        editor.dismiss()
+
         self.geometry_handler.export_entity_file()
         self.update_project_attributes()
         self.load_project()
