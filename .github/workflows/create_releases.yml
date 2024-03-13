@@ -37,7 +37,7 @@ jobs:
         with:
           name: openpulse-windows
 
-      - name: upload linux
+      - name: upload release linux
         id: upload-linux
         uses: actions/upload-release-asset@v1.0.1
         env:
@@ -48,7 +48,7 @@ jobs:
           asset_name: openpulse-linux
           asset_content_type: application/zip
 
-      - name: upload windows
+      - name: upload release windows
         id: upload-windows
         uses: actions/upload-release-asset@v1.0.1
         env:
@@ -81,7 +81,7 @@ jobs:
       - name: Run Pyinstaller
         run: |
           poetry run pyinstaller openpulse.spec
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: openpulse-windows
           path: dist/OpenPulse.exe
@@ -108,7 +108,7 @@ jobs:
       - name: Run Pyinstaller
         run: |
           poetry run pyinstaller openpulse.spec
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: openpulse-linux
           path: dist/OpenPulse
