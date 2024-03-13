@@ -30,7 +30,7 @@ jobs:
       - name: download all artifacts
         uses: actions/download-artifact@v4
       - name: show path
-        run: ls -r ./uploads/openpulse-linux/
+        run: ls -r ./uploads/
 
       - name: upload release linux
         id: upload-linux
