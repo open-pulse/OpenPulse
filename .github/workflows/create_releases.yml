@@ -29,7 +29,10 @@ jobs:
 
       - name: download all artifacts
         uses: actions/download-artifact@v4
-
+        with:
+          path: ./uploads/
+      - name: show path
+        run: ls ./uploads/
       - name: upload release linux
         id: upload-linux
         uses: actions/upload-release-asset@v1.0.1
@@ -37,7 +40,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /home/runner/work/OpenPulse/OpenPulse/
+          asset_path: ./uploads/
           asset_name: open-pulse-windows-x64.exe
           asset_content_type: application/zip
 
@@ -48,7 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /home/runner/work/OpenPulse/OpenPulse/
+          asset_path: ./uploads/
           asset_name: open-pulse-linux-x64.so
           asset_content_type: application/zip                        
 
