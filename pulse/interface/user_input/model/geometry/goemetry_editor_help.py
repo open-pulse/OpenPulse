@@ -8,8 +8,9 @@ from pulse.interface.formatters.icons import *
 class GeometryEditorHelp(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        uic.loadUi(UI_DIR / "help/geometry_editor_help.ui", self)
+        
+        ui_path = UI_DIR / "model/geometry/help/geometry_editor_help.ui"
+        uic.loadUi(ui_path, self)
 
         self.main_window = app().main_window
         self.project = app().project
