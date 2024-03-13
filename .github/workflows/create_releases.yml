@@ -27,15 +27,8 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: download linux artifacts
+      - name: download all artifacts
         uses: actions/download-artifact@v4
-        with:
-          name: openpulse-linux
-
-      - name: download windows artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: openpulse-windows
 
       - name: upload release linux
         id: upload-linux
@@ -44,8 +37,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./openpulse-linux/
-          asset_name: openpulse-linux
+          asset_path: /home/runner/work/OpenPulse/OpenPulse/
+          asset_name: open-pulse-windows-x64.exe
           asset_content_type: application/zip
 
       - name: upload release windows
@@ -55,8 +48,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./openpulse-windows/
-          asset_name: openpulse-windows
+          asset_path: /home/runner/work/OpenPulse/OpenPulse/
+          asset_name: open-pulse-linux-x64.so
           asset_content_type: application/zip                        
 
   build-windows:
@@ -81,10 +74,13 @@ jobs:
       - name: Run Pyinstaller
         run: |
           poetry run pyinstaller openpulse.spec
+      - name: Rename file
+        run: |
+          mv dist/OpenPulse.exe dist/open-pulse-windows-x64.exe
       - uses: actions/upload-artifact@v4
         with:
           name: openpulse-windows
-          path: dist/OpenPulse.exe
+          path: dist/open-pulse-windows-x64.exe
 
   build-linux:
     runs-on: ubuntu-latest
@@ -108,7 +104,10 @@ jobs:
       - name: Run Pyinstaller
         run: |
           poetry run pyinstaller openpulse.spec
+      - name: Rename file
+        run: |
+          mv dist/OpenPulse dist/open-pulse-linux-x64.so
       - uses: actions/upload-artifact@v4
         with:
           name: openpulse-linux
-          path: dist/OpenPulse
+          path: dist/open-pulse-linux-x64.so
