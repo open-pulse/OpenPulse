@@ -70,10 +70,16 @@ class EditBendWidget(QWidget):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
         is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
 
+        editor = self.geometry_widget.editor
+        *_, structure = editor.selected_structures
+        if not isinstance(structure, Bend):
+            return
+
         if is_pipe and is_constant_section:
             self.cross_section_widget.get_constant_pipe_parameters()
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter = self.cross_section_widget.section_parameters[0]
+            structure.set_diameter(diameter, diameter)
             self.geometry_widget.update_default_diameter(diameter)
 
         elif is_pipe and not is_constant_section:
@@ -82,13 +88,17 @@ class EditBendWidget(QWidget):
             diameter_initial = self.cross_section_widget.section_parameters[0]
             diameter_final = self.cross_section_widget.section_parameters[4]
             self.geometry_widget.update_default_diameter(diameter_initial)
+            structure.set_diameter(diameter_initial, diameter_final)
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
             self.cross_section_info = self.cross_section_widget.beam_section_info
             # temporary strategy
-            self.geometry_widget.update_default_diameter(0.02)
+            diameter = 0.01
+            self.geometry_widget.update_default_diameter(diameter)
+            structure.set_diameter(diameter, diameter)
         
+
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
         self.update_pipe_cross_section()
