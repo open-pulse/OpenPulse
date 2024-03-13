@@ -34,7 +34,7 @@ jobs:
           path: ./uploads/
 
       - name: show path
-        run: ls -r ./uploads/
+        run: ls -r ./uploads/openpulse-linux
 
       - name: upload release linux
         id: upload-linux
