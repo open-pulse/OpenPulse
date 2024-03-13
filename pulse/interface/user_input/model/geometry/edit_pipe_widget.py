@@ -54,7 +54,8 @@ class EditPipeWidget(QWidget):
 
     def show_cross_section_widget(self):
         self.cross_section_widget._add_icon_and_title()
-        self.cross_section_widget.setVisible(True)          
+        self.cross_section_widget.set_inputs_to_geometry_creator()
+        self.cross_section_widget.setVisible(True)
 
     def show_material_widget(self):
         self.material_widget._add_icon_and_title()
@@ -72,14 +73,16 @@ class EditPipeWidget(QWidget):
             return
 
         if is_pipe and is_constant_section:
-            self.cross_section_widget.get_constant_pipe_parameters()
+            if self.cross_section_widget.get_constant_pipe_parameters():
+                return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter = self.cross_section_widget.section_parameters[0]
             structure.set_diameter(diameter, diameter)
             self.geometry_widget.update_default_diameter(diameter)
 
         elif is_pipe and not is_constant_section:
-            self.cross_section_widget.get_variable_section_pipe_parameters()
+            if self.cross_section_widget.get_variable_section_pipe_parameters():
+                return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter_initial = self.cross_section_widget.section_parameters[0]
             diameter_final = self.cross_section_widget.section_parameters[4]
@@ -87,7 +90,8 @@ class EditPipeWidget(QWidget):
             structure.set_diameter(diameter_initial, diameter_final)
 
         else:  # is beam
-            self.cross_section_widget.get_beam_section_parameters()
+            if self.cross_section_widget.get_beam_section_parameters():
+                return
             self.cross_section_info = self.cross_section_widget.beam_section_info
             # temporary strategy
             diameter = 0.01
@@ -97,13 +101,11 @@ class EditPipeWidget(QWidget):
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
         self.update_pipe_cross_section()
-        # self._update_permissions()
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
         self.update_pipe_material()
-        # self._update_permissions()
 
     def update(self):
         super().update()

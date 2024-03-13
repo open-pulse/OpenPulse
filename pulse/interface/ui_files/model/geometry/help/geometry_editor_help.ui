@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>460</width>
     <height>370</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>300</height>
+    <width>460</width>
+    <height>370</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
+    <width>460</width>
     <height>370</height>
    </size>
   </property>
@@ -75,11 +75,11 @@
 
 4) adjust the segment curvature if it is necessary;
 
-5) click on &quot;Add segment&quot; button to create segment;
+5) click on &quot;Add segment&quot; button to create segment (madatory);
 
 6) repeat the steps 1 to 5 until the addition of last segment;
 
-7) finally, click on &quot;Finalize&quot; button to update de FE model.</string>
+7) finally, click on &quot;Finalize&quot; button to update de FE model (madatory).</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>

@@ -135,7 +135,6 @@ class AddStructuresWidget(QWidget):
         self.update_legth_units()
 
     def show_cross_section_widget(self):
-        # self.run_help()
         self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()            
         self.cross_section_widget.setVisible(True)
