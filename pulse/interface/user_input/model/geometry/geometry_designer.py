@@ -103,6 +103,7 @@ class OPPGeometryDesignerInput(QWidget):
         app().update()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
+        app().main_window.plot_entities_with_cross_section()
         app().main_window.action_front_view_callback()
         self.geometry_widget.set_info_text("")
 

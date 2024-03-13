@@ -69,7 +69,7 @@
        <widget class="QPushButton" name="pushButton_quick_manual">
         <property name="minimumSize">
          <size>
-          <width>100</width>
+          <width>68</width>
           <height>26</height>
          </size>
         </property>
@@ -98,7 +98,26 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
 QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
         </property>
         <property name="text">
-         <string>Quick manual</string>
+         <string>Help</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../../../../../data/icons/help/help.png</normaloff>../../../../../data/icons/help/help.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
