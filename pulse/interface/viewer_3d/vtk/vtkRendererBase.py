@@ -98,19 +98,15 @@ class vtkRendererBase(ABC):
 
         if self.background_color in [(0,0,0), "dark"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_white.png'))
-            self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_white.png'))
 
         elif self.background_color in [(0.25,0.25,0.25), "dark"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_white.png'))
-            self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_white.png'))
 
         elif self.background_color in [(0.7,0.7,0.7), "light"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
-            self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_black.png'))
 
         elif self.background_color in [(1,1,1), "light"]:
             self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
-            self._imageReader_mopt.SetFileName(Path('data/icons/logos/mopt_logo_black.png'))
 
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
