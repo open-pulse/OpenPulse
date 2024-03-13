@@ -98,7 +98,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
 QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
         </property>
         <property name="text">
-         <string>Help</string>
+         <string> Help</string>
         </property>
         <property name="icon">
          <iconset>

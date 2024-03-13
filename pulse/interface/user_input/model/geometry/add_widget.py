@@ -260,6 +260,9 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_coord_x.setText(str(value))
         self.lineEdit_coord_y.setText(str(value))
         self.lineEdit_coord_z.setText(str(value))
+        self.lineEdit_coord_x.setDisabled(True)
+        self.lineEdit_coord_y.setDisabled(True)
+        self.lineEdit_coord_z.setDisabled(True)
 
     def create_segment_callback(self):
         try:

@@ -93,7 +93,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.update_colormap_type()
 
     def _config_treeWidget(self):
         widths = [80, 140]
