@@ -75,7 +75,7 @@ class AddStructuresWidget(QWidget):
         self.pushButton_set_cross_section : QPushButton
         self.pushButton_set_material : QPushButton
         self.pushButton_add_segment : QPushButton
-        self.pushButton_quick_manual : QPushButton
+        # self.pushButton_quick_manual : QPushButton
         self.pushButton_remove_selection : QPushButton
 
     def _create_connections(self):
@@ -91,7 +91,7 @@ class AddStructuresWidget(QWidget):
         self.reset_coords(0.)
 
         self.pushButton_add_segment.clicked.connect(self.create_segment_callback)
-        self.pushButton_quick_manual.clicked.connect(self.show_geometry_editor_help)
+        # self.pushButton_quick_manual.clicked.connect(self.show_geometry_editor_help)
         self.pushButton_remove_selection.clicked.connect(self.remove_selection_callback)
         self.pushButton_set_cross_section.clicked.connect(self.show_cross_section_widget)
         self.pushButton_set_material.clicked.connect(self.show_material_widget)
@@ -135,7 +135,6 @@ class AddStructuresWidget(QWidget):
         self.update_legth_units()
 
     def show_cross_section_widget(self):
-        # self.run_help()
         self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()            
         self.cross_section_widget.setVisible(True)
@@ -260,6 +259,9 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_coord_x.setText(str(value))
         self.lineEdit_coord_y.setText(str(value))
         self.lineEdit_coord_z.setText(str(value))
+        self.lineEdit_coord_x.setDisabled(True)
+        self.lineEdit_coord_y.setDisabled(True)
+        self.lineEdit_coord_z.setDisabled(True)
 
     def create_segment_callback(self):
         try:
@@ -302,8 +304,8 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_y.setText("")
         self.lineEdit_delta_z.setText("")
 
-    def show_geometry_editor_help(self):
-        GeometryEditorHelp()
+    # def show_geometry_editor_help(self):
+    #     GeometryEditorHelp()
 
     def define_cross_section(self):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)

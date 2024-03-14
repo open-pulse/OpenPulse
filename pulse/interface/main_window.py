@@ -95,6 +95,7 @@ class MainWindow(QMainWindow):
         self.action_plot_mesh : QAction
         self.action_export_piping : QAction
         self.action_user_preferences : QAction
+        self.action_geometry_editor_help : QAction
 
         # QMenu
         self.menu_recent : QMenu
@@ -178,7 +179,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
         self.splitter.setSizes([100, 400])
-        # self.splitter.widget(0).setFixedWidth(340)
+        self.splitter.widget(0).setMinimumWidth(380)
         self.opv_widget.updatePlots()
 
     def configure_window(self):
@@ -482,6 +483,9 @@ class MainWindow(QMainWindow):
     
     def action_user_preferences_callback(self):
         self.input_widget.mesh_setup_visibility()
+
+    def action_geometry_editor_help_callback(self):
+        self.input_widget.geometry_editor_help()
 
     def action_plot_lines_callback(self):
         self.use_structural_setup_workspace()

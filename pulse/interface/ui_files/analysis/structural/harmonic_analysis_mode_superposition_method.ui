@@ -407,7 +407,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QLineEdit" name="lineEdit_step">
+           <widget class="QLineEdit" name="lineEdit_fstep">
             <property name="minimumSize">
              <size>
               <width>80</width>
@@ -439,7 +439,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QLineEdit" name="lineEdit_max">
+           <widget class="QLineEdit" name="lineEdit_fmax">
             <property name="minimumSize">
              <size>
               <width>80</width>
@@ -528,7 +528,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(220, 220, 22
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLineEdit" name="lineEdit_min">
+           <widget class="QLineEdit" name="lineEdit_fmin">
             <property name="minimumSize">
              <size>
               <width>80</width>
@@ -1246,9 +1246,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
  <tabstops>
   <tabstop>lineEdit_modes</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>lineEdit_min</tabstop>
-  <tabstop>lineEdit_max</tabstop>
-  <tabstop>lineEdit_step</tabstop>
+  <tabstop>lineEdit_fmin</tabstop>
+  <tabstop>lineEdit_fmax</tabstop>
+  <tabstop>lineEdit_fstep</tabstop>
   <tabstop>run_analysis_button</tabstop>
   <tabstop>enter_setup_button</tabstop>
   <tabstop>lineEdit_av</tabstop>
