@@ -154,6 +154,7 @@
      <string>Help</string>
     </property>
     <addaction name="action_about_openpulse"/>
+    <addaction name="action_geometry_editor_help"/>
    </widget>
    <widget class="QMenu" name="menu_general_settings">
     <property name="title">
@@ -832,6 +833,11 @@
   <action name="action_export_piping">
    <property name="text">
     <string>Export Piping</string>
+   </property>
+  </action>
+  <action name="action_geometry_editor_help">
+   <property name="text">
+    <string>Geometry Editor Help</string>
    </property>
   </action>
  </widget>

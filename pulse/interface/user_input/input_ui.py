@@ -5,6 +5,7 @@ from pulse.interface.user_input.project.load_project import LoadProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
+from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 #
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
 from pulse.interface.user_input.project.set_geometry_file_input import SetGeometryFileInput
@@ -471,6 +472,9 @@ class InputUi:
 
     def about_OpenPulse(self):
         self.processInput(AboutOpenPulseInput)
+
+    def geometry_editor_help(self):
+        self.processInput(GeometryEditorHelp)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

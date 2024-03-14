@@ -145,7 +145,7 @@ class EditPipeWidget(QWidget):
         *_, structure = editor.selected_structures
         if not isinstance(structure, Pipe):
             return
-        
+
         if self.cross_section_info is None:
             return
         
