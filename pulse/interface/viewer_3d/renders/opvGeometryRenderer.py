@@ -48,7 +48,7 @@ class opvGeometryRenderer(vtkRendererBase):
 
     def updateHud(self):
         self._createScaleBar()
-        self.add_logos(OpenPulse=self.opv.add_OpenPulse_logo)
+        self.add_openpulse_logo()
 
     def getBounds(self):
         if self.opvRawLines:

@@ -395,6 +395,8 @@ class MainWindow(QMainWindow):
             self.action_front_view_callback()
             self._update_recent_projects()
             self.set_window_title(self.file.project_name)
+        else:
+            self.disable_workspace_selector_and_geometry_editor(True)
 
     # internal
     def _update_recent_projects(self):
@@ -713,9 +715,9 @@ class MainWindow(QMainWindow):
             self.user_preferences["interface theme"] = theme
             self.user_preferences["background color"] = theme
             if theme == "dark":
-                self.user_preferences["font color"] = (255,255,255)
+                self.user_preferences["bottom font color"] = (255, 255, 255)
             else:
-                self.user_preferences["font color"] = (0,0,0)
+                self.user_preferences["bottom font color"] = (0, 0, 0)
             self.config.write_user_preferences_in_file(self.user_preferences)
             self.opv_widget.set_user_interface_preferences(self.user_preferences)
 

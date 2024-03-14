@@ -134,10 +134,6 @@ class GetStartedInput(QDialog):
         self.project_buttons[3].clicked.connect(lambda: self.load_recent_project(self.project_dir[3]))
         self.project_buttons[4].clicked.connect(lambda: self.load_recent_project(self.project_dir[4]))
 
-    def closeEvent(self, a0: QCloseEvent) -> None:
-        self.main_window.disable_workspace_selector_and_geometry_editor(True)
-        return super().closeEvent(a0)
-
     def continueButtonEvent(self):
         self.close()
 
@@ -145,11 +141,15 @@ class GetStartedInput(QDialog):
         self.close()
         if not self.input_ui.new_project():
             self.show()
+        else:
+            self.complete = True
 
     def load_project(self):
         self.close()
         if not self.input_ui.load_project():
             self.show()
+        else:
+            self.complete = True
 
     def about_project(self):
         self.input_ui.about_OpenPulse()
@@ -157,7 +157,9 @@ class GetStartedInput(QDialog):
     def load_recent_project(self, dir):
         if os.path.exists(dir):
             if self.input_ui.load_project(path=dir):
+                self.complete = True
                 self.close()
+
         else:
             for key, value in self.config.recent_projects.items():
                 if value == dir:
