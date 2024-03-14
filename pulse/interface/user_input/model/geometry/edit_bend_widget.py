@@ -245,7 +245,7 @@ class EditBendWidget(QWidget):
             material_id = self.current_material_index
             material_data = self.file.get_material_properties(material_id)
 
-        message = "Segment information\n\n"
+        message = "Active configuration\n\n"
 
         if self.cross_section_info:
             # message = "Cross-section info:\n"
