@@ -7,7 +7,7 @@ from pulse.interface.user_input.model.setup.general.material_widget import Mater
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app, UI_DIR
 
-from opps.model import Pipe
+from opps.model import Pipe, Bend
 
 from pathlib import Path
 import numpy as np
@@ -75,7 +75,7 @@ class EditPipeWidget(QWidget):
 
         editor = self.geometry_widget.editor
         for structure in editor.selected_structures:
-            if not isinstance(structure, Pipe):
+            if not isinstance(structure, (Pipe, Bend)):
                 return
 
             if is_pipe and is_constant_section:
@@ -149,18 +149,18 @@ class EditPipeWidget(QWidget):
 
         editor = self.geometry_widget.editor
         for structure in editor.selected_structures:
-            if not isinstance(structure, Pipe):
+            if not isinstance(structure, (Bend, Pipe)):
                 return
 
             if self.cross_section_info is None:
                 return
-            
+
             structure.extra_info["cross_section_info"] = self.cross_section_info
             if self.cross_section_info["section_type_label"] == "Pipe section":
                 structure.extra_info["structural_element_type"] = "pipe_1"
             else:
                 structure.extra_info["structural_element_type"] = "beam_1"
-        
+
         self.update_segment_information_text()
 
         app().update()
@@ -171,17 +171,17 @@ class EditPipeWidget(QWidget):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
 
         editor = self.geometry_widget.editor
-        *_, structure = editor.selected_structures
-        if not isinstance(structure, Pipe):
-            return            
-        
-        if self.current_material_index is None:
-            return
+        for structure in editor.selected_structures:
+            if not isinstance(structure, (Bend, Pipe)):
+                return          
 
-        structure.extra_info["material_info"] = self.current_material_index
+            if self.current_material_index is None:
+                return
+
+            structure.extra_info["material_info"] = self.current_material_index
+
         self.update_segment_information_text()
 
-        # self.geometry_widget.commit_structure()
         app().update()
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
     

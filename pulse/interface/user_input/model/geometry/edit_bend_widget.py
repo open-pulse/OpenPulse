@@ -6,7 +6,7 @@ from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 
-from opps.model import Bend, Elbow
+from opps.model import Pipe, Bend, Elbow
 
 from pathlib import Path
 import numpy as np
@@ -77,44 +77,40 @@ class EditBendWidget(QWidget):
         is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
 
         editor = self.geometry_widget.editor
-        *_, structure = editor.selected_structures
-        if not isinstance(structure, Bend):
-            return
+        for structure in editor.selected_structures:
+            if not isinstance(structure, (Pipe, Bend)):
+                return
 
-        if is_pipe and is_constant_section:
-            self.cross_section_widget.get_constant_pipe_parameters()
-            self.cross_section_info = self.cross_section_widget.pipe_section_info
-            diameter = self.cross_section_widget.section_parameters[0]
-            structure.set_diameter(diameter, diameter)
-            self.geometry_widget.update_default_diameter(diameter)
+            if is_pipe and is_constant_section:
+                self.cross_section_widget.get_constant_pipe_parameters()
+                self.cross_section_info = self.cross_section_widget.pipe_section_info
+                diameter = self.cross_section_widget.section_parameters[0]
+                structure.set_diameter(diameter, diameter)
+                self.geometry_widget.update_default_diameter(diameter)
 
-        elif is_pipe and not is_constant_section:
-            self.cross_section_widget.get_variable_section_pipe_parameters()
-            self.cross_section_info = self.cross_section_widget.pipe_section_info
-            diameter_initial = self.cross_section_widget.section_parameters[0]
-            diameter_final = self.cross_section_widget.section_parameters[4]
-            self.geometry_widget.update_default_diameter(diameter_initial)
-            structure.set_diameter(diameter_initial, diameter_final)
+            elif is_pipe and not is_constant_section:
+                self.cross_section_widget.get_variable_section_pipe_parameters()
+                self.cross_section_info = self.cross_section_widget.pipe_section_info
+                diameter_initial = self.cross_section_widget.section_parameters[0]
+                diameter_final = self.cross_section_widget.section_parameters[4]
+                self.geometry_widget.update_default_diameter(diameter_initial)
+                structure.set_diameter(diameter_initial, diameter_final)
 
-        else:  # is beam
-            self.cross_section_widget.get_beam_section_parameters()
-            self.cross_section_info = self.cross_section_widget.beam_section_info
-            # temporary strategy
-            diameter = 0.01
-            self.geometry_widget.update_default_diameter(diameter)
-            structure.set_diameter(diameter, diameter)
-        
+            else:  # is beam
+                self.cross_section_widget.get_beam_section_parameters()
+                self.cross_section_info = self.cross_section_widget.beam_section_info
+                # temporary strategy
+                diameter = 0.01
+                self.geometry_widget.update_default_diameter(diameter)
+                structure.set_diameter(diameter, diameter)
 
-        # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
         self.update_pipe_cross_section()
-        # self._update_permissions()
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
         self.update_pipe_material()
-        # self._update_permissions()
 
     def curvature_modified_callback(self, text):
         editor = self.geometry_widget.editor
@@ -198,22 +194,21 @@ class EditBendWidget(QWidget):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
 
         editor = self.geometry_widget.editor
-        *_, structure = editor.selected_structures
-        if not isinstance(structure, Bend):
-            return
-        
-        if self.cross_section_info is None:
-            return
-        
-        structure.extra_info["cross_section_info"] = self.cross_section_info
-        if self.cross_section_info["section_type_label"] == "Pipe section":
-            structure.extra_info["structural_element_type"] = "pipe_1"
-        else:
-            structure.extra_info["structural_element_type"] = "beam_1"
+        for structure in editor.selected_structures:
+            if not isinstance(structure, (Bend, Pipe)):
+                return
+            
+            if self.cross_section_info is None:
+                return
+            
+            structure.extra_info["cross_section_info"] = self.cross_section_info
+            if self.cross_section_info["section_type_label"] == "Pipe section":
+                structure.extra_info["structural_element_type"] = "pipe_1"
+            else:
+                structure.extra_info["structural_element_type"] = "beam_1"
         
         self.update_segment_information_text()
         
-        # self.geometry_widget.commit_structure()
         app().update()
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
@@ -222,17 +217,17 @@ class EditBendWidget(QWidget):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
 
         editor = self.geometry_widget.editor
-        *_, structure = editor.selected_structures
-        if not isinstance(structure, Bend):
-            return            
+        for structure in editor.selected_structures:
+            if not isinstance(structure, (Bend, Pipe)):
+                return         
         
-        if self.current_material_index is None:
-            return
+            if self.current_material_index is None:
+                return
 
-        structure.extra_info["material_info"] = self.current_material_index
+            structure.extra_info["material_info"] = self.current_material_index
+
         self.update_segment_information_text()
 
-        # self.geometry_widget.commit_structure()
         app().update()
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
     
