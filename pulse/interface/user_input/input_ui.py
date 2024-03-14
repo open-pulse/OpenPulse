@@ -133,8 +133,10 @@ class InputUi:
     def initial_project_action(self, finalized):
         self.main_window.action_front_view_callback()
         self.main_window.update_export_geometry_file_access()
+        self.main_window.disable_workspace_selector_and_geometry_editor(True)
         self.menu_items.modify_model_setup_items_access(True)
         if finalized:
+            self.main_window.disable_workspace_selector_and_geometry_editor(False)
             if self.project.file.check_if_entity_file_is_active():
                 self.project.none_project_action = False
                 self.menu_items.modify_model_setup_items_access(False)

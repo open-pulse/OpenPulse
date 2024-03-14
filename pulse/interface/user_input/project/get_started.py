@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
@@ -133,6 +133,10 @@ class GetStartedInput(QDialog):
         self.project_buttons[2].clicked.connect(lambda: self.load_recent_project(self.project_dir[2]))
         self.project_buttons[3].clicked.connect(lambda: self.load_recent_project(self.project_dir[3]))
         self.project_buttons[4].clicked.connect(lambda: self.load_recent_project(self.project_dir[4]))
+
+    def closeEvent(self, a0: QCloseEvent) -> None:
+        self.main_window.disable_workspace_selector_and_geometry_editor(True)
+        return super().closeEvent(a0)
 
     def continueButtonEvent(self):
         self.close()
