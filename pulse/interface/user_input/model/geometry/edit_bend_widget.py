@@ -179,8 +179,9 @@ class EditBendWidget(QWidget):
         if not isinstance(structure, Bend):
             self.reset_lineEdits()
             return
-
-        self.bend_radius.setText(str(structure.curvature))
+        
+        bend_radius = np.round(structure.curvature, 8)
+        self.bend_radius.setText(str(bend_radius))
 
         start_coords = np.round(structure.start.coords(), 6)
         self.coord_x_start.setText(str(start_coords[0]))

@@ -75,13 +75,15 @@ class MainWindow(QMainWindow):
         '''
         
         # QAction
-        self.action_geometry_workspace: QAction
-        self.action_structural_setup_workspace: QAction
-        self.action_acoustic_setup_workspace: QAction
-        self.action_analysis_setup_workspace: QAction
-        self.action_results_workspace: QAction
-        self.action_export_geometry: QAction
+        self.action_geometry_workspace : QAction
+        self.action_structural_setup_workspace : QAction
+        self.action_acoustic_setup_workspace : QAction
+        self.action_analysis_setup_workspace : QAction
+        self.action_results_workspace : QAction
+        self.action_export_geometry : QAction
         self.action_import_geometry : QAction
+        self.action_export_pcf : QAction
+        self.action_import_pcf : QAction
         self.action_set_dark_theme : QAction
         self.action_set_light_theme : QAction
         self.action_save_project_as : QAction
@@ -421,10 +423,10 @@ class MainWindow(QMainWindow):
     def action_save_project_as_callback(self):
         self.input_widget.save_project_as()
 
-    def action_import_piping_callback(self):
+    def action_import_pcf_callback(self):
         self.open_pcf()
 
-    def action_export_piping_callback(self):
+    def action_export_pcf_callback(self):
         self.export_pcf()
 
     def action_export_geometry_callback(self):
