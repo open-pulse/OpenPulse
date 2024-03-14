@@ -205,6 +205,9 @@ class GeometryHandler:
                 if section_parameters is None:
                     pipe.set_diameter(diameter, diameter)
 
+                elif structural_element_type == "beam_1":
+                    pipe.set_diameter(diameter, diameter)
+
                 elif len(section_parameters) == 6:
                     pipe.set_diameter(diameter, diameter)
 
