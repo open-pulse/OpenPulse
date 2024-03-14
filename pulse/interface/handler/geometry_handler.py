@@ -561,7 +561,8 @@ class GeometryHandler:
                 material_info[tag] = structure.extra_info["material_info"]
 
             if "structural_element_type" in structure.extra_info.keys():
-                element_type_info[tag] = structure.extra_info["structural_element_type"]
+                if structure.extra_info["structural_element_type"] is not None:
+                    element_type_info[tag] = structure.extra_info["structural_element_type"]
 
             tag += 1
 
