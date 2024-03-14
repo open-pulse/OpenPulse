@@ -79,6 +79,12 @@ class EditPointWidget(QWidget):
         self.add_flange_button.clicked.connect(self.add_flange_callback)
         self.add_bend_button.clicked.connect(self.add_bend_callback)
         self.add_elbow_button.clicked.connect(self.add_elbow_callback)
+        self.remove_point_button.clicked.connect(self.remove_selection_callback)
+
+    def remove_selection_callback(self):
+        editor = app().geometry_toolbox.editor
+        editor.delete_selection()
+        app().update()
 
     def get_position(self):
         dx = self.coord_x.text()
