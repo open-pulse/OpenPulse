@@ -43,7 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/openpulse-linux/
+          asset_path: ./uploads/openpulse-linux/open-pulse-linux-x64.so
           asset_name: open-pulse-linux-x64.so
           asset_content_type: application/zip
 
