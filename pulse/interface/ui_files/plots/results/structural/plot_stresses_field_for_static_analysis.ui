@@ -594,7 +594,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               </item>
               <item>
                <property name="text">
-                <string> Virids scale</string>
+                <string> Viridis scale</string>
                </property>
               </item>
               <item>

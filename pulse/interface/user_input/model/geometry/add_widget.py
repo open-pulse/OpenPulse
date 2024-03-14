@@ -208,8 +208,6 @@ class AddStructuresWidget(QWidget):
         self._disable_add_segment_button()
         try:
             dx, dy, dz = self.get_segment_deltas()
-            if (dx, dy, dz) == (0, 0, 0):
-                return
             self.pushButton_add_segment.setDisabled(False)
         except ValueError:
             return
@@ -224,6 +222,9 @@ class AddStructuresWidget(QWidget):
 
         editor.dismiss()
         editor.clear_selection()
+
+        if self.cross_section_info is None:
+            return
 
         can_bend = (
             self.cross_section_info["section_type_label"] == "Pipe section"

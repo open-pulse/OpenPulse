@@ -425,7 +425,8 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                <enum>Qt::ClickFocus</enum>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);</string>
+               <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
               </property>
               <property name="text">
                <string/>
@@ -461,7 +462,8 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                <enum>Qt::ClickFocus</enum>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);</string>
+               <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
               </property>
               <property name="text">
                <string/>
@@ -497,7 +499,8 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                <enum>Qt::ClickFocus</enum>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);</string>
+               <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
               </property>
               <property name="text">
                <string/>
@@ -681,11 +684,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               </property>
               <property name="font">
                <font>
-                <family>MS Shell Dlg 2</family>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
-                <italic>false</italic>
-                <bold>false</bold>
                </font>
               </property>
               <property name="styleSheet">
