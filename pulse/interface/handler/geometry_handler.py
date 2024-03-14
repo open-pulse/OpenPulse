@@ -135,6 +135,7 @@ class GeometryHandler:
                 section_type_label = data["section_type_label"]
 
             section_info = None
+            section_parameters = None
             if "section_parameters" in data.keys():
                 section_parameters = data["section_parameters"]
 
@@ -201,10 +202,11 @@ class GeometryHandler:
                 if "material_id" in data.keys():
                     pipe.extra_info["material_info"] = material_id
                 
-                if len(section_parameters) == 6:
-                    pipe.set_diameter(diameter, diameter)
-                else:
-                    pipe.set_diameter(initial_diameter, final_diameter)
+                if section_parameters is not None:
+                    if len(section_parameters) == 6:
+                        pipe.set_diameter(diameter, diameter)
+                    else:
+                        pipe.set_diameter(initial_diameter, final_diameter)
 
                 structures.append(pipe)
 

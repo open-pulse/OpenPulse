@@ -123,8 +123,8 @@
     <addaction name="separator"/>
     <addaction name="action_import_geometry"/>
     <addaction name="action_export_geometry"/>
-    <addaction name="action_import_piping"/>
-    <addaction name="action_export_piping"/>
+    <addaction name="action_import_pcf"/>
+    <addaction name="action_export_pcf"/>
     <addaction name="separator"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
@@ -289,12 +289,12 @@
     <string>Import Geometry</string>
    </property>
   </action>
-  <action name="action_import_piping">
+  <action name="action_import_pcf">
    <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Import Piping</string>
+    <string>Import PCF</string>
    </property>
    <property name="toolTip">
     <string>Import Piping</string>
@@ -830,9 +830,9 @@
     <string>Remove themes</string>
    </property>
   </action>
-  <action name="action_export_piping">
+  <action name="action_export_pcf">
    <property name="text">
-    <string>Export Piping</string>
+    <string>Export PCF</string>
    </property>
   </action>
   <action name="action_geometry_editor_help">

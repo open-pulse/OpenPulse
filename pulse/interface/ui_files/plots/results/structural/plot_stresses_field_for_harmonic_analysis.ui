@@ -923,7 +923,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </item>
               <item>
                <property name="text">
-                <string> Virids scale</string>
+                <string> Viridis scale</string>
                </property>
               </item>
               <item>

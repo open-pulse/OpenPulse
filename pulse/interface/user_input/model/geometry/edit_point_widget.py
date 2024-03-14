@@ -18,8 +18,8 @@ from opps.model import Point
 
 
 class EditPointWidget(QWidget):
-    def __init__(self, geometry_widget, parent=None):
-        super().__init__(parent)
+    def __init__(self, geometry_widget):
+        super().__init__()
         uic.loadUi(UI_DIR / "model/geometry/edit_point.ui", self)
 
         self.geometry_widget = geometry_widget
@@ -70,6 +70,7 @@ class EditPointWidget(QWidget):
         self.add_flange_button: QPushButton
         self.add_bend_button: QPushButton
         self.add_elbow_button: QPushButton
+        self.remove_point_button : QPushButton
 
     def _create_connections(self):
         self.coord_x.textEdited.connect(self.position_edited_callback)
