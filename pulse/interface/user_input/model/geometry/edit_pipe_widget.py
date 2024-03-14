@@ -74,35 +74,35 @@ class EditPipeWidget(QWidget):
         is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
 
         editor = self.geometry_widget.editor
-        *_, structure = editor.selected_structures
-        if not isinstance(structure, Pipe):
-            return
-
-        if is_pipe and is_constant_section:
-            if self.cross_section_widget.get_constant_pipe_parameters():
+        for structure in editor.selected_structures:
+            if not isinstance(structure, Pipe):
                 return
-            self.cross_section_info = self.cross_section_widget.pipe_section_info
-            diameter = self.cross_section_widget.section_parameters[0]
-            structure.set_diameter(diameter, diameter)
-            self.geometry_widget.update_default_diameter(diameter)
 
-        elif is_pipe and not is_constant_section:
-            if self.cross_section_widget.get_variable_section_pipe_parameters():
-                return
-            self.cross_section_info = self.cross_section_widget.pipe_section_info
-            diameter_initial = self.cross_section_widget.variable_parameters[0]
-            diameter_final = self.cross_section_widget.variable_parameters[4]
-            self.geometry_widget.update_default_diameter(diameter_initial)
-            structure.set_diameter(diameter_initial, diameter_final)
+            if is_pipe and is_constant_section:
+                if self.cross_section_widget.get_constant_pipe_parameters():
+                    return
+                self.cross_section_info = self.cross_section_widget.pipe_section_info
+                diameter = self.cross_section_widget.section_parameters[0]
+                structure.set_diameter(diameter, diameter)
+                self.geometry_widget.update_default_diameter(diameter)
 
-        else:  # is beam
-            if self.cross_section_widget.get_beam_section_parameters():
-                return
-            self.cross_section_info = self.cross_section_widget.beam_section_info
-            # temporary strategy
-            diameter = 0.01
-            self.geometry_widget.update_default_diameter(diameter)
-            structure.set_diameter(diameter, diameter)
+            elif is_pipe and not is_constant_section:
+                if self.cross_section_widget.get_variable_section_pipe_parameters():
+                    return
+                self.cross_section_info = self.cross_section_widget.pipe_section_info
+                diameter_initial = self.cross_section_widget.variable_parameters[0]
+                diameter_final = self.cross_section_widget.variable_parameters[4]
+                self.geometry_widget.update_default_diameter(diameter_initial)
+                structure.set_diameter(diameter_initial, diameter_final)
+
+            else:  # is beam
+                if self.cross_section_widget.get_beam_section_parameters():
+                    return
+                self.cross_section_info = self.cross_section_widget.beam_section_info
+                # temporary strategy
+                diameter = 0.01
+                self.geometry_widget.update_default_diameter(diameter)
+                structure.set_diameter(diameter, diameter)
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)
@@ -148,22 +148,21 @@ class EditPipeWidget(QWidget):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
 
         editor = self.geometry_widget.editor
-        *_, structure = editor.selected_structures
-        if not isinstance(structure, Pipe):
-            return
+        for structure in editor.selected_structures:
+            if not isinstance(structure, Pipe):
+                return
 
-        if self.cross_section_info is None:
-            return
-        
-        structure.extra_info["cross_section_info"] = self.cross_section_info
-        if self.cross_section_info["section_type_label"] == "Pipe section":
-            structure.extra_info["structural_element_type"] = "pipe_1"
-        else:
-            structure.extra_info["structural_element_type"] = "beam_1"
+            if self.cross_section_info is None:
+                return
+            
+            structure.extra_info["cross_section_info"] = self.cross_section_info
+            if self.cross_section_info["section_type_label"] == "Pipe section":
+                structure.extra_info["structural_element_type"] = "pipe_1"
+            else:
+                structure.extra_info["structural_element_type"] = "beam_1"
         
         self.update_segment_information_text()
-        
-        # self.geometry_widget.commit_structure()
+
         app().update()
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
