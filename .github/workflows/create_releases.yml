@@ -90,32 +90,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      # - name: Install Python
-      #   uses: actions/setup-python@v1
-      #   with:
-      #     python-version: '3.11'
-      #     architecture: 'x64'
-      # - name: Install Poetry
-      #   run: |
-      #     pip install poetry
-      # - name: Install requirements
-      #   run: |
-      #     poetry install 
-      # - name: Run pytest
-      #   run: |
-      #     poetry run pytest
-      # - name: Run Pyinstaller
-      #   run: |
-      #     poetry run pyinstaller openpulse.spec
-      # - name: Rename file
-      #   run: |
-      #     mv dist/OpenPulse dist/open-pulse-linux-x64.so
-      
-      - name: blin
-        run: mkdir dist
-      - name: blon
-        run: touch dist/open-pulse-linux-x64.so
-
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install requirements
+        run: |
+          poetry install 
+      - name: Run pytest
+        run: |
+          poetry run pytest
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
+      - name: Rename file
+        run: |
+          mv dist/OpenPulse dist/open-pulse-linux-x64.so
       - uses: actions/upload-artifact@v4
         with:
           name: openpulse-linux
