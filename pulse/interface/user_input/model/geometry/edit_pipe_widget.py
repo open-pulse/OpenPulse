@@ -51,6 +51,12 @@ class EditPipeWidget(QWidget):
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material)
+        self.remove_segment_button.clicked.connect(self.remove_selection_callback)
+
+    def remove_selection_callback(self):
+        editor = app().geometry_toolbox.editor
+        editor.delete_selection()
+        app().update()
 
     def show_cross_section_widget(self):
         self.cross_section_widget._add_icon_and_title()
