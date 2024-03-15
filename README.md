@@ -38,8 +38,12 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 <p align="">
    <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2.gif?raw=true" alt="OpenPulse logo" width="800"/>
+
+## Installing through an executable
+
+- Install OpenPulse for Windows and Linux downloading the executables [here](https://github.com/open-pulse/OpenPulse/releases).
  
-## Installing
+## Installing through your Python IDE
 
 - **Install Python 3.9.0 or later** ([download](https://www.python.org/downloads/release/python-390/)).
 
