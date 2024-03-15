@@ -12,7 +12,7 @@ from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf, get_acoustic_response
-from pulse.animation.plot_function import plot_results
+from examples.animation.plot_function import plot_results
 
 ''' 
     |=============================================================================|
@@ -142,17 +142,17 @@ plt.show()
 
 column = 3
 
-pressures, _, _, _ = get_acoustic_response(preprocessor, direct, column)
+# pressures, _, _, _ = get_acoustic_response(preprocessor, direct, column)
 
-plot_results( preprocessor,
-              pressures,
-              out_OpenPulse = True,
-              Acoustic = True, 
-              Show_nodes = True, 
-              Undeformed = False, 
-              Deformed = False, 
-              Animate_Mode = True, 
-              Save = False)
+# plot_results( preprocessor,
+#               pressures,
+#               out_OpenPulse = True,
+#               Acoustic = True, 
+#               Show_nodes = True, 
+#               Undeformed = False, 
+#               Deformed = False, 
+#               Animate_Mode = True, 
+#               Save = False)
 
 #%%
 ## Structural Coupled ##

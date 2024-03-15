@@ -1,0 +1,118 @@
+name: Create Releases
+on:
+  push:
+    tags: '**'
+  pull_request:
+    branches: master
+
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux]
+
+    steps:
+      - name: Show release name
+        run: echo ${{ github.action }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.action }}
+          release_name: Release ${{ github.action }}
+          draft: false
+          prerelease: false
+
+      - name: download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./uploads/
+
+      - name: show path
+        run: ls -r ./uploads/openpulse-linux
+
+      - name: upload release linux
+        id: upload-linux
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./uploads/openpulse-linux/open-pulse-linux-x64.so
+          asset_name: open-pulse-linux-x64.so
+          asset_content_type: application/zip
+
+      - name: upload release windows
+        id: upload-windows
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./uploads/openpulse-windows/open-pulse-windows-x64.exe
+          asset_name: open-pulse-windows-x64.exe
+          asset_content_type: application/zip                        
+
+  build-windows:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install requirements
+        run: |
+          poetry install 
+      # - name: Run pytest
+      #   run: |
+      #     poetry run pytest
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
+      - name: Rename file
+        run: |
+          mv dist/OpenPulse.exe dist/open-pulse-windows-x64.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openpulse-windows
+          path: dist/open-pulse-windows-x64.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install requirements
+        run: |
+          poetry install 
+      # - name: Run pytest
+      #   run: |
+      #     poetry run pytest
+      - name: Run Pyinstaller
+        run: |
+          poetry run pyinstaller openpulse.spec
+      - name: Rename file
+        run: |
+          mv dist/OpenPulse dist/open-pulse-linux-x64.so
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openpulse-linux
+          path: dist/open-pulse-linux-x64.so

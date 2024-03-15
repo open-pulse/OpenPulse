@@ -3,10 +3,10 @@ import numpy as np
 from time import time
 from scipy.spatial.transform import Rotation
 
-from pulse.interface.vtkActorBase import vtkActorBase
+from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
 
-class TubeActor(vtkActorBase):
+class TubeActor(ActorBase):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__()
 
@@ -20,7 +20,7 @@ class TubeActor(vtkActorBase):
         
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
 
-        self.transparent = True
+        self.transparent = False
         self.bff = 5  # bug fix factor 
 
         self._data = vtk.vtkPolyData()
