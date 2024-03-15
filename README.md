@@ -19,8 +19,17 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - Enhancements of project files management.
 - Enhanced animation of results (real and imaginary parts, phase monitoring, etc).
 
+ ## New geometry interface
+
 <p align="">
    <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_A.PNG?raw=true" alt="OpenPulse logo" width="800"/>
+
+ ## Dark theme
+
+ <p align="">
+   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_A.PNG?raw=true" alt="OpenPulse logo" width="800"/>
+
+ ## Enhanced results visualisation
 
 <p align="">
    <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2.gif?raw=true" alt="OpenPulse logo" width="800"/>
