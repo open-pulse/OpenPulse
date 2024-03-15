@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Show release name
-        run: echo ${{ github.action_ref }}
+        run: echo ${{ github.action }}
 
       - name: Create Release
         id: create_release
@@ -22,8 +22,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.action_ref }}
-          release_name: Release ${{ github.action_ref }}
+          tag_name: ${{ github.action }}
+          release_name: Release ${{ github.action }}
           draft: false
           prerelease: false
 
