@@ -3,11 +3,11 @@ import numpy as np
 from pathlib import Path
 from scipy.sparse import save_npz, load_npz
 
-from pulse.utils import sparse_is_equal
+from pulse.tools.utils import sparse_is_equal
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.preprocessor import Preprocessor
-from pulse.project import Project
+from pulse.project.project import Project
 from pulse.processing.assembly_structural import AssemblyStructural 
 
 # Setting up model
