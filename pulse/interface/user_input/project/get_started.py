@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
@@ -141,11 +141,15 @@ class GetStartedInput(QDialog):
         self.close()
         if not self.input_ui.new_project():
             self.show()
+        else:
+            self.complete = True
 
     def load_project(self):
         self.close()
         if not self.input_ui.load_project():
             self.show()
+        else:
+            self.complete = True
 
     def about_project(self):
         self.input_ui.about_OpenPulse()
@@ -153,7 +157,9 @@ class GetStartedInput(QDialog):
     def load_recent_project(self, dir):
         if os.path.exists(dir):
             if self.input_ui.load_project(path=dir):
+                self.complete = True
                 self.close()
+
         else:
             for key, value in self.config.recent_projects.items():
                 if value == dir:

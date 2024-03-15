@@ -1351,6 +1351,22 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_length_unit</tabstop>
+  <tabstop>comboBox_bending_type</tabstop>
+  <tabstop>lineEdit_bending_radius</tabstop>
+  <tabstop>pushButton_set_cross_section</tabstop>
+  <tabstop>pushButton_set_material</tabstop>
+  <tabstop>lineEdit_coord_x</tabstop>
+  <tabstop>lineEdit_coord_y</tabstop>
+  <tabstop>lineEdit_coord_z</tabstop>
+  <tabstop>lineEdit_delta_x</tabstop>
+  <tabstop>lineEdit_delta_y</tabstop>
+  <tabstop>lineEdit_delta_z</tabstop>
+  <tabstop>pushButton_remove_selection</tabstop>
+  <tabstop>pushButton_add_segment</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

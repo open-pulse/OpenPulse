@@ -9,7 +9,6 @@ class vtkRendererBase(ABC):
         super().__init__()
 
         self._logo_pulse = vtk.vtkLogoRepresentation()
-        self._logo_mopt = vtk.vtkLogoRepresentation()
         self._imageReader_pulse = vtk.vtkPNGReader()
         self._imageReader_mopt = vtk.vtkPNGReader()
         
@@ -20,6 +19,7 @@ class vtkRendererBase(ABC):
 
         self.colorBarTitleProperty = vtk.vtkTextProperty()
         self.colorBarLabelProperty = vtk.vtkTextProperty()
+        
         self.scaleBar = vtk.vtkLegendScaleActor()
         self.colorbar = vtk.vtkScalarBarActor()
 
@@ -35,7 +35,6 @@ class vtkRendererBase(ABC):
 
         font_file = VTKAT_DIR / "fonts/LiberationMono-Bold.ttf"
         self.textProperty.SetFontSize(14)
-        self.textProperty.SetColor((0,0,0))
         self.textProperty.SetFontFamily(vtk.VTK_FONT_FILE)
         self.textProperty.SetFontFile(font_file)
 
@@ -44,13 +43,16 @@ class vtkRendererBase(ABC):
 
     def _load_default_preferences(self):
         self.background_color = "light"
-        self.font_color = (0, 0, 0)
+        self.bottom_font_color = (0, 0, 0)
+        self.top_font_color = (0, 0, 0)
         self.nodes_color = (255, 255, 63)
         self.lines_color = (255, 255, 255)
         self.surfaces_color = (255, 255, 255)
         self.elements_transparency = 0.8
         self.colormap = "viridis"
         self.set_background_color("light")
+        self.add_OpenPulse_logo = True
+        self.show_reference_scale = True
 
     def _create_and_config_logos(self):
         
@@ -68,16 +70,14 @@ class vtkRendererBase(ABC):
         self._logo_pulse.GetImageProperty().SetOpacity(0.9)
         self._logo_pulse.GetImageProperty().SetDisplayLocationToBackground()
 
-    def add_logos(self, OpenPulse=True):
-
+    def add_openpulse_logo(self):
         self._renderer.RemoveViewProp(self._logo_pulse)
-        self._renderer.RemoveViewProp(self._logo_mopt)
-
-        if OpenPulse:   
+        if self.add_OpenPulse_logo:
             self._renderer.AddViewProp(self._logo_pulse)
             self._logo_pulse.SetRenderer(self._renderer)
 
     def set_background_color(self, color):
+        self.background_color = color
         if color == "dark":
             self._renderer.GradientBackgroundOn()
             self._renderer.SetBackground(0.06, 0.08, 0.12)
@@ -127,12 +127,14 @@ class vtkRendererBase(ABC):
         self.elements_transparency = transparency
 
     def change_font_color(self, color):
-        self.font_color = [value/255 for value in color]
-        self.textProperty.SetColor(self.font_color)
-        self.scaleBarTitleProperty.SetColor(self.font_color)
-        self.scaleBarLabelProperty.SetColor(self.font_color)
-        self.colorBarTitleProperty.SetColor(self.font_color)
-        self.colorBarLabelProperty.SetColor(self.font_color)
+        #TODO: allow to change the top texts font color
+        self.top_font_color = (0, 0, 0)
+        self.textProperty.SetColor(self.top_font_color)
+        self.bottom_font_color = [value/255 for value in color]
+        self.colorBarTitleProperty.SetColor(self.bottom_font_color)
+        self.colorBarLabelProperty.SetColor(self.bottom_font_color)
+        self.scaleBarTitleProperty.SetColor(self.bottom_font_color)
+        self.scaleBarLabelProperty.SetColor(self.bottom_font_color)
 
     def _createScaleBar(self):
 
@@ -141,8 +143,10 @@ class vtkRendererBase(ABC):
         self.scaleBar = vtk.vtkLegendScaleActor()
         self.scaleBarTitleProperty = self.scaleBar.GetLegendTitleProperty()
         self.scaleBarLabelProperty = self.scaleBar.GetLegendLabelProperty()
+        self.scaleBarTitleProperty.SetColor(self.bottom_font_color)
+        self.scaleBarLabelProperty.SetColor(self.bottom_font_color)
         
-        if self.opv.show_reference_scale:
+        if self.show_reference_scale:
             self.scaleBarTitleProperty.ShadowOff()
             self.scaleBarLabelProperty.ShadowOff()
             self.scaleBarTitleProperty.SetFontSize(14)

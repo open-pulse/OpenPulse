@@ -29,7 +29,8 @@ class AboutOpenPulseInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        # self.icon = get_openpulse_icon()
+        self.icon = QIcon(get_icons_path('pulse.png'))
         self.load_icon = QIcon(get_icons_path('loadProject.png'))
         self.new_icon = QIcon(get_icons_path('add.png'))
         self.reset_icon = QIcon(get_icons_path('refresh.png'))

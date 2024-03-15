@@ -19,11 +19,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.project = project
 
         self.inputObject = None
-        self._load_default_preferences()
     
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
         self.opvGeometryRenderer = opvGeometryRenderer(self.project, self)
+
+        self.default_user_preferences()
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
@@ -32,16 +33,9 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self._createAxes()        
 
-    def _load_default_preferences(self):
-        self.background_color = "light"
-        self.render_theme = "light"
-        self.font_color = (0,0,0)
-        self.nodes_color = (255, 255, 63)
-        self.lines_color = (255, 255, 255)
-        self.surfaces_color = (255, 255, 255)
-        self.elements_transparency = 0.8
-        self.add_OpenPulse_logo = True
-        self.show_reference_scale = True
+    def default_user_preferences(self):
+        self.bottom_font_color = (0, 0, 0)
+        self.top_font_color = (0, 0, 0)
 
     def set_user_interface_preferences(self, preferences):
         """ This method updates the render appearance according to the user preferences.
@@ -52,51 +46,59 @@ class OPVUi(QVTKRenderWindowInteractor):
                     a dicitonary containing all required data to update the render
 
         """
-
-        if preferences:
-
-            if "render theme" in preferences.keys():
-                self.render_theme = preferences['render theme']
+        if isinstance(preferences, dict):
 
             if "background color" in preferences.keys():
-                self.background_color = preferences['background color']
+                background_color = preferences['background color']
+            else:
+                background_color = self.opvRenderer.background_color
 
-            if "font color" in preferences.keys():
-                self.font_color = preferences['font color']
+            if "bottom font color" in preferences.keys():
+                self.bottom_font_color = preferences['bottom font color']
 
             if "nodes color" in preferences.keys():
-                self.nodes_color = preferences['nodes color']
+                nodes_color = preferences['nodes color']
+            else:
+                nodes_color = self.opvRenderer.nodes_color
 
             if "lines color" in preferences.keys():
-                self.lines_color = preferences['lines color']
+                lines_color = preferences['lines color']
+            else:
+                lines_color = self.opvRenderer.lines_color
 
             if "surfaces color" in preferences.keys():
-                self.surfaces_color = preferences['surfaces color']
-    
+                surfaces_color = preferences['surfaces color']
+            else:
+                surfaces_color = self.opvRenderer.surfaces_color
+
             if "transparency" in preferences.keys():
-                self.elements_transparency = preferences['transparency']
+                elements_transparency = preferences['transparency']
+            else:
+                elements_transparency = self.opvRenderer.elements_transparency
 
             if "openpulse logo" in preferences.keys():
-                self.add_OpenPulse_logo = preferences['openpulse logo']
+                self.opvRenderer.add_OpenPulse_logo = preferences['openpulse logo']
+                self.opvAnalysisRenderer.add_OpenPulse_logo = preferences['openpulse logo']
 
             if "reference scale" in preferences.keys():
-                self.show_reference_scale = preferences['reference scale']
+                self.opvRenderer.show_reference_scale = preferences['reference scale']
+                self.opvAnalysisRenderer.show_reference_scale = preferences['reference scale']
 
             if "colormap" in preferences.keys():
-                self.colormap = preferences['colormap']
+                self.opvGeometryRenderer.colormap = preferences['colormap']
 
-        self.opvRenderer.set_background_color(self.background_color)
-        self.opvAnalysisRenderer.set_background_color(self.background_color)
-        self.opvGeometryRenderer.set_background_color(self.background_color)
+        self.opvRenderer.set_background_color(background_color)
+        self.opvAnalysisRenderer.set_background_color(background_color)
+        self.opvGeometryRenderer.set_background_color(background_color)
 
-        self.opvRenderer.change_font_color(self.font_color)
-        self.opvAnalysisRenderer.change_font_color(self.font_color)
-        self.opvGeometryRenderer.change_font_color(self.font_color)
+        self.opvRenderer.change_font_color(self.bottom_font_color)
+        self.opvAnalysisRenderer.change_font_color(self.bottom_font_color)
+        self.opvGeometryRenderer.change_font_color(self.bottom_font_color)
 
-        self.opvRenderer.changeNodesColor(self.nodes_color)
-        self.opvRenderer.changeLinesColor(self.lines_color)
-        self.opvRenderer.changeSurfacesColor(self.surfaces_color)
-        self.opvRenderer.changeElementsTransparency(self.elements_transparency)
+        self.opvRenderer.changeNodesColor(nodes_color)
+        self.opvRenderer.changeLinesColor(lines_color)
+        self.opvRenderer.changeSurfacesColor(surfaces_color)
+        self.opvRenderer.changeElementsTransparency(elements_transparency)
 
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())

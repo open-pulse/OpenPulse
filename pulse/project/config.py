@@ -204,9 +204,9 @@ class Config:
                         background_color = section["background color"][1:-1].split(",")
                         user_preferences["background color"] = tuple([float(val) for val in background_color])
 
-                if "font color" in section.keys():
-                    font_color = section["font color"][1:-1].split(",")
-                    user_preferences["font color"] = tuple([float(val) for val in font_color])
+                if "bottom font color" in section.keys():
+                    font_color = section["bottom font color"][1:-1].split(",")
+                    user_preferences["bottom font color"] = tuple([float(val) for val in font_color])
 
                 if "nodes color" in section.keys():
                     nodes_color = section["nodes color"][1:-1].split(",")

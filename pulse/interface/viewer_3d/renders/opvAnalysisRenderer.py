@@ -141,7 +141,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         # plt(self.opvSymbols)
         self._renderer.AddActor(self.plane_actor)
 
-        self.add_logos(OpenPulse=self.opv.add_OpenPulse_logo)
+        self.add_openpulse_logo()
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
@@ -549,7 +549,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         # self.stressesTextProperty.SetBold(1)
         # self.stressesTextProperty.SetItalic(1)
         self.stressesTextProperty.ShadowOff()
-        self.stressesTextProperty.SetColor(self.opv.font_color)
+        self.stressesTextProperty.SetColor(self.top_font_color)
         self.textActorStress.SetTextProperty(self.stressesTextProperty)
         self.textSize = [0,0]
         self.textActorStress.GetSize(self._renderer, self.textSize)

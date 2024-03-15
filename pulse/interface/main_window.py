@@ -158,6 +158,15 @@ class MainWindow(QMainWindow):
         index = self.combo_box_workspaces.currentIndex()
         self.cache_indexes.append(index)
 
+    def disable_workspace_selector_and_geometry_editor(self, _bool):
+        #TODO: improve as soon as possible
+        self.combo_box_workspaces.setDisabled(_bool)
+        self.action_plot_geometry_editor.setDisabled(_bool)
+        self.action_export_geometry.setDisabled(_bool)
+        self.action_export_pcf.setDisabled(_bool)
+        self.action_import_geometry.setDisabled(_bool)
+        self.action_import_pcf.setDisabled(_bool)
+
     def _create_layout(self):
 
         self.opv_widget = OPVUi(self.project, self)
@@ -212,11 +221,12 @@ class MainWindow(QMainWindow):
 
     def open_project(self, path=None):
         if not self.input_widget.load_project(path):
-            return 
+            return
 
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
         app().update()
+        self.action_front_view_callback()
     
     def open_pcf(self):
         '''
@@ -385,6 +395,8 @@ class MainWindow(QMainWindow):
             self.action_front_view_callback()
             self._update_recent_projects()
             self.set_window_title(self.file.project_name)
+        else:
+            self.disable_workspace_selector_and_geometry_editor(True)
 
     # internal
     def _update_recent_projects(self):
@@ -650,7 +662,6 @@ class MainWindow(QMainWindow):
             self.opv_widget.updatePlots()
             self.plot_mesh()
             self.action_front_view_callback()
-            # self.opv_widget.setCameraView(5)
 
     def _add_mesh_toolbar(self):
         self.mesh_toolbar = MeshToolbar()
@@ -704,9 +715,9 @@ class MainWindow(QMainWindow):
             self.user_preferences["interface theme"] = theme
             self.user_preferences["background color"] = theme
             if theme == "dark":
-                self.user_preferences["font color"] = (255,255,255)
+                self.user_preferences["bottom font color"] = (255, 255, 255)
             else:
-                self.user_preferences["font color"] = (0,0,0)
+                self.user_preferences["bottom font color"] = (0, 0, 0)
             self.config.write_user_preferences_in_file(self.user_preferences)
             self.opv_widget.set_user_interface_preferences(self.user_preferences)
 
