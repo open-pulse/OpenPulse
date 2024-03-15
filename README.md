@@ -27,7 +27,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
  ## Dark theme
 
  <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_A.PNG?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_B.PNG?raw=true" alt="OpenPulse logo" width="800"/>
 
  ## Enhanced results visualisation
 
