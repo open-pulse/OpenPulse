@@ -12,7 +12,7 @@ from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 from pulse.postprocessing.plot_structural_data import get_structural_response, get_stress_data
-from pulse.animation.plot_function import plot_results
+from examples.animation.plot_function import plot_results
 
 
 ''' 

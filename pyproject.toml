@@ -1,13 +1,21 @@
 [tool.poetry]
 name = "pulse"
-version = "1.0.3"
+version = "2.0.0a0"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
-authors = ["Your Name <you@example.com>"]
+authors = [
+    "Olavo Silva <olavus@gmail.com>",
+    "Jacson Gil Vargas <jgvargasemc@gmail.com>",
+    "André Fernandes <fpf.andre@gmail.com>",
+    "Danilo Espindola <daniloespindola.grad@gmail.com>",
+    "Vitor Voigt Slongo <v.v.slongo@gmail.com>",
+    "Gildean Almeida <gildean185@gmail.com>",
+    "Fabrício Cruz <fabricioemanuelcruzz@gmail.com>"
+]
 license = "MIT License"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.13"
+python = ">=3.10,<3.12"
 pyqt5-qt5 = "5.15.2"
 PyQt5 = "^5.15.9"
 vtk = "^9.2.6"
@@ -19,11 +27,18 @@ ctREFPROP = "^0.10.2"
 pandas = "^2.1.0"
 openpyxl = "^3.1.2"
 h5py = "^3.9.0"
+opps = {git = "https://github.com/andrefpf/opps", rev = "open_pulse_integration"}
+vtkat = {git = "https://github.com/andrefpf/vtkat"}
+compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
+pyinstaller = "^6.4.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
 isort = "^5.12.0"
 pytest = "^7.4.1"
+
+[tool.poetry.scripts]
+pulse = "pulse.launch:main"
 
 [build-system]
 requires = ["poetry-core"]
