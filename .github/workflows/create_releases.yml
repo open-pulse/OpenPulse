@@ -1,11 +1,7 @@
 name: Create Releases
 on:
-  push:
-    tags: '**'
   pull_request:
     branches: master
-
-  workflow_dispatch:
 
 jobs:
   create-release:
@@ -14,7 +10,7 @@ jobs:
 
     steps:
       - name: Show release name
-        run: echo ${{ github.action }}
+        run: echo ${{ github.event.pull_request.title }}
 
       - name: Create Release
         id: create_release
@@ -22,9 +18,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.action }}
-          release_name: Release ${{ github.action }}
-          draft: false
+          tag_name: ${{ github.event.pull_request.title }}
+          release_name: Release ${{ github.event.pull_request.title }}
+          body: ${{ github.event.pull_request.body }}
+          draft: true
           prerelease: false
 
       - name: download all artifacts
