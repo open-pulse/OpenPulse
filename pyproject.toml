@@ -2,7 +2,15 @@
 name = "pulse"
 version = "2.0.0a0"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
-authors = ["Your Name <you@example.com>"]
+authors = [
+    "Olavo Silva <olavus@gmail.com>",
+    "Jacson Gil Vargas <jgvargasemc@gmail.com>",
+    "André Fernandes <fpf.andre@gmail.com>",
+    "Danilo Espindola <daniloespindola.grad@gmail.com>",
+    "Vitor Voigt Slongo <v.v.slongo@gmail.com>",
+    "Gildean Almeida <gildean185@gmail.com>",
+    "Fabrício Cruz <fabricioemanuelcruzz@gmail.com>"
+]
 license = "MIT License"
 readme = "README.md"
 
