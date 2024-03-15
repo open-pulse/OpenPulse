@@ -93,7 +93,7 @@ poetry run python pulse
 
 - [Vargas \& Silva, 2023](https://appfa2023.silsystem.solutions/).
 
-## Next event 
+## Next events 
 
 - Internoise 2024, 25 - 29 August, Nantes, France.
 - IIR conference on Compressors and Refrigerants 2024, 9 - 11 September, Bratislava, Slovakia.
