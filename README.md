@@ -109,17 +109,17 @@ If you have any questions you can open a new issue with the tag 'question'.
 
 The authors are members of MOPT - Multidisciplinary Optimization Group, from Federal University of Santa Catarina (Florianópolis, SC, Brazil).
 
-   [Olavo M. Silva](https://www.linkedin.com/in/olavo-m-silva-5822a5151/) - Engineer;
-   [Jacson G. Vargas](https://www.linkedin.com/in/jacson-gil-vargas-a54b0768/) - Engineer;
-   [Diego M. Tuozzo](https://www.linkedin.com/in/martintuozzo/) - Engineer (Former Member);
-   [Lucas V. Q. Kulakauskas](https://www.linkedin.com/in/lucas-kulakauskas-5a0314182/) - Engineer (Former Member);
-   [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer (Former Member);
-   [Andre F. Fernandes](https://www.linkedin.com/in/andrefernandes2001/) - Computer Scientist; 
-   [José L. Souza](https://www.linkedin.com/in/jos%C3%A9-luiz-de-souza-8669b5114/) - Computer Scientist (Former Member);
-   [Danilo Espindola](https://www.linkedin.com/in/danilo-espindola-7b47a626b/) - Interface with other softwares;
-   [Vitor Slongo](https://www.linkedin.com/in/vitor-slongo-45298a270/) - Mesh and Geometry Specialist;
-   [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
-   [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation.
+   - [Olavo M. Silva](https://www.linkedin.com/in/olavo-m-silva-5822a5151/) - Engineer;
+   - [Jacson G. Vargas](https://www.linkedin.com/in/jacson-gil-vargas-a54b0768/) - Engineer;
+   - [Andre F. Fernandes](https://www.linkedin.com/in/andrefpf/) - Computer Scientist; 
+   - [Diego M. Tuozzo](https://www.linkedin.com/in/martintuozzo/) - Engineer (Former Member);
+   - [Lucas V. Q. Kulakauskas](https://www.linkedin.com/in/lucas-kulakauskas-5a0314182/) - Engineer (Former Member);
+   - [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer (Former Member);
+   - [José L. Souza](https://www.linkedin.com/in/jos%C3%A9-luiz-de-souza-8669b5114/) - Computer Scientist (Former Member);
+   - [Danilo Espindola](https://www.linkedin.com/in/danilo-espindola-7b47a626b/) - Interface with other softwares;
+   - [Vitor Slongo](https://www.linkedin.com/in/vitor-slongo-45298a270/) - Mesh and Geometry Specialist;
+   - [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
+   - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation.
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true) 
 
