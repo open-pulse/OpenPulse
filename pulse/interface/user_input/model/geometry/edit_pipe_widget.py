@@ -125,6 +125,17 @@ class EditPipeWidget(QWidget):
             self.reset_lineEdits()
             return
 
+        section_info = None
+        if "cross_section_info" in structure.extra_info.keys():
+            section_info = structure.extra_info["cross_section_info"]
+
+        material_info = None
+        if "material_info" in structure.extra_info.keys():
+            material_info = structure.extra_info["material_info"]
+
+        self.update_info_text(material_id = material_info,
+                              section_info = section_info)
+
         start_coords = np.round(structure.start.coords(), 6)
         self.coord_x_start.setText(str(start_coords[0]))
         self.coord_y_start.setText(str(start_coords[1]))
@@ -221,3 +232,41 @@ class EditPipeWidget(QWidget):
 
     def reset_text_info(self):
         self.geometry_widget.set_info_text("")
+
+
+    def update_info_text(self, material_id=None, section_info=None):
+        
+        message = "Selected configuration\n\n"
+        
+        material_data = None
+        if material_id is not None:
+            material_data = self.file.get_material_properties(material_id)
+
+        if section_info is not None:
+            # message = "Cross-section info:\n"
+            
+            section_label = None    
+            if "section_type_label" in section_info.keys():
+                section_label = section_info["section_type_label"]
+            
+            section_parameters = None
+            if "section_parameters" in section_info.keys():
+                section_parameters = section_info["section_parameters"]
+
+            if section_parameters is not None:
+                if section_label == "Pipe section":
+                    if len(section_parameters) == 6:
+                        message += f"Section type: {section_label} (constant)\n"
+                    else:
+                        message += f"Section type: {section_label} (variable)\n"
+                else:
+                    message += f"Section type: {section_label}\n"
+
+                message += f"Section data: {section_parameters}\n\n"
+
+        if material_data is not None:
+            # message = "Material info:\n"
+            message += f"Material name: {material_data[0]}\n"
+            message += f"Material data: {material_data[1:]}\n\n"
+
+        self.geometry_widget.set_info_text(message)
