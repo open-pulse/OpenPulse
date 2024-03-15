@@ -1,10 +1,10 @@
 name: Create Releases
 on:
   push:
-    tags:
-      - '**'
+    tags: '**'
+  pull_request:
+    branches: master
 
-  #  branches: master
   workflow_dispatch:
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: true
+          draft: false
           prerelease: false
 
       - name: download all artifacts
