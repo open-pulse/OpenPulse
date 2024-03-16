@@ -5,15 +5,14 @@ from scipy.spatial.transform import Rotation
 
 class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
-        return [
-            (self._getPrescribedPositionSymbols() , loadSymbol('data/symbols/prescribedPosition.obj')),
-            (self._getPrescribedRotationSymbols() , loadSymbol('data/symbols/prescribedRotation.obj')),
-            (self._getNodalLoadForce()            , loadSymbol('data/symbols/nodalLoadPosition.obj')), 
-            (self._getNodalLoadMoment()           , loadSymbol('data/symbols/nodalLoadRotation.obj')),
-            (self._getLumpedMass()                , loadSymbol('data/symbols/lumpedMass.obj')),
-            (self._getSpring()                    , loadSymbol('data/symbols/_spring.obj')),
-            (self._getDamper()                    , loadSymbol('data/symbols/_damper.obj')),
-        ]
+        return [(self._get_prescribed_displacement_symbol() , loadSymbol('data/symbols/structural/prescribed_displacement.obj')),
+                (self._get_prescribed_rotation_symbol()     , loadSymbol('data/symbols/structural/prescribed_rotation.obj')),
+                (self._get_nodal_force_symbol()             , loadSymbol('data/symbols/structural/nodal_force.obj')), 
+                (self._get_nodal_moment_symbol()            , loadSymbol('data/symbols/structural/nodal_moment.obj')),
+                (self._get_lumped_mass_symbol()             , loadSymbol('data/symbols/structural/lumped_mass.obj')),
+                (self._get_lumped_spring_symbol()           , loadSymbol('data/symbols/structural/lumped_spring.obj')),
+                (self._get_lumped_damper_symbol()           , loadSymbol('data/symbols/structural/lumped_damper.obj')),
+            ]
 
     # def _createSequence(self):
     #     return self.project.get_nodes().values()
@@ -63,7 +62,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         self._scales.InsertNextTuple3(1,1,1)
         self._colors.InsertNextTuple3(16,222,129)
 
-    def _getPrescribedPositionSymbols(self):
+    def _get_prescribed_displacement_symbol(self):
         
         src = 1
         scl = (1,1,1)
@@ -103,7 +102,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         
         return symbols
 
-    def _getPrescribedRotationSymbols(self):
+    def _get_prescribed_rotation_symbol(self):
         
         src = 2
         scl = (1,1,1)
@@ -143,7 +142,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         
         return symbols
 
-    def _getNodalLoadForce(self):
+    def _get_nodal_force_symbol(self):
         
         src = 3
         scl = (1,1,1)
@@ -183,7 +182,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         
         return symbols
 
-    def _getNodalLoadMoment(self):
+    def _get_nodal_moment_symbol(self):
         
         src = 4
         scl = (1,1,1)
@@ -223,7 +222,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         
         return symbols
 
-    def _getLumpedMass(self):
+    def _get_lumped_mass_symbol(self):
 
         src = 5
         rot = (0,0,0)
@@ -237,7 +236,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
-    def _getSpring(self):
+    def _get_lumped_spring_symbol(self):
         e_size = self.project.file._element_size
         length = self.scaleFactor/2
         if self.scaleFactor/2 > 4*e_size:
@@ -278,7 +277,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         
         return symbols
 
-    def _getDamper(self):
+    def _get_lumped_damper_symbol(self):
         e_size = self.project.file._element_size
         length = self.scaleFactor/2
         if self.scaleFactor/2 > 4*e_size:
@@ -322,7 +321,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def is_value_negative(self, value):
         if isinstance(value, np.ndarray):
             return False
-        elif np.real(value)>=0:
+        elif np.real(value) >= 0:
             return False
         else:
             return True
@@ -337,15 +336,13 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 class StructuralElementsSymbolsActor(SymbolsActorBase):
 
     def _createConnections(self):
-        return [
-            (self._getValve(), loadSymbol('data/symbols/valve_symbol.obj'))
-        ]
+        return [(self._get_valve_symbol(), loadSymbol('data/symbols/structural/valve_symbol.obj'))]
     
     # def _createSequence(self):
     #     return self.preprocessor.elements_with_valve
         # return self.project.get_structural_elements().values()
     
-    def _getValve(self):
+    def _get_valve_symbol(self):
         src = 8
         col = (0,10,255)
 
