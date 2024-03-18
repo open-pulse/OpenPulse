@@ -4,34 +4,51 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse import UI_DIR
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class AcousticElementTypeInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/acoustic/acousticElementTypeInput.ui", self)
+        ui_path = UI_DIR / "model/setup/acoustic/acoustic_element_type_input.ui"
+        uic.loadUi(ui_path, self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-  
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
+        self.opv.setInputObject(self)
+
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self.update()
+        self.selectionChange()
+
+        self.load_element_type_info()
+        self.exec()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
-        self.opv = opv
-        self.opv.setInputObject(self)
+    def _initialize(self):
+
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
         self.lines_id = self.opv.getListPickedLines()
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-
-        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
         self.comboBox_index = 0
         self.element_type = 'undamped'
         self.complete = False
@@ -39,21 +56,45 @@ class AcousticElementTypeInput(QDialog):
         self.pipe_to_beam = False
         self.beam_to_pipe = False
 
+    def _define_qt_variables(self):
+        # QCheckBox
         self.checkBox_flow_effects = self.findChild(QCheckBox, 'checkBox_flow_effects')
-        self.checkBox_flow_effects.toggled.connect(self.checkBoxEvent_flow_effects)
-        self.flow_effects = self.checkBox_flow_effects.isChecked()
-
+        # QComboBox
+        self.comboBox = self.findChild(QComboBox, 'comboBox')
+        # QLabel
         self.label_vol_flow = self.findChild(QLabel, 'label_vol_flow')
-        self.lineEdit_vol_flow = self.findChild(QLineEdit, 'lineEdit_vol_flow')
         self.label_ms_unit = self.findChild(QLabel, 'label_ms_unit')
-
+        # QLineEdit
+        self.lineEdit_vol_flow = self.findChild(QLineEdit, 'lineEdit_vol_flow')
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_selected_group = self.findChild(QLineEdit, 'lineEdit_selected_group')
-        self.lineEdit_selected_group.setDisabled(True)
-
         self.lineEdit_proportional_damping = self.findChild(QLineEdit, 'lineEdit_proportional_damping')
+        self.lineEdit_selected_group.setDisabled(True)
+        # QPushButton
+        # self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
+        # self.pushButton_remove.clicked.connect(self.group_remove)
+        # self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        # self.pushButton_reset.clicked.connect(self.reset_all)
+        self.pushButton_get_information = self.findChild(QPushButton, 'pushButton_get_information')
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        # self.pushButton_get_information.setDisabled(True)
+        # self.pushButton_remove.setDisabled(True)
+        # QRadioButton
+        self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
+        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selection')
+        # QTabWidget
+        self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
+        self.tabWidget_element_type = self.findChild(QTabWidget, 'tabWidget_element_type')
+        # self.tabWidget_element_type.currentChanged.connect(self.tabWidget_etype)
+        # self.tabWidget_element_type.setTabEnabled(1, False)
+        # QTreeWidget
+        self.treeWidget_element_type = self.findChild(QTreeWidget, 'treeWidget_element_type')
+        self.treeWidget_element_type.setColumnWidth(0, 150)
+        # self.tabWidget_general.currentChanged.connect(self.tabEvent_)
+        # self.currentTab_ = self.tabWidget_general.currentIndex()
 
-        self.comboBox = self.findChild(QComboBox, 'comboBox')
+    def _create_connections(self):
+        self.checkBox_flow_effects.toggled.connect(self.checkBoxEvent_flow_effects)
         self.comboBox.currentIndexChanged.connect(self.selectionChange)
         self.comboBox_index = self.comboBox.currentIndex()
 
@@ -62,46 +103,16 @@ class AcousticElementTypeInput(QDialog):
         # index: 2 - Wide-duct
         # index: 3 - LRF fluid equivalent
         # index: 4 - LRF full
-        
-        self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selection')
+
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
         self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
         self.flagAll = self.radioButton_all.isChecked()
         self.flagSelection = self.radioButton_selected_lines.isChecked()
 
-        self.treeWidget_element_type = self.findChild(QTreeWidget, 'treeWidget_element_type')
-        self.treeWidget_element_type.setColumnWidth(0, 150)
-        self.treeWidget_element_type.itemClicked.connect(self.on_click_item_line)
-                
-        self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
-        self.tabWidget_element_type = self.findChild(QTabWidget, 'tabWidget_element_type')
-        # self.tabWidget_element_type.currentChanged.connect(self.tabWidget_etype)
-        # self.tabWidget_element_type.setTabEnabled(1, False)
-
-        self.tab_element_type = self.tabWidget_element_type.findChild(QWidget, "tab_element_type")
-        self.tab_damping = self.tabWidget_element_type.findChild(QWidget, "tab_damping")
-
-        # self.tabWidget_general.currentChanged.connect(self.tabEvent_)
-        # self.currentTab_ = self.tabWidget_general.currentIndex()
-
-        # self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
-        # self.pushButton_remove.clicked.connect(self.group_remove)
-        # self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        # self.pushButton_reset.clicked.connect(self.reset_all)
-
-        self.pushButton_get_information = self.findChild(QPushButton, 'pushButton_get_information')
-        self.pushButton_get_information.clicked.connect(self.get_information)
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.confirm_element_type_attribution)
-        # self.pushButton_get_information.setDisabled(True)
-        # self.pushButton_remove.setDisabled(True)
+        self.pushButton_get_information.clicked.connect(self.get_information)
 
-        self.update()
-        self.selectionChange()
-
-        self.load_element_type_info()
-        self.exec()
+        self.treeWidget_element_type.itemClicked.connect(self.on_click_item_line)
 
     def write_ids(self, list_ids):
         text = ""
@@ -143,9 +154,9 @@ class AcousticElementTypeInput(QDialog):
 
     def selectionChange(self):
         self.comboBox_index = self.comboBox.currentIndex()
-        self.tabWidget_element_type.removeTab(1)
+        self.tabWidget_element_type.setTabVisible(1, False)
 
-        if self.flow_effects:
+        if self.checkBox_flow_effects.isChecked():
             if self.comboBox_index == 0:
                 self.element_type = 'undamped mean flow'
             elif self.comboBox_index == 1:
@@ -157,10 +168,8 @@ class AcousticElementTypeInput(QDialog):
                 self.element_type = 'undamped'
             elif self.comboBox_index == 1:
                 self.element_type = 'proportional'
-                self.tabWidget_element_type.addTab(self.tab_damping, "Damping")
+                self.tabWidget_element_type.setTabVisible(1, True)
                 self.tabWidget_element_type.setCurrentIndex(1)
-                # self.tabWidget_element_type.setTabEnabled(1, True)
-                # self.tabWidget_element_type.setCurrentWidget(self.tab_damping)
             elif self.comboBox_index == 2:
                 self.element_type = 'wide-duct'
             elif self.comboBox_index == 3:
@@ -169,13 +178,13 @@ class AcousticElementTypeInput(QDialog):
                 self.element_type = 'LRF full'
 
     def checkBoxEvent_flow_effects(self):
-        self.flow_effects = self.checkBox_flow_effects.isChecked()
-        self.label_vol_flow.setDisabled(not self.flow_effects)
-        self.lineEdit_vol_flow.setDisabled(not self.flow_effects)
-        self.label_ms_unit.setDisabled(not self.flow_effects)
+        flow_effects = self.checkBox_flow_effects.isChecked()
+        self.label_vol_flow.setDisabled(not flow_effects)
+        self.lineEdit_vol_flow.setDisabled(not flow_effects)
+        self.label_ms_unit.setDisabled(not flow_effects)
         self.comboBox.clear()
 
-        if self.flow_effects:
+        if flow_effects:
             list_items = ["Undamped mean flow", "Peters", "Howe"]    
         else:
             list_items = ["Undamped", "Proportional", "Wide-duct", "LRF fluid equivalent", "LRF full"]
@@ -206,21 +215,21 @@ class AcousticElementTypeInput(QDialog):
             title = "Empty entry to the " + label
             message = "Please, input a valid " + label + " value to continue."
             PrintMessageInput([window_title_1, title, message])
-            self.tabWidget_element_type.setCurrentWidget(self.tab_damping)
+            self.tabWidget_element_type.setCurrentIndex(1)
             self.value = None
             return True
         return False
 
     def confirm_element_type_attribution(self):
-
-        if self.comboBox_index == 1 and not self.flow_effects:
+        flow_effects = self.checkBox_flow_effects.isChecked()
+        if self.comboBox_index == 1 and not flow_effects:
             if self.check_input_parameters(self.lineEdit_proportional_damping.text(), "proportional damping"):
                 return
             proportional_damping = self.value
         else:
             proportional_damping = None
 
-        if self.flow_effects:
+        if flow_effects:
             if self.check_input_parameters(self.lineEdit_vol_flow.text(), "Volume flow rate"):
                 return
             vol_flow = self.value

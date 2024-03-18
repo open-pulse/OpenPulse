@@ -5,7 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
-from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
+from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.tools.utils import get_V_linear_distribution, remove_bc_from_file
@@ -555,7 +555,7 @@ class ValvesInput(QDialog):
                         half_ids = list_elements[index]
                     valve_ids.append(half_ids)
                 
-            pp = PerforatedPlateInput(self.project, self.opv, valve_ids=valve_ids) 
+            pp = PerforatedPlateInput(valve_ids=valve_ids) 
             if not pp.complete:
                 return 
 

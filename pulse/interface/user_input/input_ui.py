@@ -27,14 +27,14 @@ from pulse.interface.user_input.model.setup.structural.expansionJointInput impor
 from pulse.interface.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
 from pulse.interface.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
-from pulse.interface.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
+from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.user_input.model.setup.acoustic.acoustic_pressure_input import AcousticPressureInput
-from pulse.interface.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
-from pulse.interface.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
-from pulse.interface.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.volume_velocity_input import VolumeVelocityInput
+from pulse.interface.user_input.model.setup.acoustic.specific_impedance_input import SpecificImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.radiation_impedance_input import RadiationImpedanceInput
 from pulse.interface.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
-from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
+from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 #
@@ -242,7 +242,7 @@ class InputUi:
         return self.processInput(ValvesInput)
 
     def set_acoustic_element_type(self):
-        self.processInput(AcousticElementTypeInput, self.project, self.opv)
+        self.processInput(AcousticElementTypeInput)
 
     def set_fluid(self):
         self.processInput(FluidInput, self.project, self.opv)
@@ -253,23 +253,23 @@ class InputUi:
     def set_acoustic_pressure(self):
         self.processInput(AcousticPressureInput)
     
-    def setVolumeVelocity(self):
-        self.processInput(VolumeVelocityInput, self.project, self.opv)
+    def set_volume_velocity(self):
+        self.processInput(VolumeVelocityInput)
 
-    def setSpecificImpedance(self):
-        self.processInput(SpecificImpedanceInput, self.project, self.opv)
+    def set_specific_impedance(self):
+        self.processInput(SpecificImpedanceInput)
     
     def set_radiation_impedance(self):
-        self.processInput(RadiationImpedanceInput, self.project, self.opv)
+        self.processInput(RadiationImpedanceInput)
 
     def add_perforated_plate(self):
-        self.processInput(PerforatedPlateInput, self.project, self.opv)
+        self.processInput(PerforatedPlateInput)
 
     def set_acoustic_element_length_correction(self):
-        self.processInput(AcousticElementLengthCorrectionInput, self.project, self.opv)
+        self.processInput(AcousticElementLengthCorrectionInput)
 
     def add_compressor_excitation(self):
-        self.processInput(CompressorModelInput, self.project, self.opv)
+        self.processInput(CompressorModelInput)
 
     def analysisTypeInput(self):
 

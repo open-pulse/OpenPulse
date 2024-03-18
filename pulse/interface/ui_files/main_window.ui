@@ -734,7 +734,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/geometry.png</normaloff>../../../data/icons/geometry.png</iconset>
+     <normaloff>../../../data/icons/plot_mesh.png</normaloff>../../../data/icons/plot_mesh.png</iconset>
    </property>
    <property name="text">
     <string>Show Points</string>
@@ -749,7 +749,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/lines.png</normaloff>../../../data/icons/lines.png</iconset>
+     <normaloff>../../../data/icons/lines_blue.png</normaloff>../../../data/icons/lines_blue.png</iconset>
    </property>
    <property name="text">
     <string>Show Lines</string>
@@ -764,7 +764,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/lines_cross_section.png</normaloff>../../../data/icons/lines_cross_section.png</iconset>
+     <normaloff>../../../data/icons/plot_cross_sections.png</normaloff>../../../data/icons/plot_cross_sections.png</iconset>
    </property>
    <property name="text">
     <string>Show Tubes</string>
@@ -779,7 +779,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/loading1.gif</normaloff>../../../data/icons/loading1.gif</iconset>
+     <normaloff>../../../data/icons/show_symbols_3d.png</normaloff>../../../data/icons/show_symbols_3d.png</iconset>
    </property>
    <property name="text">
     <string>Show Symbols</string>

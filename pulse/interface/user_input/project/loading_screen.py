@@ -33,7 +33,8 @@ class LoadingScreen(QDialog):
     def __init__(self, target=None, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(UI_DIR / "messages/loading_window.ui", self)
+        ui_path = UI_DIR / "messages/loading_window.ui"
+        uic.loadUi(ui_path, self)
         
         self.target = target
         self.title = kwargs.get("title", "")
@@ -51,7 +52,7 @@ class LoadingScreen(QDialog):
 
     def _load_icons(self):
         icon_path = str(Path('data/icons/pulse.png'))
-        self.gif_path = str(Path('data/icons/loading0.gif'))
+        self.gif_path = str(Path('data/icons/gifs/loading_blue.gif'))
         self.pvfat_icon = QIcon(icon_path)
 
 
@@ -61,7 +62,7 @@ class LoadingScreen(QDialog):
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
         self.setWindowIcon(self.pvfat_icon)
         self.movie = QMovie(self.gif_path)
-        self.movie.setScaledSize(QSize(140,140))
+        self.movie.setScaledSize(QSize(100,100))
 
 
     def _define_and_connect_qt_variables(self):
@@ -78,6 +79,7 @@ class LoadingScreen(QDialog):
         self.label_title.setText(self.title)
         self.label_message.setText(self.message)
         self.label_animation.setMovie(self.movie)
+        self.label_animation.setScaledContents(True)
         self.label_animation.adjustSize()
         self.adjustSize()
 

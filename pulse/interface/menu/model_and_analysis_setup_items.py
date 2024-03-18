@@ -52,10 +52,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_setRotationDecoupling = self.add_item('Set Rotation Decoupling')
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
-        self.item_child_setAcousticElementType = self.add_item('Set Acoustic Element Type')
+        self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type')
         self.item_child_set_acoustic_pressure = self.add_item('Set Acoustic Pressure')
-        self.item_child_setVolumeVelocity = self.add_item('Set Volume Velocity')
-        self.item_child_setSpecificImpedance = self.add_item('Set Specific Impedance')
+        self.item_child_set_volume_velocity = self.add_item('Set Volume Velocity')
+        self.item_child_set_specific_impedance = self.add_item('Set Specific Impedance')
         self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
         self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
         self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
@@ -92,10 +92,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_setBeamXaxisRotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
         self.item_child_setRotationDecoupling.clicked.connect(self.item_child_set_rotation_decoupling_callback)
         # Acoustic Model Setup
-        self.item_child_setAcousticElementType.clicked.connect(self.item_child_set_acoustic_element_type_callback)
+        self.item_child_set_acoustic_element_type.clicked.connect(self.item_child_set_acoustic_element_type_callback)
         self.item_child_set_acoustic_pressure.clicked.connect(self.item_child_set_acoustic_pressure_callback)
-        self.item_child_setVolumeVelocity.clicked.connect(self.item_child_set_volume_velocity_callback)
-        self.item_child_setSpecificImpedance.clicked.connect(self.item_child_set_specific_impedance_callback)
+        self.item_child_set_volume_velocity.clicked.connect(self.item_child_set_volume_velocity_callback)
+        self.item_child_set_specific_impedance.clicked.connect(self.item_child_set_specific_impedance_callback)
         self.item_child_set_radiation_impedance.clicked.connect(self.item_child_set_radiation_impedance_callback)
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
@@ -220,11 +220,11 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_set_volume_velocity_callback(self):
         self.main_window.update_plot_mesh()  
-        self.main_window.input_widget.setVolumeVelocity()
+        self.main_window.input_widget.set_volume_velocity()
 
     def item_child_set_specific_impedance_callback(self):
         self.main_window.update_plot_mesh() 
-        self.main_window.input_widget.setSpecificImpedance()
+        self.main_window.input_widget.set_specific_impedance()
 
     def item_child_set_radiation_impedance_callback(self):
         self.main_window.update_plot_mesh()
@@ -291,10 +291,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_setBeamXaxisRotation.setDisabled(bool_key)
         self.item_child_setRotationDecoupling.setDisabled(bool_key)
         #   
-        self.item_child_setAcousticElementType.setDisabled(bool_key)
+        self.item_child_set_acoustic_element_type.setDisabled(bool_key)
         self.item_child_set_acoustic_pressure.setDisabled(bool_key)
-        self.item_child_setVolumeVelocity.setDisabled(bool_key)
-        self.item_child_setSpecificImpedance.setDisabled(bool_key)
+        self.item_child_set_volume_velocity.setDisabled(bool_key)
+        self.item_child_set_specific_impedance.setDisabled(bool_key)
         self.item_child_set_radiation_impedance.setDisabled(bool_key)
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)

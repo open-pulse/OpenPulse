@@ -29,7 +29,6 @@ class RunAnalysisInput(QDialog):
 
         self._load_icons()
         self._config_window()
-        
         self._reset_variables()
         self._load_analysis_info()
         self._define_qt_variables()

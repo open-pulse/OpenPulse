@@ -16,8 +16,9 @@ def get_formatted_icon(path: Path | str, color: QColor):
     return QIcon(pixmap)
 
 def get_openpulse_icon(color=QColor("#0055DD")):
-    icon_path = str(Path('data/icons/pulse.png'))
-    return get_formatted_icon(icon_path, color)
+    icon_path = str(Path('data/icons/pulse/pulse_icon.png'))
+    # return get_formatted_icon(icon_path, color)
+    return QIcon(icon_path)
 
 def get_warning_icon(color=None):
     if color is None:
