@@ -51,6 +51,7 @@ class PerforatedPlateInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
 
@@ -90,41 +91,38 @@ class PerforatedPlateInput(QDialog):
         # QCheckBox
         self.checkBox_remove_valve_structural_effects : QCheckBox
         self.checkBox_single_hole : QCheckBox
-        self.checkBox_bias : QCheckBox
-        self.checkBox_nonlinear : QCheckBox
-        self.checkBox_dimensionless : QCheckBox
+        self.checkBox_bias_flow_coefficient : QCheckBox
+        self.checkBox_dimensionless_impedance : QCheckBox
+        self.checkBox_nonlinear_discharge_coefficient : QCheckBox
         # QComboBox
         self.comboBox_data_type : QComboBox
         self.comboBox_parameter_to_plot : QComboBox
         self.comboBox_perforated_plate_model : QComboBox
         # QLabel
         self.label_selection : QLabel
-        self.label_nonlin_discharge : QLabel
-        self.label_bias : QLabel
+        self.label_non_linear_discharge_coefficient : QLabel
         self.label_correction_factor : QLabel
-        self.label_dimensionless : QLabel
-        self.label_element_id_plot : QLabel
+        self.label_bias_flow_coefficient : QLabel
         # QLineEdit
         self.lineEdit_element_id : QLineEdit
+        self.lineEdit_element_id_plot : QLineEdit
         self.lineEdit_nonlin_discharge : QLineEdit
         self.lineEdit_correction_factor : QLineEdit
         self.lineEdit_impedance_real : QLineEdit
         self.lineEdit_impedance_imag : QLineEdit
         self.lineEdit_load_table_path : QLineEdit
         self.lineEdit_specify_element_id : QLineEdit
-        self.lineEdit_bias : QLineEdit
-        self.lineEdit_HoleDiameter : QLineEdit
-        self.lineEdit_thickness : QLineEdit
-        self.lineEdit_porosity : QLineEdit
-        self.lineEdit_discharge : QLineEdit
+        self.lineEdit_bias_flow_coefficient : QLineEdit
+        self.lineEdit_hole_diameter : QLineEdit
+        self.lineEdit_plate_thickness : QLineEdit
+        self.lineEdit_area_porosity : QLineEdit
+        self.lineEdit_discharge_coefficient : QLineEdit
         # QPushButton
         self.pushButton_plot_parameter : QPushButton
-        self.pushButton_get_information_remove : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_load_table : QPushButton
-        self.pushButton_get_information_plot : QPushButton
         # QRadioButton
         self.radioButton_impedance : QRadioButton
         self.radioButton_absortion : QRadioButton
@@ -133,9 +131,9 @@ class PerforatedPlateInput(QDialog):
         # QSpinBox
         self.spinBox_skiprows : QSpinBox
         # QTabWidget
+        self.tabWidget_dimensionless : QTabWidget
         self.tabWidget_perforated_plate : QTabWidget
         self.tabWidget_setup : QTabWidget
-        self.tabWidget_dimensionless : QTabWidget
         # QTreeWidget
         self.treeWidget_perforated_plate_preview : QTreeWidget
         self.treeWidget_perforated_plate_remove : QTreeWidget
@@ -144,16 +142,14 @@ class PerforatedPlateInput(QDialog):
 
     def _create_connections(self):
         #
-        self.checkBox_bias.toggled.connect(self.checkBoxEvent_bias)
-        self.checkBox_nonlinear.toggled.connect(self.checkBoxEvent_nonlinear)
-        self.checkBox_dimensionless.toggled.connect(self.checkBoxEvent_dimensionless)
+        self.checkBox_bias_flow_coefficient.toggled.connect(self.checkBoxEvent_bias)
+        self.checkBox_nonlinear_discharge_coefficient.toggled.connect(self.checkBoxEvent_nonlinear)
+        self.checkBox_dimensionless_impedance.toggled.connect(self.checkBoxEvent_dimensionless)
         #
         self.comboBox_perforated_plate_model.currentIndexChanged.connect(self.perforated_plate_model_update)
         self.comboBox_parameter_to_plot.currentIndexChanged.connect(self.parameter_to_plot_callback)
         #
         self.pushButton_confirm.clicked.connect(self.confirm_perforated_plate_attribution)
-        self.pushButton_get_information_remove.clicked.connect(self.get_information_of_group)
-        self.pushButton_get_information_plot.clicked.connect(self.get_information_of_group)
         self.pushButton_load_table.clicked.connect(self.load_dimensionless_impedance_table)
         self.pushButton_remove.clicked.connect(self.remove_perforated_plate_by_group)
         self.pushButton_reset.clicked.connect(self.remove_all_perforated_plate)
@@ -163,10 +159,10 @@ class PerforatedPlateInput(QDialog):
         #       
         self.treeWidget_perforated_plate_preview.itemClicked.connect(self.on_click_item_plot)
         self.treeWidget_perforated_plate_preview.itemDoubleClicked.connect(self.on_doubleclick_item_plot)
-        self.treeWidget_perforated_plate_remove.itemClicked.connect(self.on_click_item)
-        self.treeWidget_perforated_plate_remove.itemDoubleClicked.connect(self.on_doubleclick_item_remove)
+        self.treeWidget_perforated_plate_remove.itemClicked.connect(self.on_click_item_tab_remove)
+        self.treeWidget_perforated_plate_remove.itemDoubleClicked.connect(self.on_doubleclick_item_tab_remove)
         #
-        self.checkBoxEvent_bias()
+        self.update_checkboxes()
         self.update_valve_ids()
 
     def update_valve_ids(self):
@@ -179,59 +175,67 @@ class PerforatedPlateInput(QDialog):
         if self.currentTab_ == 0:
             self.write_ids(self.elements_id)
             self.label_selection.setText("Elements IDs")
+
         elif self.currentTab_ == 1: 
             self.label_selection.setText("Group")
             items = self.treeWidget_perforated_plate_preview.selectedItems()
             if items == []:
                 self.lineEdit_element_id.setText('')
             else:
-                self.on_click_item(items[0])
+                self.on_click_item_tab_remove(items[0])
+
         elif self.currentTab_ == 2: 
             self.label_selection.setText("Group")
             items = self.treeWidget_perforated_plate_remove.selectedItems()
             if items == []:
                 self.lineEdit_element_id.setText('')
             else:
-                self.on_click_item(items[0])
+                self.on_click_item_tab_remove(items[0])
 
     def checkBoxEvent_nonlinear(self):
-        if self.checkBox_nonlinear.isChecked():
-            self.lineEdit_nonlin_discharge.setDisabled(False)
-            self.label_nonlin_discharge.setDisabled(False)
-            self.lineEdit_correction_factor.setDisabled(False)
+        if self.checkBox_nonlinear_discharge_coefficient.isChecked():
             self.label_correction_factor.setDisabled(False)
+            self.label_non_linear_discharge_coefficient.setDisabled(False)
+            self.lineEdit_nonlin_discharge.setDisabled(False)
+            self.lineEdit_correction_factor.setDisabled(False)
+
         else:
-            self.lineEdit_nonlin_discharge.setDisabled(True)
-            self.label_nonlin_discharge.setDisabled(True)
-            self.lineEdit_correction_factor.setDisabled(True)
             self.label_correction_factor.setDisabled(True)
+            self.label_non_linear_discharge_coefficient.setDisabled(True)
+            self.lineEdit_nonlin_discharge.setDisabled(True)
+            self.lineEdit_correction_factor.setDisabled(True)
 
     def checkBoxEvent_bias(self):
-        self.flag_bias = self.checkBox_bias.isChecked()
+        self.flag_bias = self.checkBox_bias_flow_coefficient.isChecked()
         if self.flag_bias:
-            self.lineEdit_bias.setDisabled(False)
-            self.label_bias.setDisabled(False)
+            self.label_bias_flow_coefficient.setDisabled(False)
+            self.lineEdit_bias_flow_coefficient.setDisabled(False)
+
         else:
-            self.lineEdit_bias.setDisabled(True)
-            self.label_bias.setDisabled(True)
+            self.label_bias_flow_coefficient.setDisabled(True)
+            self.lineEdit_bias_flow_coefficient.setDisabled(True)
 
     def checkBoxEvent_dimensionless(self):
-        if self.checkBox_dimensionless.isChecked():
+        if self.checkBox_dimensionless_impedance.isChecked():
             self.tabWidget_dimensionless.setDisabled(False)
-            self.label_dimensionless.setDisabled(False)
             self.lineEdit_load_table_path.setDisabled(False)
             self.pushButton_load_table.setDisabled(False)
+
         else:
             self.tabWidget_dimensionless.setDisabled(True)
-            self.label_dimensionless.setDisabled(True)
             self.lineEdit_load_table_path.setDisabled(True)
             self.pushButton_load_table.setDisabled(True)
  
+    def update_checkboxes(self):
+        self.checkBoxEvent_nonlinear()
+        self.checkBoxEvent_bias()
+        self.checkBoxEvent_dimensionless()
+
     def perforated_plate_model_update(self):
 
-        self.lineEdit_thickness.setDisabled(False)
-        self.lineEdit_porosity.setDisabled(False)
-        self.lineEdit_discharge.setDisabled(False)
+        self.lineEdit_plate_thickness.setDisabled(False)
+        self.lineEdit_area_porosity.setDisabled(False)
+        self.lineEdit_discharge_coefficient.setDisabled(False)
         self.checkBox_single_hole.setChecked(False)
         self.checkBox_single_hole.setDisabled(False)
         self.tabWidget_setup.setTabVisible(1, False)
@@ -241,12 +245,10 @@ class PerforatedPlateInput(QDialog):
         if index == 0:
             self.dict_inputs['type'] = 0
 
-            self.checkBox_nonlinear.setDisabled(False)
-            self.checkBox_bias.setDisabled(False)
-            self.checkBox_dimensionless.setDisabled(False)
-            self.checkBoxEvent_nonlinear()
-            self.checkBoxEvent_bias()
-            self.checkBoxEvent_dimensionless()
+            self.checkBox_nonlinear_discharge_coefficient.setDisabled(False)
+            self.checkBox_bias_flow_coefficient.setDisabled(False)
+            self.checkBox_dimensionless_impedance.setDisabled(False)
+            self.update_checkboxes()
             self.tabWidget_setup.setTabVisible(1, True)
 
         elif index == 1:            
@@ -255,15 +257,15 @@ class PerforatedPlateInput(QDialog):
         elif index == 2:
             self.dict_inputs['type'] = 2
 
-            self.lineEdit_thickness.setText("")
-            self.lineEdit_porosity.setText("")
-            self.lineEdit_discharge.setText("")
-            self.lineEdit_thickness.setDisabled(True)
-            self.lineEdit_porosity.setDisabled(True)
-            self.lineEdit_discharge.setDisabled(True)
+            self.lineEdit_plate_thickness.setText("")
+            self.lineEdit_area_porosity.setText("")
+            self.lineEdit_discharge_coefficient.setText("")
+            self.lineEdit_plate_thickness.setDisabled(True)
+            self.lineEdit_area_porosity.setDisabled(True)
+            self.lineEdit_discharge_coefficient.setDisabled(True)
             self.checkBox_single_hole.setChecked(True)
             self.checkBox_single_hole.setDisabled(True)
-            self.lineEdit_HoleDiameter.setFocus()
+            self.lineEdit_hole_diameter.setFocus()
 
     def check_input_parameters(self, string, label, not_None = False):
         title = "INPUT ERROR"
@@ -445,8 +447,8 @@ class PerforatedPlateInput(QDialog):
         #         return True
 
         # Check hole diameter
-        if self.check_input_parameters(self.lineEdit_HoleDiameter.text(), 'hole diameter', True):
-            self.lineEdit_HoleDiameter.setFocus()
+        if self.check_input_parameters(self.lineEdit_hole_diameter.text(), 'hole diameter', True):
+            self.lineEdit_hole_diameter.setFocus()
             return True
         else:
             self.min_diameter = min(elements_diameter)
@@ -454,7 +456,7 @@ class PerforatedPlateInput(QDialog):
                 title = "Invalid hole diameter value"
                 message = "The hole diameter must be less than element inner diameter."
                 PrintMessageInput([window_title_1, title, message])
-                self.lineEdit_HoleDiameter.setFocus()
+                self.lineEdit_hole_diameter.setFocus()
                 return True
             self.dict_inputs['hole diameter'] = self.value
         
@@ -469,8 +471,8 @@ class PerforatedPlateInput(QDialog):
             self.dict_inputs['bias flow coefficient'] = 0
         else:
             # Check plate thickness
-            if self.check_input_parameters(self.lineEdit_thickness.text(), 'plate thickness', True):
-                self.lineEdit_thickness.setFocus()
+            if self.check_input_parameters(self.lineEdit_plate_thickness.text(), 'plate thickness', True):
+                self.lineEdit_plate_thickness.setFocus()
                 return True
             else:
                 aux = np.append(np.array(elements_lengths) > self.value-self.tol, np.array(elements_lengths) < self.value+self.tol)
@@ -478,36 +480,36 @@ class PerforatedPlateInput(QDialog):
                     title = "Plate thickness different from element length"
                     message = "If possible, use plate thickness equal to the element length for better precision."
                     PrintMessageInput([window_title_2, title, message])
-                    self.lineEdit_thickness.setFocus()
+                    self.lineEdit_plate_thickness.setFocus()
                 self.dict_inputs['plate thickness'] = self.value
 
             # Check area porosity
-            if self.check_input_parameters(self.lineEdit_porosity.text(), 'area porosity', True):
-                self.lineEdit_porosity.setFocus()
+            if self.check_input_parameters(self.lineEdit_area_porosity.text(), 'area porosity', True):
+                self.lineEdit_area_porosity.setFocus()
                 return True
             else:
                 if self.value >= 1:
                     title = "Invalid area porosity value"
                     message = "The area porosity must be less than 1."
                     PrintMessageInput([window_title_1, title, message])
-                    self.lineEdit_porosity.setFocus()
+                    self.lineEdit_area_porosity.setFocus()
                     return True
                 self.dict_inputs['area porosity'] = self.value
 
             # Check discharge coefficient
-            if self.check_input_parameters(self.lineEdit_discharge.text(), 'discharge coefficient'):
-                self.lineEdit_discharge.setFocus()
+            if self.check_input_parameters(self.lineEdit_discharge_coefficient.text(), 'discharge coefficient'):
+                self.lineEdit_discharge_coefficient.setFocus()
                 return True
             else:
                 if self.value > 1:
                     title = "Invalid discharge coefficient value"
                     message = "The discharge coefficient must be less than or equal to 1."
                     PrintMessageInput([window_title_1, title, message])
-                    self.lineEdit_discharge.setFocus()
+                    self.lineEdit_discharge_coefficient.setFocus()
                     return True
                 self.dict_inputs['discharge coefficient'] = self.value
 
-            self.dict_inputs['nonlinear effects'] = self.checkBox_nonlinear.isChecked()
+            self.dict_inputs['nonlinear effects'] = self.checkBox_nonlinear_discharge_coefficient.isChecked()
 
             # Check nonlinear discharge coefficient
             if self.check_input_parameters(self.lineEdit_nonlin_discharge.text(), 'nonlinear discharge coefficient'):
@@ -532,8 +534,8 @@ class PerforatedPlateInput(QDialog):
             self.dict_inputs['bias flow effects'] = self.flag_bias
 
             # Check bias flow
-            if self.check_input_parameters(self.lineEdit_bias.text(), 'bias flow coefficient'):
-                self.lineEdit_bias.setFocus()
+            if self.check_input_parameters(self.lineEdit_bias_flow_coefficient.text(), 'bias flow coefficient'):
+                self.lineEdit_bias_flow_coefficient.setFocus()
                 return True
             else:
                 self.dict_inputs['bias flow coefficient'] = self.value
@@ -724,19 +726,19 @@ class PerforatedPlateInput(QDialog):
         if table_name is not None:
             self.project.remove_acoustic_table_files_from_folder(table_name, "perforated_plate_files")
 
-    def on_click_item(self, item):
+    def on_click_item_tab_remove(self, item):
         self.lineEdit_element_id.setText(item.text(0))
 
-    def on_doubleclick_item_remove(self, item):
+    def on_doubleclick_item_tab_remove(self, item):
         self.lineEdit_element_id.setText(item.text(0))
-        self.remove_perforated_plate_by_group()
+        self.get_information_of_group()
 
     def on_click_item_plot(self, item):
         self.lineEdit_element_id.setText(item.text(0))
         selected_key = self.dict_label.format(self.lineEdit_element_id.text())
         if "Selection-" in selected_key:
             [_, list_elements] = self.group_elements_with_perforated_plates[selected_key]
-            self.label_element_id_plot.setText(str(list_elements))
+            self.lineEdit_element_id_plot.setText(str(list_elements))
             if len(list_elements) == 1:
                 self.lineEdit_specify_element_id.setText(str(list_elements[0]))
             else:
@@ -744,6 +746,7 @@ class PerforatedPlateInput(QDialog):
     
     def on_doubleclick_item_plot(self, item):
         self.lineEdit_element_id.setText(item.text(0))
+        self.get_information_of_group()
 
     def parameter_to_plot_callback(self):
         parameter_index = self.comboBox_parameter_to_plot.currentIndex()
@@ -906,19 +909,19 @@ class PerforatedPlateInput(QDialog):
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:
-            self.lineEdit_HoleDiameter.setText("")
-            self.lineEdit_thickness.setText("")
-            self.lineEdit_porosity.setText("")
-            self.lineEdit_discharge.setText("1")
+            self.lineEdit_hole_diameter.setText("")
+            self.lineEdit_plate_thickness.setText("")
+            self.lineEdit_area_porosity.setText("")
+            self.lineEdit_discharge_coefficient.setText("1")
             self.lineEdit_nonlin_discharge.setText("0.76")
             self.lineEdit_correction_factor.setText("1")
-            self.lineEdit_bias.setText("1")
+            self.lineEdit_bias_flow_coefficient.setText("1")
             self.lineEdit_impedance_real.setText("")
             self.lineEdit_impedance_imag.setText("")
             self.lineEdit_load_table_path.setText("")
             self.comboBox_perforated_plate_model.setCurrentIndex(0)
-            self.checkBox_nonlinear.setChecked(False)            
-            self.checkBox_bias.setChecked(False)            
+            self.checkBox_nonlinear_discharge_coefficient.setChecked(False)            
+            self.checkBox_bias_flow_coefficient.setChecked(False)            
             self.inputs_from_node = False
 
     def update(self):
@@ -938,9 +941,9 @@ class PerforatedPlateInput(QDialog):
                 
                 self.reset_input_fields(force_reset=True)
                 
-                self.lineEdit_HoleDiameter.setText(str(perforated_plate.hole_diameter))
-                self.lineEdit_thickness.setText(str(perforated_plate.thickness))
-                self.lineEdit_porosity.setText(str(perforated_plate.porosity))
+                self.lineEdit_hole_diameter.setText(str(perforated_plate.hole_diameter))
+                self.lineEdit_plate_thickness.setText(str(perforated_plate.thickness))
+                self.lineEdit_area_porosity.setText(str(perforated_plate.porosity))
 
                 if perforated_plate.type == 0:
                     self.comboBox_perforated_plate_model.setCurrentIndex(0)
@@ -957,10 +960,10 @@ class PerforatedPlateInput(QDialog):
 
                 else:
                     if perforated_plate.linear_discharge_coefficient:
-                        self.lineEdit_discharge.setText(str(perforated_plate.linear_discharge_coefficient))
+                        self.lineEdit_discharge_coefficient.setText(str(perforated_plate.linear_discharge_coefficient))
                 
                 if perforated_plate.bias_effect:
-                    self.lineEdit_bias.setText(str(perforated_plate.bias_coefficient))
+                    self.lineEdit_bias_flow_coefficient.setText(str(perforated_plate.bias_coefficient))
 
                 _table_name = perforated_plate.dimensionless_impedance_table_name
                 if _table_name is not None:
@@ -1038,89 +1041,108 @@ class PerforatedPlateInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(UI_DIR / "model/info/getGroupInformationPerforatedPlate.ui", self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon) 
+        ui_path = UI_DIR / "model/info/perforated_plate/get_perforated_plate_info.ui"
+        uic.loadUi(ui_path, self)
 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
+        self.selected_key = selected_key
         self.perforated_plate = value[0]
         self.elements = value[1]
 
-        self.title_label = self.findChild(QLabel, 'title_label')
-        self.title_label.setText(f"{selected_key} information")
-
-        self.treeWidget_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-
-        self.Label_dh = self.findChild(QLabel, 'Label_dh')
-        self.Label_tp = self.findChild(QLabel, 'Label_tp')
-        self.Label_phi = self.findChild(QLabel, 'Label_phi')
-        self.Label_sigma = self.findChild(QLabel, 'Label_sigma')
-        self.Label_single_hole = self.findChild(QLabel, 'Label_single_hole')
-        self.Label_nl_effects = self.findChild(QLabel, 'Label_nl_effects')
-        self.Label_nl_sigma = self.findChild(QLabel, 'Label_nl_sigma')
-        self.Label_correction = self.findChild(QLabel, 'Label_correction')
-        self.Label_bias_effects = self.findChild(QLabel, 'Label_bias_effects')
-        self.Label_bias_coefficient = self.findChild(QLabel, 'Label_bias_coefficient')
-        self.Label_dimensionless_impedance = self.findChild(QLabel, 'Label_dimensionless_impedance')
-
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        self.pushButton_close.clicked.connect(self.force_to_close)
-
+        self._load_icons()
+        self._config_window()
+        self._define_qt_variables()
+        self._create_connections()
+        self._config_widgets()
         self.load_group_info()
         self.exec()
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon) 
+        self.setWindowTitle("OpenPulse")
+
+    def _define_qt_variables(self):
+        # QLabel
+        self.title_label : QLabel
+        # QLiineEdit
+        self.lineEdit_selection_label : QLineEdit
+        self.lineEdit_perforated_plate_elements : QLineEdit
+        self.lineEdit_hole_diameter : QLineEdit
+        self.lineEdit_plate_thickness : QLineEdit
+        self.lineEdit_area_porosity : QLineEdit
+        self.lineEdit_discharge_coefficient : QLineEdit
+        self.lineEdit_single_hole : QLineEdit
+        self.lineEdit_non_linear_discharge_coefficient : QLineEdit
+        self.lineEdit_correction_factor : QLineEdit
+        self.lineEdit_bias_flow_coefficient_flow_coefficient : QLineEdit
+        self.lineEdit_dimensionless_impedance : QLineEdit
+        # QPushButton
+        self.pushButton_close : QPushButton
+        # QTreeWidget
+        self.treeWidget_info : QTreeWidget
+
+    def _create_connections(self):
+        self.pushButton_close.clicked.connect(self.close)
+
+    def _config_widgets(self):
+        str_selection = self.selected_key.split(" || ")[1]
+        self.lineEdit_selection_label.setText(f"{str_selection}")
+        self.lineEdit_perforated_plate_elements.setText(str(self.elements)[1:-1])
+
+    def load_group_info(self):
+
+        self.lineEdit_hole_diameter.setText(str(self.perforated_plate.hole_diameter))
+        self.lineEdit_plate_thickness.setText(str(self.perforated_plate.thickness))
+
+        if self.perforated_plate.porosity:
+            self.lineEdit_area_porosity.setText(str(self.perforated_plate.porosity))
+   
+        else:
+            self.lineEdit_area_porosity.setText("---")
+
+        if self.perforated_plate.linear_discharge_coefficient:
+            self.lineEdit_discharge_coefficient.setText(str(self.perforated_plate.linear_discharge_coefficient))
+
+        else:
+            self.lineEdit_discharge_coefficient.setText("---")
+
+        self.lineEdit_single_hole.setText(str(self.perforated_plate.single_hole))
+
+        if self.perforated_plate.nonlinear_effect:
+            self.lineEdit_non_linear_discharge_coefficient.setDisabled(False)
+            self.lineEdit_non_linear_discharge_coefficient.setText(str(self.perforated_plate.nonlinear_discharge_coefficient))
+            self.lineEdit_correction_factor.setText(str(self.perforated_plate.correction_factor))
+
+        else:
+            self.lineEdit_non_linear_discharge_coefficient.setDisabled(True)
+            self.lineEdit_non_linear_discharge_coefficient.setText("---")
+            self.lineEdit_correction_factor.setText("---")
+            self.lineEdit_non_linear_discharge_coefficient.setDisabled(True)
+            self.lineEdit_correction_factor.setDisabled(True)
+
+        if self.perforated_plate.bias_effect:
+            self.lineEdit_bias_flow_coefficient_flow_coefficient.setDisabled(False)
+            self.lineEdit_bias_flow_coefficient_flow_coefficient.setText(str(self.perforated_plate.bias_coefficient))
+
+        else:
+            self.lineEdit_bias_flow_coefficient_flow_coefficient.setDisabled(True)
+            self.lineEdit_bias_flow_coefficient_flow_coefficient.setText("---")
+
+        if self.perforated_plate.dimensionless_impedance_table_name is not None:
+            self.lineEdit_dimensionless_impedance.setText(self.perforated_plate.dimensionless_impedance_table_name)
+
+        elif isinstance(self.perforated_plate.dimensionless_impedance, (int, float, complex)):
+            self.lineEdit_dimensionless_impedance.setText(str(self.perforated_plate.dimensionless_impedance))
+
+        else:
+            self.lineEdit_dimensionless_impedance.setText("---")
+            self.lineEdit_dimensionless_impedance.setDisabled(True)
+        
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
-
-    def load_group_info(self):
-        new = QTreeWidgetItem([str(self.elements)])
-        new.setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_group_info.addTopLevelItem(new)
-        
-        self.Label_dh.setText(str(self.perforated_plate.hole_diameter))
-        self.Label_tp.setText(str(self.perforated_plate.thickness))
-        
-        if self.perforated_plate.porosity:
-            self.Label_phi.setText(str(self.perforated_plate.porosity))
-        else:
-            self.Label_phi.setText("___")
-            
-        if self.perforated_plate.linear_discharge_coefficient:
-            self.Label_sigma.setText(str(self.perforated_plate.linear_discharge_coefficient))
-        else:
-            self.Label_sigma.setText("___")
-
-        self.Label_single_hole.setText(str(self.perforated_plate.single_hole))
-        if self.perforated_plate.nonlinear_effect:
-            self.Label_nl_effects.setText("On")
-            self.Label_nl_sigma.setText(str(self.perforated_plate.nonlinear_discharge_coefficient))
-            self.Label_correction.setText(str(self.perforated_plate.correction_factor))
-        else:
-            self.Label_nl_effects.setText("Off")
-            self.Label_nl_sigma.setText("___")
-            self.Label_correction.setText("___")
-            self.Label_nl_sigma.setDisabled(True)
-            self.Label_correction.setDisabled(True)
-        if self.perforated_plate.bias_effect:
-            self.Label_bias_effects.setText("On")
-            self.Label_bias_coefficient.setText(str(self.perforated_plate.bias_coefficient))
-        else:
-            self.Label_bias_effects.setText("Off")
-            self.Label_bias_coefficient.setText("___")
-            self.Label_bias_coefficient.setDisabled(True)
-        
-        if self.perforated_plate.dimensionless_impedance_table_name is not None:
-            self.Label_dimensionless_impedance.setText(self.perforated_plate.dimensionless_impedance_table_name)
-        elif isinstance(self.perforated_plate.dimensionless_impedance, (int, float, complex)):
-            self.Label_dimensionless_impedance.setText(str(self.perforated_plate.dimensionless_impedance))
-        else:
-            self.Label_dimensionless_impedance.setText("___")
-            self.Label_dimensionless_impedance.setDisabled(True)
-    
-    def force_to_close(self):
-        self.close()

@@ -350,7 +350,8 @@ class opvRenderer(vtkRendererBase):
         self._style.clear()
     
     def update(self):
-        # self.opv.updateDialogs()
+        # TODO: check selection
+        self.opv.updateDialogs()
         renWin = self._renderer.GetRenderWindow()
         if renWin: renWin.Render()
 

@@ -42,6 +42,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
 
@@ -51,7 +52,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.elements_info_path = self.project.file._element_info_path
         self.dict_label = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
 
-        self.elements_id = self.opv.getListPickedElements()
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.acoustic_elements = self.project.preprocessor.acoustic_elements
@@ -61,28 +61,29 @@ class AcousticElementLengthCorrectionInput(QDialog):
         # QComboBox
         self.comboBox_element_length_correction_type :  QComboBox
         # QLabel
-        self.label_selection = self.findChild(QLabel, 'label_selection')
+        self.label_selection : QLabel
         # QLineEdit
-        self.lineEdit_element_id = self.findChild(QLineEdit, 'lineEdit_element_id')
+        self.lineEdit_element_id : QLineEdit
         # QPushButton
-        self.pushButton_remove_by_group_confirm = self.findChild(QPushButton, 'pushButton_remove_by_group_confirm')
-        self.pushButton_get_information = self.findChild(QPushButton, 'pushButton_get_information')
-        self.pushButton_reset_confirm = self.findChild(QPushButton, 'pushButton_reset_confirm')
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_confirm : QPushButton
+        self.pushButton_remove_by_group_confirm : QPushButton
+        self.pushButton_reset_confirm : QPushButton
         # QTabWidget
-        self.tabWidget_element_length_correction = self.findChild(QTabWidget, 'tabWidget_element_length_correction')
+        self.tabWidget_element_length_correction : QTabWidget
         # QTreeWidget
-        self.treeWidget_length_correction_groups = self.findChild(QTreeWidget, 'treeWidget_length_correction_groups')
+        self.treeWidget_length_correction_groups : QTreeWidget
+        self._config_widgets()
+
+    def _config_widgets(self):
         self.treeWidget_length_correction_groups.setColumnWidth(0, 100)
         self.treeWidget_length_correction_groups.setColumnWidth(1, 80)
         self.treeWidget_length_correction_groups.setColumnWidth(2, 90)
 
     def _create_connections(self):
         #
-        self.pushButton_remove_by_group_confirm.clicked.connect(self.remove_element_length_correction_by_group)
-        self.pushButton_get_information.clicked.connect(self.get_information_of_group)
-        self.pushButton_reset_confirm.clicked.connect(self.remove_all_element_length_correction)
         self.pushButton_confirm.clicked.connect(self.check_element_correction_type)
+        self.pushButton_reset_confirm.clicked.connect(self.remove_all_element_length_correction)
+        self.pushButton_remove_by_group_confirm.clicked.connect(self.remove_element_length_correction_by_group)
         #
         self.tabWidget_element_length_correction.currentChanged.connect(self._tab_event_update)
         #
@@ -93,10 +94,13 @@ class AcousticElementLengthCorrectionInput(QDialog):
         index = self.tabWidget_element_length_correction.currentIndex()
         if index == 0:
             text = "Element IDs:"
-            self.write_ids(self.elements_id)
+            selected_elements = self.opv.getListPickedElements()
+            self.write_ids(selected_elements)
+            self.lineEdit_element_id.setDisabled(False)
         elif index == 1: 
             text = "Group ID:"
             self.lineEdit_element_id.setText("")
+            self.lineEdit_element_id.setDisabled(True)
         self.label_selection.setText(text)
 
     def check_element_correction_type(self):
@@ -106,7 +110,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         
         if self.stop:
             return
-
+        
         index = self.comboBox_element_length_correction_type.currentIndex()
 
         if index == 0:
@@ -121,12 +125,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
             type_id = 2
             self.type_label = "'Loop'"
         
-        size = len(self.dict_group_elements)
-        section = self.dict_label.format("Selection-{}".format(size+1))
-        dict_keys = self.preprocessor.group_elements_with_perforated_plate.keys()
-        if section in dict_keys:
-            index = 0
-            while section in dict_keys:
+        section = self.dict_label.format("Selection-1")
+        keys = self.preprocessor.group_elements_with_length_correction.keys()
+
+        if section in keys:
+            index = 1
+            while section in keys:
                 index += 1
                 section = self.dict_label.format(f"Selection-{index}")
 
@@ -165,13 +169,15 @@ class AcousticElementLengthCorrectionInput(QDialog):
                         self.dkey = key
                         self.log_removal = False
                         self.remove_element_length_correction_by_group()
-            self.dkey = None  
+            self.dkey = None
+
+        self.load_elements_info()
         # self.close()
 
     def set_elements_to_correct(self, type_id, section, _print=False): 
         self.project.set_element_length_correction_by_elements(list(np.sort(self.elements_typed)), type_id, section)
         if _print:
-            if len(self.elements_id)>20:
+            if len(self.elements_id) > 20:
                 print("Set acoustic element length correction due the {} at {} selected elements".format(self.type_label, len(self.elements_id)))
             else:
                 print("Set acoustic element length correction due the {} at elements: {}".format(self.type_label, self.elements_id))
@@ -197,7 +203,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_element_id.setText(item.text(0))
-        self.remove_element_length_correction_by_group()
+        self.get_information_of_group()
 
     def remove_function(self, key):
         section = key
@@ -243,16 +249,18 @@ class AcousticElementLengthCorrectionInput(QDialog):
             selected_key = self.dict_label.format(self.lineEdit_element_id.text())
             if "Selection-" in selected_key:
 
+                self.close()
+
                 data = dict()
                 group_data = self.dict_group_elements[selected_key]
                 key = self.dict_correction_types[group_data[0]]
                 for element_id in group_data[1]:
-                    data[element_id] = key
-
+                    data[element_id] = [key]
+                header_labels = ["Element ID", "Element length correction type"]
                 GetInformationOfGroup(  group_label = "Element length correction",
                                         selection_label = "Element ID:",
-                                        header_label_left = "Element ID",
-                                        header_label_right = "Element length correction type",
+                                        header_labels = header_labels,
+                                        column_widths = [100, 200],
                                         data = data  )
 
             else:
@@ -260,22 +268,30 @@ class AcousticElementLengthCorrectionInput(QDialog):
                 message = "Please, select a group in the list to get the information."
                 self.info_text = [window_title, title, message]
                 PrintMessageInput(self.info_text)
-        
+
+            self.show()
+
         except Exception as error_log:
             title = "Error while getting information of selected group"
             message = str(error_log)
             self.info_text = [window_title, title, message]
             PrintMessageInput(self.info_text)
+            self.show()
 
     def update(self):
-        self.elements_id = self.opv.getListPickedElements()
-        self.write_ids(self.elements_id)
+        index = self.tabWidget_element_length_correction.currentIndex()
+        if index == 0:
+            selected_elements = self.opv.getListPickedElements()
+            self.write_ids(selected_elements)
+        else:
+            self.lineEdit_element_id.setText("")
 
     def write_ids(self, list_ids):
         text = ""
         for _id in list_ids:
             text += "{}, ".format(_id)
         self.lineEdit_element_id.setText(text)
+        self.elements_id = self.opv.getListPickedElements()
 
     def update_tabs_visibility(self):
         if len(self.dict_group_elements) == 0:
@@ -291,42 +307,3 @@ class AcousticElementLengthCorrectionInput(QDialog):
             self.remove_element_length_correction_by_group()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-# class GetInformationOfGroup(QDialog):
-#     def __init__(self, key_elements, dict_keys_labels, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
-#         uic.loadUi(UI_DIR / "model/info/getGroupInformationInput.ui", self)
-
-#         icons_path = str(Path('data/icons/pulse.png'))
-#         self.icon = QIcon(icons_path)
-#         self.setWindowIcon(self.icon)
-
-#         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-#         self.setWindowModality(Qt.WindowModal)
-
-#         self.type = key_elements[0]
-#         self.list_of_elements = key_elements[1]
-#         self.dict_keys_labels = dict_keys_labels
-
-#         self.treeWidget_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-#         self.treeWidget_group_info.setColumnWidth(0, 140)
-#         # self.treeWidget_group_info.setColumnWidth(2, 140)
-
-#         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-#         self.pushButton_close.clicked.connect(self.close)
-
-#         self.load_group_info()
-#         self.exec()
-
-#     def keyPressEvent(self, event):
-#         if event.key() == Qt.Key_Escape:
-#             self.close()
-
-#     def load_group_info(self):
-#         for element in self.list_of_elements:
-#             text = self.dict_keys_labels[self.type]
-#             new = QTreeWidgetItem([str(element), text])
-#             new.setTextAlignment(0, Qt.AlignCenter)
-#             new.setTextAlignment(1, Qt.AlignCenter)
-#             self.treeWidget_group_info.addTopLevelItem(new)

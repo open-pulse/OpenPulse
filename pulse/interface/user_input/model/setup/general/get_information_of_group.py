@@ -18,13 +18,14 @@ class GetInformationOfGroup(QDialog):
 
         self.group_label = kwargs.get("group_label", "")
         self.selection_label = kwargs.get("selection_label", "")
-        self.header_label_left = kwargs.get("header_label_left", "")
-        self.header_label_right = kwargs.get("header_label_right", "")
+        self.header_labels = kwargs.get("header_labels", list())
+        self.column_widths = kwargs.get("column_widths", list())
         self.remove_button = kwargs.get("remove_button", False)
         self.data = kwargs.get("data", dict())
         self.values = kwargs.get("values", "")
 
         self.project = app().main_window.project
+        self.opv = app().main_window.opv_widget
 
         self._initialize()
         self._load_icons()
@@ -45,6 +46,7 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _define_qt_variables(self):
         # QLabel
@@ -63,12 +65,11 @@ class GetInformationOfGroup(QDialog):
         self._config_treeWidget()        
 
     def _config_treeWidget(self):
-        self.treeWidget_group_info.headerItem().setText(0, self.header_label_left)
-        self.treeWidget_group_info.headerItem().setText(1, self.header_label_right)
-        self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
-        self.treeWidget_group_info.setColumnWidth(0, 80)
-        self.treeWidget_group_info.setColumnWidth(1, 140)
+        for col, label in enumerate(self.header_labels):
+            self.treeWidget_group_info.headerItem().setText(col, label)
+            self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
+            if len(self.column_widths):
+                self.treeWidget_group_info.setColumnWidth(col, self.column_widths[col])
 
     def _create_connections(self):
         self.pushButton_remove.clicked.connect(self.check_remove)
@@ -97,12 +98,26 @@ class GetInformationOfGroup(QDialog):
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()
-        for key, value in self.data.items():
-            new = QTreeWidgetItem([str(key), str(value)])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
+        for key, values in self.data.items():
+
+            line_info = [str(key)]
+            for value in values:
+                line_info.append(str(value))
+
+            new = QTreeWidgetItem(line_info)
+            for col in range(len(line_info)):
+                new.setTextAlignment(col, Qt.AlignCenter)
+
             self.treeWidget_group_info.addTopLevelItem(new)
+        self.process_highlights()
         self.adjustSize()
+
+    def process_highlights(self):
+        selection = list(self.data.keys())
+        if "Line" in self.selection_label:
+            self.opv.opvRenderer.highlight_lines(selection)
+        elif "Element" in self.selection_label:
+            self.opv.opvRenderer.highlight_elements(selection)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

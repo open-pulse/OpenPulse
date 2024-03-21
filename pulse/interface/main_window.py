@@ -64,7 +64,8 @@ class MainWindow(QMainWindow):
         self.showMaximized()
         self.installEventFilter(self)
         self.setWindowIcon(self.pulse_icon)
-    
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+
     def _define_qt_variables(self):
         '''
         This function is doing nothing. Every variable was

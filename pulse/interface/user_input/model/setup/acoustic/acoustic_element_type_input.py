@@ -6,6 +6,7 @@ from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import get_openpulse_icon
+from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
@@ -27,9 +28,10 @@ class AcousticElementTypeInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.update()
-        self.selectionChange()
-
+        self.element_type_selection_callback()
+        self.element_type_change_callback()
         self.load_element_type_info()
         self.exec()
 
@@ -41,6 +43,7 @@ class AcousticElementTypeInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
 
@@ -48,148 +51,122 @@ class AcousticElementTypeInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.lines_id = self.opv.getListPickedLines()
 
-        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
-        self.comboBox_index = 0
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
         self.element_type = 'undamped'
         self.complete = False
         self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
+        self.item = None
 
     def _define_qt_variables(self):
         # QCheckBox
-        self.checkBox_flow_effects = self.findChild(QCheckBox, 'checkBox_flow_effects')
+        self.checkBox_flow_effects : QCheckBox
         # QComboBox
-        self.comboBox = self.findChild(QComboBox, 'comboBox')
+        self.comboBox_element_type : QComboBox
+        self.comboBox_selection : QComboBox
         # QLabel
-        self.label_vol_flow = self.findChild(QLabel, 'label_vol_flow')
-        self.label_ms_unit = self.findChild(QLabel, 'label_ms_unit')
+        self.label_proportional_damping : QLabel
+        self.label_vol_flow : QLabel
+        self.label_volume_rate_unit : QLabel
+        self.label_selected_id : QLabel
         # QLineEdit
-        self.lineEdit_vol_flow = self.findChild(QLineEdit, 'lineEdit_vol_flow')
-        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_selected_group = self.findChild(QLineEdit, 'lineEdit_selected_group')
-        self.lineEdit_proportional_damping = self.findChild(QLineEdit, 'lineEdit_proportional_damping')
-        self.lineEdit_selected_group.setDisabled(True)
+        self.lineEdit_vol_flow : QLineEdit
+        self.lineEdit_selected_id : QLineEdit
+        self.lineEdit_proportional_damping : QLineEdit
         # QPushButton
-        # self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
-        # self.pushButton_remove.clicked.connect(self.group_remove)
-        # self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        # self.pushButton_reset.clicked.connect(self.reset_all)
-        self.pushButton_get_information = self.findChild(QPushButton, 'pushButton_get_information')
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        # self.pushButton_get_information.setDisabled(True)
-        # self.pushButton_remove.setDisabled(True)
-        # QRadioButton
-        self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selection')
+        self.pushButton_confirm : QPushButton
+        self.pushButton_reset : QPushButton
         # QTabWidget
-        self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
-        self.tabWidget_element_type = self.findChild(QTabWidget, 'tabWidget_element_type')
-        # self.tabWidget_element_type.currentChanged.connect(self.tabWidget_etype)
-        # self.tabWidget_element_type.setTabEnabled(1, False)
+        self.tabWidget_main : QTabWidget
         # QTreeWidget
-        self.treeWidget_element_type = self.findChild(QTreeWidget, 'treeWidget_element_type')
-        self.treeWidget_element_type.setColumnWidth(0, 150)
-        # self.tabWidget_general.currentChanged.connect(self.tabEvent_)
-        # self.currentTab_ = self.tabWidget_general.currentIndex()
+        self.treeWidget_element_type : QTreeWidget
 
     def _create_connections(self):
         self.checkBox_flow_effects.toggled.connect(self.checkBoxEvent_flow_effects)
-        self.comboBox.currentIndexChanged.connect(self.selectionChange)
-        self.comboBox_index = self.comboBox.currentIndex()
-
+        self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
         # index: 0 - Undamped
         # index: 1 - Proportional
         # index: 2 - Wide-duct
         # index: 3 - LRF fluid equivalent
         # index: 4 - LRF full
-
-        self.radioButton_all.toggled.connect(self.radioButtonEvent)
-        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
-        self.flagAll = self.radioButton_all.isChecked()
-        self.flagSelection = self.radioButton_selected_lines.isChecked()
-
+        self.comboBox_selection.currentIndexChanged.connect(self.element_type_selection_callback)
         self.pushButton_confirm.clicked.connect(self.confirm_element_type_attribution)
-        self.pushButton_get_information.clicked.connect(self.get_information)
+        self.tabWidget_main.currentChanged.connect(self.tab_selection_callback)
+        self.treeWidget_element_type.itemClicked.connect(self.on_click_item)
+        self.treeWidget_element_type.itemDoubleClicked.connect(self.on_double_click_item)
 
-        self.treeWidget_element_type.itemClicked.connect(self.on_click_item_line)
+    def _config_widgets(self):
+        self.treeWidget_element_type.setColumnWidth(0, 150)
 
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_ID.setText(text)
+    def tab_selection_callback(self):
+        
+        if self.comboBox_selection.currentIndex() == 1:
+            self.lineEdit_selected_id.setDisabled(False)
+        
+        tab_index = self.tabWidget_main.currentIndex()
+        if tab_index == 0:
+            self.label_selected_id.setText("Selection ID:")
+            self.lineEdit_selected_id.setText("")
 
-    def update(self):
-        self.lines_id  = self.opv.getListPickedLines()
-
-        if self.lines_id != []:
-            self.write_ids(self.lines_id)
-            self.lineEdit_selected_ID.setDisabled(False)
-            self.radioButton_selected_lines.setChecked(True)
         else:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.lineEdit_selected_ID.setDisabled(True)
-            self.radioButton_all.setChecked(True)
+            self.label_selected_id.setText("Selection ID:")
+            self.lineEdit_selected_id.setText("")
 
-    def radioButtonEvent(self):
-        self.flagAll = self.radioButton_all.isChecked()
-        self.flagSelection = self.radioButton_selected_lines.isChecked()
-        self.lines_id  = self.opv.getListPickedLines()
-        if self.flagSelection:
-            self.lineEdit_selected_ID.setDisabled(False)
+    def element_type_selection_callback(self):
+        index = self.comboBox_selection.currentIndex()
+        if index == 0:
+            self.lineEdit_selected_id.setDisabled(True)
+            self.lineEdit_selected_id.setText("All lines")
+        elif index == 1:
+            self.lineEdit_selected_id.setDisabled(False)
+            self.lines_id  = self.opv.getListPickedLines()
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
             else:
-                self.lineEdit_selected_ID.setText("")
-        elif self.flagAll:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.lineEdit_selected_ID.setDisabled(True)
+                self.lineEdit_selected_id.setText("")
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_element_type_attribution()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+    def element_type_change_callback(self):
 
-    def selectionChange(self):
-        self.comboBox_index = self.comboBox.currentIndex()
-        self.tabWidget_element_type.setTabVisible(1, False)
+        self.label_proportional_damping.setDisabled(True)
+        self.lineEdit_proportional_damping.setDisabled(True)
+        element_type_index = self.comboBox_element_type.currentIndex()
 
         if self.checkBox_flow_effects.isChecked():
-            if self.comboBox_index == 0:
+            if element_type_index == 0:
                 self.element_type = 'undamped mean flow'
-            elif self.comboBox_index == 1:
+            elif element_type_index == 1:
                 self.element_type = 'peters'
-            elif self.comboBox_index == 2:
+            elif element_type_index == 2:
                 self.element_type = 'howe'
+
         else:
-            if self.comboBox_index == 0:
+            if element_type_index == 0:
                 self.element_type = 'undamped'
-            elif self.comboBox_index == 1:
+            elif element_type_index == 1:
                 self.element_type = 'proportional'
-                self.tabWidget_element_type.setTabVisible(1, True)
-                self.tabWidget_element_type.setCurrentIndex(1)
-            elif self.comboBox_index == 2:
+                self.label_proportional_damping.setDisabled(False)
+                self.lineEdit_proportional_damping.setDisabled(False)
+            elif element_type_index == 2:
                 self.element_type = 'wide-duct'
-            elif self.comboBox_index == 3:
+            elif element_type_index == 3:
                 self.element_type = 'LRF fluid equivalent'
-            elif self.comboBox_index == 4:
+            elif element_type_index == 4:
                 self.element_type = 'LRF full'
 
     def checkBoxEvent_flow_effects(self):
         flow_effects = self.checkBox_flow_effects.isChecked()
         self.label_vol_flow.setDisabled(not flow_effects)
         self.lineEdit_vol_flow.setDisabled(not flow_effects)
-        self.label_ms_unit.setDisabled(not flow_effects)
-        self.comboBox.clear()
+        self.label_volume_rate_unit.setDisabled(not flow_effects)
+        self.comboBox_element_type.clear()
 
         if flow_effects:
             list_items = ["Undamped mean flow", "Peters", "Howe"]    
         else:
             list_items = ["Undamped", "Proportional", "Wide-duct", "LRF fluid equivalent", "LRF full"]
         
-        self.comboBox.addItems(list_items)
+        self.comboBox_element_type.addItems(list_items)
 
     def check_input_parameters(self, input_string, label, _float=True):
         title = "INPUT ERROR"
@@ -215,29 +192,36 @@ class AcousticElementTypeInput(QDialog):
             title = "Empty entry to the " + label
             message = "Please, input a valid " + label + " value to continue."
             PrintMessageInput([window_title_1, title, message])
-            self.tabWidget_element_type.setCurrentIndex(1)
             self.value = None
             return True
         return False
 
     def confirm_element_type_attribution(self):
         flow_effects = self.checkBox_flow_effects.isChecked()
-        if self.comboBox_index == 1 and not flow_effects:
-            if self.check_input_parameters(self.lineEdit_proportional_damping.text(), "proportional damping"):
+        element_type_index = self.comboBox_element_type.currentIndex()
+        if element_type_index == 1 and not flow_effects:
+            lineEdit = self.lineEdit_proportional_damping.text()
+            if self.check_input_parameters(lineEdit, "proportional damping"):
                 return
             proportional_damping = self.value
         else:
             proportional_damping = None
 
         if flow_effects:
-            if self.check_input_parameters(self.lineEdit_vol_flow.text(), "Volume flow rate"):
+            lineEdit = self.lineEdit_vol_flow.text()
+            if self.check_input_parameters(lineEdit, "Volume flow rate"):
                 return
             vol_flow = self.value
         else:
             vol_flow = None
 
-        if self.flagSelection:
-            lineEdit = self.lineEdit_selected_ID.text()
+        index_selection = self.comboBox_selection.currentIndex()
+        if index_selection == 0:
+            lines = self.preprocessor.all_lines
+            print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
+
+        elif index_selection == 1:
+            lineEdit = self.lineEdit_selected_id.text()
             self.stop, self.typed_lines = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True
@@ -246,118 +230,125 @@ class AcousticElementTypeInput(QDialog):
                 print(f"[Set Acoustic Element Type] - {self.element_type} assigned to {self.typed_lines} lines")
             else:
                 print(f"[Set Acoustic Element Type] - {self.element_type} assigned in {len(self.typed_lines)} lines")
-        elif self.flagAll:
-            lines = self.project.preprocessor.all_lines
-            print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
         
-        self.project.set_acoustic_element_type_by_lines(lines, self.element_type, proportional_damping = proportional_damping, vol_flow = vol_flow)
+        self.project.set_acoustic_element_type_by_lines(lines, 
+                                                        self.element_type, 
+                                                        proportional_damping = proportional_damping, 
+                                                        vol_flow = vol_flow)
         self.complete = True
         self.close()
-    
-    def on_click_item_line(self, item):
-        self.lineEdit_selected_group.setText(item.text(0))
+
+    def on_click_item(self, item):
+        self.item = item
+        self.comboBox_selection.setCurrentIndex(1)
+        self.lineEdit_selected_id.setText(item.text(2))
+        self.lineEdit_selected_id.setDisabled(True)
+
+    def on_double_click_item(self, item):
+        self.item = item
+        self.comboBox_selection.setCurrentIndex(1)
+        self.lineEdit_selected_id.setText(item.text(2))
+        self.lineEdit_selected_id.setDisabled(True)
+        self.get_information()
 
     def load_element_type_info(self):
+
         self.treeWidget_element_type.clear()
         header = self.treeWidget_element_type.headerItem()
-        header.setText(0, "Element type")
-        header.setText(1, "Volume flow rate")
-        header.setText(2, "Lines")
-        header.setTextAlignment(0, Qt.AlignCenter)
-        header.setTextAlignment(1, Qt.AlignCenter)
-        header.setTextAlignment(2, Qt.AlignCenter)
-        for key, lines in self.project.preprocessor.dict_acoustic_element_type_to_lines.items():
+
+        header_labels = ["Element type", "Volume flow rate", "Lines"]
+        for col, label in enumerate(header_labels):
+            header.setText(col, label)
+            header.setTextAlignment(col, Qt.AlignCenter)
+
+        for key, lines in self.preprocessor.dict_acoustic_element_type_to_lines.items():
+
             vol_flow = [self.dict_tag_to_entity[line].vol_flow for line in lines]
             if None in vol_flow:
-                new = QTreeWidgetItem([str(key), str('---'), str(lines)])
+                new = QTreeWidgetItem([str(key), str('---'), str(lines)[1:-1]])
             else:
-                new = QTreeWidgetItem([str(key), str(vol_flow), str(lines)])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            new.setTextAlignment(2, Qt.AlignCenter)
-            self.treeWidget_element_type.addTopLevelItem(new)  
+                new = QTreeWidgetItem([str(key), str(vol_flow), str(lines)[1:-1]])
+
+            for col in range(len(header_labels)):
+                new.setTextAlignment(col, Qt.AlignCenter)
+
+            self.treeWidget_element_type.addTopLevelItem(new)
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+        if len(self.preprocessor.dict_acoustic_element_type_to_lines) == 0:
+            self.tabWidget_main.setCurrentIndex(0)
+            self.tabWidget_main.setTabVisible(1, False)
+        else:
+            self.tabWidget_main.setTabVisible(1, True)
 
     def get_information(self):
         try:
-            if self.lineEdit_selected_group.text() != "":
-                key = self.lineEdit_selected_group.text()
-                GetInformationOfGroup(self.project, key)
+            if self.lineEdit_selected_id.text() != "":
+
+                if self.item is None:
+                    return
+
+                self.close()
+                key = self.item.text(0)
+                header_labels = ["Line ID", "Element type"]
+
+                if key == "proportional":
+                    header_labels.append("Proportional damping")
+
+                elif key in ["undamped mean flow", "peters", "howe"]:
+                    header_labels.append("Volume mean flow")
+
+                data = dict()
+                for line_id in self.preprocessor.dict_acoustic_element_type_to_lines[key]:
+
+                    element_data = [key]
+                    if key == "proportional":
+                        damping = self.dict_tag_to_entity[line_id].proportional_damping
+                        element_data.append(damping)
+    
+                    elif key in ["undamped mean flow", "peters", "howe"]:
+                        vol_flow = self.dict_tag_to_entity[line_id].vol_flow
+                        element_data.append(vol_flow)
+
+                    data[line_id] = element_data
+
+                GetInformationOfGroup(  group_label = "Element type",
+                                        selection_label = "Line ID:",
+                                        header_labels = header_labels,
+                                        column_widths = [70, 140, 150],
+                                        data = data  )
+
             else:
-                title = "UNSELECTED GROUP OF LINES"
+                title = "Invalid selection"
                 message = "Please, select a group in the list to get the information."
                 PrintMessageInput([window_title_2, title, message])
-        except Exception as e:
-            title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
-            message = str(e)
+
+            self.show()
+
+        except Exception as error_log:
+            title = "Error while getting element type information"
+            message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
+            self.show()
 
+    def write_ids(self, list_ids):
+        text = ""
+        for _id in list_ids:
+            text += "{}, ".format(_id)
+        self.lineEdit_selected_id.setText(text)
 
-class GetInformationOfGroup(QDialog):
-    def __init__(self, project, key, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        uic.loadUi(UI_DIR / "model/info/getGroupInformationInput.ui", self)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        self.project = project
-        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
-        self.key = key
-
-        self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-        header = self.treeWidget_group_info.headerItem()
-        header.setText(0, "Line")
-        header.setText(1, "Element type")
-        header.setTextAlignment(0, Qt.AlignCenter)
-        header.setTextAlignment(1, Qt.AlignCenter)
-        
-        if self.key == 'proportional':
-            header.setText(2, "Proportional damping")
-            header.setTextAlignment(2, Qt.AlignCenter)
-            self.treeWidget_group_info.setColumnWidth(0, 90)
-            self.treeWidget_group_info.setColumnWidth(1, 130)
-            self.treeWidget_group_info.setColumnWidth(2, 150)
-        elif self.key in ["undamped mean flow", "peters", "howe"]:
-            header.setText(2, "Volume mean flow")
-            header.setTextAlignment(2, Qt.AlignCenter)
-            self.treeWidget_group_info.setColumnWidth(0, 90)
-            self.treeWidget_group_info.setColumnWidth(1, 130)
-            self.treeWidget_group_info.setColumnWidth(2, 150)
+    def update(self):
+        self.lines_id  = self.opv.getListPickedLines()
+        if self.lines_id != []:
+            self.comboBox_selection.setCurrentIndex(1)
+            self.write_ids(self.lines_id)
+            self.lineEdit_selected_id.setDisabled(False)
         else:
-            self.treeWidget_group_info.setColumnWidth(0, 100)
-            self.treeWidget_group_info.setColumnWidth(1, 140)
-
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        self.pushButton_close.clicked.connect(self.force_to_close)
-        self.load_group_info()
-        self.exec()
+            self.comboBox_selection.setCurrentIndex(0)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.confirm_element_type_attribution()
+        elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def load_group_info(self):
-        self.treeWidget_group_info.clear()
-        values = self.project.preprocessor.dict_acoustic_element_type_to_lines[self.key]
-        for line in values:
-            if self.key == 'proportional':
-                damping = self.dict_tag_to_entity[line].proportional_damping
-                new = QTreeWidgetItem([str(line), self.key, str(damping)])
-                new.setTextAlignment(2, Qt.AlignCenter)
-            elif self.key in ["undamped mean flow", "peters", "howe"]:
-                vol_flow = self.dict_tag_to_entity[line].vol_flow
-                new = QTreeWidgetItem([str(line), self.key, str(vol_flow)])
-                new.setTextAlignment(2, Qt.AlignCenter)
-            else:
-                new = QTreeWidgetItem([str(line), self.key])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_group_info.addTopLevelItem(new)
-
-    def force_to_close(self):
-        self.close()

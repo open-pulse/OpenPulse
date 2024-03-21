@@ -18,21 +18,19 @@ class ExportModelResults(QDialog):
 
         uic.loadUi(UI_DIR / "data_handler/export_model_results.ui", self)
 
-        self._config_window()
         self._load_icons()
+        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
 
+    def _load_icons(self):
+        self.pulse_icon = get_openpulse_icon()
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Import data to compare")
-
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+        self.setWindowTitle("OpenPulse")
         self.setWindowIcon(self.pulse_icon)
 
     def _initialize(self):
@@ -42,16 +40,14 @@ class ExportModelResults(QDialog):
 
     def _define_qt_variables(self):
         # QLabel
-        self.label_data_information = self.findChild(QLabel, 'label_data_information')
+        self.label_data_information : QLabel
         # QLineEdit
-        self.lineEdit_file_name = self.findChild(QLineEdit, 'lineEdit_file_name')
-        self.lineEdit_save_results_path = self.findChild(QLineEdit, 'lineEdit_save_results_path')
+        self.lineEdit_file_name : QLineEdit
+        self.lineEdit_save_results_path : QLineEdit
         # QPushButton
-        self.pushButton_choose_folder_export = self.findChild(QPushButton, 'pushButton_choose_folder_export')
-        self.pushButton_export_results = self.findChild(QPushButton, 'pushButton_export_results')
-        self.pushButton_reset_filename = self.findChild(QPushButton, 'pushButton_reset_filename')
-        self.pushButton_choose_folder_export.setIcon(self.search_icon)
-        self.pushButton_reset_filename.setIcon(self.update_icon)
+        self.pushButton_choose_folder_export : QPushButton
+        self.pushButton_export_results : QPushButton
+        self.pushButton_reset_filename : QPushButton
 
     def _create_connections(self):
         self.pushButton_choose_folder_export.clicked.connect(self._choose_path_export_results)
@@ -118,7 +114,7 @@ class ExportModelResults(QDialog):
         window_title = "Warning"
         title = "Information"
         message = "The results have been exported."
-        PrintMessageInput([window_title, title, message])
+        PrintMessageInput([window_title, title, message], auto_close=True)
         self.close()
 
     def keyPressEvent(self, event):
