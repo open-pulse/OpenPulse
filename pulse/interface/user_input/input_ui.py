@@ -15,7 +15,7 @@ from pulse.interface.user_input.model.setup.general.set_cross_section import Set
 #
 from pulse.interface.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
 from pulse.interface.user_input.model.setup.structural.dof_input import DOFInput
-from pulse.interface.user_input.model.setup.structural.loadsInput import LoadsInput
+from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
 from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
 from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
 from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
@@ -218,7 +218,7 @@ class InputUi:
         self.processInput(DecouplingRotationDOFsInput, self.project, self.opv)
         
     def setNodalLoads(self):
-        self.processInput(LoadsInput, self.project, self.opv)
+        self.processInput(NodalLoadsInput)
         
     def addMassSpringDamper(self):
         self.processInput(MassSpringDamperInput, self.project, self.opv)

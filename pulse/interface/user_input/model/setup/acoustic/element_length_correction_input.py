@@ -256,6 +256,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                 key = self.dict_correction_types[group_data[0]]
                 for element_id in group_data[1]:
                     data[element_id] = [key]
+
                 header_labels = ["Element ID", "Element length correction type"]
                 GetInformationOfGroup(  group_label = "Element length correction",
                                         selection_label = "Element ID:",

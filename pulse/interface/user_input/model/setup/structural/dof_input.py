@@ -5,17 +5,18 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.tools.utils import remove_bc_from_file, get_new_path
+from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+
 import os
 import numpy as np
 from math import pi
 
-from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
-from pulse.tools.utils import remove_bc_from_file, get_new_path
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-
-window_title ="Error"
+window_title = "Error"
 
 class DOFInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -64,6 +65,7 @@ class DOFInput(QDialog):
         self.copy_path = False
         self.stop = False
         self.list_Nones = [None, None, None, None, None, None]
+        self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
 
         self.nodes_typed = list()
         self.basenames = list()
@@ -300,7 +302,7 @@ class DOFInput(QDialog):
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         
             if imported_file.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum \n"
+                message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([window_title, title, message])
                 lineEdit.setFocus()
@@ -509,10 +511,10 @@ class DOFInput(QDialog):
                                 self.rx_basename, self.ry_basename, self.rz_basename  ]
             self.prescribed_dofs = [ux, uy, uz, rx, ry, rz]
             data = [self.prescribed_dofs, self.basenames]
-                        
+       
             if self.basenames == self.list_Nones:
                 title = "Additional inputs required"
-                message = "You must inform at least one prescribed dof\n"
+                message = "You must inform at least one prescribed dof "
                 message += "table path before confirming the input!"
                 PrintMessageInput([window_title, title, message]) 
                 return 
@@ -520,7 +522,7 @@ class DOFInput(QDialog):
             for basename in self.basenames:
                 if basename in list_table_names:
                     list_table_names.remove(basename)
-           
+
             self.project.set_prescribed_dofs_bc_by_node([node_id], data, True)
 
         self.process_table_file_removal(list_table_names)
@@ -531,8 +533,7 @@ class DOFInput(QDialog):
     def text_label(self, mask):
         
         text = ""
-        load_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
-        temp = load_labels[mask]
+        temp = self.dofs_labels[mask]
 
         if list(mask).count(True) == 6:
             text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
@@ -556,13 +557,52 @@ class DOFInput(QDialog):
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_prescribed_dofs.addTopLevelItem(new)
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+        if len(self.preprocessor.nodes_with_prescribed_dofs) == 0:
+            self.tabWidget_prescribed_dofs.setCurrentIndex(0)
+            self.tabWidget_prescribed_dofs.setTabVisible(2, False)
+        else:
+            self.tabWidget_prescribed_dofs.setTabVisible(2, True)
 
     def on_click_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
-        self.check_remove_bc_from_node()
+        self.get_nodal_loads_info(item)
+
+    def get_nodal_loads_info(self, item):
+        try:
+
+            data = dict()
+            node = int(item.text(0))
+            for node in self.preprocessor.nodes_with_prescribed_dofs:
+                index = node.external_index
+                if str(index) == item.text(0):
+                    nodal_loads_mask = [False if bc is None else True for bc in node.prescribed_dofs]
+                    for i, _bool in enumerate(nodal_loads_mask):
+                        if _bool:
+                            dof_label = self.dofs_labels[i]
+                            data[index, dof_label] = node.prescribed_dofs[i]
+
+            if len(data):
+                self.close()
+                header_labels = ["Node ID", "Dof label", "Value"]
+                GetInformationOfGroup(  group_label = "Prescribed dof",
+                                        selection_label = "Node ID:",
+                                        header_labels = header_labels,
+                                        column_widths = [70, 140, 150],
+                                        data = data  )
+
+        except Exception as error_log:
+            title = "Error while gathering nodal load information"
+            message = str(error_log)
+            PrintMessageInput([window_title, title, message])
+            return
+        
+        self.show()
 
     def check_remove_bc_from_node(self):
         
@@ -573,7 +613,7 @@ class DOFInput(QDialog):
             return
 
         key_strings = ["displacements", "rotations"]
-        message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) \nhave been removed."
+        message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) have been removed."
 
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
         self.remove_all_table_files_from_nodes(self.nodes_typed)
@@ -601,11 +641,9 @@ class DOFInput(QDialog):
     def reset_all(self):
 
         title = "Remove all prescribed dofs from structural model"
-        message = "Do you really want to remove all prescribed dofs from the structural model?\n\n\n"
-        message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
+        message = "Would you like to remove all prescribed dofs from the structural model?\n\n\n"
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
 
         if read._continue:
             self.basenames = []

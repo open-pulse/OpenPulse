@@ -14,7 +14,8 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(UI_DIR / "model/info/get_group_information.ui", self)
+        ui_path = UI_DIR / "model/info/get_group_information.ui"
+        uic.loadUi(ui_path, self)
 
         self.group_label = kwargs.get("group_label", "")
         self.selection_label = kwargs.get("selection_label", "")
@@ -22,6 +23,7 @@ class GetInformationOfGroup(QDialog):
         self.column_widths = kwargs.get("column_widths", list())
         self.remove_button = kwargs.get("remove_button", False)
         self.data = kwargs.get("data", dict())
+
         self.values = kwargs.get("values", "")
 
         self.project = app().main_window.project
@@ -46,37 +48,40 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _define_qt_variables(self):
         # QLabel
         self.label_selected_id : QLabel
-        self.label_selected_id.setText(self.selection_label)
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_selected_id.setDisabled(True)
         # QPushButton
         self.pushButton_close : QPushButton
         self.pushButton_remove : QPushButton
-        if not self.remove_button:
-            self.pushButton_remove.setDisabled(True)
         # QTreeWidget
         self.treeWidget_group_info : QTreeWidget
-        self._config_treeWidget()        
+        self._config_widgets()        
 
-    def _config_treeWidget(self):
+    def _config_widgets(self):
+
+        self.label_selected_id.setText(self.selection_label)
+        self.lineEdit_selected_id.setDisabled(True)
+
+        if not self.remove_button:
+            self.pushButton_remove.setDisabled(True)
+
         for col, label in enumerate(self.header_labels):
             self.treeWidget_group_info.headerItem().setText(col, label)
-            self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
+            self.treeWidget_group_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
             if len(self.column_widths):
                 self.treeWidget_group_info.setColumnWidth(col, self.column_widths[col])
 
     def _create_connections(self):
         self.pushButton_remove.clicked.connect(self.check_remove)
         self.pushButton_close.clicked.connect(self.close)
-        self.treeWidget_group_info.itemClicked.connect(self.on_click_item_)
+        self.treeWidget_group_info.itemClicked.connect(self.on_click_item)
 
-    def on_click_item_(self, item):
+    def on_click_item(self, item):
         text = item.text(0)
         self.lineEdit_selected_id.setText(text)
         self.lineEdit_selected_id.setDisabled(True)
@@ -98,9 +103,18 @@ class GetInformationOfGroup(QDialog):
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()
-        for key, values in self.data.items():
+        for keys, values in self.data.items():
 
-            line_info = [str(key)]
+            if isinstance(keys, (int, float, complex)):
+                keys = [keys]
+
+            if isinstance(values, (int, float, complex)):
+                values = [values]
+
+            line_info = list()
+            for key in keys:
+                line_info.append(str(key))
+
             for value in values:
                 line_info.append(str(value))
 
@@ -113,11 +127,26 @@ class GetInformationOfGroup(QDialog):
         self.adjustSize()
 
     def process_highlights(self):
-        selection = list(self.data.keys())
+
+        selection = list()
+        for key in self.data.keys():
+            if key not in selection:
+                if isinstance(key, int):
+                    selection.append(key)
+                else:
+                    selection.append(key[0])
+
         if "Line" in self.selection_label:
             self.opv.opvRenderer.highlight_lines(selection)
+
         elif "Element" in self.selection_label:
             self.opv.opvRenderer.highlight_elements(selection)
+
+        elif "Node" in self.selection_label:
+            self.opv.opvRenderer.highlight_nodes(selection)
+
+        else:
+            return
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
