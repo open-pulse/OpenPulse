@@ -30,7 +30,7 @@ class AcousticElementTypeInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self.update()
-        self.element_type_selection_callback()
+        self.attribution_type_callback()
         self.element_type_change_callback()
         self.load_element_type_info()
         self.exec()
@@ -90,8 +90,9 @@ class AcousticElementTypeInput(QDialog):
         # index: 2 - Wide-duct
         # index: 3 - LRF fluid equivalent
         # index: 4 - LRF full
-        self.comboBox_selection.currentIndexChanged.connect(self.element_type_selection_callback)
+        self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
         self.pushButton_confirm.clicked.connect(self.confirm_element_type_attribution)
+        self.pushButton_reset.clicked.connect(self.reset_element_type)
         self.tabWidget_main.currentChanged.connect(self.tab_selection_callback)
         self.treeWidget_element_type.itemClicked.connect(self.on_click_item)
         self.treeWidget_element_type.itemDoubleClicked.connect(self.on_double_click_item)
@@ -113,7 +114,7 @@ class AcousticElementTypeInput(QDialog):
             self.label_selected_id.setText("Selection ID:")
             self.lineEdit_selected_id.setText("")
 
-    def element_type_selection_callback(self):
+    def attribution_type_callback(self):
         index = self.comboBox_selection.currentIndex()
         if index == 0:
             self.lineEdit_selected_id.setDisabled(True)
@@ -128,6 +129,7 @@ class AcousticElementTypeInput(QDialog):
 
     def element_type_change_callback(self):
 
+        self.lineEdit_proportional_damping.setText("")
         self.label_proportional_damping.setDisabled(True)
         self.lineEdit_proportional_damping.setDisabled(True)
         element_type_index = self.comboBox_element_type.currentIndex()
@@ -238,6 +240,15 @@ class AcousticElementTypeInput(QDialog):
         self.complete = True
         self.close()
 
+    def reset_element_type(self):
+        self.element_type = "undamped"
+        lines = self.preprocessor.all_lines
+        self.project.set_acoustic_element_type_by_lines(lines, self.element_type)
+        print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
+        self.complete = True
+        # self.load_element_type_info()
+        self.close()
+
     def on_click_item(self, item):
         self.item = item
         self.comboBox_selection.setCurrentIndex(1)
@@ -341,9 +352,32 @@ class AcousticElementTypeInput(QDialog):
     def update(self):
         self.lines_id  = self.opv.getListPickedLines()
         if self.lines_id != []:
+
             self.comboBox_selection.setCurrentIndex(1)
             self.write_ids(self.lines_id)
             self.lineEdit_selected_id.setDisabled(False)
+
+            if len(self.lines_id) == 1:
+
+                self.checkBox_flow_effects.setChecked(False)
+                self.lineEdit_proportional_damping.setDisabled(True)
+                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+                element_type = entity.acoustic_element_type
+
+                if element_type == "proportional":
+                    proportional_damping = entity.proportional_damping
+                    self.comboBox_element_type.setCurrentIndex(1)
+                    self.lineEdit_proportional_damping.setText(str(proportional_damping))
+                    self.lineEdit_proportional_damping.setDisabled(False)
+
+                else:
+                    if element_type == "undamped":
+                        self.comboBox_element_type.setCurrentIndex(0)
+
+                    elif element_type in ["undamped mean flow", "peters", "howe"]:
+                        vol_flow = entity.vol_flow
+                        self.checkBox_flow_effects.setChecked(True)
+                        self.lineEdit_vol_flow.setText(str(vol_flow))
         else:
             self.comboBox_selection.setCurrentIndex(0)
 

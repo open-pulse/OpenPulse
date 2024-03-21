@@ -361,8 +361,8 @@ class PerforatedPlateInput(QDialog):
         
         if imported_file.shape[1] < 3:
             title = "Dimensionless impedance input error"
-            message = "The imported table has insufficient number of columns. The spectrum \ndata " 
-            message += "must have frequencies, real and imaginary columns."
+            message = "The imported table has insufficient number of columns. The spectrum data " 
+            message += "must have three columns with frequencies, real and imaginary data."
             PrintMessageInput([window_title_1, title, message])
             return
     
@@ -680,7 +680,7 @@ class PerforatedPlateInput(QDialog):
 
         if message_print:
             group_label = section.split(" || ")[1]
-            message = f"The perforated plate attributed to the {group_label}\n"
+            message = f"The perforated plate attributed to the {group_label}"
             message += "group of elements have been removed."
         else:
             message = None
@@ -717,7 +717,7 @@ class PerforatedPlateInput(QDialog):
             self.process_table_file_removal(table_name)
             self.remove_function(key, message_print=False)
         title = "Perforated plate resetting"
-        message = "The perforated plate has been removed\n from all elements."
+        message = "The perforated plate has been removed from all elements."
         PrintMessageInput([window_title_2, title, message])
         self.opv.updateRendererMesh()
         self.close()
@@ -1079,7 +1079,7 @@ class GetInformationOfGroup(QDialog):
         self.lineEdit_single_hole : QLineEdit
         self.lineEdit_non_linear_discharge_coefficient : QLineEdit
         self.lineEdit_correction_factor : QLineEdit
-        self.lineEdit_bias_flow_coefficient_flow_coefficient : QLineEdit
+        self.lineEdit_bias_flow_coefficient : QLineEdit
         self.lineEdit_dimensionless_impedance : QLineEdit
         # QPushButton
         self.pushButton_close : QPushButton
@@ -1126,12 +1126,12 @@ class GetInformationOfGroup(QDialog):
             self.lineEdit_correction_factor.setDisabled(True)
 
         if self.perforated_plate.bias_effect:
-            self.lineEdit_bias_flow_coefficient_flow_coefficient.setDisabled(False)
-            self.lineEdit_bias_flow_coefficient_flow_coefficient.setText(str(self.perforated_plate.bias_coefficient))
+            self.lineEdit_bias_flow_coefficient.setDisabled(False)
+            self.lineEdit_bias_flow_coefficient.setText(str(self.perforated_plate.bias_coefficient))
 
         else:
-            self.lineEdit_bias_flow_coefficient_flow_coefficient.setDisabled(True)
-            self.lineEdit_bias_flow_coefficient_flow_coefficient.setText("---")
+            self.lineEdit_bias_flow_coefficient.setDisabled(True)
+            self.lineEdit_bias_flow_coefficient.setText("---")
 
         if self.perforated_plate.dimensionless_impedance_table_name is not None:
             self.lineEdit_dimensionless_impedance.setText(self.perforated_plate.dimensionless_impedance_table_name)

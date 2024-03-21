@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>440</width>
-    <height>410</height>
+    <height>440</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>420</width>
-    <height>0</height>
+    <width>440</width>
+    <height>440</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -118,6 +118,12 @@
       </property>
       <item row="0" column="0">
        <widget class="QFrame" name="frame_selection">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>76</height>
+         </size>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -140,32 +146,18 @@
          <property name="verticalSpacing">
           <number>7</number>
          </property>
-         <item row="1" column="4">
-          <widget class="QPushButton" name="pushButton_reset">
-           <property name="minimumSize">
+         <item row="1" column="0">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
             <size>
-             <width>60</width>
-             <height>26</height>
+             <width>40</width>
+             <height>20</height>
             </size>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Reset</string>
-           </property>
-          </widget>
+          </spacer>
          </item>
          <item row="1" column="2">
           <widget class="QLineEdit" name="lineEdit_selected_id">
@@ -204,18 +196,59 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_selected_id">
+           <property name="minimumSize">
             <size>
-             <width>40</width>
-             <height>20</height>
+             <width>100</width>
+             <height>26</height>
             </size>
            </property>
-          </spacer>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Selected ID:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_attribute_to">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Attribute to:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
          </item>
          <item row="0" column="2">
           <widget class="QComboBox" name="comboBox_selection">
@@ -248,61 +281,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </item>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_attribute_to">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Attribute to:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_selected_id">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Selected ID:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="5">
+         <item row="1" column="4">
           <spacer name="horizontalSpacer_3">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -398,9 +377,14 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  <height>26</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="styleSheet">
                 <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
-QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgba(240, 240, 240,0)}</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -610,7 +594,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                   </colorrole>
                   <colorrole role="Button">
                    <brush brushstyle="SolidPattern">
-                    <color alpha="255">
+                    <color alpha="0">
                      <red>240</red>
                      <green>240</green>
                      <blue>240</blue>
@@ -637,7 +621,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                   </colorrole>
                   <colorrole role="Base">
                    <brush brushstyle="SolidPattern">
-                    <color alpha="255">
+                    <color alpha="0">
                      <red>240</red>
                      <green>240</green>
                      <blue>240</blue>
@@ -646,7 +630,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                   </colorrole>
                   <colorrole role="Window">
                    <brush brushstyle="SolidPattern">
-                    <color alpha="255">
+                    <color alpha="0">
                      <red>240</red>
                      <green>240</green>
                      <blue>240</blue>
@@ -663,7 +647,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                </property>
                <property name="styleSheet">
                 <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
-QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgba(240, 240, 240,0)}</string>
                </property>
                <property name="text">
                 <string/>
@@ -888,7 +872,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  </spacer>
                 </item>
                 <item row="0" column="2">
-                 <widget class="QLabel" name="label">
+                 <widget class="QLabel" name="label_vol_flow">
                   <property name="font">
                    <font>
                     <pointsize>10</pointsize>
@@ -912,6 +896,21 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
           <string>Details</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_10">
+          <property name="leftMargin">
+           <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <property name="spacing">
+           <number>4</number>
+          </property>
           <item row="0" column="0">
            <widget class="QTreeWidget" name="treeWidget_element_type">
             <property name="minimumSize">
@@ -953,6 +952,75 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <set>AlignCenter</set>
              </property>
             </column>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QFrame" name="frame">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="pushButton_reset">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+               </property>
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
