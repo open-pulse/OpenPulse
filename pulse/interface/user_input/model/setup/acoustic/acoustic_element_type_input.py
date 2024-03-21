@@ -57,7 +57,6 @@ class AcousticElementTypeInput(QDialog):
         self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
-        self.item = None
 
     def _define_qt_variables(self):
         # QCheckBox
@@ -244,23 +243,22 @@ class AcousticElementTypeInput(QDialog):
         self.element_type = "undamped"
         lines = self.preprocessor.all_lines
         self.project.set_acoustic_element_type_by_lines(lines, self.element_type)
-        print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
         self.complete = True
-        # self.load_element_type_info()
         self.close()
+        title = "Resetting process complete"
+        message = "The acoustic element type has been reset to the default option 'undampded'."
+        PrintMessageInput([window_title_2, title, message], auto_close=True)
 
     def on_click_item(self, item):
-        self.item = item
         self.comboBox_selection.setCurrentIndex(1)
         self.lineEdit_selected_id.setText(item.text(2))
         self.lineEdit_selected_id.setDisabled(True)
 
     def on_double_click_item(self, item):
-        self.item = item
         self.comboBox_selection.setCurrentIndex(1)
         self.lineEdit_selected_id.setText(item.text(2))
         self.lineEdit_selected_id.setDisabled(True)
-        self.get_information()
+        self.get_information(item)
 
     def load_element_type_info(self):
 
@@ -276,14 +274,14 @@ class AcousticElementTypeInput(QDialog):
 
             vol_flow = [self.dict_tag_to_entity[line].vol_flow for line in lines]
             if None in vol_flow:
-                new = QTreeWidgetItem([str(key), str('---'), str(lines)[1:-1]])
+                item = QTreeWidgetItem([str(key), str('---'), str(lines)[1:-1]])
             else:
-                new = QTreeWidgetItem([str(key), str(vol_flow), str(lines)[1:-1]])
+                item = QTreeWidgetItem([str(key), str(vol_flow), str(lines)[1:-1]])
 
             for col in range(len(header_labels)):
-                new.setTextAlignment(col, Qt.AlignCenter)
+                item.setTextAlignment(col, Qt.AlignCenter)
 
-            self.treeWidget_element_type.addTopLevelItem(new)
+            self.treeWidget_element_type.addTopLevelItem(item)
         self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
@@ -293,15 +291,15 @@ class AcousticElementTypeInput(QDialog):
         else:
             self.tabWidget_main.setTabVisible(1, True)
 
-    def get_information(self):
+    def get_information(self, item):
         try:
             if self.lineEdit_selected_id.text() != "":
 
-                if self.item is None:
+                if item is None:
                     return
 
                 self.close()
-                key = self.item.text(0)
+                key = item.text(0)
                 header_labels = ["Line ID", "Element type"]
 
                 if key == "proportional":
@@ -338,16 +336,10 @@ class AcousticElementTypeInput(QDialog):
             self.show()
 
         except Exception as error_log:
-            title = "Error while getting element type information"
+            title = "Error while getting information of selected group"
             message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
             self.show()
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text)
 
     def update(self):
         self.lines_id  = self.opv.getListPickedLines()
@@ -380,6 +372,12 @@ class AcousticElementTypeInput(QDialog):
                         self.lineEdit_vol_flow.setText(str(vol_flow))
         else:
             self.comboBox_selection.setCurrentIndex(0)
+
+    def write_ids(self, list_ids):
+        text = ""
+        for _id in list_ids:
+            text += "{}, ".format(_id)
+        self.lineEdit_selected_id.setText(text)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

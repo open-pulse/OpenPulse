@@ -13,7 +13,7 @@ from pulse.interface.user_input.model.setup.general.set_material_input import Se
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
-from pulse.interface.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
+from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
 from pulse.interface.user_input.model.setup.structural.dof_input import DOFInput
 from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
 from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
@@ -196,7 +196,7 @@ class InputUi:
         self.processInput(FlangesInput, self.project, self.opv)
 
     def setStructuralElementType(self):
-        read = self.processInput(StructuralElementTypeInput, self.project, self.opv)
+        read = self.processInput(StructuralElementTypeInput)
         if read.complete:
             if read.pipe_to_beam or read.beam_to_pipe:         
                 self.set_cross_section( pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe, 

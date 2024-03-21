@@ -22,7 +22,7 @@ class DOFInput(QDialog):
     def __init__(self, *args, **kwargs):
         super(DOFInput, self).__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/structural/dof_input.ui", self)
+        uic.loadUi(UI_DIR / "model/setup/structural/prescribed_dofs_input.ui", self)
 
         self.project = app().project
         self.opv = app().main_window.opv_widget

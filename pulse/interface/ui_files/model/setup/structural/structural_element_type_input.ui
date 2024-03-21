@@ -146,7 +146,7 @@
          <property name="verticalSpacing">
           <number>7</number>
          </property>
-         <item row="1" column="0">
+         <item row="2" column="0">
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -159,7 +159,7 @@
            </property>
           </spacer>
          </item>
-         <item row="1" column="2">
+         <item row="2" column="2">
           <widget class="QLineEdit" name="lineEdit_selected_id">
            <property name="enabled">
             <bool>true</bool>
@@ -196,7 +196,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QLabel" name="label_selected_id">
            <property name="minimumSize">
             <size>
@@ -223,7 +223,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
           <widget class="QLabel" name="label_attribute_to">
            <property name="minimumSize">
             <size>
@@ -250,7 +250,20 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
+         <item row="2" column="4">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="2">
           <widget class="QComboBox" name="comboBox_selection">
            <property name="minimumSize">
             <size>
@@ -280,19 +293,6 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             </property>
            </item>
           </widget>
-         </item>
-         <item row="1" column="4">
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -337,446 +337,384 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            <number>8</number>
           </property>
           <item row="0" column="0">
-           <widget class="QTabWidget" name="tabWidget_selection_options">
-            <property name="minimumSize">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
              <size>
-              <width>0</width>
-              <height>0</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
+           </spacer>
+          </item>
+          <item row="0" column="1">
+           <widget class="QFrame" name="frame_element_options">
             <property name="maximumSize">
              <size>
-              <width>400</width>
-              <height>400</height>
+              <width>16777215</width>
+              <height>160</height>
              </size>
             </property>
-            <property name="currentIndex">
-             <number>0</number>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-            <widget class="QWidget" name="tab_type_selection">
-             <attribute name="title">
-              <string>Type selection</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_11">
-              <property name="leftMargin">
-               <number>4</number>
-              </property>
-              <property name="topMargin">
-               <number>4</number>
-              </property>
-              <property name="rightMargin">
-               <number>4</number>
-              </property>
-              <property name="bottomMargin">
-               <number>4</number>
-              </property>
-              <property name="horizontalSpacing">
-               <number>8</number>
-              </property>
-              <item row="0" column="2">
-               <widget class="QComboBox" name="comboBox_element_type">
-                <property name="minimumSize">
-                 <size>
-                  <width>90</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>90</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Choose an element type&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
-                </property>
-                <property name="autoFillBackground">
-                 <bool>false</bool>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="currentText">
-                 <string>  Pipe_1</string>
-                </property>
-                <property name="currentIndex">
-                 <number>0</number>
-                </property>
-                <property name="maxCount">
-                 <number>500</number>
-                </property>
-                <property name="insertPolicy">
-                 <enum>QComboBox::InsertAtBottom</enum>
-                </property>
-                <property name="sizeAdjustPolicy">
-                 <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-                </property>
-                <property name="duplicatesEnabled">
-                 <bool>false</bool>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>  Pipe_1</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>  Beam_1</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLabel" name="label_element_type">
-                <property name="minimumSize">
-                 <size>
-                  <width>90</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>90</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                 </font>
-                </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_7">
+             <property name="leftMargin">
+              <number>6</number>
+             </property>
+             <property name="topMargin">
+              <number>6</number>
+             </property>
+             <property name="rightMargin">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>6</number>
+             </property>
+             <property name="spacing">
+              <number>8</number>
+             </property>
+             <item row="0" column="1">
+              <widget class="QLabel" name="label_element_type">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Element type:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="label_wall_formulation">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Sunken</enum>
+               </property>
+               <property name="midLineWidth">
+                <number>0</number>
+               </property>
+               <property name="text">
+                <string>Wall formulation:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QComboBox" name="comboBox_wall_formulation">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>90</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="currentIndex">
+                <number>1</number>
+               </property>
+               <item>
                 <property name="text">
-                 <string>Element type:</string>
+                 <string> Thin</string>
                 </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </item>
+               <item>
+                <property name="text">
+                 <string> Thick</string>
                 </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <spacer name="horizontalSpacer_7">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+               </item>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="label_force_offset">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Sunken</enum>
+               </property>
+               <property name="midLineWidth">
+                <number>0</number>
+               </property>
+               <property name="text">
+                <string>Force offset:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QComboBox" name="comboBox_capped_end">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>90</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <item>
+                <property name="text">
+                 <string> Enabled</string>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
+               </item>
+               <item>
+                <property name="text">
+                 <string> Disabled</string>
                 </property>
-               </spacer>
-              </item>
-              <item row="0" column="3">
-               <spacer name="horizontalSpacer_8">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+               </item>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QComboBox" name="comboBox_element_type">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>90</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Choose an element type&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::LeftToRight</enum>
+               </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="currentText">
+                <string>  Pipe 1</string>
+               </property>
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <property name="maxCount">
+                <number>500</number>
+               </property>
+               <property name="insertPolicy">
+                <enum>QComboBox::InsertAtBottom</enum>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+               </property>
+               <property name="duplicatesEnabled">
+                <bool>false</bool>
+               </property>
+               <item>
+                <property name="text">
+                 <string>  Pipe 1</string>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
+               </item>
+               <item>
+                <property name="text">
+                 <string>  Beam 1</string>
                 </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_element_options">
-             <attribute name="title">
-              <string>Element options</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_9">
-              <item row="1" column="2">
-               <spacer name="horizontalSpacer_5">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+               </item>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QComboBox" name="comboBox_force_offset">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>90</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="currentIndex">
+                <number>1</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string> Enabled</string>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
+               </item>
+               <item>
+                <property name="text">
+                 <string> Disabled</string>
                 </property>
-               </spacer>
-              </item>
-              <item row="1" column="1">
-               <widget class="QFrame" name="frame_element_options">
-                <property name="frameShape">
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_7">
-                 <property name="leftMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="spacing">
-                  <number>8</number>
-                 </property>
-                 <item row="2" column="1">
-                  <widget class="QComboBox" name="comboBox_wall_formulation">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string> Thin</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string> Thick</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="label_9">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>120</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Sunken</enum>
-                   </property>
-                   <property name="midLineWidth">
-                    <number>0</number>
-                   </property>
-                   <property name="text">
-                    <string>Wall formulation:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QComboBox" name="comboBox_capped_end">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string> Enabled</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string> Disabled</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_7">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>120</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Sunken</enum>
-                   </property>
-                   <property name="midLineWidth">
-                    <number>0</number>
-                   </property>
-                   <property name="text">
-                    <string>Force offset:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QComboBox" name="comboBox_force_offset">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string> Enabled</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string> Disabled</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_8">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>120</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Sunken</enum>
-                   </property>
-                   <property name="midLineWidth">
-                    <number>0</number>
-                   </property>
-                   <property name="text">
-                    <string>Capped end:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <spacer name="horizontalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="2" column="1">
-               <spacer name="verticalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="0" column="1">
-               <spacer name="verticalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
+               </item>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_capped_end">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Sunken</enum>
+               </property>
+               <property name="midLineWidth">
+                <number>0</number>
+               </property>
+               <property name="text">
+                <string>Capped end:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="3">
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -786,16 +724,16 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
          </attribute>
          <layout class="QGridLayout" name="gridLayout_10">
           <property name="leftMargin">
-           <number>6</number>
+           <number>8</number>
           </property>
           <property name="topMargin">
-           <number>6</number>
+           <number>8</number>
           </property>
           <property name="rightMargin">
-           <number>6</number>
+           <number>8</number>
           </property>
           <property name="bottomMargin">
-           <number>6</number>
+           <number>4</number>
           </property>
           <property name="spacing">
            <number>4</number>
