@@ -1,3 +1,4 @@
+from pulse import SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 from pulse.tools.utils import transformation_matrix_3x3
 
@@ -6,12 +7,12 @@ from scipy.spatial.transform import Rotation
 
 class AcousticNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
-        return [(   self._get_acoustic_pressure_symbol(),   loadSymbol('data/symbols/acoustic/acoustic_pressure.obj')    ),
-                (     self._get_volume_velocity_symbol(),   loadSymbol('data/symbols/acoustic/volume_velocity.obj')      ),
-                (  self._get_specific_impedance_symbol(),   loadSymbol('data/symbols/acoustic/specific_impedance.obj')   ),
-                ( self._get_radiation_impedance_symbol(),   loadSymbol('data/symbols/acoustic/radiation_impedance.obj')  ),
-                (  self._get_compressor_suction_symbol(),   loadSymbol('data/symbols/acoustic/compressor_suction.obj')  ),
-                (self._get_compressor_discharge_symbol(),   loadSymbol('data/symbols/acoustic/compressor_discharge.obj'))
+        return [(   self._get_acoustic_pressure_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/acoustic_pressure.obj')    ),
+                (     self._get_volume_velocity_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/volume_velocity.obj')      ),
+                (  self._get_specific_impedance_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/specific_impedance.obj')   ),
+                ( self._get_radiation_impedance_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/radiation_impedance.obj')  ),
+                (  self._get_compressor_suction_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/compressor_suction.obj')  ),
+                (self._get_compressor_discharge_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/compressor_discharge.obj'))
             ]
 
     # def _createSequence(self):

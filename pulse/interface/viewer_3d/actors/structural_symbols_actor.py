@@ -1,17 +1,18 @@
 import vtk
+from pulse import SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 import numpy as np
 from scipy.spatial.transform import Rotation
 
 class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
-        return [(self._get_prescribed_displacement_symbol() , loadSymbol('data/symbols/structural/prescribed_displacement.obj')),
-                (self._get_prescribed_rotation_symbol()     , loadSymbol('data/symbols/structural/prescribed_rotation.obj')),
-                (self._get_nodal_force_symbol()             , loadSymbol('data/symbols/structural/nodal_force.obj')), 
-                (self._get_nodal_moment_symbol()            , loadSymbol('data/symbols/structural/nodal_moment.obj')),
-                (self._get_lumped_mass_symbol()             , loadSymbol('data/symbols/structural/lumped_mass.obj')),
-                (self._get_lumped_spring_symbol()           , loadSymbol('data/symbols/structural/lumped_spring.obj')),
-                (self._get_lumped_damper_symbol()           , loadSymbol('data/symbols/structural/lumped_damper.obj')),
+        return [(self._get_prescribed_displacement_symbol() , loadSymbol(SYMBOLS_DIR / 'structural/prescribed_displacement.obj')),
+                (self._get_prescribed_rotation_symbol()     , loadSymbol(SYMBOLS_DIR / 'structural/prescribed_rotation.obj')),
+                (self._get_nodal_force_symbol()             , loadSymbol(SYMBOLS_DIR / 'structural/nodal_force.obj')), 
+                (self._get_nodal_moment_symbol()            , loadSymbol(SYMBOLS_DIR / 'structural/nodal_moment.obj')),
+                (self._get_lumped_mass_symbol()             , loadSymbol(SYMBOLS_DIR / 'structural/lumped_mass.obj')),
+                (self._get_lumped_spring_symbol()           , loadSymbol(SYMBOLS_DIR / 'structural/lumped_spring.obj')),
+                (self._get_lumped_damper_symbol()           , loadSymbol(SYMBOLS_DIR / 'structural/lumped_damper.obj')),
             ]
 
     # def _createSequence(self):
