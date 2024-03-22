@@ -150,7 +150,7 @@ class ProjectFile:
         if reset_acoustic_model:
             if self._imported_data_folder_name in list_filenames:
                 if "acoustic" in imported_data_files:
-                    file_path = get_new_path(self._imported_data_folder_name, "acoustic")
+                    file_path = get_new_path(self._imported_data_folder_path, "acoustic")
                     rmtree(file_path)
         else:
             files_to_maintain_after_reset.append(self._node_acoustic_file_name)
@@ -158,7 +158,7 @@ class ProjectFile:
         if reset_structural_model:
             if self._imported_data_folder_name in list_filenames:
                 if "structural" in imported_data_files:
-                    file_path = get_new_path(self._imported_data_folder_name, "structural")
+                    file_path = get_new_path(self._imported_data_folder_path, "structural")
                     rmtree(file_path)
         else:
             files_to_maintain_after_reset.append(self._node_structural_file_name)
