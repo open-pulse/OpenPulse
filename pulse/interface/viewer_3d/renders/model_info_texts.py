@@ -119,8 +119,7 @@ class ModelInfoText:
                 text += self.acoustic_nodal_info(value, label, "Radiation impedance", unit_label)
 
         elif len(selected_nodes) > 1:
-            text += f"{len(selected_nodes)}"
-            text += f"Selected nodes: \n"
+            text += f"{len(selected_nodes)} nodes in selection\n\n"
             for i, ids in enumerate(selected_nodes):
                 if i == 30:
                     text += "..."
@@ -288,8 +287,7 @@ class ModelInfoText:
                 text += f"Effective diameter: {effective_diameter} [m]\n"
             
         elif len(selected_elements) > 1:
-            text += f"{len(selected_elements)}"
-            text += f"Selected elements: \n"
+            text += f"{len(selected_elements)} elements in selection\n\n"
             for i, ids in enumerate(selected_elements):
                 if i == 30:
                     text += "..."
@@ -451,8 +449,7 @@ class ModelInfoText:
 
         else:
 
-            text = f"{len(line_ids)}"
-            text += f"Selected lines:\n\n"
+            text = f"{len(line_ids)} lines in selection\n\n"
             i = 0
             for ids in line_ids:
                 if i == 30:

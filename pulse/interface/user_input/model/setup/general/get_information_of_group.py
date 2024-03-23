@@ -80,15 +80,31 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_remove.clicked.connect(self.check_remove)
         self.pushButton_close.clicked.connect(self.close)
         self.treeWidget_group_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_group_info.itemDoubleClicked.connect(self.on_double_click_item)
 
     def on_click_item(self, item):
         text = item.text(0)
-        self.lineEdit_selected_id.setText(text)
-        self.lineEdit_selected_id.setDisabled(True)
-        if self.remove_button:
-            self.pushButton_remove.setDisabled(False)
-        else:
-            self.pushButton_remove.setDisabled(True)
+        if text != "":
+            self.lineEdit_selected_id.setText(text)
+            self.lineEdit_selected_id.setDisabled(True)
+            if self.remove_button:
+                self.pushButton_remove.setDisabled(False)
+            else:
+                self.pushButton_remove.setDisabled(True)
+
+    def on_double_click_item(self, item):
+        text = item.text(0)
+        if text != "":
+            try:
+                self.process_highlights(selection=[int(text)])
+                self.lineEdit_selected_id.setText(text)
+                self.lineEdit_selected_id.setDisabled(True)
+                if self.remove_button:
+                    self.pushButton_remove.setDisabled(False)
+                else:
+                    self.pushButton_remove.setDisabled(True)
+            except:
+                pass
 
     def check_remove(self):
         if self.group_label == "Capped end":
@@ -126,27 +142,29 @@ class GetInformationOfGroup(QDialog):
         self.process_highlights()
         self.adjustSize()
 
-    def process_highlights(self):
+    def process_highlights(self, selection=None):
+        
+        if selection is None:
+            selection = list()
+            for key in self.data.keys():
+                if key not in selection:
+                    if isinstance(key, int):
+                        selection.append(key)
+                    else:
+                        selection.append(key[0])
 
-        selection = list()
-        for key in self.data.keys():
-            if key not in selection:
-                if isinstance(key, int):
-                    selection.append(key)
-                else:
-                    selection.append(key[0])
+        if isinstance(selection, list):
+            if "Line" in self.selection_label:
+                self.opv.opvRenderer.highlight_lines(selection)
 
-        if "Line" in self.selection_label:
-            self.opv.opvRenderer.highlight_lines(selection)
+            elif "Element" in self.selection_label:
+                self.opv.opvRenderer.highlight_elements(selection)
 
-        elif "Element" in self.selection_label:
-            self.opv.opvRenderer.highlight_elements(selection)
+            elif "Node" in self.selection_label:
+                self.opv.opvRenderer.highlight_nodes(selection)
 
-        elif "Node" in self.selection_label:
-            self.opv.opvRenderer.highlight_nodes(selection)
-
-        else:
-            return
+            else:
+                return
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import get_openpulse_icon
@@ -12,7 +11,8 @@ from pulse.tools.utils import remove_bc_from_file
 
 import numpy as np
 
-window_title = "Error"
+window_title_1 = "Error"
+window_title_2 = "Warning"
 
 class AcousticElementLengthCorrectionInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -42,7 +42,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
 
@@ -238,19 +238,18 @@ class AcousticElementLengthCorrectionInput(QDialog):
         for key in keys:
             self.log_removal = False
             self.remove_function(key)
-        window_title = "WARNING" 
-        title = "INFO MESSAGE"
+
+        title = "Removal process complete"
         message = "The element length correction has been removed from all elements."
-        PrintMessageInput([window_title, title, message])
+        PrintMessageInput([window_title_2, title, message])
 
     def get_information_of_group(self):
         try:
-            
+
             selected_key = self.dict_label.format(self.lineEdit_element_id.text())
             if "Selection-" in selected_key:
 
                 self.close()
-
                 data = dict()
                 group_data = self.dict_group_elements[selected_key]
                 key = self.dict_correction_types[group_data[0]]
@@ -267,17 +266,15 @@ class AcousticElementLengthCorrectionInput(QDialog):
             else:
                 title = "Error in group selection"
                 message = "Please, select a group in the list to get the information."
-                self.info_text = [window_title, title, message]
+                self.info_text = [window_title_1, title, message]
                 PrintMessageInput(self.info_text)
-
-            self.show()
 
         except Exception as error_log:
             title = "Error while getting information of selected group"
             message = str(error_log)
-            self.info_text = [window_title, title, message]
+            self.info_text = [window_title_1, title, message]
             PrintMessageInput(self.info_text)
-            self.show()
+        self.show()
 
     def update(self):
         index = self.tabWidget_element_length_correction.currentIndex()
