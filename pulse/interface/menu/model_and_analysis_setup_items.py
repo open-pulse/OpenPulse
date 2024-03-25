@@ -146,7 +146,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.main_window.input_widget.call_geometry_editor()
 
     def item_child_edit_geometry_callback(self):
-        read = self.main_window.input_widget.edit_an_imported_geometry()
+        obj = self.main_window.input_widget.edit_an_imported_geometry()
 
     def item_child_set_material_callback(self):
         self.main_window.update_plot_entities()
@@ -192,8 +192,8 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.main_window.input_widget.set_capped_end()
 
     def item_child_add_valve_callback(self):
-        read = self.main_window.input_widget.add_valve()
-        if read.complete:
+        obj = self.main_window.input_widget.add_valve()
+        if obj.complete:
             self.main_window.update_plot_mesh()
 
     def item_child_add_flanges_callback(self):
