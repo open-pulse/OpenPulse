@@ -14,7 +14,7 @@ from pulse.interface.user_input.model.setup.general.fluid_input import FluidInpu
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
-from pulse.interface.user_input.model.setup.structural.dof_input import DOFInput
+from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input import PrescribedDofsInput
 from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
 from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
 from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
@@ -24,7 +24,7 @@ from pulse.interface.user_input.model.setup.structural.capped_end_input import C
 from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
 from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
 from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
-from pulse.interface.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
+from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input import BeamXaxisRotationInput 
 from pulse.interface.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
 from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
@@ -195,7 +195,7 @@ class InputUi:
     def add_flanges(self):
         self.processInput(FlangesInput, self.project, self.opv)
 
-    def setStructuralElementType(self):
+    def set_structural_element_type(self):
         read = self.processInput(StructuralElementTypeInput)
         if read.complete:
             if read.pipe_to_beam or read.beam_to_pipe:         
@@ -209,15 +209,15 @@ class InputUi:
         self.processInput(RendererUserPreferencesInput)
         
     def set_beam_xaxis_rotation(self):
-        self.processInput(BeamXaxisRotationInput, self.project, self.opv)
+        self.processInput(BeamXaxisRotationInput)
         
-    def set_dof(self):
-        self.processInput(DOFInput)
+    def set_prescribed_dofs(self):
+        self.processInput(PrescribedDofsInput)
         
     def setRotationDecoupling(self):
         self.processInput(DecouplingRotationDOFsInput, self.project, self.opv)
         
-    def setNodalLoads(self):
+    def set_nodal_loads(self):
         self.processInput(NodalLoadsInput)
         
     def addMassSpringDamper(self):

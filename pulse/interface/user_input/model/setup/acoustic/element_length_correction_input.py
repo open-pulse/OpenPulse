@@ -30,6 +30,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.load_elements_info()
         self.update()
         self.exec()
@@ -42,7 +43,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
 
@@ -72,12 +72,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.tabWidget_element_length_correction : QTabWidget
         # QTreeWidget
         self.treeWidget_length_correction_groups : QTreeWidget
-        self._config_widgets()
-
-    def _config_widgets(self):
-        self.treeWidget_length_correction_groups.setColumnWidth(0, 100)
-        self.treeWidget_length_correction_groups.setColumnWidth(1, 80)
-        self.treeWidget_length_correction_groups.setColumnWidth(2, 90)
 
     def _create_connections(self):
         #
@@ -89,6 +83,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
         #
         self.treeWidget_length_correction_groups.itemClicked.connect(self.on_click_item)
         self.treeWidget_length_correction_groups.itemDoubleClicked.connect(self.on_doubleclick_item)
+
+    def _config_widgets(self):
+        self.treeWidget_length_correction_groups.setColumnWidth(0, 100)
+        self.treeWidget_length_correction_groups.setColumnWidth(1, 80)
+        self.treeWidget_length_correction_groups.setColumnWidth(2, 90)
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _tab_event_update(self):
         index = self.tabWidget_element_length_correction.currentIndex()

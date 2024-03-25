@@ -31,6 +31,7 @@ class NodalLoadsInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.update()
         self.load_nodes_info()
         self.exec()
@@ -105,6 +106,7 @@ class NodalLoadsInput(QDialog):
         self.lineEdit_imag_Mx : QLineEdit
         self.lineEdit_imag_My : QLineEdit
         self.lineEdit_imag_Mz : QLineEdit
+        #
         self.lineEdit_path_table_Fx : QLineEdit
         self.lineEdit_path_table_Fy : QLineEdit
         self.lineEdit_path_table_Fz : QLineEdit
@@ -127,7 +129,6 @@ class NodalLoadsInput(QDialog):
         self.tabWidget_nodal_loads : QTabWidget
         # QTreeWidget
         self.treeWidget_nodal_loads : QTreeWidget
-        self._config_treeWidget()
 
     def _create_connections(self):
         self.pushButton_load_Fx_table.clicked.connect(self.load_Fx_table)
@@ -158,9 +159,10 @@ class NodalLoadsInput(QDialog):
                                             self.lineEdit_path_table_My,
                                             self.lineEdit_path_table_Mz ]
     
-    def _config_treeWidget(self):
+    def _config_widgets(self):
         self.treeWidget_nodal_loads.setColumnWidth(0, 80)
         # self.treeWidget_nodal_loads.setColumnWidth(1, 60)
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")   
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 

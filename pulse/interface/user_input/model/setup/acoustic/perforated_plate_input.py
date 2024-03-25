@@ -39,6 +39,7 @@ class PerforatedPlateInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.update()
         self.load_elements_info()
         self.exec()
@@ -51,7 +52,6 @@ class PerforatedPlateInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
 
@@ -137,8 +137,7 @@ class PerforatedPlateInput(QDialog):
         # QTreeWidget
         self.treeWidget_perforated_plate_preview : QTreeWidget
         self.treeWidget_perforated_plate_remove : QTreeWidget
-        self.treeWidget_perforated_plate_preview.setColumnWidth(0, 80)
-        self.treeWidget_perforated_plate_remove.setColumnWidth(0, 80)
+
 
     def _create_connections(self):
         #
@@ -164,6 +163,11 @@ class PerforatedPlateInput(QDialog):
         #
         self.update_checkboxes()
         self.update_valve_ids()
+
+    def _config_widgets(self):
+        self.treeWidget_perforated_plate_preview.setColumnWidth(0, 80)
+        self.treeWidget_perforated_plate_remove.setColumnWidth(0, 80)
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def update_valve_ids(self):
         if self.valve_ids:

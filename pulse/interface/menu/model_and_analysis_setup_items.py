@@ -37,14 +37,14 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_crossSection = self.add_item('Set Cross-Section')
         #
         self.item_top_structural_model_setup = self.add_top_item('Structural Model Setup')
-        self.item_child_setStructuralElementType = self.add_item('Set Structural Element Type')
-        self.item_child_setPrescribedDofs = self.add_item('Set Prescribed DOFs')
-        self.item_child_setNodalLoads = self.add_item('Set Nodal Loads')
+        self.item_child_set_structural_element_type = self.add_item('Set Structural Element Type')
+        self.item_child_set_prescribed_dofs = self.add_item('Set Prescribed DOFs')
+        self.item_child_set_nodal_loads = self.add_item('Set Nodal Loads')
         self.item_child_addMassSpringDamper = self.add_item('Add: Mass / Spring / Damper')
         self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links')
         self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
         self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
-        self.item_child_setcappedEnd = self.add_item('Set Capped End')
+        self.item_child_set_capped_end = self.add_item('Set Capped End')
         self.item_child_add_valve = self.add_item('Add Valve')
         self.item_child_addFlanges = self.add_item('Add Connecting Flanges')
         self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
@@ -78,14 +78,14 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
         # Structural Model Setup
-        self.item_child_setStructuralElementType.clicked.connect(self.item_child_set_structural_element_type_callback)
-        self.item_child_setPrescribedDofs.clicked.connect(self.item_child_set_prescribed_dofs_callback)
-        self.item_child_setNodalLoads.clicked.connect(self.item_child_set_nodal_loads_callback)
+        self.item_child_set_structural_element_type.clicked.connect(self.item_child_set_structural_element_type_callback)
+        self.item_child_set_prescribed_dofs.clicked.connect(self.item_child_set_prescribed_dofs_callback)
+        self.item_child_set_nodal_loads.clicked.connect(self.item_child_set_nodal_loads_callback)
         self.item_child_addMassSpringDamper.clicked.connect(self.item_child_add_mass_spring_damper_callback)
         self.item_child_add_elastic_nodal_links.clicked.connect(self.item_child_add_elastic_nodal_links_callback)
         self.item_child_set_inertial_loads.clicked.connect(self.item_child_set_inertial_loads_callback)
         self.item_child_set_stress_stiffening.clicked.connect(self.item_child_set_stress_stiffening_callback)
-        self.item_child_setcappedEnd.clicked.connect(self.item_child_set_capped_end_callback)
+        self.item_child_set_capped_end.clicked.connect(self.item_child_set_capped_end_callback)
         self.item_child_add_valve.clicked.connect(self.item_child_add_valve_callback)
         self.item_child_addFlanges.clicked.connect(self.item_child_add_flanges_callback)
         self.item_child_add_expansion_joint.clicked.connect(self.item_child_add_expansion_joint_callback)
@@ -162,15 +162,15 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_set_structural_element_type_callback(self):
         self.main_window.update_plot_entities()
-        self.main_window.input_widget.setStructuralElementType()
+        self.main_window.input_widget.set_structural_element_type()
 
     def item_child_set_prescribed_dofs_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.set_dof()
+        self.main_window.input_widget.set_prescribed_dofs()
 
     def item_child_set_nodal_loads_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.setNodalLoads()
+        self.main_window.input_widget.set_nodal_loads()
 
     def item_child_add_mass_spring_damper_callback(self):
         self.main_window.update_plot_mesh()
@@ -277,14 +277,14 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
         #
-        self.item_child_setStructuralElementType.setDisabled(bool_key) 
-        self.item_child_setPrescribedDofs.setDisabled(bool_key)
-        self.item_child_setNodalLoads.setDisabled(bool_key)
+        self.item_child_set_structural_element_type.setDisabled(bool_key) 
+        self.item_child_set_prescribed_dofs.setDisabled(bool_key)
+        self.item_child_set_nodal_loads.setDisabled(bool_key)
         self.item_child_addMassSpringDamper.setDisabled(bool_key)
         self.item_child_set_inertial_loads.setDisabled(bool_key)
         self.item_child_add_elastic_nodal_links.setDisabled(bool_key)
         self.item_child_set_stress_stiffening.setDisabled(bool_key)
-        self.item_child_setcappedEnd.setDisabled(bool_key)
+        self.item_child_set_capped_end.setDisabled(bool_key)
         self.item_child_add_valve.setDisabled(bool_key) 
         self.item_child_addFlanges.setDisabled(bool_key) 
         self.item_child_add_expansion_joint.setDisabled(bool_key)  

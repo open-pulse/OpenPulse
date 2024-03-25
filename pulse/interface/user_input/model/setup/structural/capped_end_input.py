@@ -108,7 +108,9 @@ class CappedEndInput(QDialog):
         #
         self.treeWidget_capped_end_lines.setColumnWidth(0, 100)
         self.treeWidget_capped_end_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_capped_end_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)      
+        self.treeWidget_capped_end_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        #
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")   
 
     def update(self):
 
@@ -407,7 +409,6 @@ class CappedEndInput(QDialog):
             self.get_information_line(item)
 
     def get_information_elem(self, item):
-        print("entrei get_information_elem")
         try:
             if self.lineEdit_selected_id.text() != "":
 
@@ -441,7 +442,6 @@ class CappedEndInput(QDialog):
         self.show()
 
     def get_information_line(self, item):
-        print("entrei get_information_line")
         try:
             if self.lineEdit_selected_id.text() != "":
 
@@ -451,14 +451,14 @@ class CappedEndInput(QDialog):
 
                 if len(data):
                     self.close()
-                    header_labels = ["Selecteds", "Capped end effect"]
+                    header_labels = ["Lines", "Capped end effect"]
                     GetInformationOfGroup(  group_label = "Capped end effect",
                                             selection_label = "Line ID:",
                                             header_labels = header_labels,
                                             column_widths = [100, 140],
                                             data = data  )
 
-                # read = GetInformationOfGroup(values=list_lines, label="Selecteds")
+                # read = GetInformationOfGroup(values=list_lines, label="Line")
                 # if read.lines_removed:
                 #     self.load_lines_info()
 

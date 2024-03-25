@@ -569,16 +569,16 @@ class MainWindow(QMainWindow):
         render_widget.set_back_view()
 
     def action_set_structural_element_type_callback(self):
-        self.input_widget.setStructuralElementType()
+        self.input_widget.set_structural_element_type()
 
     def action_add_connecting_flanges_callback(self):
         self.input_widget.add_flanges()
 
     def action_set_prescribed_dofs_callback(self):
-        self.input_widget.set_dof()
+        self.input_widget.set_prescribed_dofs()
 
     def action_set_nodal_loads_callback(self):
-        self.input_widget.setNodalLoads()
+        self.input_widget.set_nodal_loads()
 
     def action_add_mass_spring_damper_callback(self):
         self.input_widget.addMassSpringDamper()

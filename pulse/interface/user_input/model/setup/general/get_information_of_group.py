@@ -34,6 +34,7 @@ class GetInformationOfGroup(QDialog):
         self._config_windows()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.load_group_info()
         self.exec()
 
@@ -48,7 +49,6 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _define_qt_variables(self):
         # QLabel
@@ -60,7 +60,12 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_remove : QPushButton
         # QTreeWidget
         self.treeWidget_group_info : QTreeWidget
-        self._config_widgets()        
+
+    def _create_connections(self):
+        self.pushButton_remove.clicked.connect(self.check_remove)
+        self.pushButton_close.clicked.connect(self.close)
+        self.treeWidget_group_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_group_info.itemDoubleClicked.connect(self.on_double_click_item)
 
     def _config_widgets(self):
 
@@ -75,12 +80,8 @@ class GetInformationOfGroup(QDialog):
             self.treeWidget_group_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
             if len(self.column_widths):
                 self.treeWidget_group_info.setColumnWidth(col, self.column_widths[col])
-
-    def _create_connections(self):
-        self.pushButton_remove.clicked.connect(self.check_remove)
-        self.pushButton_close.clicked.connect(self.close)
-        self.treeWidget_group_info.itemClicked.connect(self.on_click_item)
-        self.treeWidget_group_info.itemDoubleClicked.connect(self.on_double_click_item)
+        
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def on_click_item(self, item):
         text = item.text(0)

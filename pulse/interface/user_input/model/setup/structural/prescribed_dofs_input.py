@@ -18,11 +18,12 @@ from math import pi
 
 window_title = "Error"
 
-class DOFInput(QDialog):
+class PrescribedDofsInput(QDialog):
     def __init__(self, *args, **kwargs):
-        super(DOFInput, self).__init__(*args, **kwargs)
-
-        uic.loadUi(UI_DIR / "model/setup/structural/prescribed_dofs_input.ui", self)
+        super().__init__(*args, **kwargs)
+        
+        ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
+        uic.loadUi(ui_path, self)
 
         self.project = app().project
         self.opv = app().main_window.opv_widget
@@ -33,6 +34,7 @@ class DOFInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.update()
         self.load_nodes_info()
         self.exec()
@@ -93,13 +95,10 @@ class DOFInput(QDialog):
         self.rz_basename = None
 
     def _define_qt_variables(self):
-
         # QComboBox
         self.comboBox_linear_data_type : QComboBox
         self.comboBox_angular_data_type : QComboBox
-
         # QLineEdit
-
         self.lineEdit_nodeID : QLineEdit
         self.lineEdit_real_ux : QLineEdit
         self.lineEdit_real_uy : QLineEdit
@@ -108,15 +107,15 @@ class DOFInput(QDialog):
         self.lineEdit_real_ry : QLineEdit
         self.lineEdit_real_rz : QLineEdit
         self.lineEdit_real_alldofs : QLineEdit
-
+        #
         self.lineEdit_imag_ux : QLineEdit
         self.lineEdit_imag_uy : QLineEdit
         self.lineEdit_imag_uz : QLineEdit
         self.lineEdit_imag_rx : QLineEdit
         self.lineEdit_imag_ry : QLineEdit
         self.lineEdit_imag_rz : QLineEdit
+        #
         self.lineEdit_imag_alldofs : QLineEdit
-
         self.lineEdit_path_table_ux : QLineEdit
         self.lineEdit_path_table_uy : QLineEdit
         self.lineEdit_path_table_uz : QLineEdit
@@ -124,26 +123,22 @@ class DOFInput(QDialog):
         self.lineEdit_path_table_ry : QLineEdit
         self.lineEdit_path_table_rz : QLineEdit
         self._create_list_lineEdits()
-
+        # QPushButton
         self.pushButton_load_ux_table : QPushButton
         self.pushButton_load_uy_table : QPushButton
         self.pushButton_load_uz_table : QPushButton
         self.pushButton_load_rx_table : QPushButton
         self.pushButton_load_ry_table : QPushButton
         self.pushButton_load_rz_table : QPushButton
-
         self.pushButton_constant_value_confirm : QPushButton
         self.pushButton_remove_bc_confirm : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_table_values_confirm : QPushButton
-        
         # QTabWidget
-        self.tabWidget_prescribed_dofs = self.findChild(QTabWidget, "tabWidget_prescribed_dofs")
-
+        self.tabWidget_prescribed_dofs : QTabWidget
         # QTreeWidget
-        self.treeWidget_prescribed_dofs = self.findChild(QTreeWidget, 'treeWidget_prescribed_dofs')
-        self._config_treeWidget()
-
+        self.treeWidget_prescribed_dofs : QTreeWidget
+        
     def _create_list_lineEdits(self):
         self.list_lineEdit_constant_values = [  [self.lineEdit_real_ux, self.lineEdit_imag_ux],
                                                 [self.lineEdit_real_uy, self.lineEdit_imag_uy],
@@ -152,7 +147,6 @@ class DOFInput(QDialog):
                                                 [self.lineEdit_real_ry, self.lineEdit_imag_ry],
                                                 [self.lineEdit_real_rz, self.lineEdit_imag_rz]  ]
 
-
         self.list_lineEdit_table_values = [ self.lineEdit_path_table_ux,
                                             self.lineEdit_path_table_uy,
                                             self.lineEdit_path_table_uz,
@@ -160,9 +154,11 @@ class DOFInput(QDialog):
                                             self.lineEdit_path_table_ry,
                                             self.lineEdit_path_table_rz ]
 
-    def _config_treeWidget(self):
+    def _config_widgets(self):
         self.treeWidget_prescribed_dofs.setColumnWidth(0, 80)
         # self.treeWidget_prescribed_dofs.setColumnWidth(1, 60)
+        #
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")   
 
     def _create_connections(self):
         #

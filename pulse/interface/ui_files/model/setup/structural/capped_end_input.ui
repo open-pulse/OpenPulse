@@ -52,7 +52,7 @@
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>80</height>
+       <height>48</height>
       </size>
      </property>
      <property name="frameShape">
@@ -110,6 +110,18 @@
       <number>1</number>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item row="0" column="0">
        <widget class="QFrame" name="frame_attribution_controls">
         <property name="frameShape">
@@ -160,7 +172,8 @@
             <enum>Qt::ClickFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);</string>
+            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
+QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
            </property>
            <property name="text">
             <string>All lines</string>

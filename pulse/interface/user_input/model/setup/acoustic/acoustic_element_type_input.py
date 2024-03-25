@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QLabel, QLineEdit, QP
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import get_openpulse_icon
@@ -43,7 +42,6 @@ class AcousticElementTypeInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
 
@@ -84,11 +82,6 @@ class AcousticElementTypeInput(QDialog):
     def _create_connections(self):
         self.checkBox_flow_effects.toggled.connect(self.checkBoxEvent_flow_effects)
         self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
-        # index: 0 - Undamped
-        # index: 1 - Proportional
-        # index: 2 - Wide-duct
-        # index: 3 - LRF fluid equivalent
-        # index: 4 - LRF full
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
         self.pushButton_confirm.clicked.connect(self.confirm_element_type_attribution)
         self.pushButton_reset.clicked.connect(self.reset_element_type)
@@ -98,6 +91,7 @@ class AcousticElementTypeInput(QDialog):
 
     def _config_widgets(self):
         self.treeWidget_element_type.setColumnWidth(0, 150)
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def tab_selection_callback(self):
         
