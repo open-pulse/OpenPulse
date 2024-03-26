@@ -378,6 +378,7 @@ class AddStructuresWidget(QWidget):
             message += f"Material data: {material_data[1:]}\n\n"
 
         self.geometry_widget.set_info_text(message)
+        app().update()
 
     def reset_text_info(self):
         self.geometry_widget.set_info_text("")

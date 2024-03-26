@@ -122,7 +122,7 @@ class StructuralElement:
         self.index = index
 
         self.element_type = kwargs.get('element_type', 'pipe_1')
-        self.wall_formulation = kwargs.get('wall_formulation', 'thin_wall')
+        self.wall_formulation = kwargs.get('wall_formulation', 'thick_wall')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
@@ -132,7 +132,7 @@ class StructuralElement:
         self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)
         self.decoupling_info = kwargs.get('decoupling_info', None)
 
-        self.capped_end = kwargs.get('capped_end', False)
+        self.capped_end = kwargs.get('capped_end', True)
         self.stress_intensification = kwargs.get('stress_intensification', True)
         self.force_offset = True
 

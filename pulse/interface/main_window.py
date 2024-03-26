@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super(MainWindow, self).__init__()
+
         uic.loadUi(UI_DIR / 'main_window.ui', self)
 
         self.ui_dir = UI_DIR
@@ -62,8 +63,9 @@ class MainWindow(QMainWindow):
     def _config_window(self):
         self.showMaximized()
         self.installEventFilter(self)
-        # self.setWindowIcon(self.pulse_icon)
-    
+        self.setWindowIcon(self.pulse_icon)
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+
     def _define_qt_variables(self):
         '''
         This function is doing nothing. Every variable was
@@ -196,7 +198,7 @@ class MainWindow(QMainWindow):
 
     def configure_window(self):
 
-        # self._load_icons()
+        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
@@ -567,16 +569,16 @@ class MainWindow(QMainWindow):
         render_widget.set_back_view()
 
     def action_set_structural_element_type_callback(self):
-        self.input_widget.setStructuralElementType()
+        self.input_widget.set_structural_element_type()
 
     def action_add_connecting_flanges_callback(self):
         self.input_widget.add_flanges()
 
     def action_set_prescribed_dofs_callback(self):
-        self.input_widget.set_dof()
+        self.input_widget.set_prescribed_dofs()
 
     def action_set_nodal_loads_callback(self):
-        self.input_widget.setNodalLoads()
+        self.input_widget.set_nodal_loads()
 
     def action_add_mass_spring_damper_callback(self):
         self.input_widget.addMassSpringDamper()
@@ -600,10 +602,10 @@ class MainWindow(QMainWindow):
         self.input_widget.set_acoustic_pressure()
 
     def action_set_volume_velocity_callback(self):
-        self.input_widget.setVolumeVelocity()
+        self.input_widget.set_volume_velocity()
 
     def action_set_specific_impedance_callback(self):
-        self.input_widget.setSpecificImpedance()
+        self.input_widget.set_specific_impedance()
 
     def action_add_perforated_plate_callback(self):
         self.input_widget.add_perforated_plate()

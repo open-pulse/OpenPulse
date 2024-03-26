@@ -3072,7 +3072,8 @@ class Preprocessor:
             element.xaxis_beam_rotation = angle
 
     def create_dict_lines_to_rotation_angles(self):
-        self.dict_lines_to_rotation_angles = {}
+        self.dict_lines_to_rotation_angles = dict()
+        self.dict_beam_xaxis_rotating_angle_to_lines.clear()
         for line in self.all_lines:
             self.dict_lines_to_rotation_angles[line] = 0
 

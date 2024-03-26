@@ -254,7 +254,6 @@ class GeometryHandler:
         for point in points:
             coords = gmsh.model.getValue(*point, [])
             self.points_coords[point[1]] = self.conv_unit(coords)
-            # print(point[1], self.conv_unit(coords))
 
         self.points_coords_cache = self.points_coords.copy()
         self.map_points_according_to_coordinates()
@@ -522,8 +521,6 @@ class GeometryHandler:
                     self.merged_points.append(point)
 
             self.map_points_according_to_coordinates()
-            # print(self.merged_points)
-            # print(np.array(list(self.points_coords.values())))
 
     def print_merged_nodes_message(self):
 
@@ -599,7 +596,7 @@ class GeometryHandler:
             start_coords = get_data(structure.start.coords())
             end_coords = get_data(structure.end.coords())
             corner_coords = get_data(structure.corner.coords())
-            curvature = structure.curvature
+            curvature = np.round(structure.curvature, 8)
             return [start_coords, corner_coords, end_coords, curvature]
 
         elif isinstance(structure, Pipe):

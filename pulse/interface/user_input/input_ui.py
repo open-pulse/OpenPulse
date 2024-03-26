@@ -13,9 +13,9 @@ from pulse.interface.user_input.model.setup.general.set_material_input import Se
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
-from pulse.interface.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
-from pulse.interface.user_input.model.setup.structural.dof_input import DOFInput
-from pulse.interface.user_input.model.setup.structural.loadsInput import LoadsInput
+from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
+from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input import PrescribedDofsInput
+from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
 from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
 from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
 from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
@@ -24,17 +24,17 @@ from pulse.interface.user_input.model.setup.structural.capped_end_input import C
 from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
 from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
 from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
-from pulse.interface.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
+from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input import BeamXaxisRotationInput 
 from pulse.interface.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 #
-from pulse.interface.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
+from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.user_input.model.setup.acoustic.acoustic_pressure_input import AcousticPressureInput
-from pulse.interface.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
-from pulse.interface.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
-from pulse.interface.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.volume_velocity_input import VolumeVelocityInput
+from pulse.interface.user_input.model.setup.acoustic.specific_impedance_input import SpecificImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.radiation_impedance_input import RadiationImpedanceInput
 from pulse.interface.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
-from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
+from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 #
@@ -195,8 +195,8 @@ class InputUi:
     def add_flanges(self):
         self.processInput(FlangesInput, self.project, self.opv)
 
-    def setStructuralElementType(self):
-        read = self.processInput(StructuralElementTypeInput, self.project, self.opv)
+    def set_structural_element_type(self):
+        read = self.processInput(StructuralElementTypeInput)
         if read.complete:
             if read.pipe_to_beam or read.beam_to_pipe:         
                 self.set_cross_section( pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe, 
@@ -209,16 +209,16 @@ class InputUi:
         self.processInput(RendererUserPreferencesInput)
         
     def set_beam_xaxis_rotation(self):
-        self.processInput(BeamXaxisRotationInput, self.project, self.opv)
+        self.processInput(BeamXaxisRotationInput)
         
-    def set_dof(self):
-        self.processInput(DOFInput)
+    def set_prescribed_dofs(self):
+        self.processInput(PrescribedDofsInput)
         
     def setRotationDecoupling(self):
         self.processInput(DecouplingRotationDOFsInput, self.project, self.opv)
         
-    def setNodalLoads(self):
-        self.processInput(LoadsInput, self.project, self.opv)
+    def set_nodal_loads(self):
+        self.processInput(NodalLoadsInput)
         
     def addMassSpringDamper(self):
         self.processInput(MassSpringDamperInput, self.project, self.opv)
@@ -242,7 +242,7 @@ class InputUi:
         return self.processInput(ValvesInput)
 
     def set_acoustic_element_type(self):
-        self.processInput(AcousticElementTypeInput, self.project, self.opv)
+        self.processInput(AcousticElementTypeInput)
 
     def set_fluid(self):
         self.processInput(FluidInput, self.project, self.opv)
@@ -253,23 +253,23 @@ class InputUi:
     def set_acoustic_pressure(self):
         self.processInput(AcousticPressureInput)
     
-    def setVolumeVelocity(self):
-        self.processInput(VolumeVelocityInput, self.project, self.opv)
+    def set_volume_velocity(self):
+        self.processInput(VolumeVelocityInput)
 
-    def setSpecificImpedance(self):
-        self.processInput(SpecificImpedanceInput, self.project, self.opv)
+    def set_specific_impedance(self):
+        self.processInput(SpecificImpedanceInput)
     
     def set_radiation_impedance(self):
-        self.processInput(RadiationImpedanceInput, self.project, self.opv)
+        self.processInput(RadiationImpedanceInput)
 
     def add_perforated_plate(self):
-        self.processInput(PerforatedPlateInput, self.project, self.opv)
+        self.processInput(PerforatedPlateInput)
 
     def set_acoustic_element_length_correction(self):
-        self.processInput(AcousticElementLengthCorrectionInput, self.project, self.opv)
+        self.processInput(AcousticElementLengthCorrectionInput)
 
     def add_compressor_excitation(self):
-        self.processInput(CompressorModelInput, self.project, self.opv)
+        self.processInput(CompressorModelInput)
 
     def analysisTypeInput(self):
 

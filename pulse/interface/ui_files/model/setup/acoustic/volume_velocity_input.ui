@@ -42,7 +42,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Prescribe an acoustic pressure</string>
+   <string>Set volume velocity acoustic excitation</string>
   </property>
   <property name="whatsThis">
    <string/>
@@ -92,14 +92,14 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
         </property>
         <property name="text">
-         <string>Prescribe an acoustic pressure</string>
+         <string>Set volume velocity acoustic excitation</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -268,7 +268,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QTabWidget" name="tabWidget_acoustic_pressure">
+       <widget class="QTabWidget" name="tabWidget_volume_velocity">
         <property name="minimumSize">
          <size>
           <width>360</width>
@@ -495,7 +495,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 </font>
                </property>
                <property name="text">
-                <string>[Pa]</string>
+                <string>[m³/s]</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -526,7 +526,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 </font>
                </property>
                <property name="text">
-                <string>Acoustic pressure:</string>
+                <string>Volume velocity:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1186,7 +1186,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QTreeWidget" name="treeWidget_acoustic_pressure">
+           <widget class="QTreeWidget" name="treeWidget_volume_velocity">
             <property name="minimumSize">
              <size>
               <width>320</width>

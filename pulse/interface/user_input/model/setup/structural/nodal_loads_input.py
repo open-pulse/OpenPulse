@@ -1,105 +1,74 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QTabWidget, QToolButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.tools.utils import remove_bc_from_file, get_new_path
+from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
 import os
 import numpy as np
 
-from pulse import UI_DIR
-from pulse.tools.utils import remove_bc_from_file, get_new_path
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+window_title = "Error"
 
-window_title ="Error"
-
-class LoadsInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+class NodalLoadsInput(QDialog):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi(UI_DIR / "model/setup/structural/loadsInput.ui", self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
+        ui_path = UI_DIR / "model/setup/structural/external_nodal_loads_input.ui"
+        uic.loadUi(ui_path, self)
 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-        
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self._config_widgets()
+        self.update()
+        self.load_nodes_info()
+        self.exec()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _initialize(self):
+
+        self.preprocessor = self.project.preprocessor
+        self.file = self.project.file
+        self.before_run = self.project.get_pre_solution_model_checks()
+
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
-        self.imported_table_name = ""
-        self.structural_bc_info_path = project.file._node_structural_path
-        self.structural_folder_path = self.project.file._structural_imported_data_folder_path
+        self.imported_filename = ""
+        self.structural_bc_info_path = self.file._node_structural_path
+        self.structural_folder_path = self.file._structural_imported_data_folder_path
         self.nodal_loads_files_folder_path = get_new_path(self.structural_folder_path, "nodal_loads_files")
 
-        self.nodes = project.preprocessor.nodes
-        self.loads = None
-        self.nodes_typed = []
+        self.nodes = self.preprocessor.nodes
+        self.nodal_loads = None
         self.inputs_from_node = False
-        self.basenames = []
-        self.list_Nones = [None, None, None, None, None, None]
-
+        self.copy_path = False
         self.stop = False
-        self.list_frequencies = []
-        
-        self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+        self.list_Nones = [None, None, None, None, None, None]
+        self.load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
 
-        self.lineEdit_real_Fx = self.findChild(QLineEdit, 'lineEdit_real_Fx')
-        self.lineEdit_real_Fy = self.findChild(QLineEdit, 'lineEdit_real_Fy')
-        self.lineEdit_real_Fz = self.findChild(QLineEdit, 'lineEdit_real_Fz')
-        self.lineEdit_real_Mx = self.findChild(QLineEdit, 'lineEdit_real_Mx')
-        self.lineEdit_real_My = self.findChild(QLineEdit, 'lineEdit_real_My')
-        self.lineEdit_real_Mz = self.findChild(QLineEdit, 'lineEdit_real_Mz')
-
-        self.lineEdit_imag_Fx = self.findChild(QLineEdit, 'lineEdit_imag_Fx')
-        self.lineEdit_imag_Fy = self.findChild(QLineEdit, 'lineEdit_imag_Fy')
-        self.lineEdit_imag_Fz = self.findChild(QLineEdit, 'lineEdit_imag_Fz')
-        self.lineEdit_imag_Mx = self.findChild(QLineEdit, 'lineEdit_imag_Mx')
-        self.lineEdit_imag_My = self.findChild(QLineEdit, 'lineEdit_imag_My')
-        self.lineEdit_imag_Mz = self.findChild(QLineEdit, 'lineEdit_imag_Mz')
-
-        self.list_lineEdit_constant_values = [  [self.lineEdit_real_Fx, self.lineEdit_imag_Fx],
-                                                [self.lineEdit_real_Fy, self.lineEdit_imag_Fy],
-                                                [self.lineEdit_real_Fz, self.lineEdit_imag_Fz],
-                                                [self.lineEdit_real_Mx, self.lineEdit_imag_Mx],
-                                                [self.lineEdit_real_My, self.lineEdit_imag_My],
-                                                [self.lineEdit_real_Mz, self.lineEdit_imag_Mz]  ]
-
-        self.lineEdit_path_table_Fx = self.findChild(QLineEdit, 'lineEdit_path_table_Fx')
-        self.lineEdit_path_table_Fy = self.findChild(QLineEdit, 'lineEdit_path_table_Fy')
-        self.lineEdit_path_table_Fz = self.findChild(QLineEdit, 'lineEdit_path_table_Fz')
-        self.lineEdit_path_table_Mx = self.findChild(QLineEdit, 'lineEdit_path_table_Mx')
-        self.lineEdit_path_table_My = self.findChild(QLineEdit, 'lineEdit_path_table_My')
-        self.lineEdit_path_table_Mz = self.findChild(QLineEdit, 'lineEdit_path_table_Mz')
-
-        self.list_lineEdit_table_values = [ self.lineEdit_path_table_Fx,
-                                            self.lineEdit_path_table_Fy,
-                                            self.lineEdit_path_table_Fz,
-                                            self.lineEdit_path_table_Mx,
-                                            self.lineEdit_path_table_My,
-                                            self.lineEdit_path_table_Mz ]
-
-        self.toolButton_load_Fx_table = self.findChild(QToolButton, 'toolButton_load_Fx_table')
-        self.toolButton_load_Fy_table = self.findChild(QToolButton, 'toolButton_load_Fy_table')
-        self.toolButton_load_Fz_table = self.findChild(QToolButton, 'toolButton_load_Fz_table')
-        self.toolButton_load_Mx_table = self.findChild(QToolButton, 'toolButton_load_Mx_table')
-        self.toolButton_load_My_table = self.findChild(QToolButton, 'toolButton_load_My_table')
-        self.toolButton_load_Mz_table = self.findChild(QToolButton, 'toolButton_load_Mz_table') 
-
-        self.toolButton_load_Fx_table.clicked.connect(self.load_Fx_table)
-        self.toolButton_load_Fy_table.clicked.connect(self.load_Fy_table)
-        self.toolButton_load_Fz_table.clicked.connect(self.load_Fz_table)
-        self.toolButton_load_Mx_table.clicked.connect(self.load_Mx_table)
-        self.toolButton_load_My_table.clicked.connect(self.load_My_table)
-        self.toolButton_load_Mz_table.clicked.connect(self.load_Mz_table)
+        self.nodes_typed = list()
+        self.basenames = list()
+        self.list_frequencies = list()
 
         self.Fx_table = None
         self.Fy_table = None
@@ -122,40 +91,78 @@ class LoadsInput(QDialog):
         self.My_basename = None
         self.Mz_basename = None
 
-        self.tabWidget_nodal_loads = self.findChild(QTabWidget, "tabWidget_nodal_loads")
-        self.tab_constant_values = self.tabWidget_nodal_loads.findChild(QWidget, "tab_constant_values")
-        self.tab_table = self.tabWidget_nodal_loads.findChild(QWidget, "tab_table")
+    def _define_qt_variables(self):
+        # QLineEdit        
+        self.lineEdit_nodeID : QLineEdit
+        self.lineEdit_real_Fx : QLineEdit
+        self.lineEdit_real_Fy : QLineEdit
+        self.lineEdit_real_Fz : QLineEdit
+        self.lineEdit_real_Mx : QLineEdit
+        self.lineEdit_real_My : QLineEdit
+        self.lineEdit_real_Mz : QLineEdit
+        self.lineEdit_imag_Fx : QLineEdit
+        self.lineEdit_imag_Fy : QLineEdit
+        self.lineEdit_imag_Fz : QLineEdit
+        self.lineEdit_imag_Mx : QLineEdit
+        self.lineEdit_imag_My : QLineEdit
+        self.lineEdit_imag_Mz : QLineEdit
+        #
+        self.lineEdit_path_table_Fx : QLineEdit
+        self.lineEdit_path_table_Fy : QLineEdit
+        self.lineEdit_path_table_Fz : QLineEdit
+        self.lineEdit_path_table_Mx : QLineEdit
+        self.lineEdit_path_table_My : QLineEdit
+        self.lineEdit_path_table_Mz : QLineEdit
+        self._create_list_lineEdits()
+        # QPushButton
+        self.pushButton_load_Fx_table : QPushButton
+        self.pushButton_load_Fy_table : QPushButton
+        self.pushButton_load_Fz_table : QPushButton
+        self.pushButton_load_Mx_table : QPushButton
+        self.pushButton_load_My_table : QPushButton
+        self.pushButton_load_Mz_table : QPushButton
+        self.pushButton_constant_value_confirm : QPushButton
+        self.pushButton_table_values_confirm : QPushButton
+        self.pushButton_remove_bc_confirm : QPushButton
+        self.pushButton_reset : QPushButton
+        # QTabWidget
+        self.tabWidget_nodal_loads : QTabWidget
+        # QTreeWidget
+        self.treeWidget_nodal_loads : QTreeWidget
 
-        self.treeWidget_nodal_loads = self.findChild(QTreeWidget, 'treeWidget_nodal_loads')
-        self.treeWidget_nodal_loads.setColumnWidth(0, 80)
-        # self.treeWidget_nodal_loads.setColumnWidth(1, 60)
+    def _create_connections(self):
+        self.pushButton_load_Fx_table.clicked.connect(self.load_Fx_table)
+        self.pushButton_load_Fy_table.clicked.connect(self.load_Fy_table)
+        self.pushButton_load_Fz_table.clicked.connect(self.load_Fz_table)
+        self.pushButton_load_Mx_table.clicked.connect(self.load_Mx_table)
+        self.pushButton_load_My_table.clicked.connect(self.load_My_table)
+        self.pushButton_load_Mz_table.clicked.connect(self.load_Mz_table)
+        self.pushButton_constant_value_confirm.clicked.connect(self.check_constant_values)
+        self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
+        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_reset.clicked.connect(self.reset_all)
         self.treeWidget_nodal_loads.itemClicked.connect(self.on_click_item)
         self.treeWidget_nodal_loads.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-        self.pushButton_constant_value_confirm = self.findChild(QPushButton, 'pushButton_constant_value_confirm')
-        self.pushButton_constant_value_confirm.clicked.connect(self.check_constant_values)
-
-        self.pushButton_table_values_confirm = self.findChild(QPushButton, 'pushButton_table_values_confirm')
-        self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
-
-        self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
-        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
-
-        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        self.pushButton_reset.clicked.connect(self.reset_all)
-
-        self.update()
-        self.load_nodes_info()
-        self.exec()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_nodal_loads.currentIndex()==0:
-                self.check_constant_values()
-            elif self.tabWidget_nodal_loads.currentIndex()==1:
-                self.check_table_values()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+    def _create_list_lineEdits(self):   
+        self.list_lineEdit_constant_values = [  [self.lineEdit_real_Fx, self.lineEdit_imag_Fx],
+                                                [self.lineEdit_real_Fy, self.lineEdit_imag_Fy],
+                                                [self.lineEdit_real_Fz, self.lineEdit_imag_Fz],
+                                                [self.lineEdit_real_Mx, self.lineEdit_imag_Mx],
+                                                [self.lineEdit_real_My, self.lineEdit_imag_My],
+                                                [self.lineEdit_real_Mz, self.lineEdit_imag_Mz]  ]
+        
+        self.list_lineEdit_table_values = [ self.lineEdit_path_table_Fx,
+                                            self.lineEdit_path_table_Fy,
+                                            self.lineEdit_path_table_Fz,
+                                            self.lineEdit_path_table_Mx,
+                                            self.lineEdit_path_table_My,
+                                            self.lineEdit_path_table_Mz ]
+    
+    def _config_widgets(self):
+        self.treeWidget_nodal_loads.setColumnWidth(0, 80)
+        # self.treeWidget_nodal_loads.setColumnWidth(1, 60)
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")   
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
@@ -216,12 +223,12 @@ class LoadsInput(QDialog):
         if self.stop:
             return
 
-        loads = [Fx, Fy, Fz, Mx, My, Mz]
+        nodal_loads = [Fx, Fy, Fz, Mx, My, Mz]
         
-        if loads.count(None) != 6:
-            self.loads = loads
+        if nodal_loads.count(None) != 6:
+            self.nodal_loads = nodal_loads
             table_names = self.list_Nones
-            data = [self.loads, table_names]
+            data = [self.nodal_loads, table_names]
             self.remove_all_table_files_from_nodes(self.nodes_typed)
             self.project.set_nodal_loads_by_node(self.nodes_typed, data, False)
             print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}")    
@@ -230,7 +237,7 @@ class LoadsInput(QDialog):
         else:    
     
             title = "Additional inputs required"
-            message = "You must to inform at least one nodal load\n" 
+            message = "You must to inform at least one nodal load " 
             message += "before confirming the input!"
             PrintMessageInput([window_title, title, message]) 
             
@@ -251,7 +258,7 @@ class LoadsInput(QDialog):
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         
             if imported_file.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum \n"
+                message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([window_title, title, message])
                 lineEdit.setFocus()
@@ -406,12 +413,12 @@ class LoadsInput(QDialog):
 
             self.basenames = [  self.Fx_basename, self.Fy_basename, self.Fz_basename, 
                                 self.Mx_basename, self.My_basename, self.Mz_basename  ]
-            self.loads = [Fx, Fy, Fz, Mx, My, Mz]
-            data = [self.loads, self.basenames]
+            self.nodal_loads = [Fx, Fy, Fz, Mx, My, Mz]
+            data = [self.nodal_loads, self.basenames]
                         
             if self.basenames == self.list_Nones:
                 title = "Additional inputs required"
-                message = "You must inform at least one nodal load\n"
+                message = "You must inform at least one nodal load "
                 message += "table path before confirming the input!"
                 PrintMessageInput([window_title, title, message]) 
                 return 
@@ -428,10 +435,9 @@ class LoadsInput(QDialog):
         self.close()
 
     def text_label(self, mask):
-        
+
         text = ""
-        load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
-        temp = load_labels[mask]
+        temp = self.load_labels[mask]
 
         if list(mask).count(True) == 6:
             text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
@@ -455,14 +461,53 @@ class LoadsInput(QDialog):
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)            
             self.treeWidget_nodal_loads.addTopLevelItem(new)
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+        if len(self.preprocessor.nodes_with_nodal_loads) == 0:
+            self.tabWidget_nodal_loads.setCurrentIndex(0)
+            self.tabWidget_nodal_loads.setTabVisible(2, False)
+        else:
+            self.tabWidget_nodal_loads.setTabVisible(2, True)
 
     def on_click_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
-        self.check_remove_bc_from_node()
+        self.get_nodal_loads_info(item)
 
+    def get_nodal_loads_info(self, item):
+        try:
+
+            data = dict()
+            node = int(item.text(0))
+            for node in self.preprocessor.nodes_with_nodal_loads:
+                index = node.external_index
+                if str(index) == item.text(0):
+                    nodal_loads_mask = [False if bc is None else True for bc in node.nodal_loads]
+                    for i, _bool in enumerate(nodal_loads_mask):
+                        if _bool:
+                            dof_label = self.load_labels[i]
+                            data[index, dof_label] = node.nodal_loads[i]
+
+            if len(data):
+                self.close()
+                header_labels = ["Node ID", "Load label", "Value"]
+                GetInformationOfGroup(  group_label = "Structural nodal load",
+                                        selection_label = "Node ID:",
+                                        header_labels = header_labels,
+                                        column_widths = [70, 140, 150],
+                                        data = data  )
+
+        except Exception as error_log:
+            title = "Error while gathering nodal load information"
+            message = str(error_log)
+            PrintMessageInput([window_title, title, message])
+            return
+        
+        self.show()
+            
     def check_remove_bc_from_node(self):
         self.basenames = []
         lineEdit_nodeID = self.lineEdit_nodeID.text()
@@ -501,11 +546,9 @@ class LoadsInput(QDialog):
     def reset_all(self):
 
         title = "Remove all nodal loads from the structural model"
-        message = "Do you really want to remove all nodal loads from the structural model?\n\n\n"
-        message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
+        message = "Would you like to remove all nodal loads from the structural model?\n\n\n"
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
 
         if read._continue:
             self.basenames = []
@@ -541,14 +584,14 @@ class LoadsInput(QDialog):
                 self.reset_input_fields(force_reset=True)
                 if node.loaded_table_for_nodal_loads:
                     table_names = node.nodal_loads_table_names
-                    self.tabWidget_nodal_loads.setCurrentWidget(self.tab_table_values)
+                    self.tabWidget_nodal_loads.setCurrentIndex(1)
                     for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
                         if table_names[index] is not None:
                             table_name = get_new_path(self.nodal_loads_files_folder_path, table_names[index])
                             lineEdit_table.setText(table_name)
                 else:
                     nodal_loads = node.nodal_loads
-                    self.tabWidget_nodal_loads.setCurrentWidget(self.tab_constant_values)
+                    self.tabWidget_nodal_loads.setCurrentIndex(0)
                     for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
                         if nodal_loads[index] is not None:
                             lineEdit_real.setText(str(np.real(nodal_loads[index])))
@@ -563,6 +606,15 @@ class LoadsInput(QDialog):
         for node in list_node_ids:
             text += f"{node}, "
         self.lineEdit_nodeID.setText(text[:-2])
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            if self.tabWidget_nodal_loads.currentIndex()==0:
+                self.check_constant_values()
+            elif self.tabWidget_nodal_loads.currentIndex()==1:
+                self.check_table_values()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
 
     # def tables_frequency_setup_message(self, lineEdit, label):
     #     title = f"Invalid frequency setup of the '{label}' imported table"
