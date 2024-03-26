@@ -41,14 +41,14 @@ class Project:
         self.analysis_type_label = ""
         self.analysis_method_label = ""
         self.global_damping = [0, 0, 0, 0]
-        self.preferences = {}
+        self.preferences = dict()
         self.modes = 0
         self.frequencies = None
         self.f_min = 0
         self.f_max = 0
         self.f_step = 0
-        self.list_frequencies = []
-        self.natural_frequencies_structural = []
+        self.list_frequencies = list()
+        self.natural_frequencies_structural = list()
         self.imported_table_frequency_setup = False
         self.solution_structural = None
         self.solution_acoustic = None
@@ -79,8 +79,8 @@ class Project:
         self.time_to_postprocess = 0
         self.total_time = 0
 
-        self.number_sections_by_line = {}
-        # self.lines_with_cross_section_by_elements = []
+        self.number_sections_by_line = dict()
+        # self.lines_with_cross_section_by_elements = list()
         self.stresses_values_for_color_table = None
         self.min_stress = ""
         self.max_stress = ""
@@ -642,7 +642,7 @@ class Project:
         if isinstance(frequencies, np.ndarray):
             frequencies = list(frequencies)
         updated = False
-        if self.list_frequencies == [] or not self.file.check_if_there_are_tables_at_the_model():
+        if self.list_frequencies == list() or not self.file.check_if_there_are_tables_at_the_model():
             updated = True
             self.list_frequencies = frequencies
         if self.list_frequencies == frequencies:
@@ -715,8 +715,8 @@ class Project:
                 offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
                 offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
             
-            cross_sections_first = []
-            cross_sections_last = []
+            cross_sections_first = list()
+            cross_sections_last = list()
             for index, element_id in enumerate(elements_from_line):
                 
                 element = self.preprocessor.structural_elements[element_id]
@@ -784,14 +784,14 @@ class Project:
             self.number_sections_by_line.pop(line_id)
 
     def add_cross_sections_expansion_joints_valves_in_file(self, list_elements):
-        list_lines = []
+        list_lines = list()
         for element_id in list_elements:
             line_id = self.preprocessor.elements_to_line[element_id]
             if line_id not in list_lines:
                 list_lines.append(line_id)
         for _line_id in list_lines:
-            map_expansion_joints_to_elements = {}
-            map_valves_to_elements = {}
+            map_expansion_joints_to_elements = dict()
+            map_valves_to_elements = dict()
             map_cross_sections_to_elements, single_cross = self.get_dict_multiple_cross_sections_from_line(_line_id)
             if not single_cross:
                   
@@ -851,28 +851,40 @@ class Project:
             values = table_names
         self.file.add_structural_bc_in_file(node_id, values, labels)
 
-    def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove=False):
-        self.preprocessor.set_B2PX_rotation_decoupling(element_id, node_id, rotations_to_decouple=rotations_mask, remove=remove)
+    def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove = False):
+
+        self.preprocessor.set_B2PX_rotation_decoupling( element_id,
+                                                        node_id,
+                                                        rotations_to_decouple = rotations_mask,
+                                                        remove = remove )
+
         count_add, count_remove = 0, 0
         temp_dict = self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.copy()
 
         for key, elements in temp_dict.items():
             count_add += 1
-            section_key = "B2PX ROTATION DECOUPLING || Selection-{}".format(count_add-count_remove)              
+            section_key = "B2PX ROTATION DECOUPLING || Selection-{}".format(count_add - count_remove)              
             nodes = self.preprocessor.dict_nodes_with_B2PX_rotation_decoupling[key] 
 
-            if elements != []:   
-                self.file.modify_B2PX_rotation_decoupling_in_file(elements, nodes, key, section_key)
+            if elements != list():   
+                self.file.modify_B2PX_rotation_decoupling_in_file(elements = elements, 
+                                                                  nodes = nodes, 
+                                                                  rotations_maks = key, 
+                                                                  section = section_key)
                 self.preprocessor.dict_B2PX_rotation_decoupling[key] = [elements, nodes, section_key]
 
-            elif elements == [] or rotations_mask==str([False, False, False]):
+            elif elements == list() or rotations_mask==str([False, False, False]):
                 count_remove += 1
-                self.file.modify_B2PX_rotation_decoupling_in_file(elements, nodes, key, section_key, remove=True)
+                self.file.modify_B2PX_rotation_decoupling_in_file(elements = elements, 
+                                                                  nodes = nodes, 
+                                                                  rotations_maks = key, 
+                                                                  section = section_key, 
+                                                                  remove = True)
                 self.preprocessor.dict_nodes_with_B2PX_rotation_decoupling.pop(key)
                 self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.pop(key)
                 self.preprocessor.dict_B2PX_rotation_decoupling.pop(key)
 
-    def reset_B2PX_totation_decoupling(self):
+    def reset_B2PX_rotation_decoupling(self):
         N = self.preprocessor.DOFS_ELEMENT
         mat_reset = np.ones((N,N), dtype=int)
         for list_elements in self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.values():
@@ -880,9 +892,9 @@ class Project:
                 element = self.preprocessor.structural_elements[element_ID]
                 element.decoupling_matrix = mat_reset
                 element.decoupling_info = None
-        self.preprocessor.dict_nodes_with_B2PX_rotation_decoupling = {}
-        self.preprocessor.dict_elements_with_B2PX_rotation_decoupling = {}
-        self.file.modify_B2PX_rotation_decoupling_in_file([], [], [], [], reset=True)
+        self.preprocessor.dict_nodes_with_B2PX_rotation_decoupling = dict()
+        self.preprocessor.dict_elements_with_B2PX_rotation_decoupling = dict()
+        self.file.modify_B2PX_rotation_decoupling_in_file(reset = True)
 
     def set_nodal_loads_by_node(self, node_id, data, imported_table):
         [values, table_names] = data
@@ -984,13 +996,13 @@ class Project:
 
         self.preprocessor.add_valve_by_elements(list_elements, 
                                                 parameters, 
-                                                remove=remove, 
-                                                reset_cross=reset_cross)
+                                                remove = remove, 
+                                                reset_cross = reset_cross)
         
         if update_element_type:
             self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
 
-        list_lines = []
+        list_lines = list()
         for element in list_elements:
             line_id = self.preprocessor.elements_to_line[element]
             if line_id not in list_lines:
@@ -1083,7 +1095,7 @@ class Project:
         if update_element_type:
             self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
 
-        list_lines = []
+        list_lines = list()
         for element in list_elements:
             line_id = self.preprocessor.elements_to_line[element]
             if line_id not in list_lines:
@@ -1134,9 +1146,9 @@ class Project:
 
     def get_map_expansion_joints_to_elements(self, line_id):
         structural_elements = self.preprocessor.structural_elements
-        dict_multiple_expansion_joints = {}
-        dict_exp_joint_key_parameters_to_parameters = {}
-        dict_exp_joint_key_parameters_to_table_names = {}
+        dict_multiple_expansion_joints = dict()
+        dict_exp_joint_key_parameters_to_parameters = dict()
+        dict_exp_joint_key_parameters_to_table_names = dict()
         dict_exp_joint_key_parameters_to_elements = defaultdict(list)
         for element_id in self.preprocessor.line_to_elements[line_id]:
             element = structural_elements[element_id]
@@ -1153,8 +1165,8 @@ class Project:
 
     def get_map_valves_to_elements(self, line_id):
         structural_elements = self.preprocessor.structural_elements
-        dict_multiple_valves = {}
-        dict_valve_key_parameters_to_parameters = {}
+        dict_multiple_valves = dict()
+        dict_valve_key_parameters_to_parameters = dict()
         dict_valve_key_parameters_to_elements = defaultdict(list)
         for element_id in self.preprocessor.line_to_elements[line_id]:
             element = structural_elements[element_id]
@@ -1416,7 +1428,7 @@ class Project:
                     node_id = entity.compressor_info['node_id']
                     self.remove_compressor_excitation_table_files([node_id])
                     self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
-                    entity.compressor_info = {}
+                    entity.compressor_info = dict()
 
     def _set_fluid_to_all_lines(self, fluid):
         for entity in self.preprocessor.dict_tag_to_entity.values():

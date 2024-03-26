@@ -25,7 +25,7 @@ from pulse.interface.user_input.model.setup.structural.set_valves_input import V
 from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
 from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
 from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input import BeamXaxisRotationInput 
-from pulse.interface.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
+from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
 #
 from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
@@ -214,8 +214,8 @@ class InputUi:
     def set_prescribed_dofs(self):
         self.processInput(PrescribedDofsInput)
         
-    def setRotationDecoupling(self):
-        self.processInput(DecouplingRotationDOFsInput, self.project, self.opv)
+    def set_rotation_decoupling_dofs(self):
+        self.processInput(DecouplingRotationDOFsInput)
         
     def set_nodal_loads(self):
         self.processInput(NodalLoadsInput)
@@ -227,7 +227,7 @@ class InputUi:
         self.processInput(CappedEndInput)
 
     def set_stress_stress_stiffening(self):
-        self.processInput(StressStiffeningInput, self.project, self.opv)
+        self.processInput(StressStiffeningInput)
 
     def add_elastic_nodal_links(self):
         self.processInput(ElasticNodalLinksInput, self.project, self.opv)

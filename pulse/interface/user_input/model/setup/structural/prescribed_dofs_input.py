@@ -174,7 +174,7 @@ class PrescribedDofsInput(QDialog):
         self.pushButton_reset.clicked.connect(self.reset_all)
         #
         self.treeWidget_prescribed_dofs.itemClicked.connect(self.on_click_item)
-        self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_double_click_item)
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
@@ -565,7 +565,7 @@ class PrescribedDofsInput(QDialog):
     def on_click_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
 
-    def on_doubleclick_item(self, item):
+    def on_double_click_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
         self.get_nodal_loads_info(item)
 
@@ -593,7 +593,7 @@ class PrescribedDofsInput(QDialog):
                                         data = data  )
 
         except Exception as error_log:
-            title = "Error while gathering nodal load information"
+            title = "Error while gathering prescribed dofs information"
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
             return

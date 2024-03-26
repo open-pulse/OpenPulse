@@ -49,7 +49,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_addFlanges = self.add_item('Add Connecting Flanges')
         self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
         self.item_child_setBeamXaxisRotation = self.add_item('Set Beam X-axis Rotation')
-        self.item_child_setRotationDecoupling = self.add_item('Set Rotation Decoupling')
+        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set Rotation Decoupling')
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
         self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type')
@@ -90,7 +90,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_addFlanges.clicked.connect(self.item_child_add_flanges_callback)
         self.item_child_add_expansion_joint.clicked.connect(self.item_child_add_expansion_joint_callback)
         self.item_child_setBeamXaxisRotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
-        self.item_child_setRotationDecoupling.clicked.connect(self.item_child_set_rotation_decoupling_callback)
+        self.item_child_set_rotation_decoupling_dofs.clicked.connect(self.item_child_set_rotation_decoupling_callback)
         # Acoustic Model Setup
         self.item_child_set_acoustic_element_type.clicked.connect(self.item_child_set_acoustic_element_type_callback)
         self.item_child_set_acoustic_pressure.clicked.connect(self.item_child_set_acoustic_pressure_callback)
@@ -208,7 +208,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_set_rotation_decoupling_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.setRotationDecoupling()
+        self.main_window.input_widget.set_rotation_decoupling_dofs()
 
     def item_child_set_acoustic_element_type_callback(self):
         self.main_window.update_plot_entities()
@@ -289,7 +289,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_addFlanges.setDisabled(bool_key) 
         self.item_child_add_expansion_joint.setDisabled(bool_key)  
         self.item_child_setBeamXaxisRotation.setDisabled(bool_key)
-        self.item_child_setRotationDecoupling.setDisabled(bool_key)
+        self.item_child_set_rotation_decoupling_dofs.setDisabled(bool_key)
         #   
         self.item_child_set_acoustic_element_type.setDisabled(bool_key)
         self.item_child_set_acoustic_pressure.setDisabled(bool_key)

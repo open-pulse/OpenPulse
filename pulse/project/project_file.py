@@ -1283,17 +1283,25 @@ class ProjectFile:
 
         self.write_data_in_file(self._element_info_path, config)
     
-    def modify_B2PX_rotation_decoupling_in_file(self, elements, nodes, rotations_maks, section, remove=False, reset=False):
-         
+    def modify_B2PX_rotation_decoupling_in_file(self, 
+                                                elements = None, 
+                                                nodes = None, 
+                                                rotations_maks = None, 
+                                                section = None, 
+                                                remove = False, 
+                                                reset = False):
+
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
         if remove:
             config.remove_section(section)
+
         elif reset:
             for section in list(config.sections()):
                 if 'B2PX ROTATION DECOUPLING' in section:
                     config.remove_section(section) 
+
         else:
             if section in list(config.sections()):
                 config[section]['list of elements'] = str(elements)

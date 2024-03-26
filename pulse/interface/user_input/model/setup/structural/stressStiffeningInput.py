@@ -1,123 +1,153 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class StressStiffeningInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/structural/stressStiffeningInput.ui", self)
+        ui_path = UI_DIR / "model/setup/structural/stressStiffeningInput.ui"
+        uic.loadUi(ui_path, self)
         
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
+        self.opv.setInputObject(self)
 
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self._config_widgets()
+        self.update()
+        self.update_info()
+        self.tab_event_callback()
+        self.exec()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        
-        self.opv = opv
-        self.opv.setInputObject(self)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _initialize(self):
+
         self.lines_id = self.opv.getListPickedLines()
         self.elements_id = self.opv.getListPickedElements()
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
 
         self.structural_elements = self.preprocessor.structural_elements
         self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
 
-        self.dict_group_elements = project.preprocessor.group_elements_with_stress_stiffening
-        self.lines_with_stress_stiffening = project.preprocessor.lines_with_stress_stiffening
-        self.dict_lines_with_stress_stiffening = project.preprocessor.dict_lines_with_stress_stiffening
-        
+        self.dict_group_elements = self.preprocessor.group_elements_with_stress_stiffening
+        self.lines_with_stress_stiffening = self.preprocessor.lines_with_stress_stiffening
+        self.dict_lines_with_stress_stiffening = self.preprocessor.dict_lines_with_stress_stiffening
+
         self.stop = False
         self.error_label = ""
         self.dictKey_label = "STRESS STIFFENING || {}"
         self.dictkey_to_remove = None
 
-        self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
-        self.radioButton_selected_elements = self.findChild(QRadioButton, 'radioButton_selected_elements')
+    def _define_qt_variables(self):
+
+        # QComboBox
+        self.comboBox_selection : QComboBox
+
+        # QLineEdit
+        self.lineEdit_selected_ID : QLineEdit
+        self.lineEdit_id_labels : QLineEdit
+        self.lineEdit_external_pressure : QLineEdit
+        self.lineEdit_internal_pressure : QLineEdit 
+
+        # QRadioButton
+        self.radioButton_all_lines : QRadioButton
+        self.radioButton_selected_lines : QRadioButton
+        self.radioButton_selected_elements : QRadioButton
+
+        # QPushButton
+        self.pushButton_confirm : QPushButton
+        self.pushButton_reset : QPushButton
+        self.pushButton_close : QPushButton
+
+        self.pushButton_get_information_elem : QPushButton
+        self.pushButton_get_information_line : QPushButton
+
+        self.pushButton_remove_elem : QPushButton
+        self.pushButton_remove_line : QPushButton
+
+        # QTabWidget
+        self.tabWidget_stress_stiffening : QTabWidget
+
+        # QTreeWidget
+        self.treeWidget_stress_stiffening_elements : QTreeWidget
+        self.treeWidget_stress_stiffening_lines : QTreeWidget
+
+    def _create_connections(self):
+        #
+        self.pushButton_remove_elem.clicked.connect(self.remove_elem_group)
+        self.pushButton_remove_line.clicked.connect(self.remove_line_group)
+        self.pushButton_get_information_elem.clicked.connect(self.get_information_elem)
+        self.pushButton_get_information_line.clicked.connect(self.get_information_line)
+        self.pushButton_confirm.clicked.connect(self.press_confirm)
+        self.pushButton_reset.clicked.connect(self.check_reset_all)
+        self.pushButton_close.clicked.connect(self.close)
+        #
         self.radioButton_all_lines.toggled.connect(self.radioButtonEvent)
         self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
         self.radioButton_selected_elements.toggled.connect(self.radioButtonEvent)
-
-        self.flagAll = self.radioButton_all_lines.isChecked()
-        self.flagEntity = self.radioButton_selected_lines.isChecked()
-        self.flagElements = self.radioButton_selected_elements.isChecked()
-
-        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
-        self.lineEdit_selected_ID.setEnabled(True)
-
-        self.lineEdit_external_pressure = self.findChild(QLineEdit, 'lineEdit_external_pressure')
-        self.lineEdit_internal_pressure = self.findChild(QLineEdit, 'lineEdit_internal_pressure')   
-
-        self.treeWidget_stress_stiffening_elements = self.findChild(QTreeWidget, 'treeWidget_stress_stiffening_elements')
-        self.treeWidget_stress_stiffening_elements.setColumnWidth(0, 100)
+        #
+        self.tabWidget_stress_stiffening.currentChanged.connect(self.tab_event_callback)
+        #
         self.treeWidget_stress_stiffening_elements.itemClicked.connect(self.on_click_item_elem)
         self.treeWidget_stress_stiffening_elements.itemDoubleClicked.connect(self.on_doubleclick_item_elem)
-        self.treeWidget_stress_stiffening_elements.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_stress_stiffening_elements.headerItem().setTextAlignment(1, Qt.AlignCenter)
-
-        self.treeWidget_stress_stiffening_lines = self.findChild(QTreeWidget, 'treeWidget_stress_stiffening_lines')
-        self.treeWidget_stress_stiffening_lines.setColumnWidth(0, 100)
         self.treeWidget_stress_stiffening_lines.itemClicked.connect(self.on_click_item_line)
         self.treeWidget_stress_stiffening_lines.itemDoubleClicked.connect(self.on_doubleclick_item_line)
-        self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
-
-        self.tabWidget_stress_stiffening = self.findChild(QTabWidget, 'tabWidget_stress_stiffening')
-        self.tabWidget_stress_stiffening.currentChanged.connect(self.tabEvent_)
-        self.currentTab_ = self.tabWidget_stress_stiffening.currentIndex()
-
-        self.pushButton_remove_elem = self.findChild(QPushButton, 'pushButton_remove_elem')
-        self.pushButton_remove_elem.clicked.connect(self.remove_elem_group)
-        self.pushButton_remove_line = self.findChild(QPushButton, 'pushButton_remove_line')
-        self.pushButton_remove_line.clicked.connect(self.remove_line_group)
-        self.pushButton_get_information_elem = self.findChild(QPushButton, 'pushButton_get_information_elem')
-        self.pushButton_get_information_elem.clicked.connect(self.get_information_elem)
-        self.pushButton_get_information_line = self.findChild(QPushButton, 'pushButton_get_information_line')
-        self.pushButton_get_information_line.clicked.connect(self.get_information_line)
-
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')  
-        self.pushButton_confirm.clicked.connect(self.press_confirm)
-        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset') 
-        self.pushButton_reset.clicked.connect(self.check_reset_all)
-
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close') 
-        self.pushButton_close.clicked.connect(self.force_to_close)
-
-        self.update()
-        self.update_info()
-        self.update_buttons_()
-        self.tabEvent_()
-        self.exec()
 
     def force_to_close(self):
         self.close()
 
-    def update_buttons_(self):
+    def _config_widgets(self):
+
         self.pushButton_get_information_elem.setDisabled(True)
         self.pushButton_get_information_line.setDisabled(True)
         self.pushButton_remove_elem.setDisabled(True)
         self.pushButton_remove_line.setDisabled(True)
 
+        self.treeWidget_stress_stiffening_elements.setColumnWidth(0, 100)
+        self.treeWidget_stress_stiffening_elements.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_stress_stiffening_elements.headerItem().setTextAlignment(1, Qt.AlignCenter)
+
+        self.treeWidget_stress_stiffening_lines.setColumnWidth(0, 100)
+        self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
+
     def update_info(self):
         self.load_lines_info()
         self.load_elements_info()
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+        if len(self.preprocessor.dict_elements_with_B2PX_rotation_decoupling) == 0:
+            self.tabWidget_stress_stiffening.setCurrentIndex(0)
+            self.tabWidget_stress_stiffening.setTabVisible(1, False)
+        else:
+            self.tabWidget_stress_stiffening.setTabVisible(1, True)
 
     def update(self):
 
@@ -147,19 +177,20 @@ class StressStiffeningInput(QDialog):
                 self.lineEdit_external_pressure.setText(str(pressures[0]))
                 self.lineEdit_internal_pressure.setText(str(pressures[1]))
 
-    def tabEvent_(self):
-        self.currentTab_ = self.tabWidget_stress_stiffening.currentIndex()
-        if self.currentTab_ == 0:
-            if self.flagElements:
+    def tab_event_callback(self):
+        tab_index = self.tabWidget_stress_stiffening.currentIndex()
+        selection_index  = self.comboBox_selection.currentIndex()
+        if tab_index == 0:
+            if selection_index == 2:
                 text = "Elements IDs:"
                 self.write_ids(self.elements_id)
-            elif self.flagEntity:
+            elif selection_index == 1:
                 text = "Lines IDs:"
                 self.write_ids(self.lines_id)
-            elif self.flagAll:
+            elif selection_index == 0:
                 text = "Lines IDs:"
                 self.lineEdit_selected_ID.setText("All lines")
-        elif self.currentTab_ == 1:
+        elif tab_index == 1:
             text = "Group:"
             self.lineEdit_selected_ID.setText("")
             self.lineEdit_selected_ID.setDisabled(True)
@@ -169,19 +200,15 @@ class StressStiffeningInput(QDialog):
             self.pushButton_get_information_elem.setDisabled(True)   
         self.lineEdit_id_labels.setText(text)
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.press_confirm()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all_lines.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.flagElements = self.radioButton_selected_elements.isChecked()
         self.lineEdit_selected_ID.setEnabled(True)
 
-        if self.currentTab_ == 0:
+        tab_index = self.tabWidget_stress_stiffening.currentIndex()
+
+        if tab_index == 0:
             if self.radioButton_selected_elements.isChecked():
                 text = "Elements IDs:"
                 self.write_ids(self.elements_id)
@@ -192,7 +219,7 @@ class StressStiffeningInput(QDialog):
                 text = "Lines IDs:"
                 self.lineEdit_selected_ID.setText("All lines")
                 self.lineEdit_selected_ID.setEnabled(False)
-        elif self.currentTab_ == 1: 
+        elif tab_index == 1: 
             text = "Group:"
             self.lineEdit_selected_ID.setText("")
         self.lineEdit_id_labels.setText(text)
@@ -213,13 +240,10 @@ class StressStiffeningInput(QDialog):
             new = QTreeWidgetItem(["Enabled lines" , str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_stress_stiffening_lines.addTopLevelItem(new)   
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_ID.setText(text)
+            self.treeWidget_stress_stiffening_lines.addTopLevelItem(new)
+            self.tabWidget_stress_stiffening.setTabVisible(1, False)
+        else:
+            self.tabWidget_stress_stiffening.setTabVisible(1, False)
 
     def on_click_item_elem(self, item):
         self.lineEdit_selected_ID.setText(item.text(0))
@@ -243,13 +267,11 @@ class StressStiffeningInput(QDialog):
 
     def on_doubleclick_item_elem(self, item):
         self.lineEdit_selected_ID.setText(item.text(0))
-        if self.currentTab_ == 1:
-            self.remove_elem_group()
+        self.get_information_elem(item)
 
     def on_doubleclick_item_line(self, item):
         self.lineEdit_selected_ID.setText(item.text(1))
-        if self.currentTab_ == 1:
-            self.remove_line_group()
+        self.get_information_line(item)
 
     def get_list_typed_entries(self):
         tokens = self.lineEdit_selected_ID.text().strip().split(',')
@@ -392,7 +414,7 @@ class StressStiffeningInput(QDialog):
             self.project.set_stress_stiffening_by_elements(item[1], item[0], key, remove=True)
         self.preprocessor.stress_stiffening_enabled = False
         self.update_info()
-        self.update_buttons_()
+        self._config_widgets()
         self.lineEdit_selected_ID.setText("")
         
         title = "STRESS STIFFENING REMOVAL"
@@ -424,7 +446,7 @@ class StressStiffeningInput(QDialog):
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")
 
-    def get_information_elem(self):
+    def get_information_elem(self, item):
         try:
             selected_key = self.dictKey_label.format(self.lineEdit_selected_ID.text())
             if "Selection-" in selected_key:
@@ -440,7 +462,7 @@ class StressStiffeningInput(QDialog):
             message = str(e)
             PrintMessageInput([window_title_1, title, message])
 
-    def get_information_line(self):
+    def get_information_line(self, item):
         try:
             if self.lineEdit_selected_ID.text() != "":
                 list_lines = self.get_list_typed_entries()          
@@ -457,99 +479,111 @@ class StressStiffeningInput(QDialog):
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
-class GetInformationOfGroup(QDialog):
-    def __init__(self, project, values, label, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        if label == "Elements":
-            uic.loadUi(UI_DIR / "model/info/getGroupInformationInput.ui", self)
-            self.flagElements = True
-            self.flagLines = False
-
-        elif label == "Lines":
-            uic.loadUi(UI_DIR / "model/info/getGroupInformationAndRemoveInput.ui", self)
-            self.flagLines = True
-            self.flagElements = False
-            self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-            self.lineEdit_selected_ID.setDisabled(True)
-            self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
-            self.lineEdit_id_labels.setText("Line ID")
-            self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
-            self.pushButton_remove.clicked.connect(self.check_remove)
-            self.lines_removed = False
-
-        self.label = label
-        self.input_values = values
-        self.project = project
-
-        self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-        self.treeWidget_group_info.headerItem().setText(0, self.label)
-        self.treeWidget_group_info.headerItem().setText(1, "Parameters [Tout, Tin, Pout, Pin]")
-        self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
-        
-        self.treeWidget_group_info.setColumnWidth(0, 80)
-        self.treeWidget_group_info.setColumnWidth(1, 140)
-        self.treeWidget_group_info.itemClicked.connect(self.on_click_item_)
-
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        self.pushButton_close.clicked.connect(self.force_to_close)
-        self.update_dict()
-        self.load_info()
-        self.exec()
+    def write_ids(self, list_ids):
+        text = ""
+        for _id in list_ids:
+            text += "{}, ".format(_id)
+        self.lineEdit_selected_ID.setText(text)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.press_confirm()
+        elif event.key() == Qt.Key_Escape:
             self.close()
-        elif event.key() == Qt.Key_Delete:
-            self.check_remove()
 
-    def update_dict(self):
-        self.dict_lines_parameters = self.preprocessor.dict_lines_with_stress_stiffening
-        self.dict_elements_parameters = self.preprocessor.group_elements_with_stress_stiffening
+# class GetInformationOfGroup(QDialog):
+#     def __init__(self, project, values, label, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
 
-    def on_click_item_(self, item):
-        text = item.text(0)
-        self.lineEdit_selected_ID.setText(text)
-        self.lineEdit_selected_ID.setDisabled(True)
-        self.pushButton_remove.setDisabled(False)
+#         icons_path = str(Path('data/icons/pulse.png'))
+#         self.icon = QIcon(icons_path)
+#         self.setWindowIcon(self.icon)
 
-    def check_remove(self):
-        if self.flagLines:
-            if self.lineEdit_selected_ID.text() != "":
-                line = int(self.lineEdit_selected_ID.text())
-                if line in self.input_values:
-                    self.input_values.remove(line)
-                parameters = self.dict_lines_parameters[line]
-                self.project.set_stress_stiffening_by_line(line, parameters, remove=True)
-                self.update_dict()
-                self.load_info()
-                self.lines_removed = True
-        self.lineEdit_selected_ID.setText("")
+#         self.setWindowFlags(Qt.WindowStaysOnTopHint)
+#         self.setWindowModality(Qt.WindowModal)
 
-    def load_info(self):
-        self.treeWidget_group_info.clear()
-        if self.label == "Lines":       
-            for key, parameters in self.dict_lines_parameters.items():
-                new = QTreeWidgetItem([str(key), str(parameters)])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_group_info.addTopLevelItem(new)
-        elif self.label == "Elements":
-            data = self.input_values
-            elements = list(np.sort(data[1]))
-            for element in elements:
-                new = QTreeWidgetItem([str(element), str(data[0])])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_group_info.addTopLevelItem(new)                
+#         if label == "Elements":
+#             uic.loadUi(UI_DIR / "model/info/getGroupInformationInput.ui", self)
+#             self.flagElements = True
+#             self.flagLines = False
 
-    def force_to_close(self):
-        self.close()
+#         elif label == "Lines":
+#             uic.loadUi(UI_DIR / "model/info/getGroupInformationAndRemoveInput.ui", self)
+#             self.flagLines = True
+#             self.flagElements = False
+#             self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
+#             self.lineEdit_selected_ID.setDisabled(True)
+#             self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
+#             self.lineEdit_id_labels.setText("Line ID")
+#             self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
+#             self.pushButton_remove.clicked.connect(self.check_remove)
+#             self.lines_removed = False
+
+#         self.label = label
+#         self.input_values = values
+#         self.project = project
+
+#         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
+#         self.treeWidget_group_info.headerItem().setText(0, self.label)
+#         self.treeWidget_group_info.headerItem().setText(1, "Parameters [Tout, Tin, Pout, Pin]")
+#         self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
+#         self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        
+#         self.treeWidget_group_info.setColumnWidth(0, 80)
+#         self.treeWidget_group_info.setColumnWidth(1, 140)
+#         self.treeWidget_group_info.itemClicked.connect(self.on_click_item_)
+
+#         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
+#         self.pushButton_close.clicked.connect(self.force_to_close)
+#         self.update_dict()
+#         self.load_info()
+#         self.exec()
+
+#     def keyPressEvent(self, event):
+#         if event.key() == Qt.Key_Escape:
+#             self.close()
+#         elif event.key() == Qt.Key_Delete:
+#             self.check_remove()
+
+#     def update_dict(self):
+#         self.dict_lines_parameters = self.preprocessor.dict_lines_with_stress_stiffening
+#         self.dict_elements_parameters = self.preprocessor.group_elements_with_stress_stiffening
+
+#     def on_click_item_(self, item):
+#         text = item.text(0)
+#         self.lineEdit_selected_ID.setText(text)
+#         self.lineEdit_selected_ID.setDisabled(True)
+#         self.pushButton_remove.setDisabled(False)
+
+#     def check_remove(self):
+#         if self.flagLines:
+#             if self.lineEdit_selected_ID.text() != "":
+#                 line = int(self.lineEdit_selected_ID.text())
+#                 if line in self.input_values:
+#                     self.input_values.remove(line)
+#                 parameters = self.dict_lines_parameters[line]
+#                 self.project.set_stress_stiffening_by_line(line, parameters, remove=True)
+#                 self.update_dict()
+#                 self.load_info()
+#                 self.lines_removed = True
+#         self.lineEdit_selected_ID.setText("")
+
+#     def load_info(self):
+#         self.treeWidget_group_info.clear()
+#         if self.label == "Lines":       
+#             for key, parameters in self.dict_lines_parameters.items():
+#                 new = QTreeWidgetItem([str(key), str(parameters)])
+#                 new.setTextAlignment(0, Qt.AlignCenter)
+#                 new.setTextAlignment(1, Qt.AlignCenter)
+#                 self.treeWidget_group_info.addTopLevelItem(new)
+#         elif self.label == "Elements":
+#             data = self.input_values
+#             elements = list(np.sort(data[1]))
+#             for element in elements:
+#                 new = QTreeWidgetItem([str(element), str(data[0])])
+#                 new.setTextAlignment(0, Qt.AlignCenter)
+#                 new.setTextAlignment(1, Qt.AlignCenter)
+#                 self.treeWidget_group_info.addTopLevelItem(new)                
+
+#     def force_to_close(self):
+#         self.close()

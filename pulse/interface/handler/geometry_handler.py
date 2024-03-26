@@ -46,20 +46,20 @@ class GeometryHandler:
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        
+
         pipeline = app().geometry_toolbox.pipeline
 
         for structure in pipeline.structures: 
 
             if isinstance(structure, Pipe):
-                
+
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
-                
+
                 if self.length_unit == "meter":
                     start_coords = m_to_mm(_start_coords)
                     end_coords = m_to_mm(_end_coords)
-                
+
                 elif self.length_unit == "inch":
                     start_coords = in_to_mm(_start_coords)
                     end_coords = in_to_mm(_end_coords)

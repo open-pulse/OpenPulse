@@ -1104,13 +1104,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                <property name="minimumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>28</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>28</height>
                 </size>
                </property>
                <property name="font">
@@ -1221,13 +1221,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                <property name="minimumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>28</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>28</height>
                 </size>
                </property>
                <property name="font">
@@ -2151,13 +2151,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               <widget class="QPushButton" name="pushButton_reset">
                <property name="minimumSize">
                 <size>
-                 <width>90</width>
+                 <width>80</width>
                  <height>28</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>90</width>
+                 <width>80</width>
                  <height>28</height>
                 </size>
                </property>
