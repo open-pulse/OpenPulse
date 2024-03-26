@@ -8,6 +8,7 @@ import os
 import numpy as np
 
 from pulse import UI_DIR
+from pulse.interface.formatters.icons import *
 
 class AcousticModelInfo(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -15,12 +16,8 @@ class AcousticModelInfo(QDialog):
 
         uic.loadUi(UI_DIR / "model/info/acoustic_model_info.ui", self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        #icons_path = str(Path('data/icons/pulse.png'))
+        #self.icon = QIcon(icons_path)
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -56,7 +53,17 @@ class AcousticModelInfo(QDialog):
 
         self.load_nodes_info()
         self.project_info()
+        self._load_icons()
+        self._config_window()
         self.exec()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:
