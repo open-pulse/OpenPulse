@@ -80,6 +80,7 @@ def symmetrize(a):
         Symmetric matrix.    
     """
     return a + a.T - np.diag(a.diagonal())
+
 class StructuralElement:
     """A structural element.
     This class creates a structural element from input data.

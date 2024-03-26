@@ -1246,8 +1246,8 @@ class ProjectFile:
             config[section]['list of elements'] = str(elements)
         else:
             config[section] =   { 'length correction type': str(_type),
-                                  'list of elements': str(elements) 
-                                  }
+                                  'list of elements': str(elements) }
+
         self.write_data_in_file(self._element_info_path, config)
 
     def add_perforated_plate_in_file(self, elements, perforated_plate, section): 
@@ -1312,7 +1312,10 @@ class ProjectFile:
                                     'list of nodes': str(nodes),
                                     'rotation dofs mask': str(rotations_maks) }
 
-        self.write_data_in_file(self._element_info_path, config)
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
 
     def modify_stress_stiffnening_line_in_file(self, lines, pressures, remove=False):
         
@@ -1333,28 +1336,24 @@ class ProjectFile:
         self.write_data_in_file(self._entity_path, config)
 
     def modify_stress_stiffnening_element_in_file(self, elements, parameters, section, remove=False):
-        
+
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
         if remove:
             config.remove_section(section)
         else:
-            config[section]['stress stiffening parameters'] = str(parameters)
-            config[section]['list of elements'] = str(elements)
-  
-        self.write_data_in_file(self._element_info_path, config)
-
-    def remove_all_stress_stiffnening_in_file_by_group_elements(self): 
-          
-        config = configparser.ConfigParser()
-        config.read(self._element_info_path)
-
-        for section in list(config.sections()):
-            if "STRESS STIFFENING" in section:
-                config.remove_section(section)
-
-        self.write_data_in_file(self._element_info_path, config)
+            if section in list(config.sections()):
+                config[section]['stress stiffening parameters'] = str(parameters)
+                config[section]['list of elements'] = str(elements)
+            else:
+                config[section] = { 'stress stiffening parameters' : str(parameters),
+                                    'list of elements': str(elements) }
+                
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
 
     def modify_capped_end_elements_in_file(self, elements, value, section): 
         
@@ -1369,8 +1368,11 @@ class ProjectFile:
         else:
             if section in list(config.sections()):    
                 config.remove_section(section)
-               
-        self.write_data_in_file(self._element_info_path, config)
+
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
 
     def modify_capped_end_lines_in_file(self, lines, value):
 
@@ -2298,7 +2300,6 @@ class ProjectFile:
                     config.remove_section(section) 
 
         self.write_data_in_file(self._element_info_path, config)
-
 
     def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
         _line_id = str(line_id)

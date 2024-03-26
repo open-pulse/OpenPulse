@@ -19,7 +19,7 @@ from pulse.interface.user_input.model.setup.structural.nodal_loads_input import 
 from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
 from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
 from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
-from pulse.interface.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
+from pulse.interface.user_input.model.setup.structural.stress_stiffening_input import StressStiffeningInput
 from pulse.interface.user_input.model.setup.structural.capped_end_input import CappedEndInput
 from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
 from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
@@ -199,8 +199,9 @@ class InputUi:
         read = self.processInput(StructuralElementTypeInput)
         if read.complete:
             if read.pipe_to_beam or read.beam_to_pipe:         
-                self.set_cross_section( pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe, 
-                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section )
+                self.set_cross_section( pipe_to_beam = read.pipe_to_beam, 
+                                        beam_to_pipe = read.beam_to_pipe, 
+                                        lines_to_update_cross_section = read.list_lines_to_update_cross_section )
 
     def plot_cross_section(self):
         self.processInput(PlotCrossSectionInput)

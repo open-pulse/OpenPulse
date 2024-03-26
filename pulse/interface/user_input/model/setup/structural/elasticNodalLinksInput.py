@@ -924,7 +924,7 @@ class ElasticNodalLinksInput(QDialog):
                 
                 self.ext_key = key
                 self.remove_selected_link_damping()
-            title = "Reseting process complete"
+            title = "Resetting process complete"
             message = "All elastic nodal links have been removed from the model."
             PrintMessageInput([window_title_2, title, message])
             self.ext_key = None

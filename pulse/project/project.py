@@ -1188,11 +1188,7 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         
-        if self.file.get_import_type() in [0,1]:
-            self.preprocessor.set_stress_stiffening_by_line(lines, parameters, remove=remove)
-        elif self.file.get_import_type() == 2:
-            self.preprocessor.set_stress_stiffening_by_elements('all', parameters)
-          
+        self.preprocessor.set_stress_stiffening_by_line(lines, parameters, remove=remove)          
         if remove:
             self._set_stress_stiffening_to_selected_lines(lines, [None, None, None, None])
             self.file.modify_stress_stiffnening_line_in_file(lines, [], remove=True)
