@@ -369,9 +369,9 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                     if vector[1] < 0:
                         rot[0] += 180
                     factor_x = (element.valve_parameters["valve_length"]/0.247)/self.scaleFactor
-                    factor_yz = (element.valve_parameters["valve_section_parameters"]["outer_diameter"]/0.130)/self.scaleFactor
+                    factor_yz = (element.valve_parameters["valve_section_parameters"][0]/0.130)/self.scaleFactor
                     # factor_yz = 1
                     scl = (factor_x, factor_yz, factor_yz)
                     symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
-        return symbols  
+        return symbols

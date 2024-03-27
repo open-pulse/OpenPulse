@@ -110,6 +110,8 @@ class StressStiffeningInput(QDialog):
         self.treeWidget_stress_stiffening_lines.setColumnWidth(0, 100)
         self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        #
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def selection_type_callback(self):
 

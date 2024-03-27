@@ -2184,6 +2184,9 @@ class Preprocessor:
         #                 self.group_elements_with_valves.pop(key)
         #                 break
 
+        if not isinstance(list_elements, list):
+            list_elements = list(list_elements)
+
         list_lines = []
         for element_id in list_elements:
             line_id = self.elements_to_line[element_id]
@@ -2216,7 +2219,7 @@ class Preprocessor:
                     self.number_valves_by_lines[line_id] += 1
                 else:
                     self.number_valves_by_lines[line_id] = 1
-            
+
             for element in slicer(self.structural_elements, list_elements):
                 element.valve_parameters = parameters
                 element.valve_elements = parameters["valve_elements"]
@@ -2231,15 +2234,19 @@ class Preprocessor:
                     element.flange_parameters = parameters["flange_section_parameters"]
                     element.number_flange_elements = parameters["number_flange_elements"]
                     element.flange_elements = parameters["flange_elements"]
-                    
+
                 if element not in self.elements_with_valve:
                     self.elements_with_valve.append(element)
-        
-            if aux_line_id is None:
-                size = len(self.group_elements_with_valves)
-                key = f"group-{size+1}"
-                self.group_elements_with_valves[key] = [list_elements, parameters]
-            
+
+            # if aux_line_id is None:
+            size = 1
+            key = f"group-1"
+            while key in list(self.group_elements_with_valves.keys()):
+                size += 1
+                key = f"group-{size}"
+
+            self.group_elements_with_valves[key] = [list_elements, parameters]
+
     def add_valve_by_line(self, lines, parameters, remove=False, reset_cross=True):
         """
         This method .
@@ -2257,7 +2264,7 @@ class Preprocessor:
             Default is False.
         """
         if isinstance(lines, int):
-            lines = [lines] 
+            lines = [lines]
         for line_id in lines:
             for elements in slicer(self.line_to_elements, line_id):
                 self.add_valve_by_elements(elements, parameters, remove=remove, aux_line_id=line_id, reset_cross=reset_cross)

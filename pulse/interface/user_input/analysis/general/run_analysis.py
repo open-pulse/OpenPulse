@@ -23,13 +23,14 @@ class RunAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "messages/solution_log.ui", self)
+        ui_path = UI_DIR / "messages/solution_log.ui"
+        uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
 
         self._load_icons()
         self._config_window()
-        self._reset_variables()
+        self._initialize()
         self._load_analysis_info()
         self._define_qt_variables()
         self._create_connections()
@@ -78,7 +79,7 @@ class RunAnalysisInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.solution_acoustic = None
         self.solution_structural = None
         self.convergence_dataLog = None

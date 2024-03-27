@@ -19,8 +19,9 @@ class SetInertialLoad(QDialog):
         ui_path = UI_DIR / "model/setup/structural/inertial_load_input.ui"
         uic.loadUi(ui_path, self)
 
-        self.main_window = app().main_window
-        self.project = self.main_window.project
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
+        self.opv.setInputObject(self)
         
         self._initialize()
         self._load_icons()

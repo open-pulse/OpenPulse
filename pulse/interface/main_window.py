@@ -581,7 +581,7 @@ class MainWindow(QMainWindow):
         self.input_widget.set_nodal_loads()
 
     def action_add_mass_spring_damper_callback(self):
-        self.input_widget.addMassSpringDamper()
+        self.input_widget.add_mass_spring_damper()
 
     def action_set_capped_end_callback(self):
         self.input_widget.set_capped_end()
@@ -623,7 +623,7 @@ class MainWindow(QMainWindow):
         self.input_widget.check_beam_criteria()
 
     def action_select_analysis_type_callback(self):
-        self.input_widget.analysisTypeInput()
+        self.input_widget.analysis_type_input()
 
     def action_analysis_setup_callback(self):
         self.input_widget.analysis_setup()
@@ -751,7 +751,7 @@ class MainWindow(QMainWindow):
             sys.exit()
         else:
             event.ignore()
-            
+
     # def _createStatusBar(self):
     #     self.status_bar = QStatusBar()
     #     self.setStatusBar(self.status_bar)

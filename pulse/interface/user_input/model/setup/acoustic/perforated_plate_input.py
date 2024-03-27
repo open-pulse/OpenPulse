@@ -82,7 +82,6 @@ class PerforatedPlateInput(QDialog):
         self.acoustic_elements = self.project.preprocessor.acoustic_elements
         self.structural_elements = self.project.preprocessor.structural_elements
         self.group_elements_with_perforated_plates = self.project.preprocessor.group_elements_with_perforated_plate
-        self.group_elements_with_valves = self.preprocessor.group_elements_with_valves
         self.elements_id = self.opv.getListPickedElements()
 
         self.elements_info_path = self.project.file._element_info_path
@@ -1004,7 +1003,7 @@ class PerforatedPlateInput(QDialog):
 
     def check_if_is_there_a_valve_and_remove_it(self, perforated_plate_elements):
         _update_renderer = False
-        temp_dict = self.group_elements_with_valves.copy()
+        temp_dict = self.preprocessor.group_elements_with_valves.copy()
         for key, data in temp_dict.items():
             [valve_elements, valve_parameters] = data
             for element_id in perforated_plate_elements:
@@ -1041,7 +1040,7 @@ class PerforatedPlateInput(QDialog):
     def actions_to_finalize(self):
         self.opv.updateRendererMesh()
         self.close()
-       
+
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
         super().__init__(*args, **kwargs)

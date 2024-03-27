@@ -1,6 +1,5 @@
 from pulse.tools.utils import *
 #
-from pulse.project.project_file import ProjectFile
 from pulse.project.load_project_data import LoadProjectData
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.preprocessor import Preprocessor
@@ -93,11 +92,11 @@ class Project:
             self.file.load(project_file_path)
 
             if self.file.check_if_entity_file_is_active():
-                self.process_geometry_and_mesh()                 
+                self.process_geometry_and_mesh()
                 return True
             else:
                 return False
-            
+
         except Exception as log_error:
             title = "Error while processing initial load project actions"
             message = str(log_error)
@@ -139,7 +138,7 @@ class Project:
         if self.file.check_if_entity_file_is_active():
             self.process_geometry_and_mesh()
             self.load_project_files()
-    
+
     def process_geometry_and_mesh(self):
         # t0 = time()
         self.preprocessor.generate( import_type = self.file.get_import_type(),
@@ -150,28 +149,6 @@ class Project:
         # dt = time()-t0
         # print(f"process_geometry_and_mesh: {dt} [s]")
 
-    def remove_selected_lines_from_geometry(self, lines):
-
-        title = "Adittional confirmation required to proceed"
-        message = "Do you really want to remove the selected lines and edit current geometry file?\n\n\n"
-        message += "Press the 'Proceed' button to proceed with line removal otherwise press 'Cancel' or 'Close' buttons to abort the current operation."
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
-        if read._doNotRun:
-            return False
-        
-        if read._continue:
-            geometry_path = self.file._geometry_path
-            self.preprocessor.remove_selected_lines_and_process_geometry(geometry_path, lines)
-            # self.file.modify_project_attributes(geometry_filename=new_geometry_filename)
-            if os.path.exists(self.file._entity_path):
-                os.remove(self.file._entity_path)
-            self.initial_load_project_actions(self.file.project_ini_file_path)
-            self.load_project_files()
-            self.preprocessor.check_disconnected_lines(self.file._element_size)
-            return True
-        
     def load_project_files(self):
         self.load_structural_bc_file()
         self.load_acoustic_bc_file()
@@ -318,7 +295,7 @@ class Project:
 
         label_etypes = ['pipe_1', 'valve']
         indexes = [0, 1]
-        
+
         dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
         map_cross_section_to_elements = defaultdict(list)
@@ -334,6 +311,7 @@ class Project:
             e_type  = element.element_type
             if e_type in ['beam_1', 'expansion_joint']:
                 continue
+
             elif e_type is None:
                 e_type = 'pipe_1'
                 self.acoustic_analysis = True
@@ -356,7 +334,7 @@ class Project:
             
             if self.preprocessor.stop_processing:
                 return
-       
+
         for key, elements in map_cross_section_to_elements.items():
 
             cross_strings = key[1:-1].split(',')
@@ -365,19 +343,12 @@ class Project:
 
             section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[6], vals[7]]
 
-            # section_parameters = {  "outer_diameter" : vals[0],
-            #                         "thickness" : vals[1], 
-            #                         "offset_y" : vals[2], 
-            #                         "offset_z" : vals[3], 
-            #                         "insulation_thickness" : vals[6], 
-            #                         "insulation_density" : vals[7] }
-    
             if el_type == 'pipe_1':
                 pipe_section_info = {   "section_type_label" : "Pipe section",
                                         "section_parameters" : section_parameters   }   
                 cross_section = CrossSection(pipe_section_info = pipe_section_info)                             
 
-            elif el_type in ['valve']:
+            elif el_type == 'valve':
                 valve_section_info = {  "section_type_label" : "Valve section",
                                         "section_parameters" : section_parameters,  
                                         "diameters_to_plot" : [None, None] }
@@ -438,7 +409,7 @@ class Project:
 
                 if key_string not in list(dict_multiple_cross_sections.keys()):
                     count_sections += 1
-                
+
                 dict_multiple_cross_sections[key_string].append(element_id)
 
         self.number_sections_by_line[line_id] = count_sections
@@ -454,7 +425,7 @@ class Project:
                     if line_id in self.number_sections_by_line.keys():
                         self.number_sections_by_line.pop(line_id)
                     single_cross = True 
-        
+
         return dict_multiple_cross_sections, single_cross   
 
     def load_structural_bc_file(self):

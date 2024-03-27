@@ -1142,7 +1142,7 @@ class ExpansionJointInput(QDialog):
         line_id = int(self.lineEdit_selected_info.text())
         
         title = "Removal of the expansion joint"
-        message = "Are you really sure you want to remove the expansion joint \n" 
+        message = "Would you like to remove the expansion joint \n" 
         message += f"added to the line {line_id}?\n\n\n"
         message += "Press the Continue button to proceed with removal or press \n"
         message += "Cancel or Close buttons to abort the current operation."
@@ -1173,7 +1173,7 @@ class ExpansionJointInput(QDialog):
 
         selected_group = self.lineEdit_selected_info.text()
         title = "Removal of the expansion joint"
-        message = "Are you really sure you want to remove the expansion joint\n" 
+        message = "Would you like to remove the expansion joint\n" 
         message += f"added to the following group ?\n\n"
         message += f"{selected_group}\n"
         message += "\n\nPress the Continue button to proceed with removal or press \n"
@@ -1229,7 +1229,7 @@ class ExpansionJointInput(QDialog):
     def reset_all(self):
 
         title = "Remove all expansion joints added to the model"
-        message = "Are you really sure you want to remove all expansion joints from the model?\n\n\n"
+        message = "Would you like to remove all expansion joints from the model?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)

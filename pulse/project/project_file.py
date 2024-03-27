@@ -1,8 +1,8 @@
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.material import Material
+# from pulse.preprocessing.fluid import Fluid
+# from pulse.preprocessing.material import Material
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
-from pulse.preprocessing.perforated_plate import PerforatedPlate
+# from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.libraries.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
@@ -369,11 +369,9 @@ class ProjectFile:
                     if import_type == 0:
                         return True
                     else:
-                        keys_to_check = list() 
-                        keys_to_check.append("start point")
-                        keys_to_check.append("end point")
-                        # keys_to_check.append("section parameters")
-                        # keys_to_check.append("structural element type")
+                        if "-" in tag:
+                            continue
+                        keys_to_check = ["start point", "end point"]
                         for key in keys_to_check:
                             if key not in config[tag].keys():
                                 return False
@@ -684,8 +682,6 @@ class ProjectFile:
 
             for entity in sections:
 
-                outer_diameter = ""
-                thickness = ""
                 line_prefix = ""
                 list_elements = []
 
@@ -703,38 +699,12 @@ class ProjectFile:
                     section_type_label = "Pipe section"
 
                 if structural_element_type == "pipe_1":
-
+                    
+                    section_parameters = list()
                     if 'section parameters' in keys:
-
                         str_section_parameters = section['section parameters']
                         section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-                    else:
                         
-                        section_parameters = list()
-                        
-                        if 'outer diameter' in keys:
-                            outer_diameter = float(section['outer diameter'])
-                            section_parameters.append(outer_diameter)
-                        
-                        if 'thickness' in keys:
-                            thickness = float(section['thickness'])
-                            section_parameters.append(thickness)
-                        
-                        if 'offset [e_y, e_z]' in keys: 
-                            offset = section['offset [e_y, e_z]']
-                            offset_y, offset_z = get_offset_from_string(offset)
-                            section_parameters.append(offset_y)
-                            section_parameters.append(offset_z)
-                        
-                        if 'insulation thickness' in keys:
-                            insulation_thickness = float(section['insulation thickness'])
-                            section_parameters.append(insulation_thickness)
-                        
-                        if 'insulation density' in keys:
-                            insulation_density = float(section['insulation density'])
-                            section_parameters.append(insulation_density)
-
                     if len(section_parameters) == 10:
                         if line_prefix not in variable_section_line_ids:
                             variable_section_line_ids.append(entity)
@@ -822,13 +792,7 @@ class ProjectFile:
                 if section_prefix in section:
                     config.remove_section(section)
         
-            str_keys = [    'outer diameter', 
-                            'thickness', 
-                            'offset [e_y, e_z]', 
-                            'insulation thickness', 
-                            'insulation density',
-                            'variable section parameters',
-                            'section type',
+            str_keys = [    'section type',
                             'section parameters',
                             'section properties',
                             'expansion joint parameters',
@@ -927,11 +891,6 @@ class ProjectFile:
         config.read(self._entity_path)
 
         str_keys = [    'structural element type',
-                        'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
                         'section type',
                         'section parameters',
                         'section properties',
@@ -953,17 +912,15 @@ class ProjectFile:
                                 
                 cross_strings = key[1:-1].split(',')
                 vals = [float(value) for value in cross_strings] 
+                section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]]
 
                 subkey += 1
                 key = str_line + "-" + str(subkey)
 
                 config[key] = { 'structural element type' : etype,
-                                'outer diameter': f'{vals[0]}',
-                                'thickness': f'{vals[1]}',
-                                'offset [e_y, e_z]': f'[{vals[2]}, {vals[3]}]',
-                                'insulation thickness': f'{vals[4]}',
-                                'insulation density': f'{vals[5]}',
-                                'list of elements': f'{elements}' }
+                                'section type' : 'Pipe section',
+                                'section parameters' : str(section_parameters),
+                                'list of elements' : str(elements) }
 
         self.write_data_in_file(self._entity_path, config)
 
@@ -999,13 +956,7 @@ class ProjectFile:
         config.read(self._entity_path)
         sections = config.sections()
 
-        list_keys = [   'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
-                        'variable section parameters',
-                        'section type',
+        list_keys = [   'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1033,22 +984,18 @@ class ProjectFile:
                 valve_mass = parameters["valve_mass"]
                 valve_center_coordinates = parameters["valve_center_coordinates"]
                 
-                valve_section_parameters = []
                 list_valve_elements = parameters["valve_elements"]
-                for value in parameters["valve_section_parameters"].values():
-                    valve_section_parameters.append(value)      
-
+                valve_section_parameters = parameters["valve_section_parameters"]  
                 valve_parameters = [valve_length, stiffening_factor, valve_mass]
+
                 config[str_line]['valve parameters'] = str(valve_parameters)
                 config[str_line]['valve center coordinates'] = str(list(valve_center_coordinates))
                 config[str_line]['valve section parameters'] = str(valve_section_parameters)
                 config[str_line]['list of elements'] = str(list_valve_elements)
                 
                 if "number_flange_elements" in parameters.keys():
-                    flange_parameters = []
+                    flange_parameters = parameters["flange_section_parameters"]
                     number_flange_elements = parameters["number_flange_elements"]
-                    for value in parameters["flange_section_parameters"].values():
-                        flange_parameters.append(value)  
                     config[str_line]['flange section parameters'] = str(flange_parameters)
                     config[str_line]['number of flange elements'] = str(number_flange_elements)
 
@@ -1064,13 +1011,7 @@ class ProjectFile:
         config.read(self._entity_path)
         sections = config.sections()
 
-        list_keys = [   'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
-                        'variable section parameters',
-                        'section type',
+        list_keys = [   'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1121,11 +1062,6 @@ class ProjectFile:
         sections = config_base.sections()
         
         str_keys = [    'structural element type',
-                        'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
                         'section type',
                         'section parameters',
                         'section properties',
@@ -1156,20 +1092,19 @@ class ProjectFile:
                 counter_1 += 1
                 section_key = f"{line_id}-{counter_1}"             
                 cross_strings = cross_key[1:-1].split(',')
+
                 vals = [float(value) for value in cross_strings] 
+                section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]]
                 
                 index_etype = int(vals[6])
                 if index_etype == 0:
                     etype = 'pipe_1'
-                
-                config[section_key] = { 'structural element type' : etype,
-                                        'outer diameter': f'{vals[0]}',
-                                        'thickness': f'{vals[1]}',
-                                        'offset [e_y, e_z]': f'[{vals[2]}, {vals[3]}]',
-                                        'insulation thickness': f'{vals[4]}',
-                                        'insulation density': f'{vals[5]}',
-                                        'list of elements': f'{elements}' }
             
+                config[section_key] = { 'structural element type' : etype,
+                                        'section type' : 'Pipe section',
+                                        'section parameters': str(section_parameters),
+                                        'list of elements': str(elements) }
+
             counter_2 = 0
             if update_by_cross:    
                 for section in sections:
@@ -1188,11 +1123,11 @@ class ProjectFile:
                     valve_elements = valve_data["valve_elements"]
                     valve_parameters = [valve_data["valve_length"], valve_data["stiffening_factor"], valve_data["valve_mass"]]
                     valve_center_coordinates = valve_data["valve_center_coordinates"]
-                    valve_section_parameters = list(valve_data["valve_section_parameters"].values())
+                    valve_section_parameters = list(valve_data["valve_section_parameters"])
 
                     if "flange_elements" in valve_data.keys():
                         number_flange_elements = valve_data["number_flange_elements"]
-                        flange_section_parameters = list(valve_data["flange_section_parameters"].values())
+                        flange_section_parameters = list(valve_data["flange_section_parameters"])
 
                     config[section_key] = { 'structural element type' : 'valve',
                                             'valve parameters' : f'{valve_parameters}',
@@ -1210,7 +1145,7 @@ class ProjectFile:
                             counter_3 += 1
                             section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
                             config[section_key] = config_base[section]
-            
+
             else:
 
                 for [exp_joint_parameters, list_elements, list_table_names] in map_expansion_joint_to_elements.values():
@@ -1281,8 +1216,11 @@ class ProjectFile:
                                   'dimensionless impedance' : f"[{dimensionless_impedance}]",
                                   'list of elements': str(elements) }
 
-        self.write_data_in_file(self._element_info_path, config)
-    
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
+
     def modify_B2PX_rotation_decoupling_in_file(self, 
                                                 elements = None, 
                                                 nodes = None, 
@@ -1504,6 +1442,9 @@ class ProjectFile:
         segment_build_data = dict()
 
         for section in config.sections():
+
+            if "-" in section:
+                continue
 
             tag = int(section)
             keys = config[section].keys()

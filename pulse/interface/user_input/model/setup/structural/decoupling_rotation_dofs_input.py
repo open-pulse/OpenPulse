@@ -1,16 +1,15 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QCheckBox, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QDialog, QCheckBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-
-import numpy as np
-import matplotlib.pyplot as plt  
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_list_bool_from_string
+
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -328,5 +327,4 @@ class DecouplingRotationDOFsInput(QDialog):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.check_get_nodes()
         if event.key() == Qt.Key_Escape:
-            plt.close()
             self.close()

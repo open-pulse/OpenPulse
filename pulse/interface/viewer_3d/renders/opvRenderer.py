@@ -455,8 +455,7 @@ class opvRenderer(vtkRendererBase):
             self.opvLines.setColor(selectionColor, keys=elementsFromLines)
             self.opvTubes.setColor(selectionColor, keys=elementsFromLines)
             _update = True
-        
-        # self.opv.parent.update_toolbar_radioButtons(selectedNodes, selectedElements, selectedLines)
+
         if _update:
             self.call_update_in_QDialogs_if_highlighted()
 

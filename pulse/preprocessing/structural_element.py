@@ -1286,7 +1286,7 @@ class StructuralElement:
         # I_3     = I_2
         k_3     = k_2
 
-        # Auxiliar constantes
+        # Auxiliar constants
         Phi_12      = 24. * I_3 * (1 + nu) / (k_2 * A * L**2)
         Phi_13      = 24. * I_2 * (1 + nu) / (k_3 * A * L**2)
         beta_12_a   = E * I_3 / (1. + Phi_12)
@@ -1378,7 +1378,7 @@ class StructuralElement:
         J_p     = J
         k_3     = k_2
 
-        # Auxiliar constantes
+        # Auxiliar constants
         # 1st group
         a_12 = 1. / (k_2 * A * G)
         a_13 = 1. / (k_3 * A * G)

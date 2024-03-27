@@ -4,42 +4,52 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import os
-import numpy as np
-from collections import defaultdict
-import matplotlib.pyplot as plt
-from numpy.core.numeric import False_  
-
-from pulse import UI_DIR
-from pulse.preprocessing.compressor_model import CompressorModel
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.before_run import BeforeRun
-from pulse.tools.utils import create_new_folder, get_new_path
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+
+import os
+import numpy as np
+from collections import defaultdict 
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class FlangesInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        uic.loadUi(UI_DIR / "model/setup/structural/flangesInput.ui", self)
-        
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        ui_path = UI_DIR / "model/setup/structural/flangesInput.ui"
+        uic.loadUi(ui_path, self)
 
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self._config_widgets()
+        self.update()
+        self.exec()
+        
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+    
+    def _initialize(self):
+
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.project.preprocessor.nodes
         self.preprocessor._map_lines_to_nodes()
         
@@ -53,7 +63,9 @@ class FlangesInput(QDialog):
         self.node_ID_remove = None
         self.ext_key = None
         self.list_frequencies = []
-        
+    
+    def _define_qt_variables(self):
+
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.label_selected_id = self.findChild(QLabel, 'label_selected_id')
         self.label_selected_id_2 = self.findChild(QLabel, 'label_selected_id_2')
@@ -142,19 +154,11 @@ class FlangesInput(QDialog):
         self.checkBox_get_cross_section.clicked.connect(self.checkBox_event_update)
         self.flag_checkBox = self.checkBox_get_cross_section.isChecked()
 
-        self.update()
-        self.exec()
-    
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_main.currentIndex() == 0:
-                self.add_flange_to_selected_elements()
+    def _create_connections(self):
+        pass
 
-        if event.key() == Qt.Key_Escape:
-            self.close()
-
-    def force_to_close(self):
-        self.close()
+    def _config_widgets(self):
+        pass
 
     def checkBox_event_update(self):
         self.flag_checkBox = self.checkBox_get_cross_section.isChecked()
@@ -591,15 +595,17 @@ class FlangesInput(QDialog):
         self.actions_to_finalize(list_elements)
 
     def set_flange_cross_section_to_list_elements(self, list_elements):
-        section_parameters = {}
 
+        section_parameters = {}
         for element_id in list_elements:
             element = self.structural_elements[element_id]
             if self.flag_checkBox:
+
                 cross_section = element.cross_section
                 if cross_section is None:
                     section_parameters = {}
                     return True
+
                 else:
                     outer_diameter = self.outer_diameter
                     inner_diameter = cross_section.inner_diameter
@@ -608,6 +614,7 @@ class FlangesInput(QDialog):
                     offset_z = cross_section.offset_z
                     insulation_thickness = cross_section.insulation_thickness
                     insulation_density = cross_section.insulation_density
+
             else:
                 outer_diameter = self.outer_diameter
                 inner_diameter = self.inner_diameter
@@ -625,13 +632,13 @@ class FlangesInput(QDialog):
                 PrintMessageInput([window_title_1, title, message])
                 return True
 
-            section_parameters[element_id] = {  "outer_diameter" : outer_diameter,
-                                                "thickness" : thickness, 
-                                                "offset_y" : offset_y, 
-                                                "offset_z" : offset_z, 
-                                                "insulation_thickness" : insulation_thickness, 
-                                                "insulation_density" : insulation_density  }             
-                    
+            section_parameters[element_id] = [  outer_diameter, 
+                                                thickness, 
+                                                offset_y, 
+                                                offset_z, 
+                                                insulation_thickness, 
+                                                insulation_density  ]             
+
         for element_id in list_elements:
 
             pipe_section_info = {   "section_type_label" : "Pipe section" ,
@@ -648,3 +655,11 @@ class FlangesInput(QDialog):
         self.opv.update_section_radius()
         self.opv.plot_entities_with_cross_section()   
         self.close()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            if self.tabWidget_main.currentIndex() == 0:
+                self.add_flange_to_selected_elements()
+
+        if event.key() == Qt.Key_Escape:
+            self.close()
