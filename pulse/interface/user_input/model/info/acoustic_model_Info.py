@@ -16,9 +16,6 @@ class AcousticModelInfo(QDialog):
 
         uic.loadUi(UI_DIR / "model/info/acoustic_model_info.ui", self)
 
-        #icons_path = str(Path('data/icons/pulse.png'))
-        #self.icon = QIcon(icons_path)
-
         self.project = project
         self.preprocessor = project.preprocessor
         self.opv = opv

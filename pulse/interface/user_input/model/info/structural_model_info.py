@@ -15,13 +15,6 @@ class StructuralModelInfo(QDialog):
         
         uic.loadUi(UI_DIR / "model/info/structural_model_Info.ui", self)
 
-        #icons_path = str(Path('data/icons/pulse.png'))
-        #self.icon = QIcon(icons_path)
-
-        #self.setWindowIcon(self.icon)
-        #self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        #self.setWindowModality(Qt.WindowModal)
-
         self.project = project
         self.opv = opv
         self.opv.setInputObject(self)
