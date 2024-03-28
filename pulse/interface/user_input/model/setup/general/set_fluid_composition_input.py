@@ -13,6 +13,7 @@ from pulse import UI_DIR
 from pulse.tools.utils import get_new_path
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -21,13 +22,6 @@ class SetFluidCompositionInput(QDialog):
     def __init__(self, project, opv, selected_fluid_to_edit=None, *args, **kwargs):
         super().__init__()
         uic.loadUi(UI_DIR / "model/setup/acoustic/setFluidCompositionInput.ui", self)
-        
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
 
         self.project = project
         self.opv = opv
@@ -49,7 +43,17 @@ class SetFluidCompositionInput(QDialog):
 
         self.load_default_gases_info()
         self.update_selected_fluid()
+        self._load_icons()
+        self._config_window()
         self.exec()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def _initialize_variables(self):
         self.save_path = ""

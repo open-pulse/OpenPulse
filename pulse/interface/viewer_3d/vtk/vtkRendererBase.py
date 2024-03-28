@@ -57,7 +57,7 @@ class vtkRendererBase(ABC):
     def _create_and_config_logos(self):
         
         # self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
-        self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_gray.png'))
+        self._imageReader_pulse.SetFileName(Path('pulse/interface/data/icons/logos/OpenPulse_logo_gray.png'))
         self._imageReader_pulse.Update()
         
         self._logo_pulse_input = self._imageReader_pulse.GetOutput()

@@ -18,6 +18,7 @@ from pulse.tools.utils import create_new_folder, get_new_path
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -49,15 +50,8 @@ class ExpansionJointInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi(UI_DIR / "model/setup/structural/expansionJointInput.ui", self)
-        
+    
         clicked = pyqtSignal()
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -221,7 +215,17 @@ class ExpansionJointInput(QDialog):
         self.load_expansion_joint_by_line_info()
         self.load_expansion_joint_by_elements_info()
         self.update_tabs()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -1379,13 +1383,6 @@ class GetInformationOfGroup(QDialog):
 
         uic.loadUi(UI_DIR / "model/info/getExpansionJointInformationInput.ui", self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
         self.project = project
         self.selection = selection
         self.preprocessor = project.preprocessor
@@ -1400,7 +1397,17 @@ class GetInformationOfGroup(QDialog):
         
         self.update_header_labels()
         self.update_treeWidget_joint_parameters_info()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

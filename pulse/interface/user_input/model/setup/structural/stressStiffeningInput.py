@@ -6,6 +6,7 @@ from pathlib import Path
 
 from pulse import UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,13 +19,6 @@ class StressStiffeningInput(QDialog):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "model/setup/structural/stressStiffeningInput.ui", self)
-        
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
         
         self.opv = opv
         self.opv.setInputObject(self)
@@ -104,7 +98,17 @@ class StressStiffeningInput(QDialog):
         self.update_info()
         self.update_buttons_()
         self.tabEvent_()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def force_to_close(self):
         self.close()
@@ -461,13 +465,6 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, project, values, label, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
         if label == "Elements":
             uic.loadUi(UI_DIR / "model/info/getGroupInformationInput.ui", self)
             self.flagElements = True
@@ -503,7 +500,17 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.update_dict()
         self.load_info()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

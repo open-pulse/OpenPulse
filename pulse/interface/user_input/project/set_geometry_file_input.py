@@ -13,6 +13,7 @@ from pulse import UI_DIR
 from pulse.tools.utils import get_new_path
 from pulse.project.project import Project
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -27,20 +28,22 @@ class SetGeometryFileInput(QDialog):
         self.opv = opv
 
         self.opv.setInputObject(self)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
-        self.load_icon()
+        self._load_icons()
+        self._config_window()
         self.reset_variables()
         self.define_qt_variables()
         self.create_connections()
         self.load_project_info()
         self.exec()
 
-    def load_icon(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
         self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def reset_variables(self):
         self.material_list_path = ""

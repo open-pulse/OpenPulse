@@ -249,7 +249,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../../data/icons/pulse/pulse_icon.png</normaloff>../../../../data/icons/pulse/pulse_icon.png</iconset>
+          <normaloff>../data/icons/pulse/pulse_icon.png</normaloff>../data/icons/pulse/pulse_icon.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -299,7 +299,7 @@ Project</string>
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../data/icons/002-analysis.png</normaloff>../../../data/icons/002-analysis.png</iconset>
+          <normaloff>../data/icons/002-analysis.png</normaloff>../data/icons/002-analysis.png</iconset>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -345,7 +345,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../../data/icons/common/import.png</normaloff>../../../../data/icons/common/import.png</iconset>
+          <normaloff>../data/icons/common/import.png</normaloff>../data/icons/common/import.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -398,7 +398,7 @@ Project</string>
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../data/icons/002-analysis.png</normaloff>../../../data/icons/002-analysis.png</iconset>
+          <normaloff>../data/icons/002-analysis.png</normaloff>../data/icons/002-analysis.png</iconset>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -528,7 +528,7 @@ Project</string>
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../data/icons/002-analysis.png</normaloff>../../../data/icons/002-analysis.png</iconset>
+          <normaloff>../data/icons/002-analysis.png</normaloff>../data/icons/002-analysis.png</iconset>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -574,7 +574,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../../data/icons/common/reset-image (2).png</normaloff>../../../../data/icons/common/reset-image (2).png</iconset>
+          <normaloff>../data/icons/common/reset-image (2).png</normaloff>../data/icons/common/reset-image (2).png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -661,7 +661,7 @@ Project</string>
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../data/icons/002-analysis.png</normaloff>../../../data/icons/002-analysis.png</iconset>
+          <normaloff>../data/icons/002-analysis.png</normaloff>../data/icons/002-analysis.png</iconset>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -767,7 +767,7 @@ project</string>
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../data/icons/002-analysis.png</normaloff>../../../data/icons/002-analysis.png</iconset>
+          <normaloff>../data/icons/002-analysis.png</normaloff>../data/icons/002-analysis.png</iconset>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
@@ -846,7 +846,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../../data/icons/common/new_file.png</normaloff>../../../../data/icons/common/new_file.png</iconset>
+          <normaloff>../data/icons/common/new_file.png</normaloff>../data/icons/common/new_file.png</iconset>
         </property>
         <property name="iconSize">
          <size>

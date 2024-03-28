@@ -17,6 +17,7 @@ from pulse.preprocessing.before_run import BeforeRun
 from pulse.tools.utils import create_new_folder, get_new_path
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -26,13 +27,6 @@ class FlangesInput(QDialog):
         super().__init__(*args, **kwargs)
         
         uic.loadUi(UI_DIR / "model/setup/structural/flangesInput.ui", self)
-        
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -143,7 +137,17 @@ class FlangesInput(QDialog):
         self.flag_checkBox = self.checkBox_get_cross_section.isChecked()
 
         self.update()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

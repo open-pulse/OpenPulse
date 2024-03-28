@@ -8,7 +8,7 @@ import os
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 class AcousticModelInfo(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

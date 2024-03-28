@@ -13,6 +13,7 @@ from pulse import UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.tools.utils import remove_bc_from_file, get_new_path, create_new_folder
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 window_title ="Error"
 
@@ -21,13 +22,6 @@ class MassSpringDamperInput(QDialog):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "model/setup/structural/addMassSpringDamperInput.ui", self)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -314,7 +308,17 @@ class MassSpringDamperInput(QDialog):
 
         self.update()
         self.load_nodes_info()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -54,7 +54,7 @@ class LoadingScreen(QDialog):
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
-        self.gif_path = str(Path('data/icons/gifs/loading_blue.gif'))
+        self.gif_path = str(Path('pulse/interface/data/icons/gifs/loading_blue.gif'))
 
     def _config_window(self):
         self.setWindowTitle(f"OpenPulse v{__version__}")

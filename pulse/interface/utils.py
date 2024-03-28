@@ -1,6 +1,7 @@
 
 import os
 from pathlib import Path
+from pulse import ICON_DIR
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -42,6 +43,6 @@ def check_inputs(lineEdit, label, only_positive=True, zero_included=False):
         return out
     
 def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+    path = ICON_DIR / filename
+    if path.exists():
+        return str(path)

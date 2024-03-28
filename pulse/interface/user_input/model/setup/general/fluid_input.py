@@ -14,6 +14,7 @@ from pulse.interface.user_input.model.setup.general.color_selector import PickCo
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.tools.utils import *
 
 window_title_1 = "Error"
@@ -32,14 +33,6 @@ class FluidInput(QDialog):
 
         uic.loadUi(UI_DIR / "model/setup/acoustic/fluid_input.ui", self)
         
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Set: fluid")
-
         self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", {})
 
         self.opv = opv
@@ -61,8 +54,19 @@ class FluidInput(QDialog):
         if self.compressor_thermodynamic_state:
             self.check_compressor_inputs()
 
-        self.exec()
+        self._load_icons()
+        self._config_window()
 
+        self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Set: fluid")
 
     def _reset_variables(self):
         self.dict_inputs = {}

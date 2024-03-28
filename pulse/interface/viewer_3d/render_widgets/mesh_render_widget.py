@@ -173,11 +173,11 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.AddViewProp(self.mopt_logo)
 
         if theme == "light":
-            open_pulse_path = Path('data/icons/logos/OpenPulse_logo_black.png')
-            mopt_path = Path('data/icons/logos/mopt_logo_black.png')     
+            open_pulse_path = Path('pulse/interface/data/icons/logos/OpenPulse_logo_black.png')
+            mopt_path = Path('pulse/interface/data/icons/logos/mopt_logo_black.png')     
         elif theme == "dark":
-            open_pulse_path = Path('data/icons/logos/OpenPulse_logo_white.png')
-            mopt_path = Path('data/icons/logos/mopt_logo_white.png')
+            open_pulse_path = Path('pulse/interface/data/icons/logos/OpenPulse_logo_white.png')
+            mopt_path = Path('pulse/interface/data/icons/logos/mopt_logo_white.png')
         else:
             raise NotImplementedError()
 

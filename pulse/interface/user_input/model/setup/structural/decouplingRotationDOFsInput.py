@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from pulse import UI_DIR
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.formatters.icons import get_openpulse_icon 
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -20,13 +21,6 @@ class DecouplingRotationDOFsInput(QDialog):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "model/setup/structural/decouplingRotationDOFsInput.ui", self)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
@@ -102,7 +96,17 @@ class DecouplingRotationDOFsInput(QDialog):
         self.pushButton_get_nodes.clicked.connect(self.check_get_nodes)
         self.load_decoupling_info()
         self.update()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
     
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_B2PX_rotation_decoupling.currentIndex()
@@ -286,13 +290,6 @@ class GetInformationOfGroup(QDialog):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(UI_DIR / "model/info/getInformationRotationDecouplingInput.ui", self)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
  
         self.flagLines = True
         self.flagElements = False
@@ -327,7 +324,17 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.force_to_close)
         self.update_dict()
         self.load_info()
+        self._load_icons()
+        self._config_window()
         self.exec()
+    
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+    
+    def _config_window(self):
+        self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
