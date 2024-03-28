@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../data/icons/pulse_icon.png</normaloff>../../data/icons/pulse_icon.png</iconset>
+    <normaloff>../data/icons/pulse_icon.png</normaloff>../data/icons/pulse_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -110,7 +110,7 @@
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>../../data/icons/common/recent.png</normaloff>../../data/icons/common/recent.png</iconset>
+       <normaloff>../data/icons/common/recent.png</normaloff>../data/icons/common/recent.png</iconset>
      </property>
      <addaction name="actionfiles"/>
     </widget>

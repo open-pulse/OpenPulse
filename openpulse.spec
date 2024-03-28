@@ -11,7 +11,6 @@ a = Analysis(
         ('data/', 'data/'),
         ('pulse/interface/data/', 'pulse/interface/data/'),
         ('pulse/interface/ui_files/', 'pulse/interface/ui_files/'),
-        ('pulse/interface/icons/', 'pulse/interface/icons/'),
         ('pulse/libraries/', 'pulse/libraries/'),
     ],
     hiddenimports=[],

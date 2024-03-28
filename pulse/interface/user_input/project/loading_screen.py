@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QObject, QSize, QThread
 from PyQt5 import uic
 from pathlib import Path
 
-from pulse import UI_DIR
+from pulse import UI_DIR, ICON_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import __version__, __release_date__
@@ -54,7 +54,7 @@ class LoadingScreen(QDialog):
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
-        self.gif_path = str(Path('pulse/interface/data/icons/gifs/loading_blue.gif'))
+        self.gif_path = str(ICON_DIR / 'gifs/loading_blue.gif')
 
     def _config_window(self):
         self.setWindowTitle(f"OpenPulse v{__version__}")
