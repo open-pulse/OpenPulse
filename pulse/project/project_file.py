@@ -1126,16 +1126,25 @@ class ProjectFile:
                     valve_section_parameters = list(valve_data["valve_section_parameters"])
 
                     if "flange_elements" in valve_data.keys():
+
                         number_flange_elements = valve_data["number_flange_elements"]
                         flange_section_parameters = list(valve_data["flange_section_parameters"])
 
-                    config[section_key] = { 'structural element type' : 'valve',
-                                            'valve parameters' : f'{valve_parameters}',
-                                            'valve center coordinates' : f'{valve_center_coordinates}',
-                                            'valve section parameters' : f'{valve_section_parameters}',
-                                            'flange section parameters' : f'{flange_section_parameters}',
-                                            'list of elements' : f'{valve_elements}',
-                                            'number of flange elements' : f'{number_flange_elements}' }
+                        config[section_key] = { 'structural element type' : 'valve',
+                                                'valve parameters' : f'{valve_parameters}',
+                                                'valve center coordinates' : f'{valve_center_coordinates}',
+                                                'valve section parameters' : f'{valve_section_parameters}',
+                                                'flange section parameters' : f'{flange_section_parameters}',
+                                                'list of elements' : f'{valve_elements}',
+                                                'number of flange elements' : f'{number_flange_elements}' }
+
+                    else:
+
+                        config[section_key] = { 'structural element type' : 'valve',
+                                                'valve parameters' : f'{valve_parameters}',
+                                                'valve center coordinates' : f'{valve_center_coordinates}',
+                                                'valve section parameters' : f'{valve_section_parameters}',
+                                                'list of elements' : f'{valve_elements}' }
 
             counter_3 = 0
             if update_by_cross:    

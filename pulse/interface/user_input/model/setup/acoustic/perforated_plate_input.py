@@ -473,17 +473,18 @@ class PerforatedPlateInput(QDialog):
             self.dict_inputs['bias flow effects'] = 0
             self.dict_inputs['bias flow coefficient'] = 0
         else:
+
             # Check plate thickness
             if self.check_input_parameters(self.lineEdit_plate_thickness.text(), 'plate thickness', True):
                 self.lineEdit_plate_thickness.setFocus()
                 return True
             else:
-                aux = np.append(np.array(elements_lengths) > self.value-self.tol, np.array(elements_lengths) < self.value+self.tol)
-                if not all(aux):
-                    title = "Plate thickness different from element length"
-                    message = "If possible, use plate thickness equal to the element length for better precision."
-                    PrintMessageInput([window_title_2, title, message])
-                    self.lineEdit_plate_thickness.setFocus()
+                for length in elements_lengths:
+                    if np.abs(length - self.value)/length > 0.01:
+                        title = "Plate thickness different from element length"
+                        message = "If possible, use plate thickness equal to the element length for better precision."
+                        PrintMessageInput([window_title_2, title, message])
+                        self.lineEdit_plate_thickness.setFocus()
                 self.dict_inputs['plate thickness'] = self.value
 
             # Check area porosity

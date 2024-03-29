@@ -47,8 +47,8 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
         self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
         self.item_child_set_capped_end = self.add_item('Set Capped End')
-        self.item_child_add_valve = self.add_item('Add Valve')
-        self.item_child_addFlanges = self.add_item('Add Connecting Flanges')
+        self.item_child_add_valves = self.add_item('Add Valves')
+        self.item_child_addFlanges = self.add_item('Add Flanges')
         self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
         self.item_child_setBeamXaxisRotation = self.add_item('Set Beam X-axis Rotation')
         self.item_child_set_rotation_decoupling_dofs = self.add_item('Set Rotation Decoupling')
@@ -88,7 +88,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_inertial_loads.clicked.connect(self.item_child_set_inertial_loads_callback)
         self.item_child_set_stress_stiffening.clicked.connect(self.item_child_set_stress_stiffening_callback)
         self.item_child_set_capped_end.clicked.connect(self.item_child_set_capped_end_callback)
-        self.item_child_add_valve.clicked.connect(self.item_child_add_valve_callback)
+        self.item_child_add_valves.clicked.connect(self.item_child_add_valves_callback)
         self.item_child_addFlanges.clicked.connect(self.item_child_add_flanges_callback)
         self.item_child_add_expansion_joint.clicked.connect(self.item_child_add_expansion_joint_callback)
         self.item_child_setBeamXaxisRotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
@@ -204,7 +204,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.main_window.input_widget.set_capped_end()
         self.opv.setInputObject(None)
 
-    def item_child_add_valve_callback(self):
+    def item_child_add_valves_callback(self):
         obj = self.main_window.input_widget.add_valve()
         if obj.complete:
             self.main_window.update_plot_mesh()
@@ -311,7 +311,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_elastic_nodal_links.setDisabled(bool_key)
         self.item_child_set_stress_stiffening.setDisabled(bool_key)
         self.item_child_set_capped_end.setDisabled(bool_key)
-        self.item_child_add_valve.setDisabled(bool_key) 
+        self.item_child_add_valves.setDisabled(bool_key) 
         self.item_child_addFlanges.setDisabled(bool_key) 
         self.item_child_add_expansion_joint.setDisabled(bool_key)  
         self.item_child_setBeamXaxisRotation.setDisabled(bool_key)

@@ -448,6 +448,7 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+        self.close_opened_windows()
         self.mesh_toolbar.setDisabled(True)
         self.geometry_input_wigdet._disable_finalize_button(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
@@ -672,6 +673,11 @@ class MainWindow(QMainWindow):
 
     def _enable_menus_at_start(self):
         pass
+
+    def close_opened_windows(self):
+        if self.opv_widget.inputObject is not None:
+            self.opv_widget.inputObject.close()
+            self.opv_widget.setInputObject(None)
 
     def load_user_preferences(self):
         self.update_theme = False

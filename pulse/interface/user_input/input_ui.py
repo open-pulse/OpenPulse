@@ -22,7 +22,7 @@ from pulse.interface.user_input.model.setup.structural.set_inertial_load import 
 from pulse.interface.user_input.model.setup.structural.stress_stiffening_input import StressStiffeningInput
 from pulse.interface.user_input.model.setup.structural.capped_end_input import CappedEndInput
 from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
-from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
+from pulse.interface.user_input.model.setup.structural.connecting_flanges_input import ConnectingFlangesInput
 from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
 from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input import BeamXaxisRotationInput 
 from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
@@ -239,7 +239,7 @@ class InputUi:
         return self.process_input(ValvesInput)
 
     def add_flanges(self):
-        self.process_input(FlangesInput)
+        self.process_input(ConnectingFlangesInput)
 
     def set_acoustic_element_type(self):
         self.process_input(AcousticElementTypeInput)
