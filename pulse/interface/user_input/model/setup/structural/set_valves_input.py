@@ -76,6 +76,11 @@ class ValvesInput(QDialog):
         self.selection_frame : QFrame
         # QLabel
         self.label_selected_id : QLabel
+        self.label_outer_diameter : QLabel
+        self.label_outer_diameter_unit : QLabel
+        self.label_number_of_elements : QLabel
+        self.label_flange_length : QLabel
+        self.label_flange_length_unit : QLabel
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
         self.lineEdit_stiffening_factor : QLineEdit
@@ -122,9 +127,24 @@ class ValvesInput(QDialog):
 
     def checkBox_event_update(self):
         if self.checkBox_add_flanges_to_the_valve.isChecked():
-            self.tabWidget_main.setTabVisible(1, True)
+            self.label_outer_diameter.setDisabled(False)
+            self.label_outer_diameter_unit.setDisabled(False)
+            self.label_number_of_elements.setDisabled(False)
+            self.label_flange_length.setDisabled(False)
+            self.label_flange_length_unit.setDisabled(False)
+            self.lineEdit_outer_diameter.setDisabled(False)
+            self.lineEdit_outer_diameter.setDisabled(False)
+            self.spinBox_number_elements_flange.setDisabled(False)
+
         else:
-            self.tabWidget_main.setTabVisible(1, False)
+            self.label_outer_diameter.setDisabled(True)
+            self.label_outer_diameter_unit.setDisabled(True)
+            self.label_number_of_elements.setDisabled(True)
+            self.label_flange_length.setDisabled(True)
+            self.label_flange_length_unit.setDisabled(True)
+            self.lineEdit_outer_diameter.setDisabled(True)
+            self.lineEdit_flange_length.setText("")
+            self.spinBox_number_elements_flange.setDisabled(True)
 
     def selection_type_callback(self):
 
@@ -230,10 +250,10 @@ class ValvesInput(QDialog):
 
     def update_tab_visibility(self):    
         if len(self.preprocessor.group_elements_with_valves) == 0:
-            self.tabWidget_main.setTabVisible(2, False)
+            self.tabWidget_main.setTabVisible(1, False)
             self.tabWidget_main.setCurrentIndex(0)
         else:
-            self.tabWidget_main.setTabVisible(2, True)
+            self.tabWidget_main.setTabVisible(1, True)
 
     def write_ids(self, list_selected_ids):
         text = ""
