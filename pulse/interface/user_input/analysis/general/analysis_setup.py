@@ -93,8 +93,10 @@ class AnalysisSetupInput(QDialog):
         self.label_subtitle.setText(self.subtitle)
         
         # QLineEdit
+
         if self.analysis_ID == 1:
             self.lineEdit_modes : QLineEdit
+    
         self.lineEdit_av : QLineEdit
         self.lineEdit_bv : QLineEdit
         self.lineEdit_ah : QLineEdit
@@ -108,7 +110,7 @@ class AnalysisSetupInput(QDialog):
         self.run_analysis_button : QPushButton
 
         # QTabWidget
-        self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
+        self.tabWidget : QTabWidget
         self.currentTab = self.tabWidget.currentIndex()
 
     def _create_connections(self):

@@ -767,9 +767,8 @@ class CompressorModelInput(QDialog):
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 0 }
 
-            read = FluidInput(  self.project, 
-                                self.opv, 
-                                compressor_thermodynamic_state=compressor_info  ) 
+            read = FluidInput(compressor_thermodynamic_state = compressor_info)
+
             if not read.complete:
                 return
             else:
@@ -813,9 +812,7 @@ class CompressorModelInput(QDialog):
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 1 }
             
-            read = FluidInput(  self.project, 
-                                self.opv, 
-                                compressor_thermodynamic_state=compressor_info  )
+            read = FluidInput(compressor_thermodynamic_state = compressor_info)
             if not read.complete:
                 return
             else:

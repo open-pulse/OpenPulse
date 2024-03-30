@@ -1,42 +1,56 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QFileDialog, QLineEdit, QPushButton, QTabWidget, QToolButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QCheckBox, QDialog, QFileDialog, QFrame, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-import configparser
-from shutil import copyfile
-
-from pulse import UI_DIR
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.tools.utils import remove_bc_from_file, get_new_path, create_new_folder
 
-window_title ="Error"
+import os
+import numpy as np
+
+window_title_1 ="Error"
+window_title_2 ="Warning"
 
 class MassSpringDamperInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        ui_path = UI_DIR / "model/setup/structural/mass_spring_damper_input.ui"
+        uic.loadUi(ui_path, self)
 
-        uic.loadUi(UI_DIR / "model/setup/structural/addMassSpringDamperInput.ui", self)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self._config_widgets()
+        self.update()
+        self.load_treeWidgets_info()
+        self.exec()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _initialize(self):
+
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
         
-        self.structural_bc_info_path = project.file._node_structural_path
+        self.structural_bc_info_path = self.project.file._node_structural_path
         self.structural_folder_path = self.project.file._structural_imported_data_folder_path
         self.lumped_elements_files_folder_path = get_new_path(self.structural_folder_path, "lumped_elements_files")
 
@@ -52,82 +66,8 @@ class MassSpringDamperInput(QDialog):
         self.lumped_stiffness = None
         self.lumped_dampings = None
         self.list_Nones = [None, None, None, None, None, None]
-        self.lumped_masses_inputs_from_node = False
-        self.lumped_stiffness_inputs_from_node = False
-        self.lumped_dampings_inputs_from_node = False
+
         self.stop = False
-
-        self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-
-        self.lineEdit_Mx = self.findChild(QLineEdit, 'lineEdit_Mx')
-        self.lineEdit_My = self.findChild(QLineEdit, 'lineEdit_My')
-        self.lineEdit_Mz = self.findChild(QLineEdit, 'lineEdit_Mz')
-        self.lineEdit_Jx = self.findChild(QLineEdit, 'lineEdit_Jx')
-        self.lineEdit_Jy = self.findChild(QLineEdit, 'lineEdit_Jy')
-        self.lineEdit_Jz = self.findChild(QLineEdit, 'lineEdit_Jz')
-
-        self.list_lineEdit_constant_values_lumped_masses = [self.lineEdit_Mx,
-                                                            self.lineEdit_My,
-                                                            self.lineEdit_Mz,
-                                                            self.lineEdit_Jx,
-                                                            self.lineEdit_Jy,
-                                                            self.lineEdit_Jz]
-
-        self.lineEdit_Kx = self.findChild(QLineEdit, 'lineEdit_Kx')
-        self.lineEdit_Ky = self.findChild(QLineEdit, 'lineEdit_Ky')
-        self.lineEdit_Kz = self.findChild(QLineEdit, 'lineEdit_Kz')
-        self.lineEdit_Krx = self.findChild(QLineEdit, 'lineEdit_Krx')
-        self.lineEdit_Kry = self.findChild(QLineEdit, 'lineEdit_Kry')
-        self.lineEdit_Krz = self.findChild(QLineEdit, 'lineEdit_Krz')
-
-        self.list_lineEdit_constant_values_lumped_stiffness = [ self.lineEdit_Kx,
-                                                                self.lineEdit_Ky,
-                                                                self.lineEdit_Kz,
-                                                                self.lineEdit_Krx,
-                                                                self.lineEdit_Kry,
-                                                                self.lineEdit_Krz ]
-
-        self.lineEdit_Cx = self.findChild(QLineEdit, 'lineEdit_Cx')
-        self.lineEdit_Cy = self.findChild(QLineEdit, 'lineEdit_Cy')
-        self.lineEdit_Cz = self.findChild(QLineEdit, 'lineEdit_Cz')
-        self.lineEdit_Crx = self.findChild(QLineEdit, 'lineEdit_Crx')
-        self.lineEdit_Cry = self.findChild(QLineEdit, 'lineEdit_Cry')
-        self.lineEdit_Crz = self.findChild(QLineEdit, 'lineEdit_Crz')
-
-        self.list_lineEdit_constant_values_lumped_dampings = [  self.lineEdit_Cx,
-                                                                self.lineEdit_Cy,
-                                                                self.lineEdit_Cz,
-                                                                self.lineEdit_Crx,
-                                                                self.lineEdit_Cry,
-                                                                self.lineEdit_Crz  ]
-
-        self.lineEdit_path_table_Mx = self.findChild(QLineEdit, 'lineEdit_path_table_Mx')
-        self.lineEdit_path_table_My = self.findChild(QLineEdit, 'lineEdit_path_table_My')
-        self.lineEdit_path_table_Mz = self.findChild(QLineEdit, 'lineEdit_path_table_Mz')
-        self.lineEdit_path_table_Jx = self.findChild(QLineEdit, 'lineEdit_path_table_Jx')
-        self.lineEdit_path_table_Jy = self.findChild(QLineEdit, 'lineEdit_path_table_Jy')
-        self.lineEdit_path_table_Jz = self.findChild(QLineEdit, 'lineEdit_path_table_Jz')
-
-        self.list_lineEdit_table_values_lumped_masses = [   self.lineEdit_path_table_Mx,
-                                                            self.lineEdit_path_table_My,
-                                                            self.lineEdit_path_table_Mz,
-                                                            self.lineEdit_path_table_Jx,
-                                                            self.lineEdit_path_table_Jy,
-                                                            self.lineEdit_path_table_Jz  ]
-
-        self.toolButton_load_Mx_table = self.findChild(QToolButton, 'toolButton_load_Mx_table')
-        self.toolButton_load_My_table = self.findChild(QToolButton, 'toolButton_load_My_table')
-        self.toolButton_load_Mz_table = self.findChild(QToolButton, 'toolButton_load_Mz_table')
-        self.toolButton_load_Jx_table = self.findChild(QToolButton, 'toolButton_load_Jx_table')
-        self.toolButton_load_Jy_table = self.findChild(QToolButton, 'toolButton_load_Jy_table')
-        self.toolButton_load_Jz_table = self.findChild(QToolButton, 'toolButton_load_Jz_table') 
-
-        self.toolButton_load_Mx_table.clicked.connect(self.load_Mx_table)
-        self.toolButton_load_My_table.clicked.connect(self.load_My_table)
-        self.toolButton_load_Mz_table.clicked.connect(self.load_Mz_table)
-        self.toolButton_load_Jx_table.clicked.connect(self.load_Jx_table)
-        self.toolButton_load_Jy_table.clicked.connect(self.load_Jy_table)
-        self.toolButton_load_Jz_table.clicked.connect(self.load_Jz_table)
 
         self.Mx_table = None
         self.My_table = None
@@ -150,34 +90,6 @@ class MassSpringDamperInput(QDialog):
         self.Jy_basename = None
         self.Jz_basename = None
 
-        self.lineEdit_path_table_Kx = self.findChild(QLineEdit, 'lineEdit_path_table_Kx')
-        self.lineEdit_path_table_Ky = self.findChild(QLineEdit, 'lineEdit_path_table_Ky')
-        self.lineEdit_path_table_Kz = self.findChild(QLineEdit, 'lineEdit_path_table_Kz')
-        self.lineEdit_path_table_Krx = self.findChild(QLineEdit, 'lineEdit_path_table_Krx')
-        self.lineEdit_path_table_Kry = self.findChild(QLineEdit, 'lineEdit_path_table_Kry')
-        self.lineEdit_path_table_Krz = self.findChild(QLineEdit, 'lineEdit_path_table_Krz')
-
-        self.list_lineEdit_table_values_lumped_stiffness = [self.lineEdit_path_table_Kx,
-                                                            self.lineEdit_path_table_Ky,
-                                                            self.lineEdit_path_table_Kz,
-                                                            self.lineEdit_path_table_Krx,
-                                                            self.lineEdit_path_table_Kry,
-                                                            self.lineEdit_path_table_Krz]
-
-        self.toolButton_load_Kx_table = self.findChild(QToolButton, 'toolButton_load_Kx_table')
-        self.toolButton_load_Ky_table = self.findChild(QToolButton, 'toolButton_load_Ky_table')
-        self.toolButton_load_Kz_table = self.findChild(QToolButton, 'toolButton_load_Kz_table')
-        self.toolButton_load_Krx_table = self.findChild(QToolButton, 'toolButton_load_Krx_table')
-        self.toolButton_load_Kry_table = self.findChild(QToolButton, 'toolButton_load_Kry_table')
-        self.toolButton_load_Krz_table = self.findChild(QToolButton, 'toolButton_load_Krz_table') 
-
-        self.toolButton_load_Kx_table.clicked.connect(self.load_Kx_table)
-        self.toolButton_load_Ky_table.clicked.connect(self.load_Ky_table)
-        self.toolButton_load_Kz_table.clicked.connect(self.load_Kz_table)
-        self.toolButton_load_Krx_table.clicked.connect(self.load_Krx_table)
-        self.toolButton_load_Kry_table.clicked.connect(self.load_Kry_table)
-        self.toolButton_load_Krz_table.clicked.connect(self.load_Krz_table)
-
         self.Kx_table = None
         self.Ky_table = None
         self.Kz_table = None
@@ -198,34 +110,6 @@ class MassSpringDamperInput(QDialog):
         self.Krx_basename = None
         self.Kry_basename = None
         self.Krz_basename = None
-
-        self.lineEdit_path_table_Cx = self.findChild(QLineEdit, 'lineEdit_path_table_Cx')
-        self.lineEdit_path_table_Cy = self.findChild(QLineEdit, 'lineEdit_path_table_Cy')
-        self.lineEdit_path_table_Cz = self.findChild(QLineEdit, 'lineEdit_path_table_Cz')
-        self.lineEdit_path_table_Crx = self.findChild(QLineEdit, 'lineEdit_path_table_Crx')
-        self.lineEdit_path_table_Cry = self.findChild(QLineEdit, 'lineEdit_path_table_Cry')
-        self.lineEdit_path_table_Crz = self.findChild(QLineEdit, 'lineEdit_path_table_Crz')
-
-        self.list_lineEdit_table_values_lumped_dampings = [ self.lineEdit_path_table_Cx,
-                                                            self.lineEdit_path_table_Cy,
-                                                            self.lineEdit_path_table_Cz,
-                                                            self.lineEdit_path_table_Crx,
-                                                            self.lineEdit_path_table_Cry,
-                                                            self.lineEdit_path_table_Crz ]
-
-        self.toolButton_load_Cx_table = self.findChild(QToolButton, 'toolButton_load_Cx_table')
-        self.toolButton_load_Cy_table = self.findChild(QToolButton, 'toolButton_load_Cy_table')
-        self.toolButton_load_Cz_table = self.findChild(QToolButton, 'toolButton_load_Cz_table')
-        self.toolButton_load_Crx_table = self.findChild(QToolButton, 'toolButton_load_Crx_table')
-        self.toolButton_load_Cry_table = self.findChild(QToolButton, 'toolButton_load_Cry_table')
-        self.toolButton_load_Crz_table = self.findChild(QToolButton, 'toolButton_load_Crz_table') 
-
-        self.toolButton_load_Cx_table.clicked.connect(self.load_Cx_table)
-        self.toolButton_load_Cy_table.clicked.connect(self.load_Cy_table)
-        self.toolButton_load_Cz_table.clicked.connect(self.load_Cz_table)
-        self.toolButton_load_Crx_table.clicked.connect(self.load_Crx_table)
-        self.toolButton_load_Cry_table.clicked.connect(self.load_Cry_table)
-        self.toolButton_load_Crz_table.clicked.connect(self.load_Crz_table)
 
         self.Cx_table = None
         self.Cy_table = None
@@ -252,84 +136,220 @@ class MassSpringDamperInput(QDialog):
         self.flag_lumped_stiffness = False
         self.flag_lumped_dampings = False
 
-        self.checkBox_remove_mass = self.findChild(QCheckBox, 'checkBox_remove_mass')
-        self.checkBox_remove_spring = self.findChild(QCheckBox, 'checkBox_remove_spring')
-        self.checkBox_remove_damper = self.findChild(QCheckBox, 'checkBox_remove_damper')
+    def _define_qt_variables(self):
 
-        self.tabWidget_external_elements = self.findChild(QTabWidget, "tabWidget_external_elements")
-        self.tab_constant_values = self.tabWidget_external_elements.findChild(QWidget, "tab_constant_values")
-        self.tab_table_values = self.tabWidget_external_elements.findChild(QWidget, "tab_table_values")
+        # QCheckBox
+        self.checkBox_remove_mass : QCheckBox
+        self.checkBox_remove_spring : QCheckBox
+        self.checkBox_remove_damper : QCheckBox
 
-        self.tabWidget_constant_values = self.findChild(QTabWidget, "tabWidget_constant_values")
-        self.tab_mass = self.tabWidget_constant_values.findChild(QWidget, "tab_mass")
-        self.tab_spring = self.tabWidget_constant_values.findChild(QWidget, "tab_spring")
-        self.tab_damper = self.tabWidget_constant_values.findChild(QWidget, "tab_damper")
+        self.lineEdit_nodes_ids : QLineEdit
+        self.lineEdit_selection : QLineEdit
 
-        self.tabWidget_table_values = self.findChild(QTabWidget, "tabWidget_table_values")
-        self.tab_mass_table = self.tabWidget_table_values.findChild(QWidget, "tab_mass_table")
-        self.tab_spring_table = self.tabWidget_table_values.findChild(QWidget, "tab_spring_table")
-        self.tab_damper_table = self.tabWidget_table_values.findChild(QWidget, "tab_damper_table")   
+        # QFrame
+        self.selection_frame : QFrame
 
-        self.tabWidget_remove = self.findChild(QTabWidget, "tabWidget_remove")
-        self.tab_multiple_remove = self.tabWidget_remove.findChild(QWidget, "tab_multiple_remove")
-        self.tab_spring_remove = self.tabWidget_remove.findChild(QWidget, "tab_spring_remove")
-        self.tab_mass_remove = self.tabWidget_remove.findChild(QWidget, "tab_mass_remove")
-        self.tab_damper_remove = self.tabWidget_remove.findChild(QWidget, "tab_damper_remove")
+        # QLineEdit
+        self.lineEdit_path_table_Kx : QLineEdit
+        self.lineEdit_path_table_Ky : QLineEdit
+        self.lineEdit_path_table_Kz : QLineEdit
+        self.lineEdit_path_table_Krx : QLineEdit
+        self.lineEdit_path_table_Kry : QLineEdit
+        self.lineEdit_path_table_Krz : QLineEdit
 
-        self.treeWidget_springs = self.findChild(QTreeWidget, 'treeWidget_springs')
+        self.lineEdit_path_table_Cx : QLineEdit
+        self.lineEdit_path_table_Cy : QLineEdit
+        self.lineEdit_path_table_Cz : QLineEdit
+        self.lineEdit_path_table_Crx : QLineEdit
+        self.lineEdit_path_table_Cry : QLineEdit
+        self.lineEdit_path_table_Crz : QLineEdit
+
+        self.lineEdit_Mx : QLineEdit
+        self.lineEdit_My : QLineEdit
+        self.lineEdit_Mz : QLineEdit
+        self.lineEdit_Jx : QLineEdit
+        self.lineEdit_Jy : QLineEdit
+        self.lineEdit_Jz : QLineEdit
+
+        self.lineEdit_Kx : QLineEdit
+        self.lineEdit_Ky : QLineEdit
+        self.lineEdit_Kz : QLineEdit
+        self.lineEdit_Krx : QLineEdit
+        self.lineEdit_Kry : QLineEdit
+        self.lineEdit_Krz : QLineEdit
+
+        self.lineEdit_Cx : QLineEdit
+        self.lineEdit_Cy : QLineEdit
+        self.lineEdit_Cz : QLineEdit
+        self.lineEdit_Crx : QLineEdit
+        self.lineEdit_Cry : QLineEdit
+        self.lineEdit_Crz : QLineEdit
+
+        self.lineEdit_path_table_Mx : QLineEdit
+        self.lineEdit_path_table_My : QLineEdit
+        self.lineEdit_path_table_Mz : QLineEdit
+        self.lineEdit_path_table_Jx : QLineEdit
+        self.lineEdit_path_table_Jy : QLineEdit
+        self.lineEdit_path_table_Jz : QLineEdit
+
+        # QPushButton       
+        self.pushButton_confirm : QPushButton
+        self.pushButton_remove : QPushButton
+        self.pushButton_reset : QPushButton
+
+        self.pushButton_load_Mx_table : QPushButton
+        self.pushButton_load_My_table : QPushButton
+        self.pushButton_load_Mz_table : QPushButton
+        self.pushButton_load_Jx_table : QPushButton
+        self.pushButton_load_Jy_table : QPushButton
+        self.pushButton_load_Jz_table : QPushButton
+
+        self.pushButton_load_Kx_table : QPushButton
+        self.pushButton_load_Ky_table : QPushButton
+        self.pushButton_load_Kz_table : QPushButton
+        self.pushButton_load_Krx_table : QPushButton
+        self.pushButton_load_Kry_table : QPushButton
+        self.pushButton_load_Krz_table : QPushButton         
+
+        self.pushButton_load_Cx_table : QPushButton
+        self.pushButton_load_Cy_table : QPushButton
+        self.pushButton_load_Cz_table : QPushButton
+        self.pushButton_load_Crx_table : QPushButton
+        self.pushButton_load_Cry_table : QPushButton
+        self.pushButton_load_Crz_table : QPushButton
+        
+        # QTabWidget
+        self.tabWidget_main : QTabWidget
+        self.tabWidget_inputs : QTabWidget
+        self.tabWidget_main : QTabWidget
+
+        self.tabWidget_external_elements : QTabWidget
+        self.tabWidget_constant_values : QTabWidget
+        self.tabWidget_table_values : QTabWidget
+        self.tabWidget_remove : QTabWidget
+
+        # QTreeWidget
+        self.treeWidget_springs : QTreeWidget
+        self.treeWidget_dampers : QTreeWidget
+        self.treeWidget_masses : QTreeWidget
+
+    def _create_connections(self):
+        #
+        self.pushButton_confirm.clicked.connect(self.add_lumped_elements)
+        self.pushButton_remove.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_reset.clicked.connect(self.check_remove_bc_from_node)
+
+        self.pushButton_load_Mx_table.clicked.connect(self.load_Mx_table)
+        self.pushButton_load_My_table.clicked.connect(self.load_My_table)
+        self.pushButton_load_Mz_table.clicked.connect(self.load_Mz_table)
+        self.pushButton_load_Jx_table.clicked.connect(self.load_Jx_table)
+        self.pushButton_load_Jy_table.clicked.connect(self.load_Jy_table)
+        self.pushButton_load_Jz_table.clicked.connect(self.load_Jz_table)
+
+        self.pushButton_load_Kx_table.clicked.connect(self.load_Kx_table)
+        self.pushButton_load_Ky_table.clicked.connect(self.load_Ky_table)
+        self.pushButton_load_Kz_table.clicked.connect(self.load_Kz_table)
+        self.pushButton_load_Krx_table.clicked.connect(self.load_Krx_table)
+        self.pushButton_load_Kry_table.clicked.connect(self.load_Kry_table)
+        self.pushButton_load_Krz_table.clicked.connect(self.load_Krz_table)
+
+        self.pushButton_load_Cx_table.clicked.connect(self.load_Cx_table)
+        self.pushButton_load_Cy_table.clicked.connect(self.load_Cy_table)
+        self.pushButton_load_Cz_table.clicked.connect(self.load_Cz_table)
+        self.pushButton_load_Crx_table.clicked.connect(self.load_Crx_table)
+        self.pushButton_load_Cry_table.clicked.connect(self.load_Cry_table)
+        self.pushButton_load_Crz_table.clicked.connect(self.load_Crz_table)
+        #
+        # self.tabWidget_main.currentChanged.connect(self.tab_event_update)
+        #
+        self.treeWidget_masses.itemClicked.connect(self.on_click_item_masses)
+        self.treeWidget_masses.itemDoubleClicked.connect(self.on_doubleclick_item_masses)
+
+        self.treeWidget_springs.itemClicked.connect(self.on_click_item_springs)
+        self.treeWidget_springs.itemDoubleClicked.connect(self.on_doubleclick_item_springs)
+
+        self.treeWidget_dampers.itemClicked.connect(self.on_click_item_dampings)
+        self.treeWidget_dampers.itemDoubleClicked.connect(self.on_doubleclick_item_dampings)
+
+    def _config_widgets(self):
+        #
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        self.cache_tab = self.tabWidget_main.currentIndex()
+        #
         self.treeWidget_springs.setColumnWidth(0, 70)
         # self.treeWidget_springs.setColumnWidth(1, 80)
-        self.treeWidget_springs.itemClicked.connect(self.on_click_item)
-        self.treeWidget_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
-
-        self.treeWidget_dampers = self.findChild(QTreeWidget, 'treeWidget_dampers')
         self.treeWidget_dampers.setColumnWidth(0, 70)
         # self.treeWidget_dampers.setColumnWidth(1, 80)
-        self.treeWidget_dampers.itemClicked.connect(self.on_click_item)
-        self.treeWidget_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
-
-        self.treeWidget_masses = self.findChild(QTreeWidget, 'treeWidget_masses')
         self.treeWidget_masses.setColumnWidth(0, 70)
         # self.treeWidget_masses.setColumnWidth(1, 80)
-        self.treeWidget_masses.itemClicked.connect(self.on_click_item)
-        self.treeWidget_masses.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-        self.pushButton_constant_value_confirm = self.findChild(QPushButton, 'pushButton_constant_value_confirm')
-        self.pushButton_constant_value_confirm.clicked.connect(self.check_all_constant_values_inputs)
+    def _create_lists_lineEdits(self):
 
-        self.pushButton_table_values_confirm = self.findChild(QPushButton, 'pushButton_table_values_confirm')
-        self.pushButton_table_values_confirm.clicked.connect(self.check_all_table_values_inputs)
+        self.list_lineEdit_constant_values_lumped_masses = [self.lineEdit_Mx,
+                                                            self.lineEdit_My,
+                                                            self.lineEdit_Mz,
+                                                            self.lineEdit_Jx,
+                                                            self.lineEdit_Jy,
+                                                            self.lineEdit_Jz]
 
-        self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
-        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.list_lineEdit_constant_values_lumped_stiffness = [ self.lineEdit_Kx,
+                                                                self.lineEdit_Ky,
+                                                                self.lineEdit_Kz,
+                                                                self.lineEdit_Krx,
+                                                                self.lineEdit_Kry,
+                                                                self.lineEdit_Krz ]
 
-        self.pushButton_remove_spring_confirm = self.findChild(QPushButton, 'pushButton_remove_spring_confirm')
-        self.pushButton_remove_spring_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.list_lineEdit_constant_values_lumped_dampings = [  self.lineEdit_Cx,
+                                                                self.lineEdit_Cy,
+                                                                self.lineEdit_Cz,
+                                                                self.lineEdit_Crx,
+                                                                self.lineEdit_Cry,
+                                                                self.lineEdit_Crz  ]
 
-        self.pushButton_remove_mass_confirm = self.findChild(QPushButton, 'pushButton_remove_mass_confirm')
-        self.pushButton_remove_mass_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.list_lineEdit_table_values_lumped_masses = [   self.lineEdit_path_table_Mx,
+                                                            self.lineEdit_path_table_My,
+                                                            self.lineEdit_path_table_Mz,
+                                                            self.lineEdit_path_table_Jx,
+                                                            self.lineEdit_path_table_Jy,
+                                                            self.lineEdit_path_table_Jz  ]
 
-        self.pushButton_remove_damper_confirm = self.findChild(QPushButton, 'pushButton_remove_damper_confirm')
-        self.pushButton_remove_damper_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.list_lineEdit_table_values_lumped_stiffness = [self.lineEdit_path_table_Kx,
+                                                            self.lineEdit_path_table_Ky,
+                                                            self.lineEdit_path_table_Kz,
+                                                            self.lineEdit_path_table_Krx,
+                                                            self.lineEdit_path_table_Kry,
+                                                            self.lineEdit_path_table_Krz]
 
-        self.update()
-        self.load_nodes_info()
-        self.exec()
+        self.list_lineEdit_table_values_lumped_dampings = [ self.lineEdit_path_table_Cx,
+                                                            self.lineEdit_path_table_Cy,
+                                                            self.lineEdit_path_table_Cz,
+                                                            self.lineEdit_path_table_Crx,
+                                                            self.lineEdit_path_table_Cry,
+                                                            self.lineEdit_path_table_Crz ]
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_external_elements.currentIndex()==0:
-                self.check_all_constant_values_inputs()
-            elif self.tabWidget_external_elements.currentIndex()==1:
-                self.check_all_table_values_inputs()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+    def tab_event_callback(self):
 
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text[:-2])
+        self.pushButton_remove.setDisabled(True)
+        if self.tabWidget_main.currentIndex() == 1:
+            self.selection_frame.setDisabled(True)
+
+        else:
+            if self.cache_tab == 1:
+                self.lineEdit_selection.setText("")
+            self.selection_frame.setDisabled(False)
+
+        self.cache_tab = self.tabWidget_main.currentIndex()
+
+    def add_lumped_elements(self):
+
+        if self.tabWidget_inputs.currentIndex() == 0:
+            self.check_constant_values_inputs()
+
+        elif self.tabWidget_inputs.currentIndex() == 1:
+            self.check_table_values_inputs()
+
+        self.opv.updateRendererMesh()
+        self.close()
 
     def check_entries(self, lineEdit, label):
 
@@ -340,7 +360,7 @@ class MassSpringDamperInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([window_title_1, title, message])
                 self.stop = True
                 return
         else:
@@ -353,8 +373,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_constant_values_lumped_masses(self):
         
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stopstop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
+        self.stopstop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
         if self.stopstop:
             return
 
@@ -389,8 +409,8 @@ class MassSpringDamperInput(QDialog):
         
     def check_constant_values_lumped_stiffness(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
         if self.stopstop:
             return
 
@@ -425,8 +445,8 @@ class MassSpringDamperInput(QDialog):
  
     def check_constant_values_lumped_dampings(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
         if self.stopstop:
             return
 
@@ -459,7 +479,7 @@ class MassSpringDamperInput(QDialog):
             self.remove_damping_table_files()
             self.project.add_lumped_dampings_by_node(self.nodes_typed, data, False)
 
-    def check_all_constant_values_inputs(self):
+    def check_constant_values_inputs(self):
 
         self.check_constant_values_lumped_masses()
         if self.stop:
@@ -477,7 +497,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n"
             message += "before confirming the input!"
-            PrintMessageInput([window_title, title, message]) 
+            PrintMessageInput([window_title_1, title, message]) 
             return
         
         if self.lumped_masses is not None:
@@ -509,7 +529,7 @@ class MassSpringDamperInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The imported \n"
                 message += "data must have two columns of values."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([window_title_1, title, message])
                 lineEdit.setFocus()
                 return None, None
 
@@ -531,7 +551,7 @@ class MassSpringDamperInput(QDialog):
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([window_title_1, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -699,8 +719,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_masses(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
         if self.stop:
             return
        
@@ -774,8 +794,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_stiffness(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
         if self.stop:
             return
 
@@ -848,8 +868,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_dampings(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
         if self.stop:
             return
 
@@ -920,7 +940,7 @@ class MassSpringDamperInput(QDialog):
 
                 self.project.add_lumped_dampings_by_node([node_id], data, True)
 
-    def check_all_table_values_inputs(self):
+    def check_table_values_inputs(self):
 
         self.check_table_values_lumped_masses()
         if self.stop:
@@ -938,7 +958,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n" 
             message += "table path before confirming the input!"
-            PrintMessageInput([window_title, title, message]) 
+            PrintMessageInput([window_title_1, title, message]) 
             return
 
         if self.lumped_masses is not None:
@@ -957,46 +977,75 @@ class MassSpringDamperInput(QDialog):
 
     def check_remove_bc_from_node(self):
 
+        self.nodes_typed = list()
+        tab_remove_index = self.tabWidget_remove.currentIndex()
+
+        if tab_remove_index == 0:
+
+            self.setVisible(False)
+            title = "Resetting the elastic links from the model"
+            message = "Would you like to remove all nodal elastic links from the structural model?"
+
+            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
+            if read._doNotRun:
+                self.opv.setInputObject(self)
+                self.setVisible(False)
+                return
+            for node in self.preprocessor.nodes_with_masses:
+                index = node.external_index
+                if index not in self.nodes_typed:
+                    self.nodes_typed.append(index)
+
+            for node in self.preprocessor.nodes_connected_to_springs:
+                index = node.external_index
+                if index not in self.nodes_typed:
+                    self.nodes_typed.append(index)
+
+            for node in self.preprocessor.nodes_connected_to_dampers:
+                index = node.external_index
+                if index not in self.nodes_typed:
+                    self.nodes_typed.append(index)
+        else:
+            lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
+            _stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+            if _stop:
+                return
+
         list_reset = [None, None, None, None, None, None]
         data = [list_reset, list_reset]
 
-        self.remove_mass = self.checkBox_remove_mass.isChecked()
-        self.remove_spring = self.checkBox_remove_spring.isChecked()
-        self.remove_damper = self.checkBox_remove_damper.isChecked()
+        remove_mass = self.checkBox_remove_mass.isChecked()
+        remove_spring = self.checkBox_remove_spring.isChecked()
+        remove_damper = self.checkBox_remove_damper.isChecked()
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
-            return
+        if self.nodes_typed:
 
-        if (self.remove_mass and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==2:    
-            key_strings = ["masses", "moments of inertia"]
-            message = "The masses and moments of inertia attributed to the \n\n"
-            message += f"{self.nodes_typed}\n\n node(s) have been removed."
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message, equals_keys=True)
-            self.remove_masses_table_files()
-            self.preprocessor.add_mass_to_node(self.nodes_typed, data)
-   
-        if (self.remove_spring and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==1:   
-            key_strings = ["spring stiffness", "torsional spring stiffness"]
-            message = "The stiffness (translational and tosional) attributed to the \n\n"
-            message += f"{self.nodes_typed}\n\n node(s) have been removed."
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message, equals_keys=True)
-            self.remove_stiffness_table_files()
-            self.preprocessor.add_spring_to_node(self.nodes_typed, data)
-            
-        if (self.remove_damper and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==3: 
-            key_strings = ["damping coefficients", "torsional damping coefficients"]
-            message = "The dampings (translational and tosional) attributed to the \n\n"
-            message += f"{self.nodes_typed}\n\n node(s) have been removed."
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message, equals_keys=True)
-            self.remove_damping_table_files()
-            self.preprocessor.add_damper_to_node(self.nodes_typed, data)
+            if (remove_mass and tab_remove_index == 0) or tab_remove_index == 1:    
+                key_strings = ["masses", "moments of inertia"]
+                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.remove_masses_table_files()
+                self.preprocessor.add_mass_to_node(self.nodes_typed, data)
 
-        self.load_nodes_info()
-        self.opv.updateRendererMesh()
-        # self.close()
-    
+            if (remove_spring and tab_remove_index == 0) or tab_remove_index == 2:   
+                key_strings = ["spring stiffness", "torsional spring stiffness"]
+                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.remove_stiffness_table_files()
+                self.preprocessor.add_spring_to_node(self.nodes_typed, data)
+
+            if (remove_damper and tab_remove_index == 0) or tab_remove_index == 3: 
+                key_strings = ["damping coefficients", "torsional damping coefficients"]
+                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.remove_damping_table_files()
+                self.preprocessor.add_damper_to_node(self.nodes_typed, data)
+
+            self.load_treeWidgets_info()
+            self.opv.updateRendererMesh()
+
+            if tab_remove_index == 0:
+                self.close()
+
     def remove_masses_table_files(self):
         for node_typed in self.nodes_typed:
             node = self.preprocessor.nodes[node_typed]
@@ -1047,7 +1096,9 @@ class MassSpringDamperInput(QDialog):
             text = "[{}]".format(temp[0])
         return text
 
-    def load_nodes_info(self):
+    def load_treeWidgets_info(self):
+
+        self.pushButton_remove.setDisabled(True)
 
         self.treeWidget_springs.clear()
         load_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])        
@@ -1076,107 +1127,137 @@ class MassSpringDamperInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_masses.addTopLevelItem(new)
 
-    def on_click_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+    def on_click_item_masses(self, item):
+        self.current_selection = "lumped masses"
+        self.pushButton_remove.setDisabled(False)
+        self.lineEdit_nodes_ids.setText(item.text(0))
 
-    def on_doubleclick_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
-        self.check_remove_bc_from_node()
+    def on_doubleclick_item_masses(self, item):
+        self.on_click_item_masses(item)
+        # self.check_remove_bc_from_node()
 
-    def reset_input_fields_masses(self, force_reset=False):
-        if self.lumped_masses_inputs_from_node or force_reset:
-            for lineEdit_constant_masses in self.list_lineEdit_constant_values_lumped_masses:    
-                lineEdit_constant_masses.setText("")
-            for lineEdit_table_masses in self.list_lineEdit_table_values_lumped_masses:
-                lineEdit_table_masses.setText("")
-            self.lumped_masses_inputs_from_node = False
+    def on_click_item_springs(self, item):
+        self.current_selection = "lumped stiffness"
+        self.pushButton_remove.setDisabled(False)
+        self.lineEdit_nodes_ids.setText(item.text(0))
 
-    def reset_input_fields_stiffness(self, force_reset=False):
-        if self.lumped_stiffness_inputs_from_node or force_reset:
-            for lineEdit_constant_stiffness in self.list_lineEdit_constant_values_lumped_stiffness:    
-                lineEdit_constant_stiffness.setText("")
-            for lineEdit_table_stiffness in self.list_lineEdit_table_values_lumped_stiffness:
-                lineEdit_table_stiffness.setText("")
-            self.lumped_stiffness_inputs_from_node = False
+    def on_doubleclick_item_springs(self, item):
+        self.on_click_item_springs(item)
+        # self.check_remove_bc_from_node()
 
-    def reset_input_fields_dampings(self, force_reset=False):
-        if self.lumped_dampings_inputs_from_node or force_reset:
-            for lineEdit_constant_dampings in self.list_lineEdit_constant_values_lumped_dampings:    
-                lineEdit_constant_dampings.setText("")
-            for lineEdit_table_dampings in self.list_lineEdit_table_values_lumped_dampings:
-                lineEdit_table_dampings.setText("")
-            self.lumped_dampings_inputs_from_node = False
+    def on_click_item_dampings(self, item):
+        self.current_selection = "lumped dampings"
+        self.pushButton_remove.setDisabled(False)
+        self.lineEdit_nodes_ids.setText(item.text(0))
+
+    def on_doubleclick_item_dampings(self, item):
+        self.on_click_item_dampings(item)
+        # self.check_remove_bc_from_node()
+
+    def reset_input_fields_masses(self):
+        for lineEdit_constant_masses in self.list_lineEdit_constant_values_lumped_masses:    
+            lineEdit_constant_masses.setText("")
+        for lineEdit_table_masses in self.list_lineEdit_table_values_lumped_masses:
+            lineEdit_table_masses.setText("")
+
+    def reset_input_fields_stiffness(self):
+        for lineEdit_constant_stiffness in self.list_lineEdit_constant_values_lumped_stiffness:    
+            lineEdit_constant_stiffness.setText("")
+        for lineEdit_table_stiffness in self.list_lineEdit_table_values_lumped_stiffness:
+            lineEdit_table_stiffness.setText("")
+
+    def reset_input_fields_dampings(self):
+        for lineEdit_constant_dampings in self.list_lineEdit_constant_values_lumped_dampings:    
+            lineEdit_constant_dampings.setText("")
+        for lineEdit_table_dampings in self.list_lineEdit_table_values_lumped_dampings:
+            lineEdit_table_dampings.setText("")
 
     def update(self):
-        list_picked_nodes = self.opv.getListPickedPoints()
-        if list_picked_nodes != []:
-            picked_node = list_picked_nodes[0]
-            node = self.preprocessor.nodes[picked_node]
-            self.writeNodes(self.opv.getListPickedPoints())
 
-            #Lumped masses/inertia
-            if node.there_are_lumped_masses:
-                self.reset_input_fields_masses(force_reset=True)
-                if node.loaded_table_for_lumped_masses:
-                    table_names = node.lumped_masses_table_names
-                    self.tabWidget_external_elements.setCurrentWidget(self.tab_table_values)
-                    self.tabWidget_table_values.setCurrentWidget(self.tab_mass_table)
-                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_masses):
-                        if table_names[index] is not None:
-                            table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
-                            lineEdit_table.setText(table_name)
-                else:
-                    lumped_masses = node.lumped_masses
-                    self.tabWidget_external_elements.setCurrentWidget(self.tab_constant_values)
-                    self.tabWidget_constant_values.setCurrentWidget(self.tab_mass)
-                    for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_masses):
-                        if lumped_masses[index] is not None:
-                            lineEdit_constant.setText(str(lumped_masses[index]))
-                self.lumped_masses_inputs_from_node = True
-            else:
+        try:
+            nodes_ids = self.opv.getListPickedPoints()
+            if nodes_ids:
+
+                self.wirte_ids(nodes_ids)
+
                 self.reset_input_fields_masses()
-
-            #Lumped stiffness
-            if node.there_are_lumped_stiffness:
-                self.reset_input_fields_stiffness(force_reset=True)
-                if node.loaded_table_for_lumped_stiffness:
-                    table_names = node.lumped_stiffness_table_names
-                    self.tabWidget_external_elements.setCurrentWidget(self.tab_table_values)
-                    self.tabWidget_table_values.setCurrentWidget(self.tab_spring_table)
-                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_stiffness):
-                        if table_names[index] is not None:
-                            table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
-                            lineEdit_table.setText(table_name)
-                else:
-                    lumped_stiffness = node.lumped_stiffness
-                    self.tabWidget_external_elements.setCurrentWidget(self.tab_constant_values)
-                    self.tabWidget_constant_values.setCurrentWidget(self.tab_spring)
-                    for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_stiffness):
-                        if lumped_stiffness[index] is not None:
-                            lineEdit_constant.setText(str(lumped_stiffness[index]))
-                self.lumped_stiffness_inputs_from_node = True
-            else:
                 self.reset_input_fields_stiffness()
-
-            #Lumped dampings
-            if node.there_are_lumped_dampings:
-                self.reset_input_fields_dampings(force_reset=True)
-                if node.loaded_table_for_lumped_dampings:
-                    table_names = node.lumped_dampings_table_names
-                    self.tabWidget_external_elements.setCurrentWidget(self.tab_table_values)
-                    self.tabWidget_table_values.setCurrentWidget(self.tab_damper_table)
-                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_dampings):
-                        if table_names[index] is not None:
-                            table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
-                            lineEdit_table.setText(table_name)
-                else:
-                    lumped_dampings = node.lumped_dampings
-                    self.tabWidget_external_elements.setCurrentWidget(self.tab_constant_values)
-                    self.tabWidget_constant_values.setCurrentWidget(self.tab_damper)
-                    for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_dampings):
-                        if lumped_dampings[index] is not None:
-                            lineEdit_constant.setText(str(lumped_dampings[index]))
-                self.lumped_dampings_inputs_from_node = True
-            else:
                 self.reset_input_fields_dampings()
-            
+
+                if len(nodes_ids) == 1:
+                    node = self.preprocessor.nodes[nodes_ids[0]]
+
+                    # Lumped masses/inertias
+                    if node.there_are_lumped_masses:
+                        if node.loaded_table_for_lumped_masses:
+                            table_names = node.lumped_masses_table_names
+                            self.tabWidget_inputs.setCurrentIndex(1)
+                            self.tabWidget_table_values.setCurrentIndex(0)
+                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_masses):
+                                if table_names[index] is not None:
+                                    table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
+                                    lineEdit_table.setText(table_name)
+                        else:
+                            lumped_masses = node.lumped_masses
+                            self.tabWidget_inputs.setCurrentIndex(0)
+                            self.tabWidget_constant_values.setCurrentIndex(1)
+                            for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_masses):
+                                if lumped_masses[index] is not None:
+                                    lineEdit_constant.setText(str(lumped_masses[index]))
+                        self.lumped_masses_inputs_from_node = True
+
+                    # Lumped stiffness
+                    if node.there_are_lumped_stiffness:
+                        if node.loaded_table_for_lumped_stiffness:
+                            table_names = node.lumped_stiffness_table_namess
+                            self.tabWidget_inputs.setCurrentIndex(1)
+                            self.tabWidget_table_values.setCurrentIndex(1)
+                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_stiffness):
+                                if table_names[index] is not None:
+                                    table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
+                                    lineEdit_table.setText(table_name)
+                        else:
+                            lumped_stiffness = node.lumped_stiffness
+                            self.tabWidget_inputs.setCurrentIndex(0)
+                            self.tabWidget_constant_values.setCurrentIndex(1)
+                            for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_stiffness):
+                                if lumped_stiffness[index] is not None:
+                                    lineEdit_constant.setText(str(lumped_stiffness[index]))
+                        self.lumped_stiffness_inputs_from_node = True
+
+                    # Lumped dampings
+                    if node.there_are_lumped_dampings:
+                        if node.loaded_table_for_lumped_dampings:
+                            table_names = node.lumped_dampings_table_names
+                            self.tabWidget_inputs.setCurrentIndex(1)
+                            self.tabWidget_table_values.setCurrentIndex(2)
+                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_dampings):
+                                if table_names[index] is not None:
+                                    table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
+                                    lineEdit_table.setText(table_name)
+                        else:
+                            lumped_dampings = node.lumped_dampings
+                            self.tabWidget_inputs.setCurrentIndex(0)
+                            self.tabWidget_constant_values.setCurrentIndex(2)
+                            for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_dampings):
+                                if lumped_dampings[index] is not None:
+                                    lineEdit_constant.setText(str(lumped_dampings[index]))
+                        self.lumped_dampings_inputs_from_node = True
+
+        except Exception as error_log:
+            title = "Error in 'update' function"
+            message = str(error_log)
+            # TODO: disable the 'messages' until solve the 'update' function recursive callback problem in opvRenderer
+            # PrintMessageInput([window_title_1, title, message])
+
+    def wirte_ids(self, list_node_ids):
+        text = ""
+        for node in list_node_ids:
+            text += "{}, ".format(node)
+        self.lineEdit_nodes_ids.setText(text[:-2])
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.add_lumped_elements()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

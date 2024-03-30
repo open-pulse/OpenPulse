@@ -143,7 +143,7 @@
        <number>0</number>
       </property>
       <item row="0" column="1" rowspan="2">
-       <widget class="QFrame" name="selection_frame_2">
+       <widget class="QFrame" name="selection_frame">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -237,16 +237,16 @@
           </spacer>
          </item>
          <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_first_node_id">
+          <widget class="QLineEdit" name="lineEdit_nodes_ids">
            <property name="minimumSize">
             <size>
-             <width>120</width>
+             <width>160</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>160</width>
              <height>26</height>
             </size>
            </property>
@@ -305,7 +305,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
           <number>4</number>
          </property>
          <item row="0" column="0">
-          <widget class="QTabWidget" name="tabWidget_main_2">
+          <widget class="QTabWidget" name="tabWidget_main">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -317,6 +317,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
              <width>482</width>
              <height>700</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
            </property>
            <property name="currentIndex">
             <number>0</number>
@@ -361,6 +366,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  <height>0</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="currentIndex">
                 <number>0</number>
                </property>
@@ -385,7 +395,12 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                   <number>4</number>
                  </property>
                  <item row="0" column="0" colspan="2">
-                  <widget class="QTabWidget" name="tabWidget_single_values">
+                  <widget class="QTabWidget" name="tabWidget_constant_values">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="currentIndex">
                     <number>0</number>
                    </property>
@@ -495,7 +510,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_mz">
+                      <widget class="QLineEdit" name="lineEdit_Mz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -529,7 +544,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_mx">
+                      <widget class="QLineEdit" name="lineEdit_Mx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -684,7 +699,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_my">
+                      <widget class="QLineEdit" name="lineEdit_My">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2205,7 +2220,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                   <number>4</number>
                  </property>
                  <item row="0" column="0">
-                  <widget class="QTabWidget" name="tabWidget">
+                  <widget class="QTabWidget" name="tabWidget_table_values">
                    <property name="font">
                     <font>
                      <pointsize>10</pointsize>
@@ -2344,7 +2359,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="2" column="3">
-                      <widget class="QPushButton" name="pushButton_load_Kz_table_2">
+                      <widget class="QPushButton" name="pushButton_load_Mz_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2416,7 +2431,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                       </widget>
                      </item>
                      <item row="1" column="3">
-                      <widget class="QPushButton" name="pushButton_load_Ky_table_2">
+                      <widget class="QPushButton" name="pushButton_load_My_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2455,7 +2470,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Krx_2">
+                      <widget class="QLineEdit" name="lineEdit_path_table_Jx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2492,7 +2507,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="3" column="3">
-                      <widget class="QPushButton" name="pushButton_load_Krx_table_2">
+                      <widget class="QPushButton" name="pushButton_load_Jx_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2531,7 +2546,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kry_2">
+                      <widget class="QLineEdit" name="lineEdit_path_table_Jy">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2568,7 +2583,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="4" column="3">
-                      <widget class="QPushButton" name="pushButton_load_Kry_table_2">
+                      <widget class="QPushButton" name="pushButton_load_Jy_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2607,7 +2622,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                       </widget>
                      </item>
                      <item row="5" column="3">
-                      <widget class="QPushButton" name="pushButton_load_Krz_table_2">
+                      <widget class="QPushButton" name="pushButton_load_Jz_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2646,7 +2661,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kx_2">
+                      <widget class="QLineEdit" name="lineEdit_path_table_Mx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2683,7 +2698,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Krz_2">
+                      <widget class="QLineEdit" name="lineEdit_path_table_Jz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2753,7 +2768,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Ky_2">
+                      <widget class="QLineEdit" name="lineEdit_path_table_My">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2790,7 +2805,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kz_2">
+                      <widget class="QLineEdit" name="lineEdit_path_table_Mz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2827,7 +2842,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                       </widget>
                      </item>
                      <item row="0" column="3">
-                      <widget class="QPushButton" name="pushButton_load_Kx_table_2">
+                      <widget class="QPushButton" name="pushButton_load_Mx_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4355,6 +4370,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                   <property name="font">
                    <font>
                     <family>MS Shell Dlg 2</family>
+                    <pointsize>10</pointsize>
                    </font>
                   </property>
                   <property name="currentIndex">
@@ -4379,6 +4395,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                         <height>25</height>
                        </size>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>Spring (translational/torsional)</string>
                       </property>
@@ -4401,6 +4422,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                         <height>25</height>
                        </size>
                       </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
                       <property name="text">
                        <string>Masses / Moments of inertia</string>
                       </property>
@@ -4422,6 +4448,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                         <width>250</width>
                         <height>25</height>
                        </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
                       </property>
                       <property name="text">
                        <string>Damper (translational/torsional)</string>
@@ -4459,13 +4490,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                     </item>
                    </layout>
                   </widget>
-                  <widget class="QWidget" name="tab_spring_remove">
+                  <widget class="QWidget" name="tab_mass_remove">
                    <attribute name="title">
-                    <string>Spring</string>
+                    <string>Mass</string>
                    </attribute>
-                   <layout class="QGridLayout" name="gridLayout_5">
+                   <layout class="QGridLayout" name="gridLayout_4">
                     <item row="0" column="0">
-                     <widget class="QTreeWidget" name="treeWidget_springs">
+                     <widget class="QTreeWidget" name="treeWidget_masses">
                       <property name="minimumSize">
                        <size>
                         <width>280</width>
@@ -4506,13 +4537,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                     </item>
                    </layout>
                   </widget>
-                  <widget class="QWidget" name="tab_mass_remove">
+                  <widget class="QWidget" name="tab_spring_remove">
                    <attribute name="title">
-                    <string>Mass</string>
+                    <string>Spring</string>
                    </attribute>
-                   <layout class="QGridLayout" name="gridLayout_4">
+                   <layout class="QGridLayout" name="gridLayout_5">
                     <item row="0" column="0">
-                     <widget class="QTreeWidget" name="treeWidget_masses">
+                     <widget class="QTreeWidget" name="treeWidget_springs">
                       <property name="minimumSize">
                        <size>
                         <width>280</width>
@@ -4601,7 +4632,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QFrame" name="frame_buttons_2">
+              <widget class="QFrame" name="frame_buttons">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -4637,7 +4668,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  <number>0</number>
                 </property>
                 <item row="0" column="0">
-                 <widget class="QPushButton" name="pushButton_reset_2">
+                 <widget class="QPushButton" name="pushButton_reset">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -4671,7 +4702,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QPushButton" name="pushButton_remove_2">
+                 <widget class="QPushButton" name="pushButton_remove">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -4774,7 +4805,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  </spacer>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QLabel" name="label_first_node_id_2">
+                 <widget class="QLabel" name="label_selection">
                   <property name="minimumSize">
                    <size>
                     <width>80</width>
