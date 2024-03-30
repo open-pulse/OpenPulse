@@ -664,7 +664,13 @@ class Preprocessor:
         
         countA = 0
         if acoustic:
-            acoustic_bcs = [node.acoustic_pressure, node.volume_velocity, node.specific_impedance, node.radiation_impedance, node.compressor_excitation_table_names]
+
+            acoustic_bcs = [node.acoustic_pressure, 
+                            node.volume_velocity, 
+                            node.specific_impedance, 
+                            node.radiation_impedance, 
+                            node.compressor_excitation_table_names]
+
             for acoustic_bc in acoustic_bcs:
                 if isinstance(acoustic_bc, np.ndarray):
                     countA += 1
@@ -676,7 +682,14 @@ class Preprocessor:
 
         countS = 0
         if structural:
-            structural_bcs = [node.prescribed_dofs, node.nodal_loads, node.lumped_masses, node.lumped_stiffness, node.lumped_dampings, node.elastic_nodal_link_stiffness]
+
+            structural_bcs = [node.prescribed_dofs, 
+                              node.nodal_loads, 
+                              node.lumped_masses, 
+                              node.lumped_stiffness, 
+                              node.lumped_dampings, 
+                              node.elastic_nodal_link_stiffness]
+
             for structural_bc in structural_bcs:
                 if isinstance(structural_bc, np.ndarray):
                     countS += 1

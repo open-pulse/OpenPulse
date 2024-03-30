@@ -752,6 +752,10 @@ class MainWindow(QMainWindow):
     #     return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
+
+        if self.opv_widget.inputObject is not None:
+            self.opv_widget.inputObject.close()
+
         title = "OpenPulse"
         message = "Would you like to exit from the OpenPulse application?"
         close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)

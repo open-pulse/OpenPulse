@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>609</height>
+    <width>460</width>
+    <height>540</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>460</width>
+    <height>540</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>460</width>
+    <height>540</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
@@ -126,7 +138,7 @@
        <number>0</number>
       </property>
       <item row="0" column="1" rowspan="2">
-       <widget class="QFrame" name="selection_frame_2">
+       <widget class="QFrame" name="selection_frame">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -316,7 +328,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
        </widget>
       </item>
       <item row="2" column="0" colspan="2">
-       <widget class="QFrame" name="frame_tabWidgets_2">
+       <widget class="QFrame" name="frame_tabWidgets">
         <property name="minimumSize">
          <size>
           <width>400</width>
@@ -346,7 +358,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
           <number>4</number>
          </property>
          <item row="0" column="0">
-          <widget class="QTabWidget" name="tabWidget_main_2">
+          <widget class="QTabWidget" name="tabWidget_main">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -367,7 +379,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tab_setup_2">
+           <widget class="QWidget" name="tab_setup">
             <attribute name="title">
              <string>Setup</string>
             </attribute>
@@ -388,7 +400,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <number>4</number>
              </property>
              <item row="0" column="0">
-              <widget class="QTabWidget" name="tabWidget_inputs_2">
+              <widget class="QTabWidget" name="tabWidget_inputs">
                <property name="minimumSize">
                 <size>
                  <width>380</width>
@@ -407,10 +419,15 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  <height>0</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="currentIndex">
                 <number>0</number>
                </property>
-               <widget class="QWidget" name="tab_constant_values_2">
+               <widget class="QWidget" name="tab_constant_values">
                 <attribute name="title">
                  <string>Constant values</string>
                 </attribute>
@@ -431,11 +448,16 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                   <number>4</number>
                  </property>
                  <item row="0" column="0" colspan="2">
-                  <widget class="QTabWidget" name="tabWidget_single_values">
+                  <widget class="QTabWidget" name="tabWidget_constant_values">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="currentIndex">
                     <number>0</number>
                    </property>
-                   <widget class="QWidget" name="tab_spring">
+                   <widget class="QWidget" name="tab_spring_constant">
                     <attribute name="title">
                      <string>Spring</string>
                     </attribute>
@@ -1032,7 +1054,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="tab_damper">
+                   <widget class="QWidget" name="tab_damper_constant">
                     <attribute name="title">
                      <string>Damper</string>
                     </attribute>
@@ -1633,7 +1655,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  </item>
                 </layout>
                </widget>
-               <widget class="QWidget" name="tab_table_values_2">
+               <widget class="QWidget" name="tab_table_values">
                 <attribute name="title">
                  <string>Table of values</string>
                 </attribute>
@@ -1653,8 +1675,8 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  <property name="spacing">
                   <number>4</number>
                  </property>
-                 <item row="0" column="1" colspan="2">
-                  <widget class="QTabWidget" name="tabWidget">
+                 <item row="0" column="0" colspan="2">
+                  <widget class="QTabWidget" name="tabWidget_table_values">
                    <property name="font">
                     <font>
                      <pointsize>10</pointsize>
@@ -3033,39 +3055,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                    </widget>
                   </widget>
                  </item>
-                 <item row="1" column="3">
-                  <spacer name="horizontalSpacer_15">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item row="1" column="0">
-                  <spacer name="horizontalSpacer_16">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
                 </layout>
                </widget>
               </widget>
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tab_remove_2">
+           <widget class="QWidget" name="tab_remove">
             <property name="font">
              <font>
               <family>MS UI Gothic</family>
@@ -3092,7 +3088,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                <property name="minimumSize">
                 <size>
                  <width>320</width>
-                 <height>120</height>
+                 <height>100</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -3139,7 +3135,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                <property name="minimumSize">
                 <size>
                  <width>320</width>
-                 <height>120</height>
+                 <height>100</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -3218,7 +3214,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  <number>0</number>
                 </property>
                 <item row="0" column="0">
-                 <widget class="QPushButton" name="pushButton_reset_2">
+                 <widget class="QPushButton" name="pushButton_reset">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -3251,7 +3247,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QPushButton" name="pushButton_remove_2">
+                 <widget class="QPushButton" name="pushButton_remove">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -3288,7 +3284,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>48</height>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>40</height>
                 </size>
                </property>
                <property name="frameShape">
@@ -3353,7 +3355,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  </spacer>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QLabel" name="label_first_node_id_2">
+                 <widget class="QLabel" name="label_selection">
                   <property name="minimumSize">
                    <size>
                     <width>80</width>
@@ -3445,7 +3447,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
        <number>4</number>
       </property>
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_confirm_2">
+       <widget class="QPushButton" name="pushButton_confirm">
         <property name="minimumSize">
          <size>
           <width>100</width>

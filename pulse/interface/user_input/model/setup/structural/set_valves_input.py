@@ -756,14 +756,18 @@ class ValvesInput(QDialog):
                 return True
 
     def set_cross_section_to_list_elements(self, list_elements, section_parameters, valve_diameters): 
+
+        list_cross_sections = list()
         valve_section_info = {  "section_type_label" : "Valve section" ,
                                 "section_parameters" : section_parameters  }
-        list_cross_sections = []
+
         for element_id in list_elements:             
             valve_section_info["diameters_to_plot"] = valve_diameters[element_id] 
             cross_section = CrossSection(valve_section_info=valve_section_info)
             list_cross_sections.append(cross_section)
+
         self.project.set_cross_section_by_elements(list_elements, list_cross_sections)
+
         return False
     
     def check_previous_attributions_to_elements(self, list_elements):
@@ -932,10 +936,12 @@ class ValvesInput(QDialog):
         self.setVisible(False)
         title = f"Removal of all valves from model"
         message = "Would you like to remove all valves from the model?"
+        
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._stop:
+            self.setInputObject(self)
             self.setVisible(True)
             return
 

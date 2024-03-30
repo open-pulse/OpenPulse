@@ -279,6 +279,7 @@ class CompressorModelInput(QDialog):
             self.lineEdit_discharge_node_ID.setText("")
             if len(list_node_ids) == 1:
                 self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
+
         elif index == 2:
             self.current_lineEdit = self.lineEdit_discharge_node_ID
             self.lineEdit_suction_node_ID.setDisabled(True)
@@ -296,6 +297,7 @@ class CompressorModelInput(QDialog):
         if index == 1:
             self.lineEdit_discharge_node_ID.setText("")
             self.lineEdit_discharge_node_ID.setDisabled(True)
+
         elif index == 2:
             self.lineEdit_suction_node_ID.setText("")
             self.lineEdit_suction_node_ID.setDisabled(True)
