@@ -182,15 +182,15 @@ class StructuralElementTypeInput(QDialog):
             
     def update_modified_cross_sections(self):
         lines_to_reset = self.list_lines_to_update_cross_section
-        self.project.set_cross_section_by_line(lines_to_reset, None)
+        self.project.set_cross_section_by_lines(lines_to_reset, None)
         
         # final_etype = self.element_type
         # for tag in tags:
         #     initial_etype = self.dict_tag_to_entity[tag].structural_element_type
         #     if initial_etype in ['pipe_1'] and final_etype in ['beam_1']:
-        #         self.project.set_cross_section_by_line(tag, None)
+        #         self.project.set_cross_section_by_lines(tag, None)
         #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1']:
-        #         self.project.set_cross_section_by_line(tag, None)
+        #         self.project.set_cross_section_by_lines(tag, None)
 
     def confirm_button_clicked(self):
 

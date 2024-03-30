@@ -147,6 +147,8 @@ class MainWindow(QMainWindow):
         }
 
         self.combo_box_workspaces = QComboBox()
+        self.combo_box_workspaces.setMinimumSize(170, 26)
+
         # iterating sorted items make the icons appear in the same 
         # order as defined in the Workspace enumerator
         for _, action in sorted(actions.items()):

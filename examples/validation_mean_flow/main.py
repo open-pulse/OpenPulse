@@ -53,8 +53,8 @@ element_type = 'peters'
 preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=None)
 
 preprocessor.set_fluid_by_element('all', air)
-preprocessor.set_cross_section_by_line([1, 2], cross_section1)
-preprocessor.set_cross_section_by_line([3, 4], cross_section2)
+preprocessor.set_cross_section_by_lines([1, 2], cross_section1)
+preprocessor.set_cross_section_by_lines([3, 4], cross_section2)
 
 mach = 0.1
 mean_velocity = mach * air.speed_of_sound

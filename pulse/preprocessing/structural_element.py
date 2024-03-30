@@ -135,15 +135,8 @@ class StructuralElement:
 
         self.capped_end = kwargs.get('capped_end', True)
         self.stress_intensification = kwargs.get('stress_intensification', True)
-        self.force_offset = True
-
-        self.section_rotation_xyz_undeformed = None
-        self.deformed_rotation_xyz = None
-        self.deformed_length = None
-        self.xaxis_beam_rotation = 0
         
-        self.internal_pressure = 0
-        self.external_pressure = 0
+        self._initialize()
         self.reset_expansion_joint_parameters()
         self.reset_valve_parameters()
 
@@ -154,6 +147,16 @@ class StructuralElement:
         self.element_center_coordinates = np.array([(self.last_node.x + self.first_node.x)/2, 
                                                     (self.last_node.y + self.first_node.y)/2,
                                                     (self.last_node.z + self.first_node.z)/2], dtype=float)
+
+    def _initialize(self):
+
+        self.section_rotation_xyz_undeformed = None
+        self.deformed_rotation_xyz = None
+        self.deformed_length = None
+        self.xaxis_beam_rotation = 0
+        
+        self.internal_pressure = 0
+        self.external_pressure = 0
 
         self._Dab = None
         self._Bab = None
@@ -175,6 +178,7 @@ class StructuralElement:
         self.perforated_plate = None
         self.valve_parameters = None
         self.variable_section = False
+        self.force_offset = True
 
     @property
     def length(self):

@@ -738,7 +738,7 @@ class SetCrossSectionInput(QDialog):
             self.project.add_valve_by_line(line_id, None, reset_cross=False)
             self.project._set_expansion_joint_to_selected_lines(self.lines_typed, None)
                 
-            self.project.set_cross_section_by_line(self.lines_typed, self.cross_section)
+            self.project.set_cross_section_by_lines(self.lines_typed, self.cross_section)
             self.project.set_structural_element_type_by_lines(self.lines_typed, self.element_type)
             
             if len(self.lines_typed) < 20:
@@ -763,7 +763,7 @@ class SetCrossSectionInput(QDialog):
             self.project.add_valve_by_line(line_ids, None, reset_cross=False)
             self.project._set_expansion_joint_to_selected_lines(line_ids, None)
 
-            self.project.set_cross_section_by_line(line_ids, self.cross_section)
+            self.project.set_cross_section_by_lines(line_ids, self.cross_section)
             self.project.set_structural_element_type_to_all(self.element_type)
             
             print("[Set Cross-section] - defined at all lines") 

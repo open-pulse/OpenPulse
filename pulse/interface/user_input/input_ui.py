@@ -17,13 +17,13 @@ from pulse.interface.user_input.model.setup.structural.structural_element_type_i
 from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input import PrescribedDofsInput
 from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
 from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
-from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
+from pulse.interface.user_input.model.setup.structural.elastic_nodal_links_input import ElasticNodalLinksInput
 from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
 from pulse.interface.user_input.model.setup.structural.stress_stiffening_input import StressStiffeningInput
 from pulse.interface.user_input.model.setup.structural.capped_end_input import CappedEndInput
 from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
 from pulse.interface.user_input.model.setup.structural.connecting_flanges_input import ConnectingFlangesInput
-from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
 from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input import BeamXaxisRotationInput 
 from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
 #
@@ -227,13 +227,13 @@ class InputUi:
         self.process_input(StressStiffeningInput)
 
     def add_elastic_nodal_links(self):
-        self.process_input(ElasticNodalLinksInput, self.project, self.opv)
+        self.process_input(ElasticNodalLinksInput)
 
     def set_inertial_load(self):
         return self.process_input(SetInertialLoad)
     
     def add_expansion_joint(self):
-        self.process_input(ExpansionJointInput, self.project, self.opv)
+        self.process_input(ExpansionJointInput)
 
     def add_valve(self):
         return self.process_input(ValvesInput)

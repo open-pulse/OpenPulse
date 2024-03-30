@@ -104,11 +104,12 @@ class ValvesInput(QDialog):
         self.comboBox_selection.currentIndexChanged.connect(self.selection_type_callback)
         self.pushButton_confirm.clicked.connect(self.add_valve_to_selection)
         self.pushButton_remove.clicked.connect(self.remove_valve_by_selection)
-        self.pushButton_reset.clicked.connect(self.remove_all_valves)
+        self.pushButton_reset.clicked.connect(self.reset_valves)
         self.spinBox_number_elements_flange.valueChanged.connect(self.update_flange_length)
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         self.treeWidget_valve_remove.itemClicked.connect(self.on_click_item)
         self.treeWidget_valve_remove.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.update_flange_length()
 
     def _config_widgets(self):
         self.cache_tab = self.tabWidget_main.currentIndex()
@@ -174,7 +175,7 @@ class ValvesInput(QDialog):
                     self.opv.opvRenderer.highlight_elements(element_id)
 
         if self.allow_to_update:
-            self.update() 
+            self.update()
 
     def update(self):
 
@@ -885,33 +886,36 @@ class ValvesInput(QDialog):
 
             self.reset_valve_attributes_from_lines(valve_elements)
             self.remove_existing_perforated_plate(valve_elements)
+            self.restore_the_cross_section(valve_elements)
 
-            lists_element_indexes = []
-            first_element_id = min(valve_elements)
-            last_element_id = max(valve_elements)
-            lists_element_indexes.append([  first_element_id - 1, 
-                                            first_element_id + 1, 
-                                            last_element_id - 1,  
-                                            last_element_id + 1  ])
+    def restore_the_cross_section(self, input_elements):
 
-            line_id = self.preprocessor.elements_to_line[valve_elements[0]]
-            first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
-            last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
-            lists_element_indexes.append([  first_element_id_from_line - 1, 
-                                            first_element_id_from_line + 1, 
-                                            last_element_id_from_line - 1,  
-                                            last_element_id_from_line + 1  ])
+        lists_element_indexes = []
+        first_element_id = min(input_elements)
+        last_element_id = max(input_elements)
+        lists_element_indexes.append([  first_element_id - 1, 
+                                        first_element_id + 1,
+                                        last_element_id - 1,  
+                                        last_element_id + 1  ])
 
-            for element_indexes in lists_element_indexes:
-                for element_id in element_indexes:
-                    if element_id not in valve_elements:
-                        cross = self.structural_elements[element_id].cross_section
-                        element_type = self.structural_elements[element_id].element_type
-                        if element_type == 'pipe_1':
-                            if cross:
-                                self.project.set_cross_section_by_elements(valve_elements, cross)
-                                self.project.add_cross_sections_expansion_joints_valves_in_file(valve_elements)
-                                return self.load_valves_info()
+        line_id = self.preprocessor.elements_to_line[input_elements[0]]
+        first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
+        last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
+        lists_element_indexes.append([  first_element_id_from_line - 1, 
+                                        first_element_id_from_line + 1, 
+                                        last_element_id_from_line - 1,  
+                                        last_element_id_from_line + 1  ])
+
+        for element_indexes in lists_element_indexes:
+            for element_id in element_indexes:
+                if element_id not in input_elements:
+                    cross = self.structural_elements[element_id].cross_section
+                    element_type = self.structural_elements[element_id].element_type
+                    if element_type == 'pipe_1':
+                        if cross:
+                            self.project.set_cross_section_by_elements(input_elements, cross)
+                            self.project.add_cross_sections_expansion_joints_valves_in_file(input_elements)
+                            return self.load_valves_info()
 
     def remove_valve_by_selection(self):
         if self.lineEdit_selected_id.text() != "":
@@ -921,15 +925,9 @@ class ValvesInput(QDialog):
                 self.remove_valve_function(key)
 
             self.lineEdit_selected_id.setText("")
-            self.opv.opvRenderer.plot()
             self.opv.plot_entities_with_cross_section()
 
-            title = "Valve removal complete"
-            message = "The selectect valve has been removed from model.\n\n"
-            message += f"Selected valve: {key}"
-            PrintMessageInput([window_title_2, title, message])
-
-    def remove_all_valves(self):
+    def reset_valves(self):
 
         self.setVisible(False)
         title = f"Removal of all valves from model"
@@ -945,12 +943,7 @@ class ValvesInput(QDialog):
         for key in aux.keys():
             self.remove_valve_function(key)
 
-        title = "Valves resetting complete"
-        message = "The valves has been removed from FE model."
-        PrintMessageInput([window_title_2, title, message], auto_close=True)
-
-        self.opv.opvRenderer.plot()
-        # self.opv.plot_entities_with_cross_section()
+        self.opv.plot_entities_with_cross_section()
 
     def remove_existing_perforated_plate(self, elements_from_valve):
         temp_dict = self.preprocessor.group_elements_with_perforated_plate.copy()

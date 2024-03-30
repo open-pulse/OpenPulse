@@ -1003,7 +1003,7 @@ class ProjectFile:
 
 
     def modify_expansion_joint_in_file(self, lines, parameters):
-        
+        print(lines, parameters)
         if isinstance(lines, int):
             lines = [lines]
 

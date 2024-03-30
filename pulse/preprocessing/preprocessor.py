@@ -1248,7 +1248,7 @@ class Preprocessor:
                     for element in slicer(self.acoustic_elements, elements):
                         element.cross_section_points = cross_section_points
 
-    def set_cross_section_by_line(self, lines, cross_section):
+    def set_cross_section_by_lines(self, lines, cross_section):
         """
         This method attributes cross section object to all elements that belongs to a line/entity.
 
@@ -2142,7 +2142,8 @@ class Preprocessor:
             Default is False.
         """
         if isinstance(lines, int):
-            lines = [lines] 
+            lines = [lines]
+
         for line_id in lines:
             for elements in slicer(self.line_to_elements, line_id):
                 self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
