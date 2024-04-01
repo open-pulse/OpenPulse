@@ -18,7 +18,8 @@ class FrequencyResponsePlotter(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "plots/results/general/frequency_response_plot.ui", self)
+        ui_path = UI_DIR / "plots/results/general/frequency_response_plot.ui"
+        uic.loadUi(ui_path, self)
 
         self._load_icons()
         self._config_window()
@@ -57,28 +58,34 @@ class FrequencyResponsePlotter(QDialog):
                         [0.25, 0.25, 0.25] ]
 
     def _define_qt_variables(self):
+
         # QCheckBox
-        self.checkBox_grid = self.findChild(QCheckBox, 'checkBox_grid')
-        self.checkBox_legends = self.findChild(QCheckBox, 'checkBox_legends')
-        self.checkBox_cursor_legends = self.findChild(QCheckBox, 'checkBox_cursor_legends')
+        self.checkBox_grid : QCheckBox
+        self.checkBox_legends : QCheckBox
+        self.checkBox_cursor_legends : QCheckBox
+
         # QComboBox
-        self.comboBox_plot_type = self.findChild(QComboBox, 'comboBox_plot_type')
-        self.comboBox_differentiate_data = self.findChild(QComboBox, 'comboBox_differentiate_data')
+        self.comboBox_plot_type : QComboBox
+        self.comboBox_differentiate_data : QComboBox
+
         # QFrame
-        self.frame_vertical_lines = self.findChild(QFrame, 'frame_vertical_lines') 
+        self.frame_vertical_lines : QFrame
+
         # QPushButton
-        self.pushButton_import_data = self.findChild(QPushButton, 'pushButton_import_data')
+        self.pushButton_import_data : QPushButton
+
         # QRadioButton
-        self.radioButton_absolute = self.findChild(QRadioButton, 'radioButton_absolute')
-        self.radioButton_real = self.findChild(QRadioButton, 'radioButton_real')
-        self.radioButton_imaginary = self.findChild(QRadioButton, 'radioButton_imaginary')
-        self.radioButton_decibel_scale = self.findChild(QRadioButton, 'radioButton_decibel_scale')
-        self.radioButton_disable_cursors = self.findChild(QRadioButton, 'radioButton_disable_cursors')
-        self.radioButton_cross_cursor = self.findChild(QRadioButton, 'radioButton_cross_cursor')
-        self.radioButton_harmonic_cursor = self.findChild(QRadioButton, 'radioButton_harmonic_cursor')
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.radioButton_absolute : QRadioButton
+        self.radioButton_real : QRadioButton
+        self.radioButton_imaginary : QRadioButton
+        self.radioButton_decibel_scale : QRadioButton
+        self.radioButton_disable_cursors : QRadioButton
+        self.radioButton_cross_cursor : QRadioButton
+        self.radioButton_harmonic_cursor : QRadioButton
+        self.pushButton_export_data : QPushButton
+
         # QWidget
-        self.widget_plot = self.findChild(QWidget, 'widget_plot')
+        self.widget_plot : QWidget
 
     def _create_connections(self):
         self.checkBox_grid.stateChanged.connect(self.plot_data_in_freq_domain)

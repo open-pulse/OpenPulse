@@ -14,7 +14,6 @@ from pulse.interface.user_input.analysis.structural.static_analysis_input import
 from pathlib import Path
 
 
-
 """
 |--------------------------------------------------------------------|
 |                    Analysis ID codification                        |
@@ -34,7 +33,7 @@ class AnalysisTypeInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/analysis/general/analysis_type.ui")
+        ui_path = UI_DIR / "analysis/general/analysis_type.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
@@ -62,18 +61,18 @@ class AnalysisTypeInput(QDialog):
         self.icon = get_openpulse_icon()
         
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle("Analysis type")
 
     def _define_qt_variables(self):
-        self.pushButton_harmonic_structural = self.findChild(QPushButton, 'pushButton_harmonic_structural')
-        self.pushButton_harmonic_acoustic = self.findChild(QPushButton, 'pushButton_harmonic_acoustic')
-        self.pushButton_harmonic_coupled = self.findChild(QPushButton, 'pushButton_harmonic_coupled')
-        self.pushButton_modal_structural = self.findChild(QPushButton, 'pushButton_modal_structural')
-        self.pushButton_modal_acoustic = self.findChild(QPushButton, 'pushButton_modal_acoustic')
-        self.pushButton_static_analysis = self.findChild(QPushButton, 'pushButton_static_analysis')
+        self.pushButton_harmonic_structural : QPushButton
+        self.pushButton_harmonic_acoustic : QPushButton
+        self.pushButton_harmonic_coupled : QPushButton
+        self.pushButton_modal_structural : QPushButton
+        self.pushButton_modal_acoustic : QPushButton
+        self.pushButton_static_analysis : QPushButton
 
     def _create_connections(self):
         self.pushButton_harmonic_structural.clicked.connect(self.harmonic_structural)

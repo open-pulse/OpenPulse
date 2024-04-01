@@ -90,13 +90,13 @@ class RunAnalysisInput(QDialog):
 
     def _define_qt_variables(self):
         # QFrame
-        self.frame_message = self.findChild(QFrame, 'frame_message')
-        self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
+        self.frame_message : QFrame
+        self.frame_progress_bar : QFrame
         # QLabel
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_message = self.findChild(QLabel, 'label_message')
+        self.label_title : QLabel
+        self.label_message : QLabel
         # QProgressBar
-        self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
+        self.progress_bar_timer : QProgressBar
         # QTimer
         self.timer = QTimer()
 

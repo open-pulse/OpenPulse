@@ -3,28 +3,27 @@ from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.preprocessing.before_run import BeforeRun
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pathlib import Path
-
-window_title = "Error"
+window_title_1 = "Error"
 
 class CheckBeamCriteriaInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "criterias/check_beam_criteria.ui", self)
-        
-        self.project = project
-        self.opv = opv
+        ui_path = UI_DIR / "criterias/check_beam_criteria.ui"
+        uic.loadUi(ui_path, self)
+
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.before_run = BeforeRun()
 
         self._load_icons()
         self._config_window()
+        self._initialize()
         self.define_qt_variables()
         self.create_connections()
         self.load_existing_sections()
@@ -38,6 +37,9 @@ class CheckBeamCriteriaInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
+
+    def _initialize(self):
+        self.before_run = BeforeRun()
 
     def define_qt_variables(self):
         # QLineEdit
@@ -185,7 +187,7 @@ class CheckBeamCriteriaInput(QDialog):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is allowed."
-                            PrintMessageInput([window_title, title, message])
+                            PrintMessageInput([window_title_1, title, message])
                             self.stop = True
                             return None
                     else:
@@ -193,14 +195,14 @@ class CheckBeamCriteriaInput(QDialog):
                     
                             message = f"Insert a positive value to the {label}."
                             message += "\n\nZero value is not allowed."
-                            PrintMessageInput([window_title, title, message])
+                            PrintMessageInput([window_title_1, title, message])
                             self.stop = True
                             return None
             except Exception as _err:
         
                 message = f"Wrong input for {label}.\n\n"
                 message += "Error details: " + str(_err)
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([window_title_1, title, message])
                 self.stop = True
                 return None
         else:
@@ -209,7 +211,7 @@ class CheckBeamCriteriaInput(QDialog):
             else: 
         
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([window_title, title, message])                   
+                PrintMessageInput([window_title_1, title, message])                   
                 self.stop = True
                 return None
         return out
@@ -234,7 +236,7 @@ class CheckBeamCriteriaInput(QDialog):
         message += "non-representative results."
         #
         window_title = "Warning"
-        PrintMessageInput([window_title, title, message], alignment=Qt.AlignJustify)
+        PrintMessageInput([window_title_1, title, message], alignment=Qt.AlignJustify)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:

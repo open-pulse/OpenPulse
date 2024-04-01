@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QWidget
+from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
@@ -11,7 +11,8 @@ class CallDoubleConfirmationInput(QDialog):
     def __init__(self, title, message, buttons_config={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "messages/call_double_confirmation.ui", self)
+        ui_path = UI_DIR / "messages/call_double_confirmation.ui"
+        uic.loadUi(ui_path, self)
 
         self.title = title
         self.message = message

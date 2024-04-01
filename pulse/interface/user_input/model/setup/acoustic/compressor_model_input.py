@@ -14,7 +14,6 @@ from pulse.interface.user_input.project.call_double_confirmation import CallDoub
 from compressors.reciprocating.model import CompressorModel
 
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -39,6 +38,7 @@ class CompressorModelInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_treeWidget()
         self.update()
         self.load_compressor_excitation_tables_info()
         self.exec()
@@ -152,8 +152,7 @@ class CompressorModelInput(QDialog):
         self.tabWidget_compressor : QTabWidget
         
         # QTreeWidget
-        self.treeWidget_compressor_excitation = self.findChild(QTreeWidget, 'treeWidget_compressor_excitation')
-        self._config_treeWidget()
+        self.treeWidget_compressor_excitation : QTreeWidget
 
     def _config_treeWidget(self):
         self.treeWidget_compressor_excitation.setColumnWidth(0, 70)

@@ -40,7 +40,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        uic.loadUi(UI_DIR / 'main_window.ui', self)
+        ui_path = UI_DIR / 'main_window.ui'
+        uic.loadUi(ui_path, self)
 
         self.ui_dir = UI_DIR
         self.config = app().config

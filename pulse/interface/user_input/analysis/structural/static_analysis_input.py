@@ -15,7 +15,7 @@ class StaticAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/analysis/structural/static_analysis.ui")
+        ui_path = UI_DIR / "/analysis/structural/static_analysis.ui"
         uic.loadUi(ui_path, self)
 
         self.main_window = app().main_window
@@ -33,9 +33,9 @@ class StaticAnalysisInput(QDialog):
         self.icon = get_openpulse_icon()
 
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle("Static Analysis Setup")
 
     def _initialize(self):
@@ -46,12 +46,12 @@ class StaticAnalysisInput(QDialog):
 
     def _define_qt_variables(self):
         # QCheckBox
-        self.checkBox_self_weight_load = self.findChild(QCheckBox, 'checkBox_self_weight_load')
-        self.checkBox_internal_pressure_load = self.findChild(QCheckBox, 'checkBox_internal_pressure_load')
-        self.checkBox_external_nodal_loads = self.findChild(QCheckBox, 'checkBox_external_nodal_loads')
-        self.checkBox_distributed_element = self.findChild(QCheckBox, 'checkBox_distributed_element')
+        self.checkBox_self_weight_load : QCheckBox
+        self.checkBox_internal_pressure_load : QCheckBox
+        self.checkBox_external_nodal_loads : QCheckBox
+        self.checkBox_distributed_element : QCheckBox
         # QPushButton
-        self.pushButton_run_analysis = self.findChild(QPushButton, 'pushButton_run_analysis')
+        self.pushButton_run_analysis : QPushButton
     
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.confirm)

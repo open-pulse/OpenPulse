@@ -499,7 +499,7 @@ class MassSpringDamperInput(QDialog):
             message += "before confirming the input!"
             PrintMessageInput([window_title_1, title, message]) 
             return
-        
+
         if self.lumped_masses is not None:
             print("[Set Mass] - defined at node(s) {}".format(self.nodes_typed))
         if self.lumped_stiffness is not None:

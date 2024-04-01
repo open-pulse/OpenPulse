@@ -16,7 +16,8 @@ class EditPipeWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
 
-        uic.loadUi(UI_DIR / "model/geometry/edit_pipe.ui", self)
+        ui_path = UI_DIR / "model/geometry/edit_pipe.ui"
+        uic.loadUi(ui_path, self)
 
         self.geometry_widget = geometry_widget
         self.project = app().project

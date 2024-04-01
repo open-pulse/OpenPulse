@@ -8,7 +8,6 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 #
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
-from pulse.interface.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
@@ -86,7 +85,7 @@ class InputUi:
         self.file = app().main_window.project.file
         self.opv = app().main_window.opv_widget
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
-        
+
         self._reset()
 
     def _reset(self):
@@ -167,23 +166,20 @@ class InputUi:
         clipping_plane.slider_released.connect(self.opv.apply_clipping_plane)
         clipping_plane.exec()
         self.opv.dismiss_clipping_plane()
-            
+
     def save_project_as(self):
         self.process_input(SaveProjectAsInput)
-
-    def set_geometry_file(self):
-        self.process_input(SetGeometryFileInput, self.project, self.opv)
 
     def call_geometry_editor(self):
         main_window = self.main_window
         main_window.use_geometry_workspace()
-    
+
     def get_opv(self):
         return self.opv
 
     def set_material(self):
         self.process_input(SetMaterialInput)   
-         
+
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
         read = self.process_input(   SetCrossSectionInput,
                                     pipe_to_beam = pipe_to_beam, 
@@ -204,19 +200,19 @@ class InputUi:
 
     def mesh_setup_visibility(self):
         self.process_input(RendererUserPreferencesInput)
-        
+
     def set_beam_xaxis_rotation(self):
         self.process_input(BeamXaxisRotationInput)
-        
+
     def set_prescribed_dofs(self):
         self.process_input(PrescribedDofsInput)
-        
+
     def set_rotation_decoupling_dofs(self):
         self.process_input(DecouplingRotationDOFsInput)
-        
+
     def set_nodal_loads(self):
         self.process_input(NodalLoadsInput)
-        
+
     def add_mass_spring_damper(self):
         self.process_input(MassSpringDamperInput)
 
@@ -231,7 +227,7 @@ class InputUi:
 
     def set_inertial_load(self):
         return self.process_input(SetInertialLoad)
-    
+
     def add_expansion_joint(self):
         self.process_input(ExpansionJointInput)
 
@@ -252,13 +248,13 @@ class InputUi:
 
     def set_acoustic_pressure(self):
         self.process_input(AcousticPressureInput)
-    
+
     def set_volume_velocity(self):
         self.process_input(VolumeVelocityInput)
 
     def set_specific_impedance(self):
         self.process_input(SpecificImpedanceInput)
-    
+
     def set_radiation_impedance(self):
         self.process_input(RadiationImpedanceInput)
 
@@ -463,13 +459,13 @@ class InputUi:
         return self.process_input(CheckAPI618PulsationCriteriaInput)
 
     def structural_model_info(self):
-        self.process_input(StructuralModelInfo, self.project, self.opv)
+        self.process_input(StructuralModelInfo)
 
     def acoustic_model_info(self):
-        self.process_input(AcousticModelInfo, self.project, self.opv)
+        self.process_input(AcousticModelInfo)
 
     def check_beam_criteria(self):
-        self.process_input(CheckBeamCriteriaInput, self.project, self.opv)
+        self.process_input(CheckBeamCriteriaInput)
 
     def about_OpenPulse(self):
         self.process_input(AboutOpenPulseInput)

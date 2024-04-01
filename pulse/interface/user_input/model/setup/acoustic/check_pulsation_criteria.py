@@ -23,7 +23,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/criterias/pulsation_criteria_widget.ui")
+        ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window

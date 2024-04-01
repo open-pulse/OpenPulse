@@ -2,65 +2,81 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+
 import numpy as np
 
-from pulse import UI_DIR
 
 class AcousticModelInfo(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/info/acoustic_model_info.ui", self)
+        ui_path = UI_DIR / "model/info/acoustic_model_info.ui"
+        uic.loadUi(ui_path, self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
-        self.lineEdit_number_nodes = self.findChild(QLineEdit, 'lineEdit_number_nodes')
-        self.lineEdit_number_elements = self.findChild(QLineEdit, 'lineEdit_number_elements')
-
-        self.treeWidget_acoustic_pressure = self.findChild(QTreeWidget, 'treeWidget_acoustic_pressure')
-        self.treeWidget_acoustic_pressure.setColumnWidth(1, 20)
-        self.treeWidget_acoustic_pressure.setColumnWidth(2, 80)
-
-        self.treeWidget_volume_velocity = self.findChild(QTreeWidget, 'treeWidget_volume_velocity')
-        self.treeWidget_volume_velocity.setColumnWidth(1, 20)
-        self.treeWidget_volume_velocity.setColumnWidth(2, 80)
-
-        self.treeWidget_specific_impedance = self.findChild(QTreeWidget, 'treeWidget_specific_impedance')
-        self.treeWidget_specific_impedance.setColumnWidth(1, 20)
-        self.treeWidget_specific_impedance.setColumnWidth(2, 80)
-
-        self.treeWidget_radiation_impedance = self.findChild(QTreeWidget, 'treeWidget_radiation_impedance')
-        self.treeWidget_radiation_impedance.setColumnWidth(1, 20)
-        self.treeWidget_radiation_impedance.setColumnWidth(2, 80)
-
-        self.treeWidget_perforated_plate = self.findChild(QTreeWidget, 'treeWidget_perforated_plate')
-        self.treeWidget_perforated_plate.setColumnWidth(1, 20)
-        self.treeWidget_perforated_plate.setColumnWidth(2, 80)
-
-        self.treeWidget_element_length_correction = self.findChild(QTreeWidget, 'treeWidget_element_length_correction')
-        self.treeWidget_element_length_correction.setColumnWidth(1, 20)
-        self.treeWidget_element_length_correction.setColumnWidth(2, 80)
-
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self._config_widgets()
         self.load_nodes_info()
         self.project_info()
         self.exec()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:
-            self.close()
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _initialize(self):
+        self.preprocessor = self.project.preprocessor
+
+    def _define_qt_variables(self):
+
+        # QLineEdit
+        self.lineEdit_number_nodes : QLineEdit
+        self.lineEdit_number_elements : QLineEdit
+
+        # QTreeWidget
+        self.treeWidget_acoustic_pressure : QTreeWidget
+        self.treeWidget_volume_velocity : QTreeWidget
+        self.treeWidget_specific_impedance : QTreeWidget
+        self.treeWidget_radiation_impedance : QTreeWidget
+        self.treeWidget_perforated_plate : QTreeWidget
+        self.treeWidget_element_length_correction : QTreeWidget
+
+    def _create_connections(self):
+        pass
+
+    def _config_widgets(self):
+        self.treeWidget_acoustic_pressure.setColumnWidth(1, 20)
+        self.treeWidget_acoustic_pressure.setColumnWidth(2, 80)
+
+        self.treeWidget_volume_velocity.setColumnWidth(1, 20)
+        self.treeWidget_volume_velocity.setColumnWidth(2, 80)
+
+        self.treeWidget_specific_impedance.setColumnWidth(1, 20)
+        self.treeWidget_specific_impedance.setColumnWidth(2, 80)
+
+        self.treeWidget_radiation_impedance.setColumnWidth(1, 20)
+        self.treeWidget_radiation_impedance.setColumnWidth(2, 80)
+
+        self.treeWidget_perforated_plate.setColumnWidth(1, 20)
+        self.treeWidget_perforated_plate.setColumnWidth(2, 80)
+
+        self.treeWidget_element_length_correction.setColumnWidth(1, 20)
+        self.treeWidget_element_length_correction.setColumnWidth(2, 80)
 
     def project_info(self):
         self.acoustic_elements = self.preprocessor.get_acoustic_elements()
@@ -110,3 +126,7 @@ class AcousticModelInfo(QDialog):
                 text = "Loop"
             new = QTreeWidgetItem([str(element.index), text])
             self.treeWidget_element_length_correction.addTopLevelItem(new)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:
+            self.close()
