@@ -172,20 +172,22 @@ class SetCrossSectionInput(QDialog):
             self.tabWidget_sections_data.setTabVisible(1, False)
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
-            self.section_id_data_lines[section_id] = [tag_type, tags]
-            str_parameters = str(section_parameters)[1:-1]
-            new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
-            for i in range(3):
-                new.setTextAlignment(i, Qt.AlignCenter)
-            self.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
+            if section_parameters:
+                self.section_id_data_lines[section_id] = [tag_type, tags]
+                str_parameters = str(section_parameters)[1:-1]
+                new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
+                for i in range(3):
+                    new.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_elements.items():
-            self.section_id_data_elements[section_id] = [tag_type, tags]
-            str_parameters = str(section_parameters)[1:-1]
-            new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
-            for i in range(3):
-                new.setTextAlignment(i, Qt.AlignCenter)
-            self.treeWidget_sections_parameters_by_elements.addTopLevelItem(new)
+            if section_parameters:
+                self.section_id_data_elements[section_id] = [tag_type, tags]
+                str_parameters = str(section_parameters)[1:-1]
+                new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
+                for i in range(3):
+                    new.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_sections_parameters_by_elements.addTopLevelItem(new)
 
     def initial_condition(self):
 

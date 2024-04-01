@@ -27,7 +27,6 @@ class CheckBeamCriteriaInput(QDialog):
         self.define_qt_variables()
         self.create_connections()
         self.load_existing_sections()
-
         self.exec()
 
     def _load_icons(self):
@@ -71,22 +70,23 @@ class CheckBeamCriteriaInput(QDialog):
 
     def load_existing_sections(self):
 
-        self.section_id_data_lines = {}
-        self.section_id_data_elements = {}
+        self.section_id_data_lines = dict()
+        self.section_id_data_elements = dict()
         self.treeWidget_sections_parameters_by_lines.clear()
         self.section_data_lines, self.section_data_elements = self.project.file.get_cross_sections_from_file()
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
-            self.section_id_data_lines[section_id] = [tag_type, tags]
-            str_parameters = str(section_parameters)[1:-1]
-            new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
-            for i in range(3):
-                new.setTextAlignment(i, Qt.AlignCenter)
-            self.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
+            if section_parameters:
+                self.section_id_data_lines[section_id] = [tag_type, tags]
+                str_parameters = str(section_parameters)[1:-1]
+                new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
+                for i in range(3):
+                    new.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
 
     def check_beam_theory_criteria(self):
 
-        self.non_beam_data = {}
+        self.non_beam_data = dict()
         self.treeWidget_non_beam_segments.clear()
         self.before_run.check_beam_theory_criteria()
         lineEdit = self.lineEdit_beam_criteria

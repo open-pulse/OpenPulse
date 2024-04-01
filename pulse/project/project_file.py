@@ -1,13 +1,9 @@
-# from pulse.preprocessing.fluid import Fluid
-# from pulse.preprocessing.material import Material
-from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
+
+from pulse.preprocessing.cross_section import get_beam_section_properties
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
-# from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.libraries.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
-
-from pulse import app
 
 import os
 import configparser
@@ -48,8 +44,8 @@ class ProjectFile:
         self.f_min = None
         self.f_max = None
         self.f_step = None
-        self.non_zero_frequency_info = []
         self.zero_frequency = False
+        self.non_zero_frequency_info = list()
 
     def default_filenames(self):
         self._project_ini_name = "project.ini"
@@ -137,7 +133,7 @@ class ProjectFile:
         if self._imported_data_folder_name in list_filenames:
             imported_data_files = os.listdir(self._imported_data_folder_path).copy()
 
-        files_to_maintain_after_reset = []
+        files_to_maintain_after_reset = list()
         files_to_maintain_after_reset.append(self._project_ini_name)
         files_to_maintain_after_reset.append(self._entity_file_name)
 
@@ -615,7 +611,7 @@ class ProjectFile:
                 config2.read(self._entity_path)
                 sections = config2.sections()
 
-                mapped_entities = []
+                mapped_entities = list()
                 for entity_id in entities:
                     if len(dict_map_lines) == 0:
                         config[str(entity_id)] = {}
@@ -676,14 +672,14 @@ class ProjectFile:
 
             _id = 1
             section_info = dict()
-            parameters_to_elements_id = dict()
             variable_section_line_ids = list()
             parameters_to_entity_id = defaultdict(list)
+            parameters_to_elements_id = defaultdict(list)
 
             for entity in sections:
 
                 line_prefix = ""
-                list_elements = []
+                list_elements = list()
 
                 section = entityFile[entity]
                 keys = section.keys()
@@ -698,13 +694,16 @@ class ProjectFile:
                 else:
                     section_type_label = "Pipe section"
 
+                if structural_element_type in ["expansion_joint", "valve"]:
+                    continue
+                
+                section_parameters = list()
                 if structural_element_type == "pipe_1":
-                    
-                    section_parameters = list()
+
                     if 'section parameters' in keys:
                         str_section_parameters = section['section parameters']
                         section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                        
+  
                     if len(section_parameters) == 10:
                         if line_prefix not in variable_section_line_ids:
                             variable_section_line_ids.append(entity)
@@ -732,32 +731,34 @@ class ProjectFile:
                 if str_section_parameters not in parameters_to_entity_id.keys():
                     section_info[_id] = [structural_element_type, section_parameters]
                     _id += 1
-                
+
                 if line_prefix == "":
                     parameters_to_entity_id[str_section_parameters].append(int(entity))
-                else:   
-                    if list_elements == []:
-                        parameters_to_entity_id[str_section_parameters].append(int(entity)) 
-                    else:
-                        if str_section_parameters not in parameters_to_elements_id.keys():
-                            parameters_to_elements_id[str_section_parameters] = list_elements
-            
-            section_info_elements = {}
-            section_info_lines = {}
+
+                else:
+                    if list_elements:
+                        for element_id in list_elements:
+                            parameters_to_elements_id[str_section_parameters].append(element_id)
+                    else:    
+                        parameters_to_entity_id[str_section_parameters].append(int(entity))
+
             id_1 = 0
             id_2 = 0
+            section_info_elements = dict()
+            section_info_lines = dict()
+
             for _id, _data in section_info.items():
-                
+
                 _section_parameters = _data[1]
                 str_section_parameters = str(_section_parameters)
-                
+
                 if str_section_parameters in parameters_to_entity_id.keys():
                     id_1 += 1
                     data_lines = _data.copy()
                     data_lines.append("line ids")
                     data_lines.append(parameters_to_entity_id[str_section_parameters])
                     section_info_lines[id_1] = data_lines
-                
+
                 if str_section_parameters in parameters_to_elements_id.keys():
                     id_2 += 1
                     data_elements = _data.copy()
@@ -772,7 +773,8 @@ class ProjectFile:
             message += f"Last line id: {entity}\n\n"
             message += f"Details: \n\n {str(error_log)}"
             PrintMessageInput([window_title, title, message])
-            return {}, {}
+
+            return dict(), dict()
 
         return section_info_lines, section_info_elements
     
@@ -2051,7 +2053,7 @@ class ProjectFile:
     #     if labels == ["", ""]:
     #         labels = [str_key.capitalize() for str_key in str_keys]
 
-    #     list_table_names = []
+    #     list_table_names = list()
     #     for section in sections:
     #         if section != str_node_id:
     #             list_file_keys = list(config[section].keys()) 
@@ -2080,8 +2082,8 @@ class ProjectFile:
     #     config.read(self._entity_path)
     #     sections = config.sections()
 
-    #     list_table_names = []
-    #     list_joint_stiffness = []
+    #     list_table_names = list()
+    #     list_joint_stiffness = list()
     #     if str_line_id in sections:
     #         keys = list(config[str_line_id].keys())
     #         if 'expansion joint stiffness' in keys:
@@ -2089,7 +2091,7 @@ class ProjectFile:
     #             list_joint_stiffness = read_joint_stiffness[1:-1].replace(" ","").split(',')
     #             cache_section = str_line_id
         
-    #     if list_joint_stiffness == []:
+    #     if list_joint_stiffness == list():
     #         return
 
     #     for stiffness_value in list_joint_stiffness:
@@ -2099,7 +2101,7 @@ class ProjectFile:
     #         except:
     #             break
         
-    #     list_table_multiple_joints = []
+    #     list_table_multiple_joints = list()
     #     list_table_names = list_joint_stiffness
         
     #     for section in sections:
@@ -2180,8 +2182,8 @@ class ProjectFile:
                         str_list_elements = config[section]['list of elements']
                         list_elements = get_list_of_values_from_string(str_list_elements)
                         list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                        temp_list = []
-                        lines_to_reset = []
+                        temp_list = list()
+                        lines_to_reset = list()
                         try:
 
                             for subgroup_elements in list_subgroup_elements:
@@ -2191,13 +2193,13 @@ class ProjectFile:
                                 elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
                                     lines_to_reset.append(section)    
 
-                            if lines_to_reset != []:
+                            if lines_to_reset:
                                 for line_to_reset in lines_to_reset:
                                     prefix = line_to_reset.split("-")[0] + "-"
                                     for _section in sections:
                                         if prefix in _section:
                                             config.remove_section(section=_section)
-                            elif temp_list != []:
+                            elif temp_list:
                                 new_list_elements = [value for group in temp_list for value in group]
                                 config[section]['list of elements'] =  str(new_list_elements)
                             else:
@@ -2231,7 +2233,7 @@ class ProjectFile:
                 str_list_elements = config[section]['list of elements']
                 list_subgroups_elements = dict_list_elements_to_subgroups[str_list_elements]
 
-                temp_list = []
+                temp_list = list()
                 try:
 
                     for subgroup_elements in list_subgroups_elements:
@@ -2239,7 +2241,7 @@ class ProjectFile:
                         if str_group_elements not in dict_non_mapped_subgroups.keys():
                             temp_list.append(dict_old_to_new_subgroups_elements[str(subgroup_elements)])
                     
-                    if temp_list != []:
+                    if temp_list:
                         new_list_elements = [value for group in temp_list for value in group]
                         config[section]['list of elements'] =  str(new_list_elements)
                     else:
@@ -2319,7 +2321,7 @@ class ProjectFile:
     #             if 'list of elements' in config[section].keys():
     #                 str_list_elements = config[section]['list of elements']
     #                 old_list_elements = get_list_of_values_from_string(str_list_elements)
-    #                 new_list_elements = []
+    #                 new_list_elements = list()
     #                 temp_list = old_list_elements.copy()
     #                 for element_id in temp_list:
     #                     if element_id not in ext_list_elements:
