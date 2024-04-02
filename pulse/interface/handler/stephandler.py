@@ -1,10 +1,13 @@
 import gmsh
 import math
 import numpy as np
+import configparser
 from opps.model.pipe import Pipe
 from opps.model.bend import Bend
 from opps.model import Point
 from opps.model.pipeline_editor import PipelineEditor
+from OpenPulse.pulse.interface.handler.geometry_handler import GeometryHandler
+
 
 
 class StepHandler:
@@ -107,3 +110,42 @@ class StepHandler:
 
         editor.pipeline.structures = structures
         editor.merge_coincident_points()
+
+    def write_dat_file(self, path):
+        gmsh.initialize()
+        # path = "C:\\meus_arquivos\\ufsc\\LVA\\geometry_files\\teste25.step"
+        gmsh.open(path)
+
+        gmsh.model.occ.removeAllDuplicates()
+        gmsh.model.occ.synchronize()
+
+        points = gmsh.model.get_entities(0)
+        lines = gmsh.model.get_entities(1)
+
+        lines_tags = []
+        for line in lines:
+            lines_tags.append(line[1])
+
+        points_tags_and_coords = dict()
+        for point in points: 
+            coords = gmsh.model.getValue(*point, [])
+            points_tags_and_coords[point[1]] = list(coords)
+
+        config = configparser.ConfigParser()
+        for line in lines_tags: 
+            start_point = gmsh.model.get_adjacencies(1, line)[1][0]
+            end_point = gmsh.model.get_adjacencies(1, line)[1][1]
+            line_type = gmsh.model.get_type(1, line)
+
+            start_point_coords = points_tags_and_coords[start_point]
+            end_point_coords = points_tags_and_coords[end_point]
+
+            config[str(line)] = {}
+            config[str(line)]['start point'] = str(list(np.round(start_point_coords, 8)))
+            config[str(line)]['end point'] = str(list(np.round(end_point_coords, 8)))
+
+            # if line_type == "Circle":
+            #     # get_corner_point_coords(self, start_point, end_point)
+
+        with open("entity.dat", 'w') as config_file:
+                config.write(config_file)
