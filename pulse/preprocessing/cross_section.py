@@ -186,7 +186,7 @@ class CrossSection:
     """
     
     def __init__(self, **kwargs):
-            
+
         self.division_number = kwargs.get('division_number', 32)
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.poisson_ratio = kwargs.get('poisson_ratio', 0)
@@ -196,7 +196,7 @@ class CrossSection:
         self.beam_section_info = kwargs.get('beam_section_info', None)
         self.expansion_joint_info = kwargs.get('expansion_joint_info', None)
         self.valve_section_info = kwargs.get('valve_section_info', None)
-      
+
         self.section_label = kwargs.get('section_label', None)
         self.section_parameters = kwargs.get('section_parameters', None)
         self.expansion_joint_plot_key = None
@@ -215,21 +215,17 @@ class CrossSection:
         self.insulation_thickness = 0
         self.insulation_density = 0
 
-        # Unwrap cluster data for pipe sections 
         if self.pipe_section_info:
             self.load_pipe_section_data()            
 
-        # Unwrap cluster data for beam sections 
         if self.beam_section_info:
             self.load_beam_section_data()
 
-        # Unwrap cluster data for valve sections 
         if self.valve_section_info:
             self.load_valve_section_data()
 
         if self.expansion_joint_info is not None:
             self.load_expansion_joint_data()
-
 
     def load_pipe_section_data(self):
 
@@ -244,7 +240,6 @@ class CrossSection:
         self.insulation_density = self.section_parameters[5]
         self.offset = [self.offset_y, self.offset_z]
         self.section_info = self.pipe_section_info
-
 
     def load_beam_section_data(self):
 
@@ -265,19 +260,19 @@ class CrossSection:
         
         self.section_info = self.beam_section_info
 
-
     def load_valve_section_data(self):
 
         self.section_label = self.valve_section_info["section_type_label"]
         self.section_parameters = self.valve_section_info["section_parameters"]
 
-        self.outer_diameter = self.section_parameters["outer_diameter"]
-        self.thickness =  self.section_parameters["thickness"]
-        self.offset_y = self.section_parameters["offset_y"]
-        self.offset_z = self.section_parameters["offset_z"]
-        self.insulation_thickness = self.section_parameters["insulation_thickness"]
-        self.insulation_density = self.section_parameters["insulation_density"]
+        self.outer_diameter = self.section_parameters[0]
+        self.thickness =  self.section_parameters[1]
+        self.offset_y = self.section_parameters[2]
+        self.offset_z = self.section_parameters[3]
+        self.insulation_thickness = self.section_parameters[4]
+        self.insulation_density = self.section_parameters[5]
         self.offset = [self.offset_y, self.offset_z]
+
         self.outer_diameter_to_plot, self.inner_diameter_to_plot = self.valve_section_info["diameters_to_plot"]
         self.section_info = self.valve_section_info
 
@@ -1405,14 +1400,6 @@ def get_beam_section_properties(section_label, data):
                             "Zc" : Zc   }
     
     return section_properties
-
-
-
-
-
-
-
-
 
 
 # if __name__ == "__main__":

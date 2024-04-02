@@ -11,16 +11,13 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from opps.model import Point
 
-import os
-import numpy as np
-from time import sleep
-from pathlib import Path
 
 class AddStructuresWidget(QWidget):
     def __init__(self, geometry_widget, parent=None):
         super().__init__(parent)
 
-        uic.loadUi(UI_DIR / "model/geometry/add_widget.ui", self)
+        ui_path = UI_DIR / "model/geometry/add_widget.ui"
+        uic.loadUi(ui_path, self)
 
         self.geometry_widget = geometry_widget
         self.main_window = app().main_window

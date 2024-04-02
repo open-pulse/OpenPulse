@@ -19,7 +19,8 @@ class AcousticPressureInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui", self)
+        ui_path = UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui"
+        uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
         self.opv = app().main_window.opv_widget

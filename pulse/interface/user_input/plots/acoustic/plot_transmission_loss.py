@@ -11,7 +11,6 @@ from pulse.interface.user_input.plots.general.frequency_response_plotter import 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
-from pathlib import Path
 
 
 class PlotTransmissionLoss(QWidget):
@@ -20,7 +19,7 @@ class PlotTransmissionLoss(QWidget):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/plot_transmission_loss.ui")
+        ui_path = UI_DIR / "plots/results/acoustic/plot_transmission_loss.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.opv_widget
@@ -47,7 +46,6 @@ class PlotTransmissionLoss(QWidget):
 
     def _load_icons(self):
         self.pulse_icon = get_openpulse_icon()
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -55,18 +53,20 @@ class PlotTransmissionLoss(QWidget):
         self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
+
         # QComboBox
-        self.comboBox_processing_selector = self.findChild(QComboBox, 'comboBox_processing_selector')
+        self.comboBox_processing_selector : QComboBox
+
         # QLineEdit
-        self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')   
-        self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
+        self.lineEdit_input_node_id : QLineEdit  
+        self.lineEdit_output_node_id : QLineEdit
         self.current_lineEdit = self.lineEdit_input_node_id
+
         # QPushButton
-        self.pushButton_help = self.findChild(QPushButton, 'pushButton_help')
-        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
-        self.pushButton_flip_nodes = self.findChild(QPushButton, 'pushButton_flip_nodes')
-        self.pushButton_flip_nodes.setIcon(self.update_icon)
+        self.pushButton_help : QPushButton
+        self.pushButton_plot_data : QPushButton
+        self.pushButton_export_data : QPushButton
+        self.pushButton_flip_nodes : QPushButton
 
     def _create_connections(self):
         self.comboBox_processing_selector.currentIndexChanged.connect(self.update_flip_buttons)

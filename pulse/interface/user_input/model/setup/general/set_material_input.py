@@ -2,16 +2,14 @@ from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, 
 from PyQt5.QtGui import QIcon, QFont, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.preprocessing.material import Material
 
-window_title = "Error"
+window_title_1 = "Error"
 
 def getColorRGB(color):
     color = color.replace(" ", "")
@@ -24,7 +22,8 @@ class SetMaterialInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/general/set_material.ui", self)
+        ui_path = UI_DIR / "model/setup/general/set_material.ui"
+        uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
@@ -61,6 +60,7 @@ class SetMaterialInput(QDialog):
         self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_attribution_type = self.findChild(QComboBox, 'comboBox_attribution_type')
 
@@ -161,7 +161,7 @@ class SetMaterialInput(QDialog):
         if new_material is None:
             self.title = "No materials selected"
             self.message = "Select a material in the list before confirming the material attribution."
-            PrintMessageInput([window_title, self.title, self.message])
+            PrintMessageInput([window_title_1, self.title, self.message])
             return
 
         try:
@@ -186,7 +186,7 @@ class SetMaterialInput(QDialog):
         except Exception as error_log:
             self.title = "Error detected on material list data"
             self.message = str(error_log)
-            PrintMessageInput([window_title, self.title, self.message])
+            PrintMessageInput([window_title_1, self.title, self.message])
             return
 
     def actions_to_finalize(self):

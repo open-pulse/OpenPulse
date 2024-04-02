@@ -16,8 +16,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     """
     def __init__(self, main_window):
         super().__init__()
+
         self.main_window = main_window
         self.project = main_window.project
+        self.opv = main_window.opv_widget
 
         self._create_items()
         self._create_connections()
@@ -40,16 +42,16 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_structural_element_type = self.add_item('Set Structural Element Type')
         self.item_child_set_prescribed_dofs = self.add_item('Set Prescribed DOFs')
         self.item_child_set_nodal_loads = self.add_item('Set Nodal Loads')
-        self.item_child_addMassSpringDamper = self.add_item('Add: Mass / Spring / Damper')
+        self.item_child_add_mass_spring_damper = self.add_item('Add: Mass / Spring / Damper')
         self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links')
         self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
         self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
         self.item_child_set_capped_end = self.add_item('Set Capped End')
-        self.item_child_add_valve = self.add_item('Add Valve')
-        self.item_child_addFlanges = self.add_item('Add Connecting Flanges')
+        self.item_child_add_valves = self.add_item('Add Valves')
+        self.item_child_addFlanges = self.add_item('Add Flanges')
         self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
         self.item_child_setBeamXaxisRotation = self.add_item('Set Beam X-axis Rotation')
-        self.item_child_setRotationDecoupling = self.add_item('Set Rotation Decoupling')
+        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set Rotation Decoupling')
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
         self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type')
@@ -81,16 +83,16 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_structural_element_type.clicked.connect(self.item_child_set_structural_element_type_callback)
         self.item_child_set_prescribed_dofs.clicked.connect(self.item_child_set_prescribed_dofs_callback)
         self.item_child_set_nodal_loads.clicked.connect(self.item_child_set_nodal_loads_callback)
-        self.item_child_addMassSpringDamper.clicked.connect(self.item_child_add_mass_spring_damper_callback)
+        self.item_child_add_mass_spring_damper.clicked.connect(self.item_child_add_mass_spring_damper_callback)
         self.item_child_add_elastic_nodal_links.clicked.connect(self.item_child_add_elastic_nodal_links_callback)
         self.item_child_set_inertial_loads.clicked.connect(self.item_child_set_inertial_loads_callback)
         self.item_child_set_stress_stiffening.clicked.connect(self.item_child_set_stress_stiffening_callback)
         self.item_child_set_capped_end.clicked.connect(self.item_child_set_capped_end_callback)
-        self.item_child_add_valve.clicked.connect(self.item_child_add_valve_callback)
+        self.item_child_add_valves.clicked.connect(self.item_child_add_valves_callback)
         self.item_child_addFlanges.clicked.connect(self.item_child_add_flanges_callback)
         self.item_child_add_expansion_joint.clicked.connect(self.item_child_add_expansion_joint_callback)
         self.item_child_setBeamXaxisRotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
-        self.item_child_setRotationDecoupling.clicked.connect(self.item_child_set_rotation_decoupling_callback)
+        self.item_child_set_rotation_decoupling_dofs.clicked.connect(self.item_child_set_rotation_decoupling_callback)
         # Acoustic Model Setup
         self.item_child_set_acoustic_element_type.clicked.connect(self.item_child_set_acoustic_element_type_callback)
         self.item_child_set_acoustic_pressure.clicked.connect(self.item_child_set_acoustic_pressure_callback)
@@ -151,99 +153,123 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_set_material_callback(self):
         self.main_window.update_plot_entities()
         self.main_window.input_widget.set_material()
+        self.opv.setInputObject(None)
 
     def item_child_set_fluid_callback(self):
         self.main_window.update_plot_entities()
         self.main_window.input_widget.set_fluid()
-
+        self.opv.setInputObject(None)
+    
     def item_child_set_cross_section_callback(self):
         if self.main_window.input_widget.set_cross_section():
             self.main_window.update_plot_entities_with_cross_section()
+        self.opv.setInputObject(None)
 
     def item_child_set_structural_element_type_callback(self):
         self.main_window.update_plot_entities()
         self.main_window.input_widget.set_structural_element_type()
+        self.opv.setInputObject(None)
 
     def item_child_set_prescribed_dofs_callback(self):
         self.main_window.update_plot_mesh()
         self.main_window.input_widget.set_prescribed_dofs()
+        self.opv.setInputObject(None)
 
     def item_child_set_nodal_loads_callback(self):
         self.main_window.update_plot_mesh()
         self.main_window.input_widget.set_nodal_loads()
+        self.opv.setInputObject(None)
 
     def item_child_add_mass_spring_damper_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.addMassSpringDamper()
+        self.main_window.input_widget.add_mass_spring_damper()
+        self.opv.setInputObject(None)
 
     def item_child_add_elastic_nodal_links_callback(self):
         self.main_window.update_plot_mesh()
         self.main_window.input_widget.add_elastic_nodal_links()
+        self.opv.setInputObject(None)
 
     def item_child_set_inertial_loads_callback(self):
         obj = self.main_window.input_widget.set_inertial_load()
         if obj.complete:
             self.main_window.update_plot_mesh()
+        self.opv.setInputObject(None)
 
     def item_child_set_stress_stiffening_callback(self):
         self.main_window.input_widget.set_stress_stress_stiffening()
+        self.opv.setInputObject(None)
 
     def item_child_set_capped_end_callback(self):
         self.main_window.input_widget.set_capped_end()
+        self.opv.setInputObject(None)
 
-    def item_child_add_valve_callback(self):
+    def item_child_add_valves_callback(self):
         obj = self.main_window.input_widget.add_valve()
         if obj.complete:
             self.main_window.update_plot_mesh()
+        self.opv.setInputObject(None)
 
     def item_child_add_flanges_callback(self):
         self.main_window.input_widget.add_flanges()
+        self.opv.setInputObject(None)
 
     def item_child_add_expansion_joint_callback(self):
         self.main_window.input_widget.add_expansion_joint()
+        self.opv.setInputObject(None)
 
     def item_child_set_beam_x_axis_rotation_callback(self):
         self.main_window.update_plot_entities_with_cross_section()
         self.main_window.input_widget.set_beam_xaxis_rotation()
+        self.opv.setInputObject(None)
 
     def item_child_set_rotation_decoupling_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.setRotationDecoupling()
+        self.main_window.input_widget.set_rotation_decoupling_dofs()
+        self.opv.setInputObject(None)
 
     def item_child_set_acoustic_element_type_callback(self):
         self.main_window.update_plot_entities()
         self.main_window.input_widget.set_acoustic_element_type()
+        self.opv.setInputObject(None)
 
     def item_child_set_acoustic_pressure_callback(self):
         self.main_window.update_plot_mesh()      
         self.main_window.input_widget.set_acoustic_pressure()
+        self.opv.setInputObject(None)
 
     def item_child_set_volume_velocity_callback(self):
         self.main_window.update_plot_mesh()  
         self.main_window.input_widget.set_volume_velocity()
+        self.opv.setInputObject(None)
 
     def item_child_set_specific_impedance_callback(self):
         self.main_window.update_plot_mesh() 
         self.main_window.input_widget.set_specific_impedance()
+        self.opv.setInputObject(None)
 
     def item_child_set_radiation_impedance_callback(self):
         self.main_window.update_plot_mesh()
         self.main_window.input_widget.set_radiation_impedance()
+        self.opv.setInputObject(None)
 
     def item_child_add_perforated_plate_callback(self):
         self.main_window.update_plot_mesh()
         self.main_window.input_widget.add_perforated_plate()
+        self.opv.setInputObject(None)
 
     def item_child_set_acoustic_element_length_correction_callback(self):
         self.main_window.update_plot_mesh()
         self.main_window.input_widget.set_acoustic_element_length_correction()
+        self.opv.setInputObject(None)
 
     def item_child_add_compressor_excitation_callback(self):
         self.main_window.update_plot_mesh()
         self.main_window.input_widget.add_compressor_excitation()
+        self.opv.setInputObject(None)
 
     def item_child_select_analysis_type_callback(self):
-        self.main_window.input_widget.analysisTypeInput()
+        self.main_window.input_widget.analysis_type_input()
         self._update_items()
     
     def item_child_analisys_setup_callback(self):
@@ -280,16 +306,16 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_structural_element_type.setDisabled(bool_key) 
         self.item_child_set_prescribed_dofs.setDisabled(bool_key)
         self.item_child_set_nodal_loads.setDisabled(bool_key)
-        self.item_child_addMassSpringDamper.setDisabled(bool_key)
+        self.item_child_add_mass_spring_damper.setDisabled(bool_key)
         self.item_child_set_inertial_loads.setDisabled(bool_key)
         self.item_child_add_elastic_nodal_links.setDisabled(bool_key)
         self.item_child_set_stress_stiffening.setDisabled(bool_key)
         self.item_child_set_capped_end.setDisabled(bool_key)
-        self.item_child_add_valve.setDisabled(bool_key) 
+        self.item_child_add_valves.setDisabled(bool_key) 
         self.item_child_addFlanges.setDisabled(bool_key) 
         self.item_child_add_expansion_joint.setDisabled(bool_key)  
         self.item_child_setBeamXaxisRotation.setDisabled(bool_key)
-        self.item_child_setRotationDecoupling.setDisabled(bool_key)
+        self.item_child_set_rotation_decoupling_dofs.setDisabled(bool_key)
         #   
         self.item_child_set_acoustic_element_type.setDisabled(bool_key)
         self.item_child_set_acoustic_pressure.setDisabled(bool_key)

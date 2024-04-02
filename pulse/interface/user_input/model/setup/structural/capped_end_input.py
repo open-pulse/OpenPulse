@@ -75,7 +75,7 @@ class CappedEndInput(QDialog):
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
         #QTabWidget
-        self.tabWidget_capped_end : QTabWidget
+        self.tabWidget_main : QTabWidget
         self.tabWidget_groups : QTabWidget
         # QTreeWidget
         self.treeWidget_capped_end_elements : QTreeWidget
@@ -86,11 +86,11 @@ class CappedEndInput(QDialog):
         self.pushButton_remove : QPushButton
 
     def _create_connections(self):
-        self.comboBox_selection.currentIndexChanged.connect(self.capped_end_selection_callback)
+        self.comboBox_selection.currentIndexChanged.connect(self.selection_type_callback)
         self.pushButton_confirm.clicked.connect(self.set_capped_end)
         self.pushButton_reset.clicked.connect(self.check_reset)
         self.pushButton_remove.clicked.connect(self.remove_group)
-        self.tabWidget_capped_end.currentChanged.connect(self.tab_event_update)
+        self.tabWidget_main.currentChanged.connect(self.tab_event_update)
         self.treeWidget_capped_end_elements.itemClicked.connect(self.on_click_item_elem)
         self.treeWidget_capped_end_elements.itemDoubleClicked.connect(self.on_doubleclick_item_elem)
         self.treeWidget_capped_end_lines.itemClicked.connect(self.on_click_item_line)
@@ -120,14 +120,14 @@ class CappedEndInput(QDialog):
         selection_index = self.comboBox_selection.currentIndex()
         if self.lines_id != []:
             if selection_index == 1:
-                self.capped_end_selection_callback()
+                self.selection_type_callback()
             else:
                 self.comboBox_selection.setCurrentIndex(1)
             self.update_capped_end_effect_by_lines_selection()
 
         elif self.elements_id != []:
             if selection_index == 2:
-                self.capped_end_selection_callback()
+                self.selection_type_callback()
             else:
                 self.comboBox_selection.setCurrentIndex(2)
             self.update_capped_end_effect_by_elements_selection()
@@ -148,7 +148,7 @@ class CappedEndInput(QDialog):
             else:
                 self.comboBox_capped_end.setCurrentIndex(1)
 
-    def capped_end_selection_callback(self):
+    def selection_type_callback(self):
 
         self.lineEdit_selected_id.setText("")
         self.lineEdit_selected_id.setEnabled(True)
@@ -171,7 +171,7 @@ class CappedEndInput(QDialog):
         self.lineEdit_selected_id.setText("")
         self.lineEdit_selected_id.setEnabled(True)
 
-        if self.tabWidget_capped_end.currentIndex() == 0:
+        if self.tabWidget_main.currentIndex() == 0:
             self.label_attribute_to.setDisabled(False)
             self.label_selected_id.setText("Selected IDs:")
             self.comboBox_selection.setDisabled(False)
@@ -218,14 +218,14 @@ class CappedEndInput(QDialog):
 
         self.load_lines_info()
         self.load_elements_info()
-        self.tabWidget_capped_end.setTabVisible(1, False)
+        self.tabWidget_main.setTabVisible(1, False)
 
         if len(self.preprocessor.lines_with_capped_end):
-            self.tabWidget_capped_end.setTabVisible(1, True)
+            self.tabWidget_main.setTabVisible(1, True)
             self.tabWidget_groups.setTabVisible(1, True)
 
         if len(self.preprocessor.group_elements_with_capped_end):
-            self.tabWidget_capped_end.setTabVisible(1, True)
+            self.tabWidget_main.setTabVisible(1, True)
             self.tabWidget_groups.setTabVisible(0, True)
 
     def on_click_item_elem(self, item):
@@ -352,9 +352,9 @@ class CappedEndInput(QDialog):
                 self.remove_line_group()
 
             self.load_treeWidgets_info()
-            if not self.tabWidget_capped_end.isTabVisible(1):
+            if not self.tabWidget_main.isTabVisible(1):
                 if self.comboBox_selection.currentIndex() == 0:
-                    self.capped_end_selection_callback()
+                    self.selection_type_callback()
                 else:
                     self.comboBox_selection.setCurrentIndex(0)
 
@@ -394,7 +394,7 @@ class CappedEndInput(QDialog):
 
         self.load_treeWidgets_info()
         if self.comboBox_selection.currentIndex() == 0:
-            self.capped_end_selection_callback()
+            self.selection_type_callback()
         else:
             self.comboBox_selection.setCurrentIndex(0)
 
@@ -414,6 +414,7 @@ class CappedEndInput(QDialog):
 
                 selected_id = item.text(0)
                 selected_key = self.dictKey_label.format(selected_id)
+
                 if "Selection-" in selected_key:
                     elements_of_group = self.preprocessor.group_elements_with_capped_end[selected_key]
 
@@ -430,14 +431,14 @@ class CappedEndInput(QDialog):
                                                 column_widths = [100, 140],
                                                 data = data  )
 
-                else:
-                    title = "Invalid selection"
-                    message = "Please, select a group in the list to get the information."
-                    PrintMessageInput([window_title_2, title, message])
-                  
-        except Exception as e:
+            else:
+                title = "Invalid selection"
+                message = "Please, select a group in the list to get the information."
+                PrintMessageInput([window_title_2, title, message])
+                
+        except Exception as error_log:
             title = "Error while getting information of selected group"
-            message = str(e)
+            message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
         self.show()
 

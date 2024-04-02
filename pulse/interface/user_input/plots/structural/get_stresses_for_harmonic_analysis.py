@@ -10,14 +10,12 @@ from pulse.interface.user_input.data_handler.export_model_results import ExportM
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
 import numpy as np
-from pathlib import Path
-
 
 class GetStressesForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_stresses_for_harmonic_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/get_stresses_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
@@ -55,7 +53,6 @@ class GetStressesForHarmonicAnalysis(QWidget):
 
     def _load_icons(self):
         self.pulse_icon = get_openpulse_icon()
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -63,19 +60,24 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
+
         # QCheckBox
-        self.checkBox_damping_effect = self.findChild(QCheckBox, 'checkBox_damping_effect')
+        self.checkBox_damping_effect : QCheckBox
+
         # QComboBox
-        self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
+        self.comboBox_stress_type : QComboBox
+
         # QLineEdit
-        self.lineEdit_element_id = self.findChild(QLineEdit, 'lineEdit_element_id')
+        self.lineEdit_element_id : QLineEdit
+
         # QPushButton
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
-        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
+        self.pushButton_export_data : QPushButton
+        self.pushButton_plot_data : QPushButton
 
     def _create_connections(self):
         #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
+        #
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
 
@@ -83,9 +85,9 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self.update_damping = True
 
     def update(self):
-        self.writeElements(self.opv.getListPickedElements())
+        self.write_ids(self.opv.getListPickedElements())
 
-    def writeElements(self, list_elements_ids):
+    def write_ids(self, list_elements_ids):
         text = ""
         for node in list_elements_ids:
             text += "{}, ".format(node)

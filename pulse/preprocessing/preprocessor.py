@@ -664,7 +664,13 @@ class Preprocessor:
         
         countA = 0
         if acoustic:
-            acoustic_bcs = [node.acoustic_pressure, node.volume_velocity, node.specific_impedance, node.radiation_impedance, node.compressor_excitation_table_names]
+
+            acoustic_bcs = [node.acoustic_pressure, 
+                            node.volume_velocity, 
+                            node.specific_impedance, 
+                            node.radiation_impedance, 
+                            node.compressor_excitation_table_names]
+
             for acoustic_bc in acoustic_bcs:
                 if isinstance(acoustic_bc, np.ndarray):
                     countA += 1
@@ -676,7 +682,14 @@ class Preprocessor:
 
         countS = 0
         if structural:
-            structural_bcs = [node.prescribed_dofs, node.nodal_loads, node.lumped_masses, node.lumped_stiffness, node.lumped_dampings, node.elastic_nodal_link_stiffness]
+
+            structural_bcs = [node.prescribed_dofs, 
+                              node.nodal_loads, 
+                              node.lumped_masses, 
+                              node.lumped_stiffness, 
+                              node.lumped_dampings, 
+                              node.elastic_nodal_link_stiffness]
+
             for structural_bc in structural_bcs:
                 if isinstance(structural_bc, np.ndarray):
                     countS += 1
@@ -1248,7 +1261,7 @@ class Preprocessor:
                     for element in slicer(self.acoustic_elements, elements):
                         element.cross_section_points = cross_section_points
 
-    def set_cross_section_by_line(self, lines, cross_section):
+    def set_cross_section_by_lines(self, lines, cross_section):
         """
         This method attributes cross section object to all elements that belongs to a line/entity.
 
@@ -1646,7 +1659,11 @@ class Preprocessor:
                 if node in self.nodes_with_prescribed_dofs:
                     self.nodes_with_prescribed_dofs.remove(node) 
 
-    def set_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False], remove=False):
+    def set_B2PX_rotation_decoupling(self, 
+                                     element_ID, 
+                                     node_ID, 
+                                     rotations_to_decouple = [False, False, False], 
+                                     remove = False):
         """
         This method .
 
@@ -2138,7 +2155,8 @@ class Preprocessor:
             Default is False.
         """
         if isinstance(lines, int):
-            lines = [lines] 
+            lines = [lines]
+
         for line_id in lines:
             for elements in slicer(self.line_to_elements, line_id):
                 self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
@@ -2180,6 +2198,9 @@ class Preprocessor:
         #                 self.group_elements_with_valves.pop(key)
         #                 break
 
+        if not isinstance(list_elements, list):
+            list_elements = list(list_elements)
+
         list_lines = []
         for element_id in list_elements:
             line_id = self.elements_to_line[element_id]
@@ -2212,7 +2233,7 @@ class Preprocessor:
                     self.number_valves_by_lines[line_id] += 1
                 else:
                     self.number_valves_by_lines[line_id] = 1
-            
+
             for element in slicer(self.structural_elements, list_elements):
                 element.valve_parameters = parameters
                 element.valve_elements = parameters["valve_elements"]
@@ -2227,15 +2248,19 @@ class Preprocessor:
                     element.flange_parameters = parameters["flange_section_parameters"]
                     element.number_flange_elements = parameters["number_flange_elements"]
                     element.flange_elements = parameters["flange_elements"]
-                    
+
                 if element not in self.elements_with_valve:
                     self.elements_with_valve.append(element)
-        
-            if aux_line_id is None:
-                size = len(self.group_elements_with_valves)
-                key = f"group-{size+1}"
-                self.group_elements_with_valves[key] = [list_elements, parameters]
-            
+
+            # if aux_line_id is None:
+            size = 1
+            key = f"group-1"
+            while key in list(self.group_elements_with_valves.keys()):
+                size += 1
+                key = f"group-{size}"
+
+            self.group_elements_with_valves[key] = [list_elements, parameters]
+
     def add_valve_by_line(self, lines, parameters, remove=False, reset_cross=True):
         """
         This method .
@@ -2253,7 +2278,7 @@ class Preprocessor:
             Default is False.
         """
         if isinstance(lines, int):
-            lines = [lines] 
+            lines = [lines]
         for line_id in lines:
             for elements in slicer(self.line_to_elements, line_id):
                 self.add_valve_by_elements(elements, parameters, remove=remove, aux_line_id=line_id, reset_cross=reset_cross)

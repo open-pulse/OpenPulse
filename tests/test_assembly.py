@@ -14,16 +14,8 @@ from pulse.processing.assembly_structural import AssemblyStructural
 @pytest.fixture
 def model():
 
-    section_label = "Pipe section"
-
-    section_parameters = {   "outer_diameter" : 0.05,
-                            "thickness" : 0.008,
-                            "offset_y" : 0,
-                            "offset_z" : 0,
-                            "insulation_thickness" : 0,
-                            "insulation_density" : 0   }
-
-    pipe_section_info = {  "section_type_label" : section_label ,
+    section_parameters = [0.05, 0.008, 0, 0, 0, 0]
+    pipe_section_info = {  "section_type_label" : "Pipe section" ,
                             "section_parameters" : section_parameters  }
 
     steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)

@@ -10,7 +10,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from math import pi
 from pathlib import Path
 
-
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
@@ -18,7 +17,7 @@ class StructuralModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/analysis/structural/modal_analysis.ui")
+        ui_path = UI_DIR / "analysis/structural/modal_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
@@ -37,17 +36,19 @@ class StructuralModalAnalysisInput(QDialog):
         self.icon = get_openpulse_icon()
 
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle("Modal analysis setup")
 
     def _define_qt_variables(self):
+
         # QLineEdit
-        self.lineEdit_number_modes = self.findChild(QLineEdit, 'lineEdit_number_modes')
-        self.lineEdit_input_sigma_factor = self.findChild(QLineEdit, 'lineEdit_input_sigma_factor')
+        self.lineEdit_number_modes : QLineEdit
+        self.lineEdit_input_sigma_factor : QLineEdit
+
         # QPushButton
-        self.pushButton_run_analysis = self.findChild(QPushButton, 'pushButton_run_analysis')
+        self.pushButton_run_analysis : QPushButton
 
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)

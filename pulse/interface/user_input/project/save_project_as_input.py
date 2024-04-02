@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QCheckBox, QDialog, QFileDialog, QLineEdit, QPushButton, QRadioButton, QToolButton
+from PyQt5.QtWidgets import QCheckBox, QDialog, QFileDialog, QLineEdit, QPushButton
 from PyQt5.QtGui import QIcon, QKeyEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -19,7 +19,8 @@ class SaveProjectAsInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "project/save_project_as.ui", self)
+        ui_path = UI_DIR / "project/save_project_as.ui"
+        uic.loadUi(ui_path, self)
 
         self.main_window = app().main_window
         self.project = self.main_window.project

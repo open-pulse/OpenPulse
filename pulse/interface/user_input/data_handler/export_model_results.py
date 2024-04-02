@@ -16,7 +16,8 @@ class ExportModelResults(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(UI_DIR / "data_handler/export_model_results.ui", self)
+        ui_path = UI_DIR / "data_handler/export_model_results.ui"
+        uic.loadUi(ui_path, self)
 
         self._load_icons()
         self._config_window()
@@ -30,8 +31,8 @@ class ExportModelResults(QDialog):
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("OpenPulse")
         self.setWindowIcon(self.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
         self.userPath = os.path.expanduser('~')

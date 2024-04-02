@@ -8,14 +8,14 @@ from pulse.interface.formatters.icons import *
 from pulse.libraries.standard_cross_sections import StandardCrossSections
 
 import numpy as np
-from pathlib import Path
 from collections import defaultdict
 
 class GetStandardCrossSection(QDialog):
     def __init__(self, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__()
         
-        uic.loadUi(UI_DIR / "model/setup/structural/standard_cross_section_input.ui", self)
+        ui_path = UI_DIR / "model/setup/structural/standard_cross_section_input.ui"
+        uic.loadUi(ui_path, self)
 
         section_data = kwargs.get("section_data", None)
 
@@ -50,18 +50,20 @@ class GetStandardCrossSection(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-    def _load_cross_section_libraries(self):
-        std_data = StandardCrossSections()
-        self.carbon_steel_cross_sections = std_data.carbon_steel_cross_sections
-        self.stainless_steel_cross_sections = std_data.stainless_steel_cross_sections
-
     def _define_qt_variables(self):
-        self.comboBox_units = self.findChild(QComboBox, 'comboBox_units')
-        self.radioButton_carbon_steel = self.findChild(QRadioButton, 'radioButton_carbon_steel')
-        self.radioButton_stainless_steel = self.findChild(QRadioButton, 'radioButton_stainless_steel')
-        self.pushButton_confirm_selection = self.findChild(QPushButton, 'pushButton_confirm_selection')
-        self.treeWidget_section_data = self.findChild(QTreeWidget, 'treeWidget_section_data')
 
+        # QComboBox
+        self.comboBox_units : QComboBox
+
+        # QRadioButton
+        self.radioButton_carbon_steel : QRadioButton
+        self.radioButton_stainless_steel : QRadioButton
+
+        # QPushButton
+        self.pushButton_confirm_selection : QPushButton
+
+        # QTreeWidget
+        self.treeWidget_section_data : QTreeWidget
 
     def _create_connections(self):
         self.pushButton_confirm_selection.clicked.connect(self.confirm_selection)
@@ -71,18 +73,21 @@ class GetStandardCrossSection(QDialog):
         self.treeWidget_section_data.itemClicked.connect(self.on_click_item)
         self.treeWidget_section_data.itemDoubleClicked.connect(self.on_double_click_item)
 
+    def _load_cross_section_libraries(self):
+        std_data = StandardCrossSections()
+        self.carbon_steel_cross_sections = std_data.carbon_steel_cross_sections
+        self.stainless_steel_cross_sections = std_data.stainless_steel_cross_sections
 
     def reset_treeWidget_data(self):
         self.treeWidget_section_data.clear()
         for i in range(6):
             self.treeWidget_section_data.headerItem().setText(i, "")
 
-
     def load_treeWidget(self):
 
         self.std_data = dict()
         self.reset_treeWidget_data()
-        
+
         if self.radioButton_carbon_steel.isChecked():
             self.std_data = self.carbon_steel_cross_sections
         else:
@@ -129,10 +134,8 @@ class GetStandardCrossSection(QDialog):
 
         self.highlight_standard_section()
 
-
     def on_click_item(self, item):
-        self.selected_id = int(item.text(0))
-        
+        self.selected_id = int(item.text(0))  
 
     def on_double_click_item(self, item):
         _id = int(item.text(0))
@@ -141,7 +144,6 @@ class GetStandardCrossSection(QDialog):
         self.wall_thickness = data["Wall thickness (in)"]*(25.4/1000)
         self.complete = True
         self.close()
-
 
     def confirm_selection(self):
         if self.selected_id is not None:
@@ -177,7 +179,6 @@ class GetStandardCrossSection(QDialog):
             return False
         else:
             return True
-
 
     def highlight_standard_section(self):
         """

@@ -14,7 +14,6 @@ from pulse.interface.user_input.project.call_double_confirmation import CallDoub
 from compressors.reciprocating.model import CompressorModel
 
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -39,6 +38,7 @@ class CompressorModelInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_treeWidget()
         self.update()
         self.load_compressor_excitation_tables_info()
         self.exec()
@@ -152,8 +152,7 @@ class CompressorModelInput(QDialog):
         self.tabWidget_compressor : QTabWidget
         
         # QTreeWidget
-        self.treeWidget_compressor_excitation = self.findChild(QTreeWidget, 'treeWidget_compressor_excitation')
-        self._config_treeWidget()
+        self.treeWidget_compressor_excitation : QTreeWidget
 
     def _config_treeWidget(self):
         self.treeWidget_compressor_excitation.setColumnWidth(0, 70)
@@ -279,6 +278,7 @@ class CompressorModelInput(QDialog):
             self.lineEdit_discharge_node_ID.setText("")
             if len(list_node_ids) == 1:
                 self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
+
         elif index == 2:
             self.current_lineEdit = self.lineEdit_discharge_node_ID
             self.lineEdit_suction_node_ID.setDisabled(True)
@@ -296,6 +296,7 @@ class CompressorModelInput(QDialog):
         if index == 1:
             self.lineEdit_discharge_node_ID.setText("")
             self.lineEdit_discharge_node_ID.setDisabled(True)
+
         elif index == 2:
             self.lineEdit_suction_node_ID.setText("")
             self.lineEdit_suction_node_ID.setDisabled(True)
@@ -765,9 +766,8 @@ class CompressorModelInput(QDialog):
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 0 }
 
-            read = FluidInput(  self.project, 
-                                self.opv, 
-                                compressor_thermodynamic_state=compressor_info  ) 
+            read = FluidInput(compressor_thermodynamic_state = compressor_info)
+
             if not read.complete:
                 return
             else:
@@ -811,9 +811,7 @@ class CompressorModelInput(QDialog):
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 1 }
             
-            read = FluidInput(  self.project, 
-                                self.opv, 
-                                compressor_thermodynamic_state=compressor_info  )
+            read = FluidInput(compressor_thermodynamic_state = compressor_info)
             if not read.complete:
                 return
             else:

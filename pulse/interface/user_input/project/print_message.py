@@ -6,7 +6,6 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 
-from pathlib import Path
 from time import sleep, time 
 
 class PrintMessageInput(QDialog):
@@ -23,6 +22,7 @@ class PrintMessageInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self._set_texts()
         self.exec()
 
@@ -30,34 +30,43 @@ class PrintMessageInput(QDialog):
         self.icon = get_openpulse_icon()
 
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
+
         # QFrame
-        self.frame_button = self.findChild(QFrame, 'frame_button')
-        self.frame_message = self.findChild(QFrame, 'frame_message')
-        self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
-        self.frame_title = self.findChild(QFrame, 'frame_title')
-        if self.auto_close:
-            self.frame_button.setVisible(False)
-        else:
-            self.frame_progress_bar.setVisible(False)
+        self.frame_button : QFrame
+        self.frame_message : QFrame
+        self.frame_progress_bar : QFrame
+        self.frame_title : QFrame
+
         # QLabel
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_message = self.findChild(QLabel, 'label_message')
+        self.label_title : QLabel
+        self.label_message : QLabel
+
         # QProgressBar
-        self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
+        self.progress_bar_timer : QProgressBar
+
         # QPushButton
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        self.pushButton_close.setVisible(True)
+        self.pushButton_close : QPushButton
+
         # QTimer
         self.timer = QTimer()
 
     def _create_connections(self):
         self.pushButton_close.clicked.connect(self.message_close)
         self.timer.timeout.connect(self.update_progress_bar)
+
+    def _config_widgets(self):
+
+        if self.auto_close:
+            self.frame_button.setVisible(False)
+        else:
+            self.frame_progress_bar.setVisible(False)
+
+        self.pushButton_close.setVisible(True)
 
     def message_close(self):
         self.timer.stop()

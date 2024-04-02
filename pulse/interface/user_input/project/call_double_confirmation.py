@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QWidget
+from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
@@ -11,7 +11,8 @@ class CallDoubleConfirmationInput(QDialog):
     def __init__(self, title, message, buttons_config={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "messages/call_double_confirmation.ui", self)
+        ui_path = UI_DIR / "messages/call_double_confirmation.ui"
+        uic.loadUi(ui_path, self)
 
         self.title = title
         self.message = message
@@ -42,18 +43,19 @@ class CallDoubleConfirmationInput(QDialog):
         self._doNotRun = True
 
     def _define_qt_variables(self):
-        self.label_message = self.findChild(QLabel, 'label_message')
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.pushButton_rightButton = self.findChild(QPushButton, 'pushButton_rightButton')
-        self.pushButton_leftButton = self.findChild(QPushButton, 'pushButton_leftButton')
-    
+        # QLabel
+        self.label_message : QLabel
+        self.label_title : QLabel
+        # QPushButton
+        self.pushButton_rightButton : QPushButton
+        self.pushButton_leftButton : QPushButton
+
     def _create_actions(self):
         self.pushButton_rightButton.clicked.connect(self.confirm_action)
         self.pushButton_leftButton.clicked.connect(self.force_to_close)
 
     def _configure_buttons(self):
-
-        if self.buttons_config != {}:
+        if self.buttons_config:
             if "left_button_label" in self.buttons_config.keys():
                 self.pushButton_leftButton.setText(self.buttons_config["left_button_label"])
             if "right_button_label" in self.buttons_config.keys():

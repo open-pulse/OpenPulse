@@ -128,15 +128,18 @@ class GetInformationOfGroup(QDialog):
             if isinstance(values, (int, float, complex)):
                 values = [values]
 
-            line_info = list()
+            item_info = list()
             for key in keys:
-                line_info.append(str(key))
+                item_info.append(str(key))
 
-            for value in values:
-                line_info.append(str(value))
+            if isinstance(values, str):
+                item_info.append(values)
+            else:
+                for value in values:
+                    item_info.append(str(value))
 
-            new = QTreeWidgetItem(line_info)
-            for col in range(len(line_info)):
+            new = QTreeWidgetItem(item_info)
+            for col in range(len(item_info)):
                 new.setTextAlignment(col, Qt.AlignCenter)
 
             self.treeWidget_group_info.addTopLevelItem(new)

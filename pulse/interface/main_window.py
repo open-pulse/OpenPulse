@@ -40,7 +40,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        uic.loadUi(UI_DIR / 'main_window.ui', self)
+        ui_path = UI_DIR / 'main_window.ui'
+        uic.loadUi(ui_path, self)
 
         self.ui_dir = UI_DIR
         self.config = app().config
@@ -147,6 +148,8 @@ class MainWindow(QMainWindow):
         }
 
         self.combo_box_workspaces = QComboBox()
+        self.combo_box_workspaces.setMinimumSize(170, 26)
+
         # iterating sorted items make the icons appear in the same 
         # order as defined in the Workspace enumerator
         for _, action in sorted(actions.items()):
@@ -448,6 +451,7 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+        self.close_opened_windows()
         self.mesh_toolbar.setDisabled(True)
         self.geometry_input_wigdet._disable_finalize_button(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
@@ -581,7 +585,7 @@ class MainWindow(QMainWindow):
         self.input_widget.set_nodal_loads()
 
     def action_add_mass_spring_damper_callback(self):
-        self.input_widget.addMassSpringDamper()
+        self.input_widget.add_mass_spring_damper()
 
     def action_set_capped_end_callback(self):
         self.input_widget.set_capped_end()
@@ -623,7 +627,7 @@ class MainWindow(QMainWindow):
         self.input_widget.check_beam_criteria()
 
     def action_select_analysis_type_callback(self):
-        self.input_widget.analysisTypeInput()
+        self.input_widget.analysis_type_input()
 
     def action_analysis_setup_callback(self):
         self.input_widget.analysis_setup()
@@ -672,6 +676,11 @@ class MainWindow(QMainWindow):
 
     def _enable_menus_at_start(self):
         pass
+
+    def close_opened_windows(self):
+        if self.opv_widget.inputObject is not None:
+            self.opv_widget.inputObject.close()
+            self.opv_widget.setInputObject(None)
 
     def load_user_preferences(self):
         self.update_theme = False
@@ -744,6 +753,10 @@ class MainWindow(QMainWindow):
     #     return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
+
+        if self.opv_widget.inputObject is not None:
+            self.opv_widget.inputObject.close()
+
         title = "OpenPulse"
         message = "Would you like to exit from the OpenPulse application?"
         close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
@@ -751,7 +764,7 @@ class MainWindow(QMainWindow):
             sys.exit()
         else:
             event.ignore()
-            
+
     # def _createStatusBar(self):
     #     self.status_bar = QStatusBar()
     #     self.setStatusBar(self.status_bar)

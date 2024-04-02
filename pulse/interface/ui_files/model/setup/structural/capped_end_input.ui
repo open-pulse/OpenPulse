@@ -303,7 +303,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QTabWidget" name="tabWidget_capped_end">
+       <widget class="QTabWidget" name="tabWidget_main">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -773,7 +773,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget_capped_end</tabstop>
+  <tabstop>tabWidget_main</tabstop>
  </tabstops>
  <resources/>
  <connections/>

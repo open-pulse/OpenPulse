@@ -18,7 +18,8 @@ class ImportDataToCompare(QDialog):
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "data_handler/import_data_to_compare.ui", self)
+        ui_path = UI_DIR / "data_handler/import_data_to_compare.ui"
+        uic.loadUi(ui_path, self)
 
         self.plotter = plotter
 

@@ -12,7 +12,8 @@ class RendererUserPreferencesInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "project/render/renderer_user_preferences.ui", self)
+        ui_path = UI_DIR / "project/render/renderer_user_preferences.ui"
+        uic.loadUi(ui_path, self)
 
         self.main_window = app().main_window
         self.config = app().config

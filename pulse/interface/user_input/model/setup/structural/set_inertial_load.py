@@ -3,7 +3,6 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import numpy as np
-from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
@@ -17,11 +16,12 @@ class SetInertialLoad(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/model/setup/structural/inertial_load_input.ui")
+        ui_path = UI_DIR / "model/setup/structural/inertial_load_input.ui"
         uic.loadUi(ui_path, self)
 
-        self.main_window = app().main_window
-        self.project = self.main_window.project
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
+        self.opv.setInputObject(self)
         
         self._initialize()
         self._load_icons()
@@ -42,9 +42,9 @@ class SetInertialLoad(QDialog):
         self.icon = get_openpulse_icon()
 
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

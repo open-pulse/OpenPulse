@@ -82,7 +82,6 @@ class PerforatedPlateInput(QDialog):
         self.acoustic_elements = self.project.preprocessor.acoustic_elements
         self.structural_elements = self.project.preprocessor.structural_elements
         self.group_elements_with_perforated_plates = self.project.preprocessor.group_elements_with_perforated_plate
-        self.group_elements_with_valves = self.preprocessor.group_elements_with_valves
         self.elements_id = self.opv.getListPickedElements()
 
         self.elements_info_path = self.project.file._element_info_path
@@ -474,17 +473,18 @@ class PerforatedPlateInput(QDialog):
             self.dict_inputs['bias flow effects'] = 0
             self.dict_inputs['bias flow coefficient'] = 0
         else:
+
             # Check plate thickness
             if self.check_input_parameters(self.lineEdit_plate_thickness.text(), 'plate thickness', True):
                 self.lineEdit_plate_thickness.setFocus()
                 return True
             else:
-                aux = np.append(np.array(elements_lengths) > self.value-self.tol, np.array(elements_lengths) < self.value+self.tol)
-                if not all(aux):
-                    title = "Plate thickness different from element length"
-                    message = "If possible, use plate thickness equal to the element length for better precision."
-                    PrintMessageInput([window_title_2, title, message])
-                    self.lineEdit_plate_thickness.setFocus()
+                for length in elements_lengths:
+                    if np.abs(length - self.value)/length > 0.01:
+                        title = "Plate thickness different from element length"
+                        message = "If possible, use plate thickness equal to the element length for better precision."
+                        PrintMessageInput([window_title_2, title, message])
+                        self.lineEdit_plate_thickness.setFocus()
                 self.dict_inputs['plate thickness'] = self.value
 
             # Check area porosity
@@ -1004,7 +1004,7 @@ class PerforatedPlateInput(QDialog):
 
     def check_if_is_there_a_valve_and_remove_it(self, perforated_plate_elements):
         _update_renderer = False
-        temp_dict = self.group_elements_with_valves.copy()
+        temp_dict = self.preprocessor.group_elements_with_valves.copy()
         for key, data in temp_dict.items():
             [valve_elements, valve_parameters] = data
             for element_id in perforated_plate_elements:
@@ -1041,7 +1041,7 @@ class PerforatedPlateInput(QDialog):
     def actions_to_finalize(self):
         self.opv.updateRendererMesh()
         self.close()
-       
+
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
         super().__init__(*args, **kwargs)
