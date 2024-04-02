@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGridLayout, QLabel, QProxyStyle, QSlider, QDialog
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 
 class ClipPlaneWidget(QDialog):

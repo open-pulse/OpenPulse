@@ -1,11 +1,12 @@
 import os
 from pathlib import Path
 from PyQt5.QtGui import QColor, QIcon, QPainter, QPixmap
+from pulse import ICON_DIR
 
 def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+    path = ICON_DIR / filename
+    if path.exists():
+        return str(path)
 
 def get_formatted_icon(path: Path | str, color: QColor):
     pixmap = QPixmap(str(path))
@@ -16,22 +17,23 @@ def get_formatted_icon(path: Path | str, color: QColor):
     return QIcon(pixmap)
 
 def get_openpulse_icon(color=QColor("#0055DD")):
-    icon_path = str(Path('data/icons/pulse/pulse_icon.png'))
+
+    icon_path =  str(ICON_DIR / 'pulse/pulse_icon.png')
     # return get_formatted_icon(icon_path, color)
     return QIcon(icon_path)
 
 def get_warning_icon(color=None):
     if color is None:
-        icon_path = str(Path('data/icons/warnings/warning_2.png'))
+        icon_path =  str(ICON_DIR / 'warnings/warning_2.png')
         return QIcon(icon_path)
     else:
-        icon_path = str(Path('data/icons/warnings/transparent_warning.png'))
+        icon_path = str(ICON_DIR / 'warnings/transparent_warning.png')
         return get_formatted_icon(icon_path, color)
 
 def get_error_icon(color=None):
     if color is None:
-        icon_path = str(Path('data/icons/warnings/warning_2.png'))
+        icon_path = str(ICON_DIR / 'warnings/warning_2.png')
         return QIcon(icon_path)
     else:
-        icon_path = str(Path('data/icons/warnings/transparent_warning.png'))
+        icon_path = str(ICON_DIR / 'warnings/transparent_warning.png')
         return get_formatted_icon(icon_path, color)

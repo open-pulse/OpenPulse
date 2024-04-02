@@ -13,6 +13,7 @@ from pulse.interface.viewer_3d.text_templates import TreeInfo, format_long_seque
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse import app
+from pulse import ICON_DIR
 
 @dataclass
 class PlotFilter:
@@ -173,11 +174,11 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.AddViewProp(self.mopt_logo)
 
         if theme == "light":
-            open_pulse_path = Path('data/icons/logos/OpenPulse_logo_black.png')
-            mopt_path = Path('data/icons/logos/mopt_logo_black.png')     
+            open_pulse_path = str(ICON_DIR/ 'logos/OpenPulse_logo_black.png')
+            mopt_path = str(ICON_DIR / 'logos/mopt_logo_black.png')     
         elif theme == "dark":
-            open_pulse_path = Path('data/icons/logos/OpenPulse_logo_white.png')
-            mopt_path = Path('data/icons/logos/mopt_logo_white.png')
+            open_pulse_path = str(ICON_DIR / 'logos/OpenPulse_logo_white.png')
+            mopt_path =  str(ICON_DIR / 'logos/mopt_logo_white.png')
         else:
             raise NotImplementedError()
 

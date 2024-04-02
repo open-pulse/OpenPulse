@@ -8,6 +8,7 @@ from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.tools.utils import remove_bc_from_file, get_new_path, create_new_folder
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 import os
 import numpy as np

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
@@ -1423,82 +1423,4 @@ def get_string_from_joint_paramters(parameters):
                 return True
     return False
 
-    # def tables_frequency_setup_message(self, lineEdit, stiffness_label):
-    #     title = f"Invalid frequency setup of the '{stiffness_label}' imported table"
-    #     message = f"The frequency setup from '{stiffness_label}' selected table mismatches\n"
-    #     message += f"the frequency setup from previously imported tables.\n"
-    #     message += f"All imported tables must have the same frequency\n"
-    #     message += f"setup to avoid errors in the model processing."
-    #     PrintMessageInput([window_title_1, title, message])
-    #     lineEdit.setText("")
-    #     lineEdit.setFocus()
-
-    # def process_table_file_removal(self, list_table_names):
-    #     for table_name in list_table_names:
-    #         for _format in [".csv", ".dat", ".txt"]:
-    #             if _format in table_name:
-    #                 prefix_string = table_name.split(_format)[0]
-    #                 table_index = int(prefix_string.split("_table#")[1])
-    #                 if table_index in self.preprocessor.expansion_joint_table_indexes.keys():
-    #                     self.preprocessor.expansion_joint_table_indexes.pop(table_index)
-    #         self.project.remove_structural_table_files_from_folder(table_name, folder_name="expansion_joints_files")
-
-    # def table_input_confirm(self):
-    #     return
-
-    #     if self.check_initial_inputs():
-    #         return
-
-    #     if self.check_table_of_values():
-    #         return
-        
-    #     for tag in self.get_selected_ids():
-
-    #         _joint_length = self.get_expansion_joint_length(tag)
-
-    #         if _joint_length is None:
-    #             return
-
-    #         joint_parameters = [_joint_length,
-    #                             self.effective_diameter,  
-    #                             self.joint_mass, 
-    #                             self.axial_locking_criteria,
-    #                             self.add_rods_key]
-
-    #         expansion_joint_data = [joint_parameters, self.loaded_stiffness_tables, self.basenames]
-        
-    #         if self.comboBox_selection_type.currentIndex() == 0:
-                
-    #             self.process_table_file_removal(self.list_table_names_from_selection)
-    #             self.project.add_valve_by_line(self.selected_lines, None)
-    #             self.project.set_cross_section_by_lines(self.selected_lines, None)
-
-    #             list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.joint_elements, 
-    #                                                                             self.effective_diameter )
-        
-    #             self.preprocessor.set_cross_section_by_element(self.joint_elements, 
-    #                                                            list_cross)
-    #             self.project.add_expansion_joint_by_line(self.selected_lines, 
-    #                                                      expansion_joint_data)
-
-    #         else:
-                
-    #             if self.check_previous_attributions_to_elements(self.joint_elements):
-    #                 return
-
-    #             self.project.add_valve_by_elements(self.joint_elements, None, reset_cross=False)
-    #             elements_to_change = self.get_list_of_elements_to_update_cross_section()
-    #             # lines_to_change = self.get_list_of_lines_to_update_cross_section()
-
-    #             if elements_to_change != []:
-    #                 read = SetCrossSectionInput(beam_to_pipe = True, 
-    #                                             elements_to_update_cross_section = elements_to_change)
-    #                 read.remove_expansion_joint_tables_files = False
-    #                 if not read.complete:
-    #                     return
-    #             else:
-    #                 self.process_table_file_removal(self.list_table_names_from_selection)
-
-    #             self.remove_expansion_joint_already_added_to_elements(self.joint_elements)
-    #             self.project.add_expansion_joint_by_elements(self.joint_elements, 
-    #                                                          expansion_joint_data)
+    

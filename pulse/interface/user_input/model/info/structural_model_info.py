@@ -8,6 +8,8 @@ from pulse.interface.formatters.icons import *
 
 import numpy as np
 
+from pulse import UI_DIR
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 class StructuralModelInfo(QDialog):
     def __init__(self, *args, **kwargs):
@@ -28,6 +30,8 @@ class StructuralModelInfo(QDialog):
         self._config_widgets()
         self.load_nodes_info()
         self.project_info()
+        self._load_icons()
+        self._config_window()
         self.exec()
 
     def _load_icons(self):

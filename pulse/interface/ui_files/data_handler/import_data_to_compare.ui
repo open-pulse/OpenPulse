@@ -711,7 +711,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../../../../data/icons/common/import.png</normaloff>../../../../data/icons/common/import.png</iconset>
+                <normaloff>../data/icons/common/import.png</normaloff>../data/icons/common/import.png</iconset>
               </property>
               <property name="iconSize">
                <size>

@@ -9,8 +9,8 @@ a = Analysis(
     # to add data in pairs
     datas=[
         ('data/', 'data/'),
+        ('pulse/interface/data/', 'pulse/interface/data/'),
         ('pulse/interface/ui_files/', 'pulse/interface/ui_files/'),
-        ('pulse/interface/icons/', 'pulse/interface/icons/'),
         ('pulse/libraries/', 'pulse/libraries/'),
     ],
     hiddenimports=[],
@@ -22,7 +22,7 @@ a = Analysis(
 )
 pyz = PYZ(a.pure)
 splash = Splash(
-    'data/icons/logos/OpenPulse_logo_black.png',
+    'pulse/interface/data/icons/logos/OpenPulse_logo_black.png',
     binaries=a.binaries,
     datas=a.datas,
     text_pos=None,

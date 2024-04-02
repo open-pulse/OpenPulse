@@ -15,6 +15,7 @@ from pulse.interface.user_input.model.setup.general.color_selector import PickCo
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.tools.utils import *
 
 window_title_1 = "Error"
@@ -52,7 +53,8 @@ class FluidInput(QDialog):
         if self.compressor_thermodynamic_state:
             self.check_compressor_inputs()
 
-        self.exec()
+        self._load_icons()
+        self._config_window()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()

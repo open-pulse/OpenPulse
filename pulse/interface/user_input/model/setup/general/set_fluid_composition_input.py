@@ -44,6 +44,8 @@ class SetFluidCompositionInput(QDialog):
 
         self.load_default_gases_info()
         self.update_selected_fluid()
+        self._load_icons()
+        self._config_window()
         self.exec()
 
     def _load_icons(self):
