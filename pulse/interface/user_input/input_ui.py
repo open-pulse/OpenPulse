@@ -158,10 +158,11 @@ class InputUi:
         return self.initial_project_action(obj.complete)
 
     def set_clipping_plane(self):
+
         if not self.opv.opvAnalysisRenderer.getInUse():
             return
 
-        clipping_plane = self.process_input(ClipPlaneWidget, self.opv)        
+        clipping_plane = self.process_input(ClipPlaneWidget)        
         clipping_plane.value_changed.connect(self.opv.configure_clipping_plane)
         clipping_plane.slider_released.connect(self.opv.apply_clipping_plane)
         clipping_plane.exec()
