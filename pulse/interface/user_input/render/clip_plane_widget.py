@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QGridLayout, QLabel, QProxyStyle, QSlider, QDialog
+from PyQt5.QtWidgets import QDialog, QLabel, QSlider
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
