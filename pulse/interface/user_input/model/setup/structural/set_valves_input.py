@@ -36,7 +36,14 @@ class ValvesInput(QDialog):
         self._config_widgets()
         self.load_valves_info()
         self.update()
+        #self.show()
         self.exec()
+
+
+        
+        print("oi exec1")
+        #self.exec()
+        #print("oi exec2")
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -516,11 +523,17 @@ class ValvesInput(QDialog):
                         half_ids = list_elements[index]
                     valve_ids.append(half_ids)
 
-            self.setVisible(False)
-            perforated_plate = PerforatedPlateInput(valve_ids = valve_ids) 
+            self.hide()
+            #self.show()
+            #print("oi 2")
+            #self.setVisible(False)
+
+
+            perforated_plate = PerforatedPlateInput(valve_ids = valve_ids)
             if not perforated_plate.complete:
                 self.opv.setInputObject(self)
-                self.setVisible(True)
+                self.exec()
+                print("oi 2")
                 return
 
         valve_parameters = dict()
