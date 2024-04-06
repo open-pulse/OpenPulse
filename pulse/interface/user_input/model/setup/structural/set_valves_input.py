@@ -27,6 +27,7 @@ class ValvesInput(QDialog):
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
+        self.closed = False
 
         self._load_icons()
         self._config_window()
@@ -36,14 +37,9 @@ class ValvesInput(QDialog):
         self._config_widgets()
         self.load_valves_info()
         self.update()
-        #self.show()
-        self.exec()
 
-
-        
-        print("oi exec1")
-        #self.exec()
-        #print("oi exec2")
+        while not self.closed:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -116,7 +112,11 @@ class ValvesInput(QDialog):
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         self.treeWidget_valve_remove.itemClicked.connect(self.on_click_item)
         self.treeWidget_valve_remove.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.finished.connect(self.close)
         self.update_flange_length()
+    
+    def close(self):
+        self.closed = True
 
     def _config_widgets(self):
         self.cache_tab = self.tabWidget_main.currentIndex()
@@ -524,16 +524,11 @@ class ValvesInput(QDialog):
                     valve_ids.append(half_ids)
 
             self.hide()
-            #self.show()
-            #print("oi 2")
-            #self.setVisible(False)
-
-
+            
             perforated_plate = PerforatedPlateInput(valve_ids = valve_ids)
             if not perforated_plate.complete:
                 self.opv.setInputObject(self)
                 self.exec()
-                print("oi 2")
                 return
 
         valve_parameters = dict()
