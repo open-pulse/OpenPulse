@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -193,6 +193,7 @@
    <addaction name="action_back_view"/>
    <addaction name="action_isometric_view"/>
    <addaction name="separator"/>
+   <addaction name="action_clip_plane"/>
    <addaction name="action_show_points"/>
    <addaction name="action_show_lines"/>
    <addaction name="action_show_tubes"/>
@@ -838,6 +839,15 @@
   <action name="action_geometry_editor_help">
    <property name="text">
     <string>Geometry Editor Help</string>
+   </property>
+  </action>
+  <action name="action_clip_plane">
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/clipping_plane_icon.png</normaloff>../data/icons/clipping_plane_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clip Plane</string>
    </property>
   </action>
  </widget>

@@ -526,9 +526,9 @@ class ValvesInput(QDialog):
             self.hide()
             
             perforated_plate = PerforatedPlateInput(valve_ids = valve_ids)
+           
             if not perforated_plate.complete:
                 self.opv.setInputObject(self)
-                self.exec()
                 return
 
         valve_parameters = dict()

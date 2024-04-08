@@ -13,6 +13,7 @@ from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeome
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
@@ -571,6 +572,9 @@ class MainWindow(QMainWindow):
             render_widget.setCameraView(6)
             return
         render_widget.set_back_view()
+    
+    def action_clip_plane_callback(self):
+        self.clip_plane = ClipPlaneWidget()
 
     def action_set_structural_element_type_callback(self):
         self.input_widget.set_structural_element_type()
