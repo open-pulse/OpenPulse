@@ -27,7 +27,7 @@ class ValvesInput(QDialog):
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-
+        
         self._load_icons()
         self._config_window()
         self._initialize()
@@ -36,7 +36,8 @@ class ValvesInput(QDialog):
         self._config_widgets()
         self.load_valves_info()
         self.update()
-        self.exec()
+
+        self.start_execution()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -62,18 +63,24 @@ class ValvesInput(QDialog):
         self.stop = False
         self.complete = False
         self.allow_to_update = True
+        self.keep_window_open = True
+
         self.flange_outer_diameter = None
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_selection : QComboBox
+
         # QCheckBox
         self.checkBox_add_flanges_to_the_valve : QCheckBox
         self.checkBox_enable_acoustic_effects : QCheckBox
         self.checkBox_remove_valve_acoustic_effects : QCheckBox
+
         # QFrame
         self.main_frame : QFrame
         self.selection_frame : QFrame
+
         # QLabel
         self.label_selected_id : QLabel
         self.label_outer_diameter : QLabel
@@ -81,6 +88,7 @@ class ValvesInput(QDialog):
         self.label_number_of_elements : QLabel
         self.label_flange_length : QLabel
         self.label_flange_length_unit : QLabel
+
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
         self.lineEdit_stiffening_factor : QLineEdit
@@ -88,28 +96,53 @@ class ValvesInput(QDialog):
         self.lineEdit_valve_length : QLineEdit
         self.lineEdit_flange_length : QLineEdit
         self.lineEdit_outer_diameter : QLineEdit   
+
         # QSpinBox
         self.spinBox_number_elements_flange : QSpinBox
+
         # QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_remove : QPushButton
+
         # QTabWidget
         self.tabWidget_main : QTabWidget
+
         # QTreeWidget
         self.treeWidget_valve_remove : QTreeWidget
 
     def _create_connections(self):
+
+        # QCheckBox
         self.checkBox_add_flanges_to_the_valve.stateChanged.connect(self.checkBox_event_update)
+
+        # QComboBox
         self.comboBox_selection.currentIndexChanged.connect(self.selection_type_callback)
+
+        # QPushButton
         self.pushButton_confirm.clicked.connect(self.add_valve_to_selection)
         self.pushButton_remove.clicked.connect(self.remove_valve_by_selection)
         self.pushButton_reset.clicked.connect(self.reset_valves)
+
+        # QSpinBox
         self.spinBox_number_elements_flange.valueChanged.connect(self.update_flange_length)
+
+        # QTabWidget
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
+
+        # QTreeWidget
         self.treeWidget_valve_remove.itemClicked.connect(self.on_click_item)
         self.treeWidget_valve_remove.itemDoubleClicked.connect(self.on_doubleclick_item)
+
         self.update_flange_length()
+    
+    def start_execution(self):
+        while self.keep_window_open:
+            self.exec()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False
 
     def _config_widgets(self):
         self.cache_tab = self.tabWidget_main.currentIndex()
@@ -516,11 +549,12 @@ class ValvesInput(QDialog):
                         half_ids = list_elements[index]
                     valve_ids.append(half_ids)
 
-            self.setVisible(False)
-            perforated_plate = PerforatedPlateInput(valve_ids = valve_ids) 
+            self.hide()
+            
+            perforated_plate = PerforatedPlateInput(valve_ids = valve_ids)
+           
             if not perforated_plate.complete:
                 self.opv.setInputObject(self)
-                self.setVisible(True)
                 return
 
         valve_parameters = dict()
@@ -933,7 +967,7 @@ class ValvesInput(QDialog):
 
     def reset_valves(self):
 
-        self.setVisible(False)
+        self.hide()
         title = f"Removal of all valves from model"
         message = "Would you like to remove all valves from the model?"
         
@@ -941,8 +975,7 @@ class ValvesInput(QDialog):
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._stop:
-            self.setInputObject(self)
-            self.setVisible(True)
+            self.opv.setInputObject(self)
             return
 
         aux = self.preprocessor.group_elements_with_valves.copy()
