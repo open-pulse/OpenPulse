@@ -27,7 +27,7 @@ class ValvesInput(QDialog):
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.closed = False
+        self.keep_window_open = True
 
         self._load_icons()
         self._config_window()
@@ -38,7 +38,7 @@ class ValvesInput(QDialog):
         self.load_valves_info()
         self.update()
 
-        while not self.closed:
+        while self.keep_window_open:
             self.exec()
 
     def _load_icons(self):
@@ -112,11 +112,11 @@ class ValvesInput(QDialog):
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         self.treeWidget_valve_remove.itemClicked.connect(self.on_click_item)
         self.treeWidget_valve_remove.itemDoubleClicked.connect(self.on_doubleclick_item)
-        self.finished.connect(self.close)
         self.update_flange_length()
     
-    def close(self):
-        self.closed = True
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False
 
     def _config_widgets(self):
         self.cache_tab = self.tabWidget_main.currentIndex()
