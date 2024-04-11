@@ -26,7 +26,7 @@ class ClipPlaneWidget(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.exec()
+        self.show()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()

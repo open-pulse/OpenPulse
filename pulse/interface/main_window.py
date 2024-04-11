@@ -576,6 +576,20 @@ class MainWindow(QMainWindow):
     def action_clip_plane_callback(self):
         self.clip_plane = ClipPlaneWidget()
 
+        self.clip_plane.value_changed.connect(self.set_clip_plane_configs)
+        self.clip_plane.slider_released.connect(self.apply_clip_plane)
+        self.clip_plane.closed.connect(self.close_clip_plane)
+
+    def set_clip_plane_configs(self):
+        self.opv_widget.opvAnalysisRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
+    
+    def apply_clip_plane(self):
+        self.opv_widget.opvAnalysisRenderer.apply_clipping_plane()
+        
+    def close_clip_plane(self):
+        self.opv_widget.opvAnalysisRenderer.dismiss_clipping_plane()
+        
+
     def action_set_structural_element_type_callback(self):
         self.input_widget.set_structural_element_type()
 

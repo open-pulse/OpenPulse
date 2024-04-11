@@ -81,7 +81,7 @@ class opvRenderer(vtkRendererBase):
     def getBounds(self):
         if self._plotFilter.tubes:
             return self.opvTubes._actor.GetBounds()
-        return ()
+        return (0, 0, 0, 0, 0, 0)
 
     def plot(self):
         self.reset()

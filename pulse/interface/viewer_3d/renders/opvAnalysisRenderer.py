@@ -578,6 +578,9 @@ class opvAnalysisRenderer(vtkRendererBase):
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
         if self.playingAnimation:
             self.pauseAnimation()
+        
+        self.opvClippablePressureTubes.disable_cut()
+        self.opvClippableDeformedTubes.disable_cut()
 
         self.clipping_plane_active = True
         self.plane_origin = self._calculate_relative_position([x, y, z])
