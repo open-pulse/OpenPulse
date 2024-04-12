@@ -39,7 +39,7 @@ class PulsationSuppressionDevice:
     def modify_suppression_filter_in_file(self, tag, suppression_device_data):
     
         project_path = Path(self.file._project_path)
-        path = project_path / "pulsation_suppression_device.dat"
+        path = project_path / "psd_info.dat"
 
         config = configparser.ConfigParser()
         config.read(path)
