@@ -102,6 +102,7 @@ class MainWindow(QMainWindow):
         self.action_export_piping : QAction
         self.action_user_preferences : QAction
         self.action_geometry_editor_help : QAction
+        self.action_pulsation_attenuator_device_editor : QAction
 
         # QMenu
         self.menu_recent : QMenu
@@ -508,6 +509,9 @@ class MainWindow(QMainWindow):
 
     def action_geometry_editor_help_callback(self):
         self.input_widget.geometry_editor_help()
+
+    def action_pulsation_attenuator_device_editor_callback(self):
+        self.input_widget.pulsation_attenuator_device_editor()
 
     def action_plot_lines_callback(self):
         self.use_structural_setup_workspace()

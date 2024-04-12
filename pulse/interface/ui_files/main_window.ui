@@ -164,10 +164,17 @@
     <addaction name="action_set_light_theme"/>
     <addaction name="action_user_preferences"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="action_pulsation_attenuator_device_editor"/>
+   </widget>
    <addaction name="menu_project"/>
    <addaction name="menu_general_settings"/>
    <addaction name="menu_plots"/>
    <addaction name="menu_model_info"/>
+   <addaction name="menuTools"/>
    <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -848,6 +855,11 @@
    </property>
    <property name="text">
     <string>Clip Plane</string>
+   </property>
+  </action>
+  <action name="action_pulsation_attenuator_device_editor">
+   <property name="text">
+    <string>Pulsation attenuator device editor</string>
    </property>
   </action>
  </widget>

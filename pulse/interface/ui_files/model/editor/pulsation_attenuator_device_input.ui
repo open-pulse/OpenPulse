@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
+    <width>527</width>
     <height>730</height>
    </rect>
   </property>
@@ -145,7 +145,7 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <item row="0" column="0">
+      <item row="0" column="1">
        <widget class="QPushButton" name="pushButton_confirm">
         <property name="minimumSize">
          <size>
@@ -172,6 +172,45 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         </property>
         <property name="text">
          <string>Confirm</string>
+        </property>
+        <property name="autoDefault">
+         <bool>true</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="pushButton_cancel">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
+QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+        </property>
+        <property name="text">
+         <string>Cancel</string>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -352,12 +391,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <item>
             <property name="text">
-             <string> single chamber</string>
+             <string> single volume</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> dual chamber</string>
+             <string> dual volume</string>
             </property>
            </item>
           </widget>
@@ -733,6 +772,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="text">
+            <string>1.5</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="0" column="3">
@@ -959,6 +1004,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="text">
+            <string>0.4</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="4" column="1">
@@ -1007,6 +1058,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="text">
+            <string>1.5</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="4" column="2">
@@ -1027,6 +1084,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="text">
+            <string>0.023</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -1184,6 +1247,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="text">
+            <string>0.4</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="7" column="1">
@@ -1259,6 +1328,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="text">
+            <string>0.75</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="1" column="2">
@@ -1279,6 +1354,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="text">
+            <string>1.15</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -1337,7 +1418,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
           </widget>
          </item>
          <item row="8" column="2">
-          <widget class="QLineEdit" name="lineEdit_ouput_pipe_distance">
+          <widget class="QLineEdit" name="lineEdit_output_pipe_distance">
            <property name="minimumSize">
             <size>
              <width>120</width>
@@ -1354,6 +1435,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="text">
+            <string>0.75</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -1429,6 +1516,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <font>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="text">
+            <string>1.15</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>

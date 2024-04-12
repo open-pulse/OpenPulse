@@ -35,6 +35,7 @@ from pulse.interface.user_input.model.setup.acoustic.radiation_impedance_input i
 from pulse.interface.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
+from pulse.interface.user_input.model.editor.pulsation_attenuator_device_input import PulsationAttenuatorDeviceInput
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 #
 from pulse.interface.user_input.analysis.general.analysis_type import AnalysisTypeInput
@@ -267,6 +268,9 @@ class InputUi:
 
     def add_compressor_excitation(self):
         self.process_input(CompressorModelInput)
+
+    def pulsation_attenuator_device_editor(self):
+        self.process_input(PulsationAttenuatorDeviceInput)
 
     def analysis_type_input(self):
 
