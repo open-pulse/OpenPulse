@@ -10,7 +10,7 @@ from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
 #
 from pulse import app
-from pulse.editor.pulsation_attenuator_device import PulsationAttenuatorDevice
+from pulse.editor.pulsation_suppression_device import PulsationSuppressionDevice
 # from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 # from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
@@ -28,7 +28,7 @@ class Project:
 
         self.file = app().file
         self.preprocessor = Preprocessor(self)
-        self.PAD = PulsationAttenuatorDevice(self)
+        self.PSD = PulsationSuppressionDevice(self)
 
         self.reset()
 

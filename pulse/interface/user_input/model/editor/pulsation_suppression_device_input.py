@@ -10,11 +10,11 @@ from pulse.interface.utils import check_inputs
 import configparser
 import numpy as np
 
-class PulsationAttenuatorDeviceInput(QDialog):
+class PulsationSuppressionDeviceInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        ui_path = UI_DIR / "model/editor/pulsation_attenuator_device_input.ui"
+        ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
         uic.loadUi(ui_path, self)
 
         self.project = app().project
@@ -94,106 +94,106 @@ class PulsationAttenuatorDeviceInput(QDialog):
 
     def check_all_inputs(self):
 
-        self.attenuator_data = dict()
+        self.suppression_device_data = dict()
 
         if self.comboBox_main_axis.currentIndex() == 0:
-            self.attenuator_data["main axis"] = "along x-axis"
+            self.suppression_device_data["main axis"] = "along x-axis"
         elif self.comboBox_main_axis.currentIndex() == 1:
-            self.attenuator_data["main axis"] = "along y-axis"
+            self.suppression_device_data["main axis"] = "along y-axis"
         elif self.comboBox_main_axis.currentIndex() == 2:
-            self.attenuator_data["main axis"] = "along z-axis"
+            self.suppression_device_data["main axis"] = "along z-axis"
 
         if self.comboBox_connection_type.currentIndex() == 0:
-            self.attenuator_data["connection type"] = "discharge"
+            self.suppression_device_data["connection type"] = "discharge"
         elif self.comboBox_connection_type.currentIndex() == 1:
-            self.attenuator_data["connection type"] = "sucction"
+            self.suppression_device_data["connection type"] = "sucction"
 
         if self.comboBox_number_volumes.currentIndex() == 0:
-            self.attenuator_data["number of volumes"] = "single volume"
+            self.suppression_device_data["number of volumes"] = "single volume"
         elif self.comboBox_number_volumes.currentIndex() == 1:
-            self.attenuator_data["number of volumes"] = "dual volume"
+            self.suppression_device_data["number of volumes"] = "dual volume"
 
         if self.comboBox_filter_setup.isEnabled():
             if self.comboBox_filter_setup.currentIndex() == 0:
-                self.attenuator_data["filter setup"] = "choke-volumes"
+                self.suppression_device_data["filter setup"] = "choke-volumes"
             elif self.comboBox_filter_setup.currentIndex() == 1:
-                self.attenuator_data["filter setup"] = "plate-volumes"
+                self.suppression_device_data["filter setup"] = "plate-volumes"
 
         if self.comboBox_input_pipe_layout.currentIndex() == 0:
-            self.attenuator_data["input pipe layout"] = "axial"
+            self.suppression_device_data["input pipe layout"] = "axial"
         elif self.comboBox_input_pipe_layout.currentIndex() == 1:
-            self.attenuator_data["input pipe layout"] = "radial"
+            self.suppression_device_data["input pipe layout"] = "radial"
 
         if self.comboBox_output_pipe_layout.currentIndex() == 0:
-            self.attenuator_data["output pipe layout"] = "axial"
+            self.suppression_device_data["output pipe layout"] = "axial"
         elif self.comboBox_output_pipe_layout.currentIndex() == 1:
-            self.attenuator_data["output pipe layout"] = "radial"
+            self.suppression_device_data["output pipe layout"] = "radial"
 
         value = check_inputs(self.lineEdit_input_chamber_length, "'input chamber length'")
         if value is None:
             self.lineEdit_input_chamber_length.setFocus()
             return True
-        self.attenuator_data["input chamber length"] = value
+        self.suppression_device_data["input chamber length"] = value
 
         value = check_inputs(self.lineEdit_input_chamber_diameter, "'input chamber diameter'")
         if value is None:
             self.lineEdit_input_chamber_diameter.setFocus()
             return True
-        self.attenuator_data["input chamber diameter"] = value
+        self.suppression_device_data["input chamber diameter"] = value
 
         value = check_inputs(self.lineEdit_output_chamber_length, "'output chamber length'")
         if value is None:
             self.lineEdit_output_chamber_length.setFocus()
             return True
-        self.attenuator_data["output chamber length"] = value
+        self.suppression_device_data["output chamber length"] = value
 
         value = check_inputs(self.lineEdit_output_chamber_diameter, "'output chamber diameter'")
         if value is None:
             self.lineEdit_output_chamber_diameter.setFocus()
             return True
-        self.attenuator_data["output chamber diameter"] = value
+        self.suppression_device_data["output chamber diameter"] = value
 
         value = check_inputs(self.lineEdit_chamber_separation, "'chamber separation'")
         if value is None:
             self.lineEdit_chamber_separation.setFocus()
             return True
-        self.attenuator_data["chamber separation"] = value
+        self.suppression_device_data["chamber separation"] = value
         
         value = check_inputs(self.lineEdit_input_pipe_length, "'input pipe length'")
         if value is None:
             self.lineEdit_input_pipe_length.setFocus()
             return True
-        self.attenuator_data["input pipe length"] = value
+        self.suppression_device_data["input pipe length"] = value
         
         value = check_inputs(self.lineEdit_output_pipe_length, "'output pipe length'")
         if value is None:
             self.lineEdit_output_pipe_length.setFocus()
             return True
-        self.attenuator_data["output pipe length"] = value
+        self.suppression_device_data["output pipe length"] = value
         
         value = check_inputs(self.lineEdit_input_pipe_distance, "'input pipe distance'")
         if value is None:
             self.lineEdit_input_pipe_distance.setFocus()
             return True
-        self.attenuator_data["input pipe distance"] = value
+        self.suppression_device_data["input pipe distance"] = value
         
         value = check_inputs(self.lineEdit_output_pipe_distance, "'input pipe distance'")
         if value is None:
             self.lineEdit_output_pipe_distance.setFocus()
             return True
-        self.attenuator_data["input pipe distance"] = value
+        self.suppression_device_data["input pipe distance"] = value
 
-        self.attenuator_data["input pipe angle"] = self.spinBox_input_pipe_angle.value()
-        self.attenuator_data["output pipe angle"] = self.spinBox_output_pipe_angle.value()
+        self.suppression_device_data["input pipe angle"] = self.spinBox_input_pipe_angle.value()
+        self.suppression_device_data["output pipe angle"] = self.spinBox_output_pipe_angle.value()
 
     def confirm_button_pressed(self):
 
         if self.check_all_inputs():
-            self.attenuator_data = dict()
+            self.suppression_device_data = dict()
             return
 
         tag = self.get_device_tag()
-        self.project.PAD.add_pulsation_attenuator_device(tag, self.attenuator_data)
+        self.project.PSD.add_pulsation_suppression_device(tag, self.suppression_device_data)
 
         self.close()
 
@@ -201,7 +201,7 @@ class PulsationAttenuatorDeviceInput(QDialog):
         index = 1
         _run = True
         while _run:
-            if index in self.project.PAD.pulsation_attenuator_device.keys():
+            if index in self.project.PSD.pulsation_suppression_device.keys():
                 index += 1
             else:
                 _run = False

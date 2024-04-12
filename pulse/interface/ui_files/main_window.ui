@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -168,7 +168,7 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="action_pulsation_attenuator_device_editor"/>
+    <addaction name="action_pulsation_suppression_device_editor"/>
    </widget>
    <addaction name="menu_project"/>
    <addaction name="menu_general_settings"/>
@@ -857,9 +857,9 @@
     <string>Clip Plane</string>
    </property>
   </action>
-  <action name="action_pulsation_attenuator_device_editor">
+  <action name="action_pulsation_suppression_device_editor">
    <property name="text">
-    <string>Pulsation attenuator device editor</string>
+    <string>Pulsation suppression device editor</string>
    </property>
   </action>
  </widget>
