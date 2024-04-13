@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTreeWidget
+from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -29,6 +29,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self._create_connections()
         ConfigWidgetAppearance(self)
         self._config_widgets()
+        self.load_PSD_info()
         self.exec()
 
     def _load_icons(self):
@@ -65,6 +66,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.label_volumes_connection : QLabel
         self.label_volumes_spacing : QLabel
         self.label_volumes_spacing_unit : QLabel
+        self.label_volume1 : QLabel
+        self.label_volume2 : QLabel
 
         # QLineEdit
         self.lineEdit_device_label : QLineEdit
@@ -94,6 +97,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.lineEdit_rotation_plane : QLineEdit
         self.lineEdit_volumes_spacing : QLineEdit
+        self.lineEdit_selection : QLineEdit
 
         # QPushButton
         self.pushButton_cancel : QPushButton
@@ -105,11 +109,14 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.spinBox_pipe1_rotation_angle : QDoubleSpinBox
         self.spinBox_pipe2_rotation_angle : QDoubleSpinBox
 
+        # QTavbWidget
+        self.tabWidget_main : QTabWidget
+
         # QTreeWidget
         self.treeWidget_psd_info : QTreeWidget
 
     def _create_connections(self):
-        
+
         self.comboBox_main_axis.currentIndexChanged.connect(self.update_the_rotation_angle)
         self.comboBox_number_volumes.currentIndexChanged.connect(self.number_volumes_callback)
         self.comboBox_pipe1_connection.currentIndexChanged.connect(self.pipe_connection_callback)
@@ -117,11 +124,27 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.confirm_button_pressed)
+        self.pushButton_remove.clicked.connect(self.remove_button_pressed)
+
+        self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
+
+        self.treeWidget_psd_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_psd_info.itemDoubleClicked.connect(self.on_double_click_item)
 
         self.update_the_rotation_angle()
 
     def _config_widgets(self):
-        pass
+        #
+        self.lineEdit_device_label.setFocus()
+        self.lineEdit_selection.setDisabled(True)
+        self.pushButton_remove.setDisabled(True)
+        #
+        widths = [160, 140, 240]
+        header_labels = ["PSD label", "Connection type", "Connection point"]
+        for col, label in enumerate(header_labels):
+            self.treeWidget_psd_info.headerItem().setText(col, label)
+            self.treeWidget_psd_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
+            self.treeWidget_psd_info.setColumnWidth(col, widths[col])
 
     def pipe_connection_callback(self):
 
@@ -159,12 +182,41 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.spinBox_pipe1_rotation_angle.setDisabled(bool(index))
         self.spinBox_pipe2_rotation_angle.setDisabled(bool(index))
 
+        self.label_volume2.setDisabled(bool(index))
+        self.lineEdit_volume2_length.setDisabled(bool(index))
+        self.lineEdit_volume2_diameter.setDisabled(bool(index))
+        self.lineEdit_volume2_wall_thickness.setDisabled(bool(index))
+
         if index:
             self.lineEdit_volumes_spacing.setText("")
             self.comboBox_volumes_connection.setCurrentIndex(3)
         else:
             self.lineEdit_volumes_spacing.setFocus()
             self.comboBox_volumes_connection.setCurrentIndex(0)
+
+    def tab_event_callback(self):
+        self.pushButton_remove.setDisabled(True)
+        if self.tabWidget_main.currentIndex() == 0:
+            self.pushButton_cancel.setDisabled(False)
+            self.pushButton_confirm.setDisabled(False)
+        else:
+            self.pushButton_cancel.setDisabled(True)
+            self.pushButton_confirm.setDisabled(True)       
+    
+    def update_tabs_visibility(self):
+        if self.project.PSD.pulsation_suppression_device:
+            self.tabWidget_main.setTabVisible(1, True)
+        else:
+            self.tabWidget_main.setCurrentIndex(0)
+            self.tabWidget_main.setTabVisible(1, False)
+
+    def on_click_item(self, item):
+        self.lineEdit_selection.setText(item.text(0))
+        self.pushButton_remove.setDisabled(False)
+
+    def on_double_click_item(self, item):
+        self.on_double_click_item(item)
+        # TODO: get detailed information about selected PSD
 
     def update_the_rotation_angle(self):
         index = self.comboBox_main_axis.currentIndex()
@@ -174,6 +226,26 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_rotation_plane.setText("XZ-plane")
         elif index == 2:
             self.lineEdit_rotation_plane.setText("XY-plane")
+
+    def check_input_label(self):
+
+        self.filter_label = self.lineEdit_device_label.text()
+        if self.filter_label == "":
+            self.lineEdit_device_label.setFocus()
+            window_title = "Warnig"
+            title = "Empty field detected"
+            message = "Enter a device label to proceed."
+            PrintMessageInput([window_title, title, message])
+            return True
+        
+        elif self.filter_label in self.project.PSD.pulsation_suppression_device.keys():
+            self.lineEdit_device_label.setFocus()
+            window_title = "Warning"
+            title = "Invalid input"
+            message = "The typed 'Device label' has already been applied to other PSD. "
+            message += "You should enter a different label to proceed with the PSD configuration."
+            PrintMessageInput([window_title, title, message])
+            return True
 
     def check_connecting_coords(self):
 
@@ -192,7 +264,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_connecting_coord_z.setFocus()
             return True
         
-        self.suppression_device_data["connecting coords"] = [coord_x, coord_y, coord_z]
+        self.suppression_device_data["connecting coords"] = [round(coord_x, 6), round(coord_y, 6), round(coord_z, 6)]
 
     def check_volume1_info(self):
 
@@ -320,15 +392,8 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.suppression_device_data = dict()
 
-        if self.lineEdit_device_label.text() == "":
-            self.lineEdit_device_label.setFocus()
-            window_title = "Error"
-            title = "Empty field detected"
-            message = "Enter a device label to proceed."
-            PrintMessageInput([window_title, title, message])
+        if self.check_input_label():
             return True
-        else:
-            self.suppression_device_data["device label"] = self.lineEdit_device_label.text()
 
         axes = ["along x-axis", "along y-axis", "along z-axis"]
         index = self.comboBox_main_axis.currentIndex()
@@ -345,18 +410,23 @@ class PulsationSuppressionDeviceInput(QDialog):
         if self.check_volume1_info():
             return True
 
-        if self.check_volume2_info():
-            return True
-
-        if self.check_pipe1_info():
-            return True
-
-        if self.check_pipe2_info():
-            return True
-
         if self.comboBox_number_volumes.currentIndex() == 0:
+    
+            if self.check_volume2_info():
+                return True
+            
+            if self.check_pipe1_info():
+                return True
+
+            if self.check_pipe2_info():
+                return True
 
             index_vol_connect = self.comboBox_volumes_connection.currentIndex()
+
+            if index_vol_connect in [0, 2]:
+                if self.check_pipe3_info():
+                    return True
+
             if index_vol_connect == 0:
                 self.suppression_device_data["volumes connection"] = "pipe"
             elif index_vol_connect == 1:
@@ -371,9 +441,13 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             self.suppression_device_data["volumes spacing"] = value
 
-            if index_vol_connect in [0, 2]:
-                if self.check_pipe3_info():
-                    return True
+        else:
+
+            if self.check_pipe1_info():
+                return True
+
+            if self.check_pipe2_info():
+                return True
 
     def confirm_button_pressed(self):
 
@@ -381,10 +455,28 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.suppression_device_data = dict()
             return
 
-        tag = self.get_device_tag()
-        self.project.PSD.add_pulsation_suppression_device(tag, self.suppression_device_data)
+        self.project.PSD.add_pulsation_suppression_device(self.filter_label, 
+                                                          self.suppression_device_data)
 
         self.close()
+
+    def remove_button_pressed(self):
+        if self.lineEdit_selection.text() != "":
+            device_label = self.lineEdit_selection.text()
+            self.project.PSD.remove_suppression_device(device_label)
+            self.load_PSD_info()
+
+    def load_PSD_info(self):
+        self.treeWidget_psd_info.clear()
+        for key, data in self.project.PSD.pulsation_suppression_device.items():
+            coords = data["connecting coords"]
+            connection = data["connection type"]
+            new = QTreeWidgetItem([key, connection, str(coords)])
+            for col in range(3):
+                new.setTextAlignment(col, Qt.AlignCenter)
+            self.treeWidget_psd_info.addTopLevelItem(new)
+
+        self.update_tabs_visibility()
 
     def get_device_tag(self):
         index = 1
@@ -399,3 +491,5 @@ class PulsationSuppressionDeviceInput(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
+        elif event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.confirm_button_pressed()
