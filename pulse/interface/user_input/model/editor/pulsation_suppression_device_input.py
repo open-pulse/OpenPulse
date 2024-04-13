@@ -50,18 +50,24 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.comboBox_main_axis : QComboBox
         self.comboBox_connection_type : QComboBox
         self.comboBox_number_volumes : QComboBox
-        self.comboBox_filter_setup : QComboBox
+        self.comboBox_volumes_connection : QComboBox
         self.comboBox_pipe1_connection : QComboBox
         self.comboBox_pipe2_connection : QComboBox
         self.comboBox_tunned_filter : QComboBox
 
         # QLabel
-        self.label_filter_setup : QLabel
-        self.label_volumes_separation : QLabel
+        self.label_pipe3 : QLabel
+        self.label_rotation_plane : QLabel
+        self.label_rotation_angle_pipe1 : QLabel
+        self.label_rotation_angle_pipe2 : QLabel
+        self.label_rotation_angle_pipe1_unit : QLabel
+        self.label_rotation_angle_pipe2_unit : QLabel
+        self.label_volumes_connection : QLabel
+        self.label_volumes_spacing : QLabel
+        self.label_volumes_spacing_unit : QLabel
 
         # QLineEdit
         self.lineEdit_device_label : QLineEdit
-        self.lineEdit_volumes_separation : QLineEdit
         self.lineEdit_connecting_coord_x : QLineEdit
         self.lineEdit_connecting_coord_y : QLineEdit
         self.lineEdit_connecting_coord_z : QLineEdit
@@ -75,15 +81,19 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.lineEdit_pipe1_length : QLineEdit
         self.lineEdit_pipe2_length : QLineEdit
+        self.lineEdit_pipe3_length : QLineEdit
         self.lineEdit_pipe1_diameter : QLineEdit
         self.lineEdit_pipe2_diameter : QLineEdit
+        self.lineEdit_pipe3_diameter : QLineEdit
         self.lineEdit_pipe1_wall_thickness : QLineEdit
         self.lineEdit_pipe2_wall_thickness : QLineEdit
+        self.lineEdit_pipe3_wall_thickness : QLineEdit
         self.lineEdit_pipe1_distance : QLineEdit
         self.lineEdit_pipe2_distance : QLineEdit
+        self.lineEdit_pipe3_distance : QLineEdit
 
         self.lineEdit_rotation_plane : QLineEdit
-        self.lineEdit_volumes_separation : QLineEdit
+        self.lineEdit_volumes_spacing : QLineEdit
 
         # QPushButton
         self.pushButton_cancel : QPushButton
@@ -114,24 +124,47 @@ class PulsationSuppressionDeviceInput(QDialog):
         pass
 
     def pipe_connection_callback(self):
+
         index_1 = self.comboBox_pipe1_connection.currentIndex()
         index_2 = self.comboBox_pipe2_connection.currentIndex()
-        self.comboBox_pipe1_connection.setDisabled(bool(index_1))
-        self.comboBox_pipe2_connection.setDisabled(bool(index_2))
+        
+        self.label_rotation_angle_pipe1.setDisabled(bool(index_1))
+        self.label_rotation_angle_pipe2.setDisabled(bool(index_2))
+        self.label_rotation_angle_pipe1_unit.setDisabled(bool(index_1))
+        self.label_rotation_angle_pipe2_unit.setDisabled(bool(index_2))
+
+        self.spinBox_pipe1_rotation_angle.setDisabled(bool(index_1))
+        self.spinBox_pipe2_rotation_angle.setDisabled(bool(index_2))
 
     def number_volumes_callback(self):
 
         index = self.comboBox_number_volumes.currentIndex()
-        self.comboBox_filter_setup.setDisabled(bool(index))
-        self.label_filter_setup.setDisabled(bool(index))
-        self.label_volumes_separation.setDisabled(bool(index))
-        self.lineEdit_volumes_separation.setDisabled(bool(index))
+        self.comboBox_volumes_connection.setDisabled(bool(index))
 
-        if self.comboBox_number_volumes.currentIndex() == 0:
-            self.lineEdit_volumes_separation.setText("")
-            self.comboBox_filter_setup.setCurrentIndex(2)
+        self.label_pipe3.setDisabled(bool(index))
+        self.label_rotation_plane.setDisabled(bool(index))
+        self.label_rotation_angle_pipe1.setDisabled(bool(index))
+        self.label_rotation_angle_pipe2.setDisabled(bool(index))
+        self.label_rotation_angle_pipe1_unit.setDisabled(bool(index))
+        self.label_rotation_angle_pipe2_unit.setDisabled(bool(index))
+        self.label_volumes_connection.setDisabled(bool(index))
+        self.label_volumes_spacing.setDisabled(bool(index))
+        self.label_volumes_spacing_unit.setDisabled(bool(index))
+
+        self.lineEdit_pipe3_length.setDisabled(bool(index))
+        self.lineEdit_pipe3_diameter.setDisabled(bool(index))
+        self.lineEdit_pipe3_wall_thickness.setDisabled(bool(index))
+        self.lineEdit_pipe3_distance.setDisabled(bool(index))
+        self.lineEdit_volumes_spacing.setDisabled(bool(index))
+        self.spinBox_pipe1_rotation_angle.setDisabled(bool(index))
+        self.spinBox_pipe2_rotation_angle.setDisabled(bool(index))
+
+        if index:
+            self.lineEdit_volumes_spacing.setText("")
+            self.comboBox_volumes_connection.setCurrentIndex(3)
         else:
-            self.comboBox_filter_setup.setCurrentIndex(0)
+            self.lineEdit_volumes_spacing.setFocus()
+            self.comboBox_volumes_connection.setCurrentIndex(0)
 
     def update_the_rotation_angle(self):
         index = self.comboBox_main_axis.currentIndex()
@@ -144,114 +177,144 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def check_connecting_coords(self):
 
-        value = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", zero_included=True)
-        if value is None:
+        coord_x = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", zero_included=True)
+        if coord_x is None:
             self.lineEdit_connecting_coord_x.setFocus()
             return True
-        self.suppression_device_data["connecting coord. x"] = value
 
-        value = check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", zero_included=True)
-        if value is None:
+        coord_y = check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", zero_included=True)
+        if coord_y is None:
             self.lineEdit_connecting_coord_y.setFocus()
             return True
-        self.suppression_device_data["connecting coord. y"] = value
-
-        value = check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", zero_included=True)
-        if value is None:
+        
+        coord_z = check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", zero_included=True)
+        if coord_z is None:
             self.lineEdit_connecting_coord_z.setFocus()
             return True
-        self.suppression_device_data["connecting coord. z"] = value
-
-    def check_volumes_section_info(self):
         
-        value = check_inputs(self.lineEdit_volume1_length, "'volume #1 length'")
-        if value is None:
+        self.suppression_device_data["connecting coords"] = [coord_x, coord_y, coord_z]
+
+    def check_volume1_info(self):
+
+        length = check_inputs(self.lineEdit_volume1_length, "'volume #1 length'")
+        if length is None:
             self.lineEdit_volume1_length.setFocus()
             return True
-        self.suppression_device_data["volume #1 length"] = value
 
-        value = check_inputs(self.lineEdit_volume2_length, "'volume #2 length'")
-        if value is None:
-            self.lineEdit_volume2_length.setFocus()
-            return True
-        self.suppression_device_data["volume #2 length"] = value
-
-        value = check_inputs(self.lineEdit_volume1_diameter, "'volume #1 diameter'")
-        if value is None:
+        diameter = check_inputs(self.lineEdit_volume1_diameter, "'volume #1 diameter'")
+        if diameter is None:
             self.lineEdit_volume1_diameter.setFocus()
             return True
-        self.suppression_device_data["volume #1 diameter"] = value
 
-        value = check_inputs(self.lineEdit_volume2_diameter, "'volume #2 diameter'")
-        if value is None:
-            self.lineEdit_volume2_diameter.setFocus()
-            return True
-        self.suppression_device_data["volume #2 diameter"] = value
-
-        value = check_inputs(self.lineEdit_volume1_wall_thickness, "'volume #1 wall_thickness'")
-        if value is None:
+        wall_thickness = check_inputs(self.lineEdit_volume1_wall_thickness, "'volume #1 wall_thickness'")
+        if wall_thickness is None:
             self.lineEdit_volume1_wall_thickness.setFocus()
             return True
-        self.suppression_device_data["volume #1 wall_thickness"] = value
 
-        value = check_inputs(self.lineEdit_volume2_wall_thickness, "'volume #2 wall_thickness'")
-        if value is None:
+        self.suppression_device_data["volume #1 parameters"] = [length, diameter, wall_thickness]
+
+    def check_volume2_info(self):
+
+        length = check_inputs(self.lineEdit_volume2_length, "'volume #2 length'")
+        if length is None:
+            self.lineEdit_volume2_length.setFocus()
+            return True
+
+        diameter = check_inputs(self.lineEdit_volume2_diameter, "'volume #2 diameter'")
+        if diameter is None:
+            self.lineEdit_volume2_diameter.setFocus()
+            return True
+
+        wall_thickness = check_inputs(self.lineEdit_volume2_wall_thickness, "'volume #2 wall_thickness'")
+        if wall_thickness is None:
             self.lineEdit_volume2_wall_thickness.setFocus()
             return True
-        self.suppression_device_data["volume #2 wall_thickness"] = value
 
-    def check_pipes_section_info(self):
-        
-        value = check_inputs(self.lineEdit_pipe1_length, "'pipe #1 length'")
-        if value is None:
+        self.suppression_device_data["volume #2 parameters"] = [length, diameter, wall_thickness]
+
+    def check_pipe1_info(self):
+
+        length = check_inputs(self.lineEdit_pipe1_length, "'pipe #1 length'")
+        if length is None:
             self.lineEdit_pipe1_length.setFocus()
             return True
-        self.suppression_device_data["pipe #1 length"] = value
 
-        value = check_inputs(self.lineEdit_pipe2_length, "'pipe #2 length'")
-        if value is None:
-            self.lineEdit_pipe2_length.setFocus()
-            return True
-        self.suppression_device_data["pipe #2 length"] = value
-
-        value = check_inputs(self.lineEdit_pipe1_diameter, "'pipe #1 diameter'")
-        if value is None:
+        diameter = check_inputs(self.lineEdit_pipe1_diameter, "'pipe #1 diameter'")
+        if diameter is None:
             self.lineEdit_pipe1_diameter.setFocus()
             return True
-        self.suppression_device_data["pipe #1 diameter"] = value
 
-        value = check_inputs(self.lineEdit_pipe2_diameter, "'pipe #2 diameter'")
-        if value is None:
-            self.lineEdit_pipe2_diameter.setFocus()
-            return True
-        self.suppression_device_data["pipe #2 diameter"] = value
-
-        value = check_inputs(self.lineEdit_pipe1_wall_thickness, "'pipe #1 wall_thickness'")
-        if value is None:
+        wall_thickness = check_inputs(self.lineEdit_pipe1_wall_thickness, "'pipe #1 wall_thickness'")
+        if wall_thickness is None:
             self.lineEdit_pipe1_wall_thickness.setFocus()
             return True
-        self.suppression_device_data["pipe #1 wall_thickness"] = value
 
-        value = check_inputs(self.lineEdit_pipe2_wall_thickness, "'pipe #2 wall_thickness'")
-        if value is None:
-            self.lineEdit_pipe2_wall_thickness.setFocus()
-            return True
-        self.suppression_device_data["pipe #2 wall_thickness"] = value
-
-    def check_pipe_distances(self):
-
-        value = check_inputs(self.lineEdit_pipe1_distance, "'pipe #1 distance'")
-        if value is None:
+        distance = check_inputs(self.lineEdit_pipe1_distance, "'pipe #1 distance'")
+        if distance is None:
             self.lineEdit_pipe1_distance.setFocus()
             return True
-        self.suppression_device_data["pipe #1 distance"] = value
 
-        value = check_inputs(self.lineEdit_pipe2_distance, "'pipe #2 distance'")
-        if value is None:
+        if self.comboBox_pipe1_connection.currentIndex() == 0:
+            rot_angle = self.spinBox_pipe1_rotation_angle.value()
+            values = [length, diameter, wall_thickness, distance, rot_angle]
+        else:
+            values = [length, diameter, wall_thickness, distance]
+
+        self.suppression_device_data["pipe #1 parameters"] = values
+
+    def check_pipe2_info(self):
+
+        length = check_inputs(self.lineEdit_pipe2_length, "'pipe #2 length'")
+        if length is None:
+            self.lineEdit_pipe2_length.setFocus()
+            return True
+
+        diameter = check_inputs(self.lineEdit_pipe2_diameter, "'pipe #2 diameter'")
+        if diameter is None:
+            self.lineEdit_pipe2_diameter.setFocus()
+            return True
+
+        wall_thickness = check_inputs(self.lineEdit_pipe2_wall_thickness, "'pipe #2 wall_thickness'")
+        if wall_thickness is None:
+            self.lineEdit_pipe2_wall_thickness.setFocus()
+            return True
+
+        distance = check_inputs(self.lineEdit_pipe2_distance, "'pipe #2 distance'")
+        if distance is None:
             self.lineEdit_pipe2_distance.setFocus()
             return True
-        self.suppression_device_data["pipe #2 distance"] = value
 
+        if self.comboBox_pipe2_connection.currentIndex() == 0:
+            rot_angle = self.spinBox_pipe2_rotation_angle.value()
+            values = [length, diameter, wall_thickness, distance, rot_angle]
+        else:
+            values = [length, diameter, wall_thickness, distance]
+
+        self.suppression_device_data["pipe #2 parameters"] = values
+
+    def check_pipe3_info(self):
+
+        length = check_inputs(self.lineEdit_pipe3_length, "'pipe #3 length'")
+        if length is None:
+            self.lineEdit_pipe3_length.setFocus()
+            return True
+
+        diameter = check_inputs(self.lineEdit_pipe3_diameter, "'pipe #3 diameter'")
+        if diameter is None:
+            self.lineEdit_pipe3_diameter.setFocus()
+            return True
+
+        wall_thickness = check_inputs(self.lineEdit_pipe3_wall_thickness, "'pipe #3 wall_thickness'")
+        if wall_thickness is None:
+            self.lineEdit_pipe3_wall_thickness.setFocus()
+            return True
+
+        distance = check_inputs(self.lineEdit_pipe3_distance, "'pipe #3 distance'")
+        if distance is None:
+            self.lineEdit_pipe3_distance.setFocus()
+            return True
+
+        self.suppression_device_data["pipe 3# parameters"] = [length, diameter, wall_thickness, distance]
 
     def check_psd_inputs(self):
 
@@ -267,60 +330,50 @@ class PulsationSuppressionDeviceInput(QDialog):
         else:
             self.suppression_device_data["device label"] = self.lineEdit_device_label.text()
 
-        if self.check_connecting_coords():
-            return True
-
-        if self.comboBox_main_axis.currentIndex() == 0:
-            self.suppression_device_data["main axis"] = "along x-axis"
-        elif self.comboBox_main_axis.currentIndex() == 1:
-            self.suppression_device_data["main axis"] = "along y-axis"
-        elif self.comboBox_main_axis.currentIndex() == 2:
-            self.suppression_device_data["main axis"] = "along z-axis"
+        axes = ["along x-axis", "along y-axis", "along z-axis"]
+        index = self.comboBox_main_axis.currentIndex()
+        self.suppression_device_data["main axis"] = axes[index]
 
         if self.comboBox_connection_type.currentIndex() == 0:
             self.suppression_device_data["connection type"] = "discharge"
-        elif self.comboBox_connection_type.currentIndex() == 1:
+        else:
             self.suppression_device_data["connection type"] = "sucction"
 
-        if self.comboBox_number_volumes.currentIndex() == 1:
-            self.suppression_device_data["number of volumes"] = "single volume"
+        if self.check_connecting_coords():
+            return True
 
-        elif self.comboBox_number_volumes.currentIndex() == 0:
+        if self.check_volume1_info():
+            return True
 
-            self.suppression_device_data["number of volumes"] = "dual volume"
+        if self.check_volume2_info():
+            return True
 
-            if self.comboBox_filter_setup.currentIndex() == 0:
-                self.suppression_device_data["filter setup"] = "choke-volumes"
-            elif self.comboBox_filter_setup.currentIndex() == 1:
-                self.suppression_device_data["filter setup"] = "plate-volumes"
+        if self.check_pipe1_info():
+            return True
 
-            value = check_inputs(self.lineEdit_volumes_separation, "'volumes separation'")
+        if self.check_pipe2_info():
+            return True
+
+        if self.comboBox_number_volumes.currentIndex() == 0:
+
+            index_vol_connect = self.comboBox_volumes_connection.currentIndex()
+            if index_vol_connect == 0:
+                self.suppression_device_data["volumes connection"] = "pipe"
+            elif index_vol_connect == 1:
+                self.suppression_device_data["volumes connection"] = "pipe-plate"
+            elif index_vol_connect == 2:
+                self.suppression_device_data["volumes connection"] = "perf. plate"
+
+            value = check_inputs(self.lineEdit_volumes_spacing, "'volumes spacing'")
             if value is None:
-                self.lineEdit_volumes_separation.setFocus()
+                self.lineEdit_volumes_spacing.setFocus()
                 return True
-            self.suppression_device_data["volumes separation"] = value
 
-        if self.comboBox_pipe1_connection.currentIndex() == 0:
-            self.suppression_device_data["pipe #1 connection"] = "axial"
-        elif self.comboBox_pipe1_connection.currentIndex() == 1:
-            self.suppression_device_data["pipe #1 connection"] = "radial"
+            self.suppression_device_data["volumes spacing"] = value
 
-        if self.comboBox_pipe2_connection.currentIndex() == 0:
-            self.suppression_device_data["pipe #2 connection"] = "axial"
-        elif self.comboBox_pipe2_connection.currentIndex() == 1:
-            self.suppression_device_data["pipe #2 connection"] = "radial"
-        
-        if self.check_volumes_section_info():
-            return True
-        
-        if self.check_pipes_section_info():
-            return True
-        
-        if self.check_pipe_distances():
-            return True
-
-        self.suppression_device_data["pipe #1 rotation angle"] = self.spinBox_pipe1_rotation_angle.value()
-        self.suppression_device_data["pipe #2 rotation angle"] = self.spinBox_pipe2_rotation_angle.value()
+            if index_vol_connect in [0, 2]:
+                if self.check_pipe3_info():
+                    return True
 
     def confirm_button_pressed(self):
 
