@@ -22,17 +22,15 @@ def normalize(vector):
 
 class GeometryHandler:
     def __init__(self):
-
         self.project = app().project
-        self.file = app().project
         self._initialize()
 
     def _initialize(self):
         self.length_unit = "meter"
-        self.pipeline = list()
         self.merged_points = list()
         self.points_coords = dict()
         self.points_coords_cache = dict()
+        self.pipeline = self.project.pipeline
         self.file = self.project.file
 
     def set_pipeline(self, pipeline):
@@ -47,12 +45,8 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
 
-        pipeline = app().geometry_toolbox.pipeline
-
-        for structure in pipeline.structures: 
-
+        for structure in self.pipeline.structures: 
             if isinstance(structure, Pipe):
-
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -119,9 +113,8 @@ class GeometryHandler:
 
             pipeline data to...
         """
-        
-        editor = app().geometry_toolbox.editor
-        editor.reset()
+
+        self.pipeline.reset()
 
         structures = []
         for key, data in build_data.items():
@@ -216,12 +209,10 @@ class GeometryHandler:
 
                 structures.append(pipe)
 
-        pipeline = app().geometry_toolbox.pipeline
-        pipeline.structures.clear()
-
+        self.pipeline.structures.clear()
         if len(structures):
-            pipeline.structures.extend(structures)
-            editor.merge_coincident_points()
+            self.pipeline.structures.extend(structures)
+            self.pipeline.merge_coincident_points()
             app().update()
     
     def export_cad_file(self, path):
@@ -268,18 +259,6 @@ class GeometryHandler:
             if point[1] not in associated_points:
                 unconnected_points.append(point[1])
 
-        # # # temporary
-        # N = len(points_coords)
-        # _data = np.zeros((N, 4), dtype=float)
-        # for i, _index, _coords in enumerate(points_coords.items()):
-        #     _data[i, 0 ] = _index
-        #     _data[i, 1:] = _coords
-
-        # np.savetxt("coordenadas_pontos.dat", _data, delimiter=",", fmt="%i %e %e %e")
-
-        editor = app().geometry_toolbox.editor
-        # editor.reset()
-
         structures = list()
 
         for structure_a in self.process_curved_lines(lines):
@@ -288,9 +267,8 @@ class GeometryHandler:
         for structure_b in self.process_straight_lines(lines):
             structures.append(structure_b)
 
-        # editor.pipeline.structures = structures
-        editor.pipeline.structures.extend(structures)
-        editor.merge_coincident_points()
+        self.pipeline.structures.extend(structures)
+        self.pipeline.merge_coincident_points()
         self.export_entity_file()
 
         if self.length_unit == "millimeter":
@@ -540,9 +518,8 @@ class GeometryHandler:
         section_info = dict()
         element_type_info = dict()
         material_info = dict()
-        pipeline = app().geometry_toolbox.pipeline
 
-        for structure in pipeline.structures:
+        for structure in self.pipeline.structures:
 
             if isinstance(structure, Bend) and structure.is_colapsed():               
                 continue

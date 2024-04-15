@@ -1,3 +1,6 @@
+from collections import defaultdict
+from copy import deepcopy
+
 from PyQt5.QtWidgets import QComboBox, QWidget, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTextEdit, QGridLayout
 from PyQt5.QtGui import QIcon, QTextCursor
 from PyQt5.QtCore import Qt
@@ -10,6 +13,10 @@ from pulse.interface.user_input.model.setup.general.material_widget import Mater
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from opps.model import Point
+
+
+def nested_dict():
+    return defaultdict(nested_dict)
 
 
 class AddStructuresWidget(QWidget):
@@ -25,7 +32,13 @@ class AddStructuresWidget(QWidget):
         self.pipeline = self.project.pipeline
         self.file = self.project.file
 
-        self.pipe_arguments = dict()
+        # This dict is passed as argument for the current
+        # creation function, either if it is a pipe, a bend,
+        # an i-beam, a square beam, etc.
+        # If the argument is useless to the current function,
+        # like a diamenter in a square beam, the argument
+        # will be ignored, and no errors will raise. 
+        self.structure_arguments: defaultdict = nested_dict()
 
         self.cross_section_widget = CrossSectionWidget()
         self.material_widget = MaterialInputs()
@@ -102,7 +115,6 @@ class AddStructuresWidget(QWidget):
         self.main_window.geometry_widget.selection_changed.connect(self.selection_callback)
 
     def _update_permissions(self, force_disable=False):
-        
         if force_disable:
             enable_pipe = False
         else:
@@ -166,12 +178,11 @@ class AddStructuresWidget(QWidget):
         self.label_unit_coord_z.setText(f"Coords. z [{unit_label}]")
         
     def update_bending_type(self):
-        
         self.bending_factor = 0
         self.lineEdit_bending_radius.setText("")
-        self.lineEdit_bending_radius.setDisabled(True)
-        
+        self.lineEdit_bending_radius.setDisabled(True)        
         index = self.comboBox_bending_type.currentIndex()
+
         if index == 0:
             self.bending_factor = 1.5
             self.lineEdit_bending_radius.setText("1.5 * D")
@@ -233,9 +244,10 @@ class AddStructuresWidget(QWidget):
         self._disable_add_segment_button()
         try:
             dx, dy, dz = self.get_segment_deltas()
-            self.pushButton_add_segment.setDisabled(False)
         except ValueError:
             return
+
+        self.pushButton_add_segment.setDisabled(False)
 
         if self.comboBox_bending_type.currentIndex() == 2:
             radius = self.get_user_defined_radius()
@@ -254,30 +266,16 @@ class AddStructuresWidget(QWidget):
             and len(self.cross_section_info["section_parameters"]) != 10
         )
 
+        kwargs = deepcopy(self.structure_arguments)
+
         if can_bend:
-            self.pipeline.add_bent_pipe((dx,dy,dz), radius)
+            self.pipeline.add_bent_pipe((dx,dy,dz), radius, **kwargs)
         else:
-            self.pipeline.add_pipe((dx,dy,dz))  # actually it is a beam =)
+            self.pipeline.add_pipe((dx,dy,dz), **kwargs)  # actually it is a beam =)
 
         self.geometry_widget.update_plot()
 
     def create_segment_callback(self):
-        # put usefull data inside the structures
-        for structure in self.pipeline.staged_structures:
-            if self.cross_section_info is None:
-                return
-
-            structure.extra_info["cross_section_info"] = self.cross_section_info
-
-            if self.cross_section_info["section_type_label"] == "Pipe section":
-                structure.extra_info["structural_element_type"] = "pipe_1"
-            else:
-                structure.extra_info["structural_element_type"] = "beam_1"
-
-            if self.current_material_index is not None:
-                structure.extra_info["material_info"] = self.current_material_index
-
-        # self.geometry_widget.commit_structure()
         self.pipeline.commit()
         self.reset_deltas()
         self._update_permissions()
@@ -305,8 +303,7 @@ class AddStructuresWidget(QWidget):
                 return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter = self.cross_section_widget.section_parameters[0]
-            self.pipe_arguments["diameter"] = diameter
-            # self.geometry_widget.update_default_diameter(diameter)
+            self.structure_arguments["diameter"] = diameter
 
         elif is_pipe and not is_constant_section:
             if  self.cross_section_widget.get_variable_section_pipe_parameters():
@@ -314,18 +311,22 @@ class AddStructuresWidget(QWidget):
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter_initial = self.cross_section_widget.variable_parameters[0]
             diameter_final = self.cross_section_widget.variable_parameters[4]
-            self.pipe_arguments["diameter_initial"] = diameter_initial
-            self.pipe_arguments["diameter_final"] = diameter_final
-            # self.geometry_widget.update_default_diameter(diameter_initial, diameter_final)
+            self.structure_arguments["diameter_initial"] = diameter_initial
+            self.structure_arguments["diameter_final"] = diameter_final
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
             self.cross_section_info = self.cross_section_widget.beam_section_info
             # temporary strategy
-            self.pipe_arguments["diameter"] = 0.02
-            # self.geometry_widget.update_default_diameter(0.02)
-        
-        # just being consistent with the material name
+            self.structure_arguments["diameter"] = 0.02
+
+        if self.cross_section_info["section_type_label"] == "Pipe section":
+            self.structure_arguments["extra_info"]["structural_element_type"] = "pipe_1"
+        else:
+            self.structure_arguments["extra_info"]["structural_element_type"] = "beam_1"
+
+        self.structure_arguments["extra_info"]["cross_section_info"] = self.cross_section_info
+
         self.cross_section_widget.setVisible(False)
         self._update_permissions()
         self.update_segment_information_text()
@@ -333,12 +334,12 @@ class AddStructuresWidget(QWidget):
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
+        self.structure_arguments["extra_info"]["material_info"] = self.current_material_index
         self.material_widget.setVisible(False)
         self._update_permissions()
         self.update_segment_information_text()
 
     def update_segment_information_text(self):
-
         section_label = ""
         section_parameters = ""
         if self.cross_section_info:
@@ -435,7 +436,6 @@ class AddStructuresWidget(QWidget):
                 self.list_lineEdits_highlighted.append(lineEdit)
 
     def revert_highlights(self):
-
         for button in self.list_buttons_highlighted:
             self.set_button_highlighted(button, False)
 

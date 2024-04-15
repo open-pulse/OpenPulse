@@ -43,7 +43,6 @@ class OPPGeometryDesignerInput(QWidget):
         self.empty_widget: QWidget
 
     def _create_layout(self):
-
         self.add_widget = AddStructuresWidget(self.geometry_widget)
         self.edit_pipe_widget = EditPipeWidget(self.geometry_widget)
         self.edit_bend_widget = EditBendWidget(self.geometry_widget)
@@ -94,9 +93,7 @@ class OPPGeometryDesignerInput(QWidget):
             self.edit_stack.setCurrentWidget(self.empty_widget)
 
     def process_geometry_callback(self):
-        editor = app().geometry_toolbox.editor
-        editor.dismiss()
-
+        self.pipeline.dismiss()
         self.geometry_handler.export_entity_file()
         self.update_project_attributes()
         self.load_project()
