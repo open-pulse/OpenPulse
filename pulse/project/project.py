@@ -10,10 +10,12 @@ from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
 #
 from pulse import app
-# from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-# from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
+# from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+# from pulse.interface.user_input.project.loading_screen import LoadingScreen
+#
+from opps.model import Pipeline
 #
 import os
 import numpy as np
@@ -26,6 +28,7 @@ class Project:
     def __init__(self):
 
         self.file = app().file
+        self.pipeline = Pipeline()
         self.preprocessor = Preprocessor(self)        
 
         self.reset()

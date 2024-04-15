@@ -21,6 +21,7 @@ class EditBendWidget(QWidget):
 
         self.geometry_widget = geometry_widget
         self.project = app().project
+        self.pipeline = self.project.pipeline
         self.file = self.project.file
 
         self._initialize()
@@ -60,8 +61,7 @@ class EditBendWidget(QWidget):
         self.remove_bend_button.clicked.connect(self.remove_selection_callback)
 
     def remove_selection_callback(self):
-        editor = app().geometry_toolbox.editor
-        editor.delete_selection()
+        self.pipeline.delete_selection()
         app().update()
 
     def show_cross_section_widget(self):
@@ -78,8 +78,7 @@ class EditBendWidget(QWidget):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
         is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
 
-        editor = self.geometry_widget.editor
-        for structure in editor.selected_structures:
+        for structure in self.pipeline.selected_structures:
             if not isinstance(structure, (Pipe, Bend)):
                 return
 
@@ -115,11 +114,10 @@ class EditBendWidget(QWidget):
         self.update_pipe_material()
 
     def curvature_modified_callback(self, text):
-        editor = self.geometry_widget.editor
-        if not editor.selected_structures:
+        if not self.pipeline.selected_structures:
             return
 
-        *_, structure = editor.selected_structures
+        *_, structure = self.pipeline.selected_structures
         if not isinstance(structure, Bend):
             return
 
@@ -145,16 +143,15 @@ class EditBendWidget(QWidget):
         else:
             return
 
-        editor = self.geometry_widget.editor
-        if not editor.selected_structures:
+        if not self.pipeline.selected_structures:
             return
 
-        *_, structure = editor.selected_structures
+        *_, structure = self.pipeline.selected_structures
         if not isinstance(structure, Bend):
             return
-        
-        new_structure = editor.morph(structure, _type)
-        editor.select_structures([new_structure])
+
+        new_structure = self.pipeline.morph(structure, _type)
+        self.pipeline.select_structures([new_structure])
         app().update()
 
     def reset_lineEdits(self):
@@ -168,12 +165,11 @@ class EditBendWidget(QWidget):
 
     def update(self):
         super().update()
-        editor = self.geometry_widget.editor
-        if not editor.selected_structures:
+        if not self.pipeline.selected_structures:
             self.reset_lineEdits()
             return
 
-        *_, structure = editor.selected_structures
+        *_, structure = self.pipeline.selected_structures
         if not isinstance(structure, Bend):
             self.reset_lineEdits()
             return
@@ -192,11 +188,9 @@ class EditBendWidget(QWidget):
         self.coord_z_end.setText(str(end_coords[2]))
 
     def update_pipe_cross_section(self):
-
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
 
-        editor = self.geometry_widget.editor
-        for structure in editor.selected_structures:
+        for structure in self.pipeline.selected_structures:
             if not isinstance(structure, (Bend, Pipe)):
                 return
             
@@ -215,11 +209,9 @@ class EditBendWidget(QWidget):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
     def update_pipe_material(self):
-
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
 
-        editor = self.geometry_widget.editor
-        for structure in editor.selected_structures:
+        for structure in self.pipeline.selected_structures:
             if not isinstance(structure, (Bend, Pipe)):
                 return         
         

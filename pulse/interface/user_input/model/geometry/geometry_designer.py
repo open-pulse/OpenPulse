@@ -25,6 +25,7 @@ class OPPGeometryDesignerInput(QWidget):
         self.geometry_handler = GeometryHandler()
 
         self.project = app().project
+        self.pipeline = self.project.pipeline
         self.file = self.project.file
 
         self._define_qt_variables()
@@ -70,12 +71,9 @@ class OPPGeometryDesignerInput(QWidget):
             self.add_widget._update_permissions(force_disable=True)
 
     def selection_callback(self):
-
-        editor = self.geometry_widget.editor
-
-        if editor.selected_structures:
+        if self.pipeline.selected_structures:
             self.structures_selection_callback()
-        elif editor.selected_points:
+        elif self.pipeline.selected_points:
             self.edit_stack.setCurrentWidget(self.edit_point_widget)
         else:
             self.edit_stack.setCurrentWidget(self.empty_widget)
@@ -83,9 +81,10 @@ class OPPGeometryDesignerInput(QWidget):
         self.edit_stack.currentWidget().update()
 
     def structures_selection_callback(self):
+        if not self.pipeline.selected_structures:
+            return
 
-        editor = self.geometry_widget.editor
-        structure, *_ = editor.selected_structures
+        structure, *_ = self.pipeline.selected_structures
 
         if isinstance(structure, Pipe):
             self.edit_stack.setCurrentWidget(self.edit_pipe_widget)

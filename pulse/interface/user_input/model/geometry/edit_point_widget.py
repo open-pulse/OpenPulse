@@ -16,6 +16,7 @@ class EditPointWidget(QWidget):
 
         self.geometry_widget = geometry_widget
         self.project = app().project
+        self.pipeline = self.project.pipeline
         self.file = self.project.file
 
         self._define_qt_variables()
@@ -24,11 +25,10 @@ class EditPointWidget(QWidget):
     def update(self):
         super().update()
 
-        editor = self.geometry_widget.editor
-        if not editor.selected_points:
+        if not self.pipeline.selected_points:
             return
 
-        *_, last_point = editor.selected_points
+        *_, last_point = self.pipeline.selected_points
         if not isinstance(last_point, Point):
             return
 
@@ -36,7 +36,7 @@ class EditPointWidget(QWidget):
         self.coord_y.setText(str(round(last_point.y, 8)))
         self.coord_z.setText(str(round(last_point.z, 8)))
 
-        enable = last_point in app().geometry_toolbox.pipeline.control_points
+        enable = last_point in self.pipeline.points
         self.coord_x.setEnabled(enable)
         self.coord_y.setEnabled(enable)
         self.coord_z.setEnabled(enable)
@@ -74,8 +74,7 @@ class EditPointWidget(QWidget):
         self.remove_point_button.clicked.connect(self.remove_selection_callback)
 
     def remove_selection_callback(self):
-        editor = app().geometry_toolbox.editor
-        editor.delete_selection()
+        self.pipeline.delete_selection()
         app().update()
 
     def get_position(self):
@@ -89,11 +88,10 @@ class EditPointWidget(QWidget):
 
     def position_edited_callback(self):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
-        editor = self.geometry_widget.editor
-        if not editor.selected_points:
+        if not self.pipeline.selected_points:
             return
 
-        *_, last_point = editor.selected_points
+        *_, last_point = self.pipeline.selected_points
         if not isinstance(last_point, Point):
             return
 
@@ -107,6 +105,7 @@ class EditPointWidget(QWidget):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
     def add_flange_callback(self):
+        return
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
         editor = self.geometry_widget.editor
         editor.add_flange()
@@ -117,18 +116,16 @@ class EditPointWidget(QWidget):
 
     def add_bend_callback(self):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
-        editor = self.geometry_widget.editor
-        editor.add_bend()
-        editor.commit()
-        editor.clear_selection()
+        self.pipeline.add_bend()
+        self.pipeline.commit()
+        self.pipeline.clear_selection()
         app().update()
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)
 
     def add_elbow_callback(self):
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
-        editor = self.geometry_widget.editor
-        editor.add_elbow()
-        editor.commit()
-        editor.clear_selection()
+        self.pipeline.add_elbow()
+        self.pipeline.commit()
+        self.pipeline.clear_selection()
         app().update()
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(False)

@@ -22,7 +22,10 @@ class AddStructuresWidget(QWidget):
         self.geometry_widget = geometry_widget
         self.main_window = app().main_window
         self.project = app().project
+        self.pipeline = self.project.pipeline
         self.file = self.project.file
+
+        self.pipe_arguments = dict()
 
         self.cross_section_widget = CrossSectionWidget()
         self.material_widget = MaterialInputs()
@@ -118,8 +121,7 @@ class AddStructuresWidget(QWidget):
             self.lineEdit_delta_y.setPlaceholderText("was not")
             self.lineEdit_delta_z.setPlaceholderText("defined")
 
-        pipeline = app().geometry_toolbox.pipeline
-        enable_finalize = len(pipeline.structures) > 0
+        enable_finalize = len(self.pipeline.structures) > 0
 
     def load_defined_unit(self):
         self.length_unit = self.file.length_unit
@@ -172,17 +174,20 @@ class AddStructuresWidget(QWidget):
         index = self.comboBox_bending_type.currentIndex()
         if index == 0:
             self.bending_factor = 1.5
-            self.lineEdit_bending_radius.setText("1.5*D")
+            self.lineEdit_bending_radius.setText("1.5 * D")
         
         elif index == 1:
             self.bending_factor = 1
-            self.lineEdit_bending_radius.setText("1.0*D")
+            self.lineEdit_bending_radius.setText("1.0 * D")
     
         elif index == 2:
             self.lineEdit_bending_radius.setDisabled(False)
             self.lineEdit_bending_radius.setFocus()
 
         self.coords_modified_callback()
+
+    def _disable_add_segment_button(self, _bool=True):
+        self.pushButton_add_segment.setDisabled(_bool)
 
     def get_segment_deltas(self):
         dx = float(self.lineEdit_delta_x.text() or 0)
@@ -200,6 +205,29 @@ class AddStructuresWidget(QWidget):
             return radius
         else:
             return None
+    
+    def selection_callback(self):
+        if not (self.pipeline.selected_structures or self.pipeline.selected_points):
+            self.pushButton_remove_selection.setDisabled(True)
+            return
+
+        if self.pipeline.selected_points:
+            *_, _point = self.pipeline.selected_points
+            if not isinstance(_point, Point):
+                return
+            self.lineEdit_coord_x.setText(str(round(_point.x, 8)))
+            self.lineEdit_coord_y.setText(str(round(_point.y, 8)))
+            self.lineEdit_coord_z.setText(str(round(_point.z, 8)))
+
+        self.pushButton_remove_selection.setDisabled(False)
+
+    def reset_coords(self, value=""):
+        self.lineEdit_coord_x.setText(str(value))
+        self.lineEdit_coord_y.setText(str(value))
+        self.lineEdit_coord_z.setText(str(value))
+        self.lineEdit_coord_x.setDisabled(True)
+        self.lineEdit_coord_y.setDisabled(True)
+        self.lineEdit_coord_z.setDisabled(True)
 
     def coords_modified_callback(self):
         self._disable_add_segment_button()
@@ -209,16 +237,14 @@ class AddStructuresWidget(QWidget):
         except ValueError:
             return
 
-        editor = app().geometry_toolbox.editor
         if self.comboBox_bending_type.currentIndex() == 2:
             radius = self.get_user_defined_radius()
             if radius is None:
                 return
         else:
-            radius = self.bending_factor * editor.default_initial_diameter
+            radius = self.bending_factor * 0.1
 
-        editor.dismiss()
-        editor.clear_selection()
+        self.pipeline.dismiss()
 
         if self.cross_section_info is None:
             return
@@ -229,51 +255,15 @@ class AddStructuresWidget(QWidget):
         )
 
         if can_bend:
-            editor.add_bent_pipe((dx,dy,dz), radius)
+            self.pipeline.add_bent_pipe((dx,dy,dz), radius)
         else:
-            editor.add_pipe((dx,dy,dz))  # actually it is a beam =)
+            self.pipeline.add_pipe((dx,dy,dz))  # actually it is a beam =)
 
         self.geometry_widget.update_plot()
 
-    def _disable_add_segment_button(self, _bool=True):
-        self.pushButton_add_segment.setDisabled(_bool)
-    
-    def selection_callback(self): 
-        editor = self.geometry_widget.editor
-        if editor.selected_structures or editor.selected_points:
-            if editor.selected_points:
-                *_, _point = editor.selected_points
-                if not isinstance(_point, Point):
-                    return
-                self.lineEdit_coord_x.setText(str(round(_point.x, 8)))
-                self.lineEdit_coord_y.setText(str(round(_point.y, 8)))
-                self.lineEdit_coord_z.setText(str(round(_point.z, 8)))
-
-            self.pushButton_remove_selection.setDisabled(False)
-        else:
-            self.pushButton_remove_selection.setDisabled(True)
-
-    def reset_coords(self, value=""):
-        self.lineEdit_coord_x.setText(str(value))
-        self.lineEdit_coord_y.setText(str(value))
-        self.lineEdit_coord_z.setText(str(value))
-        self.lineEdit_coord_x.setDisabled(True)
-        self.lineEdit_coord_y.setDisabled(True)
-        self.lineEdit_coord_z.setDisabled(True)
-
     def create_segment_callback(self):
-        try:
-            dx, dy, dz = self.get_segment_deltas()
-        except ValueError:
-            return
-
-        if (dx, dy, dz) == (0, 0, 0):
-            return
-
         # put usefull data inside the structures
-        editor = app().geometry_toolbox.editor
-        for structure in editor.staged_structures:
-
+        for structure in self.pipeline.staged_structures:
             if self.cross_section_info is None:
                 return
 
@@ -287,13 +277,14 @@ class AddStructuresWidget(QWidget):
             if self.current_material_index is not None:
                 structure.extra_info["material_info"] = self.current_material_index
 
-        self.geometry_widget.commit_structure()
+        # self.geometry_widget.commit_structure()
+        self.pipeline.commit()
         self.reset_deltas()
         self._update_permissions()
+        self.geometry_widget.update_plot()
 
     def remove_selection_callback(self):
-        editor = app().geometry_toolbox.editor
-        editor.delete_selection()
+        self.pipeline.delete_selection()
         app().update()
         self.selection_callback()
 
@@ -314,7 +305,8 @@ class AddStructuresWidget(QWidget):
                 return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter = self.cross_section_widget.section_parameters[0]
-            self.geometry_widget.update_default_diameter(diameter)
+            self.pipe_arguments["diameter"] = diameter
+            # self.geometry_widget.update_default_diameter(diameter)
 
         elif is_pipe and not is_constant_section:
             if  self.cross_section_widget.get_variable_section_pipe_parameters():
@@ -322,13 +314,16 @@ class AddStructuresWidget(QWidget):
             self.cross_section_info = self.cross_section_widget.pipe_section_info
             diameter_initial = self.cross_section_widget.variable_parameters[0]
             diameter_final = self.cross_section_widget.variable_parameters[4]
-            self.geometry_widget.update_default_diameter(diameter_initial, diameter_final)
+            self.pipe_arguments["diameter_initial"] = diameter_initial
+            self.pipe_arguments["diameter_final"] = diameter_final
+            # self.geometry_widget.update_default_diameter(diameter_initial, diameter_final)
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
             self.cross_section_info = self.cross_section_widget.beam_section_info
             # temporary strategy
-            self.geometry_widget.update_default_diameter(0.02)
+            self.pipe_arguments["diameter"] = 0.02
+            # self.geometry_widget.update_default_diameter(0.02)
         
         # just being consistent with the material name
         self.cross_section_widget.setVisible(False)

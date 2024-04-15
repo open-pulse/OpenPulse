@@ -181,9 +181,8 @@ class MainWindow(QMainWindow):
         self.opv_widget.opvAnalysisRenderer._createPlayer()
         self.input_widget = InputUi(self)
 
-        editor = app().geometry_toolbox.editor
         self.mesh_widget = MeshRenderWidget()
-        self.geometry_widget = EditorRenderWidget(editor)
+        self.geometry_widget = EditorRenderWidget(self.project.pipeline)
         self.geometry_widget.set_theme("light")
 
         self.render_widgets_stack.addWidget(self.mesh_widget)

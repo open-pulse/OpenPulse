@@ -21,6 +21,7 @@ class EditPipeWidget(QWidget):
 
         self.geometry_widget = geometry_widget
         self.project = app().project
+        self.pipeline = self.project.pipeline
         self.file = self.project.file
 
         self._initialize()
@@ -55,8 +56,7 @@ class EditPipeWidget(QWidget):
         self.remove_segment_button.clicked.connect(self.remove_selection_callback)
 
     def remove_selection_callback(self):
-        editor = app().geometry_toolbox.editor
-        editor.delete_selection()
+        self.pipeline.delete_selection()
         app().update()
 
     def show_cross_section_widget(self):
@@ -74,8 +74,7 @@ class EditPipeWidget(QWidget):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
         is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
 
-        editor = self.geometry_widget.editor
-        for structure in editor.selected_structures:
+        for structure in self.pipeline.selected_structures:
             if not isinstance(structure, (Pipe, Bend)):
                 return
 
@@ -116,12 +115,11 @@ class EditPipeWidget(QWidget):
 
     def update(self):
         super().update()
-        editor = self.geometry_widget.editor
-        if not editor.selected_structures:
+        if not self.pipeline.selected_structures:
             self.reset_lineEdits()
             return
 
-        *_, structure = editor.selected_structures
+        *_, structure = self.pipeline.selected_structures
         if not isinstance(structure, Pipe):
             self.reset_lineEdits()
             return
@@ -156,11 +154,9 @@ class EditPipeWidget(QWidget):
         self.coord_z_end.setText("")
 
     def update_pipe_cross_section(self):
-
         app().main_window.geometry_input_wigdet.pushButton_finalize.setDisabled(True)
 
-        editor = self.geometry_widget.editor
-        for structure in editor.selected_structures:
+        for structure in self.pipeline.selected_structures:
             if not isinstance(structure, (Bend, Pipe)):
                 return
 

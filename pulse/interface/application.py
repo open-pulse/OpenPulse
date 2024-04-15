@@ -19,7 +19,7 @@ class Application(QApplication):
         self.config = Config()
         self.file = ProjectFile()
         self.project = Project()
-        self.geometry_toolbox = GeometryToolbox()
+        # self.geometry_toolbox = GeometryToolbox()
 
         # gui
         self.main_window = MainWindow()
@@ -39,5 +39,5 @@ class Application(QApplication):
 
 
     def update(self):
-        self.geometry_toolbox.update()
+        # self.geometry_toolbox.update()
         self.main_window.update()
