@@ -618,6 +618,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvClippableDeformedTubes.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
+        
         self.first_configuration = True
         self.clipping_plane_active = False
         self._plotOnce(self._currentPhase)
