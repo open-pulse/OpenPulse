@@ -14,7 +14,8 @@ class AboutOpenPulseInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "project/about_open_pulse.ui", self)
+        ui_path = UI_DIR / "project/about_open_pulse.ui"
+        uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
         self.opv = app().main_window.opv_widget
@@ -29,11 +30,7 @@ class AboutOpenPulseInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        # self.icon = get_openpulse_icon()
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.load_icon = QIcon(get_icons_path('loadProject.png'))
-        self.new_icon = QIcon(get_icons_path('add.png'))
-        self.reset_icon = QIcon(get_icons_path('refresh.png'))
+        self.icon = get_openpulse_icon()
     
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -43,7 +40,7 @@ class AboutOpenPulseInput(QDialog):
         
     def _initialize(self):
         self.version_info = f"v{__version__} {__release_date__}"
-        self.licensing_info = "Copyright (c) 2020 Project OpenPulse Contributors, MIT License."
+        self.licensing_info = "Copyright (c) 2020 Project OpenPulse Contributors, GPL v3 License."
         self.main_info = "OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. "
         self.main_info += "Openpulse allows the user to solve acoustic, structural, and coupled harmonic analyzes. The acoustic and structural modal analysis also can be "
         self.main_info += "solved in the current version. Further information is available in the OpenPulse repository at GitHub."

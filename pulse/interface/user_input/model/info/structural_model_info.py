@@ -2,63 +2,84 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 
 import numpy as np
 
 from pulse import UI_DIR
+from pulse.interface.formatters.icons import get_openpulse_icon
 
 class StructuralModelInfo(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(UI_DIR / "model/info/structural_model_Info.ui", self)
+        ui_path = UI_DIR / "model/info/structural_model_Info.ui"
+        uic.loadUi(ui_path, self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        self.project = project
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
-        self.lineEdit_number_nodes = self.findChild(QLineEdit, 'lineEdit_number_nodes')
-        self.lineEdit_number_elements = self.findChild(QLineEdit, 'lineEdit_number_elements')
+        self._load_icons()
+        self._config_window()
+        self._initialize()
+        self._define_qt_variables()
+        self._create_connections()
+        self._config_widgets()
+        self.load_nodes_info()
+        self.project_info()
+        self._load_icons()
+        self._config_window()
+        self.exec()
 
-        self.treeWidget_prescribed_dofs = self.findChild(QTreeWidget, 'treeWidget_prescribed_dofs')
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _initialize(self):
+        self.preprocessor = self.project.preprocessor
+
+    def _define_qt_variables(self):
+        # QLineEdit
+        self.lineEdit_number_nodes : QLineEdit
+        self.lineEdit_number_elements : QLineEdit
+        # QTreeWidget
+        self.treeWidget_prescribed_dofs : QTreeWidget
+        self.treeWidget_constrained_dofs : QTreeWidget
+        self.treeWidget_nodal_loads : QTreeWidget
+        self.treeWidget_masses : QTreeWidget
+        self.treeWidget_springs : QTreeWidget
+        self.treeWidget_dampers : QTreeWidget
+
+    def _create_connections(self):
+        pass
+
+    def _config_widgets(self):
+
         self.treeWidget_prescribed_dofs.setColumnWidth(1, 20)
         self.treeWidget_prescribed_dofs.setColumnWidth(2, 80)
-
-        self.treeWidget_constrained_dofs = self.findChild(QTreeWidget, 'treeWidget_constrained_dofs')
+        
         self.treeWidget_constrained_dofs.setColumnWidth(1, 20)
         self.treeWidget_constrained_dofs.setColumnWidth(2, 80)
 
-        self.treeWidget_nodal_loads = self.findChild(QTreeWidget, 'treeWidget_nodal_loads')
         self.treeWidget_nodal_loads.setColumnWidth(1, 20)
         self.treeWidget_nodal_loads.setColumnWidth(2, 80)
 
-        self.treeWidget_masses = self.findChild(QTreeWidget, 'treeWidget_masses')
         self.treeWidget_masses.setColumnWidth(1, 20)
         self.treeWidget_masses.setColumnWidth(2, 80)
 
-        self.treeWidget_springs = self.findChild(QTreeWidget, 'treeWidget_springs')
         self.treeWidget_springs.setColumnWidth(1, 20)
         self.treeWidget_springs.setColumnWidth(2, 80)
 
-        self.treeWidget_dampers = self.findChild(QTreeWidget, 'treeWidget_dampers')
         self.treeWidget_dampers.setColumnWidth(1, 20)
         self.treeWidget_dampers.setColumnWidth(2, 80)
-
-        self.load_nodes_info()
-        self.project_info()
-        self.exec()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:
-            self.close()
 
     def project_info(self):
         self.lineEdit_number_nodes.setText(str(len(self.project.preprocessor.nodes)))
@@ -135,3 +156,7 @@ class StructuralModelInfo(QDialog):
             nodal_loads_mask = [False if bc is None else True for bc in node.nodal_loads]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(nodal_loads_mask, load_labels))])
             self.treeWidget_nodal_loads.addTopLevelItem(new)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:
+            self.close()

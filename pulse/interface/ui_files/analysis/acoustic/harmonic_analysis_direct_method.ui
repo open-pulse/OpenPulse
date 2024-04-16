@@ -268,6 +268,11 @@
               <height>28</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
             <property name="styleSheet">
              <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
 QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
@@ -294,6 +299,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -322,6 +328,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -346,6 +353,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <width>80</width>
               <height>28</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="styleSheet">
              <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
@@ -373,6 +385,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -411,6 +424,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <height>28</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
             <property name="styleSheet">
              <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
 QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
@@ -437,6 +455,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -465,6 +484,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
               <italic>false</italic>
              </font>
             </property>
@@ -493,6 +513,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="font">
              <font>
               <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
               <italic>false</italic>
              </font>
             </property>

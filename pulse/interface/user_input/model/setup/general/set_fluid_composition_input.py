@@ -1,44 +1,39 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-import sys
-import configparser
-
-from pulse import UI_DIR
-from pulse.tools.utils import get_new_path
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.tools.utils import get_new_path
+
+import os
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class SetFluidCompositionInput(QDialog):
-    def __init__(self, project, opv, selected_fluid_to_edit=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__()
-        uic.loadUi(UI_DIR / "model/setup/acoustic/setFluidCompositionInput.ui", self)
+
+        ui_path = UI_DIR / "model/setup/acoustic/set_fluid_composition_input.ui"
+        uic.loadUi(ui_path, self)
+
+        self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)
+        self.compressor_info = kwargs.get("compressor_info", dict())
         
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.project = project
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
-        self.selected_fluid_to_edit = selected_fluid_to_edit
-        self.compressor_info = kwargs.get("compressor_info", {})
-
-        self._initialize_variables()
+        self._load_icons()
+        self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
 
         if self.compressor_info:
             self.check_compressor_inputs()
@@ -49,9 +44,21 @@ class SetFluidCompositionInput(QDialog):
 
         self.load_default_gases_info()
         self.update_selected_fluid()
+        self._load_icons()
+        self._config_window()
         self.exec()
 
-    def _initialize_variables(self):
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _initialize(self):
+
         self.save_path = ""
         self.export_file_path = ""
         self.userPath = os.path.expanduser('~')
@@ -87,65 +94,58 @@ class SetFluidCompositionInput(QDialog):
         self.state_index = None
 
     def _define_qt_variables(self):
+
         # QComboBox
-        self.comboBox_temperature_units = self.findChild(QComboBox, 'comboBox_temperature_units')
-        self.comboBox_pressure_units = self.findChild(QComboBox, 'comboBox_pressure_units')
-        self.comboBox_temperature_units_test = self.findChild(QComboBox, 'comboBox_temperature_units_test')
-        self.comboBox_pressure_units_test = self.findChild(QComboBox, 'comboBox_pressure_units_test')
+        self.comboBox_temperature_units : QComboBox
+        self.comboBox_pressure_units : QComboBox
+        self.comboBox_temperature_units_test : QComboBox
+        self.comboBox_pressure_units_test : QComboBox
+
         # QLabel
-        self.label_selected_fluid = self.findChild(QLabel, 'label_selected_fluid')
-        self.label_title_remaining_fraction = self.findChild(QLabel, 'label_title_remaining_fraction')
-        self.label_remaining_composition = self.findChild(QLabel, 'label_remaining_composition')
-        self.label_fluid_temperature = self.findChild(QLabel, 'label_fluid_temperature')
-        self.label_fluid_pressure = self.findChild(QLabel, 'label_fluid_pressure')
-        self.label_temperature_unit = self.findChild(QLabel, 'label_temperature_unit')
-        self.label_pressure_unit = self.findChild(QLabel, 'label_pressure_unit')
-        self.label_fluid_density = self.findChild(QLabel, 'label_fluid_density')
-        self.label_fluid_specific_heat_Cp = self.findChild(QLabel, 'label_fluid_specific_heat_Cp')
-        self.label_fluid_specific_heat_Cv = self.findChild(QLabel, 'label_fluid_specific_heat_Cv')
-        self.label_fluid_isentropic_coefficient = self.findChild(QLabel, 'label_fluid_isentropic_coefficient')
-        self.label_fluid_speed_of_sound = self.findChild(QLabel, 'label_fluid_speed_of_sound')
-        self.label_fluid_dynamic_viscosity = self.findChild(QLabel, 'label_fluid_dynamic_viscosity')
-        self.label_fluid_thermal_conductivity = self.findChild(QLabel, 'label_fluid_thermal_conductivity')
-        self.label_discharge = self.findChild(QLabel, 'label_discharge')
-        self.label_suction = self.findChild(QLabel, 'label_suction')
-        self.label_discharge.setVisible(False)
-        self.label_suction.setVisible(False)
+        self.label_selected_fluid : QLabel
+        self.label_title_remaining_fraction : QLabel
+        self.label_remaining_composition : QLabel
+        self.label_fluid_temperature : QLabel
+        self.label_fluid_pressure : QLabel
+        self.label_temperature_unit : QLabel
+        self.label_pressure_unit : QLabel
+        self.label_fluid_density : QLabel
+        self.label_fluid_specific_heat_Cp : QLabel
+        self.label_fluid_specific_heat_Cv : QLabel
+        self.label_fluid_isentropic_coefficient : QLabel
+        self.label_fluid_speed_of_sound : QLabel
+        self.label_fluid_dynamic_viscosity : QLabel
+        self.label_fluid_thermal_conductivity : QLabel
+        self.label_discharge : QLabel
+        self.label_suction : QLabel
+
         # QLineEdit
-        self.lineEdit_composition = self.findChild(QLineEdit, 'lineEdit_composition')
-        self.lineEdit_fluid_name = self.findChild(QLineEdit, 'lineEdit_fluid_name')
-        self.label_fluid_state_index = self.findChild(QLabel, 'label_fluid_state_index')
-        self.lineEdit_temperature = self.findChild(QLineEdit, 'lineEdit_temperature')
-        self.lineEdit_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
-        self.lineEdit_pressure_disch = self.findChild(QLineEdit, 'lineEdit_pressure_disch')
-        self.lineEdit_temperature_disch = self.findChild(QLineEdit, 'lineEdit_temperature_disch')
-        self.lineEdit_temperature_test = self.findChild(QLineEdit, 'lineEdit_temperature_test')
-        self.lineEdit_pressure_test = self.findChild(QLineEdit, 'lineEdit_pressure_test')
-        self.lineEdit_pressure_disch.setVisible(False)
-        self.lineEdit_temperature_disch.setVisible(False)
+        self.lineEdit_composition : QLineEdit
+        self.lineEdit_fluid_name : QLineEdit
+        self.label_fluid_state_index : QLabel
+        self.lineEdit_temperature : QLineEdit
+        self.lineEdit_pressure : QLineEdit
+        self.lineEdit_pressure_disch : QLineEdit
+        self.lineEdit_temperature_disch : QLineEdit
+        self.lineEdit_temperature_test : QLineEdit
+        self.lineEdit_pressure_test : QLineEdit
+
         # QPushButton
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_reset_fluid = self.findChild(QPushButton, 'pushButton_reset_fluid')
-        self.pushButton_add_gas = self.findChild(QPushButton, 'pushButton_add_gas')
-        self.pushButton_remove_gas = self.findChild(QPushButton, 'pushButton_remove_gas')
-        self.pushButton_add_fluid_state = self.findChild(QPushButton, 'pushButton_add_fluid_state')
-        self.pushButton_remove_fluid_state = self.findChild(QPushButton, 'pushButton_remove_fluid_state')
-        self.pushButton_get_fluid_properties_info = self.findChild(QPushButton, 'pushButton_get_fluid_properties_info')
-        # self.pushButton_use_remaining_molar_fraction = self.findChild(QPushButton, 'pushButton_use_remaining_molar_fraction')
-        # self.pushButton_use_remaining_molar_fraction.clicked.connect(self.use_remaining_molar_fraction)
+        self.pushButton_confirm : QPushButton
+        self.pushButton_reset_fluid : QPushButton
+        self.pushButton_add_gas : QPushButton
+        self.pushButton_remove_gas : QPushButton
+        self.pushButton_add_fluid_state : QPushButton
+        self.pushButton_remove_fluid_state : QPushButton
+        self.pushButton_get_fluid_properties_info : QPushButton
+
         # QTabWidget
-        self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
-        # QTreeWidget        
-        self.treeWidget_reference_gases = self.findChild(QTreeWidget, 'treeWidget_reference_gases')
-        self.treeWidget_new_gas = self.findChild(QTreeWidget, 'treeWidget_new_gas')        
-        self.treeWidget_fluids_states = self.findChild(QTreeWidget, 'treeWidget_fluids_states')
-        self.treeWidget_new_gas.setColumnWidth(0, 376)
-        self.treeWidget_fluids_states.setColumnWidth(0, 60)
-        self.treeWidget_fluids_states.setColumnWidth(1, 120)
-        self.treeWidget_fluids_states.setColumnWidth(2, 120)
-        # QWidget
-        self.tab_fluid_setup = self.tabWidget_general.findChild(QWidget, 'tab_main')
-        self.tab_pretest_analysis = self.tabWidget_general.findChild(QWidget, 'tab_export')
+        self.tabWidget_main : QTabWidget
+
+        # QTreeWidget
+        self.treeWidget_reference_gases : QTreeWidget
+        self.treeWidget_new_gas : QTreeWidget
+        self.treeWidget_fluid_states : QTreeWidget
 
     def _create_connections(self):
         #
@@ -155,16 +155,36 @@ class SetFluidCompositionInput(QDialog):
         self.pushButton_add_gas.clicked.connect(self.add_selected_gas)
         self.pushButton_add_fluid_state.clicked.connect(self.add_fluid_state)
         self.pushButton_confirm.clicked.connect(self.get_fluid_properties)
-        self.pushButton_get_fluid_properties_info.clicked.connect(self.get_fluid_properties_by_state)
         self.pushButton_remove_fluid_state.clicked.connect(self.remove_fluid_state)
         self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
         self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
+        # self.pushButton_use_remaining_molar_fraction.clicked.connect(self.use_remaining_molar_fraction)
         #
-        self.tabWidget_general.currentChanged.connect(self.update_state_treeWidget_info)
+        self.tabWidget_main.currentChanged.connect(self.update_state_treeWidget_info)
         self.treeWidget_new_gas.itemDoubleClicked.connect(self.on_double_click_item_new_gas)
-        self.treeWidget_fluids_states.itemClicked.connect(self.on_click_item_fluid_state)
+        self.treeWidget_fluid_states.itemClicked.connect(self.on_click_item_fluid_state)
+        self.treeWidget_fluid_states.itemDoubleClicked.connect(self.on_doubleclick_item_fluid_state)
         self.treeWidget_new_gas.itemClicked.connect(self.on_click_item_new_gas)
         self.treeWidget_reference_gases.itemClicked.connect(self.on_click_item_reference_gases)
+
+    def _config_widgets(self):
+        self.label_discharge.setVisible(False)
+        self.label_suction.setVisible(False)
+        #
+        self.lineEdit_pressure_disch.setVisible(False)
+        self.lineEdit_temperature_disch.setVisible(False)
+        #
+        self.treeWidget_new_gas.setColumnWidth(0, 376)
+        self.treeWidget_fluid_states.setColumnWidth(0, 60)
+        self.treeWidget_fluid_states.setColumnWidth(1, 120)
+        self.treeWidget_fluid_states.setColumnWidth(2, 120)
+
+    def _call_help(self):
+        title = "Thermodynamic states checking"
+        message = "The pretest analysis checks if all fluid states lead to valid fluid properties. "
+        message += "If the calculated fluid properties are physically consistent, the new fluid can "
+        message += "be added to the fluid library, otherwise, it cannot."
+        PrintMessageInput([window_title_2, title, message])
 
     def check_compressor_inputs(self):
 
@@ -178,13 +198,8 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_temperature_disch.setDisabled(True)
         self.lineEdit_pressure.setDisabled(True)
         self.lineEdit_pressure_disch.setDisabled(True)
-        self.tabWidget_general.setTabVisible(1, False)
+        self.tabWidget_main.setTabVisible(1, False)
     
-        self.lineEdit_temperature.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
-        self.lineEdit_pressure.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
-        self.lineEdit_temperature_disch.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
-        self.lineEdit_pressure_disch.setStyleSheet("color: rgb(120,120,120); font: 60 bold 11pt 'MS Shell Dlg 2'")
-
         self.connection_type_comp = self.compressor_info['connection type']
         self.connection_label = "discharge" if self.connection_type_comp else "suction"
         
@@ -676,18 +691,17 @@ class SetFluidCompositionInput(QDialog):
     def update_fluid_state_header(self):
         self.unit_temperature_update(self.comboBox_temperature_units_test)
         self.unit_pressure_update(self.comboBox_pressure_units_test)
-        self.treeWidget_fluids_states.headerItem().setText(0, f"Index")
-        self.treeWidget_fluids_states.headerItem().setText(1, f"Temperature [{self.unit_temperature}]")
-        self.treeWidget_fluids_states.headerItem().setText(2, f"Pressure [{self.unit_pressure}]")
-        self.treeWidget_fluids_states.headerItem().setText(3, "Set of properties")
+        self.treeWidget_fluid_states.headerItem().setText(0, f"Index")
+        self.treeWidget_fluid_states.headerItem().setText(1, f"Temperature [{self.unit_temperature}]")
+        self.treeWidget_fluid_states.headerItem().setText(2, f"Pressure [{self.unit_pressure}]")
+        self.treeWidget_fluid_states.headerItem().setText(3, "Set of properties")
         for i in range(4):
-            self.treeWidget_fluids_states.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_fluid_states.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def update_state_treeWidget_info(self):
-        if self.tabWidget_general.currentIndex() == 1:
+        if self.tabWidget_main.currentIndex() == 1:
             self.update_fluid_state_header()
-            self.treeWidget_fluids_states.clear()
-            # self.treeWidget_fluids_states.setGeometry(592, 68, 509, 400)
+            self.treeWidget_fluid_states.clear()
             for index, [temperature, pressure] in self.fluid_states.items():
                 
                 if self.unit_temperature == "°C":
@@ -719,7 +733,7 @@ class SetFluidCompositionInput(QDialog):
                 new = QTreeWidgetItem([index, str(round(temperature, 6)), str(round(pressure,6)), status])
                 for i in range(5):
                     new.setTextAlignment(i, Qt.AlignCenter)
-                self.treeWidget_fluids_states.addTopLevelItem(new)
+                self.treeWidget_fluid_states.addTopLevelItem(new)
 
             self.state_index = None
             self.lineEdit_temperature.setText("")
@@ -739,6 +753,10 @@ class SetFluidCompositionInput(QDialog):
             self.state_index = str_index
             self.fluid_temperature = item.text(1)
             self.fluid_pressure = item.text(2)
+
+    def on_doubleclick_item_fluid_state(self, item):
+        self.on_click_item_fluid_state(item)
+        self.get_fluid_properties_by_state()
 
     def run_pretest_analysis(self):
         self.errors_by_fluid_state = {}

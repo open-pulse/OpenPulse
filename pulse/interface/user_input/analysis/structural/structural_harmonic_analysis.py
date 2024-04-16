@@ -13,7 +13,7 @@ class StructuralHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        ui_path = Path(f"{UI_DIR}/analysis/general/harmonic_analysis_method.ui")
+        ui_path = UI_DIR / "analysis/general/harmonic_analysis_method.ui"
         uic.loadUi(ui_path, self)
 
         self._load_icons()
@@ -29,20 +29,20 @@ class StructuralHarmonicAnalysisInput(QDialog):
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Structural harmonic analysis")
         self.setWindowIcon(self.icon)
+        self.setWindowTitle("Structural harmonic analysis")
 
     def _initialize(self):
         self.index = -1
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox = self.findChild(QComboBox, 'comboBox')
+        self.comboBox_method : QComboBox
         # QLabel
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_title.setText("  Harmonic Analysis - Structural  ")
+        self.label_method : QLabel
+        self.label_method.setText("Harmonic Analysis - Structural")
         # QPushButton
-        self.pushButton_go_to_analysis_setup = self.findChild(QPushButton, 'pushButton_go_to_analysis_setup')
+        self.pushButton_go_to_analysis_setup : QPushButton
     
     def _create_connections(self):
         self.pushButton_go_to_analysis_setup.clicked.connect(self.button_clicked)
@@ -51,7 +51,7 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.check()
 
     def check(self):
-        self.index = self.comboBox.currentIndex()
+        self.index = self.comboBox_method.currentIndex()
         self.close()
 
     def keyPressEvent(self, event):

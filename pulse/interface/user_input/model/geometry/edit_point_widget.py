@@ -1,17 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import (
-    QCheckBox,
-    QFrame,
-    QGridLayout,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
-from pathlib import Path
+from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
+
 from pulse import app, UI_DIR
 
 from opps.model import Point
@@ -20,7 +10,9 @@ from opps.model import Point
 class EditPointWidget(QWidget):
     def __init__(self, geometry_widget):
         super().__init__()
-        uic.loadUi(UI_DIR / "model/geometry/edit_point.ui", self)
+
+        ui_path = UI_DIR / "model/geometry/edit_point.ui"
+        uic.loadUi(ui_path, self)
 
         self.geometry_widget = geometry_widget
         self.project = app().project

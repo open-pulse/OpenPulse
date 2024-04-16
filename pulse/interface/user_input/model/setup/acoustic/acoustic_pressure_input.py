@@ -19,7 +19,8 @@ class AcousticPressureInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui", self)
+        ui_path = UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui"
+        uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
         self.opv = app().main_window.opv_widget
@@ -99,6 +100,7 @@ class AcousticPressureInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
         else:
+            self.update()
             self.lineEdit_selection_id.setDisabled(False)
 
     def load_nodes_info(self):
@@ -177,13 +179,16 @@ class AcousticPressureInput(QDialog):
             self.lineEdit_real_value.setFocus()
             
     def load_table(self, lineEdit, direct_load=False):
-        title = "Error reached while loading 'acoustic pressure' table"
         try:
+
             if direct_load:
                 self.path_imported_table = lineEdit.text()
             else:
                 window_label = 'Choose a table to import the acoustic pressure'
-                self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.user_path, 'Files (*.csv; *.dat; *.txt)')
+                self.path_imported_table, _ = QFileDialog.getOpenFileName(  None, 
+                                                                            window_label, 
+                                                                            self.user_path, 
+                                                                            'Files (*.csv; *.dat; *.txt)'  )
 
             if self.path_imported_table == "":
                 return None, None
@@ -193,6 +198,7 @@ class AcousticPressureInput(QDialog):
                        
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
 
+            title = "Error reached while loading 'acoustic pressure' table"
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
@@ -217,6 +223,7 @@ class AcousticPressureInput(QDialog):
             return imported_values, imported_filename
 
         except Exception as log_error:
+            title = "Error reached while loading 'volume velocity' table"
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
             lineEdit.setFocus()
@@ -324,7 +331,7 @@ class AcousticPressureInput(QDialog):
             node = self.preprocessor.nodes[picked_node_id]            
             if node in self.preprocessor.nodes_with_acoustic_pressure:
                 key_strings = ["acoustic pressure"]
-                message = f"The acoustic pressure attributed to the {picked_node_id} node \nhas been removed."
+                message = f"The acoustic pressure attributed to the {picked_node_id} node has been removed."
                 remove_bc_from_file([picked_node_id], self.acoustic_bc_info_path, key_strings, message)
                 list_table_names = self.get_list_table_names_from_selected_nodes([picked_node_id])
                 self.process_table_file_removal(list_table_names)
@@ -336,25 +343,19 @@ class AcousticPressureInput(QDialog):
     def process_table_file_removal(self, list_table_names):
         if list_table_names != []:
             for table_name in list_table_names:
-                self.project.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")            
-
-            title = f"Resetting of all applied acoustic pressures"
-            message = "Do you really want to remove the acoustic pressure(s) \napplied to the following node(s)?\n\n"
-            for node in self.preprocessor.nodes_with_acoustic_pressure:
-                message += f"{node.external_index}\n"
-            message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
-            message += "\nClose buttons to abort the current operation."
-            
+                self.project.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")
 
     def reset_callback(self):
         if len(self.preprocessor.nodes_with_acoustic_pressure)>0:
+
             list_nodes = list()
             for node in self.preprocessor.nodes_with_acoustic_pressure:
                 list_nodes.append(node.external_index)
             
             title = f"Resetting of all applied acoustic pressures"
-            message = "Would you like to remove the acoustic pressure(s) applied to the following node(s)?"
-            message = f"\n\n{list_nodes}"
+            message = "Would you like to remove the acoustic pressure(s) "
+            message += "applied to the following node(s)?\n"
+            message += f"\n{list_nodes}"
             
             buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
             read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
@@ -376,8 +377,8 @@ class AcousticPressureInput(QDialog):
                             _list_table_names.append(table_name)
                     remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
                     self.preprocessor.set_acoustic_pressure_bc_by_node(node_id, [None, None])
+                
                 self.process_table_file_removal(_list_table_names)
-
                 self.load_nodes_info()
 
                 title = "Resetting process complete"
@@ -402,17 +403,18 @@ class AcousticPressureInput(QDialog):
             node = self.preprocessor.nodes[picked_node]
             if node.acoustic_pressure is not None:
                 self.reset_input_fields(force_reset=True)
-                if node.acoustic_pressure_table_name is not None:
-                    table_name = node.acoustic_pressure_table_name
-                    self.tabWidget_acoustic_pressure.setCurrentIndex(1)
-                    table_name = get_new_path(self.acoustic_pressure_tables_folder_path, table_name)
-                    self.lineEdit_table_path.setText(table_name)
-                else:
-                    acoustic_pressure = node.acoustic_pressure
-                    self.tabWidget_acoustic_pressure.setCurrentIndex(0)
-                    self.lineEdit_real_value.setText(str(np.real(acoustic_pressure)))
-                    self.lineEdit_imag_value.setText(str(np.imag(acoustic_pressure)))
-                self.inputs_from_node = True
+                if node.compressor_excitation_table_names == []:
+                    if node.acoustic_pressure_table_name is not None:
+                        table_name = node.acoustic_pressure_table_name
+                        self.tabWidget_acoustic_pressure.setCurrentIndex(1)
+                        table_name = get_new_path(self.acoustic_pressure_tables_folder_path, table_name)
+                        self.lineEdit_table_path.setText(table_name)
+                    else:
+                        acoustic_pressure = node.acoustic_pressure
+                        self.tabWidget_acoustic_pressure.setCurrentIndex(0)
+                        self.lineEdit_real_value.setText(str(np.real(acoustic_pressure)))
+                        self.lineEdit_imag_value.setText(str(np.imag(acoustic_pressure)))
+                    self.inputs_from_node = True
             else:
                 self.reset_input_fields()
             self.writeNodes(self.opv.getListPickedPoints())
@@ -442,4 +444,3 @@ class AcousticPressureInput(QDialog):
                 self.check_remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
-        

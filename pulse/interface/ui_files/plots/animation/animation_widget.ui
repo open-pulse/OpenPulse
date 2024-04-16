@@ -504,7 +504,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../../../data/icons/play_pause.png</normaloff>../../../../../data/icons/play_pause.png</iconset>
+             <normaloff>../../../data/icons/play_pause.png</normaloff>../../../data/icons/play_pause.png</iconset>
            </property>
            <property name="iconSize">
             <size>

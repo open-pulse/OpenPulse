@@ -33,9 +33,9 @@ preprocessor.set_radiation_impedance_bc_by_node(1047 , 0)
 
 preprocessor.set_fluid_by_element('all', air)
 preprocessor.set_cross_section_by_element('all', cross_section)
-preprocessor.set_cross_section_by_line(40, cross_section_expansion)
-preprocessor.set_cross_section_by_line([37, 38, 39], cross_section_branch)
-preprocessor.set_cross_section_by_line([21, 22, 23, 24, 25, 27, 28], cross_section_branch)
+preprocessor.set_cross_section_by_lines(40, cross_section_expansion)
+preprocessor.set_cross_section_by_lines([37, 38, 39], cross_section_branch)
+preprocessor.set_cross_section_by_lines([21, 22, 23, 24, 25, 27, 28], cross_section_branch)
 
 preprocessor.set_length_correction_by_line([1, 40, 41, 21, 27], 1) # Expansion correction
 preprocessor.set_length_correction_by_line([37, 38, 39], 2) # Side branch correction

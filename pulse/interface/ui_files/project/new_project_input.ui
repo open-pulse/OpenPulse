@@ -680,7 +680,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../../data/icons/020-search.png</normaloff>../../../../data/icons/020-search.png</iconset>
+             <normaloff>../data/icons/020-search.png</normaloff>../data/icons/020-search.png</iconset>
            </property>
           </widget>
          </item>
@@ -839,7 +839,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../../data/icons/020-search.png</normaloff>../../../../data/icons/020-search.png</iconset>
+             <normaloff>../data/icons/020-search.png</normaloff>../data/icons/020-search.png</iconset>
            </property>
           </widget>
          </item>

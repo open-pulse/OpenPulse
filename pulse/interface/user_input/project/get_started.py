@@ -15,7 +15,7 @@ class GetStartedInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/project/get_started_input.ui")
+        ui_path = UI_DIR / "project/get_started_input.ui"
         uic.loadUi(ui_path, self)
 
         self.main_window = app().main_window
@@ -37,9 +37,6 @@ class GetStartedInput(QDialog):
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
-        self.load_icon = QIcon(get_icons_path('loadProject.png'))
-        self.new_icon = QIcon(get_icons_path('add.png'))
-        self.reset_icon = QIcon(get_icons_path('refresh.png'))
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
@@ -49,39 +46,29 @@ class GetStartedInput(QDialog):
         
     def _define_qt_variables(self):
         # QLable
-        self.recents_label = self.findChild(QLabel, 'recents_label')
-        self.project1_path_label = self.findChild(QLabel, 'project1_path_label')
-        self.project2_path_label = self.findChild(QLabel, 'project2_path_label')
-        self.project3_path_label = self.findChild(QLabel, 'project3_path_label')
-        self.project4_path_label = self.findChild(QLabel, 'project4_path_label')
-        self.project5_path_label = self.findChild(QLabel, 'project5_path_label')
-        
+        self.recents_label : QLabel
+        self.project1_path_label : QLabel
+        self.project2_path_label : QLabel
+        self.project3_path_label : QLabel
+        self.project4_path_label : QLabel
+        self.project5_path_label : QLabel
         # QPushButton
-        self.create_button = self.findChild(QPushButton, 'create_button')
-        self.load_button = self.findChild(QPushButton, 'load_button')
-        self.about_button = self.findChild(QPushButton, 'about_button')
-        self.continue_button = self.findChild(QPushButton, 'continue_button')
-        self.reset_list_projects_button = self.findChild(QPushButton, 'reset_list_projects_button')
-        self.project1_button = self.findChild(QPushButton, 'project1_button')
-        self.project2_button = self.findChild(QPushButton, 'project2_button')
-        self.project3_button = self.findChild(QPushButton, 'project3_button')
-        self.project4_button = self.findChild(QPushButton, 'project4_button')
-        self.project5_button = self.findChild(QPushButton, 'project5_button')
-        self.create_lists_of_buttons_and_labels()
-        self._set_icons()
-
-    def _set_icons(self):
-        self.create_button.setIcon(self.new_icon)
-        self.load_button.setIcon(self.load_icon)
-        self.about_button.setIcon(self.icon)
-        self.reset_list_projects_button.setIcon(self.reset_icon)
+        self.create_button : QPushButton
+        self.load_button : QPushButton
+        self.about_button : QPushButton
+        self.project1_button : QPushButton
+        self.project2_button : QPushButton
+        self.project3_button : QPushButton
+        self.project4_button : QPushButton
+        self.project5_button : QPushButton
+        self.reset_list_projects_button : QPushButton
 
     def _create_connections(self):
         self.create_button.clicked.connect(self.new_project)
         self.load_button.clicked.connect(self.load_project)
         self.about_button.clicked.connect(self.about_project)
-        self.continue_button.clicked.connect(self.continueButtonEvent)
         self.reset_list_projects_button.clicked.connect(self.reset_list_projects)
+        self.create_lists_of_buttons_and_labels()
 
     def create_lists_of_buttons_and_labels(self):
         self.project_buttons = []
@@ -101,7 +88,7 @@ class GetStartedInput(QDialog):
         self.project_dir = []
         for i in range(5):
             self.project_dir.append("")
-            self.project_buttons[i].setIcon(self.load_icon)
+            # self.project_buttons[i].setIcon()
             self.project_buttons[i].setVisible(False)
             self.project_path_labels[i].setVisible(False)
 
@@ -114,17 +101,21 @@ class GetStartedInput(QDialog):
             # self.project_buttons[i].setText(text)
             # self.project_buttons[i].setStyleSheet("text-align:right;")
             self.project_path_labels[i].setText(str(self.recent_projectsList[i][1]))
-            stylesheet =    """ QLabel{ 
-                                        border-radius: 6px; 
-                                        border-color: rgb(150, 150, 150); 
-                                        border-style: ridge; 
-                                        border-width: 2px; 
-                                        color: rgb(0, 0, 255); 
-                                        background-color: rgb(240, 240, 240); 
-                                        font: 50 9pt "MS Shell Dlg 2" 
-                                        }
-                            """
-            self.project_path_labels[i].setStyleSheet(stylesheet)
+            # stylesheet =    """ QLabel{ 
+            #                             border-radius: 6px; 
+            #                             border-color: rgb(150, 150, 150); 
+            #                             border-style: ridge; 
+            #                             border-width: 2px; 
+            #                             color: rgb(0, 0, 255); 
+            #                             background-color: rgb(240, 240, 240); 
+            #                             font: 50 9pt "MS Shell Dlg 2" 
+            #                             }
+            #                 """
+            # self.project_path_labels[i].setStyleSheet(stylesheet)
+            self.project_path_labels[i].adjustSize()
+            self.project_path_labels[i].setWordWrap(True)
+            self.project_path_labels[i].setScaledContents(True)
+
 
     def initial_actions(self):
         self.update_buttons_visibility()

@@ -1,13 +1,9 @@
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
+
+from pulse.preprocessing.cross_section import get_beam_section_properties
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
-from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.libraries.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
-
-from pulse import app
 
 import os
 import configparser
@@ -48,8 +44,8 @@ class ProjectFile:
         self.f_min = None
         self.f_max = None
         self.f_step = None
-        self.non_zero_frequency_info = []
         self.zero_frequency = False
+        self.non_zero_frequency_info = list()
 
     def default_filenames(self):
         self._project_ini_name = "project.ini"
@@ -137,7 +133,7 @@ class ProjectFile:
         if self._imported_data_folder_name in list_filenames:
             imported_data_files = os.listdir(self._imported_data_folder_path).copy()
 
-        files_to_maintain_after_reset = []
+        files_to_maintain_after_reset = list()
         files_to_maintain_after_reset.append(self._project_ini_name)
         files_to_maintain_after_reset.append(self._entity_file_name)
 
@@ -369,11 +365,9 @@ class ProjectFile:
                     if import_type == 0:
                         return True
                     else:
-                        keys_to_check = list() 
-                        keys_to_check.append("start point")
-                        keys_to_check.append("end point")
-                        # keys_to_check.append("section parameters")
-                        # keys_to_check.append("structural element type")
+                        if "-" in tag:
+                            continue
+                        keys_to_check = ["start point", "end point"]
                         for key in keys_to_check:
                             if key not in config[tag].keys():
                                 return False
@@ -617,7 +611,7 @@ class ProjectFile:
                 config2.read(self._entity_path)
                 sections = config2.sections()
 
-                mapped_entities = []
+                mapped_entities = list()
                 for entity_id in entities:
                     if len(dict_map_lines) == 0:
                         config[str(entity_id)] = {}
@@ -678,16 +672,14 @@ class ProjectFile:
 
             _id = 1
             section_info = dict()
-            parameters_to_elements_id = dict()
             variable_section_line_ids = list()
             parameters_to_entity_id = defaultdict(list)
+            parameters_to_elements_id = defaultdict(list)
 
             for entity in sections:
 
-                outer_diameter = ""
-                thickness = ""
                 line_prefix = ""
-                list_elements = []
+                list_elements = list()
 
                 section = entityFile[entity]
                 keys = section.keys()
@@ -702,39 +694,16 @@ class ProjectFile:
                 else:
                     section_type_label = "Pipe section"
 
+                if structural_element_type in ["expansion_joint", "valve"]:
+                    continue
+                
+                section_parameters = list()
                 if structural_element_type == "pipe_1":
 
                     if 'section parameters' in keys:
-
                         str_section_parameters = section['section parameters']
                         section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-                    else:
-                        
-                        section_parameters = list()
-                        
-                        if 'outer diameter' in keys:
-                            outer_diameter = float(section['outer diameter'])
-                            section_parameters.append(outer_diameter)
-                        
-                        if 'thickness' in keys:
-                            thickness = float(section['thickness'])
-                            section_parameters.append(thickness)
-                        
-                        if 'offset [e_y, e_z]' in keys: 
-                            offset = section['offset [e_y, e_z]']
-                            offset_y, offset_z = get_offset_from_string(offset)
-                            section_parameters.append(offset_y)
-                            section_parameters.append(offset_z)
-                        
-                        if 'insulation thickness' in keys:
-                            insulation_thickness = float(section['insulation thickness'])
-                            section_parameters.append(insulation_thickness)
-                        
-                        if 'insulation density' in keys:
-                            insulation_density = float(section['insulation density'])
-                            section_parameters.append(insulation_density)
-
+  
                     if len(section_parameters) == 10:
                         if line_prefix not in variable_section_line_ids:
                             variable_section_line_ids.append(entity)
@@ -762,32 +731,34 @@ class ProjectFile:
                 if str_section_parameters not in parameters_to_entity_id.keys():
                     section_info[_id] = [structural_element_type, section_parameters]
                     _id += 1
-                
+
                 if line_prefix == "":
                     parameters_to_entity_id[str_section_parameters].append(int(entity))
-                else:   
-                    if list_elements == []:
-                        parameters_to_entity_id[str_section_parameters].append(int(entity)) 
-                    else:
-                        if str_section_parameters not in parameters_to_elements_id.keys():
-                            parameters_to_elements_id[str_section_parameters] = list_elements
-            
-            section_info_elements = {}
-            section_info_lines = {}
+
+                else:
+                    if list_elements:
+                        for element_id in list_elements:
+                            parameters_to_elements_id[str_section_parameters].append(element_id)
+                    else:    
+                        parameters_to_entity_id[str_section_parameters].append(int(entity))
+
             id_1 = 0
             id_2 = 0
+            section_info_elements = dict()
+            section_info_lines = dict()
+
             for _id, _data in section_info.items():
-                
+
                 _section_parameters = _data[1]
                 str_section_parameters = str(_section_parameters)
-                
+
                 if str_section_parameters in parameters_to_entity_id.keys():
                     id_1 += 1
                     data_lines = _data.copy()
                     data_lines.append("line ids")
                     data_lines.append(parameters_to_entity_id[str_section_parameters])
                     section_info_lines[id_1] = data_lines
-                
+
                 if str_section_parameters in parameters_to_elements_id.keys():
                     id_2 += 1
                     data_elements = _data.copy()
@@ -802,7 +773,8 @@ class ProjectFile:
             message += f"Last line id: {entity}\n\n"
             message += f"Details: \n\n {str(error_log)}"
             PrintMessageInput([window_title, title, message])
-            return {}, {}
+
+            return dict(), dict()
 
         return section_info_lines, section_info_elements
     
@@ -822,13 +794,7 @@ class ProjectFile:
                 if section_prefix in section:
                     config.remove_section(section)
         
-            str_keys = [    'outer diameter', 
-                            'thickness', 
-                            'offset [e_y, e_z]', 
-                            'insulation thickness', 
-                            'insulation density',
-                            'variable section parameters',
-                            'section type',
+            str_keys = [    'section type',
                             'section parameters',
                             'section properties',
                             'expansion joint parameters',
@@ -927,11 +893,6 @@ class ProjectFile:
         config.read(self._entity_path)
 
         str_keys = [    'structural element type',
-                        'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
                         'section type',
                         'section parameters',
                         'section properties',
@@ -953,17 +914,15 @@ class ProjectFile:
                                 
                 cross_strings = key[1:-1].split(',')
                 vals = [float(value) for value in cross_strings] 
+                section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]]
 
                 subkey += 1
                 key = str_line + "-" + str(subkey)
 
                 config[key] = { 'structural element type' : etype,
-                                'outer diameter': f'{vals[0]}',
-                                'thickness': f'{vals[1]}',
-                                'offset [e_y, e_z]': f'[{vals[2]}, {vals[3]}]',
-                                'insulation thickness': f'{vals[4]}',
-                                'insulation density': f'{vals[5]}',
-                                'list of elements': f'{elements}' }
+                                'section type' : 'Pipe section',
+                                'section parameters' : str(section_parameters),
+                                'list of elements' : str(elements) }
 
         self.write_data_in_file(self._entity_path, config)
 
@@ -999,13 +958,7 @@ class ProjectFile:
         config.read(self._entity_path)
         sections = config.sections()
 
-        list_keys = [   'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
-                        'variable section parameters',
-                        'section type',
+        list_keys = [   'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1033,22 +986,18 @@ class ProjectFile:
                 valve_mass = parameters["valve_mass"]
                 valve_center_coordinates = parameters["valve_center_coordinates"]
                 
-                valve_section_parameters = []
                 list_valve_elements = parameters["valve_elements"]
-                for value in parameters["valve_section_parameters"].values():
-                    valve_section_parameters.append(value)      
-
+                valve_section_parameters = parameters["valve_section_parameters"]  
                 valve_parameters = [valve_length, stiffening_factor, valve_mass]
+
                 config[str_line]['valve parameters'] = str(valve_parameters)
                 config[str_line]['valve center coordinates'] = str(list(valve_center_coordinates))
                 config[str_line]['valve section parameters'] = str(valve_section_parameters)
                 config[str_line]['list of elements'] = str(list_valve_elements)
                 
                 if "number_flange_elements" in parameters.keys():
-                    flange_parameters = []
+                    flange_parameters = parameters["flange_section_parameters"]
                     number_flange_elements = parameters["number_flange_elements"]
-                    for value in parameters["flange_section_parameters"].values():
-                        flange_parameters.append(value)  
                     config[str_line]['flange section parameters'] = str(flange_parameters)
                     config[str_line]['number of flange elements'] = str(number_flange_elements)
 
@@ -1056,7 +1005,7 @@ class ProjectFile:
 
 
     def modify_expansion_joint_in_file(self, lines, parameters):
-        
+        print(lines, parameters)
         if isinstance(lines, int):
             lines = [lines]
 
@@ -1064,13 +1013,7 @@ class ProjectFile:
         config.read(self._entity_path)
         sections = config.sections()
 
-        list_keys = [   'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
-                        'variable section parameters',
-                        'section type',
+        list_keys = [   'section type',
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
@@ -1121,11 +1064,6 @@ class ProjectFile:
         sections = config_base.sections()
         
         str_keys = [    'structural element type',
-                        'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
                         'section type',
                         'section parameters',
                         'section properties',
@@ -1156,20 +1094,19 @@ class ProjectFile:
                 counter_1 += 1
                 section_key = f"{line_id}-{counter_1}"             
                 cross_strings = cross_key[1:-1].split(',')
+
                 vals = [float(value) for value in cross_strings] 
+                section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]]
                 
                 index_etype = int(vals[6])
                 if index_etype == 0:
                     etype = 'pipe_1'
-                
-                config[section_key] = { 'structural element type' : etype,
-                                        'outer diameter': f'{vals[0]}',
-                                        'thickness': f'{vals[1]}',
-                                        'offset [e_y, e_z]': f'[{vals[2]}, {vals[3]}]',
-                                        'insulation thickness': f'{vals[4]}',
-                                        'insulation density': f'{vals[5]}',
-                                        'list of elements': f'{elements}' }
             
+                config[section_key] = { 'structural element type' : etype,
+                                        'section type' : 'Pipe section',
+                                        'section parameters': str(section_parameters),
+                                        'list of elements': str(elements) }
+
             counter_2 = 0
             if update_by_cross:    
                 for section in sections:
@@ -1188,19 +1125,28 @@ class ProjectFile:
                     valve_elements = valve_data["valve_elements"]
                     valve_parameters = [valve_data["valve_length"], valve_data["stiffening_factor"], valve_data["valve_mass"]]
                     valve_center_coordinates = valve_data["valve_center_coordinates"]
-                    valve_section_parameters = list(valve_data["valve_section_parameters"].values())
+                    valve_section_parameters = list(valve_data["valve_section_parameters"])
 
                     if "flange_elements" in valve_data.keys():
-                        number_flange_elements = valve_data["number_flange_elements"]
-                        flange_section_parameters = list(valve_data["flange_section_parameters"].values())
 
-                    config[section_key] = { 'structural element type' : 'valve',
-                                            'valve parameters' : f'{valve_parameters}',
-                                            'valve center coordinates' : f'{valve_center_coordinates}',
-                                            'valve section parameters' : f'{valve_section_parameters}',
-                                            'flange section parameters' : f'{flange_section_parameters}',
-                                            'list of elements' : f'{valve_elements}',
-                                            'number of flange elements' : f'{number_flange_elements}' }
+                        number_flange_elements = valve_data["number_flange_elements"]
+                        flange_section_parameters = list(valve_data["flange_section_parameters"])
+
+                        config[section_key] = { 'structural element type' : 'valve',
+                                                'valve parameters' : f'{valve_parameters}',
+                                                'valve center coordinates' : f'{valve_center_coordinates}',
+                                                'valve section parameters' : f'{valve_section_parameters}',
+                                                'flange section parameters' : f'{flange_section_parameters}',
+                                                'list of elements' : f'{valve_elements}',
+                                                'number of flange elements' : f'{number_flange_elements}' }
+
+                    else:
+
+                        config[section_key] = { 'structural element type' : 'valve',
+                                                'valve parameters' : f'{valve_parameters}',
+                                                'valve center coordinates' : f'{valve_center_coordinates}',
+                                                'valve section parameters' : f'{valve_section_parameters}',
+                                                'list of elements' : f'{valve_elements}' }
 
             counter_3 = 0
             if update_by_cross:    
@@ -1210,7 +1156,7 @@ class ProjectFile:
                             counter_3 += 1
                             section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
                             config[section_key] = config_base[section]
-            
+
             else:
 
                 for [exp_joint_parameters, list_elements, list_table_names] in map_expansion_joint_to_elements.values():
@@ -1246,8 +1192,8 @@ class ProjectFile:
             config[section]['list of elements'] = str(elements)
         else:
             config[section] =   { 'length correction type': str(_type),
-                                  'list of elements': str(elements) 
-                                  }
+                                  'list of elements': str(elements) }
+
         self.write_data_in_file(self._element_info_path, config)
 
     def add_perforated_plate_in_file(self, elements, perforated_plate, section): 
@@ -1281,19 +1227,30 @@ class ProjectFile:
                                   'dimensionless impedance' : f"[{dimensionless_impedance}]",
                                   'list of elements': str(elements) }
 
-        self.write_data_in_file(self._element_info_path, config)
-    
-    def modify_B2PX_rotation_decoupling_in_file(self, elements, nodes, rotations_maks, section, remove=False, reset=False):
-         
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
+
+    def modify_B2PX_rotation_decoupling_in_file(self, 
+                                                elements = None, 
+                                                nodes = None, 
+                                                rotations_maks = None, 
+                                                section = None, 
+                                                remove = False, 
+                                                reset = False):
+
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
         if remove:
             config.remove_section(section)
+
         elif reset:
             for section in list(config.sections()):
                 if 'B2PX ROTATION DECOUPLING' in section:
                     config.remove_section(section) 
+
         else:
             if section in list(config.sections()):
                 config[section]['list of elements'] = str(elements)
@@ -1304,7 +1261,10 @@ class ProjectFile:
                                     'list of nodes': str(nodes),
                                     'rotation dofs mask': str(rotations_maks) }
 
-        self.write_data_in_file(self._element_info_path, config)
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
 
     def modify_stress_stiffnening_line_in_file(self, lines, pressures, remove=False):
         
@@ -1325,28 +1285,24 @@ class ProjectFile:
         self.write_data_in_file(self._entity_path, config)
 
     def modify_stress_stiffnening_element_in_file(self, elements, parameters, section, remove=False):
-        
+
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
         if remove:
             config.remove_section(section)
         else:
-            config[section]['stress stiffening parameters'] = str(parameters)
-            config[section]['list of elements'] = str(elements)
-  
-        self.write_data_in_file(self._element_info_path, config)
-
-    def remove_all_stress_stiffnening_in_file_by_group_elements(self): 
-          
-        config = configparser.ConfigParser()
-        config.read(self._element_info_path)
-
-        for section in list(config.sections()):
-            if "STRESS STIFFENING" in section:
-                config.remove_section(section)
-
-        self.write_data_in_file(self._element_info_path, config)
+            if section in list(config.sections()):
+                config[section]['stress stiffening parameters'] = str(parameters)
+                config[section]['list of elements'] = str(elements)
+            else:
+                config[section] = { 'stress stiffening parameters' : str(parameters),
+                                    'list of elements': str(elements) }
+                
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
 
     def modify_capped_end_elements_in_file(self, elements, value, section): 
         
@@ -1361,8 +1317,11 @@ class ProjectFile:
         else:
             if section in list(config.sections()):    
                 config.remove_section(section)
-               
-        self.write_data_in_file(self._element_info_path, config)
+
+        if len(list(config.sections())):
+            self.write_data_in_file(self._element_info_path, config)
+        else:
+            os.remove(self._element_info_path)
 
     def modify_capped_end_lines_in_file(self, lines, value):
 
@@ -1494,6 +1453,9 @@ class ProjectFile:
         segment_build_data = dict()
 
         for section in config.sections():
+
+            if "-" in section:
+                continue
 
             tag = int(section)
             keys = config[section].keys()
@@ -2091,7 +2053,7 @@ class ProjectFile:
     #     if labels == ["", ""]:
     #         labels = [str_key.capitalize() for str_key in str_keys]
 
-    #     list_table_names = []
+    #     list_table_names = list()
     #     for section in sections:
     #         if section != str_node_id:
     #             list_file_keys = list(config[section].keys()) 
@@ -2120,8 +2082,8 @@ class ProjectFile:
     #     config.read(self._entity_path)
     #     sections = config.sections()
 
-    #     list_table_names = []
-    #     list_joint_stiffness = []
+    #     list_table_names = list()
+    #     list_joint_stiffness = list()
     #     if str_line_id in sections:
     #         keys = list(config[str_line_id].keys())
     #         if 'expansion joint stiffness' in keys:
@@ -2129,7 +2091,7 @@ class ProjectFile:
     #             list_joint_stiffness = read_joint_stiffness[1:-1].replace(" ","").split(',')
     #             cache_section = str_line_id
         
-    #     if list_joint_stiffness == []:
+    #     if list_joint_stiffness == list():
     #         return
 
     #     for stiffness_value in list_joint_stiffness:
@@ -2139,7 +2101,7 @@ class ProjectFile:
     #         except:
     #             break
         
-    #     list_table_multiple_joints = []
+    #     list_table_multiple_joints = list()
     #     list_table_names = list_joint_stiffness
         
     #     for section in sections:
@@ -2220,8 +2182,8 @@ class ProjectFile:
                         str_list_elements = config[section]['list of elements']
                         list_elements = get_list_of_values_from_string(str_list_elements)
                         list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                        temp_list = []
-                        lines_to_reset = []
+                        temp_list = list()
+                        lines_to_reset = list()
                         try:
 
                             for subgroup_elements in list_subgroup_elements:
@@ -2231,13 +2193,13 @@ class ProjectFile:
                                 elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
                                     lines_to_reset.append(section)    
 
-                            if lines_to_reset != []:
+                            if lines_to_reset:
                                 for line_to_reset in lines_to_reset:
                                     prefix = line_to_reset.split("-")[0] + "-"
                                     for _section in sections:
                                         if prefix in _section:
                                             config.remove_section(section=_section)
-                            elif temp_list != []:
+                            elif temp_list:
                                 new_list_elements = [value for group in temp_list for value in group]
                                 config[section]['list of elements'] =  str(new_list_elements)
                             else:
@@ -2271,7 +2233,7 @@ class ProjectFile:
                 str_list_elements = config[section]['list of elements']
                 list_subgroups_elements = dict_list_elements_to_subgroups[str_list_elements]
 
-                temp_list = []
+                temp_list = list()
                 try:
 
                     for subgroup_elements in list_subgroups_elements:
@@ -2279,7 +2241,7 @@ class ProjectFile:
                         if str_group_elements not in dict_non_mapped_subgroups.keys():
                             temp_list.append(dict_old_to_new_subgroups_elements[str(subgroup_elements)])
                     
-                    if temp_list != []:
+                    if temp_list:
                         new_list_elements = [value for group in temp_list for value in group]
                         config[section]['list of elements'] =  str(new_list_elements)
                     else:
@@ -2290,7 +2252,6 @@ class ProjectFile:
                     config.remove_section(section) 
 
         self.write_data_in_file(self._element_info_path, config)
-
 
     def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
         _line_id = str(line_id)
@@ -2360,7 +2321,7 @@ class ProjectFile:
     #             if 'list of elements' in config[section].keys():
     #                 str_list_elements = config[section]['list of elements']
     #                 old_list_elements = get_list_of_values_from_string(str_list_elements)
-    #                 new_list_elements = []
+    #                 new_list_elements = list()
     #                 temp_list = old_list_elements.copy()
     #                 for element_id in temp_list:
     #                     if element_id not in ext_list_elements:

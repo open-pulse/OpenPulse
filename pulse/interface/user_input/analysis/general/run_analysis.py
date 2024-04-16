@@ -23,14 +23,14 @@ class RunAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "messages/solution_log.ui", self)
+        ui_path = UI_DIR / "messages/solution_log.ui"
+        uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
 
         self._load_icons()
         self._config_window()
-        
-        self._reset_variables()
+        self._initialize()
         self._load_analysis_info()
         self._define_qt_variables()
         self._create_connections()
@@ -79,7 +79,7 @@ class RunAnalysisInput(QDialog):
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.solution_acoustic = None
         self.solution_structural = None
         self.convergence_dataLog = None
@@ -90,13 +90,13 @@ class RunAnalysisInput(QDialog):
 
     def _define_qt_variables(self):
         # QFrame
-        self.frame_message = self.findChild(QFrame, 'frame_message')
-        self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
+        self.frame_message : QFrame
+        self.frame_progress_bar : QFrame
         # QLabel
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_message = self.findChild(QLabel, 'label_message')
+        self.label_title : QLabel
+        self.label_message : QLabel
         # QProgressBar
-        self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
+        self.progress_bar_timer : QProgressBar
         # QTimer
         self.timer = QTimer()
 

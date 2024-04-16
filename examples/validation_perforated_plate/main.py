@@ -40,7 +40,7 @@ preprocessor.set_acoustic_element_type_by_element('all', element_type, proportio
 
 preprocessor.set_fluid_by_element('all', air)
 preprocessor.set_cross_section_by_element('all', cross_section)
-preprocessor.set_cross_section_by_line([1, 2, 3, 4], cross_section_expansion)
+preprocessor.set_cross_section_by_lines([1, 2, 3, 4], cross_section_expansion)
 
 # Frequencies of analysis
 f_max = 400

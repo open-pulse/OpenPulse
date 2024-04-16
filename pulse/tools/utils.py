@@ -595,8 +595,11 @@ def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys
                                 config.remove_section(section=_typed_value)
                                         
             if bc_removed:
-                with open(path, 'w') as config_file:
-                    config.write(config_file)
+                if len(list(config.sections())):    
+                    with open(path, 'w') as config_file:
+                        config.write(config_file)
+                else:
+                    os.remove(path)
 
         if message is not None and bc_removed:
             title = "Removal of selected boundary condition"

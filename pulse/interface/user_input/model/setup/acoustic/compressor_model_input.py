@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
@@ -14,7 +14,6 @@ from pulse.interface.user_input.project.call_double_confirmation import CallDoub
 from compressors.reciprocating.model import CompressorModel
 
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -24,30 +23,22 @@ kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
 class CompressorModelInput(QDialog):
-    def __init__(self, project,  opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/acoustic/compressor_model_input.ui", self)
+        ui_path = UI_DIR / "model/setup/acoustic/compressor_model_input.ui"
+        uic.loadUi(ui_path, self)
 
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.node_id = self.opv.getListPickedPoints()
-
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.nodes = self.preprocessor.nodes
-        self.before_run = project.get_pre_solution_model_checks()    
-
-        self.project_folder_path = project.file._project_path  
-        self.node_acoustic_path = self.project.file._node_acoustic_path   
-        self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
-        self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
 
         self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_treeWidget()
         self.update()
         self.load_compressor_excitation_tables_info()
         self.exec()
@@ -59,6 +50,7 @@ class CompressorModelInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
         self.stop = False
@@ -68,8 +60,20 @@ class CompressorModelInput(QDialog):
         self.remove_message = True
         self.table_name = None
         self.not_update_event = False
+        
+        self.node_id = self.opv.getListPickedPoints()
+
+        self.preprocessor = self.project.preprocessor
+        self.nodes = self.preprocessor.nodes
+        self.before_run = self.project.get_pre_solution_model_checks()    
+
+        self.project_folder_path = self.project.file._project_path  
+        self.node_acoustic_path = self.project.file._node_acoustic_path   
+        self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
+        self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
 
     def _define_qt_variables(self):
+        
         # QComboBox
         self.comboBox_connection_setup : QComboBox
         self.comboBox_cylinder_acting : QComboBox
@@ -78,11 +82,13 @@ class CompressorModelInput(QDialog):
         self.comboBox_stage : QComboBox
         self.comboBox_suction_pressure_units : QComboBox
         self.comboBox_suction_temperature_units : QComboBox
+        
         # QLabel
         self.label_molar_mass : QLabel
         self.label_molar_mass_unit : QLabel
         self.label_isentropic_exp : QLabel
         self.label_isentropic_exp_unit : QLabel
+        
         # QLineEdit
         self.lineEdit_suction_node_ID : QLineEdit
         self.lineEdit_discharge_node_ID : QLineEdit
@@ -104,6 +110,7 @@ class CompressorModelInput(QDialog):
         self.lineEdit_node_ID_info : QLineEdit
         self.lineEdit_table_name_info : QLineEdit
         self.current_lineEdit = self.lineEdit_suction_node_ID
+        
         # QPushButton
         self.pushButton_flipNodes : QPushButton
         self.pushButton_reset_entries : QPushButton
@@ -132,9 +139,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_process_aquisition_parameters.setCursor(Qt.PointingHandCursor)
         self.pushButton_confirm.setCursor(Qt.PointingHandCursor)
         self.pushButton_cancel.setCursor(Qt.PointingHandCursor)
-        #
-        # QRadioButton
-        #
+        
         # QSpinBox
         self.spinBox_number_of_points : QSpinBox
         self.spinBox_max_frequency : QSpinBox
@@ -142,14 +147,14 @@ class CompressorModelInput(QDialog):
         self.spinBox_tdc1_crank_angle : QSpinBox
         self.spinBox_tdc2_crank_angle : QSpinBox
         self.spinBox_capacity : QSpinBox
+        
         # QTabWidget
         self.tabWidget_compressor : QTabWidget
-        # QWidget
-        self.tab_setup : QWidget
-        self.tab_plots : QWidget
-        self.tab_remove : QWidget
+        
         # QTreeWidget
-        self.treeWidget_compressor_excitation = self.findChild(QTreeWidget, 'treeWidget_compressor_excitation')
+        self.treeWidget_compressor_excitation : QTreeWidget
+
+    def _config_treeWidget(self):
         self.treeWidget_compressor_excitation.setColumnWidth(0, 70)
         # self.treeWidget_compressor_excitation.setColumnWidth(1, 140)
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(0, Qt.AlignCenter)
@@ -229,7 +234,7 @@ class CompressorModelInput(QDialog):
 
     def tabEvent(self):
         self.current_tab_index = self.tabWidget_compressor.currentIndex()
-        if self.current_tab_index == 2:
+        if self.current_tab_index == 3:
             self.pushButton_confirm.setDisabled(True)
         else:
             self.pushButton_confirm.setDisabled(False)
@@ -273,6 +278,7 @@ class CompressorModelInput(QDialog):
             self.lineEdit_discharge_node_ID.setText("")
             if len(list_node_ids) == 1:
                 self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
+
         elif index == 2:
             self.current_lineEdit = self.lineEdit_discharge_node_ID
             self.lineEdit_suction_node_ID.setDisabled(True)
@@ -290,6 +296,7 @@ class CompressorModelInput(QDialog):
         if index == 1:
             self.lineEdit_discharge_node_ID.setText("")
             self.lineEdit_discharge_node_ID.setDisabled(True)
+
         elif index == 2:
             self.lineEdit_suction_node_ID.setText("")
             self.lineEdit_suction_node_ID.setDisabled(True)
@@ -759,9 +766,8 @@ class CompressorModelInput(QDialog):
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 0 }
 
-            read = FluidInput(  self.project, 
-                                self.opv, 
-                                compressor_thermodynamic_state=compressor_info  ) 
+            read = FluidInput(compressor_thermodynamic_state = compressor_info)
+
             if not read.complete:
                 return
             else:
@@ -805,9 +811,7 @@ class CompressorModelInput(QDialog):
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 1 }
             
-            read = FluidInput(  self.project, 
-                                self.opv, 
-                                compressor_thermodynamic_state=compressor_info  )
+            read = FluidInput(compressor_thermodynamic_state = compressor_info)
             if not read.complete:
                 return
             else:
@@ -1147,9 +1151,9 @@ class CompressorModelInput(QDialog):
     def update_tabs_visibility(self):
         if len(self.preprocessor.nodes_with_compressor_excitation) == 0:
             self.tabWidget_compressor.setCurrentIndex(0)
-            self.tabWidget_compressor.setTabVisible(2, False)
+            self.tabWidget_compressor.setTabVisible(3, False)
         else:
-            self.tabWidget_compressor.setTabVisible(2, True)
+            self.tabWidget_compressor.setTabVisible(3, True)
 
     def get_volume_velocity_table_names_in_typed_nodes(self, list_node_ids):
         list_table_names = []

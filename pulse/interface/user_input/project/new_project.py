@@ -19,7 +19,7 @@ class NewProjectInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/project/new_project_input.ui")
+        ui_path = UI_DIR / "project/new_project_input.ui"
         uic.loadUi(ui_path, self)
         
         self.main_window = app().main_window

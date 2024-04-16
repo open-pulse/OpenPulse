@@ -19,12 +19,13 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
     #     return self.project.get_nodes().values()
 
     def _get_acoustic_pressure_symbol(self):
+
         src = 9
         rot = (0,0,0)
         scl = (1,1,1)
         col = (150,0,210) #violet
         
-        symbols = []
+        symbols = list()
         for node in self.preprocessor.nodes_with_acoustic_pressure:
             pos = node.coordinates
             if node.acoustic_pressure is not None:
@@ -32,25 +33,27 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return symbols
     
     def _get_volume_velocity_symbol(self):
+
         src = 10
         rot = (0,0,0)
         scl = (1,1,1)
         col = (255,10,10)
 
-        symbols = []
+        symbols = list()
         for node in self.preprocessor.nodes_with_volume_velocity:
             pos = node.coordinates 
-            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == []):
+            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == list()):
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
     def _get_specific_impedance_symbol(self):
+
         src = 11
         rot = (0,0,0)
         scl = (1,1,1)
         col = (100,255,100)
 
-        symbols = []
+        symbols = list()
         for node in self.preprocessor.nodes_with_specific_impedance:
             pos = node.coordinates 
             if node.specific_impedance is not None:
@@ -58,12 +61,13 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return symbols
     
     def _get_radiation_impedance_symbol(self):
+
         src = 12
         rot = (0,0,0)
         scl = (1,1,1)
         col = (224,0,75)
 
-        symbols = []
+        symbols = list()
         for node in self.preprocessor.nodes_with_radiation_impedance:
             pos = node.coordinates 
             if node.radiation_impedance_type in [0,1,2]:
@@ -71,15 +75,16 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return symbols
         
     def _get_compressor_suction_symbol(self):
+
         src = 13
         rot = (0,0,0)
         scl = (1,1,1)
         col = (10,10,255)
 
-        symbols = []
+        symbols = list()
         for node in self.preprocessor.nodes_with_compressor_excitation:
             pos = node.coordinates
-            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
+            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != list()):
                 element = self.project.preprocessor.elements_connected_to_node[node]
                 rot = self.get_compressor_symbol_rotation(element[0], node)
                 if element[0].cross_section is not None:
@@ -92,14 +97,15 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return symbols  
 
     def _get_compressor_discharge_symbol(self):
+
         src = 14
         scl = (1,1,1)
         col = (255,10,10)
 
-        symbols = []
+        symbols = list()
         for node in self.preprocessor.nodes_with_compressor_excitation:
             pos = node.coordinates
-            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
+            if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != list()):
                 element = self.project.preprocessor.elements_connected_to_node[node]
                 rot = self.get_compressor_symbol_rotation(element[0], node)
                 if element[0].cross_section is not None:
@@ -128,17 +134,18 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 class AcousticElementsSymbolsActor(SymbolsActorBase):
     
     def _createConnections(self):
-        return [(self._get_perforated_plate_symbol(), loadSymbol('data/symbols/acoustic/perforated_plate.obj'))]
+        return [(self._get_perforated_plate_symbol(), loadSymbol(SYMBOLS_DIR / 'acoustic/perforated_plate.obj'))]
     
     # def _createSequence(self):
     #     return self.preprocessor.elements_with_perforated_plate
         # return self.project.get_structural_elements().values()
 
     def _get_perforated_plate_symbol(self):
+
         src = 14
         col = (255,0,0)
 
-        symbols = []
+        symbols = list()
         for element in self.preprocessor.elements_with_perforated_plate:
             if element.perforated_plate:
             

@@ -8,33 +8,32 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 #
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
-from pulse.interface.user_input.project.set_geometry_file_input import SetGeometryFileInput
 from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
-from pulse.interface.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
-from pulse.interface.user_input.model.setup.structural.dof_input import DOFInput
-from pulse.interface.user_input.model.setup.structural.loadsInput import LoadsInput
-from pulse.interface.user_input.model.setup.structural.massSpringDamperInput import MassSpringDamperInput
-from pulse.interface.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
+from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
+from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input import PrescribedDofsInput
+from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
+from pulse.interface.user_input.model.setup.structural.mass_spring_damper_input import MassSpringDamperInput
+from pulse.interface.user_input.model.setup.structural.elastic_nodal_links_input import ElasticNodalLinksInput
 from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
-from pulse.interface.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
+from pulse.interface.user_input.model.setup.structural.stress_stiffening_input import StressStiffeningInput
 from pulse.interface.user_input.model.setup.structural.capped_end_input import CappedEndInput
 from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
-from pulse.interface.user_input.model.setup.structural.flangesInput import FlangesInput
-from pulse.interface.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
-from pulse.interface.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
-from pulse.interface.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
+from pulse.interface.user_input.model.setup.structural.connecting_flanges_input import ConnectingFlangesInput
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
+from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input import BeamXaxisRotationInput 
+from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
 #
-from pulse.interface.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
+from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.user_input.model.setup.acoustic.acoustic_pressure_input import AcousticPressureInput
-from pulse.interface.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
-from pulse.interface.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
-from pulse.interface.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.volume_velocity_input import VolumeVelocityInput
+from pulse.interface.user_input.model.setup.acoustic.specific_impedance_input import SpecificImpedanceInput
+from pulse.interface.user_input.model.setup.acoustic.radiation_impedance_input import RadiationImpedanceInput
 from pulse.interface.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
-from pulse.interface.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
+from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 #
@@ -86,7 +85,7 @@ class InputUi:
         self.file = app().main_window.project.file
         self.opv = app().main_window.opv_widget
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
-        
+
         self._reset()
 
     def _reset(self):
@@ -94,40 +93,39 @@ class InputUi:
         self.global_damping = [0,0,0,0]
         self.project.none_project_action = False
 
-    def beforeInput(self):
+    def before_initiate(self):
         try:
             self.opv.inputObject.close()
             self.opv.setInputObject(None)
         except:
             return
 
-    def processInput(self, workingClass, *args, **kwargs):
+    def process_input(self, workingClass, *args, **kwargs):
         try:
-            self.beforeInput()
+            self.before_initiate()
             read = workingClass(*args, **kwargs)
-            self.opv.setInputObject(read)
             return read
         except Exception as log_error:
-            title = "Error detected in process Input method"
+            title = "Error detected in 'process_input' method"
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
             return None
 
     def new_project(self):
         self.reset_geometry_render()
-        new_project = self.processInput(NewProjectInput)
+        new_project = self.process_input(NewProjectInput)
         if new_project.complete:
             return self.initial_project_action(new_project.complete)
 
     def load_project(self, path=None):
         self.reset_geometry_render()
-        load_project = self.processInput(LoadProjectInput, path=path)
+        load_project = self.process_input(LoadProjectInput, path=path)
         self.main_window.mesh_toolbar.update_mesh_attributes()
         return self.initial_project_action(load_project.complete)
 
     def get_started(self):
         self.menu_items.modify_model_setup_items_access(True)
-        get_started = self.processInput(GetStartedInput)
+        get_started = self.process_input(GetStartedInput)
         return get_started.complete
 
     def initial_project_action(self, finalized):
@@ -153,127 +151,126 @@ class InputUi:
 
     def reset_project(self):
         if not self.project.none_project_action:
-            self.processInput(ResetProjectInput)
+            self.process_input(ResetProjectInput)
 
     def import_geometry(self):
-        obj = self.processInput(ImportGeometry)
+        obj = self.process_input(ImportGeometry)
         return self.initial_project_action(obj.complete)
 
     def set_clipping_plane(self):
+
         if not self.opv.opvAnalysisRenderer.getInUse():
             return
 
-        clipping_plane = self.processInput(ClipPlaneWidget, self.opv)        
+        clipping_plane = self.process_input(ClipPlaneWidget)        
         clipping_plane.value_changed.connect(self.opv.configure_clipping_plane)
         clipping_plane.slider_released.connect(self.opv.apply_clipping_plane)
         clipping_plane.exec()
         self.opv.dismiss_clipping_plane()
-            
-    def save_project_as(self):
-        self.processInput(SaveProjectAsInput)
 
-    def set_geometry_file(self):
-        self.processInput(SetGeometryFileInput, self.project, self.opv)
+    def save_project_as(self):
+        self.process_input(SaveProjectAsInput)
 
     def call_geometry_editor(self):
         main_window = self.main_window
         main_window.use_geometry_workspace()
-    
+
     def get_opv(self):
         return self.opv
 
     def set_material(self):
-        self.processInput(SetMaterialInput)   
-         
+        self.process_input(SetMaterialInput)   
+
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
-        read = self.processInput(   SetCrossSectionInput,
+        read = self.process_input(   SetCrossSectionInput,
                                     pipe_to_beam = pipe_to_beam, 
                                     beam_to_pipe = beam_to_pipe, 
                                     lines_to_update_cross_section = lines_to_update_cross_section   ) 
         return read.complete
 
-    def add_flanges(self):
-        self.processInput(FlangesInput, self.project, self.opv)
-
-    def setStructuralElementType(self):
-        read = self.processInput(StructuralElementTypeInput, self.project, self.opv)
+    def set_structural_element_type(self):
+        read = self.process_input(StructuralElementTypeInput)
         if read.complete:
             if read.pipe_to_beam or read.beam_to_pipe:         
-                self.set_cross_section( pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe, 
-                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section )
+                self.set_cross_section( pipe_to_beam = read.pipe_to_beam, 
+                                        beam_to_pipe = read.beam_to_pipe, 
+                                        lines_to_update_cross_section = read.list_lines_to_update_cross_section )
 
     def plot_cross_section(self):
-        self.processInput(PlotCrossSectionInput)
+        self.process_input(PlotCrossSectionInput)
 
     def mesh_setup_visibility(self):
-        self.processInput(RendererUserPreferencesInput)
-        
+        self.process_input(RendererUserPreferencesInput)
+
     def set_beam_xaxis_rotation(self):
-        self.processInput(BeamXaxisRotationInput, self.project, self.opv)
-        
-    def set_dof(self):
-        self.processInput(DOFInput)
-        
-    def setRotationDecoupling(self):
-        self.processInput(DecouplingRotationDOFsInput, self.project, self.opv)
-        
-    def setNodalLoads(self):
-        self.processInput(LoadsInput, self.project, self.opv)
-        
-    def addMassSpringDamper(self):
-        self.processInput(MassSpringDamperInput, self.project, self.opv)
+        self.process_input(BeamXaxisRotationInput)
+
+    def set_prescribed_dofs(self):
+        self.process_input(PrescribedDofsInput)
+
+    def set_rotation_decoupling_dofs(self):
+        self.process_input(DecouplingRotationDOFsInput)
+
+    def set_nodal_loads(self):
+        self.process_input(NodalLoadsInput)
+
+    def add_mass_spring_damper(self):
+        self.process_input(MassSpringDamperInput)
 
     def set_capped_end(self):
-        self.processInput(CappedEndInput)
+        self.process_input(CappedEndInput)
 
     def set_stress_stress_stiffening(self):
-        self.processInput(StressStiffeningInput, self.project, self.opv)
+        self.process_input(StressStiffeningInput)
 
     def add_elastic_nodal_links(self):
-        self.processInput(ElasticNodalLinksInput, self.project, self.opv)
+        self.process_input(ElasticNodalLinksInput)
 
     def set_inertial_load(self):
-        return self.processInput(SetInertialLoad)
-    
+        return self.process_input(SetInertialLoad)
+
     def add_expansion_joint(self):
-        self.processInput(ExpansionJointInput, self.project, self.opv)
+        self.process_input(ExpansionJointInput)
 
     def add_valve(self):
-        return self.processInput(ValvesInput)
+        return self.process_input(ValvesInput)
+
+    def add_flanges(self):
+        self.process_input(ConnectingFlangesInput)
 
     def set_acoustic_element_type(self):
-        self.processInput(AcousticElementTypeInput, self.project, self.opv)
+        self.process_input(AcousticElementTypeInput)
 
     def set_fluid(self):
-        self.processInput(FluidInput, self.project, self.opv)
+        self.process_input(FluidInput)
 
     def set_fluid_composition(self):
-        self.processInput(SetFluidCompositionInput, self.project, self.opv)
+        self.process_input(SetFluidCompositionInput)
 
     def set_acoustic_pressure(self):
-        self.processInput(AcousticPressureInput)
-    
-    def setVolumeVelocity(self):
-        self.processInput(VolumeVelocityInput, self.project, self.opv)
+        self.process_input(AcousticPressureInput)
 
-    def setSpecificImpedance(self):
-        self.processInput(SpecificImpedanceInput, self.project, self.opv)
-    
+    def set_volume_velocity(self):
+        self.process_input(VolumeVelocityInput)
+
+    def set_specific_impedance(self):
+        self.process_input(SpecificImpedanceInput)
+
     def set_radiation_impedance(self):
-        self.processInput(RadiationImpedanceInput, self.project, self.opv)
+        self.process_input(RadiationImpedanceInput)
 
     def add_perforated_plate(self):
-        self.processInput(PerforatedPlateInput, self.project, self.opv)
+        self.process_input(PerforatedPlateInput)
 
     def set_acoustic_element_length_correction(self):
-        self.processInput(AcousticElementLengthCorrectionInput, self.project, self.opv)
+        self.process_input(AcousticElementLengthCorrectionInput)
 
     def add_compressor_excitation(self):
-        self.processInput(CompressorModelInput, self.project, self.opv)
+        self.process_input(CompressorModelInput)
 
-    def analysisTypeInput(self):
+    def analysis_type_input(self):
 
-        read = self.processInput(AnalysisTypeInput)
+        read = self.process_input(AnalysisTypeInput)
 
         if not read.complete:
             return
@@ -306,7 +303,7 @@ class InputUi:
         if self.project.file._project_name == "":
             return False
         
-        read = self.processInput(AnalysisSetupInput)
+        read = self.process_input(AnalysisSetupInput)
         
         if read.complete:
             if read.flag_run:
@@ -331,7 +328,7 @@ class InputUi:
             return
         # self.project.time_to_checking_entries = time()-t0
 
-        read = self.processInput(RunAnalysisInput)
+        read = self.process_input(RunAnalysisInput)
         if read.complete:
             if self.analysis_ID == 2:
                 self.before_run.check_modal_analysis_imported_data()
@@ -351,7 +348,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotStructuralModeShape)      
+                return self.process_input(PlotStructuralModeShape)      
 
     def plot_displacement_field(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -362,7 +359,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotNodalResultsFieldForHarmonicAnalysis)
+                return self.process_input(PlotNodalResultsFieldForHarmonicAnalysis)
 
     def plot_structural_frequency_response(self):
         if self.analysis_ID in [0, 1, 5, 6, 7]:
@@ -370,15 +367,15 @@ class InputUi:
             if solution is None:
                 return None
             elif self.analysis_ID == 7:
-                return self.processInput(GetNodalResultsForStaticAnalysis)
+                return self.process_input(GetNodalResultsForStaticAnalysis)
             else:
-                return self.processInput(GetNodalResultsForHarmonicAnalysis)
+                return self.process_input(GetNodalResultsForHarmonicAnalysis)
 
     def plot_reaction_frequency_response(self):
         if self.analysis_ID in [0, 1, 5, 6]:
-            return self.processInput(GetReactionsForHarmonicAnalysis)
+            return self.process_input(GetReactionsForHarmonicAnalysis)
         elif self.analysis_ID == 7:
-            return self.processInput(GetReactionsForStaticAnalysis)  
+            return self.process_input(GetReactionsForStaticAnalysis)  
 
     def plot_stress_field(self):
         self.project.plot_pressure_field = False
@@ -388,9 +385,9 @@ class InputUi:
             if solution is None:
                 return
             elif self.analysis_ID == 7:
-                return self.processInput(PlotStressesFieldForStaticAnalysis)
+                return self.process_input(PlotStressesFieldForStaticAnalysis)
             else:
-                return self.processInput(PlotStressesFieldForHarmonicAnalysis)
+                return self.process_input(PlotStressesFieldForHarmonicAnalysis)
 
     def plot_stress_frequency_response(self):
         solution = self.project.get_structural_solution()
@@ -398,9 +395,9 @@ class InputUi:
             if solution is None:
                 return
             elif self.analysis_ID == 7:
-                return self.processInput(GetStressesForStaticAnalysis)
+                return self.process_input(GetStressesForStaticAnalysis)
             else:
-                return self.processInput(GetStressesForHarmonicAnalysis)     
+                return self.process_input(GetStressesForHarmonicAnalysis)     
 
     def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
@@ -410,7 +407,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotAcousticModeShape)           
+                return self.process_input(PlotAcousticModeShape)           
 
     def plot_acoustic_pressure_field(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -421,7 +418,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotAcousticPressureField)
+                return self.process_input(PlotAcousticPressureField)
 
     def plot_acoustic_frequency_response(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -429,7 +426,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(GetAcousticFrequencyResponse)
+                return self.process_input(GetAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -437,7 +434,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(GetAcousticFrequencyResponseFunction)
+                return self.process_input(GetAcousticFrequencyResponseFunction)
 
     def plot_acoustic_delta_pressures(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -445,7 +442,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(GetAcousticDeltaPressure)
+                return self.process_input(GetAcousticDeltaPressure)
 
     def plot_transmission_loss(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -453,29 +450,29 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.processInput(PlotTransmissionLoss)
+                return self.process_input(PlotTransmissionLoss)
 
     def plot_perforated_plate_convergence_data(self):
         if self.project.perforated_plate_data_log:
-            self.processInput(PlotPerforatedPlateConvergenceData)
+            self.process_input(PlotPerforatedPlateConvergenceData)
     
     def check_api618_pulsation_criteria(self):
-        return self.processInput(CheckAPI618PulsationCriteriaInput)
+        return self.process_input(CheckAPI618PulsationCriteriaInput)
 
     def structural_model_info(self):
-        self.processInput(StructuralModelInfo, self.project, self.opv)
+        self.process_input(StructuralModelInfo)
 
     def acoustic_model_info(self):
-        self.processInput(AcousticModelInfo, self.project, self.opv)
+        self.process_input(AcousticModelInfo)
 
     def check_beam_criteria(self):
-        self.processInput(CheckBeamCriteriaInput, self.project, self.opv)
+        self.process_input(CheckBeamCriteriaInput)
 
     def about_OpenPulse(self):
-        self.processInput(AboutOpenPulseInput)
+        self.process_input(AboutOpenPulseInput)
 
     def geometry_editor_help(self):
-        self.processInput(GeometryEditorHelp)
+        self.process_input(GeometryEditorHelp)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

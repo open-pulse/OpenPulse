@@ -47,6 +47,7 @@ class LoadProjectFile:
         # print(self.variable_sections_data)
         # print(self.material_data)
         # print(self.fluid_data)
+        # print(self.valve_data)
         # dt = time() - t0
         # print(f"Elapsed time to load project data: {dt} [s]")
 
@@ -220,8 +221,8 @@ class LoadProjectFile:
                     section_type_label = section['section type']
 
                 if structural_element_type != "":
-                    if 'list of elements' in keys:
-                        if "-" in tag:
+                    if "-" in tag:
+                        if 'list of elements' in keys:
                             str_list_elements = section['list of elements']
                             list_elements = get_list_of_values_from_string(str_list_elements)
                             self.structural_element_type_data[tag] = [list_elements, structural_element_type]
@@ -250,69 +251,44 @@ class LoadProjectFile:
                     if 'list of elements' in keys:
                         str_list_elements = section['list of elements']
                         list_elements = get_list_of_values_from_string(str_list_elements)
-                
+
                     if structural_element_type == 'pipe_1':
 
-                        section_parameters = list()
-                        
-                        if 'outer diameter' in keys:
-                            section_parameters.append(section['outer diameter'])
-                        
-                        if 'thickness' in keys:    
-                            section_parameters.append(section['thickness'])
-                        
-                        if 'offset [e_y, e_z]' in keys: 
-                            offset = section['offset [e_y, e_z]']
-                            offset_y, offset_z = get_offset_from_string(offset)
-                            section_parameters.append(offset_y)
-                            section_parameters.append(offset_z)
-                        
-                        if 'insulation thickness' in keys:
-                            section_parameters.append(section['insulation thickness'])
-                        
-                        if 'insulation density' in keys:
-                            section_parameters.append(section['insulation density'])
-                        
+                        section_parameters = list()                        
                         if 'section parameters' in keys:
                             str_section_parameters = section['section parameters']
                             section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-            
+                            pipe_section_info = {   "section_type_label" : section_type_label ,
+                                                    "section_parameters" : section_parameters   }
+
                         if len(section_parameters) == 6:
-            
-                                pipe_section_info = {   "section_type_label" : section_type_label ,
-                                                        "section_parameters" : section_parameters  }
+                            self.cross_section_data[tag, "pipe"] = [list_elements, pipe_section_info]
 
-                                self.cross_section_data[tag, "pipe"] = [list_elements, pipe_section_info]
-                        
                         elif len(section_parameters) == 10:
-                                
-                                pipe_section_info = {   "section_type_label" : section_type_label ,
-                                                        "section_parameters" : section_parameters  }
+                            self.variable_sections_data[tag, "pipe"] = [list_elements, pipe_section_info]
 
-                                self.variable_sections_data[tag, "pipe"] = [list_elements, pipe_section_info]
-        
                     if str_joint_parameters != "" and str_joint_stiffness != "":
                         _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
                         _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
                         self.expansion_joint_parameters_data[tag]= [_list_elements, _data]
-                
+
                 else:
-            
+
                     if structural_element_type == 'beam_1':
 
-    
                         if section_type_label == "Generic section":                 
                             if 'section properties' in keys:
                                 str_section_properties =  section['section properties']
                                 section_properties = get_list_of_values_from_string(str_section_properties, int_values=False)
                                 section_properties = get_beam_section_properties(section_type_label, section_properties)
                                 section_parameters = None
+
                         else:
                             if 'section parameters' in keys:
                                 str_section_parameters = section['section parameters']
                                 section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
                                 section_properties = get_beam_section_properties(section_type_label, section_parameters)
-    
+
                         beam_section_info = {   "section_type_label" : section_type_label,
                                                 "section_parameters" : section_parameters,
                                                 "section_properties" : section_properties   }
@@ -321,62 +297,19 @@ class LoadProjectFile:
 
                     else:
 
-                        
-                        if "section parameters" in keys:
-                            
+                        section_parameters = list()
+                        if "section parameters" in keys:                            
                             str_section_parameters = section['section parameters']
                             section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-                        else:
-
-                            section_parameters = list()
-                            
-                            if 'outer diameter' in keys:
-                                outer_diameter = float(section['outer diameter'])
-                                section_parameters.append(outer_diameter)
-                            
-                            if 'thickness' in keys:
-                                thickness = float(section['thickness'])
-                                section_parameters.append(thickness)
-                            
-                            if 'offset [e_y, e_z]' in keys: 
-                                offset = section['offset [e_y, e_z]']
-                                offset_y, offset_z = get_offset_from_string(offset)
-                                section_parameters.append(offset_y)
-                                section_parameters.append(offset_z)
-                            
-                            if 'insulation thickness' in keys:
-                                insulation_thickness = float(section['insulation thickness'])
-                                section_parameters.append(insulation_thickness)
-                            
-                            if 'insulation density' in keys:
-                                insulation_density = float(section['insulation density'])
-                                section_parameters.append(insulation_density)
-
-                            if 'section parameters' in keys:
-                                str_section_parameters = section['section parameters']
-                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-                            if 'variable section parameters' in keys:
-                                str_section_variable_parameters = section['variable section parameters']
-                                section_variable_parameters = get_list_of_values_from_string(str_section_variable_parameters, int_values=False)
-                                self.variable_sections_data[tag] = section_variable_parameters
+                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
+                                                    "section_parameters" : section_parameters  }
 
                         if len(section_parameters) == 6:
-            
-                                pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                        "section_parameters" : section_parameters  }
+                            self.cross_section_data[tag, "pipe"] = pipe_section_info
 
-                                self.cross_section_data[tag, "pipe"] = pipe_section_info
-                        
                         elif len(section_parameters) == 10:
-                                
-                                pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                        "section_parameters" : section_parameters  }
+                            self.variable_sections_data[tag, "pipe"] = pipe_section_info
 
-                                self.variable_sections_data[tag, "pipe"] = pipe_section_info
-        
-                    
                         if str_joint_parameters != "" and str_joint_stiffness != "":
                             _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
                             self.expansion_joint_parameters_data[tag] = _data
@@ -395,7 +328,7 @@ class LoadProjectFile:
         entity_file.read(self.file._entity_path)
 
         try:
-            
+
             for tag in entity_file.sections():
 
                 section = entity_file[tag]
@@ -407,10 +340,10 @@ class LoadProjectFile:
 
                 if 'structural element type' in keys:
                     structural_element_type = section['structural element type']
-                
+
                 if structural_element_type != "":
-                    if 'list of elements' in keys:
-                        if "-" in tag:
+                    if "-" in tag:
+                        if 'list of elements' in keys:
                             str_list_elements = section['list of elements']
                             list_elements = get_list_of_values_from_string(str_list_elements)
                             self.structural_element_type_data[tag] = [list_elements, structural_element_type]
@@ -418,8 +351,9 @@ class LoadProjectFile:
                         self.structural_element_type_data[tag] = structural_element_type
                     self.element_type_is_structural = True
                 else:
-                    self.structural_element_type_data[tag] = 'pipe_1'
-
+                    if "-" not in tag:
+                        self.structural_element_type_data[tag] = 'pipe_1'
+                
                 if 'structural element wall formulation' in keys:
                     wall_formulation = section['structural element wall formulation']
                     if wall_formulation != "":
@@ -454,15 +388,18 @@ class LoadProjectFile:
                 if acoustic_element_type != "":
                     if acoustic_element_type == 'proportional':
                         proportional_damping = section['proportional damping']
-                        self.acoustic_element_type_data[int(tag)] = [acoustic_element_type, float(proportional_damping), None]
+                        self.acoustic_element_type_data[tag] = [acoustic_element_type, float(proportional_damping), None]
+
                     elif acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
                         vol_flow = section['volume flow rate']
-                        self.acoustic_element_type_data[int(tag)] = [acoustic_element_type, None, float(vol_flow)]
+                        self.acoustic_element_type_data[tag] = [acoustic_element_type, None, float(vol_flow)]
+
                     else:
-                        self.acoustic_element_type_data[int(tag)] = [acoustic_element_type, None, None]
+                        self.acoustic_element_type_data[tag] = [acoustic_element_type, None, None]
                     self.element_type_is_acoustic = True
                 else:
-                    self.acoustic_element_type_data[int(tag)] = ['undamped', None, None]
+                    if "-" not in tag:
+                        self.acoustic_element_type_data[tag] = ['undamped', None, None]
         
         except Exception as error_log:
 
@@ -476,7 +413,7 @@ class LoadProjectFile:
 
         entity_file = configparser.ConfigParser()
         entity_file.read(self.file._entity_path)
-   
+
         try:
             
             for tag in entity_file.sections():
@@ -485,14 +422,14 @@ class LoadProjectFile:
                 keys = section.keys()
 
                 structural_element_type = ""
-                                                        
-                valve_data = {}
-                dict_element_to_diameters = {}
-                valve_section_parameters = []
-                flange_section_parameters = []
-                valve_cross, flange_cross = [], []
                 number_valve_elements = 0
                 number_flange_elements = 0
+
+                valve_data = dict()
+                dict_element_to_diameters = dict()
+                valve_section_parameters = list()
+                flange_section_parameters = list()
+                valve_cross, flange_cross = list(), list()
 
                 if 'structural element type' in keys:
                     structural_element_type = section["structural element type"]
@@ -529,21 +466,22 @@ class LoadProjectFile:
                         number_flange_elements = int(str_number_flange_elements)
                         valve_data["number_flange_elements"] = number_flange_elements
 
-                    cross_section_labels = ["outer_diameter", "thickness", "offset_y", "offset_z", "insulation_thickness", "insulation_density"]
                     if len(valve_section_parameters) == 6:
-                        valve_data["valve_section_parameters"] = dict(zip(cross_section_labels, valve_section_parameters))
+                        valve_data["valve_section_parameters"] = valve_section_parameters
                         valve_section_info = {  "section_type_label" : "Valve section",
-                                                "section_parameters" : valve_data["valve_section_parameters"]  }
+                                                "section_parameters" : valve_section_parameters  }
                                             
                         list_valve_elements = valve_data["valve_elements"]
                         valve_thickness = valve_section_parameters[1]
 
                         N = number_valve_elements - number_flange_elements
-                        nf = int(number_flange_elements/2) 
+                        nf = int(number_flange_elements/2)
+
                         if number_flange_elements == 0:
                             list_inner_elements = valve_data["valve_elements"]
                             list_outer_diameters =  get_V_linear_distribution(valve_section_parameters[0], N)
                             list_inner_diameters = list_outer_diameters - 2*valve_thickness
+
                         else:
                             flange_thickness = flange_section_parameters[1]
                             list_inner_elements = valve_data["valve_elements"][nf:-nf]
@@ -558,24 +496,24 @@ class LoadProjectFile:
                             lists_flange_elements = [list_valve_elements[0:nf], list_valve_elements[-nf:]]
                             list_flange_elements = [element_id for _list_elements in lists_flange_elements for element_id in _list_elements]
                             valve_data["flange_elements"] = list_flange_elements
-                        
-                        dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, decimals=6)))                      
-                        dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, decimals=6)))
+
+                        dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, 6)))                      
+                        dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, 6)))
 
                         for _id in list_inner_elements:
                             dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
                             valve_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]
-                            valve_cross.append(CrossSection(valve_section_info=valve_section_info)) 
-                    
+                            valve_cross.append(CrossSection(valve_section_info = valve_section_info)) 
+
                     if len(flange_section_parameters) == 6:
-                        valve_data["flange_section_parameters"] = dict(zip(cross_section_labels, flange_section_parameters))
+                        valve_data["flange_section_parameters"] = flange_section_parameters
                         flange_section_info = { "section_type_label" : "Valve section",
-                                                "section_parameters" : valve_data["flange_section_parameters"]  }
+                                                "section_parameters" : flange_section_parameters }
 
                         for _id in list_flange_elements:
                             dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]   
                             flange_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]       
-                            flange_cross.append(CrossSection(valve_section_info=flange_section_info))
+                            flange_cross.append(CrossSection(valve_section_info = flange_section_info))
                     
                     valve_data["valve_diameters"] = dict_element_to_diameters
 
