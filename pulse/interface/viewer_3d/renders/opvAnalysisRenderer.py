@@ -133,12 +133,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
-        plt = lambda x: self._renderer.AddActor(x.getActor())
-        plt(self.opvDeformedTubes)
-        plt(self.opvPressureTubes)
-        plt(self.opvClippableDeformedTubes)
-        plt(self.opvClippablePressureTubes)
-        # plt(self.opvSymbols)
+        self._renderer.AddActor(self.opvDeformedTubes.getActor())
+        self._renderer.AddActor(self.opvPressureTubes.getActor())
+        self._renderer.AddActor(self.opvClippableDeformedTubes.getActor())
+        self._renderer.AddActor(self.opvClippablePressureTubes.getActor())
         self._renderer.AddActor(self.plane_actor)
 
         self.add_openpulse_logo()

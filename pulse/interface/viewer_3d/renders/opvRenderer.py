@@ -70,10 +70,6 @@ class opvRenderer(vtkRendererBase):
         self.elementAxes = None 
         self.scaleBar = None
 
-        self._currentFrequencyIndex = 0
-        self._currentPhase = 0
-        self._currentPlot = None
-
         self.plane_origin = None
         self.plane_normal = None
         self.first_configuration = True
@@ -98,9 +94,7 @@ class opvRenderer(vtkRendererBase):
 
         self.opvNodes = NodesActor(self.project)
         self.opvLines = LinesActor(self.project)
-        self.opvTubes = TubeActor(self.project, self.opv)
-
-        self.opvClippableTube = TubeClippableActor(self.project, self.opv)
+        self.opvTubes = TubeClippableActor(self.project, self.opv)
 
         self.plane_actor = CuttingPlaneActor()
         self.plane_actor.VisibilityOff()
@@ -120,15 +114,14 @@ class opvRenderer(vtkRendererBase):
         self.saveElementsBounds()
         self.saveLineToElements()
         self.saveRawLinesData()
-        
-        plt = lambda x: self._renderer.AddActor(x.getActor())
-        plt(self.opvNodes)
-        plt(self.opvLines)
-        plt(self.opvTubes)
-        plt(self.opvAcousticNodesSymbols)
-        plt(self.opvAcousticElementsSymbols)
-        plt(self.opvStructuralNodesSymbols)
-        plt(self.opvStructuralElementsSymbols)
+
+        self._renderer.AddActor(self.opvNodes.getActor())
+        self._renderer.AddActor(self.opvLines.getActor())
+        self._renderer.AddActor(self.opvTubes.getActor())
+        self._renderer.AddActor(self.opvAcousticNodesSymbols.getActor())
+        self._renderer.AddActor(self.opvAcousticElementsSymbols.getActor())
+        self._renderer.AddActor(self.opvStructuralNodesSymbols.getActor())
+        self._renderer.AddActor(self.opvStructuralElementsSymbols.getActor())
         self._renderer.AddActor(self.plane_actor)
 
         self.updateColors()
@@ -563,7 +556,7 @@ class opvRenderer(vtkRendererBase):
         self.update()
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
-        self.opvClippableTube.disable_cut()
+        self.opvTubes.disable_cut()
 
         self.plane_origin = self._calculate_relative_position([x, y, z])
         self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
@@ -581,7 +574,7 @@ class opvRenderer(vtkRendererBase):
         if self.plane_normal is None:
             return
         
-        self.opvClippableTube.apply_cut(self.plane_origin, self.plane_normal)
+        self.opvTubes.apply_cut(self.plane_origin, self.plane_normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
 
@@ -589,7 +582,7 @@ class opvRenderer(vtkRendererBase):
         self.plane_origin = None
         self.plane_normal = None
 
-        self.opvClippableTube.disable_cut()
+        self.opvTubes.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
         
