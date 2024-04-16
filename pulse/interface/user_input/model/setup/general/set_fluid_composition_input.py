@@ -5,8 +5,10 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.model.setup.general.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.tools.utils import get_new_path
 
 import os
@@ -44,9 +46,9 @@ class SetFluidCompositionInput(QDialog):
 
         self.load_default_gases_info()
         self.update_selected_fluid()
-        self._load_icons()
-        self._config_window()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -58,6 +60,8 @@ class SetFluidCompositionInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.save_path = ""
         self.export_file_path = ""
@@ -80,7 +84,6 @@ class SetFluidCompositionInput(QDialog):
                                 "M" : "molar mass" }
 
         self.selected_fluid = ""
-        self.str_composition_value = ""
         self.unit_temperature = "K"
         self.unit_pressure = "Pa"
         self.composition_value = 0
@@ -131,13 +134,14 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_pressure_test : QLineEdit
 
         # QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_reset_fluid : QPushButton
         self.pushButton_add_gas : QPushButton
-        self.pushButton_remove_gas : QPushButton
         self.pushButton_add_fluid_state : QPushButton
-        self.pushButton_remove_fluid_state : QPushButton
+        self.pushButton_confirm : QPushButton
         self.pushButton_get_fluid_properties_info : QPushButton
+        self.pushButton_load_composition : QPushButton
+        self.pushButton_remove_gas : QPushButton
+        self.pushButton_remove_fluid_state : QPushButton
+        self.pushButton_reset_fluid : QPushButton
 
         # QTabWidget
         self.tabWidget_main : QTabWidget
@@ -155,6 +159,7 @@ class SetFluidCompositionInput(QDialog):
         self.pushButton_add_gas.clicked.connect(self.add_selected_gas)
         self.pushButton_add_fluid_state.clicked.connect(self.add_fluid_state)
         self.pushButton_confirm.clicked.connect(self.get_fluid_properties)
+        self.pushButton_load_composition.clicked.connect(self.load_fluid_composition_callback)
         self.pushButton_remove_fluid_state.clicked.connect(self.remove_fluid_state)
         self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
         self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
@@ -168,9 +173,13 @@ class SetFluidCompositionInput(QDialog):
         self.treeWidget_reference_gases.itemClicked.connect(self.on_click_item_reference_gases)
 
     def _config_widgets(self):
+
+        ConfigWidgetAppearance(self, toolTip=True)
+
         self.label_discharge.setVisible(False)
         self.label_suction.setVisible(False)
         #
+        self.lineEdit_composition.setFixedHeight(28)
         self.lineEdit_pressure_disch.setVisible(False)
         self.lineEdit_temperature_disch.setVisible(False)
         #
@@ -341,13 +350,16 @@ class SetFluidCompositionInput(QDialog):
             new = QTreeWidgetItem([gas])
             new.setTextAlignment(0, Qt.AlignCenter)
             self.treeWidget_reference_gases.addTopLevelItem(new)
-        
+
     def load_new_gas_composition_info(self):
         # if self.selected_fluid != "":
         self.treeWidget_new_gas.clear()
-        self.treeWidget_new_gas.setGeometry(576, 142, 509, 400)
+        # self.treeWidget_new_gas.setGeometry(576, 142, 509, 400)
         self.treeWidget_new_gas.headerItem().setText(0, "Fluid")
         self.treeWidget_new_gas.headerItem().setText(1, "Composition [%]")
+        self.treeWidget_new_gas.headerItem().setTextAlignment(0, Qt.AlignHCenter)
+        self.treeWidget_new_gas.headerItem().setTextAlignment(1, Qt.AlignHCenter)
+        self.treeWidget_new_gas.setColumnWidth(0, 300)
         for fluid, [str_composition, _, _] in self.fluid_to_composition.items():
             new = QTreeWidgetItem([fluid, str_composition])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -357,13 +369,14 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_composition.setText("")
 
     def check_composition_input(self):
-        self.str_composition_value = self.lineEdit_composition.text()
-        if self.str_composition_value != "":
+        
+        if self.lineEdit_composition.text() != "":
             title = "Invalid input value to the fluid Composition"
             message = ""
             value = None
             try:
-                value = float(self.str_composition_value)
+                str_composition_value = self.lineEdit_composition.text()
+                value = float(str_composition_value)
             except Exception as log_error:
                 message = "Dear user, you have typed an invalid entry at the fluid Composition input. "
                 message += "\nPlease, check the typed value to proceed with the fluid setup.\n\n"
@@ -375,17 +388,17 @@ class SetFluidCompositionInput(QDialog):
                     message += "The value must be a positive value less or equals to 100."
                     message += "\nPlease, check the typed value to proceed with the fluid setup."
 
-            if round(value/100, 5) >  round(self.remaining_composition, 5):
-                _remain = round(self.remaining_composition*100, 5)
-                message = "Dear user, you have typed an invalid entry at the Fluid Composition input. "
-                message += f"The value must be a positive value less or equals to {_remain}%."
-                message += "\nPlease, check the typed value to proceed with the fluid setup."
+                if round(value/100, 5) >  round(self.remaining_composition, 5):
+                    _remain = round(self.remaining_composition*100, 5)
+                    message = "Dear user, you have typed an invalid entry at the Fluid Composition input. "
+                    message += f"The value must be a positive value less or equals to {_remain}%."
+                    message += "\nPlease, check the typed value to proceed with the fluid setup."
 
             if message == "":
                 
                 self.composition_value = value/100
                 fluid_file_name, _, _ = self.list_gases[self.selected_fluid]
-                self.fluid_to_composition[self.selected_fluid] = [  self.str_composition_value, 
+                self.fluid_to_composition[self.selected_fluid] = [  str_composition_value, 
                                                                     self.composition_value, 
                                                                     fluid_file_name  ]
                 if self.composition_value == 0:
@@ -402,24 +415,9 @@ class SetFluidCompositionInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             return True
 
-    def update_label_selected_fluid_font(self):
-        if len(self.selected_fluid) < 20:
-            fontsize = 12
-        elif len(self.selected_fluid) < 40:
-            fontsize = 11
-        elif len(self.selected_fluid) < 60:
-            fontsize = 10
-        elif len(self.selected_fluid) < 70:
-            fontsize = 9
-        else:
-            fontsize = 8
-        self.create_font(fontsize)
-        self.label_selected_fluid.setFont(self.font)
-
     def on_click_item_reference_gases(self, item):
         self.selected_fluid = item.text(0)
         self.label_selected_fluid.setText(self.selected_fluid)
-        self.update_label_selected_fluid_font()
     
     def on_double_click_item_new_gas(self, item):
         return
@@ -428,7 +426,6 @@ class SetFluidCompositionInput(QDialog):
         self.selected_fluid = item.text(0)
         self.label_selected_fluid.setText(item.text(0))
         self.lineEdit_composition.setText(item.text(1))
-        self.update_label_selected_fluid_font()
         
     def get_fluid_properties(self):
         message = ""
@@ -872,7 +869,44 @@ class SetFluidCompositionInput(QDialog):
             message += f"\n\n{str(log_error)}"
             PrintMessageInput([window_title_1, title, message])
             return True
-        
+
+    def load_fluid_composition_callback(self):
+
+        self.hide()
+        self.label_selected_fluid.setText("")
+
+        self.fluid_data = dict()
+        read = LoadFluidCompositionInput()
+        composition_data = read.fluid_composition_data
+
+        if read.complete:
+
+            comp = 0
+            for (i, label, refprop_fluid_name, molar_fraction) in composition_data:
+
+                # print(i, label, refprop_fluid, molar_fraction)
+
+                self.fluid_data[i] = [label, refprop_fluid_name, molar_fraction]
+
+                if not refprop_fluid_name in self.list_gases.keys():
+                    pass
+                    # print(refprop_fluid_name)
+
+                if refprop_fluid_name in self.list_gases.keys():
+                    if molar_fraction:
+
+                        [fluid_file, _, _] = self.list_gases[refprop_fluid_name]
+                        self.fluid_to_composition[refprop_fluid_name] = [str(molar_fraction), molar_fraction, fluid_file]
+                        comp += molar_fraction
+
+            self.load_new_gas_composition_info()
+            self.update_remainig_composition()
+        self.opv.setInputObject(self)
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.get_fluid_properties()

@@ -53,7 +53,8 @@ class FluidInput(QDialog):
         if self.compressor_thermodynamic_state:
             self.check_compressor_inputs()
 
-        self.exec()
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -70,6 +71,8 @@ class FluidInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.fluid_path = self.project.get_fluid_list_path()
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+
+        self.keep_window_open = True
 
         self.dict_inputs = {}
         self.REFPROP = None
@@ -234,17 +237,20 @@ class FluidInput(QDialog):
             self.lineEdit_selected_ID.setEnabled(False)
             self.radioButton_all.setChecked(True)
 
-
     def edit_REFPROP_fluid(self):
+        self.hide()
         self.REFPROP = SetFluidCompositionInput(selected_fluid_to_edit = self.selected_REFPROP_fluid, 
                                                 compressor_info = self.compressor_thermodynamic_state)
+        self.opv.setInputObject(self)
         self.after_getting_fluid_properties_from_REFPROP()
-
 
     def call_refprop_interface(self):
+        self.hide()
         self.REFPROP = SetFluidCompositionInput(compressor_info = self.compressor_thermodynamic_state)
+        # if not self.REFPROP.complete:
+        self.opv.setInputObject(self)
+        # return
         self.after_getting_fluid_properties_from_REFPROP()
-
 
     def after_getting_fluid_properties_from_REFPROP(self):
         if self.REFPROP.complete:
@@ -1475,6 +1481,9 @@ class FluidInput(QDialog):
     #     self.reset_add_texts()
     #     self.reset_edit_texts()
 
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
