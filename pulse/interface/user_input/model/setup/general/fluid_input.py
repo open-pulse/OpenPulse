@@ -53,8 +53,7 @@ class FluidInput(QDialog):
         if self.compressor_thermodynamic_state:
             self.check_compressor_inputs()
 
-        self._load_icons()
-        self._config_window()
+        self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
