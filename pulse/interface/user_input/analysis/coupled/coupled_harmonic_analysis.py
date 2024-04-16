@@ -2,8 +2,6 @@ from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-import numpy as np
 
 from pulse.interface.formatters.icons import *
 from pulse import UI_DIR
@@ -13,7 +11,7 @@ class CoupledHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/analysis/general/harmonic_analysis_method.ui")
+        ui_path = UI_DIR / "analysis/general/harmonic_analysis_method.ui"
         uic.loadUi(ui_path, self)
         
         self._load_icons()
@@ -37,12 +35,12 @@ class CoupledHarmonicAnalysisInput(QDialog):
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox = self.findChild(QComboBox, 'comboBox')
+        self.comboBox_method : QComboBox
         # QLabel
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_title.setText("  Harmonic Analysis - Coupled  ")
+        self.label_method : QLabel
+        self.label_method.setText("Harmonic Analysis - Coupled")
         # QPushButton
-        self.pushButton_go_to_analysis_setup = self.findChild(QPushButton, 'pushButton_go_to_analysis_setup')
+        self.pushButton_go_to_analysis_setup : QPushButton
     
     def _create_connections(self):
         self.pushButton_go_to_analysis_setup.clicked.connect(self.button_clicked)
@@ -51,7 +49,7 @@ class CoupledHarmonicAnalysisInput(QDialog):
         self.check()
 
     def check(self):
-        self.index = self.comboBox.currentIndex()
+        self.index = self.comboBox_method.currentIndex()
         self.close()
 
     def keyPressEvent(self, event):

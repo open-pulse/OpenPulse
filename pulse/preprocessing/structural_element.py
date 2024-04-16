@@ -80,6 +80,7 @@ def symmetrize(a):
         Symmetric matrix.    
     """
     return a + a.T - np.diag(a.diagonal())
+
 class StructuralElement:
     """A structural element.
     This class creates a structural element from input data.
@@ -122,7 +123,7 @@ class StructuralElement:
         self.index = index
 
         self.element_type = kwargs.get('element_type', 'pipe_1')
-        self.wall_formulation = kwargs.get('wall_formulation', 'thin_wall')
+        self.wall_formulation = kwargs.get('wall_formulation', 'thick_wall')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
@@ -132,17 +133,10 @@ class StructuralElement:
         self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)
         self.decoupling_info = kwargs.get('decoupling_info', None)
 
-        self.capped_end = kwargs.get('capped_end', False)
+        self.capped_end = kwargs.get('capped_end', True)
         self.stress_intensification = kwargs.get('stress_intensification', True)
-        self.force_offset = True
-
-        self.section_rotation_xyz_undeformed = None
-        self.deformed_rotation_xyz = None
-        self.deformed_length = None
-        self.xaxis_beam_rotation = 0
         
-        self.internal_pressure = 0
-        self.external_pressure = 0
+        self._initialize()
         self.reset_expansion_joint_parameters()
         self.reset_valve_parameters()
 
@@ -153,6 +147,16 @@ class StructuralElement:
         self.element_center_coordinates = np.array([(self.last_node.x + self.first_node.x)/2, 
                                                     (self.last_node.y + self.first_node.y)/2,
                                                     (self.last_node.z + self.first_node.z)/2], dtype=float)
+
+    def _initialize(self):
+
+        self.section_rotation_xyz_undeformed = None
+        self.deformed_rotation_xyz = None
+        self.deformed_length = None
+        self.xaxis_beam_rotation = 0
+        
+        self.internal_pressure = 0
+        self.external_pressure = 0
 
         self._Dab = None
         self._Bab = None
@@ -174,6 +178,7 @@ class StructuralElement:
         self.perforated_plate = None
         self.valve_parameters = None
         self.variable_section = False
+        self.force_offset = True
 
     @property
     def length(self):
@@ -1285,7 +1290,7 @@ class StructuralElement:
         # I_3     = I_2
         k_3     = k_2
 
-        # Auxiliar constantes
+        # Auxiliar constants
         Phi_12      = 24. * I_3 * (1 + nu) / (k_2 * A * L**2)
         Phi_13      = 24. * I_2 * (1 + nu) / (k_3 * A * L**2)
         beta_12_a   = E * I_3 / (1. + Phi_12)
@@ -1377,7 +1382,7 @@ class StructuralElement:
         J_p     = J
         k_3     = k_2
 
-        # Auxiliar constantes
+        # Auxiliar constants
         # 1st group
         a_12 = 1. / (k_2 * A * G)
         a_13 = 1. / (k_3 * A * G)

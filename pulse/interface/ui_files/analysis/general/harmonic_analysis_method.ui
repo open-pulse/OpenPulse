@@ -108,7 +108,7 @@
        <number>2</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="label_title">
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
@@ -165,7 +165,7 @@
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QFrame" name="frame_3">
+       <widget class="QFrame" name="frame_analysis">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -198,7 +198,7 @@
           <number>4</number>
          </property>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_title">
+          <widget class="QLabel" name="label_method">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -300,7 +300,7 @@
           <number>0</number>
          </property>
          <item row="0" column="2">
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="comboBox_method">
            <property name="minimumSize">
             <size>
              <width>160</width>

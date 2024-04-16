@@ -23,27 +23,18 @@ air.dynamic_viscosity = 1.846e-05
 
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
-section_parameters = {  "outer_diameter" : 0.04859,
-                        "thickness" : 0.003, 
-                        "offset_y" : 0, 
-                        "offset_z" : 0, 
-                        "insulation_thickness" : 0, 
-                        "insulation_density" : 0 }
 
-pipe_section_info = {   "section_type_label" : "Pipe section" ,
+section_parameters = [0.04859, 0.003, 0, 0, 0, 0]
+pipe_section_info = {  "section_type_label" : "Pipe section" ,
                         "section_parameters" : section_parameters  }
+
 cross_section1 = CrossSection(pipe_section_info=pipe_section_info)
 cross_section1.update_properties()
 
-section_parameters = {  "outer_diameter" : 0.04044,
-                        "thickness" : 0.003, 
-                        "offset_y" : 0, 
-                        "offset_z" : 0, 
-                        "insulation_thickness" : 0, 
-                        "insulation_density" : 0 }
-
-pipe_section_info = {   "section_type_label" : "Pipe section" ,
+section_parameters = [0.04044, 0.003, 0, 0, 0, 0]
+pipe_section_info = {  "section_type_label" : "Pipe section" ,
                         "section_parameters" : section_parameters  }
+
 cross_section2 = CrossSection(pipe_section_info=pipe_section_info)
 cross_section2.update_properties()
 
@@ -62,8 +53,8 @@ element_type = 'peters'
 preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=None)
 
 preprocessor.set_fluid_by_element('all', air)
-preprocessor.set_cross_section_by_line([1, 2], cross_section1)
-preprocessor.set_cross_section_by_line([3, 4], cross_section2)
+preprocessor.set_cross_section_by_lines([1, 2], cross_section1)
+preprocessor.set_cross_section_by_lines([3, 4], cross_section2)
 
 mach = 0.1
 mean_velocity = mach * air.speed_of_sound

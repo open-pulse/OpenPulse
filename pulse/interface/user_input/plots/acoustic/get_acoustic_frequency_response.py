@@ -9,9 +9,6 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-import os
-from pathlib import Path
-
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
@@ -21,7 +18,7 @@ class GetAcousticFrequencyResponse(QWidget):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/get_acoustic_frequency_response.ui")
+        ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response.ui"
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.opv_widget
@@ -46,8 +43,6 @@ class GetAcousticFrequencyResponse(QWidget):
 
     def _load_icons(self):
         self.pulse_icon = get_openpulse_icon()
-        self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
 
     def _config_window(self):        
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -55,15 +50,17 @@ class GetAcousticFrequencyResponse(QWidget):
         self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
+
         # QFrame
-        self.frame_denominator = self.findChild(QFrame, 'frame_denominator')
-        self.frame_numerator = self.findChild(QFrame, 'frame_numerator')
+        self.frame_denominator : QFrame
+        self.frame_numerator : QFrame
+
         # QLineEdit
-        self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
+        self.lineEdit_node_id : QLineEdit
+
         # QPushButton
-        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
-        # self.pushButton_plot_data.setIcon(self.export_icon)
+        self.pushButton_plot_data : QPushButton
+        self.pushButton_export_data : QPushButton
 
     def _create_connections(self):
         self.pushButton_plot_data.clicked.connect(self.call_plotter)

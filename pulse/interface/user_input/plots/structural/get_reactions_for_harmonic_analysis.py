@@ -9,15 +9,13 @@ from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-import os
 import numpy as np
-from pathlib import Path
 
 class GetReactionsForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_reactions_for_harmonic_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/get_reactions_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
@@ -25,7 +23,7 @@ class GetReactionsForHarmonicAnalysis(QWidget):
         self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
         self.project = main_window.project
-        
+
         self._initialize()
         self._load_icons()
         self._config_window()
@@ -46,7 +44,6 @@ class GetReactionsForHarmonicAnalysis(QWidget):
 
     def _load_icons(self):
         self.pulse_icon = get_openpulse_icon()
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
         
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -54,38 +51,37 @@ class GetReactionsForHarmonicAnalysis(QWidget):
         self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
+
         # QLineEdit
-        self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID') 
+        self.lineEdit_nodeID : QLineEdit
+
         # QPushButton
-        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.pushButton_plot_data : QPushButton
+        self.pushButton_export_data : QPushButton
+
         # QRadioButton
-        self.radioButton_Fx = self.findChild(QRadioButton, 'radioButton_Fx')
-        self.radioButton_Fy = self.findChild(QRadioButton, 'radioButton_Fy')
-        self.radioButton_Fz = self.findChild(QRadioButton, 'radioButton_Fz')
-        self.radioButton_Mx = self.findChild(QRadioButton, 'radioButton_Mx')
-        self.radioButton_My = self.findChild(QRadioButton, 'radioButton_My')
-        self.radioButton_Mz = self.findChild(QRadioButton, 'radioButton_Mz')
-        self.list_radioButtons = [  self.radioButton_Fx, self.radioButton_Fy, self.radioButton_Fz,
-                                    self.radioButton_Mx, self.radioButton_My, self.radioButton_Mz   ]
+        self.radioButton_Fx : QRadioButton
+        self.radioButton_Fy : QRadioButton
+        self.radioButton_Fz : QRadioButton
+        self.radioButton_Mx : QRadioButton
+        self.radioButton_My : QRadioButton
+        self.radioButton_Mz : QRadioButton
+
+        self.list_radioButtons = [  self.radioButton_Fx, 
+                                    self.radioButton_Fy, 
+                                    self.radioButton_Fz,
+                                    self.radioButton_Mx, 
+                                    self.radioButton_My, 
+                                    self.radioButton_Mz  ]
+
         # QTabWidget
-        self.tabWidget_reactions = self.findChild(QTabWidget, "tabWidget_reactions")
-        self.tabWidget_springs_dampers = self.findChild(QTabWidget, "tabWidget_springs_dampers")
-        # QWidget
-        self.tab_constrained_dofs = self.tabWidget_reactions.findChild(QWidget, "tab_constrained_dofs")
-        self.tab_external_springs_dampers = self.tabWidget_reactions.findChild(QWidget, "tab_external_springs_dampers")
-        self.tab_nodes_with_springs = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_springs")
-        self.tab_nodes_with_dampers = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_dampers")
+        self.tabWidget_reactions : QTabWidget
+        self.tabWidget_springs_dampers : QTabWidget
+
         # QTreeWidget
-        self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
-        self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_dampers = self.findChild(QTreeWidget, 'treeWidget_reactions_at_dampers')
-        self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
-        self.treeWidget_reactions_at_constrained_dofs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_constrained_dofs')
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
+        self.treeWidget_reactions_at_springs : QTreeWidget
+        self.treeWidget_reactions_at_dampers : QTreeWidget
+        self.treeWidget_reactions_at_constrained_dofs : QTreeWidget
 
     def _create_connections(self):
         #
@@ -99,11 +95,16 @@ class GetReactionsForHarmonicAnalysis(QWidget):
         self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_constrained_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
     
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text)
+    def _config_widgets(self):
+
+        self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
+
+        self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
+
+        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
 
     def text_label(self, mask):
         

@@ -29,9 +29,10 @@ class MaterialInputs(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "model/setup/general/material_input_widget.ui", self)
+        ui_path = UI_DIR / "model/setup/general/material_input_widget.ui"
+        uic.loadUi(ui_path, self)
 
-        self.main_window = app().main_window
+        self.project = app().project
 
         self._initialize()
         self.define_qt_variables()
@@ -52,25 +53,25 @@ class MaterialInputs(QWidget):
         self._config_window()
 
     def _initialize(self):
-        self.row = None
-        self.col = None
-        self.project = self.main_window.project
+
         self.file = self.project.file
         self.preprocessor = self.project.preprocessor
         self.material_path = self.file.material_list_path
+
+        self.row = None
+        self.col = None
         self.list_of_materials = list()
 
     def define_qt_variables(self):
 
         # QPushButton
-        self.pushButton_attribute_material = self.findChild(QPushButton, 'pushButton_attribute_material')
-        self.pushButton_add_row = self.findChild(QPushButton, 'pushButton_add_row')
-        self.pushButton_remove_row = self.findChild(QPushButton, 'pushButton_remove_row')
-        self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
-        # self.pushButton_attribute_material.setDisabled(True)
+        self.pushButton_attribute_material : QPushButton
+        self.pushButton_add_row : QPushButton
+        self.pushButton_remove_row : QPushButton
+        self.pushButton_reset_library : QPushButton
 
         # QTableWidget
-        self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
+        self.tableWidget_material_data : QTableWidget
 
     def create_connections(self):
         self.pushButton_add_row.clicked.connect(self.add_row)

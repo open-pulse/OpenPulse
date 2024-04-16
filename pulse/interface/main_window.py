@@ -13,6 +13,7 @@ from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeome
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
@@ -39,7 +40,9 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-        uic.loadUi(UI_DIR / 'main_window.ui', self)
+
+        ui_path = UI_DIR / 'main_window.ui'
+        uic.loadUi(ui_path, self)
 
         self.ui_dir = UI_DIR
         self.config = app().config
@@ -62,8 +65,9 @@ class MainWindow(QMainWindow):
     def _config_window(self):
         self.showMaximized()
         self.installEventFilter(self)
-        # self.setWindowIcon(self.pulse_icon)
-    
+        self.setWindowIcon(self.pulse_icon)
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+
     def _define_qt_variables(self):
         '''
         This function is doing nothing. Every variable was
@@ -145,6 +149,8 @@ class MainWindow(QMainWindow):
         }
 
         self.combo_box_workspaces = QComboBox()
+        self.combo_box_workspaces.setMinimumSize(170, 26)
+
         # iterating sorted items make the icons appear in the same 
         # order as defined in the Workspace enumerator
         for _, action in sorted(actions.items()):
@@ -196,7 +202,7 @@ class MainWindow(QMainWindow):
 
     def configure_window(self):
 
-        # self._load_icons()
+        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
@@ -249,10 +255,10 @@ class MainWindow(QMainWindow):
                     start_thickness = structure.start_diameter * 0.05
                     section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0]
                 else:
-                    section_label = 'Pipe variable section'  # not sure if it is the correct string
+                    section_label = 'Pipe section'  
                     start_thickness = structure.start_diameter * 0.05
                     end_thickness = structure.end_diameter * 0.05
-                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0, 
+                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 
                                           structure.end_diameter, end_thickness, 0, 0, 0, 0]
 
             elif isinstance(structure, Flange):
@@ -446,6 +452,7 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+        self.close_opened_windows()
         self.mesh_toolbar.setDisabled(True)
         self.geometry_input_wigdet._disable_finalize_button(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
@@ -565,21 +572,24 @@ class MainWindow(QMainWindow):
             render_widget.setCameraView(6)
             return
         render_widget.set_back_view()
+    
+    def action_clip_plane_callback(self):
+        self.clip_plane = ClipPlaneWidget()
 
     def action_set_structural_element_type_callback(self):
-        self.input_widget.setStructuralElementType()
+        self.input_widget.set_structural_element_type()
 
     def action_add_connecting_flanges_callback(self):
         self.input_widget.add_flanges()
 
     def action_set_prescribed_dofs_callback(self):
-        self.input_widget.set_dof()
+        self.input_widget.set_prescribed_dofs()
 
     def action_set_nodal_loads_callback(self):
-        self.input_widget.setNodalLoads()
+        self.input_widget.set_nodal_loads()
 
     def action_add_mass_spring_damper_callback(self):
-        self.input_widget.addMassSpringDamper()
+        self.input_widget.add_mass_spring_damper()
 
     def action_set_capped_end_callback(self):
         self.input_widget.set_capped_end()
@@ -600,10 +610,10 @@ class MainWindow(QMainWindow):
         self.input_widget.set_acoustic_pressure()
 
     def action_set_volume_velocity_callback(self):
-        self.input_widget.setVolumeVelocity()
+        self.input_widget.set_volume_velocity()
 
     def action_set_specific_impedance_callback(self):
-        self.input_widget.setSpecificImpedance()
+        self.input_widget.set_specific_impedance()
 
     def action_add_perforated_plate_callback(self):
         self.input_widget.add_perforated_plate()
@@ -621,7 +631,7 @@ class MainWindow(QMainWindow):
         self.input_widget.check_beam_criteria()
 
     def action_select_analysis_type_callback(self):
-        self.input_widget.analysisTypeInput()
+        self.input_widget.analysis_type_input()
 
     def action_analysis_setup_callback(self):
         self.input_widget.analysis_setup()
@@ -670,6 +680,11 @@ class MainWindow(QMainWindow):
 
     def _enable_menus_at_start(self):
         pass
+
+    def close_opened_windows(self):
+        if self.opv_widget.inputObject is not None:
+            self.opv_widget.inputObject.close()
+            self.opv_widget.setInputObject(None)
 
     def load_user_preferences(self):
         self.update_theme = False
@@ -742,6 +757,10 @@ class MainWindow(QMainWindow):
     #     return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
+
+        if self.opv_widget.inputObject is not None:
+            self.opv_widget.inputObject.close()
+
         title = "OpenPulse"
         message = "Would you like to exit from the OpenPulse application?"
         close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
@@ -749,7 +768,7 @@ class MainWindow(QMainWindow):
             sys.exit()
         else:
             event.ignore()
-            
+
     # def _createStatusBar(self):
     #     self.status_bar = QStatusBar()
     #     self.setStatusBar(self.status_bar)

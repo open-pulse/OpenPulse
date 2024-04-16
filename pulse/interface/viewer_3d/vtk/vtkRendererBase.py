@@ -3,6 +3,7 @@ import vtk
 from abc import ABC, abstractmethod 
 from pathlib import Path
 from vtkat import VTKAT_DIR
+from pulse import ICON_DIR
 
 class vtkRendererBase(ABC):
     def __init__(self, style):
@@ -57,7 +58,7 @@ class vtkRendererBase(ABC):
     def _create_and_config_logos(self):
         
         # self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_black.png'))
-        self._imageReader_pulse.SetFileName(Path('data/icons/logos/OpenPulse_logo_gray.png'))
+        self._imageReader_pulse.SetFileName(str(ICON_DIR / 'logos/OpenPulse_logo_gray.png'))
         self._imageReader_pulse.Update()
         
         self._logo_pulse_input = self._imageReader_pulse.GetOutput()

@@ -54,18 +54,18 @@ class LoadProjectData:
         try:
 
             # Constant cross-section to the entities
+            self.number_sections_by_line = dict()
             for key, section_data in self.loader.cross_section_data.items():
-                # key[0] = tag : str
-                # key[1] = label ("pipe", "beam")
+                # key[0] -> tag : str
+                # key[1] -> label ("pipe", "beam")
                 if "-" in key[0]:
-                    
+
                     cross = CrossSection(pipe_section_info = section_data[1])
                     self.project.load_cross_section_by_element(section_data[0], cross)
-                    
+ 
                     prefix_key = int(key[0].split("-")[0])
                     if prefix_key in list(self.number_sections_by_line.keys()):
                         self.number_sections_by_line[prefix_key] += 1
-                    
                     else:
                         self.number_sections_by_line[prefix_key] = 1
 
@@ -104,18 +104,15 @@ class LoadProjectData:
 
     def load_structural_element_type_data(self):
         try:
-            self.number_sections_by_line = dict()
             # self.lines_with_cross_section_by_elements = list()
             # Load structural element type info
             for key, etype_data in self.loader.structural_element_type_data.items():
                 if self.loader.element_type_is_structural:
                     if "-" in key:
-                        self.project.load_structural_element_type_by_elements(etype_data[0], 
-                                                                      etype_data[1])
+                        self.project.load_structural_element_type_by_elements(etype_data[0], etype_data[1])
                     else:
-                        line_id = int(key)
-                        self.project.load_structural_element_type_by_line(line_id, 
-                                                                  etype_data) 
+                        self.project.load_structural_element_type_by_line(int(key), etype_data)
+
         except Exception as log_error:
             title = "Error while loading structural element type data"
             message = "Local: 'LoadProjectData' class\n\n"
@@ -166,8 +163,15 @@ class LoadProjectData:
             # Acoustic element type to the entities
             for key, [el_type, proportional_damping, vol_flow] in self.loader.acoustic_element_type_data.items():
                 if self.loader.element_type_is_acoustic:
-                    self.project.load_acoustic_element_type_by_line(key, el_type, proportional_damping=proportional_damping, vol_flow = vol_flow)
-   
+                    if "-" in key:
+                        continue
+                    else:
+                        line_id = int(key)
+                        self.project.load_acoustic_element_type_by_line(line_id, 
+                                                                        el_type, 
+                                                                        proportional_damping = proportional_damping, 
+                                                                        vol_flow = vol_flow)
+
         except Exception as log_error:
             title = "Error while loading acoustic element type data"
             message = "Local: 'LoadProjectData' class\n\n"

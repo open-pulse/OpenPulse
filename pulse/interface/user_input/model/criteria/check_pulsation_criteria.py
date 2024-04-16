@@ -23,7 +23,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/criterias/pulsation_criteria_widget.ui")
+        ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
@@ -71,23 +71,25 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
+
+        # QComboBox
+        self.comboBox_line_ids : QComboBox
+
         # QLineEdit
-        self.lineEdit_compressor_node_id = self.findChild(QLineEdit, 'lineEdit_compressor_node_id')
-        self.lineEdit_pressure_ratio = self.findChild(QLineEdit, 'lineEdit_pressure_ratio')
-        self.lineEdit_unfiltered_criteria = self.findChild(QLineEdit, 'lineEdit_unfiltered_criteria')
-        
-        self.lineEdit_nozzle_id = self.findChild(QLineEdit, 'lineEdit_nozzle_id')
-        self.lineEdit_line_pressure = self.findChild(QLineEdit, 'lineEdit_line_pressure')
-        self.lineEdit_speed_of_sound = self.findChild(QLineEdit, 'lineEdit_speed_of_sound')
-        self.lineEdit_internal_diameter = self.findChild(QLineEdit, 'lineEdit_internal_diameter')
+        self.lineEdit_compressor_node_id : QLineEdit
+        self.lineEdit_pressure_ratio : QLineEdit
+        self.lineEdit_unfiltered_criteria : QLineEdit
+        #        
+        self.lineEdit_nozzle_id : QLineEdit
+        self.lineEdit_line_pressure : QLineEdit
+        self.lineEdit_speed_of_sound : QLineEdit
+        self.lineEdit_internal_diameter : QLineEdit
+
         # QPushButton
-        self.pushButton_plot_unfiltered_criteria = self.findChild(QPushButton, 'pushButton_plot_unfiltered_criteria')
-        self.pushButton_plot_filtered_criteria = self.findChild(QPushButton, 'pushButton_plot_filtered_criteria')
+        self.pushButton_plot_unfiltered_criteria : QPushButton
+        self.pushButton_plot_filtered_criteria : QPushButton
 
     def _create_connections(self):
-        #
-        self.comboBox_line_ids = self.findChild(QComboBox, 'comboBox_line_ids')
-        #
         self.pushButton_plot_unfiltered_criteria.clicked.connect(self.plot_unfiltered_criteria)
         self.pushButton_plot_filtered_criteria.clicked.connect(self.plot_filtered_criteria)
 

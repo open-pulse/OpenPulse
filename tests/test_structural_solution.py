@@ -14,15 +14,8 @@ from pulse.postprocessing.read_data import ReadData
 @pytest.fixture
 def model():
 
-    section_label = "Pipe section"
-    section_parameters = {  "outer_diameter" : 0.08,
-                            "thickness" : 0.008,
-                            "offset_y" : 0,
-                            "offset_z" : 0,
-                            "insulation_thickness" : 0,
-                            "insulation_density" : 0  }
-
-    pipe_section_info = {  "section_type_label" : section_label ,
+    section_parameters = [0.08, 0.008, 0, 0, 0, 0]
+    pipe_section_info = {  "section_type_label" : "Pipe section" ,
                             "section_parameters" : section_parameters  }
 
     cross_section = CrossSection(pipe_section_info=pipe_section_info)

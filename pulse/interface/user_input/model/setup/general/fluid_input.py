@@ -7,13 +7,15 @@ from pathlib import Path
 import numpy as np
 import configparser
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.preprocessing.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.tools.utils import *
 
 window_title_1 = "Error"
@@ -27,35 +29,25 @@ def getColorRGB(color):
     return list(map(int, tokens))
 
 class FluidInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(UI_DIR / "model/setup/acoustic/fluid_input.ui", self)
+        ui_path = UI_DIR / "model/setup/acoustic/fluid_input.ui"
+        uic.loadUi(ui_path, self)
         
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Set: fluid")
-
-        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", {})
-
-        self.opv = opv
+        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
+        
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.lines_ids = opv.getListPickedLines()
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
-        self.fluid_path = project.get_fluid_list_path()
-        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+        self._load_icons()
+        self._config_window()
 
-        self._reset_variables()
+        self._initialize()
         self._define_qt_variable()
         self._create_connections()
-        self.create_lists_of_lineEdits()
+        
         self._loading_info_at_start()
         
         if self.compressor_thermodynamic_state:
@@ -63,8 +55,22 @@ class FluidInput(QDialog):
 
         self.exec()
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
 
-    def _reset_variables(self):
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
+
+    def _initialize(self):
+
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
+        self.fluid_path = self.project.get_fluid_list_path()
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+
         self.dict_inputs = {}
         self.REFPROP = None
         self.fluid_data_REFPROP = {}
@@ -215,12 +221,13 @@ class FluidInput(QDialog):
         #
         self.treeWidget_fluids.itemClicked.connect(self.on_click_item)
         self.treeWidget_fluids.itemDoubleClicked.connect(self.on_doubleclick_item)
-
+        self.create_lists_of_lineEdits()
 
     def _loading_info_at_start(self):
         self.loadList()
-        if self.lines_ids != []:
-            self.write_lines(self.lines_ids)
+        lines_ids = self.opv.getListPickedLines()
+        if lines_ids:
+            self.write_lines(lines_ids)
             self.radioButton_selected_lines.setChecked(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
@@ -229,17 +236,13 @@ class FluidInput(QDialog):
 
 
     def edit_REFPROP_fluid(self):
-        self.REFPROP = SetFluidCompositionInput(self.project, 
-                                                self.opv, 
-                                                selected_fluid_to_edit=self.selected_REFPROP_fluid, 
-                                                compressor_info=self.compressor_thermodynamic_state)
+        self.REFPROP = SetFluidCompositionInput(selected_fluid_to_edit = self.selected_REFPROP_fluid, 
+                                                compressor_info = self.compressor_thermodynamic_state)
         self.after_getting_fluid_properties_from_REFPROP()
 
 
     def call_refprop_interface(self):
-        self.REFPROP = SetFluidCompositionInput(self.project, 
-                                                self.opv, 
-                                                compressor_info=self.compressor_thermodynamic_state)
+        self.REFPROP = SetFluidCompositionInput(compressor_info = self.compressor_thermodynamic_state)
         self.after_getting_fluid_properties_from_REFPROP()
 
 
@@ -333,9 +336,9 @@ class FluidInput(QDialog):
 
 
     def update(self):
-        self.lines_ids = self.opv.getListPickedLines()
-        if self.lines_ids != []:
-            self.write_lines(self.lines_ids)
+        lines_ids = self.opv.getListPickedLines()
+        if lines_ids:
+            self.write_lines(lines_ids)
             self.radioButton_selected_lines.setChecked(True)
             self.lineEdit_selected_ID.setEnabled(True)
         else:
@@ -1283,9 +1286,9 @@ class FluidInput(QDialog):
         self.flagSelection = self.radioButton_selected_lines.isChecked()
         if self.flagSelection:
             self.lineEdit_selected_ID.setEnabled(True)
-            self.lines_ids = self.opv.getListPickedLines()
-            if self.lines_ids != []:
-                self.write_lines(self.lines_ids)
+            lines_ids = self.opv.getListPickedLines()
+            if lines_ids != []:
+                self.write_lines(lines_ids)
             else:
                 self.lineEdit_selected_ID.setText("")
         elif self.flagAll:

@@ -19,16 +19,16 @@ class SetCrossSectionInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        uic.loadUi(UI_DIR / "model/setup/general/set_cross_section.ui", self)
+        ui_path = UI_DIR / "model/setup/general/set_cross_section.ui"
+        uic.loadUi(ui_path, self)
 
         self.pipe_to_beam = kwargs.get("pipe_to_beam", False)
         self.beam_to_pipe = kwargs.get("beam_to_pipe", False)
-        self.lines_to_update_cross_section = kwargs.get("lines_to_update_cross_section", [])
-        self.elements_to_update_cross_section = kwargs.get("elements_to_update_cross_section", [])
+        self.lines_to_update_cross_section = kwargs.get("lines_to_update_cross_section", list())
+        self.elements_to_update_cross_section = kwargs.get("elements_to_update_cross_section", list())
 
-        self.main_window = app().main_window
-        self.project = self.main_window.project
-        self.opv = self.main_window.opv_widget
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
         self.preprocessor = self.project.preprocessor
@@ -41,6 +41,7 @@ class SetCrossSectionInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_treeWidget()
         self.load_existing_sections()
         self.initial_condition()
         self.update()  
@@ -69,9 +70,9 @@ class SetCrossSectionInput(QDialog):
         self.flip = False
 
         self.currentTab = 0
-        self.list_elements = []
-        self.section_data_lines = {}
-        self.section_data_elements = {}
+        self.list_elements = list()
+        self.section_data_lines = dict()
+        self.section_data_elements = dict()
         self.remove_expansion_joint_tables_files = True
 
         self.structural_elements = self.project.preprocessor.structural_elements
@@ -143,13 +144,20 @@ class SetCrossSectionInput(QDialog):
         self.treeWidget_sections_parameters_by_elements.itemClicked.connect(self.on_click_treeWidget_section_parameters_by_element)
         self.treeWidget_sections_parameters_by_elements.itemDoubleClicked.connect(self.on_doubleClick_treeWidget_section_parameters_by_element)
         self.pushButton_load_section_info.clicked.connect(self.load_section_info)
+
+    def _config_treeWidget(self):
+        #
         self.pushButton_load_section_info.setDisabled(True)
-        # self.config_treeWidget()
+        #
+        self.treeWidget_sections_parameters_by_lines.setColumnWidth(0,40)
+        self.treeWidget_sections_parameters_by_lines.setColumnWidth(1,120)
+        self.treeWidget_sections_parameters_by_elements.setColumnWidth(0,40)
+        self.treeWidget_sections_parameters_by_elements.setColumnWidth(1,120)
 
     def load_existing_sections(self):
 
-        self.section_id_data_lines = {}
-        self.section_id_data_elements = {}
+        self.section_id_data_lines = dict()
+        self.section_id_data_elements = dict()
         self.treeWidget_sections_parameters_by_lines.clear()
         self.treeWidget_sections_parameters_by_elements.clear()
         self.section_data_lines, self.section_data_elements = self.file.get_cross_sections_from_file()
@@ -164,20 +172,22 @@ class SetCrossSectionInput(QDialog):
             self.tabWidget_sections_data.setTabVisible(1, False)
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
-            self.section_id_data_lines[section_id] = [tag_type, tags]
-            str_parameters = str(section_parameters)[1:-1]
-            new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
-            for i in range(3):
-                new.setTextAlignment(i, Qt.AlignCenter)
-            self.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
+            if section_parameters:
+                self.section_id_data_lines[section_id] = [tag_type, tags]
+                str_parameters = str(section_parameters)[1:-1]
+                new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
+                for i in range(3):
+                    new.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_elements.items():
-            self.section_id_data_elements[section_id] = [tag_type, tags]
-            str_parameters = str(section_parameters)[1:-1]
-            new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
-            for i in range(3):
-                new.setTextAlignment(i, Qt.AlignCenter)
-            self.treeWidget_sections_parameters_by_elements.addTopLevelItem(new)
+            if section_parameters:
+                self.section_id_data_elements[section_id] = [tag_type, tags]
+                str_parameters = str(section_parameters)[1:-1]
+                new = QTreeWidgetItem([str(section_id), element_type, str_parameters])
+                for i in range(3):
+                    new.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_sections_parameters_by_elements.addTopLevelItem(new)
 
     def initial_condition(self):
 
@@ -397,12 +407,6 @@ class SetCrossSectionInput(QDialog):
         self.section_id_by_elements = None
         self._element_type = None
         self._section_parameters = None
-
-    def config_treeWidget(self):
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(0,40)
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(1,120)
-        self.treeWidget_sections_parameters_by_elements.setColumnWidth(0,40)
-        self.treeWidget_sections_parameters_by_elements.setColumnWidth(1,120)
 
     def check_variable_section_pipe(self):
         
@@ -738,7 +742,7 @@ class SetCrossSectionInput(QDialog):
             self.project.add_valve_by_line(line_id, None, reset_cross=False)
             self.project._set_expansion_joint_to_selected_lines(self.lines_typed, None)
                 
-            self.project.set_cross_section_by_line(self.lines_typed, self.cross_section)
+            self.project.set_cross_section_by_lines(self.lines_typed, self.cross_section)
             self.project.set_structural_element_type_by_lines(self.lines_typed, self.element_type)
             
             if len(self.lines_typed) < 20:
@@ -763,7 +767,7 @@ class SetCrossSectionInput(QDialog):
             self.project.add_valve_by_line(line_ids, None, reset_cross=False)
             self.project._set_expansion_joint_to_selected_lines(line_ids, None)
 
-            self.project.set_cross_section_by_line(line_ids, self.cross_section)
+            self.project.set_cross_section_by_lines(line_ids, self.cross_section)
             self.project.set_structural_element_type_to_all(self.element_type)
             
             print("[Set Cross-section] - defined at all lines") 

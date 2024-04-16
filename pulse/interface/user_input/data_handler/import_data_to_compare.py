@@ -18,7 +18,8 @@ class ImportDataToCompare(QDialog):
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "data_handler/import_data_to_compare.ui", self)
+        ui_path = UI_DIR / "data_handler/import_data_to_compare.ui"
+        uic.loadUi(ui_path, self)
 
         self.plotter = plotter
 
@@ -31,12 +32,11 @@ class ImportDataToCompare(QDialog):
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Import data to compare")
+        self.setWindowTitle("OpenPulse")
         self.setWindowIcon(self.icon)
 
     def _reset_variables(self):
@@ -58,20 +58,19 @@ class ImportDataToCompare(QDialog):
 
     def _define_and_configure_Qt_variables(self):
         # CheckBox
-        self.checkBox_skiprows = self.findChild(QCheckBox, "checkBox_skiprows")
+        self.checkBox_skiprows : QCheckBox
         # LineEdit
-        self.lineEdit_import_results_path = self.findChild(QLineEdit, 'lineEdit_import_results_path')
+        self.lineEdit_import_results_path : QLineEdit
         self.lineEdit_import_results_path.setDisabled(True)
         # PushButton
-        self.pushButton_add_imported_data_to_plot = self.findChild(QPushButton, 'pushButton_add_imported_data_to_plot')
-        self.pushButton_reset_imported_data = self.findChild(QPushButton, 'pushButton_reset_imported_data')
-        self.pushButton_search_file_to_import = self.findChild(QPushButton, 'pushButton_search_file_to_import')
-        self.pushButton_search_file_to_import.setIcon(self.search_icon)
+        self.pushButton_add_imported_data_to_plot : QPushButton
+        self.pushButton_reset_imported_data : QPushButton
+        self.pushButton_search_file_to_import : QPushButton
         # SpinBox
-        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox_skiprows')
+        self.spinBox_skiprows : QSpinBox
         # TreeWidget
-        self.treeWidget_import_text_files = self.findChild(QTreeWidget, "treeWidget_import_text_files")
-        self.treeWidget_import_sheet_files = self.findChild(QTreeWidget, "treeWidget_import_sheet_files")
+        self.treeWidget_import_text_files : QTreeWidget
+        self.treeWidget_import_sheet_files : QTreeWidget
 
         widths_1 = [320, 60]
         for i, width in enumerate(widths_1):
