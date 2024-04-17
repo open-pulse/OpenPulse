@@ -62,6 +62,7 @@ class SetFluidCompositionInput(QDialog):
     def _initialize(self):
 
         self.keep_window_open = True
+        self.composition_file_path = ""
 
         self.save_path = ""
         self.export_file_path = ""
@@ -88,11 +89,11 @@ class SetFluidCompositionInput(QDialog):
         self.unit_pressure = "Pa"
         self.composition_value = 0
         self.remaining_composition = 1
-        self.list_fluids = []
-        self.fluid_to_composition = {}
-        self.fluid_states = {}
-        self.all_fluid_state_properties = {}
-        self.errors_by_fluid_state = {}
+        self.list_fluids = list()
+        self.fluid_to_composition = dict()
+        self.fluid_states = dict()
+        self.all_fluid_state_properties = dict()
+        self.errors_by_fluid_state = dict()
         self.complete = False
         self.state_index = None
 
@@ -183,7 +184,6 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_pressure_disch.setVisible(False)
         self.lineEdit_temperature_disch.setVisible(False)
         #
-        self.treeWidget_new_gas.setColumnWidth(0, 376)
         self.treeWidget_fluid_states.setColumnWidth(0, 60)
         self.treeWidget_fluid_states.setColumnWidth(1, 120)
         self.treeWidget_fluid_states.setColumnWidth(2, 120)
@@ -285,7 +285,7 @@ class SetFluidCompositionInput(QDialog):
         units = self.RefProp.GETENUMdll(0, "MASS BASE SI").iEnum
 
         fluids_string = ""
-        molar_fractions = []
+        molar_fractions = list()
         for _, _fraction, file_name in self.fluid_to_composition.values():
             fluids_string += file_name + ";"
             molar_fractions.append(_fraction)
@@ -344,7 +344,6 @@ class SetFluidCompositionInput(QDialog):
 
     def load_default_gases_info(self):
         self.treeWidget_reference_gases.clear()
-        self.treeWidget_reference_gases.setGeometry(10, 142, 376, 400)
         self.treeWidget_reference_gases.headerItem().setText(0, "Default fluid library")
         for gas in self.list_gases.keys():
             new = QTreeWidgetItem([gas])
@@ -359,7 +358,7 @@ class SetFluidCompositionInput(QDialog):
         self.treeWidget_new_gas.headerItem().setText(1, "Composition [%]")
         self.treeWidget_new_gas.headerItem().setTextAlignment(0, Qt.AlignHCenter)
         self.treeWidget_new_gas.headerItem().setTextAlignment(1, Qt.AlignHCenter)
-        self.treeWidget_new_gas.setColumnWidth(0, 300)
+        self.treeWidget_new_gas.setColumnWidth(0, 280)
         for fluid, [str_composition, _, _] in self.fluid_to_composition.items():
             new = QTreeWidgetItem([fluid, str_composition])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -428,16 +427,19 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_composition.setText(item.text(1))
         
     def get_fluid_properties(self):
+
         message = ""
-        self.fluid_setup = []
-        self.errors = {}
+        self.errors = dict()
+        self.fluid_setup = list()
+
         if round(self.remaining_composition, 5) == 0:
             if self.lineEdit_fluid_name.text() != "":
-                self.fluid_properties = {}
+
+                self.fluid_properties = dict()
                 units = self.RefProp.GETENUMdll(0, "MASS BASE SI").iEnum
 
                 fluids_string = ""
-                molar_fractions = []
+                molar_fractions = list()
                 for _, _fraction, file_name in self.fluid_to_composition.values():
                     fluids_string += file_name + ";"
                     molar_fractions.append(_fraction)
@@ -520,15 +522,17 @@ class SetFluidCompositionInput(QDialog):
                             self.errors[self.map_properties[key_prop]] = read.herr
                         
                         if key_prop == "M":
-                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]    
+                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]
+                            print(f"Molecular mass: {1000*read.Output[0]} kg/kmol")
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
                 self.fluid_properties["impedance"] = round(self.fluid_properties["fluid density"]*self.fluid_properties["speed of sound"],6)
                 self.fluid_setup = [fluids_string, molar_fractions]
                 
-                if self.process_errors():
-                    return
+                self.process_errors()
+                # if self.process_errors():
+                #     return
 
                 self.complete = True
                 self.close()
@@ -756,22 +760,22 @@ class SetFluidCompositionInput(QDialog):
         self.get_fluid_properties_by_state()
 
     def run_pretest_analysis(self):
-        self.errors_by_fluid_state = {}
-        self.all_fluid_state_properties = {}
+        self.errors_by_fluid_state = dict()
+        self.all_fluid_state_properties = dict()
         for index, [temperature_K, pressure_Pa] in self.fluid_states.items():
             # message = ""
             if round(self.remaining_composition, 5) == 0:
-                # self.fluid_properties = {}
+                # self.fluid_properties = dict()
                 units = self.RefProp.GETENUMdll(0, "MASS BASE SI").iEnum
 
                 fluids_string = ""
-                molar_fractions = []
+                molar_fractions = list()
                 for _, _fraction, file_name in self.fluid_to_composition.values():
                     fluids_string += file_name + ";"
                     molar_fractions.append(_fraction)
                 fluids_string = fluids_string[:-1]
                 
-                fluid_properties_by_state = {}
+                fluid_properties_by_state = dict()
                 for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX"]:#, "PRANDTL", "TD", "KV"]:
                     read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                     temperature_K, pressure_Pa, molar_fractions )
@@ -817,8 +821,8 @@ class SetFluidCompositionInput(QDialog):
             
             from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
             
-            self.list_gases = {}
-            self.fluid_file_to_final_name = {}
+            self.list_gases = dict()
+            self.fluid_file_to_final_name = dict()
             refProp_path = os.environ['RPPREFIX']
 
             if os.path.exists(refProp_path):
@@ -854,6 +858,8 @@ class SetFluidCompositionInput(QDialog):
                         final_name = short_name if short_name == full_name else f"{short_name} ({full_name})"
                         self.list_gases[final_name] = [fluid_file, short_name, full_name]
                         self.fluid_file_to_final_name[fluid_file] = final_name
+                        # print(fluid_file, final_name)
+
             else:
                 title = "REFPROP installation not detected"
                 message = "Dear user, REFPROP application files were not found in the computer's default paths. "
@@ -876,10 +882,13 @@ class SetFluidCompositionInput(QDialog):
         self.label_selected_fluid.setText("")
 
         self.fluid_data = dict()
-        read = LoadFluidCompositionInput()
-        composition_data = read.fluid_composition_data
+        self.fluid_to_composition = dict()
+        read = LoadFluidCompositionInput(file_path = self.composition_file_path)
 
         if read.complete:
+
+            self.composition_file_path = read.file_path
+            composition_data = read.fluid_composition_data
 
             comp = 0
             for (i, label, refprop_fluid_name, molar_fraction) in composition_data:

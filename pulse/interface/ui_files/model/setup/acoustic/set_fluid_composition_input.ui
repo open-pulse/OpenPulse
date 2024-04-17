@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>1000</width>
-    <height>800</height>
+    <height>612</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -427,6 +427,9 @@
                  <italic>false</italic>
                 </font>
                </property>
+               <property name="currentIndex">
+                <number>1</number>
+               </property>
                <item>
                 <property name="text">
                  <string>  K</string>
@@ -539,6 +542,9 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
+               </property>
+               <property name="text">
+                <string/>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -1042,6 +1048,18 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
              </item>
              <item row="0" column="0">
               <widget class="QTreeWidget" name="treeWidget_reference_gases">
+               <property name="minimumSize">
+                <size>
+                 <width>390</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>390</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <family>MS Shell Dlg 2</family>
@@ -1081,6 +1099,18 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
              </item>
              <item row="0" column="2">
               <widget class="QTreeWidget" name="treeWidget_new_gas">
+               <property name="minimumSize">
+                <size>
+                 <width>390</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>390</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <family>MS Shell Dlg 2</family>
@@ -1088,7 +1118,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 </font>
                </property>
                <property name="sizeAdjustPolicy">
-                <enum>QAbstractScrollArea::AdjustToContents</enum>
+                <enum>QAbstractScrollArea::AdjustIgnored</enum>
                </property>
                <property name="editTriggers">
                 <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>

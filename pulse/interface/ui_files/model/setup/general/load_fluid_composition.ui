@@ -160,7 +160,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Confirm</string>
+         <string>Search</string>
         </property>
        </widget>
       </item>

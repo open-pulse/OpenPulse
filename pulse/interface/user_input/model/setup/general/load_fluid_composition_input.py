@@ -25,7 +25,7 @@ class LoadFluidCompositionInput(QDialog):
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
 
-        self.file_path = kwargs.get("file path", "")
+        self.file_path = kwargs.get("file_path", "")
        
         self._initialize()
         self._load_icons()
@@ -37,8 +37,7 @@ class LoadFluidCompositionInput(QDialog):
         self.exec()
 
     def _initialize(self):
-        
-        self.file_path = ""
+
         self.complete = False
         self.fluid_composition_data = None
 
@@ -76,10 +75,12 @@ class LoadFluidCompositionInput(QDialog):
     def _config_widgets(self):
         ConfigWidgetAppearance(self, toolTip=True)
         self.lineEdit_file_path.setDisabled(True)
+        self.comboBox_sheet_names.setDisabled(True)
 
     def _load_file(self):
         if self.file_path != "":
-            self.load_composition_from_file()
+            self.lineEdit_file_path.setText(self.file_path)
+            self.load_composition_data_from_file()
 
     def search_button_callback(self):
 
@@ -130,7 +131,7 @@ class LoadFluidCompositionInput(QDialog):
                 PrintMessageInput([window_title, title, message])
                 return True
 
-        # self.comboBox_sheet_names.adjustSize()
+        self.comboBox_sheet_names.setDisabled(False)
                
     def confirm_button_callback(self):
         if self.imported_data:
