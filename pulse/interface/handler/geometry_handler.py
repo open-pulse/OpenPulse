@@ -2,7 +2,7 @@ from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
-from opps.model import Pipe, Bend, Point, Flange
+from opps.model import Pipe, Bend, Point, Flange, Beam, ReducerEccentric
 
 import gmsh
 import math
@@ -575,9 +575,10 @@ class GeometryHandler:
             curvature = np.round(structure.curvature, 8)
             return [start_coords, corner_coords, end_coords, curvature]
 
-        elif isinstance(structure, Pipe):
+        elif isinstance(structure, Pipe | Beam | ReducerEccentric):
             start_coords = get_data(structure.start.coords())
             end_coords = get_data(structure.end.coords())
             return [start_coords, end_coords]
+
         else:
             return None
