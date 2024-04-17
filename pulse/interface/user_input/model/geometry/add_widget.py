@@ -1,4 +1,3 @@
-from collections import defaultdict
 from copy import deepcopy
 
 from PyQt5.QtWidgets import QComboBox, QWidget, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTextEdit, QGridLayout
@@ -13,10 +12,6 @@ from pulse.interface.user_input.model.setup.general.material_widget import Mater
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from opps.model import Point
-
-
-def nested_dict():
-    return defaultdict(nested_dict)
 
 
 class AddStructuresWidget(QWidget):
@@ -38,7 +33,9 @@ class AddStructuresWidget(QWidget):
         # If the argument is useless to the current function,
         # like a diamenter in a square beam, the argument
         # will be ignored, and no errors will raise. 
-        self.structure_arguments: defaultdict = nested_dict()
+        self.structure_arguments = dict()
+        self.add_structure_function = None
+        self.connect_structure_function = None
 
         self.cross_section_widget = CrossSectionWidget()
         self.material_widget = MaterialInputs()
@@ -133,8 +130,6 @@ class AddStructuresWidget(QWidget):
             self.lineEdit_delta_y.setPlaceholderText("was not")
             self.lineEdit_delta_z.setPlaceholderText("defined")
 
-        enable_finalize = len(self.pipeline.structures) > 0
-
     def load_defined_unit(self):
         self.length_unit = self.file.length_unit
         if self.length_unit == "meter":
@@ -208,14 +203,9 @@ class AddStructuresWidget(QWidget):
 
     def get_user_defined_radius(self):
         try:
-            radius = float(self.lineEdit_bending_radius.text())
+            return float(self.lineEdit_bending_radius.text())
         except:
-            return None
-        
-        if radius != 0:
-            return radius
-        else:
-            return None
+            return 0
     
     def selection_callback(self):
         if not (self.pipeline.selected_structures or self.pipeline.selected_points):
@@ -242,38 +232,31 @@ class AddStructuresWidget(QWidget):
 
     def coords_modified_callback(self):
         self._disable_add_segment_button()
-        try:
-            dx, dy, dz = self.get_segment_deltas()
-        except ValueError:
-            return
-
-        self.pushButton_add_segment.setDisabled(False)
-
-        if self.comboBox_bending_type.currentIndex() == 2:
-            radius = self.get_user_defined_radius()
-            if radius is None:
-                return
-        else:
-            radius = self.bending_factor * 0.1
-
-        self.pipeline.dismiss()
+        self.pushButton_add_segment.setDisabled(True)
 
         if self.cross_section_info is None:
             return
 
-        can_bend = (
-            self.cross_section_info["section_type_label"] == "Pipe section"
-            and len(self.cross_section_info["section_parameters"]) != 10
-        )
+        if not callable(self.add_structure_function):
+            return
 
-        kwargs = deepcopy(self.structure_arguments)
+        try:
+            deltas = self.get_segment_deltas()
+        except ValueError:
+            return
 
-        if can_bend:
-            self.pipeline.add_bent_pipe((dx,dy,dz), radius, **kwargs)
+        if self.comboBox_bending_type.currentIndex() == 2:
+            radius = self.get_user_defined_radius()
         else:
-            self.pipeline.add_pipe((dx,dy,dz), **kwargs)  # actually it is a beam =)
+            radius = self.bending_factor * 0.1
 
+        self.pipeline.dismiss()
+        kwargs = deepcopy(self.structure_arguments)
+        kwargs["curvature_radius"] = radius
+        self.add_structure_function(deltas, **kwargs)
         self.geometry_widget.update_plot()
+
+        self.pushButton_add_segment.setDisabled(False)
 
     def create_segment_callback(self):
         self.pipeline.commit()
@@ -291,9 +274,6 @@ class AddStructuresWidget(QWidget):
         self.lineEdit_delta_y.setText("")
         self.lineEdit_delta_z.setText("")
 
-    # def show_geometry_editor_help(self):
-    #     GeometryEditorHelp()
-
     def define_cross_section(self):
         is_pipe = (self.cross_section_widget.tabWidget_general.currentIndex() == 0)
         is_constant_section = (self.cross_section_widget.tabWidget_pipe_section.currentIndex() == 0)
@@ -302,31 +282,17 @@ class AddStructuresWidget(QWidget):
             if self.cross_section_widget.get_constant_pipe_parameters():
                 return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
-            diameter = self.cross_section_widget.section_parameters[0]
-            self.structure_arguments["diameter"] = diameter
 
         elif is_pipe and not is_constant_section:
             if  self.cross_section_widget.get_variable_section_pipe_parameters():
                 return
             self.cross_section_info = self.cross_section_widget.pipe_section_info
-            diameter_initial = self.cross_section_widget.variable_parameters[0]
-            diameter_final = self.cross_section_widget.variable_parameters[4]
-            self.structure_arguments["diameter_initial"] = diameter_initial
-            self.structure_arguments["diameter_final"] = diameter_final
 
         else:  # is beam
             self.cross_section_widget.get_beam_section_parameters()
             self.cross_section_info = self.cross_section_widget.beam_section_info
-            # temporary strategy
-            self.structure_arguments["diameter"] = 0.02
 
-        if self.cross_section_info["section_type_label"] == "Pipe section":
-            self.structure_arguments["extra_info"]["structural_element_type"] = "pipe_1"
-        else:
-            self.structure_arguments["extra_info"]["structural_element_type"] = "beam_1"
-
-        self.structure_arguments["extra_info"]["cross_section_info"] = self.cross_section_info
-
+        self.update_structure_arguments()
         self.cross_section_widget.setVisible(False)
         self._update_permissions()
         self.update_segment_information_text()
@@ -334,10 +300,100 @@ class AddStructuresWidget(QWidget):
 
     def define_material(self):
         self.current_material_index = self.material_widget.get_selected_material_id()
-        self.structure_arguments["extra_info"]["material_info"] = self.current_material_index
+        self.update_structure_arguments()
         self.material_widget.setVisible(False)
         self._update_permissions()
         self.update_segment_information_text()
+
+    def update_structure_arguments(self):
+        label = self.cross_section_info["section_type_label"]
+        parameters = self.cross_section_info["section_parameters"]
+
+        if (label == "Pipe section") and len(parameters) == 6:
+            self.structure_arguments = dict(
+                diameter = parameters[0],
+                thickness = parameters[1],
+            )
+            self.add_structure_function = self.pipeline.add_bent_pipe
+            self.connect_structure_function = self.pipeline.connect_bent_pipes
+
+        elif (label == "Pipe section") and len(parameters) == 10:
+            # It is a variable section
+            self.structure_arguments = dict(
+                initial_diameter = parameters[0],
+                final_diameter = parameters[4],
+                offset_y = parameters[6],
+                offset_z = parameters[7],
+                thickness = parameters[1],
+            )
+            self.add_structure_function = self.pipeline.add_reducer_eccentric
+            self.connect_structure_function = self.pipeline.connect_reducer_eccentrics
+
+        elif label == "Rectangular section":
+            self.structure_arguments = dict(
+                width = parameters[0],
+                height = parameters[1],
+                thickness = parameters[2], # Probably wrong
+            )
+            self.add_structure_function = self.pipeline.add_rectangular_beam
+            self.connect_structure_function = self.pipeline.connect_rectangular_beams
+
+        elif label == "Circular section":
+            self.structure_arguments = dict(
+                diameter = parameters[0],
+                thickness = parameters[1],
+            )
+            self.add_structure_function = self.pipeline.add_circular_beam
+            self.connect_structure_function = self.pipeline.connect_circular_beams
+
+        elif label == "C-section":
+            self.structure_arguments = dict(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+            self.add_structure_function = self.pipeline.add_c_beam
+            self.connect_structure_function = self.pipeline.connect_c_beams
+
+        elif label == "I-section":
+            self.structure_arguments = dict(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+            self.add_structure_function = self.pipeline.add_i_beam
+            self.connect_structure_function = self.pipeline.connect_i_beams
+
+        elif label == "T-section":
+            self.structure_arguments = dict(
+                height = parameters[0],
+                width = parameters[1],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[3],
+            )
+            self.add_structure_function = self.pipeline.add_t_beam
+            self.connect_structure_function = self.pipeline.connect_t_beams
+
+        elif label == "Generic section":
+            pass
+
+        else:
+            return
+
+        self.structure_arguments["extra_info"] = dict()
+        self.structure_arguments["extra_info"]["cross_section_info"] = self.cross_section_info
+        self.structure_arguments["extra_info"]["material_info"] = self.current_material_index
+
+        if label == "Pipe section":
+            self.structure_arguments["extra_info"]["structural_element_type"] = "pipe_1"
+        elif label != "Generic section":
+            self.structure_arguments["extra_info"]["structural_element_type"] = "beam_1"
 
     def update_segment_information_text(self):
         section_label = ""
