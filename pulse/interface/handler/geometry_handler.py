@@ -170,14 +170,13 @@ class GeometryHandler:
 
                 curvature = data['curvature']
 
-                bend = Bend(start, end, corner, curvature)
+                bend = Bend(start, end, corner, curvature, diameter=diameter)
                 bend.extra_info["cross_section_info"] = section_info
                 bend.extra_info["structural_element_type"] = structural_element_type
 
                 if "material_id" in data.keys():
                     bend.extra_info["material_info"] = material_id
 
-                bend.set_diameter(diameter, diameter)
                 structures.append(bend)
 
             else:
