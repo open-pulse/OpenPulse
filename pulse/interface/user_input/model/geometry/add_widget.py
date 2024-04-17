@@ -33,7 +33,7 @@ class AddStructuresWidget(QWidget):
         # If the argument is useless to the current function,
         # like a diamenter in a square beam, the argument
         # will be ignored, and no errors will raise. 
-        self.structure_arguments = dict()
+        self.structure_kwargs = dict()
         self.add_structure_function = None
         self.connect_structure_function = None
 
@@ -251,7 +251,7 @@ class AddStructuresWidget(QWidget):
             radius = self.bending_factor * 0.1
 
         self.pipeline.dismiss()
-        kwargs = deepcopy(self.structure_arguments)
+        kwargs = deepcopy(self.structure_kwargs)
         kwargs["curvature_radius"] = radius
         self.add_structure_function(deltas, **kwargs)
         self.geometry_widget.update_plot()
@@ -310,7 +310,7 @@ class AddStructuresWidget(QWidget):
         parameters = self.cross_section_info["section_parameters"]
 
         if (label == "Pipe section") and len(parameters) == 6:
-            self.structure_arguments = dict(
+            self.structure_kwargs = dict(
                 diameter = parameters[0],
                 thickness = parameters[1],
             )
@@ -319,7 +319,7 @@ class AddStructuresWidget(QWidget):
 
         elif (label == "Pipe section") and len(parameters) == 10:
             # It is a variable section
-            self.structure_arguments = dict(
+            self.structure_kwargs = dict(
                 initial_diameter = parameters[0],
                 final_diameter = parameters[4],
                 offset_y = parameters[6],
@@ -330,7 +330,7 @@ class AddStructuresWidget(QWidget):
             self.connect_structure_function = self.pipeline.connect_reducer_eccentrics
 
         elif label == "Rectangular section":
-            self.structure_arguments = dict(
+            self.structure_kwargs = dict(
                 width = parameters[0],
                 height = parameters[1],
                 thickness = parameters[2], # Probably wrong
@@ -339,7 +339,7 @@ class AddStructuresWidget(QWidget):
             self.connect_structure_function = self.pipeline.connect_rectangular_beams
 
         elif label == "Circular section":
-            self.structure_arguments = dict(
+            self.structure_kwargs = dict(
                 diameter = parameters[0],
                 thickness = parameters[1],
             )
@@ -347,7 +347,7 @@ class AddStructuresWidget(QWidget):
             self.connect_structure_function = self.pipeline.connect_circular_beams
 
         elif label == "C-section":
-            self.structure_arguments = dict(
+            self.structure_kwargs = dict(
                 height = parameters[0],
                 width_1 = parameters[1],
                 width_2 = parameters[3],
@@ -359,7 +359,7 @@ class AddStructuresWidget(QWidget):
             self.connect_structure_function = self.pipeline.connect_c_beams
 
         elif label == "I-section":
-            self.structure_arguments = dict(
+            self.structure_kwargs = dict(
                 height = parameters[0],
                 width_1 = parameters[1],
                 width_2 = parameters[3],
@@ -371,7 +371,7 @@ class AddStructuresWidget(QWidget):
             self.connect_structure_function = self.pipeline.connect_i_beams
 
         elif label == "T-section":
-            self.structure_arguments = dict(
+            self.structure_kwargs = dict(
                 height = parameters[0],
                 width = parameters[1],
                 thickness_1 = parameters[2],
@@ -386,14 +386,14 @@ class AddStructuresWidget(QWidget):
         else:
             return
 
-        self.structure_arguments["extra_info"] = dict()
-        self.structure_arguments["extra_info"]["cross_section_info"] = self.cross_section_info
-        self.structure_arguments["extra_info"]["material_info"] = self.current_material_index
+        self.structure_kwargs["extra_info"] = dict()
+        self.structure_kwargs["extra_info"]["cross_section_info"] = self.cross_section_info
+        self.structure_kwargs["extra_info"]["material_info"] = self.current_material_index
 
         if label == "Pipe section":
-            self.structure_arguments["extra_info"]["structural_element_type"] = "pipe_1"
+            self.structure_kwargs["extra_info"]["structural_element_type"] = "pipe_1"
         elif label != "Generic section":
-            self.structure_arguments["extra_info"]["structural_element_type"] = "beam_1"
+            self.structure_kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
     def update_segment_information_text(self):
         section_label = ""
