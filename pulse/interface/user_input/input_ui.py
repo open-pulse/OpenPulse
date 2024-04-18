@@ -9,7 +9,9 @@ from pulse.interface.user_input.model.geometry.goemetry_editor_help import Geome
 #
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
 from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
-from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
+# from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
+# from pulse.interface.user_input.model.setup.general.fluid_input2 import FluidInputs
+from pulse.interface.user_input.model.setup.general.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
@@ -242,7 +244,8 @@ class InputUi:
         self.process_input(AcousticElementTypeInput)
 
     def set_fluid(self):
-        self.process_input(FluidInput)
+        self.process_input(SetFluidInput)
+        # self.process_input(FluidInputs)
 
     def set_fluid_composition(self):
         self.process_input(SetFluidCompositionInput)

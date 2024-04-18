@@ -309,7 +309,6 @@ class SetFluidCompositionInput(QDialog):
         
         return fluid_property
 
-
     def create_font(self, size):
         self.font = QFont()
         self.font.setPointSize(size)

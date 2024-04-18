@@ -18,7 +18,7 @@ class LoadFluidCompositionInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        ui_path = UI_DIR / "model/setup/general/load_fluid_composition.ui"
+        ui_path = UI_DIR / "model/setup/fluid/load_fluid_composition.ui"
         uic.loadUi(ui_path, self)
 
         self.main_window = app().main_window

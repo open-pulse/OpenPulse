@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem
 from PyQt5.QtGui import QIcon, QFont, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -22,7 +22,7 @@ class SetMaterialInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/general/set_material.ui"
+        ui_path = UI_DIR / "model/setup/material/set_material.ui"
         uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
@@ -48,7 +48,6 @@ class SetMaterialInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Set material")
         self.setWindowIcon(self.icon)
-        self.setFixedSize(680,600)
 
     def _initialize(self):
         self.selected_row = None
@@ -70,12 +69,16 @@ class SetMaterialInput(QDialog):
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
-        self.frame_main_widget.setLayout(self.grid_layout)
-        self._add_material_input_widget()
 
         # QLineEdit
         self.lineEdit_selected_id = self.findChild(QLineEdit, 'lineEdit_selected_id')
         self.lineEdit_selected_material_name = self.findChild(QLineEdit, 'lineEdit_selected_material_name')
+
+        # QScrollArea
+        self.scrollArea_table_of_materials : QScrollArea
+        self.scrollArea_table_of_materials.setLayout(self.grid_layout)
+        self._add_material_input_widget()
+        self.scrollArea_table_of_materials.adjustSize()
 
         # QPushButtonget_comboBox_index
         self.pushButton_attribute_material = self.findChild(QPushButton, 'pushButton_attribute_material')

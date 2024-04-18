@@ -29,7 +29,7 @@ class MaterialInputs(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/general/material_input_widget.ui"
+        ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.project = app().project
@@ -201,7 +201,7 @@ class MaterialInputs(QWidget):
             return
 
         title = "Additional confirmation required to proceed"
-        message = "Do you really want to remove the selected material from material library?"
+        message = "Would you like to remove the selected material from material library?"
         if self.get_confirmation_to_proceed(title, message):
             material = self.list_of_materials[selected_row]
             self.remove_material_from_file(material)
@@ -393,7 +393,7 @@ class MaterialInputs(QWidget):
     def reset_library_to_default(self):
 
         title = "Additional confirmation required to proceed"
-        message = "Do you really want to reset the material library to default values?"
+        message = "Would you like to reset the material library to default values?"
 
         if self.get_confirmation_to_proceed(title, message):
 
