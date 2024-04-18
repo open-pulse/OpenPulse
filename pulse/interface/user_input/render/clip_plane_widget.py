@@ -46,7 +46,7 @@ class ClipPlaneWidget(QDialog):
         self.setGeometry(200, 200, 400, 350)        
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
-        self.setWindowTitle("Clip Plane")
+        self.setWindowTitle("Section Plane")
 
     def _define_qt_variables(self):
 
