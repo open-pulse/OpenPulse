@@ -590,7 +590,7 @@ class opvRenderer(vtkRendererBase):
         def lerp(a, b, t):
            return a + (b - a) * t
         
-        bounds = self.opv.opvRenderer.getBounds()
+        bounds = self.getBounds()
         x = lerp(bounds[0], bounds[1], position[0] / 100)
         y = lerp(bounds[2], bounds[3], position[1] / 100)
         z = lerp(bounds[4], bounds[5], position[2] / 100)
