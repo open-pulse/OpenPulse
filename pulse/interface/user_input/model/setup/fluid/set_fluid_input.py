@@ -5,7 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
-from pulse.interface.user_input.model.setup.general.fluid_widget import FluidWidget
+from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -103,12 +103,13 @@ class SetFluidInput(QDialog):
 
     def _create_connections(self):
         # return
-        # self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
+        self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
         self.pushButton_remove_row.clicked.connect(self.hide)
         # self.pushButton_attribute_fluid.clicked.connect(self.confirm_fluid_attribution)
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
         # self.tableWidget_fluid_data.cellDoubleClicked.connect(self.on_cell_double_clicked)
+        self.update_attribution_type()
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
         self.selected_column = current_col
@@ -129,15 +130,16 @@ class SetFluidInput(QDialog):
             self.lineEdit_selected_fluid_name.setText(fluid_name)
 
     def update_attribution_type(self):
+
         index = self.comboBox_attribution_type.currentIndex()
         if index == 0:
             self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setEnabled(False)
-            self.comboBox_attribution_type.setCurrentIndex(0)
         elif index == 1:
-            self.write_ids(self.lines_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
+            line_ids = self.opv.getListPickedLines()
+            self.write_ids(line_ids)
+
+        self.lineEdit_selected_id.setEnabled(bool(index))
+        self.comboBox_attribution_type.setCurrentIndex(index)
 
     def write_ids(self, list_ids):
         text = ""
@@ -145,26 +147,25 @@ class SetFluidInput(QDialog):
             text += "{}, ".format(_id)
         self.lineEdit_selected_id.setText(text)
 
-    def update_selection(self):
-        if self.lines_ids != []:
-            self.write_ids(self.lines_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
-        else:
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setEnabled(False)
-            self.comboBox_attribution_type.setCurrentIndex(0)
-
     def _loading_info_at_start(self):
+
+        line_ids = list()
         if self.cache_selected_lines:
-            self.lines_ids = self.cache_selected_lines
-            self.update_selection()
-        else:
-            self.update()        
+            line_ids = self.cache_selected_lines
+        elif self.opv.getListPickedLines():
+            line_ids = self.opv.getListPickedLines()
+
+        if line_ids:
+            self.write_ids(line_ids)
+            self.lineEdit_selected_id.setEnabled(True)
+            self.comboBox_attribution_type.setCurrentIndex(1)      
 
     def update(self):
-        self.lines_ids = self.opv.getListPickedLines()
-        self.update_selection()
+        line_ids = self.opv.getListPickedLines()
+        if line_ids:
+            self.write_ids(line_ids)
+            self.lineEdit_selected_id.setEnabled(True)
+            self.comboBox_attribution_type.setCurrentIndex(1)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False

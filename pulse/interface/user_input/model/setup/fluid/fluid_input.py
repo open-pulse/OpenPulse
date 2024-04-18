@@ -14,7 +14,7 @@ from pulse.libraries.default_libraries import default_fluid_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.tools.utils import *
 

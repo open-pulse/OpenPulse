@@ -11,7 +11,7 @@ from pulse.interface.user_input.project.save_project_as_input import SaveProject
 from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
 # from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
 # from pulse.interface.user_input.model.setup.general.fluid_input2 import FluidInputs
-from pulse.interface.user_input.model.setup.general.set_fluid_input import SetFluidInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
@@ -29,7 +29,7 @@ from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input
 from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
 #
 from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
-from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.user_input.model.setup.acoustic.acoustic_pressure_input import AcousticPressureInput
 from pulse.interface.user_input.model.setup.acoustic.volume_velocity_input import VolumeVelocityInput
 from pulse.interface.user_input.model.setup.acoustic.specific_impedance_input import SpecificImpedanceInput

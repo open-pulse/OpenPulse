@@ -10,7 +10,7 @@ from pulse.libraries.default_libraries import default_fluid_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.tools.utils import *
 
@@ -21,7 +21,8 @@ from itertools import count
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
-COLOR_ROW = 11
+
+COLOR_ROW = 10
 
 
 def get_color_rgb(color):
@@ -198,7 +199,7 @@ class FluidWidget(QWidget):
 
         self.config_table_of_fluid_data()
         # self.tableWidget_fluid_data.setRowCount(len(self.list_of_fluids))
-        self.tableWidget_fluid_data.setRowCount(12)
+        self.tableWidget_fluid_data.setRowCount(COLOR_ROW + 1)
         self.tableWidget_fluid_data.setColumnCount(len(self.list_of_fluids))
 
         for j, fluid in enumerate(self.list_of_fluids):
@@ -208,11 +209,10 @@ class FluidWidget(QWidget):
             self.tableWidget_fluid_data.setItem(3, j, QTableWidgetItem(str(fluid.pressure)))
             self.tableWidget_fluid_data.setItem(4, j, QTableWidgetItem(str(fluid.density)))
             self.tableWidget_fluid_data.setItem(5, j, QTableWidgetItem(str(fluid.speed_of_sound)))
-            self.tableWidget_fluid_data.setItem(6, j, QTableWidgetItem(str(fluid.impedance)))
-            self.tableWidget_fluid_data.setItem(7, j, QTableWidgetItem(str(fluid.isentropic_exponent)))
-            self.tableWidget_fluid_data.setItem(8, j, QTableWidgetItem(f"{fluid.thermal_conductivity : .4e}"))
-            self.tableWidget_fluid_data.setItem(9, j, QTableWidgetItem(str(fluid.specific_heat_Cp)))
-            self.tableWidget_fluid_data.setItem(10, j, QTableWidgetItem(f"{fluid.dynamic_viscosity : .4e}"))
+            self.tableWidget_fluid_data.setItem(6, j, QTableWidgetItem(str(fluid.isentropic_exponent)))
+            self.tableWidget_fluid_data.setItem(7, j, QTableWidgetItem(f"{fluid.thermal_conductivity : .4e}"))
+            self.tableWidget_fluid_data.setItem(8, j, QTableWidgetItem(str(fluid.specific_heat_Cp)))
+            self.tableWidget_fluid_data.setItem(9, j, QTableWidgetItem(f"{fluid.dynamic_viscosity : .4e}"))
 
             item = QTableWidgetItem()
             item.setBackground(QColor(*fluid.color))

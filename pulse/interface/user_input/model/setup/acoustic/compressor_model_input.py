@@ -6,7 +6,7 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.tools.utils import get_new_path, remove_bc_from_file
-from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
+from pulse.interface.user_input.model.setup.fluid.fluid_input import FluidInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
