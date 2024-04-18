@@ -630,10 +630,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         return hidden
 
     def getBounds(self):
-        deformed_tube_bounds = self.opvClippableDeformedTubes._actor.GetBounds()
-        if deformed_tube_bounds != (0, 0, 0, 0, 0, 0):
-            return deformed_tube_bounds
-        return self.opvClippablePressureTubes._actor.GetBounds()
+        if self.opvClippableDeformedTubes._actor.GetVisibility():
+            return self.opvClippableDeformedTubes._actor.GetBounds()
+        elif self.opvDeformedTubes._actor.GetVisibility():
+            return self.opvDeformedTubes._actor.GetBounds()
+        elif self.opvClippablePressureTubes._actor.GetVisibility():
+            return self.opvClippablePressureTubes._actor.GetBounds()
+        else:
+            return self.opvPressureTubes._actor.GetBounds()
 
     def _calculate_relative_position(self, position):
         def lerp(a, b, t):
