@@ -213,13 +213,13 @@ files = [
 
 [[package]]
 name = "exceptiongroup"
-version = "1.2.0"
+version = "1.2.1"
 description = "Backport of PEP 654 (exception groups)"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "exceptiongroup-1.2.0-py3-none-any.whl", hash = "sha256:4bfd3996ac73b41e9b9628b04e079f193850720ea5945fc96a08633c66912f14"},
-    {file = "exceptiongroup-1.2.0.tar.gz", hash = "sha256:91f5c769735f051a4290d52edd0858999b57e5876e9f85937691bd4c9fa3ed68"},
+    {file = "exceptiongroup-1.2.1-py3-none-any.whl", hash = "sha256:5258b9ed329c5bbdd31a309f53cbfb0b155341807f6ff7606a1e801a891b29ad"},
+    {file = "exceptiongroup-1.2.1.tar.gz", hash = "sha256:a4785e48b045528f5bfe627b6ad554ff32def154f42372786903b7abcfe1aa16"},
 ]
 
 [package.extras]
@@ -628,7 +628,7 @@ vtkat = {git = "https://github.com/andrefpf/vtkat"}
 type = "git"
 url = "https://github.com/open-pulse/opps"
 reference = "add_new_structures"
-resolved_reference = "90573291b78681a704e45c3b9e5eea406b554507"
+resolved_reference = "8fcd797d01a7802d50d3369fe4887b00af04fff8"
 
 [[package]]
 name = "ordered-set"
@@ -1284,7 +1284,7 @@ vtk = "^9.3.0"
 type = "git"
 url = "https://github.com/andrefpf/vtkat"
 reference = "HEAD"
-resolved_reference = "7c1310c5c6103f8d3c2c5ddd6924ba0bc136081e"
+resolved_reference = "9cd07e3038c9fef4bfab1d0f648fa8580580faa0"
 
 [metadata]
 lock-version = "2.0"
