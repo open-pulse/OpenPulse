@@ -18,6 +18,8 @@ from pathlib import Path
 window_title = "Error"
 window_title2 = "Warning"
 
+COLOR_COLUMN = 5
+
 def getColorRGB(color):
     color = color.replace(" ", "")
     if ("[" or "(") in color:
@@ -134,8 +136,10 @@ class MaterialInputs(QWidget):
         self.update_table()
 
     def update_table(self):
+
         self.config_table_of_material_data()
         self.tableWidget_material_data.setRowCount(len(self.list_of_materials))
+        self.tableWidget_material_data.setColumnCount(COLOR_COLUMN + 1)
 
         for i, material in enumerate(self.list_of_materials):
             self.tableWidget_material_data.setItem(i, 0, QTableWidgetItem(str(material.name)))
@@ -224,13 +228,15 @@ class MaterialInputs(QWidget):
             self.pick_color(row, col)
             
     def row_has_empty_items(self, row):
-        COLOR_COLUMN = 5
         for j in range(self.tableWidget_material_data.columnCount()):
             item = self.tableWidget_material_data.item(row, j)
             if item is None:
                 return True
 
             if j == COLOR_COLUMN:
+                # color = item.background().color().getRgb()
+                # if list(color) == 0:
+                #     return True
                 continue
 
             if item.text() == "":
@@ -258,18 +264,19 @@ class MaterialInputs(QWidget):
         if item is None:
             return True
         
-        if item.column() not in [1, 2, 3, 4]:
+        if item.column() not in [2, 3, 4, 5]:
             return False
     
         prop_labels = {
-            1 : "density", 
-            2 : "young modulus",
-            3 : "poisson",
-            4 : "thermal expansion coefficient"
-        }
+                        2 : "density", 
+                        3 : "young modulus",
+                        4 : "poisson",
+                        5 : "thermal expansion coefficient"
+                    }
         
         try:
             value = float(item.text())
+
         except Exception as error:
             window_title = "Error"
             title = "Invalid real number"
@@ -294,13 +301,13 @@ class MaterialInputs(QWidget):
             material_data = dict()
 
             keys = [
-                "name", 
-                "density", 
-                "young modulus", 
-                "poisson", 
-                "thermal expansion coefficient", 
-                "color"
-            ]
+                    "name", 
+                    "density", 
+                    "young modulus", 
+                    "poisson", 
+                    "thermal expansion coefficient", 
+                    "color"
+                ]
 
             for j, key in enumerate(keys):
                 item = self.tableWidget_material_data.item(row, j)

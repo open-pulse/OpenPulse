@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
 from PyQt5.QtGui import QCloseEvent, QIcon, QFont, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -10,6 +10,7 @@ from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
+window_title_2 = "Warning"
 
 def getColorRGB(color):
     color = color.replace(" ", "")
@@ -28,9 +29,9 @@ class SetFluidInput(QDialog):
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
         self.main_window = app().main_window
-        self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
+        self.project = app().project
         self.file = self.project.file
         
         self._load_icons()
@@ -95,17 +96,15 @@ class SetFluidInput(QDialog):
         self.tableWidget_fluid_data = self.findChild(QTableWidget, 'tableWidget_fluid_data')
 
     def _add_fluid_input_widget(self):
-        self.fluid_widget = FluidWidget()
+        self.fluid_widget = FluidWidget(parent_widget=self)
         self.grid_layout.addWidget(self.fluid_widget)
 
     def _config_widgets(self):
         ConfigWidgetAppearance(self, tool_tip=True)
 
     def _create_connections(self):
-        # return
         self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
-        self.pushButton_remove_row.clicked.connect(self.hide)
-        # self.pushButton_attribute_fluid.clicked.connect(self.confirm_fluid_attribution)
+        self.pushButton_attribute_fluid.clicked.connect(self.confirm_fluid_attribution)
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
         # self.tableWidget_fluid_data.cellDoubleClicked.connect(self.on_cell_double_clicked)
@@ -166,6 +165,53 @@ class SetFluidInput(QDialog):
             self.write_ids(line_ids)
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
+
+    def confirm_fluid_attribution(self):
+
+        selected_fluid = self.fluid_widget.get_selected_fluid()
+
+        if selected_fluid is None:
+            self.title = "No fluids selected"
+            self.message = "Select a fluid in the list before confirming the fluid attribution."
+            PrintMessageInput([window_title_1, self.title, self.message])
+            return
+
+        try:
+
+            if self.comboBox_attribution_type.currentIndex():
+
+                lineEdit = self.lineEdit_selected_id.text()
+                self.stop, lines_typed = self.before_run.check_input_LineID(lineEdit)
+                if self.stop:
+                    return True 
+
+                self.project.set_fluid_by_lines(lines_typed, selected_fluid)
+                print("[Set fluid] - {} defined in the entities {}".format(selected_fluid.name, lines_typed))
+
+            else:
+                self.project.set_fluid_to_all_lines(selected_fluid)       
+                print("[Set fluid] - {} defined in all entities".format(selected_fluid.name))
+
+            self.actions_to_finalize()
+
+        except Exception as error_log:
+            title = "Error detected on fluid list data"
+            message = str(error_log)
+            PrintMessageInput([window_title_1, title, message])
+            return
+
+    def actions_to_finalize(self):
+        # build_data = self.file.get_segment_build_data_from_file()
+        # geometry_handler = GeometryHandler()
+        # geometry_handler.set_length_unit(self.file.length_unit)
+        # geometry_handler.process_pipeline(build_data)
+        self.close()
+
+    # def load_project(self):
+    #     self.project.initial_load_project_actions(self.file.project_ini_file_path)
+    #     self.project.load_project_files()
+    #     app().main_window.input_widget.initial_project_action(True)
+    #     self.complete = True
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False

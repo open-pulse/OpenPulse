@@ -6,7 +6,7 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import *
 

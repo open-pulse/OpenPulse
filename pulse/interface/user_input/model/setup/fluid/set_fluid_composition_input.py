@@ -20,7 +20,7 @@ class SetFluidCompositionInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        ui_path = UI_DIR / "model/setup/acoustic/set_fluid_composition_input.ui"
+        ui_path = UI_DIR / "model/setup/fluid/set_fluid_composition_input.ui"
         uic.loadUi(ui_path, self)
 
         self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)
@@ -260,20 +260,20 @@ class SetFluidCompositionInput(QDialog):
             PrintMessageInput([window_title_1, title, message])   
     
     def update_remainig_composition(self):
+
         self.remaining_composition = 1
         for [_, composition_value, _] in self.fluid_to_composition.values():
             self.remaining_composition -= composition_value
 
-        if round(abs(self.remaining_composition),5) > 0:
-            self.label_remaining_composition.setVisible(True)
-            self.label_title_remaining_fraction.setVisible(True)
-            _remain = round(self.remaining_composition*100, 5)
-            self.label_remaining_composition.setText(str(_remain))
-        else:
-            self.label_remaining_composition.setText("")
-            self.label_remaining_composition.setVisible(False)
-            self.label_title_remaining_fraction.setVisible(False)
+        _remain = round(self.remaining_composition*100, 5)
+        if _remain == 0:
+            _remain = 0.00
+
+        self.label_remaining_composition.setText(str(_remain))
+
+        if round(abs(self.remaining_composition), 5) == 0:
             if self.compressor_info:
+
                 temperature_K = self.T_suction
                 pressure_Pa = self.P_suction
                 self.get_specific_fluid_property(   self.isentropic_label,
@@ -456,7 +456,7 @@ class SetFluidCompositionInput(QDialog):
                     self.fluid_properties["temperature"] = temperature_K
                     self.fluid_properties["pressure"] = pressure_Pa
 
-                self.fluid_properties["fluid name"] = self.lineEdit_fluid_name.text()
+                self.fluid_properties["name"] = self.lineEdit_fluid_name.text()
                 
                 if self.compressor_info:
 

@@ -1,15 +1,16 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
 from PyQt5.QtGui import QIcon, QFont, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
-from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
+from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
+window_title_2 = "Warning"
 
 def getColorRGB(color):
     color = color.replace(" ", "")
@@ -20,16 +21,17 @@ def getColorRGB(color):
 
 class SetMaterialInput(QDialog):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         ui_path = UI_DIR / "model/setup/material/set_material.ui"
         uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
-        self.project = app().project
+        self.main_window = app().main_window
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
+        self.project = app().project
         self.file = self.project.file
         
         self._load_icons()
@@ -41,7 +43,7 @@ class SetMaterialInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        self.icon = app().main_window.pulse_icon
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -52,7 +54,6 @@ class SetMaterialInput(QDialog):
     def _initialize(self):
         self.selected_row = None
         self.material = None
-        self.main_window = self.opv.parent
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.material_path = self.project.get_material_list_path()
@@ -89,6 +90,9 @@ class SetMaterialInput(QDialog):
     def _add_material_input_widget(self):
         self.material_widget = MaterialInputs()
         self.grid_layout.addWidget(self.material_widget)
+
+    def _config_widgets(self):
+        ConfigWidgetAppearance(self, tool_tip=True)
 
     def _create_connections(self):
         self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
@@ -193,12 +197,10 @@ class SetMaterialInput(QDialog):
             return
 
     def actions_to_finalize(self):
-
         build_data = self.file.get_segment_build_data_from_file()
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
         geometry_handler.process_pipeline(build_data)
-
         self.close()
 
     def load_project(self):

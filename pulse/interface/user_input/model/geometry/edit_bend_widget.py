@@ -3,8 +3,8 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget, QListWidget
 
 from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
-from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
 from opps.model import Pipe, Bend, Elbow
 

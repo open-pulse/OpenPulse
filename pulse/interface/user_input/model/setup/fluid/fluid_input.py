@@ -93,7 +93,7 @@ class FluidInput(QDialog):
         self.fluid_density = 0
         self.speed_of_sound = 0
 
-        self.fluid_data_keys = ["fluid name", 
+        self.fluid_data_keys = ["name", 
                                 "fluid density", 
                                 "speed of sound", 
                                 "impedance", 
@@ -1425,7 +1425,6 @@ class FluidInput(QDialog):
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
 
         if read._doNotRun:
             return

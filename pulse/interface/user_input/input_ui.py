@@ -8,11 +8,9 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 #
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
-from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
-# from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
-# from pulse.interface.user_input.model.setup.general.fluid_input2 import FluidInputs
+from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
-from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
+from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
 from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input import PrescribedDofsInput
