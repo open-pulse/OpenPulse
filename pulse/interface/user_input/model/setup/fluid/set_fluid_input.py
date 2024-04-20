@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
-from PyQt5.QtGui import QCloseEvent, QIcon, QFont, QBrush, QColor
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -27,13 +27,14 @@ class SetFluidInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
+        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
 
         self.main_window = app().main_window
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
         self.project = app().project
         self.file = self.project.file
-        
+
         self._load_icons()
         self._config_window()
         self._initialize()
@@ -41,6 +42,11 @@ class SetFluidInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self._loading_info_at_start()
+
+        if self.compressor_thermodynamic_state:
+            if self.fluid_widget.call_refprop_interface():
+                return
+            self.load_compressor_info()
 
         while self.keep_window_open:
             self.exec()
@@ -65,6 +71,7 @@ class SetFluidInput(QDialog):
 
         self.fluid = None
         self.selected_column = None
+        self.complete = False
 
     def _define_qt_variables(self):
 
@@ -96,8 +103,11 @@ class SetFluidInput(QDialog):
         self.tableWidget_fluid_data = self.findChild(QTableWidget, 'tableWidget_fluid_data')
 
     def _add_fluid_input_widget(self):
-        self.fluid_widget = FluidWidget(parent_widget=self)
+        self.fluid_widget = FluidWidget(parent_widget=self, compressor_thermodynamic_state=self.compressor_thermodynamic_state)
         self.grid_layout.addWidget(self.fluid_widget)
+
+    def load_compressor_info(self):
+        self.fluid_widget.load_compressor_info()
 
     def _config_widgets(self):
         ConfigWidgetAppearance(self, tool_tip=True)
@@ -141,9 +151,14 @@ class SetFluidInput(QDialog):
         self.comboBox_attribution_type.setCurrentIndex(index)
 
     def write_ids(self, list_ids):
+
+        if isinstance(list_ids, int):
+            list_ids = [list_ids]
+
         text = ""
         for _id in list_ids:
             text += "{}, ".format(_id)
+
         self.lineEdit_selected_id.setText(text)
 
     def _loading_info_at_start(self):
@@ -151,6 +166,7 @@ class SetFluidInput(QDialog):
         line_ids = list()
         if self.cache_selected_lines:
             line_ids = self.cache_selected_lines
+
         elif self.opv.getListPickedLines():
             line_ids = self.opv.getListPickedLines()
 
@@ -205,6 +221,7 @@ class SetFluidInput(QDialog):
         # geometry_handler = GeometryHandler()
         # geometry_handler.set_length_unit(self.file.length_unit)
         # geometry_handler.process_pipeline(build_data)
+        self.complete = True
         self.close()
 
     # def load_project(self):

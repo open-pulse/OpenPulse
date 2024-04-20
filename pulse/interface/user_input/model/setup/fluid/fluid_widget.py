@@ -59,8 +59,10 @@ class FluidWidget(QWidget):
         self.row = None
         self.col = None
         self.refprop = None
+        self.selected_column = None
 
         self.list_of_fluids = list()
+        self.fluid_data_refprop = dict()
         self.fluid_name_to_refprop_data = dict()
 
         self.fluid_data_keys = ["name",
@@ -465,8 +467,10 @@ class FluidWidget(QWidget):
             if not self.refprop.complete:
                 self.opv.setInputObject(self.parent_widget)
                 return
-
+            
+            self.selected_column = col
             self.after_getting_fluid_properties_from_refprop()
+            self.selected_column = None
 
     def new_identifier(self):
 
@@ -541,7 +545,7 @@ class FluidWidget(QWidget):
         self.refprop = SetFluidCompositionInput(compressor_info = self.compressor_thermodynamic_state)
         if not self.refprop.complete:
             self.opv.setInputObject(self.parent_widget)
-            return
+            return True
 
         self.after_getting_fluid_properties_from_refprop()
 
@@ -549,10 +553,14 @@ class FluidWidget(QWidget):
 
         if self.refprop.complete:
 
-            self.add_column()
             self.fluid_setup = self.refprop.fluid_setup
             self.fluid_data_refprop = self.refprop.fluid_properties
-            last_col = self.tableWidget_fluid_data.columnCount() - 1
+
+            if self.selected_column is None:
+                self.add_column()
+                selected_column = self.tableWidget_fluid_data.columnCount() - 1
+            else:
+                selected_column = self.selected_column
 
             for row, key in enumerate(self.fluid_data_keys):
 
@@ -563,8 +571,9 @@ class FluidWidget(QWidget):
                     continue
 
                 elif key == "color":
-                    if self.pick_color(row, last_col):
-                        return
+                    if self.selected_column is None:
+                        if self.pick_color(row, selected_column):
+                            return
                     continue
                     
                 else:
@@ -580,17 +589,32 @@ class FluidWidget(QWidget):
                     elif isinstance(data, str):
                         _data = data
 
-                self.tableWidget_fluid_data.item(row, last_col).setText(_data)
+                self.tableWidget_fluid_data.item(row, selected_column).setText(_data)
 
-            self.temperature_comp = self.fluid_data_refprop["temperature"]
-            self.pressure_comp = self.fluid_data_refprop["pressure"]
-            self.update_compressor_fluid_temperature_and_pressure()
-            self.add_fluid_to_file(last_col)
+            self.add_fluid_to_file(selected_column)
             self.load_data_from_fluids_library()
 
         else:
             self.refprop = None
 
+    def load_compressor_info(self):
+
+        if self.compressor_thermodynamic_state:
+
+            if isinstance(self.parent_widget, QDialog):
+
+                line_id = self.compressor_thermodynamic_state['line_id']
+                self.parent_widget.comboBox_attribution_type.setCurrentIndex(1)
+                self.parent_widget.write_ids(line_id)
+                self.parent_widget.lineEdit_selected_id.setDisabled(True)
+                if self.fluid_data_refprop:
+                    fluid_name = self.fluid_data_refprop["name"]
+                    self.parent_widget.lineEdit_fluid_name.setText(fluid_name)
+
+                connection_type_comp = self.compressor_thermodynamic_state['connection type']
+                connection_label = "discharge" if connection_type_comp else "suction"
+                
+                self.parent_widget.setWindowTitle(f"Set a fluid thermodynamic state at the compressor {connection_label}")
 
     def update_compressor_fluid_temperature_and_pressure(self):
         return

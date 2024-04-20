@@ -243,7 +243,6 @@ class InputUi:
 
     def set_fluid(self):
         self.process_input(SetFluidInput)
-        # self.process_input(FluidInputs)
 
     def set_fluid_composition(self):
         self.process_input(SetFluidCompositionInput)

@@ -236,6 +236,7 @@ class SetFluidCompositionInput(QDialog):
             self.lineEdit_fluid_name.setText(fluid_name)
             self.lineEdit_temperature.setText(str(temperature))
             self.lineEdit_pressure.setText(str(pressure))
+            self.comboBox_temperature_units.setCurrentIndex(0)
 
             for index, fluid_file_name in enumerate(fluid_file_names):
                 final_name = self.fluid_file_to_final_name[fluid_file_name]
