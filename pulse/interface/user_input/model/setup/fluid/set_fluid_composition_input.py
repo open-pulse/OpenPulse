@@ -122,6 +122,7 @@ class SetFluidCompositionInput(QDialog):
         self.label_fluid_thermal_conductivity : QLabel
         self.label_discharge : QLabel
         self.label_suction : QLabel
+        self.label_spacing : QLabel
 
         # QLineEdit
         self.lineEdit_composition : QLineEdit
@@ -179,6 +180,7 @@ class SetFluidCompositionInput(QDialog):
 
         self.label_discharge.setVisible(False)
         self.label_suction.setVisible(False)
+        self.label_spacing.setVisible(False)
         #
         self.lineEdit_composition.setFixedHeight(28)
         self.lineEdit_pressure_disch.setVisible(False)
@@ -201,6 +203,7 @@ class SetFluidCompositionInput(QDialog):
         self.comboBox_pressure_units.setDisabled(True)
         self.label_discharge.setVisible(True)
         self.label_suction.setVisible(True)
+        self.label_spacing.setVisible(True)
         self.lineEdit_pressure_disch.setVisible(True)
         self.lineEdit_temperature_disch.setVisible(True)
         self.lineEdit_temperature.setDisabled(True)

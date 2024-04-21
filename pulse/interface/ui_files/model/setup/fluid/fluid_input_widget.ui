@@ -259,13 +259,13 @@
               <property name="minimumSize">
                <size>
                 <width>60</width>
-                <height>26</height>
+                <height>28</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>60</width>
-                <height>26</height>
+                <height>28</height>
                </size>
               </property>
               <property name="font">
@@ -308,14 +308,14 @@
           <widget class="QPushButton" name="pushButton_add_column">
            <property name="minimumSize">
             <size>
-             <width>26</width>
-             <height>26</height>
+             <width>28</width>
+             <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>26</width>
-             <height>26</height>
+             <width>28</width>
+             <height>28</height>
             </size>
            </property>
            <property name="font">
@@ -342,14 +342,14 @@
           <widget class="QPushButton" name="pushButton_remove_column">
            <property name="minimumSize">
             <size>
-             <width>26</width>
-             <height>26</height>
+             <width>28</width>
+             <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>26</width>
-             <height>26</height>
+             <width>28</width>
+             <height>28</height>
             </size>
            </property>
            <property name="font">
@@ -377,13 +377,13 @@
            <property name="minimumSize">
             <size>
              <width>80</width>
-             <height>26</height>
+             <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>80</width>
-             <height>26</height>
+             <height>28</height>
             </size>
            </property>
            <property name="font">
