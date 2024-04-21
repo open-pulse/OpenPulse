@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QStackedWidget, QTabWidget
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QTabWidget
 from PyQt5 import uic
-
+import re
 from copy import deepcopy
 
 from opps.model import Pipeline
@@ -43,7 +43,7 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
 
-        self.unity_combobox: QComboBox
+        self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
 
         self.set_section_button: QPushButton
@@ -60,7 +60,7 @@ class GeometryDesignerWidget(QWidget):
     def _create_connections(self):
         self.render_widget.selection_changed.connect(self.selection_callback)
 
-        self.unity_combobox.currentIndexChanged.connect(self.unity_changed_callback)
+        self.unit_combobox.currentIndexChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentIndexChanged.connect(self.structure_type_changed_callback)
         
         self.set_section_button.clicked.connect(self.section_callback)
@@ -79,13 +79,44 @@ class GeometryDesignerWidget(QWidget):
         pass
 
     def unity_changed_callback(self):
-        pass
+        self.length_unit = self.unit_combobox.currentText().lower().strip()
+        
+        if self.length_unit == "meter":
+            unit_label_text = "[m]"
+
+        elif self.length_unit == "milimeter":
+            unit_label_text = "[mm]"
+
+        elif self.length_unit == "inch":
+            unit_label_text = "[in]"
+
+        else:
+            return
+
+        # Automatically replace every label in the format [m] or [mm] or [in]
+        unit_pattern = re.compile(r"\[(m|mm|in)\]")
+        for label in self.findChildren(QLabel):
+            if unit_pattern.match(label.text()) is not None:
+                label.setText(unit_label_text)
 
     def structure_type_changed_callback(self):
-        pass
+        structure_type = self.structure_combobox.currentText().lower().strip()
+
+        if structure_type == "pipe":
+            self.add_structure_function = self.pipeline.add_bent_pipe
+            self.attach_selection_function = self.pipeline.connect_bent_pipes
+
+        elif structure_type == "point":
+            self.add_structure_function = self.pipeline.add_point
+
+        elif structure_type == "i-beam":
+            self.add_structure_function = self.pipeline.add_i_beam
+            self.attach_selection_function = self.pipeline.connect_i_beams
+
+        self.sizes_coordinates_changed_callback()
 
     def section_callback(self):
-        pass 
+        pass
 
     def material_callback(self):
         pass
@@ -139,4 +170,9 @@ class GeometryDesignerWidget(QWidget):
         return 0.3
     
     def _reset_deltas(self):
+        self.x_line_edit.setText("")
+        self.y_line_edit.setText("")
+        self.z_line_edit.setText("")
+
+    def _disable_finalize_button(self, boolean):
         pass

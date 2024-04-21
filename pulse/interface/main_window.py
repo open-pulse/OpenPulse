@@ -10,6 +10,7 @@ from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
+from pulse.interface.user_input.model.geometry.test_geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -189,7 +190,7 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.addWidget(self.geometry_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
 
-        self.geometry_input_wigdet = OPPGeometryDesignerInput(self.geometry_widget)
+        self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
         self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
@@ -456,7 +457,7 @@ class MainWindow(QMainWindow):
         self.geometry_input_wigdet._disable_finalize_button(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
-        self.geometry_input_wigdet.add_widget.load_defined_unit()
+        # self.geometry_input_wigdet.add_widget.load_defined_unit()
 
     def action_structural_setup_workspace_callback(self):
         self.mesh_toolbar.setDisabled(False)

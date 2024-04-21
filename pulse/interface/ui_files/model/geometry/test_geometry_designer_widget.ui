@@ -25,6 +25,12 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QLabel" name="general_options_label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>General Options</string>
         </property>
@@ -32,9 +38,6 @@
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="KSeparator" name="kseparator_3"/>
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout_2">
@@ -53,7 +56,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QComboBox" name="unity_combobox">
+         <widget class="QComboBox" name="unit_combobox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -85,9 +88,9 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="unity_label">
+         <widget class="QLabel" name="unit_label">
           <property name="text">
-           <string>Unity</string>
+           <string>Unit</string>
           </property>
          </widget>
         </item>
@@ -141,17 +144,17 @@
           </item>
           <item>
            <property name="text">
-            <string>I Beam</string>
+            <string>I-Beam</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>T Beam</string>
+            <string>T-Beam</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>C Beam</string>
+            <string>C-Beam</string>
            </property>
           </item>
          </widget>
@@ -179,6 +182,12 @@
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QLabel" name="sizes_label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Sizes</string>
         </property>
@@ -186,9 +195,6 @@
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="KSeparator" name="kseparator"/>
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout">
@@ -263,6 +269,12 @@
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QLabel" name="pipe_options_label">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Pipe Options</string>
          </property>
@@ -270,9 +282,6 @@
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
-       </item>
-       <item>
-        <widget class="KSeparator" name="kseparator_2"/>
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_3">
@@ -358,6 +367,9 @@
         <property name="text">
          <string>delete</string>
         </property>
+        <property name="shortcut">
+         <string>Del</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -385,6 +397,48 @@
         <property name="text">
          <string>Add</string>
         </property>
+        <property name="shortcut">
+         <string>Return</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="cancel_button">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="finalize_button">
+        <property name="text">
+         <string>Finalize</string>
+        </property>
        </widget>
       </item>
      </layout>
@@ -392,13 +446,21 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KSeparator</class>
-   <extends>QFrame</extends>
-   <header>kseparator.h</header>
-  </customwidget>
- </customwidgets>
+ <tabstops>
+  <tabstop>unit_combobox</tabstop>
+  <tabstop>structure_combobox</tabstop>
+  <tabstop>set_section_button</tabstop>
+  <tabstop>set_material_button</tabstop>
+  <tabstop>set_fluid_button</tabstop>
+  <tabstop>x_line_edit</tabstop>
+  <tabstop>y_line_edit</tabstop>
+  <tabstop>z_line_edit</tabstop>
+  <tabstop>bending_options_combobox</tabstop>
+  <tabstop>bending_radius_line_edit</tabstop>
+  <tabstop>delete_button</tabstop>
+  <tabstop>attach_button</tabstop>
+  <tabstop>add_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
