@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, 
 from PyQt5 import uic
 import re
 from copy import deepcopy
+import warnings
 
 from opps.model import Pipeline
 
@@ -108,10 +109,48 @@ class GeometryDesignerWidget(QWidget):
 
         elif structure_type == "point":
             self.add_structure_function = self.pipeline.add_point
+            self.attach_selection_function = None
+
+        elif structure_type == "flange":
+            self.add_structure_function = self.pipeline.add_flange
+            self.attach_selection_function = self.pipeline.connect_flanges
+
+        elif structure_type == "valve":
+            self.add_structure_function = self.pipeline.add_valve
+            self.attach_selection_function = self.pipeline.connect_valves
+
+        elif structure_type == "expansion joint":
+            self.add_structure_function = self.pipeline.add_expansion_joint
+            self.attach_selection_function = self.pipeline.connect_expansion_joints
+
+        elif structure_type == "reducer":
+            self.add_structure_function = self.pipeline.add_reducer_eccentric
+            self.attach_selection_function = self.pipeline.connect_reducer_eccentrics
+
+        elif structure_type == "circular beam":
+            self.add_structure_function = self.pipeline.add_circular_beam
+            self.attach_selection_function = self.pipeline.connect_circular_beams
+
+        elif structure_type == "rectangular beam":
+            self.add_structure_function = self.pipeline.add_rectangular_beam
+            self.attach_selection_function = self.pipeline.connect_rectangular_beams
 
         elif structure_type == "i-beam":
             self.add_structure_function = self.pipeline.add_i_beam
             self.attach_selection_function = self.pipeline.connect_i_beams
+
+        elif structure_type == "t-beam":
+            self.add_structure_function = self.pipeline.add_t_beam
+            self.attach_selection_function = self.pipeline.connect_t_beams
+
+        elif structure_type == "c-beam":
+            self.add_structure_function = self.pipeline.add_c_beam
+            self.attach_selection_function = self.pipeline.connect_c_beams
+
+        else:
+            warnings.warn('Structure "{structure_type}" not available. Using pipe instead.')
+            self.add_structure_function = self.pipeline.add_bent_pipe
+            self.attach_selection_function = self.pipeline.connect_bent_pipes
 
         self.sizes_coordinates_changed_callback()
 
