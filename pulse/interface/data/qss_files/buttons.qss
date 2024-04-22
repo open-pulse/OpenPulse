@@ -1,8 +1,8 @@
 QPushButton[warning=true]{
-    color: orange;
+    color: #e74441;
     font: bold 14px;
 
 	border-style: solid;
-	border-color: orange;
-	border-width: 1px;
+	border-color: #e74441;
+	border-width: 2px;
 }

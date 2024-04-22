@@ -94,8 +94,8 @@ class GeometryDesignerWidget(QWidget):
         self._cached_sections = dict()
 
         self.set_section_button.setProperty("warning", True)
-        self.set_material_button.setProperty("warning", True)
-        self.set_fluid_button.setProperty("warning", True)
+        self.set_material_button.setProperty("warning", False)
+        self.set_fluid_button.setProperty("warning", False)
 
         self.style().polish(self.set_section_button)
         self.style().polish(self.set_material_button)
@@ -172,8 +172,7 @@ class GeometryDesignerWidget(QWidget):
         pass
 
     def show_fluid_widget_callback(self):
-        self.set_fluid_button.setProperty("warning", False)
-        self.style().polish(self.set_fluid_button)
+        pass
     
     def define_cross_section_callback(self):
         beam_structure_types = [
@@ -452,7 +451,6 @@ class GeometryDesignerWidget(QWidget):
         message = "Active configuration\n\n"
 
         if self.current_cross_section_info is not None:
-            # message = "Cross-section info:\n"
             if section_label == "Pipe section":
                 if len(section_parameters) == 6:
                     message += f"Section type: {section_label} (constant)\n"
@@ -463,7 +461,6 @@ class GeometryDesignerWidget(QWidget):
             message += f"Section data: {section_parameters}\n\n"
 
         if material_data is not None:
-            # message = "Material info:\n"
             message += f"Material name: {material_data[0]}\n"
             message += f"Material data: {material_data[1:]}\n\n"
 
@@ -485,8 +482,3 @@ class GeometryDesignerWidget(QWidget):
         self.z_line_edit.setDisabled(missing_cross_section)
         self.set_section_button.setProperty("warning", missing_cross_section)
         self.style().polish(self.set_section_button)
-
-        missing_material = (self.current_material_info is None
-                            and not hide_material)
-        self.set_material_button.setProperty("warning", missing_material)
-        self.style().polish(self.set_material_button)
