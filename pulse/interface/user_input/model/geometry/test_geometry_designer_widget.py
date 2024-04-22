@@ -87,6 +87,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section_callback)
+        self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
 
     def _initial_configuration(self):
         self.current_material_info = None
@@ -158,7 +159,6 @@ class GeometryDesignerWidget(QWidget):
         self.current_cross_section_info = self._cached_sections.get(self.structure_type)
 
         self._update_permissions()
-        self._update_structure_arguments()
         self._update_segment_information_text()
         self.xyz_changed_callback()
         self.x_line_edit.setFocus()
@@ -169,11 +169,14 @@ class GeometryDesignerWidget(QWidget):
         self.cross_section_widget.setVisible(True)
 
     def show_material_widget_callback(self):
-        pass
+        self.material_widget._initialize()
+        self.material_widget._add_icon_and_title()
+        self.material_widget.load_data_from_materials_library()
+        self.material_widget.setVisible(True)
 
     def show_fluid_widget_callback(self):
-        pass
-    
+        pass 
+
     def define_cross_section_callback(self):
         beam_structure_types = [
             "circular beam",
@@ -205,9 +208,14 @@ class GeometryDesignerWidget(QWidget):
 
         self.cross_section_widget.hide()
         self._update_permissions()
-        self._update_structure_arguments()
         self._update_segment_information_text()
         self.xyz_changed_callback()
+
+    def define_material_callback(self):
+        self.current_material_info = self.material_widget.get_selected_material_id()
+        self.material_widget.setVisible(False)
+        self._update_permissions()
+        self._update_segment_information_text()
 
     def xyz_changed_callback(self):
         if self.current_cross_section_info is None:
@@ -284,10 +292,6 @@ class GeometryDesignerWidget(QWidget):
         self.dx_label.setText(x_text)
         self.dy_label.setText(y_text)
         self.dz_label.setText(z_text)
-    
-    def _update_structure_arguments(self):
-        if self.current_cross_section_info is None:
-            return
     
     def _create_current_structure(self, xyz):
         parameters = self.current_cross_section_info["section_parameters"]
