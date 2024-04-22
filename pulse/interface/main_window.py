@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
 
-from pulse import app, UI_DIR
+from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.viewer_3d.opv_ui import OPVUi
@@ -59,6 +59,13 @@ class MainWindow(QMainWindow):
         self.input_widget = None
         self.cache_indexes = list()
         self.last_index = None
+
+    def _load_stylesheets(self):
+        stylesheets = []
+        for path in QSS_DIR.rglob("*.qss"):
+            stylesheets.append(path.read_text())
+        combined_stylesheet = "\n\n".join(stylesheets)
+        self.setStyleSheet(combined_stylesheet)
 
     def _load_icons(self):
         self.pulse_icon = get_openpulse_icon()
@@ -190,7 +197,7 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.addWidget(self.geometry_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
 
-        self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget)
+        self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
         self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
@@ -201,7 +208,7 @@ class MainWindow(QMainWindow):
         self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
-
+        self._load_stylesheets()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
@@ -711,6 +718,7 @@ class MainWindow(QMainWindow):
             self.mesh_widget.set_theme("dark")
             self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("dark")
             self.results_viewer_wigdet.results_viewer_items.set_theme("dark")
+        self._load_stylesheets()
 
     def action_set_light_theme_callback(self):
         self.update_themes_in_file(theme="light")
@@ -723,6 +731,7 @@ class MainWindow(QMainWindow):
             self.mesh_widget.set_theme("light")
             self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("light")
             self.results_viewer_wigdet.results_viewer_items.set_theme("light")
+        self._load_stylesheets()
 
     def update_themes_in_file(self, theme):
         if self.update_theme:
