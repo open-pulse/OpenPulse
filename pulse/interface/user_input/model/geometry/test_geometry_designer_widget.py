@@ -1,9 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QTabWidget
 from PyQt5 import uic
 import re
-from copy import deepcopy
 import warnings
-from collections import defaultdict
 
 from opps.model import Pipeline
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
@@ -12,10 +10,6 @@ from pulse import app, UI_DIR
 from pulse.interface.user_input.model.geometry.test_edit_pipe_widget import EditPipeWidget
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
-
-
-def nested_dict():
-    return defaultdict(nested_dict)
 
 
 class GeometryDesignerWidget(QWidget):
@@ -30,16 +24,6 @@ class GeometryDesignerWidget(QWidget):
         self.project = app().project
         self.pipeline = self.project.pipeline
         self.file = self.project.file
-
-        # This dict is passed as argument for the current
-        # creation function, either if it is a pipe, a bend,
-        # an i-beam, a square beam, etc.
-        # If the argument is useless to the current function,
-        # like a diameter in a square beam, the argument
-        # will be ignored, and no errors will be raised. 
-        self.structure_kwargs = nested_dict()
-        self.add_structure_function = None
-        self.attach_selection_function = None
 
         self._define_qt_variables()
         self._create_layout()
@@ -91,11 +75,11 @@ class GeometryDesignerWidget(QWidget):
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
         self.set_fluid_button.clicked.connect(self.show_fluid_widget_callback)
 
-        self.x_line_edit.textEdited.connect(self.sizes_coordinates_changed_callback)
-        self.y_line_edit.textEdited.connect(self.sizes_coordinates_changed_callback)
-        self.z_line_edit.textEdited.connect(self.sizes_coordinates_changed_callback)
+        self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
+        self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
+        self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
 
-        self.edit_pipe_widget.edited.connect(self.sizes_coordinates_changed_callback)
+        self.edit_pipe_widget.edited.connect(self.xyz_changed_callback)
 
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)
@@ -161,59 +145,14 @@ class GeometryDesignerWidget(QWidget):
 
     def structure_type_changed_callback(self, structure_type: str):
         self.structure_type = structure_type.lower().strip()
-        self._show_deltas_mode(True)
         self.options_stack_widget.setCurrentWidget(self.empty_widget)
+        self._show_deltas_mode(True)
 
         if self.structure_type == "pipe":
-            self.add_structure_function = self.pipeline.add_bent_pipe
-            self.attach_selection_function = self.pipeline.connect_bent_pipes
             self.options_stack_widget.setCurrentWidget(self.edit_pipe_widget)
 
         elif self.structure_type == "point":
-            self.add_structure_function = self.pipeline.add_point
-            self.attach_selection_function = None
             self._show_deltas_mode(False)
-
-        elif self.structure_type == "flange":
-            self.add_structure_function = self.pipeline.add_flange
-            self.attach_selection_function = self.pipeline.connect_flanges
-
-        elif self.structure_type == "valve":
-            self.add_structure_function = self.pipeline.add_valve
-            self.attach_selection_function = self.pipeline.connect_valves
-
-        elif self.structure_type == "expansion joint":
-            self.add_structure_function = self.pipeline.add_expansion_joint
-            self.attach_selection_function = self.pipeline.connect_expansion_joints
-
-        elif self.structure_type == "reducer":
-            self.add_structure_function = self.pipeline.add_reducer_eccentric
-            self.attach_selection_function = self.pipeline.connect_reducer_eccentrics
-
-        elif self.structure_type == "circular beam":
-            self.add_structure_function = self.pipeline.add_circular_beam
-            self.attach_selection_function = self.pipeline.connect_circular_beams
-
-        elif self.structure_type == "rectangular beam":
-            self.add_structure_function = self.pipeline.add_rectangular_beam
-            self.attach_selection_function = self.pipeline.connect_rectangular_beams
-
-        elif self.structure_type == "i-beam":
-            self.add_structure_function = self.pipeline.add_i_beam
-            self.attach_selection_function = self.pipeline.connect_i_beams
-
-        elif self.structure_type == "t-beam":
-            self.add_structure_function = self.pipeline.add_t_beam
-            self.attach_selection_function = self.pipeline.connect_t_beams
-
-        elif self.structure_type == "c-beam":
-            self.add_structure_function = self.pipeline.add_c_beam
-            self.attach_selection_function = self.pipeline.connect_c_beams
-
-        else:
-            warnings.warn(f'Structure "{self.structure_type}" not available. Using pipe instead.')
-            self.add_structure_function = self.pipeline.add_bent_pipe
-            self.attach_selection_function = self.pipeline.connect_bent_pipes
 
         # Try to get the same cross section used before
         self.current_cross_section_info = self._cached_sections.get(self.structure_type)
@@ -221,7 +160,7 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
         self._update_structure_arguments()
         self._update_segment_information_text()
-        self.sizes_coordinates_changed_callback()
+        self.xyz_changed_callback()
         self.x_line_edit.setFocus()
 
     def show_cross_section_widget_callback(self):
@@ -269,12 +208,9 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
         self._update_structure_arguments()
         self._update_segment_information_text()
-        self.sizes_coordinates_changed_callback()
+        self.xyz_changed_callback()
 
-    def sizes_coordinates_changed_callback(self):
-        if not callable(self.add_structure_function):
-            return
-        
+    def xyz_changed_callback(self):
         if self.current_cross_section_info is None:
             return
 
@@ -284,16 +220,10 @@ class GeometryDesignerWidget(QWidget):
             return
         
         if deltas == (0, 0, 0):
-            self.render_widget.update_plot()
-            return
-
-        diameter = self.structure_kwargs.get("diameter", 0)
-        curvature_radius = self.edit_pipe_widget.get_bending_radius(diameter)
-        self.structure_kwargs["curvature_radius"] = curvature_radius
+            return self.render_widget.update_plot()
 
         self.pipeline.dismiss()
-        kwargs = deepcopy(self.structure_kwargs)
-        self.add_structure_function(deltas, **kwargs)
+        self._create_current_structure(deltas)
         self.render_widget.update_plot()
         self.add_button.setEnabled(True)
 
@@ -305,11 +235,10 @@ class GeometryDesignerWidget(QWidget):
 
     def attach_selection_callback(self):
         self.pipeline.dismiss()
-        if callable(self.attach_selection_function):
-            kwargs = deepcopy(self.structure_kwargs)
-            self.attach_selection_function(**kwargs)
+        self._attach_current_structure()
         self.pipeline.commit()
         self.render_widget.update_plot()
+        self._reset_deltas()
 
     def add_structure_callback(self):
         self.pipeline.commit()
@@ -356,50 +285,58 @@ class GeometryDesignerWidget(QWidget):
         self.dx_label.setText(x_text)
         self.dy_label.setText(y_text)
         self.dz_label.setText(z_text)
-
-    def _disable_finalize_button(self, boolean):
-        pass
     
     def _update_structure_arguments(self):
         if self.current_cross_section_info is None:
             return
-
-        self.structure_kwargs["extra_info"]["cross_section_info"] = self.current_cross_section_info
-
-        if self.current_material_info is not None:
-            self.structure_kwargs["extra_info"]["material_info"] = self.current_material_info
-
+    
+    def _create_current_structure(self, xyz):
         parameters = self.current_cross_section_info["section_parameters"]
+
         if self.structure_type == "pipe":
-            self.structure_kwargs.update(
-                diameter = parameters[0],
-                thickness = parameters[1],
-            )
+            curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
+            self.pipeline.add_bent_pipe(xyz, curvature_radius, diameter = parameters[0], thickness = parameters[1])
+
+        elif self.structure_type == "point":
+            self.pipeline.add_point(xyz)
 
         elif self.structure_type == "reducer":
-            self.structure_kwargs.update(
+            self.pipeline.add_reducer_eccentric(
+                xyz, 
                 initial_diameter = parameters[0],
                 final_diameter = parameters[4],
                 offset_y = parameters[6],
                 offset_z = parameters[7],
-                thickness = parameters[1],
+                thickness = parameters[1]
             )
+        
+        elif self.structure_type == "flange":
+            self.pipeline.add_flange(xyz)
+
+        elif self.structure_type == "valve":
+            self.pipeline.add_valve(xyz)
+
+        elif self.structure_type == "expansion joint":
+            self.pipeline.add_expansion_joint(xyz)
 
         elif self.structure_type == "circular beam":
-            self.structure_kwargs.update(
-                diameter = parameters[0],
-                thickness = parameters[1],
+            self.pipeline.add_circular_beam(
+                xyz,
+                diameter = parameters[0], 
+                thickness = parameters[1]
             )
 
         elif self.structure_type == "rectangular beam":
-            self.structure_kwargs.update(
+            self.pipeline.add_rectangular_beam(
+                xyz,
                 width = parameters[0],
                 height = parameters[1],
-                thickness = parameters[2], # Probably wrong
+                thickness = parameters[2]
             )
 
         elif self.structure_type == "i-beam":
-            self.structure_kwargs.update(
+            self.pipeline.add_i_beam(
+                xyz,
                 height = parameters[0],
                 width_1 = parameters[1],
                 width_2 = parameters[3],
@@ -409,7 +346,8 @@ class GeometryDesignerWidget(QWidget):
             )
 
         elif self.structure_type == "t-beam":
-            self.structure_kwargs.update(
+            self.pipeline.add_t_beam(
+                xyz,
                 height = parameters[0],
                 width = parameters[1],
                 thickness_1 = parameters[2],
@@ -417,7 +355,8 @@ class GeometryDesignerWidget(QWidget):
             )
 
         elif self.structure_type == "c-beam":
-            self.structure_kwargs.update(
+            self.pipeline.add_c_beam(
+                xyz,
                 height = parameters[0],
                 width_1 = parameters[1],
                 width_2 = parameters[3],
@@ -427,7 +366,75 @@ class GeometryDesignerWidget(QWidget):
             )
 
         else:
-            warnings.warn(f'Unknown structure type "{self.structure_type}"')
+            warnings.warn(f'Structure "{self.structure_type}" not available.')
+
+    def _attach_current_structure(self):
+        parameters = self.current_cross_section_info["section_parameters"]
+
+        if self.structure_type == "pipe":
+            self.pipeline.connect_bent_pipes(diameter = parameters[0], thickness = parameters[1])
+
+        elif self.structure_type == "reducer":
+            self.pipeline.connect_reducer_eccentrics(
+                initial_diameter = parameters[0],
+                final_diameter = parameters[4],
+                offset_y = parameters[6],
+                offset_z = parameters[7],
+                thickness = parameters[1]
+            )
+
+        elif self.structure_type == "flange":
+            self.pipeline.connect_flanges()
+
+        elif self.structure_type == "valve":
+            self.pipeline.connect_valves()
+
+        elif self.structure_type == "expansion joint":
+            self.pipeline.connect_expansion_joints()
+
+        elif self.structure_type == "circular beam":
+            self.pipeline.connect_circular_beams(
+                diameter = parameters[0], 
+                thickness = parameters[1]
+            )
+
+        elif self.structure_type == "rectangular beam":
+            self.pipeline.connect_rectangular_beams(
+                width = parameters[0],
+                height = parameters[1],
+                thickness = parameters[2]
+            )
+
+        elif self.structure_type == "i-beam":
+            self.pipeline.connect_i_beams(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+
+        elif self.structure_type == "t-beam":
+            self.pipeline.connect_t_beams(
+                height = parameters[0],
+                width = parameters[1],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[3],
+            )
+
+        elif self.structure_type == "c-beam":
+            self.pipeline.connect_c_beams(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+
+        else:
+            warnings.warn(f'Structure "{self.structure_type}" not available to attach.')
 
     def _update_segment_information_text(self):
         section_label = ""
