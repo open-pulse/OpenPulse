@@ -255,7 +255,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
+    <widget class="QStackedWidget" name="options_stack_widget">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -265,90 +265,8 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="pipe_options_page">
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="QLabel" name="pipe_options_label">
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Pipe Options</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="bending_radius_line_edit"/>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="bending_radius_label">
-           <property name="text">
-            <string>Bending Radius</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="bending_options_label">
-           <property name="text">
-            <string>Bending Options</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QComboBox" name="bending_options_combobox">
-           <item>
-            <property name="text">
-             <string>Long Radius</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Short Radius</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>User-Defined</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Disabled</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="bending_radius_unity_label">
-           <property name="text">
-            <string>[m]</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+     <widget class="QWidget" name="empty_widget">
+      <layout class="QVBoxLayout" name="verticalLayout_5"/>
      </widget>
      <widget class="QWidget" name="page_2"/>
     </widget>
@@ -455,8 +373,6 @@
   <tabstop>x_line_edit</tabstop>
   <tabstop>y_line_edit</tabstop>
   <tabstop>z_line_edit</tabstop>
-  <tabstop>bending_options_combobox</tabstop>
-  <tabstop>bending_radius_line_edit</tabstop>
   <tabstop>delete_button</tabstop>
   <tabstop>attach_button</tabstop>
   <tabstop>add_button</tabstop>

@@ -461,9 +461,10 @@ class MainWindow(QMainWindow):
     def action_geometry_workspace_callback(self):
         self.close_opened_windows()
         self.mesh_toolbar.setDisabled(True)
-        self.geometry_input_wigdet._disable_finalize_button(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
+        self.geometry_input_wigdet.widget_appears_callback()
+        # self.geometry_input_wigdet._disable_finalize_button(True)
         # self.geometry_input_wigdet.add_widget.load_defined_unit()
 
     def action_structural_setup_workspace_callback(self):
