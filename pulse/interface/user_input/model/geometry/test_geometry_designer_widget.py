@@ -5,13 +5,14 @@ from copy import deepcopy
 import warnings
 
 from opps.model import Pipeline
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 
 
 class GeometryDesignerWidget(QWidget):
-    def __init__(self, render_widget, parent=None):
+    def __init__(self, render_widget: EditorRenderWidget, parent=None):
         super().__init__(parent)
 
         ui_path = UI_DIR / "model/geometry/test_geometry_designer_widget.ui"
@@ -40,16 +41,19 @@ class GeometryDesignerWidget(QWidget):
         self.setContentsMargins(2,2,2,2)
 
     def _define_qt_variables(self):
-        self.x_line_edit: QLineEdit
-        self.y_line_edit: QLineEdit
-        self.z_line_edit: QLineEdit
-
         self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
 
         self.set_section_button: QPushButton
         self.set_material_button: QPushButton
         self.set_fluid_button: QPushButton
+
+        self.x_line_edit: QLineEdit
+        self.y_line_edit: QLineEdit
+        self.z_line_edit: QLineEdit
+
+        self.bending_options_combobox: QComboBox
+        self.bending_radius_line_edit: QLineEdit
 
         self.add_button: QPushButton
         self.attach_button: QPushButton
@@ -61,8 +65,8 @@ class GeometryDesignerWidget(QWidget):
     def _create_connections(self):
         self.render_widget.selection_changed.connect(self.selection_callback)
 
-        self.unit_combobox.currentIndexChanged.connect(self.unity_changed_callback)
-        self.structure_combobox.currentIndexChanged.connect(self.structure_type_changed_callback)
+        self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
+        self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         
         self.set_section_button.clicked.connect(self.section_callback)
         self.set_material_button.clicked.connect(self.material_callback)
@@ -79,8 +83,8 @@ class GeometryDesignerWidget(QWidget):
     def selection_callback(self):
         pass
 
-    def unity_changed_callback(self):
-        self.length_unit = self.unit_combobox.currentText().lower().strip()
+    def unity_changed_callback(self, text: str):
+        self.length_unit = text.lower().strip()
         
         if self.length_unit == "meter":
             unit_label_text = "[m]"
@@ -100,8 +104,8 @@ class GeometryDesignerWidget(QWidget):
             if unit_pattern.match(label.text()) is not None:
                 label.setText(unit_label_text)
 
-    def structure_type_changed_callback(self):
-        structure_type = self.structure_combobox.currentText().lower().strip()
+    def structure_type_changed_callback(self, structure_type: str):
+        structure_type = structure_type.lower().strip()
 
         if structure_type == "pipe":
             self.add_structure_function = self.pipeline.add_bent_pipe
