@@ -38,17 +38,6 @@ class GeometryDesignerWidget(QWidget):
         # like a diameter in a square beam, the argument
         # will be ignored, and no errors will be raised. 
         self.structure_kwargs = nested_dict()
-        self.structure_kwargs.update(
-            diameter = 0.1,
-            height = 0.1,
-            width = 0.1,
-            width_1 = 0.1,
-            width_2 = 0.1,
-            thickness = 0.01,
-            thickness_1 = 0.01,
-            thickness_2 = 0.01,
-            thickness_3 = 0.01,
-        )
         self.add_structure_function = None
         self.attach_selection_function = None
 
@@ -118,6 +107,7 @@ class GeometryDesignerWidget(QWidget):
     def _initial_configuration(self):
         self.current_material_info = None
         self.current_cross_section_info = None
+        self._cached_sections = dict()
 
         self.set_section_button.setProperty("warning", True)
         self.set_material_button.setProperty("warning", True)
@@ -225,6 +215,12 @@ class GeometryDesignerWidget(QWidget):
             self.add_structure_function = self.pipeline.add_bent_pipe
             self.attach_selection_function = self.pipeline.connect_bent_pipes
 
+        # Try to get the same cross section used before
+        self.current_cross_section_info = self._cached_sections.get(self.structure_type)
+
+        self._update_permissions()
+        self._update_structure_arguments()
+        self._update_segment_information_text()
         self.sizes_coordinates_changed_callback()
         self.x_line_edit.setFocus()
 
@@ -234,8 +230,7 @@ class GeometryDesignerWidget(QWidget):
         self.cross_section_widget.setVisible(True)
 
     def show_material_widget_callback(self):
-        self.set_material_button.setProperty("warning", False)
-        self.style().polish(self.set_material_button)
+        pass
 
     def show_fluid_widget_callback(self):
         self.set_fluid_button.setProperty("warning", False)
@@ -264,11 +259,14 @@ class GeometryDesignerWidget(QWidget):
             if self.cross_section_widget.get_beam_section_parameters():
                 return
             self.current_cross_section_info = self.cross_section_widget.beam_section_info
-        
+
         else:
             return
-        
+
+        self._cached_sections[self.structure_type] = self.current_cross_section_info
+
         self.cross_section_widget.hide()
+        self._update_permissions()
         self._update_structure_arguments()
         self._update_segment_information_text()
         self.sizes_coordinates_changed_callback()
@@ -323,6 +321,10 @@ class GeometryDesignerWidget(QWidget):
         self.delete_button.setDisabled(True)
         self.add_button.setDisabled(True)
 
+        self.x_line_edit.setDisabled(True)
+        self.y_line_edit.setDisabled(True)
+        self.z_line_edit.setDisabled(True)
+
     def widget_disappears_callback(self):
         pass
 
@@ -359,8 +361,10 @@ class GeometryDesignerWidget(QWidget):
         pass
     
     def _update_structure_arguments(self):
-        if self.current_cross_section_info is not None:
-            self.structure_kwargs["extra_info"]["cross_section_info"] = self.current_cross_section_info
+        if self.current_cross_section_info is None:
+            return
+
+        self.structure_kwargs["extra_info"]["cross_section_info"] = self.current_cross_section_info
 
         if self.current_material_info is not None:
             self.structure_kwargs["extra_info"]["material_info"] = self.current_material_info
@@ -423,12 +427,12 @@ class GeometryDesignerWidget(QWidget):
             )
 
         else:
-            return
+            warnings.warn(f'Unknown structure type "{self.structure_type}"')
 
     def _update_segment_information_text(self):
         section_label = ""
         section_parameters = ""
-        if self.current_cross_section_info:
+        if self.current_cross_section_info is not None:
             section_label = self.current_cross_section_info["section_type_label"]
             section_parameters = self.current_cross_section_info["section_parameters"]
 
@@ -440,7 +444,7 @@ class GeometryDesignerWidget(QWidget):
 
         message = "Active configuration\n\n"
 
-        if self.current_cross_section_info:
+        if self.current_cross_section_info is not None:
             # message = "Cross-section info:\n"
             if section_label == "Pipe section":
                 if len(section_parameters) == 6:
@@ -457,3 +461,25 @@ class GeometryDesignerWidget(QWidget):
             message += f"Material data: {material_data[1:]}\n\n"
 
         self.render_widget.set_info_text(message)
+
+    def _update_permissions(self):
+        hide_cross_section = (self.structure_type in ["point"])
+        hide_material = (self.structure_type in ["point"])
+        hide_fluid = ("beam" in self.structure_type)
+
+        self.set_section_button.setDisabled(hide_cross_section)
+        self.set_material_button.setDisabled(hide_material)
+        self.set_fluid_button.setDisabled(hide_fluid)
+
+        missing_cross_section = (self.current_cross_section_info is None
+                                 and not hide_cross_section)
+        self.x_line_edit.setDisabled(missing_cross_section)
+        self.y_line_edit.setDisabled(missing_cross_section)
+        self.z_line_edit.setDisabled(missing_cross_section)
+        self.set_section_button.setProperty("warning", missing_cross_section)
+        self.style().polish(self.set_section_button)
+
+        missing_material = (self.current_material_info is None
+                            and not hide_material)
+        self.set_material_button.setProperty("warning", missing_material)
+        self.style().polish(self.set_material_button)
