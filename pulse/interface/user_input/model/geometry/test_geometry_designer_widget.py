@@ -114,7 +114,22 @@ class GeometryDesignerWidget(QWidget):
         self.style().polish(self.set_fluid_button)
 
     def selection_callback(self):
-        pass
+        if len(self.pipeline.selected_points) > 1:
+            self.attach_button.setEnabled(True)
+        else:
+            self.attach_button.setDisabled(True)
+
+        has_selection = self.pipeline.selected_points or self.pipeline.selected_structures
+        has_staged = self.pipeline.staged_points or self.pipeline.staged_structures
+        if has_selection or has_staged:
+            self.delete_button.setEnabled(True)
+        else:
+            self.delete_button.setDisabled(True)
+        
+        if has_staged:
+            self.add_button.setEnabled(True)
+        else:
+            self.add_button.setDisabled(True)
 
     def unity_changed_callback(self, text: str):
         self.length_unit = text.lower().strip()
@@ -229,6 +244,7 @@ class GeometryDesignerWidget(QWidget):
         kwargs = deepcopy(self.structure_kwargs)
         self.add_structure_function(deltas, **kwargs)
         self.render_widget.update_plot()
+        self.add_button.setEnabled(True)
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()
@@ -250,7 +266,9 @@ class GeometryDesignerWidget(QWidget):
         self._reset_deltas()
 
     def widget_appears_callback(self):
-        pass
+        self.attach_button.setDisabled(True)
+        self.delete_button.setDisabled(True)
+        self.add_button.setDisabled(True)
 
     def widget_disappears_callback(self):
         pass

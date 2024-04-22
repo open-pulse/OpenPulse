@@ -283,7 +283,7 @@
       <item>
        <widget class="QPushButton" name="delete_button">
         <property name="text">
-         <string>delete</string>
+         <string>Delete</string>
         </property>
         <property name="shortcut">
          <string>Del</string>

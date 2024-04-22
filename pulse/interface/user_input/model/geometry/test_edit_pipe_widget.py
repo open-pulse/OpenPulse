@@ -42,15 +42,7 @@ class EditPipeWidget(QWidget):
         self.parent().render_widget.selection_changed.connect(self.selection_changed_callback)
 
     def selection_changed_callback(self):
-        if self.pipeline.selected_structures:
-            self.bending_options_combobox.setCurrentText("User-Defined")
-
-            self.bending_radius_line_edit.blockSignals(True)
-            selected_curvature = self._get_selected_curvature()
-            if (selected_curvature is not None):
-                r = str(round(selected_curvature, 4))
-                self.bending_radius_line_edit.setText(r)
-            self.bending_radius_line_edit.blockSignals(False)
+        pass
 
     def get_bending_radius(self, diameter):
         if (self.bending_option == "long radius") or (self.bending_option == "short radius"):
