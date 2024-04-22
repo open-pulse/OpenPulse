@@ -32,12 +32,13 @@ class GeometryDesignerWidget(QWidget):
         # like a diameter in a square beam, the argument
         # will be ignored, and no errors will be raised. 
         self.structure_kwargs = dict()
-        self.add_structure_function = self.pipeline.add_bent_pipe
-        self.attach_selection_function = self.pipeline.connect_bent_pipes
+        self.add_structure_function = None
+        self.attach_selection_function = None
 
         self._define_qt_variables()
         self._create_layout()
         self._create_connections()
+        self._initial_configuration()
         self.setContentsMargins(2,2,2,2)
 
     def _define_qt_variables(self):
@@ -51,6 +52,11 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
+
+        self.sizes_coords_label: QLabel
+        self.dx_label: QLabel
+        self.dy_label: QLabel
+        self.dz_label: QLabel
 
         self.bending_options_combobox: QComboBox
         self.bending_radius_line_edit: QLineEdit
@@ -76,9 +82,19 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.textEdited.connect(self.sizes_coordinates_changed_callback)
         self.z_line_edit.textEdited.connect(self.sizes_coordinates_changed_callback)
 
+        self.bending_options_combobox.currentTextChanged.connect(self.bending_options_changed_callback)
+        self.bending_radius_line_edit.textEdited.connect(self.bending_radius_changed_callback)
+
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)
         self.delete_button.clicked.connect(self.delete_selection_callback)        
+
+    def _initial_configuration(self):
+        self.bending_options_changed_callback("long radius")
+        self.unity_changed_callback("meter")
+        self.structure_type_changed_callback("pipe")
+
+        self.user_defined_bending_radius = 0
 
     def selection_callback(self):
         pass
@@ -106,6 +122,7 @@ class GeometryDesignerWidget(QWidget):
 
     def structure_type_changed_callback(self, structure_type: str):
         structure_type = structure_type.lower().strip()
+        self._show_deltas_mode(True)
 
         if structure_type == "pipe":
             self.add_structure_function = self.pipeline.add_bent_pipe
@@ -114,6 +131,7 @@ class GeometryDesignerWidget(QWidget):
         elif structure_type == "point":
             self.add_structure_function = self.pipeline.add_point
             self.attach_selection_function = None
+            self._show_deltas_mode(False)
 
         elif structure_type == "flange":
             self.add_structure_function = self.pipeline.add_flange
@@ -152,11 +170,12 @@ class GeometryDesignerWidget(QWidget):
             self.attach_selection_function = self.pipeline.connect_c_beams
 
         else:
-            warnings.warn('Structure "{structure_type}" not available. Using pipe instead.')
+            warnings.warn(f'Structure "{structure_type}" not available. Using pipe instead.')
             self.add_structure_function = self.pipeline.add_bent_pipe
             self.attach_selection_function = self.pipeline.connect_bent_pipes
 
         self.sizes_coordinates_changed_callback()
+        self.x_line_edit.setFocus()
 
     def section_callback(self):
         pass
@@ -176,13 +195,45 @@ class GeometryDesignerWidget(QWidget):
         except ValueError:
             return
 
-        radius = self._get_radius()
-        self.structure_kwargs["curvature_radius"] = radius
+        self.structure_kwargs["curvature_radius"] = self._get_radius()
 
         self.pipeline.dismiss()
         kwargs = deepcopy(self.structure_kwargs)
         self.add_structure_function(deltas, **kwargs)
         self.render_widget.update_plot()
+
+    def bending_options_changed_callback(self, text: str):
+        self.bending_option = text.lower().strip()
+        self.bending_radius_line_edit.setDisabled(True)
+        self.bending_factor = 0
+    
+        if self.bending_option == "long radius":
+            self.bending_factor = 1.5
+            self.bending_radius_line_edit.setText("1.5 * D")
+
+        elif self.bending_option == "short radius":
+            self.bending_factor = 1
+            self.bending_radius_line_edit.setText("1.0 * D")
+
+        elif self.bending_option == "user-defined":
+            self.bending_radius_line_edit.setText("")
+            self.bending_radius_line_edit.setDisabled(False)
+            self.bending_radius_line_edit.setFocus()
+        
+        elif self.bending_option == "disabled":
+            self.bending_factor = 0
+            self.bending_radius_line_edit.setText("disabled")
+
+        else:
+            warnings.warn(f'Bending option "{self.bending_option}" not available.')
+
+    def bending_radius_changed_callback(self, text: str):
+        try:
+            self.user_defined_bending_radius = float(text)
+        except ValueError:
+            self.user_defined_bending_radius = 0
+        else:
+            self.sizes_coordinates_changed_callback()
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()
@@ -210,8 +261,17 @@ class GeometryDesignerWidget(QWidget):
         return dx, dy, dz
 
     def _get_radius(self):
-        return 0.3
-    
+        diameter = self.structure_kwargs.get("diameter", 0)
+
+        if (self.bending_option == "long radius") or (self.bending_option == "short radius"):
+            return self.bending_factor * diameter
+
+        elif self.bending_option == "user-defined":
+            return self.user_defined_bending_radius
+
+        else:
+            return 0
+
     def _reset_deltas(self):
         self.x_line_edit.setText("")
         self.y_line_edit.setText("")
