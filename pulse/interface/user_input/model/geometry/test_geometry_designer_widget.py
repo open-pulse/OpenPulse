@@ -217,5 +217,23 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.setText("")
         self.z_line_edit.setText("")
 
+    def _show_deltas_mode(self, boolean):
+        x_text = self.dx_label.text().removeprefix("Δ")
+        y_text = self.dy_label.text().removeprefix("Δ")
+        z_text = self.dz_label.text().removeprefix("Δ")
+
+        if boolean:
+            x_text = "Δ" + x_text
+            y_text = "Δ" + y_text
+            z_text = "Δ" + z_text
+            self.sizes_coords_label.setText("Bounding Box Sizes")
+        
+        else:
+            self.sizes_coords_label.setText("Coordinates")
+        
+        self.dx_label.setText(x_text)
+        self.dy_label.setText(y_text)
+        self.dz_label.setText(z_text)
+
     def _disable_finalize_button(self, boolean):
         pass
