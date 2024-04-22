@@ -112,24 +112,47 @@ class PulsationSuppressionDevice:
                             }
 
             config["1"] = {}
-            config["1"]["start point"] = str(np.array(value["connecting coords"]) - np.array([inlet_pipe["distance"], inlet_pipe["length"], 0]))
-            config["1"]["end point"] = str(np.array(value["connecting coords"]) - np.array([0, inlet_pipe["length"], 0]))
+            config["1"]["start point"] = str(list(np.array(value["connecting coords"]) - np.array([inlet_pipe["distance"], inlet_pipe["length"], 0])))
+            config["1"]["end point"] = str(list(np.array(value["connecting coords"]) - np.array([0, inlet_pipe["length"], 0])))
+            config["1"]["section type"] = "Pipe section"
+            config["1"]["section parameters"] = str([main_chamber["diameter"], main_chamber["wall thickness"], 0, 0, 0, 0])
+            config["1"]["structural element type"] = "pipe_1"
+            config["1"]["material id"] = "2"
 
             config["2"] = {}
-            config["2"]["start point"] = str(np.array(value["connecting coords"]) - np.array([0, inlet_pipe["length"], 0]))
-            config["2"]["end point"] = str(np.array(value["connecting coords"]) )
+            config["2"]["start point"] = str(list(np.array(value["connecting coords"]) - np.array([0, inlet_pipe["length"], 0])))
+            config["2"]["end point"] = str(list(np.array(value["connecting coords"]) ))
+            config["2"]["section type"] = "Pipe section"
+            config["2"]["section parameters"] = str([inlet_pipe["diameter"], inlet_pipe["wall thickness"], 0, 0, 0, 0])
+            config["2"]["structural element type"] = "pipe_1"
+            config["2"]["material id"] = "2"
+
 
             config["3"] = {}
-            config["3"]["start point"] = str(np.array(value["connecting coords"]) - np.array([0, inlet_pipe["length"], 0]))
-            config["3"]["end point"] = str(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"] - inlet_pipe["distance"], -inlet_pipe["length"], 0]))
+            config["3"]["start point"] = str(list(np.array(value["connecting coords"]) - np.array([0, inlet_pipe["length"], 0])))
+            config["3"]["end point"] = str(list(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"], -inlet_pipe["length"], 0])))
+            config["3"]["section type"] = "Pipe section"
+            config["3"]["section parameters"] = str([main_chamber["diameter"], main_chamber["wall thickness"], 0, 0, 0, 0])
+            config["3"]["structural element type"] = "pipe_1"
+            config["3"]["material id"] = "2"
 
             config["4"] = {}
-            config["4"]["start point"] = str(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"] - inlet_pipe["distance"], -inlet_pipe["length"], 0]))
-            config["4"]["end point"] = str(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"] - inlet_pipe["distance"], -inlet_pipe["length"] - outlet_pipe["length"], 0]))
+            config["4"]["start point"] = str(list(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"], -inlet_pipe["length"], 0])))
+            config["4"]["end point"] = str(list(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"], -inlet_pipe["length"] - outlet_pipe["length"], 0])))
+            config["4"]["section type"] = "Pipe section"
+            config["4"]["section parameters"] = str([outlet_pipe["diameter"], outlet_pipe["wall thickness"], 0, 0, 0, 0])
+            config["4"]["structural element type"] = "pipe_1"
+            config["4"]["material id"] = "2"
+
 
             config["5"] = {}
-            config["5"]["start point"] = str(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"] - inlet_pipe["distance"], -inlet_pipe["length"], 0]))
-            config["5"]["end point"] = str(np.array(value["connecting coords"]) + np.array([main_chamber["length"] - outlet_pipe["distance"], -inlet_pipe["length"], 0]))
+            config["5"]["start point"] = str(list(np.array(value["connecting coords"]) + np.array([outlet_pipe["distance"], -inlet_pipe["length"], 0])))
+            config["5"]["end point"] = str(list(np.array(value["connecting coords"]) + np.array([main_chamber["length"] - inlet_pipe["distance"], -inlet_pipe["length"], 0])))
+            config["5"]["section type"] = "Pipe section"
+            config["5"]["section parameters"] = str([main_chamber["diameter"], main_chamber["wall thickness"], 0, 0, 0, 0])
+            config["5"]["structural element type"] = "pipe_1"
+            config["5"]["material id"] = "2"
+
 
             project_path = Path(self.file._project_path)
             path = project_path / "psd_construction_info.dat"
