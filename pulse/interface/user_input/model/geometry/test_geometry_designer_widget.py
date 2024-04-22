@@ -85,6 +85,9 @@ class GeometryDesignerWidget(QWidget):
         self.attach_button.clicked.connect(self.attach_selection_callback)
         self.delete_button.clicked.connect(self.delete_selection_callback)
 
+        self.cancel_button.clicked.connect(self.cancel_callback)
+        self.finalize_button.clicked.connect(self.finalize_callback)
+
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section_callback)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
@@ -251,6 +254,12 @@ class GeometryDesignerWidget(QWidget):
         self.pipeline.commit()
         self.render_widget.update_plot()
         self._reset_deltas()
+
+    def cancel_callback(self):
+        pass
+
+    def finalize_callback(self):
+        pass
 
     def widget_appears_callback(self):
         self.attach_button.setDisabled(True)
