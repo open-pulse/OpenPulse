@@ -95,6 +95,13 @@ class GeometryDesignerWidget(QWidget):
         self.structure_type_changed_callback("pipe")
 
         self.user_defined_bending_radius = 0
+        self.set_section_button.setProperty("warning", True)
+        self.set_material_button.setProperty("warning", True)
+        self.set_fluid_button.setProperty("warning", True)
+
+        self.style().polish(self.set_section_button)
+        self.style().polish(self.set_material_button)
+        self.style().polish(self.set_fluid_button)
 
     def selection_callback(self):
         pass
@@ -178,13 +185,16 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit.setFocus()
 
     def section_callback(self):
-        pass
+        self.set_section_button.setProperty("warning", False)
+        self.style().polish(self.set_section_button)
 
     def material_callback(self):
-        pass
+        self.set_material_button.setProperty("warning", False)
+        self.style().polish(self.set_material_button)
 
     def fluid_callback(self):
-        pass
+        self.set_fluid_button.setProperty("warning", False)
+        self.style().polish(self.set_fluid_button)
 
     def sizes_coordinates_changed_callback(self):
         if not callable(self.add_structure_function):
