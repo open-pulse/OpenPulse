@@ -3,12 +3,19 @@ from PyQt5 import uic
 import re
 from copy import deepcopy
 import warnings
+from collections import defaultdict
 
 from opps.model import Pipeline
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.geometry.test_edit_pipe_widget import EditPipeWidget
+from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+
+
+def nested_dict():
+    return defaultdict(nested_dict)
 
 
 class GeometryDesignerWidget(QWidget):
@@ -30,7 +37,8 @@ class GeometryDesignerWidget(QWidget):
         # If the argument is useless to the current function,
         # like a diameter in a square beam, the argument
         # will be ignored, and no errors will be raised. 
-        self.structure_kwargs = dict(
+        self.structure_kwargs = nested_dict()
+        self.structure_kwargs.update(
             diameter = 0.1,
             height = 0.1,
             width = 0.1,
@@ -81,15 +89,18 @@ class GeometryDesignerWidget(QWidget):
         self.edit_pipe_widget = EditPipeWidget(self)
         self.options_stack_widget.addWidget(self.edit_pipe_widget)
 
+        self.cross_section_widget = CrossSectionWidget()
+        self.material_widget = MaterialInputs()
+
     def _create_connections(self):
         self.render_widget.selection_changed.connect(self.selection_callback)
 
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         
-        self.set_section_button.clicked.connect(self.section_callback)
-        self.set_material_button.clicked.connect(self.material_callback)
-        self.set_fluid_button.clicked.connect(self.fluid_callback)
+        self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
+        self.set_material_button.clicked.connect(self.show_material_widget_callback)
+        self.set_fluid_button.clicked.connect(self.show_fluid_widget_callback)
 
         self.x_line_edit.textEdited.connect(self.sizes_coordinates_changed_callback)
         self.y_line_edit.textEdited.connect(self.sizes_coordinates_changed_callback)
@@ -99,11 +110,14 @@ class GeometryDesignerWidget(QWidget):
 
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)
-        self.delete_button.clicked.connect(self.delete_selection_callback)        
+        self.delete_button.clicked.connect(self.delete_selection_callback)
+
+        self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
+        self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section_callback)
 
     def _initial_configuration(self):
-        self.unity_changed_callback("meter")
-        self.structure_type_changed_callback("pipe")
+        self.current_material_info = None
+        self.current_cross_section_info = None
 
         self.set_section_button.setProperty("warning", True)
         self.set_material_button.setProperty("warning", True)
@@ -112,6 +126,9 @@ class GeometryDesignerWidget(QWidget):
         self.style().polish(self.set_section_button)
         self.style().polish(self.set_material_button)
         self.style().polish(self.set_fluid_button)
+
+        self.unity_changed_callback("meter")
+        self.structure_type_changed_callback("pipe")
 
     def selection_callback(self):
         if len(self.pipeline.selected_points) > 1:
@@ -153,78 +170,114 @@ class GeometryDesignerWidget(QWidget):
                 label.setText(unit_label_text)
 
     def structure_type_changed_callback(self, structure_type: str):
-        structure_type = structure_type.lower().strip()
+        self.structure_type = structure_type.lower().strip()
         self._show_deltas_mode(True)
         self.options_stack_widget.setCurrentWidget(self.empty_widget)
 
-        if structure_type == "pipe":
+        if self.structure_type == "pipe":
             self.add_structure_function = self.pipeline.add_bent_pipe
             self.attach_selection_function = self.pipeline.connect_bent_pipes
             self.options_stack_widget.setCurrentWidget(self.edit_pipe_widget)
 
-        elif structure_type == "point":
+        elif self.structure_type == "point":
             self.add_structure_function = self.pipeline.add_point
             self.attach_selection_function = None
             self._show_deltas_mode(False)
 
-        elif structure_type == "flange":
+        elif self.structure_type == "flange":
             self.add_structure_function = self.pipeline.add_flange
             self.attach_selection_function = self.pipeline.connect_flanges
 
-        elif structure_type == "valve":
+        elif self.structure_type == "valve":
             self.add_structure_function = self.pipeline.add_valve
             self.attach_selection_function = self.pipeline.connect_valves
 
-        elif structure_type == "expansion joint":
+        elif self.structure_type == "expansion joint":
             self.add_structure_function = self.pipeline.add_expansion_joint
             self.attach_selection_function = self.pipeline.connect_expansion_joints
 
-        elif structure_type == "reducer":
+        elif self.structure_type == "reducer":
             self.add_structure_function = self.pipeline.add_reducer_eccentric
             self.attach_selection_function = self.pipeline.connect_reducer_eccentrics
 
-        elif structure_type == "circular beam":
+        elif self.structure_type == "circular beam":
             self.add_structure_function = self.pipeline.add_circular_beam
             self.attach_selection_function = self.pipeline.connect_circular_beams
 
-        elif structure_type == "rectangular beam":
+        elif self.structure_type == "rectangular beam":
             self.add_structure_function = self.pipeline.add_rectangular_beam
             self.attach_selection_function = self.pipeline.connect_rectangular_beams
 
-        elif structure_type == "i-beam":
+        elif self.structure_type == "i-beam":
             self.add_structure_function = self.pipeline.add_i_beam
             self.attach_selection_function = self.pipeline.connect_i_beams
 
-        elif structure_type == "t-beam":
+        elif self.structure_type == "t-beam":
             self.add_structure_function = self.pipeline.add_t_beam
             self.attach_selection_function = self.pipeline.connect_t_beams
 
-        elif structure_type == "c-beam":
+        elif self.structure_type == "c-beam":
             self.add_structure_function = self.pipeline.add_c_beam
             self.attach_selection_function = self.pipeline.connect_c_beams
 
         else:
-            warnings.warn(f'Structure "{structure_type}" not available. Using pipe instead.')
+            warnings.warn(f'Structure "{self.structure_type}" not available. Using pipe instead.')
             self.add_structure_function = self.pipeline.add_bent_pipe
             self.attach_selection_function = self.pipeline.connect_bent_pipes
 
         self.sizes_coordinates_changed_callback()
         self.x_line_edit.setFocus()
 
-    def section_callback(self):
-        self.set_section_button.setProperty("warning", False)
-        self.style().polish(self.set_section_button)
+    def show_cross_section_widget_callback(self):
+        self.cross_section_widget._add_icon_and_title()
+        self.cross_section_widget.set_inputs_to_geometry_creator()            
+        self.cross_section_widget.setVisible(True)
 
-    def material_callback(self):
+    def show_material_widget_callback(self):
         self.set_material_button.setProperty("warning", False)
         self.style().polish(self.set_material_button)
 
-    def fluid_callback(self):
+    def show_fluid_widget_callback(self):
         self.set_fluid_button.setProperty("warning", False)
         self.style().polish(self.set_fluid_button)
+    
+    def define_cross_section_callback(self):
+        beam_structure_types = [
+            "circular beam",
+            "rectangular beam",
+            "i-beam",
+            "t-beam",
+            "c-beam"
+        ]
+
+        if self.structure_type == "pipe":
+            if self.cross_section_widget.get_constant_pipe_parameters():
+                return
+            self.current_cross_section_info = self.cross_section_widget.pipe_section_info
+
+        elif self.structure_type == "reducer":
+            if self.cross_section_widget.get_variable_section_pipe_parameters():
+                return
+            self.current_cross_section_info = self.cross_section_widget.pipe_section_info
+
+        elif self.structure_type in beam_structure_types:
+            if self.cross_section_widget.get_beam_section_parameters():
+                return
+            self.current_cross_section_info = self.cross_section_widget.beam_section_info
+        
+        else:
+            return
+        
+        self.cross_section_widget.hide()
+        self._update_structure_arguments()
+        self._update_segment_information_text()
+        self.sizes_coordinates_changed_callback()
 
     def sizes_coordinates_changed_callback(self):
         if not callable(self.add_structure_function):
+            return
+        
+        if self.current_cross_section_info is None:
             return
 
         try:
@@ -304,3 +357,103 @@ class GeometryDesignerWidget(QWidget):
 
     def _disable_finalize_button(self, boolean):
         pass
+    
+    def _update_structure_arguments(self):
+        if self.current_cross_section_info is not None:
+            self.structure_kwargs["extra_info"]["cross_section_info"] = self.current_cross_section_info
+
+        if self.current_material_info is not None:
+            self.structure_kwargs["extra_info"]["material_info"] = self.current_material_info
+
+        parameters = self.current_cross_section_info["section_parameters"]
+        if self.structure_type == "pipe":
+            self.structure_kwargs.update(
+                diameter = parameters[0],
+                thickness = parameters[1],
+            )
+
+        elif self.structure_type == "reducer":
+            self.structure_kwargs.update(
+                initial_diameter = parameters[0],
+                final_diameter = parameters[4],
+                offset_y = parameters[6],
+                offset_z = parameters[7],
+                thickness = parameters[1],
+            )
+
+        elif self.structure_type == "circular beam":
+            self.structure_kwargs.update(
+                diameter = parameters[0],
+                thickness = parameters[1],
+            )
+
+        elif self.structure_type == "rectangular beam":
+            self.structure_kwargs.update(
+                width = parameters[0],
+                height = parameters[1],
+                thickness = parameters[2], # Probably wrong
+            )
+
+        elif self.structure_type == "i-beam":
+            self.structure_kwargs.update(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+
+        elif self.structure_type == "t-beam":
+            self.structure_kwargs.update(
+                height = parameters[0],
+                width = parameters[1],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[3],
+            )
+
+        elif self.structure_type == "c-beam":
+            self.structure_kwargs.update(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+
+        else:
+            return
+
+    def _update_segment_information_text(self):
+        section_label = ""
+        section_parameters = ""
+        if self.current_cross_section_info:
+            section_label = self.current_cross_section_info["section_type_label"]
+            section_parameters = self.current_cross_section_info["section_parameters"]
+
+        material_id = ""
+        material_data = None
+        if self.current_material_info is not None:
+            material_id = self.current_material_info
+            material_data = self.file.get_material_properties(material_id)
+
+        message = "Active configuration\n\n"
+
+        if self.current_cross_section_info:
+            # message = "Cross-section info:\n"
+            if section_label == "Pipe section":
+                if len(section_parameters) == 6:
+                    message += f"Section type: {section_label} (constant)\n"
+                else:
+                    message += f"Section type: {section_label} (variable)\n"
+            else:
+                message += f"Section type: {section_label}\n"
+            message += f"Section data: {section_parameters}\n\n"
+
+        if material_data is not None:
+            # message = "Material info:\n"
+            message += f"Material name: {material_data[0]}\n"
+            message += f"Material data: {material_data[1:]}\n\n"
+
+        self.render_widget.set_info_text(message)
