@@ -1,6 +1,6 @@
 QPushButton[warning=true]{
     color: #e74441;
-    font: bold 14px;
+    font: bold;
 
 	border-style: solid;
 	border-color: #e74441;
