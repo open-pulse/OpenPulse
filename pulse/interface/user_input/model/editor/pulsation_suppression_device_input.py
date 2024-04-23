@@ -460,7 +460,8 @@ class PulsationSuppressionDeviceInput(QDialog):
                                                           self.suppression_device_data)
         self.project.PSD.load_suppression_device_data_from_file()
         # pprint(self.project.PSD.pulsation_suppression_device)
-        self.project.PSD.create_psd_dat()
+        self.project.PSD.process_psd_data()
+        # self.project.PSD.write_psd()
 
         self.close()
 
