@@ -7,6 +7,81 @@ import numpy as np
 from pathlib import Path
 from pprint import pprint
 
+class PSDSingleChamber:
+    def __init__(self, connection_type, connection_point, axis, inlet_pipe_distance, inlet_pipe_length, outlet_pipe_distance, outlet_pipe_length, main_chamber_length, angle_inlet, angle_outlet) -> None:
+        self.connection_point = connection_point
+        self.connection_point = connection_point
+        self.axis = axis
+        self.inlet_pipe_distance = inlet_pipe_distance
+        self.inlet_pipe_length = inlet_pipe_length
+        self.outlet_pipe_distance = outlet_pipe_distance
+        self.outlet_pipe_length = outlet_pipe_length
+        self.main_chamber_length = main_chamber_length
+
+    def get_points(self):
+        versor_x = np.array([1, 0, 0])
+        versor_y = np.array([0, 1, 0])
+        
+        inlet = np.array([0, 0, 0])
+        junction_0 = inlet - versor_y * self.inlet_pipe_distance
+        deadleg_0 = junction_0 - versor_x * self.inlet_pipe_distance
+        junction_1 = deadleg_0 + versor_x * self.outlet_pipe_distance
+        deadleg_1 = deadleg_0 + versor_x * self.main_chamber_length
+        outlet = junction_1 - versor_y * self.outlet_pipe_length
+
+        points = self.rotate_points([inlet, outlet, junction_0, junction_1, deadleg_0, deadleg_1])
+
+        inlet, outlet, junction_0, junction_1, deadleg_0, deadleg_1 = self.translate_to_connection_point(points)
+
+        if self.connection_point == "discharge":
+            inlet, outlet = outlet, inlet
+
+        return dict(
+            inlet = inlet, 
+            outlet = outlet, 
+            junction_0 = junction_0, 
+            junction_1 = junction_1, 
+            deadleg_0 = deadleg_0, 
+            deadleg_1 = deadleg_1,
+        )     
+
+    def rotate_points(self, points):
+        if self.axis == "y":
+            matrix = self.rotation_matrix_y(np.pi/2)
+        elif self.axis == "z":
+            matrix = self.rotation_matrix_z(np.pi/2)
+        else:
+            matrix = np.identity(3)
+
+        rotated_points = []
+        for point in points:
+            rotated_point = matrix @ point
+            rotated_points.append(rotated_point)
+        
+        return rotated_points
+    
+    def translate_to_connection_point(self, points):
+        translated_points = []
+        for point in points:
+            translated_point = point + self.connection_point
+            translated_points.append(translated_point)
+        return translated_points    
+        
+    
+
+
+
+    def rotation_matrix_y(self, angle):
+        return np.array([[np.cos(angle), 0, np.sin(angle)], [0, 1, 0], [-np.sin(angle), 0, np.cos(angle)]])
+    
+    def rotation_matrix_z(self, angle):
+        return np.array([[1, 0, 0], [0, np.cos(angle), -np.sin(angle)], [0, np.sin(angle), np.cos(angle)]])
+    
+    # def rotate_points(self, points):
+
+    
+
+        
 class PulsationSuppressionDevice:
     def __init__(self, project):
 
