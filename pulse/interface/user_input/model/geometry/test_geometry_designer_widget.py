@@ -178,30 +178,37 @@ class GeometryDesignerWidget(QWidget):
         if self.structure_type in ["pipe", "flange", "valve", "expansion_joint"]:
             self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
             self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
+            self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         
         elif self.structure_type == "reducer":
             self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
             self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
+            self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
 
         elif self.structure_type == "rectangular beam":
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(0, True)
+            self.cross_section_widget.lineEdit_base_rectangular_section.setFocus()
 
         elif self.structure_type == "circular beam":
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(1, True)
+            self.cross_section_widget.lineEdit_outside_diameter_circular_section.setFocus()
 
         elif self.structure_type == "c-beam":
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(2, True)
+            self.cross_section_widget.lineEdit_height_C_section.setFocus()
 
         elif self.structure_type == "i-beam":
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(3, True)
+            self.cross_section_widget.lineEdit_height_I_section.setFocus()
 
         elif self.structure_type == "t-beam":
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(4, True)
+            self.cross_section_widget.lineEdit_height_T_section.setFocus()
 
         else:
             return
