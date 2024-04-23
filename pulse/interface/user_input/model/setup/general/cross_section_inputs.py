@@ -284,6 +284,16 @@ class CrossSectionWidget(QWidget):
         self.lineEdit_element_id_final.setVisible(False)
         self.pushButton_flip_element_ids_initial.setVisible(False)
         self.pushButton_flip_element_ids_final.setVisible(False)
+    
+    def hide_all_tabs(self):
+        for i in range(self.tabWidget_general.count()):
+            self.tabWidget_general.setTabVisible(i, False)
+
+        for i in range(self.tabWidget_pipe_section.count()):
+            self.tabWidget_pipe_section.setTabVisible(i, False)
+
+        for i in range(self.tabWidget_beam_section.count()):
+            self.tabWidget_beam_section.setTabVisible(i, False)
 
     def set_geometry_creator(self, geometry_creator):
         self.geometry_creator_input = geometry_creator
