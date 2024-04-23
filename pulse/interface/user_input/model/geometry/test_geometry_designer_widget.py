@@ -384,7 +384,8 @@ class GeometryDesignerWidget(QWidget):
         parameters = self.current_cross_section_info["section_parameters"]
 
         if self.structure_type == "pipe":
-            self.pipeline.connect_bent_pipes(diameter = parameters[0], thickness = parameters[1])
+            curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
+            self.pipeline.connect_bent_pipes(curvature_radius, diameter = parameters[0], thickness = parameters[1])
 
         elif self.structure_type == "reducer":
             self.pipeline.connect_reducer_eccentrics(
