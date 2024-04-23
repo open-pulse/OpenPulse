@@ -229,13 +229,14 @@ class GeometryDesignerWidget(QWidget):
         except ValueError:
             return
         
+        self.pipeline.dismiss()
+        self.pipeline.clear_structure_selection()
         if deltas == (0, 0, 0):
             return self.render_widget.update_plot()
-
-        self.pipeline.dismiss()
+        
         self._create_current_structure(deltas)
-        self.render_widget.update_plot()
         self.add_button.setEnabled(True)
+        self.render_widget.update_plot()
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()

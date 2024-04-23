@@ -628,7 +628,7 @@ vtkat = {git = "https://github.com/andrefpf/vtkat"}
 type = "git"
 url = "https://github.com/open-pulse/opps"
 reference = "add_new_structures"
-resolved_reference = "cd46ab26a5258b9938045bdb443192c83086041e"
+resolved_reference = "729a7f98176ef7900996064c56aea36dd30c6b13"
 
 [[package]]
 name = "ordered-set"
