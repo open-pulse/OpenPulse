@@ -84,6 +84,10 @@ class PulsationSuppressionDevice:
 
                 if aux:
                     self.pulsation_suppression_device[tag] = aux
+
+    # def rotate_coords(self, config):
+
+        
     
     def create_psd_dat(self):
 
