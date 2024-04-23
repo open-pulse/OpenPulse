@@ -255,23 +255,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QStackedWidget" name="options_stack_widget">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="empty_widget">
-      <layout class="QVBoxLayout" name="verticalLayout_5"/>
-     </widget>
-     <widget class="QWidget" name="page_2"/>
-    </widget>
-   </item>
-   <item>
     <widget class="QFrame" name="remove_attach_add_frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -324,9 +307,26 @@
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="QStackedWidget" name="options_stack_widget">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="empty_widget">
+      <layout class="QVBoxLayout" name="verticalLayout_5"/>
+     </widget>
+     <widget class="QWidget" name="page_2"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
