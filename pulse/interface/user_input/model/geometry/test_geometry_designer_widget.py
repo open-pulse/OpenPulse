@@ -62,8 +62,11 @@ class GeometryDesignerWidget(QWidget):
         self.edit_pipe_widget = EditPipeWidget(self)
         self.options_stack_widget.addWidget(self.edit_pipe_widget)
 
-        self.cross_section_widget = CrossSectionWidget()
-        self.material_widget = MaterialInputs()
+        self.cross_section_widget = CrossSectionWidget(self)
+        self.material_widget = MaterialInputs(self)
+
+        self.cross_section_widget.hide()
+        self.material_widget.hide()
 
     def _create_connections(self):
         self.render_widget.selection_changed.connect(self.selection_callback)
