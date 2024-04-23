@@ -86,10 +86,6 @@ class PulsationSuppressionDevice:
                 if aux:
                     self.pulsation_suppression_device[tag] = aux
 
-    # def rotate_coords(self, config):
-
-        
-    
     def process_psd_data(self):
         # aqui colocar um if pra ver se ele tem 2 volumes ou nao
         self.devices = dict()
@@ -155,10 +151,6 @@ class PulsationSuppressionDevice:
                 for i in lines[i]:
                     for j in lines[i][j]:
                         lines[i][j] = np.dot(rotation_matrix, lines[i][j])
-
-                
-
-
 
         def write_psd(self):
             for key, value in self.pulsation_suppression_device.items():
