@@ -85,6 +85,10 @@ class PulsationSuppressionDevice:
 
                 if aux:
                     self.pulsation_suppression_device[tag] = aux
+
+    # def rotate_coords(self, config):
+
+        
     
     def process_psd_data(self):
         # aqui colocar um if pra ver se ele tem 2 volumes ou nao
