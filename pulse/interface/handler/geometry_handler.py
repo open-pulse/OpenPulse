@@ -181,11 +181,10 @@ class GeometryHandler:
                 start = Point(*data['start_point'])
                 end = Point(*data['end_point'])
                 structure = RectangularBeam(
-                    initial_diameter = section_parameters[0],
-                    final_diameter = section_parameters[4],
-                    offset_y = section_parameters[6],
-                    offset_z = section_parameters[7],
-                    thickness = section_parameters[1],
+                    start, end,
+                    width = section_parameters[0],
+                    height = section_parameters[1],
+                    thickness = section_parameters[2],
                 )
             
             elif section_type_label == "Circular section":
