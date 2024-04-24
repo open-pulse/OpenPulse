@@ -564,89 +564,9 @@ class GeometryDesignerWidget(QWidget):
             )
 
     def _update_section_of_selected_structures(self):
-        parameters = self.current_cross_section_info["section_parameters"]
-        extra_info = dict(
-            cross_section_info = deepcopy(self.current_cross_section_info),
-            material_info = self.current_material_info
-        )
+        valid_type = self._structure_name_to_class(self.structure_type)
+        _, _, kwargs = self._get_structure_functions()
 
-        if self.structure_type in ["pipe", "valve", "flange", "expansion joints"]:
-            valid_type = Pipe | Valve | Flange | ExpansionJoint
-            extra_info["structural_element_type"] = "pipe_1"
-            kwargs = dict(
-                diameter = parameters[0], 
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "reducer":
-            valid_type = ReducerEccentric
-            extra_info["structural_element_type"] = "pipe_1"
-            kwargs = dict(
-                initial_diameter = parameters[0],
-                final_diameter = parameters[4],
-                offset_y = parameters[6],
-                offset_z = parameters[7],
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "circular beam":
-            valid_type = CircularBeam
-            extra_info["structural_element_type"] = "beam_1"
-            kwargs = dict(
-                diameter = parameters[0], 
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "rectangular beam":
-            valid_type = RectangularBeam
-            extra_info["structural_element_type"] = "beam_1"
-            kwargs = dict(
-                width = parameters[0],
-                height = parameters[1],
-                thickness = parameters[2],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "i-beam":
-            valid_type = IBeam
-            extra_info["structural_element_type"] = "beam_1"
-            kwargs = dict(
-                height = parameters[0],
-                width_1 = parameters[1],
-                width_2 = parameters[3],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[4],
-                thickness_3 = parameters[5],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "t-beam":
-            valid_type = TBeam
-            extra_info["structural_element_type"] = "beam_1"
-            kwargs = dict(
-                height = parameters[0],
-                width = parameters[1],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[3],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "c-beam":
-            valid_type = CBeam
-            extra_info["structural_element_type"] = "beam_1"
-            kwargs = dict(
-                height = parameters[0],
-                width_1 = parameters[1],
-                width_2 = parameters[3],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[4],
-                thickness_3 = parameters[5],
-                extra_info=extra_info,
-            )
-        
         for structure in self.pipeline.selected_structures:
             if not isinstance(structure, valid_type):
                 continue
@@ -693,7 +613,9 @@ class GeometryDesignerWidget(QWidget):
         attach_function = None
         kwargs = dict()
 
-        if issubclass(self.structure_type, Point):
+        _type = self._structure_name_to_class(self.structure_type)
+
+        if issubclass(_type, Point):
             add_function = self.pipeline.add_isolated_point
             return add_function, attach_function, kwargs
 
@@ -703,19 +625,19 @@ class GeometryDesignerWidget(QWidget):
 
         parameters = self.current_cross_section_info["section_parameters"]
         kwargs["extra_info"] = dict(
-            structure_type = self.structure_type,
+            structure_type = _type,
             cross_section_info = deepcopy(self.current_cross_section_info),
             material_info = self.current_material_info
         )
         
-        if issubclass(self.structure_type, Pipe):
+        if issubclass(_type, Pipe):
             add_function = self.pipeline.add_bent_pipe
             attach_function = self.pipeline.connect_bent_pipes
             kwargs["diameter"] = parameters[0]
             kwargs["thickness"] = parameters[1]
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
 
-        elif issubclass(self.structure_type, Flange):
+        elif issubclass(_type, Flange):
             add_function = self.pipeline.add_flange
             attach_function = self.pipeline.connect_flanges
             kwargs["diameter"] = parameters[0]
@@ -723,7 +645,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
             # add remaining valve info here
 
-        elif issubclass(self.structure_type, Valve):
+        elif issubclass(_type, Valve):
             add_function = self.pipeline.add_valve
             attach_function = self.pipeline.connect_valves
             kwargs["diameter"] = parameters[0]
@@ -731,7 +653,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
             # add remaining valve info here
 
-        elif issubclass(self.structure_type, ExpansionJoint):
+        elif issubclass(_type, ExpansionJoint):
             add_function = self.pipeline.add_expansion_joint
             attach_function = self.pipeline.connect_expansion_joints
             kwargs["diameter"] = parameters[0]
@@ -739,7 +661,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
             # add remaining valve info here
 
-        elif issubclass(self.structure_type, ReducerEccentric):
+        elif issubclass(_type, ReducerEccentric):
             add_function = self.pipeline.add_reducer_eccentric
             attach_function = self.pipeline.connect_reducer_eccentrics
             kwargs["initial_diameter"] = parameters[0]
@@ -749,14 +671,14 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness"] = parameters[1]
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
 
-        elif issubclass(self.structure_type, CircularBeam):
+        elif issubclass(_type, CircularBeam):
             add_function = self.pipeline.add_circular_beam
             attach_function = self.pipeline.connect_circular_beams
             kwargs["diameter"] = parameters[0]
             kwargs["thickness"] = parameters[1]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(self.structure_type, RectangularBeam):
+        elif issubclass(_type, RectangularBeam):
             add_function = self.pipeline.add_rectangular_beam
             attach_function = self.pipeline.connect_rectangular_beams
             kwargs["width"] = parameters[0]
@@ -764,7 +686,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness"] = parameters[2]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(self.structure_type, IBeam):
+        elif issubclass(_type, IBeam):
             add_function = self.pipeline.add_i_beam
             attach_function = self.pipeline.connect_i_beams
             kwargs["height"] = parameters[0]
@@ -775,7 +697,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness_3"] = parameters[5]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(self.structure_type, TBeam):
+        elif issubclass(_type, TBeam):
             add_function = self.pipeline.add_t_beam
             attach_function = self.pipeline.connect_t_beams
             kwargs["height"] = parameters[0]
@@ -784,7 +706,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness_2"] = parameters[3]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(self.structure_type, CBeam):
+        elif issubclass(_type, CBeam):
             add_function = self.pipeline.add_c_beam
             attach_function = self.pipeline.connect_c_beams
             kwargs["height"] = parameters[0]
