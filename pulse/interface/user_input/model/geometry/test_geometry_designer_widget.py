@@ -333,24 +333,6 @@ class GeometryDesignerWidget(QWidget):
             import_type = 1,
         )
 
-
-        from pprint import pprint
-
-        print("BEFORE")
-        for struct in self.pipeline.structures:
-            pprint(struct.extra_info)
-            print()
-        print("_______________________________")
-
-        self._load_project()
-
-        print("AFTER")
-        for struct in self.pipeline.structures:
-            pprint(struct.extra_info)
-            print()
-        print("_______________________________")
-
-
         app().update()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
