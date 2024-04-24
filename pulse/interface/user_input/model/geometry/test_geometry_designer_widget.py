@@ -114,22 +114,7 @@ class GeometryDesignerWidget(QWidget):
         self.structure_type_changed_callback("pipe")
 
     def selection_callback(self):
-        if len(self.pipeline.selected_points) > 1:
-            self.attach_button.setEnabled(True)
-        else:
-            self.attach_button.setDisabled(True)
-
-        has_selection = self.pipeline.selected_points or self.pipeline.selected_structures
-        has_staged = self.pipeline.staged_points or self.pipeline.staged_structures
-        if has_selection or has_staged:
-            self.delete_button.setEnabled(True)
-        else:
-            self.delete_button.setDisabled(True)
-        
-        if has_staged:
-            self.add_button.setEnabled(True)
-        else:
-            self.add_button.setDisabled(True)
+        self._update_permissions()
 
     def unity_changed_callback(self, text: str):
         self.length_unit = text.lower().strip()
@@ -276,8 +261,11 @@ class GeometryDesignerWidget(QWidget):
         self._update_segment_information_text()
 
     def xyz_changed_callback(self):
-        if self.current_cross_section_info is None:
-            return
+        have_cross_section = self.current_cross_section_info is not None
+        needs_cross_section = self.structure_type != "point"
+
+        if needs_cross_section and not have_cross_section:
+            return 
 
         try:
             deltas = self._get_deltas()
@@ -286,12 +274,12 @@ class GeometryDesignerWidget(QWidget):
 
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        if deltas == (0, 0, 0):
+        if (self.structure_type != "point") and (deltas == (0, 0, 0)):
             return self.render_widget.update_plot(reset_camera=False)
 
         self.pipeline.dismiss()
         self._create_current_structure(deltas)
-        self.add_button.setEnabled(True)
+        self._update_permissions()
         self.render_widget.update_plot(reset_camera=True)
 
     def delete_selection_callback(self):
@@ -376,6 +364,11 @@ class GeometryDesignerWidget(QWidget):
         self.dz_label.setText(z_text)
 
     def _create_current_structure(self, xyz):
+        if self.structure_type == "point":
+            self.pipeline.clear_point_selection()
+            self.pipeline.add_isolated_point(xyz)
+            return
+
         parameters = self.current_cross_section_info["section_parameters"]
         extra_info = dict(
             cross_section_info = deepcopy(self.current_cross_section_info),
@@ -691,20 +684,31 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.set_info_text(message)
 
     def _update_permissions(self):
-        hide_cross_section = (self.structure_type in ["point"])
-        hide_material = (self.structure_type in ["point"])
-        hide_fluid = ("beam" in self.structure_type)
+        # usefull variables
+        have_selection = bool(self.pipeline.selected_points or self.pipeline.selected_structures)
+        have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
+        have_cross_section = self.current_cross_section_info is not None
+        multiple_points_selected = len(self.pipeline.selected_points) >= 1
+        is_point = self.structure_type == "point"
+        is_beam = ("beam" in self.structure_type) 
 
-        self.set_section_button.setDisabled(hide_cross_section)
-        self.set_material_button.setDisabled(hide_material)
-        self.set_fluid_button.setDisabled(hide_fluid)
+        self.set_section_button.setDisabled(is_point)
+        self.set_material_button.setDisabled(is_point)
+        self.set_fluid_button.setDisabled(is_beam or is_point)
 
-        missing_cross_section = (self.current_cross_section_info is None
-                                 and not hide_cross_section)
-        self.x_line_edit.setDisabled(missing_cross_section)
-        self.y_line_edit.setDisabled(missing_cross_section)
-        self.z_line_edit.setDisabled(missing_cross_section)
-        self.set_section_button.setProperty("warning", missing_cross_section)
+        self.add_button.setDisabled(not have_staged)
+        self.delete_button.setDisabled(not (have_selection or have_staged))
+        self.attach_button.setDisabled(
+            is_point
+            or not have_cross_section
+            or not multiple_points_selected
+        )
+
+        enable_xyz = (not is_point and not have_cross_section)
+        self.x_line_edit.setDisabled(enable_xyz)
+        self.y_line_edit.setDisabled(enable_xyz)
+        self.z_line_edit.setDisabled(enable_xyz)
+        self.set_section_button.setProperty("warning", enable_xyz)
         self.style().polish(self.set_section_button)
 
     def _load_project(self):
