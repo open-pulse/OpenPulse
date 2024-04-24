@@ -4,7 +4,7 @@ import re
 import warnings
 from copy import deepcopy
 
-from opps.model import Pipeline, Pipe, Flange, ExpansionJoint, Valve, ReducerEccentric, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
+from opps.model import Point, Pipe, Flange, ExpansionJoint, Valve, ReducerEccentric, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
@@ -651,6 +651,149 @@ class GeometryDesignerWidget(QWidget):
 
             for k, v in kwargs.items():
                 setattr(structure, k, v)
+
+    def _structure_name_to_class(self, structure_name: str):
+        if self.structure_type == "point":
+            return Point
+        
+        elif self.structure_type == "pipe":
+            return Pipe
+
+        elif self.structure_type == "flange":
+            return Flange
+
+        elif self.structure_type == "valve":
+            return Valve
+
+        elif self.structure_type == "expansion joint":
+            return ExpansionJoint
+
+        elif self.structure_type == "reducer":
+            return ReducerEccentric
+
+        elif self.structure_type == "circular beam":
+            return CircularBeam
+
+        elif self.structure_type == "rectangular beam":
+            return RectangularBeam
+
+        elif self.structure_type == "i-beam":
+            return IBeam
+
+        elif self.structure_type == "t-beam":
+            return TBeam
+
+        elif self.structure_type == "c-beam":
+            return CBeam
+
+    def _get_structure_functions(self):
+        add_function = None
+        attach_function = None
+        kwargs = dict()
+
+        if issubclass(self.structure_type, Point):
+            add_function = self.pipeline.add_isolated_point
+            return add_function, attach_function, kwargs
+
+        # all other structures need a cross section defined
+        if self.current_cross_section_info is None:
+            return add_function, attach_function, kwargs
+
+        parameters = self.current_cross_section_info["section_parameters"]
+        kwargs["extra_info"] = dict(
+            structure_type = self.structure_type,
+            cross_section_info = deepcopy(self.current_cross_section_info),
+            material_info = self.current_material_info
+        )
+        
+        if issubclass(self.structure_type, Pipe):
+            add_function = self.pipeline.add_bent_pipe
+            attach_function = self.pipeline.connect_bent_pipes
+            kwargs["diameter"] = parameters[0]
+            kwargs["thickness"] = parameters[1]
+            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
+
+        elif issubclass(self.structure_type, Flange):
+            add_function = self.pipeline.add_flange
+            attach_function = self.pipeline.connect_flanges
+            kwargs["diameter"] = parameters[0]
+            kwargs["thickness"] = parameters[1]
+            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
+            # add remaining valve info here
+
+        elif issubclass(self.structure_type, Valve):
+            add_function = self.pipeline.add_valve
+            attach_function = self.pipeline.connect_valves
+            kwargs["diameter"] = parameters[0]
+            kwargs["thickness"] = parameters[1]
+            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
+            # add remaining valve info here
+
+        elif issubclass(self.structure_type, ExpansionJoint):
+            add_function = self.pipeline.add_expansion_joint
+            attach_function = self.pipeline.connect_expansion_joints
+            kwargs["diameter"] = parameters[0]
+            kwargs["thickness"] = parameters[1]
+            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
+            # add remaining valve info here
+
+        elif issubclass(self.structure_type, ReducerEccentric):
+            add_function = self.pipeline.add_reducer_eccentric
+            attach_function = self.pipeline.connect_reducer_eccentrics
+            kwargs["initial_diameter"] = parameters[0]
+            kwargs["final_diameter"] = parameters[4]
+            kwargs["offset_y"] = parameters[6]
+            kwargs["offset_z"] = parameters[7]
+            kwargs["thickness"] = parameters[1]
+            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
+
+        elif issubclass(self.structure_type, CircularBeam):
+            add_function = self.pipeline.add_circular_beam
+            attach_function = self.pipeline.connect_circular_beams
+            kwargs["diameter"] = parameters[0]
+            kwargs["thickness"] = parameters[1]
+            kwargs["extra_info"]["structural_element_type"] = "beam_1"
+
+        elif issubclass(self.structure_type, RectangularBeam):
+            add_function = self.pipeline.add_rectangular_beam
+            attach_function = self.pipeline.connect_rectangular_beams
+            kwargs["width"] = parameters[0]
+            kwargs["height"] = parameters[1]
+            kwargs["thickness"] = parameters[2]
+            kwargs["extra_info"]["structural_element_type"] = "beam_1"
+
+        elif issubclass(self.structure_type, IBeam):
+            add_function = self.pipeline.add_i_beam
+            attach_function = self.pipeline.connect_i_beams
+            kwargs["height"] = parameters[0]
+            kwargs["width_1"] = parameters[1]
+            kwargs["width_2"] = parameters[3]
+            kwargs["thickness_1"] = parameters[2]
+            kwargs["thickness_2"] = parameters[4]
+            kwargs["thickness_3"] = parameters[5]
+            kwargs["extra_info"]["structural_element_type"] = "beam_1"
+
+        elif issubclass(self.structure_type, TBeam):
+            add_function = self.pipeline.add_t_beam
+            attach_function = self.pipeline.connect_t_beams
+            kwargs["height"] = parameters[0]
+            kwargs["width"] = parameters[1]
+            kwargs["thickness_1"] = parameters[2]
+            kwargs["thickness_2"] = parameters[3]
+            kwargs["extra_info"]["structural_element_type"] = "beam_1"
+
+        elif issubclass(self.structure_type, CBeam):
+            add_function = self.pipeline.add_c_beam
+            attach_function = self.pipeline.connect_c_beams
+            kwargs["height"] = parameters[0]
+            kwargs["width_1"] = parameters[1]
+            kwargs["width_2"] = parameters[3]
+            kwargs["thickness_1"] = parameters[2]
+            kwargs["thickness_2"] = parameters[4]
+            kwargs["thickness_3"] = parameters[5]
+            kwargs["extra_info"]["structural_element_type"] = "beam_1"
+    
+        return add_function, attach_function, kwargs
 
     def _update_segment_information_text(self):
         section_label = ""
