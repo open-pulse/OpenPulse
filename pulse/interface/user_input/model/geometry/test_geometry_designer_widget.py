@@ -3,7 +3,7 @@ from PyQt5 import uic
 import re
 import warnings
 
-from opps.model import Pipeline
+from opps.model import Pipeline, Pipe, Flange, ExpansionJoint, Valve, ReducerEccentric, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
@@ -251,9 +251,14 @@ class GeometryDesignerWidget(QWidget):
         else:
             return
 
-        self._cached_sections[self.structure_type] = self.current_cross_section_info
+        key = self.structure_type
+        if self.structure_type in ["pipe", "valve", "flange", "expansion joint"]:
+            key = "pipe"
+
+        self._cached_sections[key] = self.current_cross_section_info
 
         self.cross_section_widget.hide()
+        self._update_section_of_selected_structures()
         self._update_permissions()
         self._update_segment_information_text()
         self.xyz_changed_callback()
@@ -272,32 +277,33 @@ class GeometryDesignerWidget(QWidget):
             deltas = self._get_deltas()
         except ValueError:
             return
-        
+
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
         if deltas == (0, 0, 0):
-            return self.render_widget.update_plot()
-        
+            return self.render_widget.update_plot(reset_camera=False)
+
+        self.pipeline.dismiss()
         self._create_current_structure(deltas)
         self.add_button.setEnabled(True)
-        self.render_widget.update_plot()
+        self.render_widget.update_plot(reset_camera=True)
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()
         self.pipeline.delete_selection()
-        self.render_widget.update_plot()
+        self.render_widget.update_plot(reset_camera=False)
         self._reset_deltas()
 
     def attach_selection_callback(self):
         self.pipeline.dismiss()
         self._attach_current_structure()
         self.pipeline.commit()
-        self.render_widget.update_plot()
+        self.render_widget.update_plot(reset_camera=False)
         self._reset_deltas()
 
     def add_structure_callback(self):
         self.pipeline.commit()
-        self.render_widget.update_plot()
+        self.render_widget.update_plot(reset_camera=False)
         self._reset_deltas()
 
     def cancel_callback(self):
@@ -422,9 +428,6 @@ class GeometryDesignerWidget(QWidget):
                 thickness_3 = parameters[5],
             )
 
-        else:
-            warnings.warn(f'Structure "{self.structure_type}" not available.')
-
     def _attach_current_structure(self):
         parameters = self.current_cross_section_info["section_parameters"]
 
@@ -491,8 +494,78 @@ class GeometryDesignerWidget(QWidget):
                 thickness_3 = parameters[5],
             )
 
-        else:
-            warnings.warn(f'Structure "{self.structure_type}" not available to attach.')
+    def _update_section_of_selected_structures(self):
+        parameters = self.current_cross_section_info["section_parameters"]
+
+        if self.structure_type in ["pipe", "valve", "flange", "expansion joints"]:
+            valid_type = Pipe | Valve | Flange | ExpansionJoint
+            kwargs = dict(
+                diameter = parameters[0], 
+                thickness = parameters[1],
+            )
+
+        elif self.structure_type == "reducer":
+            valid_type = ReducerEccentric
+            kwargs = dict(
+                initial_diameter = parameters[0],
+                final_diameter = parameters[4],
+                offset_y = parameters[6],
+                offset_z = parameters[7],
+                thickness = parameters[1]
+            )
+
+        elif self.structure_type == "circular beam":
+            valid_type = CircularBeam
+            kwargs = dict(
+                diameter = parameters[0], 
+                thickness = parameters[1],
+            )
+
+        elif self.structure_type == "rectangular beam":
+            valid_type = RectangularBeam
+            kwargs = dict(
+                width = parameters[0],
+                height = parameters[1],
+                thickness = parameters[2]
+            )
+
+        elif self.structure_type == "i-beam":
+            valid_type = IBeam
+            kwargs = dict(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+
+        elif self.structure_type == "t-beam":
+            valid_type = TBeam
+            kwargs = dict(
+                height = parameters[0],
+                width = parameters[1],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[3],
+            )
+
+        elif self.structure_type == "c-beam":
+            valid_type = CBeam
+            kwargs = dict(
+                height = parameters[0],
+                width_1 = parameters[1],
+                width_2 = parameters[3],
+                thickness_1 = parameters[2],
+                thickness_2 = parameters[4],
+                thickness_3 = parameters[5],
+            )
+        
+        for structure in self.pipeline.selected_structures:
+            if not isinstance(structure, valid_type):
+                continue
+
+            for k, v in kwargs.items():
+                setattr(structure, k, v)
 
     def _update_segment_information_text(self):
         section_label = ""
