@@ -161,8 +161,12 @@ class GeometryDesignerWidget(QWidget):
         elif self.structure_type == "point":
             self._show_deltas_mode(False)
 
+        key = self.structure_type
+        if self.structure_type in ["pipe", "valve", "flange", "expansion joint"]:
+            key = "pipe"
+
         # Try to get the same cross section used before
-        self.current_cross_section_info = self._cached_sections.get(self.structure_type)
+        self.current_cross_section_info = self._cached_sections.get(key)
 
         self._update_permissions()
         self._update_segment_information_text()
