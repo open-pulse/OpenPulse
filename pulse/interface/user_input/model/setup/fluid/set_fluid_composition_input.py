@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QDialog, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -66,7 +66,7 @@ class SetFluidCompositionInput(QDialog):
 
         self.save_path = ""
         self.export_file_path = ""
-        self.userPath = os.path.expanduser('~')
+        self.user_path = os.path.expanduser('~')
         self.fluid_path = self.project.get_fluid_list_path()
 
         # self.isentropic_label = "ISENK"   # isentropic exponent (real gas)
@@ -819,6 +819,43 @@ class SetFluidCompositionInput(QDialog):
         self.label_fluid_dynamic_viscosity.setText("")
         self.label_fluid_thermal_conductivity.setText("")
 
+    def get_refprop_path(self):
+
+        refProp_path = None
+        try:
+            refProp_path = os.environ['RPPREFIX']
+        except:
+            pass
+
+        if refProp_path is None:
+            try:
+                refProp_path = app().config.get_refprop_path_from_file()
+            except:
+                pass
+
+        if refProp_path is None:
+
+            title = 'Choose the REFPROP folder'
+            folder_path = QFileDialog.getExistingDirectory(None, title, self.user_path)
+            
+            if folder_path == "":
+                return None
+
+            if os.path.exists(folder_path):
+
+                if os.path.basename(folder_path) in ["REFPROP", "Refprop", "refprop"]:
+                    app().config.write_refprop_path_in_file(folder_path)
+                    refProp_path = folder_path
+
+                else:
+                    title = "Invalid folder selected"
+                    message = f"The selected folder path {folder_path} does not match with the REFPROP installation folder. "
+                    message += "As suggestion, try to find the default installation folder in 'C:/Program Files (x86)/REFPROP'. "
+                    message += "You should select the valid REFPROP installation folder to proceed."
+                    PrintMessageInput([window_title_1, title, message])
+
+        return refProp_path
+
     def default_library_gases(self):
         try:
             
@@ -826,7 +863,12 @@ class SetFluidCompositionInput(QDialog):
             
             self.list_gases = dict()
             self.fluid_file_to_final_name = dict()
-            refProp_path = os.environ['RPPREFIX']
+
+            refProp_path = self.get_refprop_path()
+            # refProp_path = "C:/Program Files (x86)/REFPROP"
+
+            if refProp_path is None:
+                return True
 
             if os.path.exists(refProp_path):
                 
@@ -865,7 +907,7 @@ class SetFluidCompositionInput(QDialog):
 
             else:
                 title = "REFPROP installation not detected"
-                message = "Dear user, REFPROP application files were not found in the computer's default paths. "
+                message = "Dear user, the REFPROP application files were not found in the computer's default paths. "
                 message += "Please, install the REFPROP on your computer to enable the set-up of the fluids mixture."
                 PrintMessageInput([window_title_1, title, message])
                 return True
