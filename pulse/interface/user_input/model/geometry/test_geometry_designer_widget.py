@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, 
 from PyQt5 import uic
 import re
 import warnings
+from copy import deepcopy
 
 from opps.model import Pipeline, Pipe, Flange, ExpansionJoint, Valve, ReducerEccentric, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
@@ -29,7 +30,7 @@ class GeometryDesignerWidget(QWidget):
         self._define_qt_variables()
         self._create_layout()
         self._create_connections()
-        self._initial_configuration()
+        self._initialize()
         self.setContentsMargins(2,2,2,2)
 
     def _define_qt_variables(self):
@@ -96,7 +97,7 @@ class GeometryDesignerWidget(QWidget):
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section_callback)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
 
-    def _initial_configuration(self):
+    def _initialize(self):
         self.current_material_info = None
         self.current_cross_section_info = None
         self._cached_sections = dict()
@@ -332,9 +333,7 @@ class GeometryDesignerWidget(QWidget):
             import_type = 1,
         )
 
-        self.project.initial_load_project_actions(self.file.project_ini_file_path)
-        self.project.load_project_files()
-        app().main_window.input_widget.initial_project_action(True)
+        self._load_project()
 
         app().update()
         app().main_window.opv_widget.updatePlots()
@@ -377,13 +376,23 @@ class GeometryDesignerWidget(QWidget):
         self.dx_label.setText(x_text)
         self.dy_label.setText(y_text)
         self.dz_label.setText(z_text)
-    
+
     def _create_current_structure(self, xyz):
         parameters = self.current_cross_section_info["section_parameters"]
+        extra_info = dict(
+            cross_section_info = deepcopy(self.current_cross_section_info),
+            material_info = self.current_material_info
+        )
 
         if self.structure_type == "pipe":
             curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
-            self.pipeline.add_bent_pipe(xyz, curvature_radius, diameter = parameters[0], thickness = parameters[1])
+            self.pipeline.add_bent_pipe(
+                xyz,
+                curvature_radius,
+                diameter = parameters[0],
+                thickness = parameters[1],
+                extra_info=extra_info
+            )
 
         elif self.structure_type == "point":
             self.pipeline.add_point(xyz)
@@ -395,23 +404,25 @@ class GeometryDesignerWidget(QWidget):
                 final_diameter = parameters[4],
                 offset_y = parameters[6],
                 offset_z = parameters[7],
-                thickness = parameters[1]
+                thickness = parameters[1],
+                extra_info=extra_info,
             )
         
         elif self.structure_type == "flange":
-            self.pipeline.add_flange(xyz)
+            self.pipeline.add_flange(xyz, extra_info=extra_info)
 
         elif self.structure_type == "valve":
-            self.pipeline.add_valve(xyz)
+            self.pipeline.add_valve(xyz, extra_info=extra_info)
 
         elif self.structure_type == "expansion joint":
-            self.pipeline.add_expansion_joint(xyz)
+            self.pipeline.add_expansion_joint(xyz, extra_info=extra_info)
 
         elif self.structure_type == "circular beam":
             self.pipeline.add_circular_beam(
                 xyz,
                 diameter = parameters[0], 
-                thickness = parameters[1]
+                thickness = parameters[1],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "rectangular beam":
@@ -419,7 +430,8 @@ class GeometryDesignerWidget(QWidget):
                 xyz,
                 width = parameters[0],
                 height = parameters[1],
-                thickness = parameters[2]
+                thickness = parameters[2],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "i-beam":
@@ -431,6 +443,7 @@ class GeometryDesignerWidget(QWidget):
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[4],
                 thickness_3 = parameters[5],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "t-beam":
@@ -440,6 +453,7 @@ class GeometryDesignerWidget(QWidget):
                 width = parameters[1],
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[3],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "c-beam":
@@ -451,14 +465,24 @@ class GeometryDesignerWidget(QWidget):
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[4],
                 thickness_3 = parameters[5],
+                extra_info=extra_info,
             )
 
     def _attach_current_structure(self):
         parameters = self.current_cross_section_info["section_parameters"]
+        extra_info = dict(
+            cross_section_info = deepcopy(self.current_cross_section_info),
+            material_info = self.current_material_info
+        )
 
         if self.structure_type == "pipe":
             curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
-            self.pipeline.connect_bent_pipes(curvature_radius, diameter = parameters[0], thickness = parameters[1])
+            self.pipeline.connect_bent_pipes(
+                curvature_radius,
+                diameter = parameters[0],
+                thickness = parameters[1],
+                extra_info=extra_info,
+            )
 
         elif self.structure_type == "reducer":
             self.pipeline.connect_reducer_eccentrics(
@@ -466,29 +490,32 @@ class GeometryDesignerWidget(QWidget):
                 final_diameter = parameters[4],
                 offset_y = parameters[6],
                 offset_z = parameters[7],
-                thickness = parameters[1]
+                thickness = parameters[1],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "flange":
-            self.pipeline.connect_flanges()
+            self.pipeline.connect_flanges(extra_info=extra_info)
 
         elif self.structure_type == "valve":
-            self.pipeline.connect_valves()
+            self.pipeline.connect_valves(extra_info=extra_info)
 
         elif self.structure_type == "expansion joint":
-            self.pipeline.connect_expansion_joints()
+            self.pipeline.connect_expansion_joints(extra_info=extra_info)
 
         elif self.structure_type == "circular beam":
             self.pipeline.connect_circular_beams(
                 diameter = parameters[0], 
-                thickness = parameters[1]
+                thickness = parameters[1],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "rectangular beam":
             self.pipeline.connect_rectangular_beams(
                 width = parameters[0],
                 height = parameters[1],
-                thickness = parameters[2]
+                thickness = parameters[2],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "i-beam":
@@ -499,6 +526,7 @@ class GeometryDesignerWidget(QWidget):
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[4],
                 thickness_3 = parameters[5],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "t-beam":
@@ -507,6 +535,7 @@ class GeometryDesignerWidget(QWidget):
                 width = parameters[1],
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[3],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "c-beam":
@@ -517,16 +546,22 @@ class GeometryDesignerWidget(QWidget):
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[4],
                 thickness_3 = parameters[5],
+                extra_info=extra_info,
             )
 
     def _update_section_of_selected_structures(self):
         parameters = self.current_cross_section_info["section_parameters"]
+        extra_info = dict(
+            cross_section_info = deepcopy(self.current_cross_section_info),
+            material_info = self.current_material_info
+        )
 
         if self.structure_type in ["pipe", "valve", "flange", "expansion joints"]:
             valid_type = Pipe | Valve | Flange | ExpansionJoint
             kwargs = dict(
                 diameter = parameters[0], 
                 thickness = parameters[1],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "reducer":
@@ -536,7 +571,8 @@ class GeometryDesignerWidget(QWidget):
                 final_diameter = parameters[4],
                 offset_y = parameters[6],
                 offset_z = parameters[7],
-                thickness = parameters[1]
+                thickness = parameters[1],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "circular beam":
@@ -544,6 +580,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs = dict(
                 diameter = parameters[0], 
                 thickness = parameters[1],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "rectangular beam":
@@ -551,7 +588,8 @@ class GeometryDesignerWidget(QWidget):
             kwargs = dict(
                 width = parameters[0],
                 height = parameters[1],
-                thickness = parameters[2]
+                thickness = parameters[2],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "i-beam":
@@ -563,6 +601,7 @@ class GeometryDesignerWidget(QWidget):
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[4],
                 thickness_3 = parameters[5],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "t-beam":
@@ -572,6 +611,7 @@ class GeometryDesignerWidget(QWidget):
                 width = parameters[1],
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[3],
+                extra_info=extra_info,
             )
 
         elif self.structure_type == "c-beam":
@@ -583,6 +623,7 @@ class GeometryDesignerWidget(QWidget):
                 thickness_1 = parameters[2],
                 thickness_2 = parameters[4],
                 thickness_3 = parameters[5],
+                extra_info=extra_info,
             )
         
         for structure in self.pipeline.selected_structures:
@@ -639,3 +680,9 @@ class GeometryDesignerWidget(QWidget):
         self.z_line_edit.setDisabled(missing_cross_section)
         self.set_section_button.setProperty("warning", missing_cross_section)
         self.style().polish(self.set_section_button)
+
+    def _load_project(self):
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+        self.complete = True
