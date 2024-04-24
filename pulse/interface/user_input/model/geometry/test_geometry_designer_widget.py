@@ -7,6 +7,7 @@ from opps.model import Pipeline, Pipe, Flange, ExpansionJoint, Valve, ReducerEcc
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.geometry.test_edit_pipe_widget import EditPipeWidget
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
@@ -311,19 +312,39 @@ class GeometryDesignerWidget(QWidget):
         self._reset_deltas()
 
     def cancel_callback(self):
-        pass
+        app().update()
+        app().main_window.opv_widget.updatePlots()
+        app().main_window.use_structural_setup_workspace()
+        app().main_window.action_front_view_callback()
 
     def finalize_callback(self):
-        pass
+        self.pipeline.dismiss()
+
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_pipeline(self.pipeline)
+        geometry_handler.set_length_unit(self.length_unit)
+        geometry_handler.export_entity_file()
+
+        self.file.modify_project_attributes(
+            length_unit = self.length_unit,
+            element_size = 0.01, 
+            geometry_tolerance = 1e-6,
+            import_type = 1,
+        )
+
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+
+        app().update()
+        app().main_window.opv_widget.updatePlots()
+        app().main_window.use_structural_setup_workspace()
+        app().main_window.plot_entities_with_cross_section()
+        app().main_window.action_front_view_callback()
+        self.render_widget.set_info_text("")
 
     def widget_appears_callback(self):
-        self.attach_button.setDisabled(True)
-        self.delete_button.setDisabled(True)
-        self.add_button.setDisabled(True)
-
-        self.x_line_edit.setDisabled(True)
-        self.y_line_edit.setDisabled(True)
-        self.z_line_edit.setDisabled(True)
+        self._update_permissions()
 
     def widget_disappears_callback(self):
         pass
