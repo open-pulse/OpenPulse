@@ -261,26 +261,17 @@ class GeometryDesignerWidget(QWidget):
         self._update_segment_information_text()
 
     def xyz_changed_callback(self):
-        have_cross_section = self.current_cross_section_info is not None
-        needs_cross_section = self.structure_type != "point"
-
-        if needs_cross_section and not have_cross_section:
-            return 
-
         try:
-            deltas = self._get_deltas()
+            xyz = self._get_xyz()
         except ValueError:
             return
 
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-        if (self.structure_type != "point") and (deltas == (0, 0, 0)):
-            return self.render_widget.update_plot(reset_camera=False)
+        if self.structure_type == "point":
+            self._xyz_point_callback(xyz)
+        else:
+            self._xyz_structure_callback(xyz)
 
-        self.pipeline.dismiss()
-        self._create_current_structure(deltas)
         self._update_permissions()
-        self.render_widget.update_plot(reset_camera=True)
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()
@@ -290,7 +281,8 @@ class GeometryDesignerWidget(QWidget):
 
     def attach_selection_callback(self):
         self.pipeline.dismiss()
-        self._attach_current_structure()
+        _, attach_function, kwargs = self._get_current_structure_functions()
+        attach_function(**kwargs)
         self.pipeline.commit()
         self.render_widget.update_plot(reset_camera=False)
         self._reset_deltas()
@@ -336,7 +328,7 @@ class GeometryDesignerWidget(QWidget):
     def widget_disappears_callback(self):
         pass
 
-    def _get_deltas(self):
+    def _get_xyz(self):
         dx = float(self.x_line_edit.text() or 0)
         dy = float(self.y_line_edit.text() or 0)
         dz = float(self.z_line_edit.text() or 0)
@@ -365,116 +357,27 @@ class GeometryDesignerWidget(QWidget):
         self.dy_label.setText(y_text)
         self.dz_label.setText(z_text)
 
-    def _create_current_structure(self, xyz):
-        if self.structure_type == "point":
-            self.pipeline.clear_point_selection()
-            self.pipeline.add_isolated_point(xyz)
+    def _xyz_point_callback(self, xyz):
+        self.pipeline.dismiss()
+        self.pipeline.clear_selection()
+        add_function, _, kwargs = self._get_current_structure_functions()
+        add_function(xyz, **kwargs)
+        self.render_widget.update_plot(reset_camera=True)
+
+    def _xyz_structure_callback(self, xyz):
+        if self.current_cross_section_info is None:
+            return 
+        
+        self.pipeline.dismiss()
+        self.pipeline.clear_structure_selection()
+
+        if xyz == (0, 0, 0):
+            self.render_widget.update_plot(reset_camera=False)
             return
 
-        parameters = self.current_cross_section_info["section_parameters"]
-        extra_info = dict(
-            cross_section_info = deepcopy(self.current_cross_section_info),
-            material_info = self.current_material_info
-        )
-
-        if self.structure_type == "pipe":
-            extra_info["structural_element_type"] = "pipe_1"
-            curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
-            self.pipeline.add_bent_pipe(
-                xyz,
-                curvature_radius,
-                diameter = parameters[0],
-                thickness = parameters[1],
-                extra_info=extra_info
-            )
-
-        elif self.structure_type == "point":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.add_point(xyz)
-
-        elif self.structure_type == "reducer":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.add_reducer_eccentric(
-                xyz, 
-                initial_diameter = parameters[0],
-                final_diameter = parameters[4],
-                offset_y = parameters[6],
-                offset_z = parameters[7],
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-        
-        elif self.structure_type == "flange":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.add_flange(xyz, extra_info=extra_info)
-
-        elif self.structure_type == "valve":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.add_valve(xyz, extra_info=extra_info)
-
-        elif self.structure_type == "expansion joint":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.add_expansion_joint(xyz, extra_info=extra_info)
-
-        elif self.structure_type == "circular beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.add_circular_beam(
-                xyz,
-                diameter = parameters[0], 
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "rectangular beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.add_rectangular_beam(
-                xyz,
-                width = parameters[0],
-                height = parameters[1],
-                thickness = parameters[2],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "i-beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.add_i_beam(
-                xyz,
-                height = parameters[0],
-                width_1 = parameters[1],
-                width_2 = parameters[3],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[4],
-                thickness_3 = parameters[5],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "t-beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.add_t_beam(
-                xyz,
-                height = parameters[0],
-                width = parameters[1],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[3],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "c-beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.add_c_beam(
-                xyz,
-                height = parameters[0],
-                width_1 = parameters[1],
-                width_2 = parameters[3],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[4],
-                thickness_3 = parameters[5],
-                extra_info=extra_info,
-            )
-
-    def _attach_current_structure(self):
-        _, attach_function, kwargs = self._get_current_structure_functions()
-        attach_function(**kwargs)
+        add_function, _, kwargs = self._get_current_structure_functions()
+        add_function(xyz, **kwargs)
+        self.render_widget.update_plot(reset_camera=True)
 
     def _update_section_of_selected_structures(self):
         valid_type = self._structure_name_to_class(self.structure_type)
@@ -538,7 +441,6 @@ class GeometryDesignerWidget(QWidget):
 
         parameters = self.current_cross_section_info["section_parameters"]
         kwargs["extra_info"] = dict(
-            structure_type = _type,
             cross_section_info = deepcopy(self.current_cross_section_info),
             material_info = self.current_material_info
         )
