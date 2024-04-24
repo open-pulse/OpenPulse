@@ -473,99 +473,12 @@ class GeometryDesignerWidget(QWidget):
             )
 
     def _attach_current_structure(self):
-        parameters = self.current_cross_section_info["section_parameters"]
-        extra_info = dict(
-            cross_section_info = deepcopy(self.current_cross_section_info),
-            material_info = self.current_material_info
-        )
-
-        if self.structure_type == "pipe":
-            extra_info["structural_element_type"] = "pipe_1"
-            curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
-            self.pipeline.connect_bent_pipes(
-                curvature_radius,
-                diameter = parameters[0],
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "reducer":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.connect_reducer_eccentrics(
-                initial_diameter = parameters[0],
-                final_diameter = parameters[4],
-                offset_y = parameters[6],
-                offset_z = parameters[7],
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "flange":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.connect_flanges(extra_info=extra_info)
-
-        elif self.structure_type == "valve":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.connect_valves(extra_info=extra_info)
-
-        elif self.structure_type == "expansion joint":
-            extra_info["structural_element_type"] = "pipe_1"
-            self.pipeline.connect_expansion_joints(extra_info=extra_info)
-
-        elif self.structure_type == "circular beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.connect_circular_beams(
-                diameter = parameters[0], 
-                thickness = parameters[1],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "rectangular beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.connect_rectangular_beams(
-                width = parameters[0],
-                height = parameters[1],
-                thickness = parameters[2],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "i-beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.connect_i_beams(
-                height = parameters[0],
-                width_1 = parameters[1],
-                width_2 = parameters[3],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[4],
-                thickness_3 = parameters[5],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "t-beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.connect_t_beams(
-                height = parameters[0],
-                width = parameters[1],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[3],
-                extra_info=extra_info,
-            )
-
-        elif self.structure_type == "c-beam":
-            extra_info["structural_element_type"] = "beam_1"
-            self.pipeline.connect_c_beams(
-                height = parameters[0],
-                width_1 = parameters[1],
-                width_2 = parameters[3],
-                thickness_1 = parameters[2],
-                thickness_2 = parameters[4],
-                thickness_3 = parameters[5],
-                extra_info=extra_info,
-            )
+        _, attach_function, kwargs = self._get_current_structure_functions()
+        attach_function(**kwargs)
 
     def _update_section_of_selected_structures(self):
         valid_type = self._structure_name_to_class(self.structure_type)
-        _, _, kwargs = self._get_structure_functions()
+        _, _, kwargs = self._get_current_structure_functions()
 
         for structure in self.pipeline.selected_structures:
             if not isinstance(structure, valid_type):
@@ -608,7 +521,7 @@ class GeometryDesignerWidget(QWidget):
         elif self.structure_type == "c-beam":
             return CBeam
 
-    def _get_structure_functions(self):
+    def _get_current_structure_functions(self):
         add_function = None
         attach_function = None
         kwargs = dict()
@@ -633,6 +546,8 @@ class GeometryDesignerWidget(QWidget):
         if issubclass(_type, Pipe):
             add_function = self.pipeline.add_bent_pipe
             attach_function = self.pipeline.connect_bent_pipes
+            _curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
+            kwargs["curvature_radius"] = _curvature_radius
             kwargs["diameter"] = parameters[0]
             kwargs["thickness"] = parameters[1]
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
