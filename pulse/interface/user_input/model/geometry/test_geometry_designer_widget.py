@@ -321,6 +321,8 @@ class GeometryDesignerWidget(QWidget):
             import_type = 1,
         )
 
+        self._load_project()
+
         app().update()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
