@@ -5,11 +5,10 @@ from PyQt5 import uic
 from copy import deepcopy
 import warnings
 
-from opps.model import Pipeline, Bend
+from opps.model import Bend
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
-from pulse.interface.handler.geometry_handler import GeometryHandler
 
 
 class EditPipeWidget(QWidget):
