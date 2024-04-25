@@ -55,9 +55,9 @@ class NewProjectInput(QDialog):
         self.icon = get_openpulse_icon()
         
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle(f"OpenPulse v{__version__}")
 
     def _define_qt_variables(self):

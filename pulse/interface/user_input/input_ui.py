@@ -8,9 +8,9 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 #
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
-from pulse.interface.user_input.model.setup.general.set_material_input import SetMaterialInput
-from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
-from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
+from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
+from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
 from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input import PrescribedDofsInput
@@ -27,7 +27,7 @@ from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input
 from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
 #
 from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
-from pulse.interface.user_input.model.setup.general.set_fluid_composition_input import SetFluidCompositionInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.user_input.model.setup.acoustic.acoustic_pressure_input import AcousticPressureInput
 from pulse.interface.user_input.model.setup.acoustic.volume_velocity_input import VolumeVelocityInput
 from pulse.interface.user_input.model.setup.acoustic.specific_impedance_input import SpecificImpedanceInput
@@ -242,7 +242,7 @@ class InputUi:
         self.process_input(AcousticElementTypeInput)
 
     def set_fluid(self):
-        self.process_input(FluidInput)
+        self.process_input(SetFluidInput)
 
     def set_fluid_composition(self):
         self.process_input(SetFluidCompositionInput)

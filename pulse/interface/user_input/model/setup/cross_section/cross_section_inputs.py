@@ -20,7 +20,7 @@ class CrossSectionWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/general/cross_section_widget.ui"
+        ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
         uic.loadUi(ui_path, self)
 
         self._initialize()

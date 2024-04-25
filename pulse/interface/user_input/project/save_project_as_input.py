@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_new_path
 
@@ -34,6 +34,8 @@ class SaveProjectAsInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
+        self._load_project_directory_and_name()
         self.exec()
 
     def _initialize(self):
@@ -54,13 +56,13 @@ class SaveProjectAsInput(QDialog):
         self.current_fluid_list_path = self.file._fluid_list_path
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        self.icon = app().main_window.pulse_icon
 
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("OpenPulse")
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("Save project as")
 
     def _define_qt_variables(self):
 
@@ -68,58 +70,61 @@ class SaveProjectAsInput(QDialog):
         self.remove_current_project_files : QCheckBox
 
         # QLineEdit
-        self.current_project_name : QLineEdit
-        self.new_project_name : QLineEdit
-        self.current_project_directory : QLineEdit
-        self.new_project_directory : QLineEdit
-        #
-        self.current_project_name.setText(self.project_name)
-        self.current_project_directory.setText(self.project_directory)
-        self.new_project_directory.setText(self.project_directory)
+        self.lineEdit_current_project_name : QLineEdit
+        self.lineEdit_new_project_name : QLineEdit
+        self.lineEdit_current_project_directory : QLineEdit
+        self.lineEdit_new_project_directory : QLineEdit
 
         # QPushButton
         self.search_project_folder_button : QPushButton
         self.cancel_button : QPushButton
         self.save_project_button : QPushButton
-        # self.save_project_button.setDisabled(True)
 
     def _create_connections(self):
         self.save_project_button.clicked.connect(self.save_project_button_pressed)
         self.cancel_button.clicked.connect(self.cancel_and_close)
         self.search_project_folder_button.clicked.connect(self.search_project_folder)
 
+    def _config_widgets(self):
+        ConfigWidgetAppearance(self)
+
+    def _load_project_directory_and_name(self):
+        self.lineEdit_current_project_name.setText(self.project_name)
+        self.lineEdit_current_project_directory.setText(self.project_directory)
+        self.lineEdit_new_project_directory.setText(self.project_directory)
+
     def search_project_folder(self):
         self.new_project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.desktop_path)
         if os.path.exists(self.new_project_directory):
-            self.new_project_directory.setText(str(self.new_project_directory))
+            self.lineEdit_new_project_directory.setText(str(self.new_project_directory))
  
     def clean_project_name(self):
-        self.new_project_name.setText("")
+        self.lineEdit_new_project_name.setText("")
 
     def are_modifications_allowable(self):
         
-        if self.new_project_name.text() == "":
+        if self.lineEdit_new_project_name.text() == "":
             self.title = "Empty project name"
             self.message = "Please, inform a valid project name at 'New project name' input field to continue."
-            self.new_project_name.setFocus()
+            self.lineEdit_new_project_name.setFocus()
             return True
         
-        if self.new_project_name.text() == self.current_project_name.text():
-            if self.new_project_directory.text() == self.current_project_directory.text():
+        if self.lineEdit_new_project_name.text() == self.lineEdit_current_project_name.text():
+            if self.lineEdit_new_project_directory.text() == self.lineEdit_current_project_directory.text():
                 self.title = "Same project name and directory detected"
                 self.message = "Please, inform a diferent project name and/or directory to continue."
                 return True
 
     def copy_project_files(self):  
-        self.new_project_path = get_new_path(self.new_project_directory.text(),
-                                                  self.new_project_name.text())
+        self.new_project_path = get_new_path(   self.lineEdit_new_project_directory.text(),
+                                                self.lineEdit_new_project_name.text()   )
         copytree(self.current_project_path, 
                  self.new_project_path)
 
     def update_all_file_paths(self):
 
         if os.path.exists(self.current_geometry_path):
-            new_geometry_path = get_new_path(self.new_project_directory.text(), 
+            new_geometry_path = get_new_path(self.lineEdit_new_project_directory.text(), 
                                              os.path.basename(self.current_geometry_path))
         else:
             new_geometry_path = ""
@@ -131,7 +136,7 @@ class SaveProjectAsInput(QDialog):
         #                                    os.path.basename(self.current_fluid_list_path))
 
         self.project.copy_project(  self.new_project_path,
-                                    self.new_project_name.text(),
+                                    self.lineEdit_new_project_name.text(),
                                     geometry_path = new_geometry_path  )
 
     def save_project_button_pressed(self):
@@ -140,7 +145,7 @@ class SaveProjectAsInput(QDialog):
             PrintMessageInput([window_title_2, self.title, self.message])  
             return
         
-        project_name = self.new_project_name.text()
+        project_name = self.lineEdit_new_project_name.text()
         if project_name == "":
             self.search_project_folder()
             return self.save_project_button_pressed()

@@ -8,7 +8,6 @@ a = Analysis(
     # I have no idea why, but we need 
     # to add data in pairs
     datas=[
-        ('data/', 'data/'),
         ('pulse/interface/data/', 'pulse/interface/data/'),
         ('pulse/interface/ui_files/', 'pulse/interface/ui_files/'),
         ('pulse/libraries/', 'pulse/libraries/'),
