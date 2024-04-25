@@ -281,8 +281,10 @@ class GeometryDesignerWidget(QWidget):
     def define_material_callback(self):
         self.current_material_info = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
+        self._update_material_of_selected_structures()
         self._update_permissions()
         self._update_information_text()
+        self.render_widget.update_plot(reset_camera=False)
 
     def xyz_changed_callback(self):
         try:
@@ -433,6 +435,10 @@ class GeometryDesignerWidget(QWidget):
 
             for k, v in kwargs.items():
                 setattr(structure, k, v)
+    
+    def _update_material_of_selected_structures(self):
+        for structure in self.pipeline.selected_structures:
+            structure.extra_info["material_info"] =  self.current_material_info
 
     def _structure_name_to_class(self, structure_name: str):
         if structure_name == "point":
