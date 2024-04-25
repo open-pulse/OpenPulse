@@ -118,6 +118,7 @@ class GeometryDesignerWidget(QWidget):
     def selection_callback(self):
         if issubclass(self.current_structure_type, Point):
             self._set_xyz_to_selected_point()
+        self._update_information_text()
         self._update_permissions()
 
     def unity_changed_callback(self, text: str):
@@ -167,7 +168,7 @@ class GeometryDesignerWidget(QWidget):
         self.current_cross_section_info = self._cached_sections.get(key)
 
         self._update_permissions()
-        self._update_segment_information_text()
+        self._update_information_text()
 
         if issubclass(self.current_structure_type, Point):
             self.pipeline.dismiss()
@@ -264,7 +265,7 @@ class GeometryDesignerWidget(QWidget):
         self.cross_section_widget.hide()
         self._update_section_of_selected_structures()
         self._update_permissions()
-        self._update_segment_information_text()
+        self._update_information_text()
         self.x_line_edit.setFocus()
         self.xyz_changed_callback()
 
@@ -272,7 +273,7 @@ class GeometryDesignerWidget(QWidget):
         self.current_material_info = self.material_widget.get_selected_material_id()
         self.material_widget.setVisible(False)
         self._update_permissions()
-        self._update_segment_information_text()
+        self._update_information_text()
 
     def xyz_changed_callback(self):
         try:
@@ -568,7 +569,7 @@ class GeometryDesignerWidget(QWidget):
     
         return add_function, attach_function, kwargs
 
-    def _update_segment_information_text(self):
+    def _update_information_text(self):
         section_label = ""
         section_parameters = ""
         if self.current_cross_section_info is not None:
@@ -596,6 +597,12 @@ class GeometryDesignerWidget(QWidget):
         if material_data is not None:
             message += f"Material name: {material_data[0]}\n"
             message += f"Material data: {material_data[1:]}\n\n"
+
+        if len(self.pipeline.selected_points) == 2:
+            a = self.pipeline.selected_points[0]
+            b = self.pipeline.selected_points[1]
+            distance = np.linalg.norm(a.coords() - b.coords())
+            message += f"Distance between points: {distance:.4f}\n\n"
 
         self.render_widget.set_info_text(message)
 
