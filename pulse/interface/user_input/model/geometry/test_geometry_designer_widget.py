@@ -256,7 +256,7 @@ class GeometryDesignerWidget(QWidget):
                 return
             self.current_cross_section_info = self.cross_section_widget.pipe_section_info
 
-        elif issubclass(self.current_structure_type,  Beam):
+        elif issubclass(self.current_structure_type, Beam):
             if self.cross_section_widget.get_beam_section_parameters():
                 return
             self.current_cross_section_info = self.cross_section_widget.beam_section_info
@@ -542,7 +542,7 @@ class GeometryDesignerWidget(QWidget):
             attach_function = self.pipeline.connect_rectangular_beams
             kwargs["width"] = parameters[0]
             kwargs["height"] = parameters[1]
-            kwargs["thickness"] = parameters[2]
+            kwargs["thickness"] = (parameters[0] - parameters[2]) / 2
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
         elif issubclass(self.current_structure_type, IBeam):

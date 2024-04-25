@@ -168,7 +168,7 @@ class GeometryHandler:
             elif (section_type_label == "Pipe section") and len(section_parameters) == 10:
                 start = Point(*data['start_point'])
                 end = Point(*data['end_point'])
-                structure = Pipe(
+                structure = ReducerEccentric(
                     start, end, 
                     initial_diameter = section_parameters[0],
                     final_diameter = section_parameters[4],
@@ -184,7 +184,7 @@ class GeometryHandler:
                     start, end,
                     width = section_parameters[0],
                     height = section_parameters[1],
-                    thickness = section_parameters[2],
+                    thickness = (section_parameters[0] - section_parameters[2]) / 2,
                 )
             
             elif section_type_label == "Circular section":
@@ -230,8 +230,7 @@ class GeometryHandler:
                     height = section_parameters[0],
                     width = section_parameters[1],
                     thickness_1 = section_parameters[2],
-                    thickness_2 = section_parameters[4],
-                    thickness_3 = section_parameters[5],
+                    thickness_2 = section_parameters[3],
                 )
             
             else:
