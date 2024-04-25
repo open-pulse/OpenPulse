@@ -85,7 +85,7 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
 
-        self.edit_pipe_widget.edited.connect(self.xyz_changed_callback)
+        self.edit_pipe_widget.edited.connect(self.pipe_editor_changed_callback)
 
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)
@@ -285,6 +285,10 @@ class GeometryDesignerWidget(QWidget):
         else:
             self._xyz_structure_callback(xyz)
 
+        self._update_permissions()
+    
+    def pipe_editor_changed_callback(self):
+        self.render_widget.update_plot(reset_camera=False)
         self._update_permissions()
 
     def delete_selection_callback(self):
