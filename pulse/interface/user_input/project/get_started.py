@@ -19,8 +19,10 @@ class GetStartedInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.main_window = app().main_window
+        self.opv = app().main_window.opv_widget
+        self.opv.setInputObject(self)
        
-        self._reset()
+        self._initialize()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
@@ -28,7 +30,7 @@ class GetStartedInput(QDialog):
         self.initial_actions()
         self.exec()
 
-    def _reset(self):
+    def _initialize(self):
         self.project = self.main_window.project
         self.opv = self.main_window.opv_widget
         self.config = self.main_window.config
@@ -97,25 +99,10 @@ class GetStartedInput(QDialog):
             self.project_buttons[i].setVisible(True)
             self.project_path_labels[i].setVisible(True)
             self.project_dir[i] = self.recent_projectsList[i][1]
-            # text = str(self.recent_projectsList[i][0]) + "\n" + str(self.recent_projectsList[i][1])
-            # self.project_buttons[i].setText(text)
-            # self.project_buttons[i].setStyleSheet("text-align:right;")
             self.project_path_labels[i].setText(str(self.recent_projectsList[i][1]))
-            # stylesheet =    """ QLabel{ 
-            #                             border-radius: 6px; 
-            #                             border-color: rgb(150, 150, 150); 
-            #                             border-style: ridge; 
-            #                             border-width: 2px; 
-            #                             color: rgb(0, 0, 255); 
-            #                             background-color: rgb(240, 240, 240); 
-            #                             font: 50 9pt "MS Shell Dlg 2" 
-            #                             }
-            #                 """
-            # self.project_path_labels[i].setStyleSheet(stylesheet)
             self.project_path_labels[i].adjustSize()
             self.project_path_labels[i].setWordWrap(True)
             self.project_path_labels[i].setScaledContents(True)
-
 
     def initial_actions(self):
         self.update_buttons_visibility()

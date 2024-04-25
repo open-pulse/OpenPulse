@@ -5,8 +5,8 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
-from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
-from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from opps.model import Point
