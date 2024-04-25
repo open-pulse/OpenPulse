@@ -98,6 +98,7 @@ class GeometryDesignerWidget(QWidget):
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
 
     def _initialize(self):
+        self.current_structure_type = None
         self.current_material_info = None
         self.current_cross_section_info = None
         self._cached_sections = dict()
@@ -137,20 +138,23 @@ class GeometryDesignerWidget(QWidget):
             if unit_pattern.match(label.text()) is not None:
                 label.setText(unit_label_text)
 
-    def structure_type_changed_callback(self, structure_type: str):
-        self.structure_type = structure_type.lower().strip()
+    def structure_type_changed_callback(self, structure_name: str):
+        structure_name = structure_name.lower().strip()
+        self.current_structure_type = self._structure_name_to_class(structure_name)    
+
         self.options_stack_widget.setCurrentWidget(self.empty_widget)
         self._show_deltas_mode(True)
 
-        if self.structure_type == "pipe":
+        if issubclass(self.current_structure_type, Pipe):
             self.options_stack_widget.setCurrentWidget(self.edit_pipe_widget)
 
-        elif self.structure_type == "point":
+        elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
 
-        key = self.structure_type
-        if self.structure_type in ["pipe", "valve", "flange", "expansion joint"]:
-            key = "pipe"
+        key = self.current_structure_type
+        # temporary until these structures are properly represented
+        if issubclass(self.current_structure_type, (Pipe, Valve, Flange, ExpansionJoint)):
+            key = Pipe
 
         # Try to get the same cross section used before
         self.current_cross_section_info = self._cached_sections.get(key)
@@ -166,37 +170,38 @@ class GeometryDesignerWidget(QWidget):
         self.cross_section_widget.hide_all_tabs()     
 
         # Configure visible cross section tabs
-        if self.structure_type in ["pipe", "flange", "valve", "expansion_joint"]:
+        # temporary configuration until the specific configurations are implemented
+        if issubclass(self.current_structure_type, (Pipe, Flange, Valve, ExpansionJoint)):
             self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
             self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
             self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         
-        elif self.structure_type == "reducer":
+        elif issubclass(self.current_structure_type, ReducerEccentric):
             self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
             self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
             self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
 
-        elif self.structure_type == "rectangular beam":
+        elif issubclass(self.current_structure_type, RectangularBeam):
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(0, True)
             self.cross_section_widget.lineEdit_base_rectangular_section.setFocus()
 
-        elif self.structure_type == "circular beam":
+        elif issubclass(self.current_structure_type, CircularBeam):
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(1, True)
             self.cross_section_widget.lineEdit_outside_diameter_circular_section.setFocus()
 
-        elif self.structure_type == "c-beam":
+        elif issubclass(self.current_structure_type, CBeam):
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(2, True)
             self.cross_section_widget.lineEdit_height_C_section.setFocus()
 
-        elif self.structure_type == "i-beam":
+        elif issubclass(self.current_structure_type, IBeam):
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(3, True)
             self.cross_section_widget.lineEdit_height_I_section.setFocus()
 
-        elif self.structure_type == "t-beam":
+        elif issubclass(self.current_structure_type, TBeam):
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_beam_section.setTabVisible(4, True)
             self.cross_section_widget.lineEdit_height_T_section.setFocus()
@@ -216,25 +221,17 @@ class GeometryDesignerWidget(QWidget):
         pass 
 
     def define_cross_section_callback(self):
-        beam_structure_types = [
-            "circular beam",
-            "rectangular beam",
-            "i-beam",
-            "t-beam",
-            "c-beam"
-        ]
-
-        if self.structure_type == "pipe":
+        if issubclass(self.current_structure_type, Pipe):
             if self.cross_section_widget.get_constant_pipe_parameters():
                 return
             self.current_cross_section_info = self.cross_section_widget.pipe_section_info
 
-        elif self.structure_type == "reducer":
+        elif issubclass(self.current_structure_type, ReducerEccentric):
             if self.cross_section_widget.get_variable_section_pipe_parameters():
                 return
             self.current_cross_section_info = self.cross_section_widget.pipe_section_info
 
-        elif self.structure_type in beam_structure_types:
+        elif issubclass(self.current_structure_type,  Beam):
             if self.cross_section_widget.get_beam_section_parameters():
                 return
             self.current_cross_section_info = self.cross_section_widget.beam_section_info
@@ -242,9 +239,10 @@ class GeometryDesignerWidget(QWidget):
         else:
             return
 
-        key = self.structure_type
-        if self.structure_type in ["pipe", "valve", "flange", "expansion joint"]:
-            key = "pipe"
+        key = self.current_structure_type
+        # temporary until these structures are properly represented
+        if issubclass(self.current_structure_type, (Pipe, Valve, Flange, ExpansionJoint)):
+            key = Pipe
 
         self._cached_sections[key] = self.current_cross_section_info
 
@@ -252,6 +250,7 @@ class GeometryDesignerWidget(QWidget):
         self._update_section_of_selected_structures()
         self._update_permissions()
         self._update_segment_information_text()
+        self.x_line_edit.setFocus()
         self.xyz_changed_callback()
 
     def define_material_callback(self):
@@ -266,7 +265,7 @@ class GeometryDesignerWidget(QWidget):
         except ValueError:
             return
 
-        if self.structure_type == "point":
+        if issubclass(self.current_structure_type, Point):
             self._xyz_point_callback(xyz)
         else:
             self._xyz_structure_callback(xyz)
@@ -380,48 +379,47 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=True)
 
     def _update_section_of_selected_structures(self):
-        valid_type = self._structure_name_to_class(self.structure_type)
         _, _, kwargs = self._get_current_structure_functions()
 
         for structure in self.pipeline.selected_structures:
-            if not isinstance(structure, valid_type):
+            if not isinstance(structure, self.current_structure_type):
                 continue
 
             for k, v in kwargs.items():
                 setattr(structure, k, v)
 
     def _structure_name_to_class(self, structure_name: str):
-        if self.structure_type == "point":
+        if structure_name == "point":
             return Point
         
-        elif self.structure_type == "pipe":
+        elif structure_name == "pipe":
             return Pipe
 
-        elif self.structure_type == "flange":
+        elif structure_name == "flange":
             return Flange
 
-        elif self.structure_type == "valve":
+        elif structure_name == "valve":
             return Valve
 
-        elif self.structure_type == "expansion joint":
+        elif structure_name == "expansion joint":
             return ExpansionJoint
 
-        elif self.structure_type == "reducer":
+        elif structure_name == "reducer":
             return ReducerEccentric
 
-        elif self.structure_type == "circular beam":
+        elif structure_name == "circular beam":
             return CircularBeam
 
-        elif self.structure_type == "rectangular beam":
+        elif structure_name == "rectangular beam":
             return RectangularBeam
 
-        elif self.structure_type == "i-beam":
+        elif structure_name == "i-beam":
             return IBeam
 
-        elif self.structure_type == "t-beam":
+        elif structure_name == "t-beam":
             return TBeam
 
-        elif self.structure_type == "c-beam":
+        elif structure_name == "c-beam":
             return CBeam
 
     def _get_current_structure_functions(self):
@@ -429,9 +427,7 @@ class GeometryDesignerWidget(QWidget):
         attach_function = None
         kwargs = dict()
 
-        _type = self._structure_name_to_class(self.structure_type)
-
-        if issubclass(_type, Point):
+        if issubclass(self.current_structure_type, Point):
             add_function = self.pipeline.add_isolated_point
             return add_function, attach_function, kwargs
 
@@ -445,7 +441,7 @@ class GeometryDesignerWidget(QWidget):
             material_info = self.current_material_info
         )
         
-        if issubclass(_type, Pipe):
+        if issubclass(self.current_structure_type, Pipe):
             add_function = self.pipeline.add_bent_pipe
             attach_function = self.pipeline.connect_bent_pipes
             _curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
@@ -454,7 +450,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness"] = parameters[1]
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
 
-        elif issubclass(_type, Flange):
+        elif issubclass(self.current_structure_type, Flange):
             add_function = self.pipeline.add_flange
             attach_function = self.pipeline.connect_flanges
             kwargs["diameter"] = parameters[0]
@@ -462,7 +458,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
             # add remaining valve info here
 
-        elif issubclass(_type, Valve):
+        elif issubclass(self.current_structure_type, Valve):
             add_function = self.pipeline.add_valve
             attach_function = self.pipeline.connect_valves
             kwargs["diameter"] = parameters[0]
@@ -470,7 +466,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
             # add remaining valve info here
 
-        elif issubclass(_type, ExpansionJoint):
+        elif issubclass(self.current_structure_type, ExpansionJoint):
             add_function = self.pipeline.add_expansion_joint
             attach_function = self.pipeline.connect_expansion_joints
             kwargs["diameter"] = parameters[0]
@@ -478,7 +474,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
             # add remaining valve info here
 
-        elif issubclass(_type, ReducerEccentric):
+        elif issubclass(self.current_structure_type, ReducerEccentric):
             add_function = self.pipeline.add_reducer_eccentric
             attach_function = self.pipeline.connect_reducer_eccentrics
             kwargs["initial_diameter"] = parameters[0]
@@ -488,14 +484,14 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness"] = parameters[1]
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
 
-        elif issubclass(_type, CircularBeam):
+        elif issubclass(self.current_structure_type, CircularBeam):
             add_function = self.pipeline.add_circular_beam
             attach_function = self.pipeline.connect_circular_beams
             kwargs["diameter"] = parameters[0]
             kwargs["thickness"] = parameters[1]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(_type, RectangularBeam):
+        elif issubclass(self.current_structure_type, RectangularBeam):
             add_function = self.pipeline.add_rectangular_beam
             attach_function = self.pipeline.connect_rectangular_beams
             kwargs["width"] = parameters[0]
@@ -503,7 +499,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness"] = parameters[2]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(_type, IBeam):
+        elif issubclass(self.current_structure_type, IBeam):
             add_function = self.pipeline.add_i_beam
             attach_function = self.pipeline.connect_i_beams
             kwargs["height"] = parameters[0]
@@ -514,7 +510,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness_3"] = parameters[5]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(_type, TBeam):
+        elif issubclass(self.current_structure_type, TBeam):
             add_function = self.pipeline.add_t_beam
             attach_function = self.pipeline.connect_t_beams
             kwargs["height"] = parameters[0]
@@ -523,7 +519,7 @@ class GeometryDesignerWidget(QWidget):
             kwargs["thickness_2"] = parameters[3]
             kwargs["extra_info"]["structural_element_type"] = "beam_1"
 
-        elif issubclass(_type, CBeam):
+        elif issubclass(self.current_structure_type, CBeam):
             add_function = self.pipeline.add_c_beam
             attach_function = self.pipeline.connect_c_beams
             kwargs["height"] = parameters[0]
@@ -573,8 +569,8 @@ class GeometryDesignerWidget(QWidget):
         have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
         have_cross_section = self.current_cross_section_info is not None
         multiple_points_selected = len(self.pipeline.selected_points) >= 1
-        is_point = self.structure_type == "point"
-        is_beam = ("beam" in self.structure_type) 
+        is_point = issubclass(self.current_structure_type, Point)
+        is_beam = issubclass(self.current_structure_type, Beam)
 
         self.set_section_button.setDisabled(is_point)
         self.set_material_button.setDisabled(is_point)
