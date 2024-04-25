@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QTabWidget
 from PyQt5 import uic
 import re
+import numpy as np
 import warnings
 from copy import deepcopy
 
@@ -115,6 +116,8 @@ class GeometryDesignerWidget(QWidget):
         self.structure_type_changed_callback("pipe")
 
     def selection_callback(self):
+        if issubclass(self.current_structure_type, Point):
+            self._set_xyz_to_selected_point()
         self._update_permissions()
 
     def unity_changed_callback(self, text: str):
@@ -139,6 +142,10 @@ class GeometryDesignerWidget(QWidget):
                 label.setText(unit_label_text)
 
     def structure_type_changed_callback(self, structure_name: str):
+        # the previous value before this change
+        if (self.current_structure_type is not None) and issubclass(self.current_structure_type, Point):
+            self._reset_xyz()
+
         structure_name = structure_name.lower().strip()
         self.current_structure_type = self._structure_name_to_class(structure_name)    
 
@@ -161,7 +168,15 @@ class GeometryDesignerWidget(QWidget):
 
         self._update_permissions()
         self._update_segment_information_text()
-        self.xyz_changed_callback()
+
+        if issubclass(self.current_structure_type, Point):
+            self.pipeline.dismiss()
+            self.pipeline.clear_structure_selection()
+            self._set_xyz_to_selected_point()
+            self.render_widget.update_plot(reset_camera=False)
+        else:
+            self.xyz_changed_callback()
+
         self.x_line_edit.setFocus()
 
     def show_cross_section_widget_callback(self):
@@ -276,7 +291,7 @@ class GeometryDesignerWidget(QWidget):
         self.pipeline.dismiss()
         self.pipeline.delete_selection()
         self.render_widget.update_plot(reset_camera=False)
-        self._reset_deltas()
+        self._reset_xyz()
 
     def attach_selection_callback(self):
         self.pipeline.dismiss()
@@ -284,12 +299,12 @@ class GeometryDesignerWidget(QWidget):
         attach_function(**kwargs)
         self.pipeline.commit()
         self.render_widget.update_plot(reset_camera=False)
-        self._reset_deltas()
+        self._reset_xyz()
 
     def add_structure_callback(self):
         self.pipeline.commit()
         self.render_widget.update_plot(reset_camera=False)
-        self._reset_deltas()
+        self._reset_xyz()
 
     def cancel_callback(self):
         app().update()
@@ -333,10 +348,20 @@ class GeometryDesignerWidget(QWidget):
         dz = float(self.z_line_edit.text() or 0)
         return dx, dy, dz
 
-    def _reset_deltas(self):
-        self.x_line_edit.setText("")
-        self.y_line_edit.setText("")
-        self.z_line_edit.setText("")
+    def _set_xyz(self, x, y, z):
+        self.x_line_edit.setText(str(x))
+        self.y_line_edit.setText(str(y))
+        self.z_line_edit.setText(str(z))
+
+    def _reset_xyz(self):
+        self._set_xyz("", "", "")
+    
+    def _set_xyz_to_selected_point(self):
+        if len(self.pipeline.selected_points) != 1:
+            return
+
+        x, y, z = np.round(self.pipeline.selected_points[0].coords(), 6)
+        self._set_xyz(x, y, z)
 
     def _show_deltas_mode(self, boolean):
         x_text = self.dx_label.text().removeprefix("Δ")
@@ -357,10 +382,17 @@ class GeometryDesignerWidget(QWidget):
         self.dz_label.setText(z_text)
 
     def _xyz_point_callback(self, xyz):
-        self.pipeline.dismiss()
-        self.pipeline.clear_selection()
-        add_function, _, kwargs = self._get_current_structure_functions()
-        add_function(xyz, **kwargs)
+        if len(self.pipeline.selected_points) == 1:
+            # Edit selected point
+            self.pipeline.selected_points[0].set_coords(*xyz)
+            self.pipeline.recalculate_curvatures()
+        else:
+            # Create new point
+            self.pipeline.dismiss()
+            self.pipeline.clear_selection()
+            add_function, _, kwargs = self._get_current_structure_functions()
+            add_function(xyz, **kwargs)
+
         self.render_widget.update_plot(reset_camera=True)
 
     def _xyz_structure_callback(self, xyz):
