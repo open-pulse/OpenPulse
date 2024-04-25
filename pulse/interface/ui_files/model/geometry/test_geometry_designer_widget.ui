@@ -366,6 +366,14 @@
     </widget>
    </item>
   </layout>
+  <action name="select_all_action">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>unit_combobox</tabstop>

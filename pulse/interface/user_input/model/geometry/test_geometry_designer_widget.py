@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QTabWidget
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction
 from PyQt5 import uic
 import re
 import numpy as np
@@ -60,6 +60,9 @@ class GeometryDesignerWidget(QWidget):
 
         self.cancel_button: QPushButton
         self.finalize_button: QPushButton
+
+        self.select_all_action: QAction
+        self.addAction(self.select_all_action)
     
     def _create_layout(self):
         self.edit_pipe_widget = EditPipeWidget(self)
@@ -73,6 +76,7 @@ class GeometryDesignerWidget(QWidget):
 
     def _create_connections(self):
         self.render_widget.selection_changed.connect(self.selection_callback)
+        self.select_all_action.triggered.connect(self.select_all_callback)
 
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
@@ -120,6 +124,11 @@ class GeometryDesignerWidget(QWidget):
             self._set_xyz_to_selected_point()
         self._update_information_text()
         self._update_permissions()
+
+    def select_all_callback(self):
+        self.pipeline.select_points(self.pipeline.points)
+        self.pipeline.select_structures(self.pipeline.structures)
+        self.render_widget.update_selection()
 
     def unity_changed_callback(self, text: str):
         self.length_unit = text.lower().strip()
