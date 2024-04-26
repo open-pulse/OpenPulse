@@ -5,7 +5,7 @@ import numpy as np
 import warnings
 from copy import deepcopy
 
-from opps.model import Point, Pipe, Flange, ExpansionJoint, Valve, ReducerEccentric, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
+from opps.model import Point, Pipe, Flange, ExpansionJoint, Valve, Reducer, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
@@ -201,7 +201,7 @@ class GeometryDesignerWidget(QWidget):
             self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
             self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         
-        elif issubclass(self.current_structure_type, ReducerEccentric):
+        elif issubclass(self.current_structure_type, Reducer):
             self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
             self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
             self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
@@ -251,7 +251,7 @@ class GeometryDesignerWidget(QWidget):
                 return
             self.current_cross_section_info = self.cross_section_widget.pipe_section_info
 
-        elif issubclass(self.current_structure_type, ReducerEccentric):
+        elif issubclass(self.current_structure_type, Reducer):
             if self.cross_section_widget.get_variable_section_pipe_parameters():
                 return
             self.current_cross_section_info = self.cross_section_widget.pipe_section_info
@@ -457,7 +457,7 @@ class GeometryDesignerWidget(QWidget):
             return ExpansionJoint
 
         elif structure_name == "reducer":
-            return ReducerEccentric
+            return Reducer
 
         elif structure_name == "circular beam":
             return CircularBeam
@@ -526,14 +526,16 @@ class GeometryDesignerWidget(QWidget):
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
             # add remaining valve info here
 
-        elif issubclass(self.current_structure_type, ReducerEccentric):
+        elif issubclass(self.current_structure_type, Reducer):
             add_function = self.pipeline.add_reducer_eccentric
             attach_function = self.pipeline.connect_reducer_eccentrics
             kwargs["initial_diameter"] = parameters[0]
             kwargs["final_diameter"] = parameters[4]
-            kwargs["offset_y"] = parameters[6]
-            kwargs["offset_z"] = parameters[7]
             kwargs["thickness"] = parameters[1]
+            kwargs["initial_offset_y"] = -parameters[2]
+            kwargs["initial_offset_z"] = parameters[3]
+            kwargs["final_offset_y"] = -parameters[6]
+            kwargs["final_offset_z"] = parameters[7]
             kwargs["extra_info"]["structural_element_type"] = "pipe_1"
 
         elif issubclass(self.current_structure_type, CircularBeam):

@@ -2,7 +2,7 @@ from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
-from opps.model import Pipe, Bend, Point, Flange, Beam, ReducerEccentric, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam
+from opps.model import Pipe, Bend, Point, Flange, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam
 
 import gmsh
 import math
@@ -46,7 +46,7 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Verbosity", 0)
 
         for structure in self.pipeline.structures: 
-            if isinstance(structure, Pipe | Beam | ReducerEccentric):
+            if isinstance(structure, (Pipe, Beam, Reducer)):
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -168,13 +168,15 @@ class GeometryHandler:
             elif (section_type_label == "Pipe section") and len(section_parameters) == 10:
                 start = Point(*data['start_point'])
                 end = Point(*data['end_point'])
-                structure = ReducerEccentric(
+                structure = Reducer(
                     start, end, 
                     initial_diameter = section_parameters[0],
                     final_diameter = section_parameters[4],
-                    offset_y = section_parameters[6],
-                    offset_z = section_parameters[7],
                     thickness = section_parameters[1],
+                    initial_offset_y = -section_parameters[2],
+                    initial_offset_z = section_parameters[3],
+                    final_offset_y = -section_parameters[6],
+                    final_offset_z = section_parameters[7],
                 )
 
             elif section_type_label == "Rectangular section":
@@ -610,7 +612,7 @@ class GeometryHandler:
             curvature = np.round(structure.curvature, 8)
             return [start_coords, corner_coords, end_coords, curvature]
 
-        elif isinstance(structure, Pipe | Beam | ReducerEccentric):
+        elif isinstance(structure, Pipe | Beam | Reducer):
             start_coords = get_data(structure.start.coords())
             end_coords = get_data(structure.end.coords())
             return [start_coords, end_coords]
