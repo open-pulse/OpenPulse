@@ -4,11 +4,11 @@ import re
 import numpy as np
 import warnings
 from copy import deepcopy
-
 from opps.model import Point, Pipe, Flange, ExpansionJoint, Valve, Reducer, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
+from pulse.interface.viewer_3d.text_templates import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.geometry.test_edit_pipe_widget import EditPipeWidget
 from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
@@ -132,17 +132,9 @@ class GeometryDesignerWidget(QWidget):
 
     def unity_changed_callback(self, text: str):
         self.length_unit = text.lower().strip()
-        
-        if self.length_unit == "meter":
-            unit_label_text = "[m]"
+        unit_label_text = self._unit_abreviation(self.length_unit)
 
-        elif self.length_unit == "milimeter":
-            unit_label_text = "[mm]"
-
-        elif self.length_unit == "inch":
-            unit_label_text = "[in]"
-
-        else:
+        if unit_label_text is None:
             return
 
         # Automatically replace every label in the format [m] or [mm] or [in]
@@ -440,6 +432,19 @@ class GeometryDesignerWidget(QWidget):
         for structure in self.pipeline.selected_structures:
             structure.extra_info["material_info"] =  self.current_material_info
 
+    def _unit_abreviation(self, unit):
+        if self.length_unit == "meter":
+            return "[m]"
+
+        elif self.length_unit == "milimeter":
+            return "[mm]"
+
+        elif self.length_unit == "inch":
+            return "[in]"
+
+        else:
+            return
+
     def _structure_name_to_class(self, structure_name: str):
         if structure_name == "point":
             return Point
@@ -616,10 +621,18 @@ class GeometryDesignerWidget(QWidget):
             message += f"Material data: {material_data[1:]}\n\n"
 
         if len(self.pipeline.selected_points) == 2:
-            a = self.pipeline.selected_points[0]
-            b = self.pipeline.selected_points[1]
-            distance = np.linalg.norm(a.coords() - b.coords())
-            message += f"Distance between points: {distance:.4f}\n\n"
+            a = self.pipeline.selected_points[0].coords()
+            b = self.pipeline.selected_points[1].coords()
+            dx, dy, dz = np.round(np.abs(a - b), 6)
+            distance = np.round(np.linalg.norm(a - b), 6)
+
+            unit = self._unit_abreviation(self.length_unit)
+            tree = TreeInfo("Distance:")
+            tree.add_item("Total", distance, unit)
+            tree.add_item("ΔX", dx, unit)
+            tree.add_item("ΔY", dy, unit)
+            tree.add_item("ΔZ", dz, unit)
+            message += str(tree) + "\n\n"
 
         self.render_widget.set_info_text(message)
 
