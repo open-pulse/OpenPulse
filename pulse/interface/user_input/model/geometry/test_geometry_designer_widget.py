@@ -4,7 +4,7 @@ import re
 import numpy as np
 import warnings
 from copy import deepcopy
-from opps.model import Point, Pipe, Flange, ExpansionJoint, Valve, Reducer, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
+from opps.model import Point, Pipe, Bend, Flange, ExpansionJoint, Valve, Reducer, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
@@ -422,7 +422,12 @@ class GeometryDesignerWidget(QWidget):
         _, _, kwargs = self._get_current_structure_functions()
 
         for structure in self.pipeline.selected_structures:
-            if not isinstance(structure, self.current_structure_type):
+            if issubclass(self.current_structure_type, Pipe):
+                _type = Pipe | Bend
+            else:
+                _type = self.current_structure_type
+
+            if not isinstance(structure, _type):
                 continue
 
             for k, v in kwargs.items():
