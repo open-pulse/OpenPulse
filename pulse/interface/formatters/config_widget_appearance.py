@@ -169,6 +169,11 @@ class ConfigWidgetAppearance:
                 """
         return style
 
+    def get_highlighted_Label_stylesheet(self):
+        style = """QLabel{border-radius: 4px; border-color: rgb(250, 10, 10); border-style: solid; border-width: 1px; color: rgb(250, 10, 10); background-color: rgb(255, 255, 255)}
+                """
+        return style
+
     def get_LCDNumber_stylesheet(self):
         style = """ QLCDNumber{ color: rgb(255, 255, 255); 
                                 border-color: rgb(255, 255, 255); 

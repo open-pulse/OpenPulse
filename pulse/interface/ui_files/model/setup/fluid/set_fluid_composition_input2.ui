@@ -1154,60 +1154,6 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                </layout>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QTreeWidget" name="treeWidget_reference_gases">
-               <property name="minimumSize">
-                <size>
-                 <width>390</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>390</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>MS Shell Dlg 2</family>
-                 <pointsize>8</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true"/>
-               </property>
-               <property name="horizontalScrollBarPolicy">
-                <enum>Qt::ScrollBarAsNeeded</enum>
-               </property>
-               <property name="sizeAdjustPolicy">
-                <enum>QAbstractScrollArea::AdjustIgnored</enum>
-               </property>
-               <property name="dragDropMode">
-                <enum>QAbstractItemView::DragOnly</enum>
-               </property>
-               <property name="indentation">
-                <number>0</number>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
-               </property>
-               <attribute name="headerCascadingSectionResizes">
-                <bool>true</bool>
-               </attribute>
-               <attribute name="headerHighlightSections">
-                <bool>true</bool>
-               </attribute>
-               <column>
-                <property name="text">
-                 <string>Default fluid library</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-              </widget>
-             </item>
              <item row="0" column="2">
               <widget class="QTableWidget" name="tableWidget_new_fluid">
                <property name="minimumSize">
@@ -1232,7 +1178,10 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 <enum>QAbstractScrollArea::AdjustToContents</enum>
                </property>
                <property name="editTriggers">
-                <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+                <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+               </property>
+               <property name="dragDropOverwriteMode">
+                <bool>false</bool>
                </property>
                <property name="dragDropMode">
                 <enum>QAbstractItemView::DropOnly</enum>
@@ -1241,7 +1190,10 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 <bool>true</bool>
                </property>
                <property name="selectionBehavior">
-                <enum>QAbstractItemView::SelectRows</enum>
+                <enum>QAbstractItemView::SelectItems</enum>
+               </property>
+               <property name="sortingEnabled">
+                <bool>true</bool>
                </property>
                <attribute name="horizontalHeaderStretchLastSection">
                 <bool>true</bool>
@@ -1254,6 +1206,51 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                <column>
                 <property name="text">
                  <string>Molar fraction [%]</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QTreeWidget" name="treeWidget_reference_gases">
+               <property name="minimumSize">
+                <size>
+                 <width>390</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>390</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>MS Shell Dlg 2</family>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Press double-click to add fluid to the mixture&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="horizontalScrollBarPolicy">
+                <enum>Qt::ScrollBarAsNeeded</enum>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QAbstractScrollArea::AdjustIgnored</enum>
+               </property>
+               <property name="dragDropMode">
+                <enum>QAbstractItemView::DragOnly</enum>
+               </property>
+               <column>
+                <property name="text">
+                 <string>Default fluid library</string>
+                </property>
+                <property name="textAlignment">
+                 <set>AlignCenter</set>
                 </property>
                </column>
               </widget>
