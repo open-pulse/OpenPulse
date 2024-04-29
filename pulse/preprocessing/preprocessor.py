@@ -250,6 +250,25 @@ class Preprocessor:
         gmsh.option.setNumber('Mesh.Algorithm3D', 1)
         gmsh.option.setNumber('Geometry.Tolerance', self.tolerance)
 
+        # fields_list = []
+        # gmsh.model.mesh.field.add("Constant")
+        # gmsh.model.mesh.field.setNumbers(1, "CurvesList", [])
+        # gmsh.model.mesh.field.setNumber(1, "VOut", length)
+        # fields_list.append(1)
+
+        # lines = list()
+        # for dim, line_tag in gmsh.model.getEntities(1):
+        #     lines.append(line_tag)
+
+        # threshold_type = gmsh.model.mesh.field.add("Constant")
+        # gmsh.model.mesh.field.setNumbers(threshold_type, "CurvesList", lines)
+        # gmsh.model.mesh.field.setNumber(threshold_type, "VIn", 2)
+        # fields_list.append(threshold_type)
+
+        # minimum_field = gmsh.model.mesh.field.add("Min")
+        # gmsh.model.mesh.field.setNumbers(minimum_field, "FieldsList", fields_list)
+        # gmsh.model.mesh.field.setAsBackgroundMesh(minimum_field)
+
     def _create_entities(self):
         """
         This method generate the mesh entities, nodes, structural elements, acoustic elements 

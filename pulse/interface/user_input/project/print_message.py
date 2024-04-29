@@ -86,7 +86,6 @@ class PrintMessageInput(QDialog):
 
     def _set_texts(self):
         self.title2 = f"   {self.title}   "
-        self.label_message.setMargin(12)
         self.label_title.setText(self.title2)
         self.label_message.setText(self.message)
         self.setWindowTitle(self.window_title)
