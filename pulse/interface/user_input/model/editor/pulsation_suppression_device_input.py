@@ -450,6 +450,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             if self.check_pipe2_info():
                 return True
 
+
     def confirm_button_pressed(self):
 
         if self.check_psd_inputs():
@@ -459,10 +460,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.project.PSD.add_pulsation_suppression_device(self.filter_label, 
                                                           self.suppression_device_data)
         self.project.PSD.load_suppression_device_data_from_file()
-        # pprint(self.project.PSD.pulsation_suppression_device)
-        self.project.PSD.process_psd_data()
-        # self.project.PSD.write_psd()
-
+        self.project.PSD.write_psd_data_in_dat(self.filter_label)
         self.close()
 
     def remove_button_pressed(self):

@@ -8,15 +8,43 @@ from pathlib import Path
 from pprint import pprint
 
 class PSDSingleChamber:
-    def __init__(self, connection_type, connection_point, axis, inlet_pipe_distance, inlet_pipe_length, outlet_pipe_distance, outlet_pipe_length, main_chamber_length, angle_inlet, angle_outlet) -> None:
-        self.connection_point = connection_point
-        self.connection_point = connection_point
-        self.axis = axis
-        self.inlet_pipe_distance = inlet_pipe_distance
-        self.inlet_pipe_length = inlet_pipe_length
-        self.outlet_pipe_distance = outlet_pipe_distance
-        self.outlet_pipe_length = outlet_pipe_length
-        self.main_chamber_length = main_chamber_length
+    def __init__(self, 
+                 connection_type, 
+                 connection_point, 
+                 axis, 
+                 inlet_pipe_length, 
+                 inlet_pipe_diameter, 
+                 inlet_pipe_wall_thickness, 
+                 inlet_pipe_distance, 
+                 inlet_pipe_angle, 
+                 outlet_pipe_length, 
+                 outlet_pipe_diameter, 
+                 outlet_pipe_wall_thickness, 
+                 outlet_pipe_distance, 
+                 outlet_pipe_angle, 
+                 main_chamber_length, 
+                 main_chamber_diameter, 
+                 main_chamber_wall_thickness) -> None:
+        
+            self.connection_type = connection_type
+            self.connection_point = connection_point
+            self.axis = axis
+
+            self.inlet_pipe_length = inlet_pipe_length
+            self.inlet_pipe_diameter = inlet_pipe_diameter
+            self.inlet_pipe_wall_thickness = inlet_pipe_wall_thickness
+            self.inlet_pipe_distance = inlet_pipe_distance
+            self.inlet_pipe_angle = inlet_pipe_angle
+
+            self.outlet_pipe_length = outlet_pipe_length
+            self.outlet_pipe_diameter = outlet_pipe_diameter
+            self.outlet_pipe_wall_thickness = outlet_pipe_wall_thickness
+            self.outlet_pipe_distance = outlet_pipe_distance
+            self.outlet_pipe_angle = outlet_pipe_angle
+
+            self.main_chamber_length = main_chamber_length
+            self.main_chamber_diameter = main_chamber_diameter
+            self.main_chamber_wall_thickness = main_chamber_wall_thickness
 
     def get_points(self):
         versor_x = np.array([1, 0, 0])
@@ -31,10 +59,11 @@ class PSDSingleChamber:
 
         points = self.rotate_points([inlet, outlet, junction_0, junction_1, deadleg_0, deadleg_1])
 
-        inlet, outlet, junction_0, junction_1, deadleg_0, deadleg_1 = self.translate_to_connection_point(points)
-
         if self.connection_point == "discharge":
             inlet, outlet = outlet, inlet
+
+        self.inlet, self.outlet, self.junction_0, self.junction_1, self.deadleg_0, self.deadleg_1 = self.translate_to_connection_point(points)
+
 
         return dict(
             inlet = inlet, 
@@ -46,9 +75,9 @@ class PSDSingleChamber:
         )     
 
     def rotate_points(self, points):
-        if self.axis == "y":
+        if self.axis == "along y-axis":
             matrix = self.rotation_matrix_y(np.pi/2)
-        elif self.axis == "z":
+        elif self.axis == "along z-axis":
             matrix = self.rotation_matrix_z(np.pi/2)
         else:
             matrix = np.identity(3)
@@ -67,10 +96,6 @@ class PSDSingleChamber:
             translated_points.append(translated_point)
         return translated_points    
         
-    
-
-
-
     def rotation_matrix_y(self, angle):
         return np.array([[np.cos(angle), 0, np.sin(angle)], [0, 1, 0], [-np.sin(angle), 0, np.cos(angle)]])
     
@@ -93,6 +118,7 @@ class PulsationSuppressionDevice:
 
     def _initialize(self):
         self.pulsation_suppression_device = dict()
+        self.pulsation_suppression_devices = dict()
 
     def add_pulsation_suppression_device(self, device_label, suppression_device_data):
 
@@ -102,6 +128,15 @@ class PulsationSuppressionDevice:
                 self.pulsation_suppression_device.pop(key)
                 break
 
+        self.pulsation_suppression_devices[device_label] = PSDSingleChamber(
+                                                                            suppression_device_data["connection type"],
+                                                                            suppression_device_data["connecting coords"],
+                                                                            suppression_device_data["main axis"],
+                                                                            *suppression_device_data["pipe #1 parameters"],
+                                                                            *suppression_device_data["pipe #2 parameters"],
+                                                                            *suppression_device_data["volume #1 parameters"]
+                                                                            )
+        
         self.pulsation_suppression_device[device_label] = suppression_device_data
         self.write_suppression_device_data_in_file()
 
@@ -160,6 +195,56 @@ class PulsationSuppressionDevice:
 
                 if aux:
                     self.pulsation_suppression_device[tag] = aux
+
+    def write_psd_data_in_dat(self, device_tag):
+        device = self.pulsation_suppression_devices[device_tag]
+        device.get_points()
+
+        config = configparser.ConfigParser()
+        config[f"1"] = {}
+        config["1"]["start point"] = str(list(device.deadleg_0))
+        config["1"]["end point"] = str(list(device.junction_0))
+        config["1"]["section type"] = "Pipe section"
+        config["1"]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
+        config["1"]["structural element type"] = "pipe_1'"
+        config["1"]["material id"] = "2"
+
+        config["2"] = {}
+        config["2"]["start point"] = str(list(device.inlet))
+        config["2"]["end point"] = str(list(device.junction_0))
+        config["2"]["section type"] = "Pipe section"
+        config["2"]["section parameters"] = str([device.inlet_pipe_diameter, device.inlet_pipe_wall_thickness, 0, 0, 0, 0])
+        config["2"]["structural element type"] = "pipe_1"
+        config["2"]["material id"] = "2"
+
+        config["3"] = {}
+        config["3"]["start point"] = str(list(device.junction_0))
+        config["3"]["end point"] = str(list(device.junction_1))
+        config["3"]["section type"] = "Pipe section"
+        config["3"]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
+        config["3"]["structural element type"] = "pipe_1"
+        config["3"]["material id"] = "2"
+
+        config["4"] = {}
+        config["4"]["start point"] = str(list(device.junction_1))
+        config["4"]["end point"] = str(list(device.outlet))
+        config["4"]["section type"] = "Pipe section"
+        config["4"]["section parameters"] = str([device.outlet_pipe_diameter, device.outlet_pipe_wall_thickness, 0, 0, 0, 0])
+        config["4"]["structural element type"] = "pipe_1"
+        config["4"]["material id"] = "2"
+
+        config["5"] = {}
+        config["5"]["start point"] = str(list(device.junction_1))
+        config["5"]["end point"] = str(list(device.deadleg_1))
+        config["5"]["section type"] = "Pipe section"
+        config["5"]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
+        config["5"]["structural element type"] = "pipe_1"
+        config["5"]["material id"] = "2"
+    
+        project_path = Path(self.file._project_path)
+        path = project_path / "psd_construction_info_1.dat"
+        with open(path, 'w') as config_file:
+            config.write(config_file)  
 
     def process_psd_data(self):
         # aqui colocar um if pra ver se ele tem 2 volumes ou nao
@@ -232,7 +317,7 @@ class PulsationSuppressionDevice:
                 config = configparser.ConfigParser()
 
                 config["1"] = {}
-                config["1"]["start point"] = str(list(np.array(value["connecting coords"]) - np.array([inlet_pipe["distance"], inlet_pipe["length"], 0])))
+                config["1"]["start point"] = np.array(value["connecting coords"]) - np.array([inlet_pipe["distance"], inlet_pipe["length"], 0])
                 config["1"]["end point"] = str(list(np.array(value["connecting coords"]) - np.array([0, inlet_pipe["length"], 0])))
                 config["1"]["section type"] = "Pipe section"
                 config["1"]["section parameters"] = str([main_chamber["diameter"], main_chamber["wall thickness"], 0, 0, 0, 0])
