@@ -192,6 +192,7 @@
    <addaction name="action_front_view"/>
    <addaction name="action_back_view"/>
    <addaction name="action_isometric_view"/>
+   <addaction name="action_zoom"/>
    <addaction name="separator"/>
    <addaction name="action_clip_plane"/>
    <addaction name="action_show_points"/>
@@ -848,6 +849,15 @@
    </property>
    <property name="text">
     <string>Section Plane</string>
+   </property>
+  </action>
+  <action name="action_zoom">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../../Downloads/zoom_icon.png</normaloff>../../../../Downloads/zoom_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom</string>
    </property>
   </action>
  </widget>
