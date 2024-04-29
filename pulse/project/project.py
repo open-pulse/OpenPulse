@@ -1344,10 +1344,10 @@ class Project:
             entity.expansion_joint_parameters = None
             entity.variable_cross_section_data = None
 
-    def _set_variable_cross_section_to_selected_line(self, line_id, parameters):
+    def _set_variable_cross_section_to_selected_line(self, line_id, section_info):
         entity = self.preprocessor.dict_tag_to_entity[line_id]
         entity.cross_section = None
-        entity.variable_cross_section_data = parameters
+        entity.variable_cross_section_data = section_info
 
     def _set_structural_element_type_to_selected_lines(self, lines, element_type):
         if isinstance(lines, int):

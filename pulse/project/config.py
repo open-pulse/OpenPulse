@@ -12,29 +12,29 @@ class Config:
     def reset(self):
         self.recent_projects = dict()
         self.open_last_project = False
-        self.recents_filename = Path().home() / ".open_pulse_config"
+        self.config_path = Path().home() / ".open_pulse_config"
         self.load_config_file()
         self.load_args()
 
     def load_config_file(self):
         try:
             config = configparser.ConfigParser()
-            config.read(self.recents_filename)
+            config.read(self.config_path)
             if config.has_section('project'):
                 for key, value in config.items('project'):
                     self.recent_projects[key] = value
         except:
-            if self.recents_filename.exists():
-                os.remove(self.recents_filename)
+            if self.config_path.exists():
+                os.remove(self.config_path)
 
     def remove_path_from_config_file(self, dir_identifier):
         config = configparser.ConfigParser()
-        config.read(self.recents_filename)
+        config.read(self.config_path)
 
         if config.has_section('project'):
             config.remove_option(section='project', option=dir_identifier)
 
-        self.write_data_in_file(self.recents_filename, config) 
+        self.write_data_in_file(self.config_path, config) 
         self.reset()
 
     def load_args(self):
@@ -43,12 +43,12 @@ class Config:
 
     def resetRecentProjectList(self):
         config = configparser.ConfigParser()
-        config.read(self.recents_filename)   
+        config.read(self.config_path)   
         
         if config.has_section('project'):
             config.remove_section(section='project')
         
-        self.write_data_in_file(self.recents_filename, config)        
+        self.write_data_in_file(self.config_path, config)        
         self.reset()
 
     def getMostRecentProjectDir(self):
@@ -66,7 +66,7 @@ class Config:
     def get_last_project_folder(self):
 
         config = configparser.ConfigParser()
-        config.read(self.recents_filename)
+        config.read(self.config_path)
 
         if config.has_section("User preferences"):
             section = config["User preferences"]
@@ -77,7 +77,7 @@ class Config:
     def get_last_geometry_folder(self):
 
         config = configparser.ConfigParser()
-        config.read(self.recents_filename)
+        config.read(self.config_path)
 
         if config.has_section("User preferences"):
             section = config["User preferences"]
@@ -91,7 +91,7 @@ class Config:
         project_name = project_name.lower()
    
         config = configparser.ConfigParser()
-        config.read(self.recents_filename)
+        config.read(self.config_path)
 
         local_path = os.path.dirname(os.path.dirname(project_path)) 
         if config.has_section('User preferences'):
@@ -114,13 +114,13 @@ class Config:
             config[section_name] = {project_name: str(project_path)}
 
         self.recent_projects[project_name] = str(project_path)
-        self.write_data_in_file(self.recents_filename, config) 
+        self.write_data_in_file(self.config_path, config) 
 
     def write_theme_in_file(self, theme : str):
         try:
 
             config = configparser.ConfigParser()
-            config.read(self.recents_filename)
+            config.read(self.config_path)
 
             if config.has_section('User preferences'):
                 config["User preferences"]["interface theme"] = theme
@@ -132,14 +132,14 @@ class Config:
         except:
             return
 
-        self.write_data_in_file(self.recents_filename, config) 
+        self.write_data_in_file(self.config_path, config) 
 
     def write_last_geometry_folder_path_in_file(self, geometry_path : str):
         try:
 
             _path = os.path.dirname(geometry_path)
             config = configparser.ConfigParser()
-            config.read(self.recents_filename)
+            config.read(self.config_path)
 
             if config.has_section('User preferences'):
                 config["User preferences"]["last geometry folder"] = _path
@@ -149,13 +149,13 @@ class Config:
         except:
             return
 
-        self.write_data_in_file(self.recents_filename, config) 
+        self.write_data_in_file(self.config_path, config) 
 
     def write_colormap_in_file(self, colormap : str):
         try:
 
             config = configparser.ConfigParser()
-            config.read(self.recents_filename)
+            config.read(self.config_path)
 
             if config.has_section('User preferences'):
                 config["User preferences"]["colormap"] = colormap
@@ -165,21 +165,21 @@ class Config:
         except:
             return
 
-        self.write_data_in_file(self.recents_filename, config)
+        self.write_data_in_file(self.config_path, config)
 
     def write_user_preferences_in_file(self, preferences):
 
         config = configparser.ConfigParser()
-        config.read(self.recents_filename)
+        config.read(self.config_path)
 
         config['User preferences'] = preferences
         
-        self.write_data_in_file(self.recents_filename, config)
+        self.write_data_in_file(self.config_path, config)
 
     def get_user_preferences(self):
 
         config = configparser.ConfigParser()
-        config.read(self.recents_filename)
+        config.read(self.config_path)
 
         user_preferences = dict()
         if config.has_section("User preferences"):
@@ -236,6 +236,33 @@ class Config:
                 pass
 
         return user_preferences
+
+    def write_refprop_path_in_file(self, path):
+
+        config = configparser.ConfigParser()
+        config.read(self.config_path)
+
+        if config.has_section('User preferences'):
+            config["User preferences"]["refprop path"] = path
+        else:
+            config["User preferences"] = {"refprop path" : path}
+
+        self.write_data_in_file(self.config_path, config)
+
+    def get_refprop_path_from_file(self):
+
+        config = configparser.ConfigParser()
+        config.read(self.config_path)
+
+        refprop_path = None
+        if config.has_section("User preferences"):
+            section = config["User preferences"]
+            if "refprop path" in section.keys():
+                refprop_path = section["refprop path"]
+
+        return refprop_path
+
+        self.write_data_in_file(self.config_path, config)
 
     def write_data_in_file(self, path, config):
         with open(path, 'w') as config_file:

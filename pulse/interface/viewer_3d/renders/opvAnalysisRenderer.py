@@ -133,12 +133,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
-        plt = lambda x: self._renderer.AddActor(x.getActor())
-        plt(self.opvDeformedTubes)
-        plt(self.opvPressureTubes)
-        plt(self.opvClippableDeformedTubes)
-        plt(self.opvClippablePressureTubes)
-        # plt(self.opvSymbols)
+        self._renderer.AddActor(self.opvDeformedTubes.getActor())
+        self._renderer.AddActor(self.opvPressureTubes.getActor())
+        self._renderer.AddActor(self.opvClippableDeformedTubes.getActor())
+        self._renderer.AddActor(self.opvClippablePressureTubes.getActor())
         self._renderer.AddActor(self.plane_actor)
 
         self.add_openpulse_logo()
@@ -578,6 +576,9 @@ class opvAnalysisRenderer(vtkRendererBase):
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
         if self.playingAnimation:
             self.pauseAnimation()
+        
+        self.opvClippablePressureTubes.disable_cut()
+        self.opvClippableDeformedTubes.disable_cut()
 
         self.clipping_plane_active = True
         self.plane_origin = self._calculate_relative_position([x, y, z])
@@ -615,6 +616,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvClippableDeformedTubes.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
+        
         self.first_configuration = True
         self.clipping_plane_active = False
         self._plotOnce(self._currentPhase)
@@ -627,11 +629,21 @@ class opvAnalysisRenderer(vtkRendererBase):
                 hidden.add(i)
         return hidden
 
+    def getBounds(self):
+        if self.opvClippableDeformedTubes._actor.GetVisibility():
+            return self.opvClippableDeformedTubes._actor.GetBounds()
+        elif self.opvDeformedTubes._actor.GetVisibility():
+            return self.opvDeformedTubes._actor.GetBounds()
+        elif self.opvClippablePressureTubes._actor.GetVisibility():
+            return self.opvClippablePressureTubes._actor.GetBounds()
+        else:
+            return self.opvPressureTubes._actor.GetBounds()
+
     def _calculate_relative_position(self, position):
         def lerp(a, b, t):
            return a + (b - a) * t
         
-        bounds = self.opv.opvRenderer.getBounds()
+        bounds = self.getBounds()
         x = lerp(bounds[0], bounds[1], position[0] / 100)
         y = lerp(bounds[2], bounds[3], position[1] / 100)
         z = lerp(bounds[4], bounds[5], position[2] / 100)

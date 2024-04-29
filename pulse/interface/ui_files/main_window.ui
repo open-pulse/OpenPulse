@@ -847,7 +847,7 @@
      <normaloff>../data/icons/clipping_plane_icon.png</normaloff>../data/icons/clipping_plane_icon.png</iconset>
    </property>
    <property name="text">
-    <string>Clip Plane</string>
+    <string>Section Plane</string>
    </property>
   </action>
  </widget>

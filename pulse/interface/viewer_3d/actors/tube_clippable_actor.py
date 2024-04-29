@@ -21,7 +21,7 @@ class TubeClippableActor(ActorBase):
         # self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
         self._key_indexes = dict()
 
-        self.transparent = True
+        self.transparent = False
         self.bff = 1  # bug fix factor 
 
         self._data = vtk.vtkPolyData()
@@ -256,9 +256,12 @@ class TubeClippableActor(ActorBase):
         plane.SetOrigin(origin)
         plane.SetNormal(normal)
 
-        clipper = vtk.vtkClipPolyData()
+        planes = vtk.vtkPlaneCollection()
+        planes.AddItem(plane)
+
+        clipper = vtk.vtkClipClosedSurface()
         clipper.SetInputData(self._data)
-        clipper.SetClipFunction(plane)
+        clipper.SetClippingPlanes(planes)
         clipper.Update()
         self.clipped_data = clipper.GetOutput()
 

@@ -4,11 +4,10 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse.interface.user_input.model.setup.general.set_cross_section import SetCrossSectionInput
+from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import get_new_path
 
@@ -41,7 +40,7 @@ class ExpansionJointInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        self.icon = app().main_window.pulse_icon
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

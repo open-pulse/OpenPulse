@@ -82,7 +82,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Cutting plane options</string>
+         <string>Section plane options</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

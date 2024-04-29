@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.tools.utils import get_new_path, remove_bc_from_file
-from pulse.interface.user_input.model.setup.general.fluid_input import FluidInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
@@ -38,13 +38,15 @@ class CompressorModelInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._config_treeWidget()
+        self._config_widget()
         self.update()
         self.load_compressor_excitation_tables_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        self.icon = app().main_window.pulse_icon
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -53,15 +55,17 @@ class CompressorModelInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
         self.stop = False
         self.complete = False
+        self.keep_window_open = True
+
         self.aquisition_parameters_processed = False
-        self.node_ID_remove = None
         self.remove_message = True
-        self.table_name = None
         self.not_update_event = False
-        
-        self.node_id = self.opv.getListPickedPoints()
+
+        self.table_name = None
+        self.node_ID_remove = None
 
         self.preprocessor = self.project.preprocessor
         self.nodes = self.preprocessor.nodes
@@ -73,7 +77,7 @@ class CompressorModelInput(QDialog):
         self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
 
     def _define_qt_variables(self):
-        
+
         # QComboBox
         self.comboBox_connection_setup : QComboBox
         self.comboBox_cylinder_acting : QComboBox
@@ -82,13 +86,13 @@ class CompressorModelInput(QDialog):
         self.comboBox_stage : QComboBox
         self.comboBox_suction_pressure_units : QComboBox
         self.comboBox_suction_temperature_units : QComboBox
-        
+
         # QLabel
         self.label_molar_mass : QLabel
         self.label_molar_mass_unit : QLabel
         self.label_isentropic_exp : QLabel
         self.label_isentropic_exp_unit : QLabel
-        
+
         # QLineEdit
         self.lineEdit_suction_node_ID : QLineEdit
         self.lineEdit_discharge_node_ID : QLineEdit
@@ -110,7 +114,7 @@ class CompressorModelInput(QDialog):
         self.lineEdit_node_ID_info : QLineEdit
         self.lineEdit_table_name_info : QLineEdit
         self.current_lineEdit = self.lineEdit_suction_node_ID
-        
+
         # QPushButton
         self.pushButton_flipNodes : QPushButton
         self.pushButton_reset_entries : QPushButton
@@ -134,12 +138,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_reset_node : QPushButton
         self.pushButton_reset_all : QPushButton
         self.pushButton_cancel : QPushButton
-        #
-        self.pushButton_reset_entries.setCursor(Qt.PointingHandCursor)
-        self.pushButton_process_aquisition_parameters.setCursor(Qt.PointingHandCursor)
-        self.pushButton_confirm.setCursor(Qt.PointingHandCursor)
-        self.pushButton_cancel.setCursor(Qt.PointingHandCursor)
-        
+
         # QSpinBox
         self.spinBox_number_of_points : QSpinBox
         self.spinBox_max_frequency : QSpinBox
@@ -147,26 +146,31 @@ class CompressorModelInput(QDialog):
         self.spinBox_tdc1_crank_angle : QSpinBox
         self.spinBox_tdc2_crank_angle : QSpinBox
         self.spinBox_capacity : QSpinBox
-        
+
         # QTabWidget
         self.tabWidget_compressor : QTabWidget
-        
+
         # QTreeWidget
         self.treeWidget_compressor_excitation : QTreeWidget
 
-    def _config_treeWidget(self):
+    def _config_widget(self):
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
+        self.comboBox_compressors_tables.setVisible(False)
+        #
         self.treeWidget_compressor_excitation.setColumnWidth(0, 70)
         # self.treeWidget_compressor_excitation.setColumnWidth(1, 140)
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
     def _create_connections(self):
+
         self.comboBox_connection_setup.currentIndexChanged.connect(self.update_compressor_to_pipeline_connections)
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
         self.comboBox_compressors_tables.currentIndexChanged.connect(self.comboBox_event_update)
         self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
-        self.comboBox_compressors_tables.setVisible(False)
         self.comboBox_event_stage()
         self.update_compressing_cylinders_setup()
         self.update_compressor_to_pipeline_connections()
@@ -398,40 +402,56 @@ class CompressorModelInput(QDialog):
             
         if "bore diameter" in compressor_info.keys():
             self.lineEdit_bore_diameter.setText(str(compressor_info["bore diameter"]))
+        
         if "stroke" in compressor_info.keys():
             self.lineEdit_stroke.setText(str(compressor_info["stroke"]))
+        
         if "connecting rod length" in compressor_info.keys():
             self.lineEdit_connecting_rod_length.setText(str(compressor_info["connecting rod length"]))
+        
         if "rod diameter" in compressor_info.keys():
             self.lineEdit_rod_diameter.setText(str(compressor_info["rod diameter"]))
+        
         if "pressure ratio" in compressor_info.keys():
             self.lineEdit_pressure_ratio.setText(str(compressor_info["pressure ratio"]))
+        
         if "clearance (HE)" in compressor_info.keys():
             self.lineEdit_clearance_head_end.setText(str(compressor_info["clearance (HE)"]))
+        
         if "clearance (CE)" in compressor_info.keys():
             self.lineEdit_clearance_crank_end.setText(str(compressor_info["clearance (CE)"]))
+        
         if "TDC crank angle 1" in compressor_info.keys():
             self.spinBox_tdc1_crank_angle.setValue(int(compressor_info["TDC crank angle 1"]))
+        
         if "rotational speed" in compressor_info.keys():
             self.lineEdit_rotational_speed.setText(str(compressor_info["rotational speed"]))
+        
         if "capacity" in compressor_info.keys():
             self.spinBox_capacity.setValue(int(compressor_info["capacity"]))
+        
         if "isentropic exponent" in compressor_info.keys():
             self.lineEdit_isentropic_exponent.setText(str(compressor_info["isentropic exponent"]))
+        
         if "molar mass" in compressor_info.keys():
             self.lineEdit_molar_mass.setText(str(compressor_info["molar mass"]))
+        
         if "pressure at suction" in compressor_info.keys():
             self.lineEdit_pressure_at_suction.setText(str(compressor_info["pressure at suction"]))
+        
         if compressor_info["pressure unit"] == "kgf/cm²":
             self.comboBox_suction_pressure_units.setCurrentIndex(0)
         else:
             self.comboBox_suction_pressure_units.setCurrentIndex(1)
+        
         if "temperature at suction" in compressor_info.keys():
             self.lineEdit_temperature_at_suction.setText(str(compressor_info["temperature at suction"]))
+        
         if compressor_info["temperature unit"] == "°C":
             self.comboBox_suction_temperature_units.setCurrentIndex(0)
         else:
             self.comboBox_suction_temperature_units.setCurrentIndex(1)
+        
         if "acting label" in compressor_info.keys():
             acting_key = int(compressor_info["acting label"])
             self.comboBox_cylinder_acting.setCurrentIndex(acting_key)
@@ -757,7 +777,7 @@ class CompressorModelInput(QDialog):
         self.check_existing_compressor_parameters_and_edit()
         index = self.comboBox_connection_setup.currentIndex()
         if index in [0, 1]:
-            
+
             line_suction_node_ID = self.preprocessor.get_line_from_node_id(self.suction_node_ID)
             compressor_info = { "temperature (suction)" : self.T_suction,
                                 "pressure (suction)" : self.P_suction,
@@ -766,16 +786,17 @@ class CompressorModelInput(QDialog):
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 0 }
 
-            read = FluidInput(compressor_thermodynamic_state = compressor_info)
-
+            self.hide()
+            read = SetFluidInput(compressor_thermodynamic_state = compressor_info)
             if not read.complete:
                 return
+
             else:
-                if read.REFPROP is not None:
-                    if read.REFPROP.complete:
-                        self.parameters['molar mass'] = round(read.fluid_data_REFPROP["molar mass"], 6)
-                        self.parameters['isentropic exponent'] = round(read.fluid_data_REFPROP["isentropic exponent"], 6)
-                        self.parameters['fluid properties source'] = "REFPROP"
+                if read.fluid_widget.refprop is not None:
+                    if read.fluid_widget.refprop.complete:
+                        self.parameters['molar mass'] = round(read.fluid_widget.fluid_data_refprop["molar mass"], 6)
+                        self.parameters['isentropic exponent'] = round(read.fluid_widget.fluid_data_refprop["isentropic exponent"], 6)
+                        self.parameters['fluid properties source'] = "refprop"
                 else:
                     self.parameters['fluid properties source'] = "user-defined"
 
@@ -800,7 +821,7 @@ class CompressorModelInput(QDialog):
             else:
                 if self.save_table_values(freq, in_flow_rate, table_name):
                     return
-                
+
         if index in [0, 2]:
 
             line_discharge_node_ID = self.preprocessor.get_line_from_node_id(self.discharge_node_ID)
@@ -810,16 +831,18 @@ class CompressorModelInput(QDialog):
                                 "node_id" : self.discharge_node_ID,
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : 1 }
-            
-            read = FluidInput(compressor_thermodynamic_state = compressor_info)
+
+            self.hide()
+            read = SetFluidInput(compressor_thermodynamic_state = compressor_info)
             if not read.complete:
                 return
+
             else:
-                if read.REFPROP is not None:
-                    if read.REFPROP.complete:
-                        self.parameters['molar mass'] = round(read.fluid_data_REFPROP["molar mass"], 6)
-                        self.parameters['isentropic exponent'] = round(read.fluid_data_REFPROP["isentropic exponent"], 6)
-                        self.parameters['fluid properties source'] = "REFPROP"
+                if read.fluid_widget.refprop is not None:
+                    if read.fluid_widget.refprop.complete:
+                        self.parameters['molar mass'] = round(read.fluid_widget.fluid_data_refprop["molar mass"], 6)
+                        self.parameters['isentropic exponent'] = round(read.fluid_widget.fluid_data_refprop["isentropic exponent"], 6)
+                        self.parameters['fluid properties source'] = "refprop"
                 else:
                     self.parameters['fluid properties source'] = "user-defined"
     
@@ -856,7 +879,6 @@ class CompressorModelInput(QDialog):
 
     #     compressor_parameters = parameters
     #     compressor_fluid_prop_source = fluid_prop_source
-        
 
     def remove_volume_velocity_table_files(self, node_id, table_name):
         self.project.remove_volume_velocity_table_files(node_id, table_name)
@@ -1167,3 +1189,7 @@ class CompressorModelInput(QDialog):
 
     def remove_compressor_excitation_table_files(self, list_node_ids):
         self.project.remove_compressor_excitation_table_files(list_node_ids)
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

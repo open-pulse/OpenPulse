@@ -11,8 +11,8 @@ from pulse import app, UI_DIR
 from pulse.interface.viewer_3d.text_templates import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.geometry.test_edit_pipe_widget import EditPipeWidget
-from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
-from pulse.interface.user_input.model.setup.general.material_widget import MaterialInputs
+from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
 
 class GeometryDesignerWidget(QWidget):

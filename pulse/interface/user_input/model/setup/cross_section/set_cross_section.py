@@ -6,20 +6,20 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.model.setup.general.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import *
 
 import configparser
 import matplotlib.pyplot as plt
 
-window_title = "ERROR MESSAGE"
+window_title = "Error"
 
 class SetCrossSectionInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        ui_path = UI_DIR / "model/setup/general/set_cross_section.ui"
+        ui_path = UI_DIR / "model/setup/cross_section/set_cross_section.ui"
         uic.loadUi(ui_path, self)
 
         self.pipe_to_beam = kwargs.get("pipe_to_beam", False)
@@ -213,22 +213,25 @@ class SetCrossSectionInput(QDialog):
 
     def update_QDialog_info(self):
 
+        lines_id = self.opv.getListPickedLines()
+        elements_id = self.opv.getListPickedElements()
+
         self.input_widget.reset_all_input_texts()
         self.update_line_and_element_ids()
 
-        if len(self.lines_id) == 1:   
-            self.selection = self.dict_tag_to_entity[self.lines_id[0]]
+        if len(lines_id) == 1:   
+            self.selection = self.dict_tag_to_entity[lines_id[0]]
             element_type = self.selection.structural_element_type
             if element_type is None:
-                for element_id in self.preprocessor.line_to_elements[self.lines_id[0]]:
+                for element_id in self.preprocessor.line_to_elements[lines_id[0]]:
                     element = self.structural_elements[element_id]
                     element_type = element.element_type
                     if element_type in ["pipe_1", "beam_1"]:
                         break
             _variable_cross_section_data = self.selection.variable_cross_section_data
 
-        elif len(self.elements_id) == 1:
-            self.selection = self.structural_elements[self.elements_id[0]]
+        elif len(elements_id) == 1:
+            self.selection = self.structural_elements[elements_id[0]]
             element_type = self.selection.element_type
             _variable_cross_section_data = None
 
@@ -413,13 +416,13 @@ class SetCrossSectionInput(QDialog):
         if self.input_widget.get_variable_section_pipe_parameters():
             return
 
-        variable_parameters = self.input_widget.variable_parameters
-        self.project.set_variable_cross_section_by_line(self.lines_typed[0], variable_parameters)
+        section_info = self.input_widget.pipe_section_info
+        self.project.set_variable_cross_section_by_line(self.lines_typed[0], section_info)
         # self.project.add_cross_sections_expansion_joints_valves_in_file(self.list_elements)
         self.project.set_structural_element_type_by_lines(self.lines_typed[0], self.element_type)
-        self.file.modify_variable_cross_section_in_file(self.lines_typed[0], variable_parameters)
-        # self.project.set_variable_cross_section_by_line(self.lines_typed[0], variable_parameters)
-        self.project._set_variable_cross_section_to_selected_line(self.lines_typed[0], variable_parameters)
+        self.file.modify_variable_cross_section_in_file(self.lines_typed[0], section_info)
+        # self.project.set_variable_cross_section_by_line(self.lines_typed[0], section_info)
+        self.project._set_variable_cross_section_to_selected_line(self.lines_typed[0], section_info)
         self.project.reset_number_sections_by_line(self.lines_typed[0])
         self.actions_to_finalize()
 
@@ -538,8 +541,6 @@ class SetCrossSectionInput(QDialog):
                 self.tabWidget_beam_section.setCurrentIndex(i)
 
     def update(self):
-        self.lines_id = self.opv.getListPickedLines()
-        self.elements_id = self.opv.getListPickedElements()
         self.update_QDialog_info()
 
     def update_line_and_element_ids(self):
