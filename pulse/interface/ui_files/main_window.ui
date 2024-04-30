@@ -854,7 +854,7 @@
   <action name="action_zoom">
    <property name="icon">
     <iconset>
-     <normaloff>../../../../Downloads/zoom_icon.png</normaloff>../../../../Downloads/zoom_icon.png</iconset>
+     <normaloff>../data/icons/zoom_icon.png</normaloff>../data/icons/zoom_icon.png</iconset>
    </property>
    <property name="text">
     <string>Zoom</string>
