@@ -1,14 +1,13 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QDialog, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QTableWidget, QTabWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.tools.utils import get_new_path
 
 import os
@@ -51,16 +50,17 @@ class SetFluidCompositionInput(QDialog):
             self.exec()
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        self.icon = app().main_window.pulse_icon
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
-        self.setFixedSize(1000, 612)
 
     def _initialize(self):
+
+        self.selected_row = None
 
         self.keep_window_open = True
         self.composition_file_path = ""
@@ -88,18 +88,19 @@ class SetFluidCompositionInput(QDialog):
         self.selected_fluid = ""
         self.unit_temperature = "K"
         self.unit_pressure = "Pa"
-        self.composition_value = 0
-        self.remaining_composition = 1
-        self.list_fluids = list()
-        self.fluid_to_composition = dict()
+
         self.complete = False
-        self.state_index = None
+        self.remaining_molar_fraction = 1
+        self.fluid_to_composition = dict()
+        self.fluid_to_row = dict()
 
     def _define_qt_variables(self):
 
         # QComboBox
         self.comboBox_temperature_units : QComboBox
         self.comboBox_pressure_units : QComboBox
+        self.comboBox_temperature_units_test : QComboBox
+        self.comboBox_pressure_units_test : QComboBox
 
         # QLabel
         self.label_selected_fluid : QLabel
@@ -110,12 +111,14 @@ class SetFluidCompositionInput(QDialog):
         self.label_spacing : QLabel
 
         # QLineEdit
-        self.lineEdit_molar_fraction : QLineEdit
+        self.lineEdit_composition : QLineEdit
         self.lineEdit_fluid_name : QLineEdit
         self.lineEdit_temperature : QLineEdit
         self.lineEdit_pressure : QLineEdit
         self.lineEdit_pressure_disch : QLineEdit
         self.lineEdit_temperature_disch : QLineEdit
+        self.lineEdit_temperature_test : QLineEdit
+        self.lineEdit_pressure_test : QLineEdit
 
         # QPushButton
         self.pushButton_add_gas : QPushButton
@@ -128,32 +131,35 @@ class SetFluidCompositionInput(QDialog):
         # QTabWidget
         self.tabWidget_main : QTabWidget
 
+        # QTableWidget
+        self.tableWidget_new_fluid : QTableWidget
+
         # QTreeWidget
         self.treeWidget_reference_gases : QTreeWidget
-        self.treeWidget_new_gas : QTreeWidget
 
     def _create_connections(self):
         #
-        self.pushButton_add_gas.clicked.connect(self.add_selected_gas)
+        self.pushButton_add_gas.clicked.connect(self.add_selected_fluid_button_callback)
         self.pushButton_confirm.clicked.connect(self.get_fluid_properties)
         self.pushButton_load_composition.clicked.connect(self.load_fluid_composition_callback)
         self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
         self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
-        # self.pushButton_use_remaining_molar_fraction.clicked.connect(self.use_remaining_molar_fraction)
         #
-        self.treeWidget_new_gas.itemDoubleClicked.connect(self.on_double_click_item_new_gas)
-        self.treeWidget_new_gas.itemClicked.connect(self.on_click_item_new_gas)
-        self.treeWidget_reference_gases.itemClicked.connect(self.on_click_item_reference_gases)
+        self.tableWidget_new_fluid.cellClicked.connect(self.cell_clicked_on_composition_table)
+        self.tableWidget_new_fluid.cellChanged.connect(self.cell_changed_on_composition_table)
+        self.tableWidget_new_fluid.itemChanged.connect(self.item_changed_callback)
+        self.treeWidget_reference_gases.itemClicked.connect(self.on_click_item_refprop_fluids)
+        self.treeWidget_reference_gases.itemDoubleClicked.connect(self.on_double_click_item_refprop_fluids)
 
     def _config_widgets(self):
 
-        ConfigWidgetAppearance(self, toolTip=True)
+        ConfigWidgetAppearance(self, tool_tip=True)
 
         self.label_discharge.setVisible(False)
         self.label_suction.setVisible(False)
         self.label_spacing.setVisible(False)
         #
-        self.lineEdit_molar_fraction.setFixedHeight(28)
+        self.lineEdit_composition.setFixedHeight(28)
         self.lineEdit_pressure_disch.setVisible(False)
         self.lineEdit_temperature_disch.setVisible(False)
 
@@ -170,6 +176,7 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_temperature_disch.setDisabled(True)
         self.lineEdit_pressure.setDisabled(True)
         self.lineEdit_pressure_disch.setDisabled(True)
+        self.tabWidget_main.setTabVisible(1, False)
     
         self.connection_type_comp = self.compressor_info['connection type']
         self.connection_label = "discharge" if self.connection_type_comp else "suction"
@@ -189,11 +196,13 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
         self.lineEdit_temperature_disch.setText("---")
         self.lineEdit_temperature_disch.setToolTip("The temperature at discharge will be calculated after the fluid definition.")
-        
 
     def update_selected_fluid(self):
+
         if self.selected_fluid_to_edit:
+
             [fluid_name, temperature, pressure, key_mixture, molar_fractions] = self.selected_fluid_to_edit
+
             fluid_file_names = key_mixture.split(";")
             self.lineEdit_fluid_name.setText(fluid_name)
             self.lineEdit_temperature.setText(str(temperature))
@@ -202,50 +211,67 @@ class SetFluidCompositionInput(QDialog):
 
             for index, fluid_file_name in enumerate(fluid_file_names):
                 final_name = self.fluid_file_to_final_name[fluid_file_name]
-                str_molar_fraction = str(round(molar_fractions[index]*100, 5))
-                self.fluid_to_composition[final_name] = [str_molar_fraction, molar_fractions[index], fluid_file_name]
+                str_molar_fraction = str(round(molar_fractions[index]*100, 6))
+                self.fluid_to_composition[final_name] = [str_molar_fraction, 
+                                                         molar_fractions[index], 
+                                                         fluid_file_name]
 
-            self.load_new_gas_composition_info()
+            self.load_fluid_composition_info()
             self.update_remainig_composition()
 
-    def use_remaining_molar_fraction(self):
-        self.lineEdit_molar_fraction.setText(str(self.remaining_composition))
+    def add_selected_fluid_button_callback(self):
+        self.add_selected_fluid_to_composition_table(self.selected_fluid)
 
-    def add_selected_gas(self):
-        if self.label_selected_fluid.text() != "":
-            if self.check_composition_input():
-                return
-            self.load_new_gas_composition_info()
-            self.update_remainig_composition()  
-        else:
-            title = "None 'Fluid' selected"
-            message = "Dear user, it is necessary to select a fluid in the list to proceed"
-            PrintMessageInput([window_title_1, title, message])   
-    
+    def add_selected_gas(self, fluid_name, molar_fraction):
+
+        if isinstance(molar_fraction, float):
+
+            fluid_file_name, _, _ = self.refprop_fluids[fluid_name]
+            self.fluid_to_composition[fluid_name] = [  str(molar_fraction), 
+                                                        molar_fraction / 100, 
+                                                        fluid_file_name  ]
+
+            if molar_fraction == 0:
+                if fluid_name in self.fluid_to_composition.keys():
+                    self.fluid_to_composition.pop(fluid_name)
+
+            self.update_remainig_composition()
+
     def update_remainig_composition(self):
 
-        self.remaining_composition = 1
-        for [_, composition_value, _] in self.fluid_to_composition.values():
-            self.remaining_composition -= composition_value
+        self.remaining_molar_fraction = 1
+        for composition_data in self.fluid_to_composition.values():
+            if len(composition_data) == 3:
+                composition_value = composition_data[1]
+                self.remaining_molar_fraction -= composition_value
 
-        _remain = round(self.remaining_composition*100, 5)
+        _remain = round(self.remaining_molar_fraction*100, 6)
         if _remain == 0:
             _remain = 0.00
 
+        self.remaining_composition_highlight(_remain)
         self.label_remaining_composition.setText(str(_remain))
 
-        if round(abs(self.remaining_composition), 5) == 0:
+        if round(abs(self.remaining_molar_fraction), 6) == 0:
             if self.compressor_info:
-
                 temperature_K = self.T_suction
                 pressure_Pa = self.P_suction
                 self.get_specific_fluid_property(   self.isentropic_label,
                                                     temperature_K,
                                                     pressure_Pa   )
 
+    def remaining_composition_highlight(self, value):
+        if value >= 0:
+            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(100, 100, 100); border-style: solid; border-width: 1px; color: rgb(100, 100, 100); background-color: rgb(255, 255, 255)}
+                            """
+        else:
+            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(250, 10, 10); border-style: solid; border-width: 2px; color: rgb(250, 10, 10); background-color: rgb(255, 255, 255)}
+                            """
+        self.label_remaining_composition.setStyleSheet(style_sheet)
+
     def get_specific_fluid_property(self, key_prop, temperature_K, pressure_Pa):
         
-        units = self.RefProp.GETENUMdll(0, "MASS BASE SI").iEnum
+        units = self.refprop.GETENUMdll(0, "MASS BASE SI").iEnum
 
         fluids_string = ""
         molar_fractions = list()
@@ -254,7 +280,7 @@ class SetFluidCompositionInput(QDialog):
             molar_fractions.append(_fraction)
         fluids_string = fluids_string[:-1]
 
-        read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+        read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                         temperature_K, pressure_Pa, molar_fractions )
 
         if read.herr:
@@ -272,140 +298,190 @@ class SetFluidCompositionInput(QDialog):
         
         return fluid_property
 
-    def create_font(self, size):
-        self.font = QFont()
-        self.font.setPointSize(size)
-        self.font.setItalic(False)
-        # self.font.setBold(True)
-        # self.font.setWeight(75)
-
     def remove_selected_gas(self):
-        if self.label_selected_fluid.text() != "":
-            _fluid = self.label_selected_fluid.text()
-            if _fluid in self.fluid_to_composition.keys():
-                self.fluid_to_composition.pop(_fluid)
-                self.load_new_gas_composition_info()
-                self.update_remainig_composition() 
 
-    def reset_fluid(self):
-            title = f"Resetting of the current 'Fluid Composition'"
-            message = "Do you really want to reset the current Fluid Composition?\n\n"
-            
-            message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
-            message += "\nClose buttons to abort the current operation."
-            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        if isinstance(self.selected_row, int):
 
+            item = self.tableWidget_new_fluid.item(self.selected_row, 0)
 
-            if read._stop:
+            if item is None:
                 return
 
-            self.fluid_to_composition.clear()
-            self.load_new_gas_composition_info()
-            self.update_remainig_composition()
+            selected_fluid = item.text()
+            self.tableWidget_new_fluid.removeRow(self.selected_row)
+
+            if selected_fluid in self.fluid_to_composition.keys():
+                self.fluid_to_composition.pop(selected_fluid)
+                self.update_remainig_composition()
+
+    def reset_fluid(self):
+
+        title = f"Resetting of the fluid composition"
+        message = "Would you like to reset the current fluid composition?\n\n"
+
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._stop:
+            return
+
+        self.fluid_to_composition.clear()
+        self.load_fluid_composition_info()
+        self.update_remainig_composition()
 
     def load_default_gases_info(self):
+        self.config_table_data()
         self.treeWidget_reference_gases.clear()
         self.treeWidget_reference_gases.headerItem().setText(0, "Default fluid library")
-        for gas in self.list_gases.keys():
+        for gas in self.refprop_fluids.keys():
             new = QTreeWidgetItem([gas])
             new.setTextAlignment(0, Qt.AlignCenter)
             self.treeWidget_reference_gases.addTopLevelItem(new)
 
-    def load_new_gas_composition_info(self):
-        # if self.selected_fluid != "":
-        self.treeWidget_new_gas.clear()
-        # self.treeWidget_new_gas.setGeometry(576, 142, 509, 400)
-        self.treeWidget_new_gas.headerItem().setText(0, "Fluid")
-        self.treeWidget_new_gas.headerItem().setText(1, "Composition [%]")
-        self.treeWidget_new_gas.headerItem().setTextAlignment(0, Qt.AlignHCenter)
-        self.treeWidget_new_gas.headerItem().setTextAlignment(1, Qt.AlignHCenter)
-        self.treeWidget_new_gas.setColumnWidth(0, 280)
-        for fluid, [str_composition, _, _] in self.fluid_to_composition.items():
-            new = QTreeWidgetItem([fluid, str_composition])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_new_gas.addTopLevelItem(new)
-        self.label_selected_fluid.setText("")
-        self.lineEdit_molar_fraction.setText("")
+    def config_table_data(self):
 
-    def check_composition_input(self):
+        header = ['Fluid name', 'Molar fraction [%]']
         
-        if self.lineEdit_molar_fraction.text() != "":
-            title = "Invalid input value to the fluid Composition"
-            message = ""
-            value = None
-            try:
-                str_composition_value = self.lineEdit_molar_fraction.text()
-                value = float(str_composition_value)
-            except Exception as log_error:
-                message = "Dear user, you have typed an invalid entry at the fluid Composition input. "
-                message += "\nPlease, check the typed value to proceed with the fluid setup.\n\n"
-                message += str(log_error)
-            
-            if value is not None:             
-                if value>100 or value<0:
-                    message = "Dear user, you have typed an invalid entry at the fluid Composition input. "
-                    message += "The value must be a positive value less or equals to 100."
-                    message += "\nPlease, check the typed value to proceed with the fluid setup."
+        self.tableWidget_new_fluid.setColumnCount(len(header))
+        self.tableWidget_new_fluid.setHorizontalHeaderLabels(header)
+        self.tableWidget_new_fluid.setSelectionBehavior(1)
+        self.tableWidget_new_fluid.resizeColumnsToContents()
 
-                if round(value/100, 5) >  round(self.remaining_composition, 5):
-                    _remain = round(self.remaining_composition*100, 5)
-                    message = "Dear user, you have typed an invalid entry at the Fluid Composition input. "
-                    message += f"The value must be a positive value less or equals to {_remain}%."
-                    message += "\nPlease, check the typed value to proceed with the fluid setup."
+        self.tableWidget_new_fluid.horizontalHeader().setSectionResizeMode(0)
+        self.tableWidget_new_fluid.horizontalHeader().setStretchLastSection(True)
 
-            if message == "":
-                
-                self.composition_value = value/100
-                fluid_file_name, _, _ = self.list_gases[self.selected_fluid]
-                self.fluid_to_composition[self.selected_fluid] = [  str_composition_value, 
-                                                                    self.composition_value, 
-                                                                    fluid_file_name  ]
-                if self.composition_value == 0:
-                    if self.selected_fluid in self.fluid_to_composition.keys():
-                        self.fluid_to_composition.pop(self.selected_fluid)       
-                return False
-            else:
-                PrintMessageInput([window_title_1, title, message])
-                return True
-        else:
-            title = "Empty entry at molar fraction input field"
-            message = "An Empty entry has been detected at molar fraction input field. "
-            message += "You should to inform a valid positive float number less than 1 to proceed."
-            PrintMessageInput([window_title_1, title, message])
-            return True
+        for j, width in enumerate([220, 120]):
+            self.tableWidget_new_fluid.horizontalHeader().resizeSection(j, width)
+            self.tableWidget_new_fluid.horizontalHeaderItem(j).setTextAlignment(Qt.AlignCenter)
 
-    def on_click_item_reference_gases(self, item):
+    def load_fluid_composition_info(self):
+
+        self.tableWidget_new_fluid.blockSignals(True)
+        self.tableWidget_new_fluid.clearContents()
+        self.tableWidget_new_fluid.setRowCount(len(self.fluid_to_composition))
+        self.tableWidget_new_fluid.setColumnCount(2)
+
+        for row, (fluid, composition_data) in enumerate(self.fluid_to_composition.items()):
+
+            self.tableWidget_new_fluid.setItem(row, 0, QTableWidgetItem(fluid))
+            self.tableWidget_new_fluid.item(row, 0).setTextAlignment(Qt.AlignCenter)
+
+            if len(composition_data) == 3:
+                molar_fraction = round(100*composition_data[1], 7)
+                self.add_molar_fraction_to_cell(row, molar_fraction = str(molar_fraction))
+                # self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem(str(molar_fraction)))
+                # self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
+
+        self.label_selected_fluid.setText("")
+        self.lineEdit_composition.setText("")
+        self.tableWidget_new_fluid.blockSignals(False)
+
+    def check_composition_input(self, fluid_name, composition):
+
+        if isinstance(composition, float):
+
+            fluid_file_name, _, _ = self.refprop_fluids[fluid_name]
+            self.fluid_to_composition[fluid_name] = [  str(composition), 
+                                                        composition / 100, 
+                                                        fluid_file_name  ]
+
+            if composition == 0:
+                if fluid_name in self.fluid_to_composition.keys():
+                    self.fluid_to_composition.pop(fluid_name)
+
+            return False
+
+    def on_click_item_refprop_fluids(self, item):
+        self.selected_item = item
         self.selected_fluid = item.text(0)
         self.label_selected_fluid.setText(self.selected_fluid)
     
-    def on_double_click_item_new_gas(self, item):
-        return
+    def on_double_click_item_refprop_fluids(self, item):
+        self.on_click_item_refprop_fluids(item)
+        self.add_selected_fluid_to_composition_table(item.text(0))
 
-    def on_click_item_new_gas(self, item):
-        self.selected_fluid = item.text(0)
-        self.label_selected_fluid.setText(item.text(0))
-        self.lineEdit_molar_fraction.setText(item.text(1))
-        
+    def add_selected_fluid_to_composition_table(self, selected_fluid):
+
+        self.tableWidget_new_fluid.blockSignals(True)
+
+        if selected_fluid == "":
+            self.tableWidget_new_fluid.blockSignals(False)
+            return
+
+        if selected_fluid in self.fluid_to_composition.keys():
+            self.tableWidget_new_fluid.blockSignals(False)
+            return
+        else:
+            rows = self.tableWidget_new_fluid.rowCount()
+            self.fluid_to_row[selected_fluid] = rows
+            self.fluid_to_composition[selected_fluid] = list()
+
+        self.tableWidget_new_fluid.setColumnCount(2)
+        self.tableWidget_new_fluid.insertRow(rows)
+
+        self.tableWidget_new_fluid.setItem(rows, 0, QTableWidgetItem(selected_fluid))
+        self.tableWidget_new_fluid.item(rows, 0).setTextAlignment(Qt.AlignCenter)
+
+        if self.add_molar_fraction_to_cell(rows):
+            self.tableWidget_new_fluid.blockSignals(False)
+            return
+
+        molar_fraction = self.tableWidget_new_fluid.item(rows, 1).text()
+        self.add_selected_gas(self.selected_fluid, float(molar_fraction))
+
+        self.tableWidget_new_fluid.blockSignals(False)
+
+    def add_molar_fraction_to_cell(self, row, molar_fraction=None):
+
+        if molar_fraction is None:
+            if self.lineEdit_composition.text() == "":
+                self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem())
+                self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
+                return True
+
+        try:
+
+            if molar_fraction is None:
+                molar_fraction = self.lineEdit_composition.text()
+
+            molar_fraction = molar_fraction.replace(",", ".")
+            self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem(molar_fraction))
+            self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
+            self.lineEdit_composition.setText("")
+
+        except:
+            self.lineEdit_composition.setText("")
+            self.lineEdit_composition.setFocus()
+            return True
+
     def get_fluid_properties(self):
 
         message = ""
         self.errors = dict()
         self.fluid_setup = list()
 
-        if round(self.remaining_composition, 5) == 0:
+        if round(self.remaining_molar_fraction, 6) == 0:
             if self.lineEdit_fluid_name.text() != "":
 
                 self.fluid_properties = dict()
-                units = self.RefProp.GETENUMdll(0, "MASS BASE SI").iEnum
+                units = self.refprop.GETENUMdll(0, "MASS BASE SI").iEnum
 
                 fluids_string = ""
                 molar_fractions = list()
-                for _, _fraction, file_name in self.fluid_to_composition.values():
+                for composition_data in self.fluid_to_composition.values():
+
+                    if len(composition_data) != 3:
+                        continue
+
+                    _, _fraction, file_name = composition_data
+
                     fluids_string += file_name + ";"
                     molar_fractions.append(_fraction)
-                fluids_string = fluids_string[:-1]
+
+                if fluids_string == "":
+                    return
+                else:
+                    fluids_string = fluids_string[:-1]
 
                 self.unit_temperature_update(self.comboBox_temperature_units)
                 self.unit_pressure_update(self.comboBox_pressure_units)
@@ -425,7 +501,7 @@ class SetFluidCompositionInput(QDialog):
 
                     for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
 
-                        read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+                        read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                         temperature_K, pressure_Pa, molar_fractions )
 
                         if read.herr:
@@ -439,7 +515,7 @@ class SetFluidCompositionInput(QDialog):
                                 self.k = read.Output[0] 
                     
                     self.T_discharge = (self.T_suction)*(self.p_ratio**((self.k-1)/self.k))
-                    self.lineEdit_temperature_disch.setText(str(round(self.T_discharge,4)))
+                    self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
                     temperature_K = self.T_discharge
                     pressure_Pa = self.P_discharge
 
@@ -450,7 +526,7 @@ class SetFluidCompositionInput(QDialog):
                         while criteria > 0.001 and count <= 100:
 
                             for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
-                                read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+                                read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                                 temperature_K, pressure_Pa, molar_fractions )
 
                                 if read.herr:
@@ -477,7 +553,7 @@ class SetFluidCompositionInput(QDialog):
                 else:
 
                     for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
-                        read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
+                        read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                         temperature_K, pressure_Pa, molar_fractions )
 
                         if read.herr:
@@ -503,18 +579,21 @@ class SetFluidCompositionInput(QDialog):
                 title = "Additional input required"
                 message = "Define a fluid name at specific input field to proceed."
                 self.lineEdit_fluid_name.setFocus()
+
         else:
-            title = "Fluid composition not finished"
-            message = "Dear user, you should to complete the fluid mixture composition to proceed. "
-            message += "The sum of all fluids molar fractions must be equals to 1. It is recommended "
-            message += "to check the inserted molar fractions until this requirement is met."
+            remaining_molar_fraction = round(100*self.remaining_molar_fraction, 6)
+            title = "Fluid composition not invalid"
+            message += "The sum of all molar fractions must be equals to the unity. It is recommended "
+            message += "to adjust the fluid composition until this requirement is met."
+            message += f"Remaining molar fraction: {remaining_molar_fraction} %"
+
         if message != "":
             PrintMessageInput([window_title_1, title, message])
 
     def process_errors(self):
         if len(self.errors) != 0:
-            title = "REFPROP: Error while processing fluid properties"
-            message = "The following errors were found while processing the fluid properties.\n\n"
+            title = "Error while processing fluid properties"
+            message = "The following errors were found in while processing the fluid properties.\n\n"
             for key, _error in self.errors.items():
                 message += f"{str(key)}: {str(_error)}\n\n"
             message += "It is recommended to check the fluid composition and state properties to proceed."
@@ -539,12 +618,16 @@ class SetFluidCompositionInput(QDialog):
         temperature = None
         str_value = lineEdit_temperature.text()
         if str_value != "":
+
             try:
+                str_value = str_value.replace(",", ".")
                 temperature = float(str_value)
-            except Exception as log_error:
+
+            except Exception as error_log:
                 title = "Invalid entry to the temperature"
                 message = "Dear user, you have typed an invalid value at the temperature input field."
-                message += "You should to inform a valid float number to proceed."
+                message += "You should to inform a valid float number to proceed.\n\n"
+                message += f"Details: {str(error_log)}"
                 PrintMessageInput([window_title_1, title, message])
         else:
             title = "Empty temperature input field"
@@ -557,12 +640,16 @@ class SetFluidCompositionInput(QDialog):
         pressure = None
         str_value = lineEdit_pressure.text()
         if str_value != "":
+
             try:
+                str_value = str_value.replace(",", ".")
                 pressure = float(str_value)
-            except Exception as log_error:
+
+            except Exception as error_log:
                 title = "Invalid entry to the pressure"
                 message = "Dear user, you have typed an invalid value at the pressure input field."
-                message += "You should to inform a valid float number to proceed."
+                message += "You should to inform a valid float number to proceed.\n\n"
+                message += f"Details: {str(error_log)}"
                 PrintMessageInput([window_title_1, title, message])
         else:
             title = "Empty pressure input field"
@@ -626,6 +713,134 @@ class SetFluidCompositionInput(QDialog):
 
         return [round(_temperature_value, 5), round(_pressure_value, 5)]
 
+    def cell_clicked_on_composition_table(self, row, col):
+        self.selected_row = row
+
+    def cell_changed_on_composition_table(self, row, col):
+
+        if col == 0:
+            return
+
+        if row + 1 <= self.tableWidget_new_fluid.rowCount():
+
+            item = self.tableWidget_new_fluid.item(row + 1, 1)
+            if item is None:
+                return
+
+            item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            self.tableWidget_new_fluid.setCurrentItem(item)
+            self.tableWidget_new_fluid.editItem(item)
+
+    def item_changed_callback(self, item):
+
+        self.tableWidget_new_fluid.blockSignals(True)
+
+        if item.column() == 0:
+
+            row = item.row()
+            selected_fluid = item.text()
+
+            if selected_fluid in self.refprop_fluids.keys():
+
+                if selected_fluid in self.fluid_to_composition.keys():
+                    self.tableWidget_new_fluid.removeRow(row)
+                    self.tableWidget_new_fluid.blockSignals(False)
+                    return
+
+                fluid_to_row = self.fluid_to_row.copy()
+                for key, value in fluid_to_row.items():
+                    if row == value:
+                        if key != selected_fluid:
+
+                            self.fluid_to_row.pop(key)
+                            if key in self.fluid_to_composition.keys():
+                                self.fluid_to_composition.pop(key)
+                            
+                            self.tableWidget_new_fluid.removeRow(row)
+                            self.update_remainig_composition()
+                            self.tableWidget_new_fluid.blockSignals(False)
+                            return
+
+            else:
+
+                if self.selected_fluid in self.refprop_fluids.keys():
+                    if self.selected_fluid in self.fluid_to_composition.keys():
+                        self.fluid_to_composition.pop(self.selected_fluid)
+                        self.update_remainig_composition()
+
+                self.tableWidget_new_fluid.removeRow(row)
+                self.tableWidget_new_fluid.blockSignals(False)
+                return
+
+            self.fluid_to_row[selected_fluid] = row
+            if self.add_molar_fraction_to_cell(row):
+                self.tableWidget_new_fluid.blockSignals(False)
+                return
+
+            molar_fraction = self.tableWidget_new_fluid.item(item.row(), 1).text()
+            if molar_fraction == "":
+                self.fluid_to_composition[selected_fluid] = list()
+            else:
+                self.add_selected_gas(selected_fluid, float(molar_fraction))
+
+        else:
+
+            if self.item_is_invalid_number(item):
+                self.tableWidget_new_fluid.blockSignals(False)
+                return
+
+            selected_fluid = self.tableWidget_new_fluid.item(item.row(), 0).text()
+            molar_fraction = self.tableWidget_new_fluid.item(item.row(), 1).text()
+            self.add_selected_gas(selected_fluid, float(molar_fraction))
+
+        self.tableWidget_new_fluid.blockSignals(False)
+
+    def item_is_invalid_number(self, item):
+
+        if item is None:
+            return True
+        
+        if item.text() == "":
+            return True
+
+        if item.column() == 0:
+            return True
+        
+        str_value = item.text().replace(",", ".")
+        item.setText(str_value)
+
+        try:
+            value = float(str_value)
+
+        except Exception as error_log:
+            window_title = "Error"
+            title = "Invalid real number"
+            message = "The value typed for molar composition must be a non-zero positive number.\n\n"
+            message += f"Details: {error_log}"
+            PrintMessageInput([window_title, title, message])
+            item.setText("")
+            return True
+        
+        message = ""
+
+        if value > 100 or value < 0:
+            message = "Dear user, you have typed an invalid entry at the fluid Composition input. "
+            message += "The value should be a positive value less or equals to 100."
+        
+        # remaining_composition = round(100*self.remaining_molar_fraction, 6)
+        # if round(value, 6) >  round(remaining_composition, 6):
+        #     message = "Dear user, you have typed an invalid molar fraction to selected fluid. "
+        #     message += f"The value should be a positive value less or equals to {remaining_composition}."
+
+        if message != "":
+            window_title = "Error"
+            title = "Invalid molar fraction"
+            PrintMessageInput([window_title, title, message])
+            item.setText("")
+            return True
+        
+        return False
+
     def get_refprop_path(self):
 
         refProp_path = None
@@ -663,24 +878,38 @@ class SetFluidCompositionInput(QDialog):
 
         return refProp_path
 
+    def check_refprop_version(self):
+        version = self.refprop.RPVersion()
+        if version[:3] != "10.":
+            title = "Invalid REFPROP version"
+            message = "The installed REFPROP version is incompatible with the OpenPulse requirements. It is recommended "
+            message += "to install a newer REFPROP version to maintain the compatibility with the application.\n\n"
+            message += f"Current version: {version}\n"
+            message +=  "Required version: >= 10.0"
+            PrintMessageInput([window_title_2, title, message])
+            return True
+        self.setWindowTitle(f"OpenPulse (REFPROP v{version})")
+
     def default_library_gases(self):
         try:
             
             from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
             
-            self.list_gases = dict()
+            self.refprop_fluids = dict()
             self.fluid_file_to_final_name = dict()
 
             refProp_path = self.get_refprop_path()
-            # refProp_path = "C:/Program Files (x86)/REFPROP"
 
             if refProp_path is None:
                 return True
 
             if os.path.exists(refProp_path):
                 
-                self.RefProp = REFPROPFunctionLibrary(refProp_path)
-                self.RefProp.SETPATHdll(refProp_path)
+                self.refprop = REFPROPFunctionLibrary(refProp_path)
+                if self.check_refprop_version():
+                    return True
+
+                self.refprop.SETPATHdll(refProp_path)
                 refProp_fluids_path = get_new_path(refProp_path, "FLUIDS")
                 list_files = os.listdir(refProp_fluids_path)
                 
@@ -708,9 +937,8 @@ class SetFluidCompositionInput(QDialog):
                             letter = full_name[-1]
 
                         final_name = short_name if short_name == full_name else f"{short_name} ({full_name})"
-                        self.list_gases[final_name] = [fluid_file, short_name, full_name]
+                        self.refprop_fluids[final_name] = [fluid_file, short_name, full_name]
                         self.fluid_file_to_final_name[fluid_file] = final_name
-                        # print(fluid_file, final_name)
 
             else:
                 title = "REFPROP installation not detected"
@@ -719,12 +947,12 @@ class SetFluidCompositionInput(QDialog):
                 PrintMessageInput([window_title_1, title, message])
                 return True
 
-        except Exception as log_error:
+        except Exception as error_log:
             title = "Error while loading REFPROP"
             message = "An error has been reached while trying to load REFPROP data. If the REFPROP module has already been "
             message += "installed we recommend running the 'pip install ctREFPROP' command at the terminal to install the "
-            message += "necessary libraries."
-            message += f"\n\n{str(log_error)}"
+            message += "necessary libraries.\n\n"
+            message += f"Details: {str(error_log)}"
             PrintMessageInput([window_title_1, title, message])
             return True
 
@@ -745,22 +973,19 @@ class SetFluidCompositionInput(QDialog):
             comp = 0
             for (i, label, refprop_fluid_name, molar_fraction) in composition_data:
 
-                # print(i, label, refprop_fluid, molar_fraction)
-
                 self.fluid_data[i] = [label, refprop_fluid_name, molar_fraction]
 
-                if not refprop_fluid_name in self.list_gases.keys():
+                if not refprop_fluid_name in self.refprop_fluids.keys():
                     pass
-                    # print(refprop_fluid_name)
 
-                if refprop_fluid_name in self.list_gases.keys():
+                if refprop_fluid_name in self.refprop_fluids.keys():
                     if molar_fraction:
 
-                        [fluid_file, _, _] = self.list_gases[refprop_fluid_name]
+                        [fluid_file, _, _] = self.refprop_fluids[refprop_fluid_name]
                         self.fluid_to_composition[refprop_fluid_name] = [str(molar_fraction), molar_fraction, fluid_file]
                         comp += molar_fraction
 
-            self.load_new_gas_composition_info()
+            self.load_fluid_composition_info()
             self.update_remainig_composition()
         self.opv.setInputObject(self)
 
@@ -769,9 +994,9 @@ class SetFluidCompositionInput(QDialog):
         self.keep_window_open = False
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.get_fluid_properties()
-        elif event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
+        # if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+        #     self.get_fluid_properties()
+        if event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
             self.remove_selected_gas()
         elif event.key() == Qt.Key_Escape:
             self.close()
