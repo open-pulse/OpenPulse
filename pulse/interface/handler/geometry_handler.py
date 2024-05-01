@@ -2,7 +2,7 @@ from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
-from opps.model import Pipe, Bend, Point, Flange, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam
+from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam
 
 import gmsh
 import math
@@ -121,128 +121,19 @@ class GeometryHandler:
             data: dict
 
             structural_element_type = data.get("structural_element_type", None)
-            section_type_label = data.get("section_type_label", None)
+            structure = None
 
-            section_info = None
-            section_parameters = None
-            if "section_parameters" in data.keys():
-                section_parameters = data["section_parameters"]
+            if structural_element_type == "pipe_1":
+                structure = self._process_pipe(key, data)
 
-                if structural_element_type == "pipe_1":
-                    section_info = {
-                        "section_type_label" : "Pipe section",
-                        "section_parameters" : section_parameters
-                    }
+            elif structural_element_type == "beam_1":
+                structure = self._process_beam(key, data)
 
-                elif structural_element_type == "beam_1":
-                    if section_type_label == "Generic section":
-                        section_parameters = None
-                    
-                    section_properties = data["section_properties"]
-                    section_info = {
-                        "section_type_label" : section_type_label,
-                        "section_parameters" : section_parameters,
-                        "section_properties" : section_properties
-                    }
+            elif structural_element_type == "valve":
+                structure = self._process_valve(key, data)
 
-            if (key[1] == "Bend") and (section_type_label == "Pipe section") and len(section_parameters) == 6:
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                corner = Point(*data['corner_point'])
-                curvature = data['curvature']
-                structure = Bend(
-                    start, end, corner, curvature, 
-                    diameter=section_parameters[0],
-                    thickness=section_parameters[1]
-                )
-
-            elif (section_type_label == "Pipe section") and len(section_parameters) == 6:
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                structure = Pipe(
-                    start, end, 
-                    diameter=section_parameters[0],
-                    thickness=section_parameters[1],
-                )
-
-            elif (section_type_label == "Pipe section") and len(section_parameters) == 10:
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                structure = Reducer(
-                    start, end, 
-                    initial_diameter = section_parameters[0],
-                    final_diameter = section_parameters[4],
-                    thickness = section_parameters[1],
-                    initial_offset_y = -section_parameters[2],
-                    initial_offset_z = section_parameters[3],
-                    final_offset_y = -section_parameters[6],
-                    final_offset_z = section_parameters[7],
-                )
-
-            elif section_type_label == "Rectangular section":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                structure = RectangularBeam(
-                    start, end,
-                    width = section_parameters[0],
-                    height = section_parameters[1],
-                    thickness = (section_parameters[0] - section_parameters[2]) / 2,
-                )
-            
-            elif section_type_label == "Circular section":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                structure = CircularBeam(
-                    start, end, 
-                    diameter=section_parameters[0],
-                    thickness=section_parameters[1],
-                )
-
-            elif section_type_label == "C-section":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                structure = CBeam(
-                    start, end, 
-                    height = section_parameters[0],
-                    width_1 = section_parameters[1],
-                    width_2 = section_parameters[3],
-                    thickness_1 = section_parameters[2],
-                    thickness_2 = section_parameters[4],
-                    thickness_3 = section_parameters[5],
-                )
-        
-            elif section_type_label == "I-section":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                structure = IBeam(
-                    start, end, 
-                    height = section_parameters[0],
-                    width_1 = section_parameters[1],
-                    width_2 = section_parameters[3],
-                    thickness_1 = section_parameters[2],
-                    thickness_2 = section_parameters[4],
-                    thickness_3 = section_parameters[5],
-                )
-            
-            elif section_type_label == "T-section":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                structure = TBeam(
-                    start, end, 
-                    height = section_parameters[0],
-                    width = section_parameters[1],
-                    thickness_1 = section_parameters[2],
-                    thickness_2 = section_parameters[3],
-                )
-            
-            else:
-                continue
-
-            structure.extra_info["cross_section_info"] = section_info
-            structure.extra_info["structural_element_type"] = structural_element_type
-            if "material_id" in data.keys():
-                structure.extra_info["material_info"] = data['material_id']
-            structures.append(structure)
+            if structure is not None:
+                structures.append(structure)
 
         self.pipeline.structures.clear()
         if len(structures):
@@ -251,6 +142,156 @@ class GeometryHandler:
             self.pipeline.merge_coincident_points()
             app().update()
     
+
+    def _process_pipe(self, key: str, data: dict):
+        if "section_parameters" not in data.keys():
+            return
+
+        section_type_label = data.get("section_type_label", None)
+        section_parameters = data["section_parameters"]
+
+        if (key[1] == "Bend") and (section_type_label == "Pipe section") and len(section_parameters) == 6:
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            corner = Point(*data['corner_point'])
+            curvature = data['curvature']
+            structure = Bend(
+                start, end, corner, curvature, 
+                diameter=section_parameters[0],
+                thickness=section_parameters[1]
+            )
+
+        elif (section_type_label == "Pipe section") and len(section_parameters) == 6:
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            structure = Pipe(
+                start, end, 
+                diameter=section_parameters[0],
+                thickness=section_parameters[1],
+            )
+
+        elif (section_type_label == "Pipe section") and len(section_parameters) == 10:
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            structure = Reducer(
+                start, end, 
+                initial_diameter = section_parameters[0],
+                final_diameter = section_parameters[4],
+                thickness = section_parameters[1],
+                initial_offset_y = -section_parameters[2],
+                initial_offset_z = section_parameters[3],
+                final_offset_y = -section_parameters[6],
+                final_offset_z = section_parameters[7],
+            )
+        
+        else:
+            return
+
+        section_info = {
+            "section_type_label" : "Pipe section",
+            "section_parameters" : section_parameters
+        }
+
+        structure.extra_info["cross_section_info"] = section_info
+        structure.extra_info["structural_element_type"] = "pipe_1"
+        if "material_id" in data.keys():
+            structure.extra_info["material_info"] = data['material_id']
+
+        return structure
+
+    def _process_beam(self, key: str, data: dict):
+        if "section_parameters" not in data.keys():
+            return
+
+        section_type_label = data.get("section_type_label", None)
+        section_parameters = data["section_parameters"]
+
+        if section_type_label == "Rectangular section":
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            structure = RectangularBeam(
+                start, end,
+                width = section_parameters[0],
+                height = section_parameters[1],
+                thickness = (section_parameters[0] - section_parameters[2]) / 2,
+            )
+        
+        elif section_type_label == "Circular section":
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            structure = CircularBeam(
+                start, end, 
+                diameter=section_parameters[0],
+                thickness=section_parameters[1],
+            )
+
+        elif section_type_label == "C-section":
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            structure = CBeam(
+                start, end, 
+                height = section_parameters[0],
+                width_1 = section_parameters[1],
+                width_2 = section_parameters[3],
+                thickness_1 = section_parameters[2],
+                thickness_2 = section_parameters[4],
+                thickness_3 = section_parameters[5],
+            )
+    
+        elif section_type_label == "I-section":
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            structure = IBeam(
+                start, end, 
+                height = section_parameters[0],
+                width_1 = section_parameters[1],
+                width_2 = section_parameters[3],
+                thickness_1 = section_parameters[2],
+                thickness_2 = section_parameters[4],
+                thickness_3 = section_parameters[5],
+            )
+        
+        elif section_type_label == "T-section":
+            start = Point(*data['start_point'])
+            end = Point(*data['end_point'])
+            structure = TBeam(
+                start, end, 
+                height = section_parameters[0],
+                width = section_parameters[1],
+                thickness_1 = section_parameters[2],
+                thickness_2 = section_parameters[3],
+            )
+        
+        else:
+            return
+
+        section_properties = data["section_properties"]
+        section_info = {
+            "section_type_label" : section_type_label,
+            "section_parameters" : section_parameters,
+            "section_properties" : section_properties
+        }
+
+        structure.extra_info["cross_section_info"] = section_info
+        structure.extra_info["structural_element_type"] = "beam_1"
+        if "material_id" in data.keys():
+            structure.extra_info["material_info"] = data['material_id']
+
+        return structure
+
+    def _process_valve(self, key: str, data: dict):
+        if "structural_element_type" not in data.keys():
+            return
+        
+        start = Point(*data['start_point'])
+        end = Point(*data['end_point'])
+        structure = Valve(
+            start, end,
+            diameter = 0.1,
+            thickness = 0.01
+        )
+        return structure
+
     def export_cad_file(self, path):
         self.create_geometry()
         # if '-nopopup' not in sys.argv:
