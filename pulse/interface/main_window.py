@@ -581,15 +581,15 @@ class MainWindow(QMainWindow):
         self.clip_plane.closed.connect(self.close_clip_plane)
 
     def action_zoom_callback(self):
-        if self.get_current_workspace() == 0:
+        if self.get_current_workspace() == Workspace.GEOMETRY:
             self.opv_widget.opvGeometryRenderer.resetCamera()
             self.update()
         
-        elif self.get_current_workspace() == 1:
+        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
             self.opv_widget.opvRenderer.resetCamera()
             self.opv_widget.opvRenderer.update()
     
-        elif self.get_current_workspace() == 3:
+        elif self.get_current_workspace() == Workspace.RESULTS:
             self.opv_widget.opvAnalysisRenderer.resetCamera()
             self.opv_widget.opvAnalysisRenderer.update()
             self.opv_widget.opvRenderer.resetCamera()
@@ -600,25 +600,25 @@ class MainWindow(QMainWindow):
             self.opv_widget.opvRenderer.update()
         
     def set_clip_plane_configs(self):
-        if self.get_current_workspace() == 3:
+        if self.get_current_workspace() == Workspace.RESULTS:
             self.opv_widget.opvAnalysisRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
         
-        elif self.get_current_workspace() == 1:
+        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
             self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
 
 
     def apply_clip_plane(self):
-        if self.get_current_workspace() == 3:
+        if self.get_current_workspace() == Workspace.RESULTS:
             self.opv_widget.opvAnalysisRenderer.apply_clipping_plane()
         
-        elif self.get_current_workspace() == 1:
+        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
             self.opv_widget.opvRenderer.apply_clipping_plane()
         
     def close_clip_plane(self):
-        if self.get_current_workspace() == 3:
+        if self.get_current_workspace() == Workspace.RESULTS:
             self.opv_widget.opvAnalysisRenderer.dismiss_clipping_plane()
         
-        elif self.get_current_workspace() == 1:
+        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
             self.opv_widget.opvRenderer.dismiss_clipping_plane()
 
     def action_set_structural_element_type_callback(self):
