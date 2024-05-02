@@ -398,7 +398,7 @@ class MainWindow(QMainWindow):
             self.import_project_call(self.config.getMostRecentProjectDir())
         elif self.input_widget.get_started():
             self.update()  # update the renders before change the view
-            self.opv_widget.opvRenderer.resetCamera()
+            self.action_front_view_callback()
             self._update_recent_projects()
             self.set_window_title(self.file.project_name)
         else:
