@@ -460,13 +460,15 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.project.PSD.add_pulsation_suppression_device(self.filter_label, 
                                                           self.suppression_device_data)
         self.project.PSD.load_suppression_device_data_from_file()
-        self.project.PSD.write_psd_data_in_dat(self.filter_label)
+        self.project.PSD.build_device(self.filter_label)
         self.close()
 
     def remove_button_pressed(self):
         if self.lineEdit_selection.text() != "":
             device_label = self.lineEdit_selection.text()
             self.project.PSD.remove_suppression_device(device_label)
+            self.project.PSD.delete_device(device_label)
+
             self.load_PSD_info()
 
     def load_PSD_info(self):

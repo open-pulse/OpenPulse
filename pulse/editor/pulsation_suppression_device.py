@@ -57,28 +57,19 @@ class PSDSingleChamber:
         deadleg_1 = deadleg_0 + versor_x * self.main_chamber_length
         outlet = junction_1 - versor_y * self.outlet_pipe_length
 
-        if self.connection_type == "suction":
-            # delta = inlet - outlet
-            # junction_0 = junction_0 + delta
-            # junction_1 = junction_1 + delta
-            # deadleg_0 = deadleg_0 + delta
-            # deadleg_1= deadleg_1 + delta
-            inlet, outlet = outlet, inlet
+
+        if self.connection_type == "sucction": # fix this
+            delta = inlet - outlet
+            junction_0 = junction_0 + delta
+            junction_1 = junction_1 + delta
+            deadleg_0 = deadleg_0 + delta
+            deadleg_1= deadleg_1 + delta
+            outlet = outlet + delta
+            inlet = inlet + delta
+            # inlet, outlet = outlet, inlet
 
         points = self.rotate_points([inlet, outlet, junction_0, junction_1, deadleg_0, deadleg_1])
-
-
         self.inlet, self.outlet, self.junction_0, self.junction_1, self.deadleg_0, self.deadleg_1 = self.translate_to_connection_point(points)
-
-
-        # return dict(
-        #     inlet = inlet, 
-        #     outlet = outlet, 
-        #     junction_0 = junction_0, 
-        #     junction_1 = junction_1, 
-        #     deadleg_0 = deadleg_0, 
-        #     deadleg_1 = deadleg_1,
-        # )     
 
     def rotate_points(self, points):
         if self.axis == "along y-axis":
@@ -116,7 +107,6 @@ class PulsationSuppressionDevice:
 
         self._initialize()
     
-
     def _initialize(self):
         self.pulsation_suppression_device = dict()
         self.pulsation_suppression_devices = dict()
@@ -128,6 +118,8 @@ class PulsationSuppressionDevice:
             if data == suppression_device_data:
                 self.pulsation_suppression_device.pop(key)
                 break
+        
+        # to do: add check for single chamber and double chamber 
 
         self.pulsation_suppression_devices[device_label] = PSDSingleChamber(
                                                                             suppression_device_data["connection type"],
@@ -147,6 +139,17 @@ class PulsationSuppressionDevice:
             self.pulsation_suppression_device.pop(device_label)
 
         self.write_suppression_device_data_in_file()
+    
+    def load_project(self):
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+        app().update()
+        app().main_window.opv_widget.updatePlots()
+        app().main_window.use_structural_setup_workspace()
+        app().main_window.plot_entities_with_cross_section()
+        app().main_window.action_front_view_callback()
+
 
     def write_suppression_device_data_in_file(self):
     
@@ -197,7 +200,7 @@ class PulsationSuppressionDevice:
                 if aux:
                     self.pulsation_suppression_device[tag] = aux
 
-    def write_psd_data_in_dat(self, device_tag):
+    def build_device(self, device_label):
         config = configparser.ConfigParser()
         project_path = Path(self.file._project_path)
         path = project_path / "entity.dat"
@@ -208,7 +211,7 @@ class PulsationSuppressionDevice:
         else:
             last_line = int(config.sections()[-1])
 
-        device = self.pulsation_suppression_devices[device_tag]
+        device = self.pulsation_suppression_devices[device_label]
         device.get_points()
 
         config[str(last_line + 1)] = {}
@@ -218,10 +221,9 @@ class PulsationSuppressionDevice:
         config[str(last_line + 1)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
         config[str(last_line + 1)]["structural element type"] = "pipe_1"
         config[str(last_line + 1)]["material id"] = "2"
-        config[str(last_line + 1)]["psd tag"] = device_tag
+        config[str(last_line + 1)]["psd label"] = device_label
         config[str(last_line + 1)]["psd part"] = "1"
         
-
         config[str(last_line + 2)] = {}
         config[str(last_line + 2)]["start point"] = str(list(device.inlet))
         config[str(last_line + 2)]["end point"] = str(list(device.junction_0))
@@ -229,10 +231,9 @@ class PulsationSuppressionDevice:
         config[str(last_line + 2)]["section parameters"] = str([device.inlet_pipe_diameter, device.inlet_pipe_wall_thickness, 0, 0, 0, 0])
         config[str(last_line + 2)]["structural element type"] = "pipe_1"
         config[str(last_line + 2)]["material id"] = "2"
-        config[str(last_line + 2)]["psd tag"] = device_tag
+        config[str(last_line + 2)]["psd label"] = device_label
         config[str(last_line + 2)]["psd part"] = "2"
         
-
         config[str(last_line + 3)] = {}
         config[str(last_line + 3)]["start point"] = str(list(device.junction_0))
         config[str(last_line + 3)]["end point"] = str(list(device.junction_1))
@@ -240,10 +241,9 @@ class PulsationSuppressionDevice:
         config[str(last_line + 3)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
         config[str(last_line + 3)]["structural element type"] = "pipe_1"
         config[str(last_line + 3)]["material id"] = "2"
-        config[str(last_line + 3)]["psd tag"] = device_tag
+        config[str(last_line + 3)]["psd label"] = device_label
         config[str(last_line + 3)]["psd part"] = "3"
         
-
         config[str(last_line + 4)] = {}
         config[str(last_line + 4)]["start point"] = str(list(device.junction_1))
         config[str(last_line + 4)]["end point"] = str(list(device.outlet))
@@ -251,10 +251,9 @@ class PulsationSuppressionDevice:
         config[str(last_line + 4)]["section parameters"] = str([device.outlet_pipe_diameter, device.outlet_pipe_wall_thickness, 0, 0, 0, 0])
         config[str(last_line + 4)]["structural element type"] = "pipe_1"
         config[str(last_line + 4)]["material id"] = "2"
-        config[str(last_line + 4)]["psd tag"] = device_tag
+        config[str(last_line + 4)]["psd label"] = device_label
         config[str(last_line + 4)]["psd part"] = "4"
         
-
         config[str(last_line + 5)] = {}
         config[str(last_line + 5)]["start point"] = str(list(device.junction_1))
         config[str(last_line + 5)]["end point"] = str(list(device.deadleg_1))
@@ -262,7 +261,7 @@ class PulsationSuppressionDevice:
         config[str(last_line + 5)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
         config[str(last_line + 5)]["structural element type"] = "pipe_1"
         config[str(last_line + 5)]["material id"] = "2"
-        config[str(last_line + 5)]["psd tag"] = device_tag
+        config[str(last_line + 5)]["psd label"] = device_label
         config[str(last_line + 5)]["psd part"] = "5"
         
         with open(path, 'w') as config_file:
@@ -270,13 +269,19 @@ class PulsationSuppressionDevice:
 
         self.load_project()  
 
-    def load_project(self):
-        # self.project = app().project
-        self.project.initial_load_project_actions(self.file.project_ini_file_path)
-        self.project.load_project_files()
-        app().main_window.input_widget.initial_project_action(True)
-        app().update()
-        app().main_window.opv_widget.updatePlots()
-        app().main_window.use_structural_setup_workspace()
-        app().main_window.plot_entities_with_cross_section()
-        app().main_window.action_front_view_callback()
+    def delete_device(self, device_label):
+        config = configparser.ConfigParser()
+        project_path = Path(self.file._project_path)
+        path = project_path / "entity.dat"
+        config.read(path)
+
+        for section in config.sections():
+            if config[section]["psd label"] == device_label:
+                config.remove_section(section)
+        
+        with open(path, 'w') as config_file:
+            config.write(config_file)
+
+        # needs to be deleted from the Pipeline as well
+
+        self.load_project()
