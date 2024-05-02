@@ -87,8 +87,7 @@ class opvRenderer(vtkRendererBase):
     def getBounds(self):
         if self._plotFilter.tubes:
             return self.opvTubes._actor.GetBounds()
-        return () #se mexer nessa tupla vai se arrepender
-
+        return () #don't change this tuple, you will regret this
     def plot(self):
         self.reset()
 
