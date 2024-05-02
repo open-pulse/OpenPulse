@@ -227,6 +227,8 @@ class FluidWidget(QWidget):
     def update_table(self):
 
         self.config_table_of_fluid_data()
+        self.tableWidget_fluid_data.clearContents()
+        self.tableWidget_fluid_data.blockSignals(True)
         self.tableWidget_fluid_data.setRowCount(COLOR_ROW + 1)
         self.tableWidget_fluid_data.setColumnCount(len(self.list_of_fluids))
 
@@ -252,6 +254,8 @@ class FluidWidget(QWidget):
             for j in range(self.tableWidget_fluid_data.columnCount()):
                 self.tableWidget_fluid_data.item(i, j).setTextAlignment(Qt.AlignCenter)
 
+        self.tableWidget_fluid_data.blockSignals(False)
+
     def get_selected_column(self) -> int:
         selected_items = self.tableWidget_fluid_data.selectedIndexes()
         if not selected_items:
@@ -269,10 +273,14 @@ class FluidWidget(QWidget):
         return self.list_of_fluids[selected_column]
 
     def add_column(self):
+    
+        self.tableWidget_fluid_data.blockSignals(True)
+
         table_size = self.tableWidget_fluid_data.columnCount()
         if table_size > len(self.list_of_fluids):
             # it means that if you already have a new row
             # to insert data you don't need another one
+            self.tableWidget_fluid_data.blockSignals(False)
             return 
 
         last_col = self.tableWidget_fluid_data.columnCount()
@@ -287,6 +295,8 @@ class FluidWidget(QWidget):
         first_item = self.tableWidget_fluid_data.item(0, last_col)
         if self.refprop is None:
             self.tableWidget_fluid_data.editItem(first_item)
+
+        self.tableWidget_fluid_data.blockSignals(False)
 
     def remove_selected_column(self):
 
@@ -309,35 +319,31 @@ class FluidWidget(QWidget):
     
     def item_changed_callback(self, item):
 
+        self.tableWidget_fluid_data.blockSignals(True)
+
+        if item.row() == 0:
+            if self.column_has_invalid_name(item.column()):
+                self.tableWidget_fluid_data.blockSignals(False)
+                return
+
+        elif item.row() == 1:
+            if self.column_has_invalid_identifier(item.column()):
+                self.tableWidget_fluid_data.blockSignals(False)
+                return
+
+        else:
+            if self.item_is_invalid_number(item):
+                self.tableWidget_fluid_data.blockSignals(False)
+                return
+
         if self.column_has_empty_items(item.column()):
-            return
-
-        if self.column_has_invalid_name(item.column()):
-            return
-
-        if self.item_is_invalid_number(item):
+            self.tableWidget_fluid_data.blockSignals(False)
             return
 
         self.add_fluid_to_file(item.column())
         self.load_data_from_fluids_library()
-    
-    def column_has_empty_items(self, column):
 
-        for i in range(self.tableWidget_fluid_data.rowCount()):
-
-            item = self.tableWidget_fluid_data.item(i, column)
-            if item is None:
-                return True
-
-            if i == COLOR_ROW:
-                color = item.background().color().getRgb()
-                if list(color) == 0:
-                    return True
-
-            if item.text() == "":
-                return True
-
-        return False
+        self.tableWidget_fluid_data.blockSignals(False)
     
     def column_has_invalid_name(self, column):
 
@@ -356,45 +362,92 @@ class FluidWidget(QWidget):
 
         return False 
 
+    def column_has_invalid_identifier(self, column):
+
+        item = self.tableWidget_fluid_data.item(1, column)
+
+        already_used_ids = set()
+        for fluid in self.list_of_fluids:
+            already_used_ids.add(fluid.identifier)
+        
+        if item.text() == "":
+            return True
+        
+        try:
+            if int(item.text()) in already_used_ids:
+                item.setText("")
+                return True
+        except:
+            item.setText("")
+            return True
+
+    def column_has_empty_items(self, column):
+        for row in range(COLOR_ROW + 1):
+
+            item = self.tableWidget_fluid_data.item(row, column)
+            if item is None:
+                return True
+            
+            if row == COLOR_ROW:
+                color = item.background().color().getRgb()
+                if list(color) == 0:
+                    return True
+
+            elif item.text() == "":
+                return True
+
+        return False
+
     def item_is_invalid_number(self, item):
 
         if item is None:
             return True
 
-        if item.row() not in [2, 3, 4, 6, 7, 8, 9, 10]:
-            return False
-    
+        row = item.row()
+        if row == COLOR_ROW:
+            return
+        
         prop_labels = {
                         2 : "temperature", 
                         3 : "pressure",
                         4 : "density",
-                        6 : "speed of sound",
-                        7 : "isetropic exponent",
-                        8 : "thermal conductivity",
-                        9 : "specific heat Cp",
-                       10 : "dynamic viscosity"
+                        5 : "speed of sound",
+                        6 : "isentropic exponent",
+                        7 : "thermal conductivity",
+                        8 : "specific heat Cp",
+                        9 : "dynamic viscosity",
+                       10 : "molar mass"
                     }
 
-        try:
-            value = float(item.text())
+        if row not in prop_labels.keys():
+            return True
+        
+        if item.text() == "":
+            return True
 
-        except Exception as error:
+        try:
+
+            str_value = item.text().replace(",", ".")
+            item.setText(str_value)
+            value = float(str_value)
+
+        except Exception as error_log:
             title = "Invalid real number"
-            message = f"The value typed for '{prop_labels[item.row()]}' "
-            message += "must be a non-zero positive number."
+            message = f"The value typed for '{prop_labels[row]}' "
+            message += "must be a non-zero positive number.\n\n"
+            message += f"Details: {error_log}"
             PrintMessageInput([window_title_1, title, message])
             item.setText("")
             return True
 
         if value < 0:
             title = "Negative value not allowed"
-            message = f"The value typed for '{prop_labels[item.row()]}' must be a non-zero positive number."
+            message = f"The value typed for '{prop_labels[row]}' must be a non-zero positive number."
             PrintMessageInput([window_title_1, title, message])
             item.setText("")
             return True
-        
-        return False
 
+        return False
 
     def add_fluid_to_file(self, column):
         try:
@@ -410,10 +463,6 @@ class FluidWidget(QWidget):
                     fluid_data[key] = item.text()
             
             fluid_name = fluid_data["name"]
-            # if not fluid_name:
-            #     return
-
-            # fluid_data["identifier"] = self.new_identifier()
 
             if self.refprop is not None:
                 [key_mixture, molar_fractions] = self.fluid_setup
