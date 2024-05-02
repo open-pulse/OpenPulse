@@ -6,7 +6,6 @@ import configparser
 import numpy as np
 from pathlib import Path
 from pprint import pprint
-from pulse.interface.main_window import MainWindow
 
 class PSDSingleChamber:
     def __init__(self, 
@@ -51,17 +50,23 @@ class PSDSingleChamber:
         versor_x = np.array([1, 0, 0])
         versor_y = np.array([0, 1, 0])
         
-        inlet = np.array([0, 0, 0])
+        self.inlet = np.array([0, 0, 0])
         junction_0 = inlet - versor_y * self.inlet_pipe_length
         deadleg_0 = junction_0 - versor_x * self.inlet_pipe_distance
         junction_1 = deadleg_0 + versor_x * self.outlet_pipe_distance
         deadleg_1 = deadleg_0 + versor_x * self.main_chamber_length
         outlet = junction_1 - versor_y * self.outlet_pipe_length
 
+        if self.connection_type == "suction":
+            # delta = inlet - outlet
+            # junction_0 = junction_0 + delta
+            # junction_1 = junction_1 + delta
+            # deadleg_0 = deadleg_0 + delta
+            # deadleg_1= deadleg_1 + delta
+            inlet, outlet = outlet, inlet
+
         points = self.rotate_points([inlet, outlet, junction_0, junction_1, deadleg_0, deadleg_1])
 
-        if self.connection_point == "discharge":
-            inlet, outlet = outlet, inlet
 
         self.inlet, self.outlet, self.junction_0, self.junction_1, self.deadleg_0, self.deadleg_1 = self.translate_to_connection_point(points)
 
@@ -93,7 +98,7 @@ class PSDSingleChamber:
     def translate_to_connection_point(self, points):
         translated_points = []
         for point in points:
-            translated_point = point + self.connection_point
+            translated_point = point + self.inlet
             translated_points.append(translated_point)
         return translated_points    
         
