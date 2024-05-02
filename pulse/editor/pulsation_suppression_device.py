@@ -6,6 +6,7 @@ import configparser
 import numpy as np
 from pathlib import Path
 from pprint import pprint
+from pulse.interface.main_window import MainWindow
 
 class PSDSingleChamber:
     def __init__(self, 
@@ -191,67 +192,73 @@ class PulsationSuppressionDevice:
                 if aux:
                     self.pulsation_suppression_device[tag] = aux
 
-    def write_psd_data_in_dat(self, device_tag, last_line_tag):
+    def write_psd_data_in_dat(self, device_tag):
+        config = configparser.ConfigParser()
+        project_path = Path(self.file._project_path)
+        path = project_path / "entity.dat"
+
+        config.read(path)
+        if config.sections() == []:
+            last_line = 0
+        else:
+            last_line = int(config.sections()[-1])
+
         device = self.pulsation_suppression_devices[device_tag]
         device.get_points()
 
-        config = configparser.ConfigParser()
-        config[str(last_line_tag + 1)] = {}
-        config[str(last_line_tag + 1)] ["start point"] = str(list(device.deadleg_0))
-        config[str(last_line_tag + 1)] ["end point"] = str(list(device.junction_0))
-        config[str(last_line_tag + 1)] ["section type"] = "Pipe section"
-        config[str(last_line_tag + 1)] ["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line_tag + 1)] ["structural element type"] = "pipe_1'"
-        config[str(last_line_tag + 1)] ["material id"] = "2"
-        config[str(last_line_tag + 1)]["psd tag"] = device_tag
-        config[str(last_line_tag + 1)]["psd part"] = "1"
+        config[str(last_line + 1)] = {}
+        config[str(last_line + 1)]["start point"] = str(list(device.deadleg_0))
+        config[str(last_line + 1)]["end point"] = str(list(device.junction_0))
+        config[str(last_line + 1)]["section type"] = "Pipe section"
+        config[str(last_line + 1)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
+        config[str(last_line + 1)]["structural element type"] = "pipe_1'"
+        config[str(last_line + 1)]["material id"] = "2"
+        config[str(last_line + 1)]["psd tag"] = device_tag
+        config[str(last_line + 1)]["psd part"] = "1"
         
 
-        config[str(last_line_tag + 2)] = {}
-        config[str(last_line_tag + 2)]["start point"] = str(list(device.inlet))
-        config[str(last_line_tag + 2)]["end point"] = str(list(device.junction_0))
-        config[str(last_line_tag + 2)]["section type"] = "Pipe section"
-        config[str(last_line_tag + 2)]["section parameters"] = str([device.inlet_pipe_diameter, device.inlet_pipe_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line_tag + 2)]["structural element type"] = "pipe_2"
-        config[str(last_line_tag + 2)]["material id"] = "2"
-        config[str(last_line_tag + 2)]["psd tag"] = device_tag
-        config[str(last_line_tag + 2)]["psd part"] = "2"
+        config[str(last_line + 2)] = {}
+        config[str(last_line + 2)]["start point"] = str(list(device.inlet))
+        config[str(last_line + 2)]["end point"] = str(list(device.junction_0))
+        config[str(last_line + 2)]["section type"] = "Pipe section"
+        config[str(last_line + 2)]["section parameters"] = str([device.inlet_pipe_diameter, device.inlet_pipe_wall_thickness, 0, 0, 0, 0])
+        config[str(last_line + 2)]["structural element type"] = "pipe_2"
+        config[str(last_line + 2)]["material id"] = "2"
+        config[str(last_line + 2)]["psd tag"] = device_tag
+        config[str(last_line + 2)]["psd part"] = "2"
         
 
-        config[str(last_line_tag + 3)] = {}
-        config[str(last_line_tag + 3)]["start point"] = str(list(device.junction_0))
-        config[str(last_line_tag + 3)]["end point"] = str(list(device.junction_1))
-        config[str(last_line_tag + 3)]["section type"] = "Pipe section"
-        config[str(last_line_tag + 3)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line_tag + 3)]["structural element type"] = "pipe_1"
-        config[str(last_line_tag + 3)]["material id"] = "2"
-        config[str(last_line_tag + 3)]["psd tag"] = device_tag
-        config[str(last_line_tag + 3)]["psd part"] = "3"
+        config[str(last_line + 3)] = {}
+        config[str(last_line + 3)]["start point"] = str(list(device.junction_0))
+        config[str(last_line + 3)]["end point"] = str(list(device.junction_1))
+        config[str(last_line + 3)]["section type"] = "Pipe section"
+        config[str(last_line + 3)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
+        config[str(last_line + 3)]["structural element type"] = "pipe_1"
+        config[str(last_line + 3)]["material id"] = "2"
+        config[str(last_line + 3)]["psd tag"] = device_tag
+        config[str(last_line + 3)]["psd part"] = "3"
         
 
-        config[str(last_line_tag + 4)] = {}
-        config[str(last_line_tag + 4)]["start point"] = str(list(device.junction_1))
-        config[str(last_line_tag + 4)]["end point"] = str(list(device.outlet))
-        config[str(last_line_tag + 4)]["section type"] = "Pipe section"
-        config[str(last_line_tag + 4)]["section parameters"] = str([device.outlet_pipe_diameter, device.outlet_pipe_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line_tag + 4)]["structural element type"] = "pipe_1"
-        config[str(last_line_tag + 4)]["material id"] = "2"
-        config[str(last_line_tag + 4)]["psd tag"] = device_tag
-        config[str(last_line_tag + 4)]["psd part"] = "4"
+        config[str(last_line + 4)] = {}
+        config[str(last_line + 4)]["start point"] = str(list(device.junction_1))
+        config[str(last_line + 4)]["end point"] = str(list(device.outlet))
+        config[str(last_line + 4)]["section type"] = "Pipe section"
+        config[str(last_line + 4)]["section parameters"] = str([device.outlet_pipe_diameter, device.outlet_pipe_wall_thickness, 0, 0, 0, 0])
+        config[str(last_line + 4)]["structural element type"] = "pipe_1"
+        config[str(last_line + 4)]["material id"] = "2"
+        config[str(last_line + 4)]["psd tag"] = device_tag
+        config[str(last_line + 4)]["psd part"] = "4"
         
 
-        config[str(last_line_tag + 5)] = {}
-        config[str(last_line_tag + 5)]["start point"] = str(list(device.junction_1))
-        config[str(last_line_tag + 5)]["end point"] = str(list(device.deadleg_1))
-        config[str(last_line_tag + 5)]["section type"] = "Pipe section"
-        config[str(last_line_tag + 5)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line_tag + 5)]["structural element type"] = "pipe_1"
-        config[str(last_line_tag + 5)]["material id"] = "2"
-        config[str(last_line_tag + 5)]["psd tag"] = device_tag
-        config[str(last_line_tag + 5)]["psd part"] = "5"
+        config[str(last_line + 5)] = {}
+        config[str(last_line + 5)]["start point"] = str(list(device.junction_1))
+        config[str(last_line + 5)]["end point"] = str(list(device.deadleg_1))
+        config[str(last_line + 5)]["section type"] = "Pipe section"
+        config[str(last_line + 5)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
+        config[str(last_line + 5)]["structural element type"] = "pipe_1"
+        config[str(last_line + 5)]["material id"] = "2"
+        config[str(last_line + 5)]["psd tag"] = device_tag
+        config[str(last_line + 5)]["psd part"] = "5"
         
-    
-        project_path = Path(self.file._project_path)
-        path = project_path / "entity.dat"
         with open(path, 'w') as config_file:
             config.write(config_file)  
