@@ -32,6 +32,8 @@ class TubeClippableActor(ActorBase):
         self._colors.SetNumberOfComponents(3)
         self._colors.Allocate(len(self.elements) * 60)
 
+        self.origin = None
+        self.normal = None
 
     @property
     def transparent(self):
@@ -135,6 +137,8 @@ class TubeClippableActor(ActorBase):
         self._data.GetPointData().SetScalars(c)
         self._colors = c
         self._mapper.Update()
+        if (self.origin is not None) and (self.normal is not None):
+            self.apply_cut(self.origin, self.normal) 
     
     def setColorTable(self, colorTable):
         self.colorTable = colorTable
@@ -251,6 +255,9 @@ class TubeClippableActor(ActorBase):
     def apply_cut(self, origin, normal):
         if self._data is None:
             return
+        
+        self.origin = origin
+        self.normal = normal
 
         plane = vtk.vtkPlane()
         plane.SetOrigin(origin)
@@ -274,3 +281,6 @@ class TubeClippableActor(ActorBase):
         mapper = self._mapper
         mapper.SetInputData(self._data)
         mapper.Modified()
+
+        self.origin = None
+        self.normal = None
