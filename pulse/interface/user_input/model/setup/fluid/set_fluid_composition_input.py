@@ -146,8 +146,8 @@ class SetFluidCompositionInput(QDialog):
         self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
         #
         self.tableWidget_new_fluid.cellClicked.connect(self.cell_clicked_on_composition_table)
-        self.tableWidget_new_fluid.cellChanged.connect(self.cell_changed_on_composition_table)
         self.tableWidget_new_fluid.itemChanged.connect(self.item_changed_callback)
+        #
         self.treeWidget_reference_gases.itemClicked.connect(self.on_click_item_refprop_fluids)
         self.treeWidget_reference_gases.itemDoubleClicked.connect(self.on_double_click_item_refprop_fluids)
 
@@ -224,9 +224,10 @@ class SetFluidCompositionInput(QDialog):
 
     def add_selected_gas(self, fluid_name, molar_fraction):
 
+        fluid_file_name, _, _ = self.refprop_fluids[fluid_name]
+
         if isinstance(molar_fraction, float):
 
-            fluid_file_name, _, _ = self.refprop_fluids[fluid_name]
             self.fluid_to_composition[fluid_name] = [  str(molar_fraction), 
                                                         molar_fraction / 100, 
                                                         fluid_file_name  ]
@@ -235,7 +236,10 @@ class SetFluidCompositionInput(QDialog):
                 if fluid_name in self.fluid_to_composition.keys():
                     self.fluid_to_composition.pop(fluid_name)
 
-            self.update_remainig_composition()
+        elif molar_fraction == "":
+            self.fluid_to_composition[fluid_name] = list()
+
+        self.update_remainig_composition()
 
     def update_remainig_composition(self):
 
@@ -369,8 +373,6 @@ class SetFluidCompositionInput(QDialog):
             if len(composition_data) == 3:
                 molar_fraction = round(100*composition_data[1], 7)
                 self.add_molar_fraction_to_cell(row, molar_fraction = str(molar_fraction))
-                # self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem(str(molar_fraction)))
-                # self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
 
         self.label_selected_fluid.setText("")
         self.lineEdit_composition.setText("")
@@ -561,7 +563,6 @@ class SetFluidCompositionInput(QDialog):
                         
                         if key_prop == "M":
                             self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]
-                            print(f"Molecular mass: {1000*read.Output[0]} kg/kmol")
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
@@ -584,7 +585,7 @@ class SetFluidCompositionInput(QDialog):
             remaining_molar_fraction = round(100*self.remaining_molar_fraction, 6)
             title = "Fluid composition not invalid"
             message += "The sum of all molar fractions must be equals to the unity. It is recommended "
-            message += "to adjust the fluid composition until this requirement is met."
+            message += "to adjust the fluid composition until this requirement is met.\n\n"
             message += f"Remaining molar fraction: {remaining_molar_fraction} %"
 
         if message != "":
@@ -716,21 +717,6 @@ class SetFluidCompositionInput(QDialog):
     def cell_clicked_on_composition_table(self, row, col):
         self.selected_row = row
 
-    def cell_changed_on_composition_table(self, row, col):
-
-        if col == 0:
-            return
-
-        if row + 1 <= self.tableWidget_new_fluid.rowCount():
-
-            item = self.tableWidget_new_fluid.item(row + 1, 1)
-            if item is None:
-                return
-
-            item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-            self.tableWidget_new_fluid.setCurrentItem(item)
-            self.tableWidget_new_fluid.editItem(item)
-
     def item_changed_callback(self, item):
 
         self.tableWidget_new_fluid.blockSignals(True)
@@ -778,22 +764,45 @@ class SetFluidCompositionInput(QDialog):
                 return
 
             molar_fraction = self.tableWidget_new_fluid.item(item.row(), 1).text()
-            if molar_fraction == "":
-                self.fluid_to_composition[selected_fluid] = list()
-            else:
-                self.add_selected_gas(selected_fluid, float(molar_fraction))
+            if molar_fraction != "":
+                molar_fraction = float(molar_fraction)
+
+            self.add_selected_gas(selected_fluid, molar_fraction)
 
         else:
 
             if self.item_is_invalid_number(item):
                 self.tableWidget_new_fluid.blockSignals(False)
                 return
+ 
+            self.go_to_next_cell(item)
 
             selected_fluid = self.tableWidget_new_fluid.item(item.row(), 0).text()
             molar_fraction = self.tableWidget_new_fluid.item(item.row(), 1).text()
-            self.add_selected_gas(selected_fluid, float(molar_fraction))
+
+            if molar_fraction != "":
+                molar_fraction = float(molar_fraction)
+            self.add_selected_gas(selected_fluid, molar_fraction)
 
         self.tableWidget_new_fluid.blockSignals(False)
+
+    def go_to_next_cell(self, item):
+        
+        row = item.row()
+        column = item.column()
+
+        if column == 0:
+            return
+
+        if row <= self.tableWidget_new_fluid.rowCount() - 1:
+
+            next_item = self.tableWidget_new_fluid.item(row + 1, column)
+            if next_item is None:
+                return
+            
+            if next_item.text() == "":
+                self.tableWidget_new_fluid.setCurrentItem(next_item)
+                self.tableWidget_new_fluid.editItem(next_item)
 
     def item_is_invalid_number(self, item):
 
@@ -801,7 +810,7 @@ class SetFluidCompositionInput(QDialog):
             return True
         
         if item.text() == "":
-            return True
+            return False
 
         if item.column() == 0:
             return True
@@ -826,11 +835,6 @@ class SetFluidCompositionInput(QDialog):
         if value > 100 or value < 0:
             message = "Dear user, you have typed an invalid entry at the fluid Composition input. "
             message += "The value should be a positive value less or equals to 100."
-        
-        # remaining_composition = round(100*self.remaining_molar_fraction, 6)
-        # if round(value, 6) >  round(remaining_composition, 6):
-        #     message = "Dear user, you have typed an invalid molar fraction to selected fluid. "
-        #     message += f"The value should be a positive value less or equals to {remaining_composition}."
 
         if message != "":
             window_title = "Error"
@@ -994,8 +998,8 @@ class SetFluidCompositionInput(QDialog):
         self.keep_window_open = False
 
     def keyPressEvent(self, event):
-        # if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-        #     self.get_fluid_properties()
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.get_fluid_properties()
         if event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
             self.remove_selected_gas()
         elif event.key() == Qt.Key_Escape:
