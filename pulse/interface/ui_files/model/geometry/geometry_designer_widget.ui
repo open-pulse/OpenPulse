@@ -41,20 +41,6 @@
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="3" column="1">
-         <widget class="QPushButton" name="set_material_button">
-          <property name="text">
-           <string>Set Material</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="structure_type_label">
-          <property name="text">
-           <string>Type</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="unit_combobox">
           <property name="sizePolicy">
@@ -80,10 +66,10 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="set_section_button">
+        <item row="1" column="0">
+         <widget class="QLabel" name="structure_type_label">
           <property name="text">
-           <string>Set Section</string>
+           <string>Type</string>
           </property>
          </widget>
         </item>
@@ -159,10 +145,24 @@
           </item>
          </widget>
         </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="set_material_button">
+          <property name="text">
+           <string>Set Material</string>
+          </property>
+         </widget>
+        </item>
         <item row="4" column="1">
          <widget class="QPushButton" name="set_fluid_button">
           <property name="text">
            <string>Set Fluid</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="set_section_button">
+          <property name="text">
+           <string>Set Section</string>
           </property>
          </widget>
         </item>

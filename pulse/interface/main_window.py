@@ -9,8 +9,7 @@ from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
-from pulse.interface.user_input.model.geometry.test_geometry_designer_widget import GeometryDesignerWidget
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler

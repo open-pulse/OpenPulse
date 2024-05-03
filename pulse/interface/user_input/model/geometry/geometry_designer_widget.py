@@ -10,7 +10,7 @@ from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorR
 from pulse import app, UI_DIR
 from pulse.interface.viewer_3d.text_templates import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.model.geometry.test_edit_pipe_widget import EditPipeWidget
+from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
 from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
@@ -19,7 +19,7 @@ class GeometryDesignerWidget(QWidget):
     def __init__(self, render_widget: EditorRenderWidget, parent=None):
         super().__init__(parent)
 
-        ui_path = UI_DIR / "model/geometry/test_geometry_designer_widget.ui"
+        ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.render_widget = render_widget
