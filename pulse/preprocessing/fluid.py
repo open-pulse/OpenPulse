@@ -58,6 +58,7 @@ class Fluid:
         self.dynamic_viscosity = kwargs.get("dynamic_viscosity", None)
         self.temperature = kwargs.get("temperature", None)
         self.pressure = kwargs.get("pressure", None)
+        self.molar_mass = kwargs.get("molar_mass", None)
 
     @property
     def impedance(self):

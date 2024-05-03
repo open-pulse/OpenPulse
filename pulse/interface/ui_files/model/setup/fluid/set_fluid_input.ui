@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>722</width>
-    <height>600</height>
+    <width>780</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>600</height>
+    <width>600</width>
+    <height>300</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>16777215</width>
+    <width>1000</width>
     <height>720</height>
    </size>
   </property>
@@ -43,6 +43,18 @@
    </property>
    <item row="1" column="0">
     <widget class="QFrame" name="frame_main_widget">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
@@ -78,8 +90,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>706</width>
-           <height>460</height>
+           <width>764</width>
+           <height>510</height>
           </rect>
          </property>
         </widget>
@@ -95,7 +107,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>800</width>
+          <width>16777215</width>
           <height>80</height>
          </size>
         </property>
@@ -310,7 +322,7 @@ QLineEdit:disabled {background-color: rgb(230, 230, 230); color: rgb(120, 120, 1
      </property>
      <property name="maximumSize">
       <size>
-       <width>800</width>
+       <width>16777215</width>
        <height>48</height>
       </size>
      </property>
