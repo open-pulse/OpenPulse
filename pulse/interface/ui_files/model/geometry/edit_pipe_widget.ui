@@ -32,20 +32,6 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_5">
-     <item row="1" column="3">
-      <widget class="QLabel" name="bending_radius_unity_label">
-       <property name="text">
-        <string>[m]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="bending_radius_label">
-       <property name="text">
-        <string>Bending Radius</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2">
       <widget class="QComboBox" name="bending_options_combobox">
        <item>
@@ -73,10 +59,31 @@
      <item row="1" column="2">
       <widget class="QLineEdit" name="bending_radius_line_edit"/>
      </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="bending_radius_label">
+       <property name="text">
+        <string>Bending Radius</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
       <widget class="QLabel" name="bending_options_label">
        <property name="text">
         <string>Bending Options</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLabel" name="bending_radius_unity_label">
+       <property name="text">
+        <string>[m]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="set_section_button">
+       <property name="text">
+        <string>Set Section</string>
        </property>
       </widget>
      </item>

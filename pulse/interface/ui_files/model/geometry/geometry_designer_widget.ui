@@ -145,24 +145,17 @@
           </item>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="2" column="1">
          <widget class="QPushButton" name="set_material_button">
           <property name="text">
            <string>Set Material</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="3" column="1">
          <widget class="QPushButton" name="set_fluid_button">
           <property name="text">
            <string>Set Fluid</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="set_section_button">
-          <property name="text">
-           <string>Set Section</string>
           </property>
          </widget>
         </item>
@@ -378,9 +371,6 @@
  <tabstops>
   <tabstop>unit_combobox</tabstop>
   <tabstop>structure_combobox</tabstop>
-  <tabstop>set_section_button</tabstop>
-  <tabstop>set_material_button</tabstop>
-  <tabstop>set_fluid_button</tabstop>
   <tabstop>x_line_edit</tabstop>
   <tabstop>y_line_edit</tabstop>
   <tabstop>z_line_edit</tabstop>

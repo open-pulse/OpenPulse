@@ -11,8 +11,11 @@ from pulse import app, UI_DIR
 from pulse.interface.viewer_3d.text_templates import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
+from pulse.interface.user_input.model.geometry.pipe_options_widget import PipeOptionsWidget
+from pulse.interface.user_input.model.geometry.rectangular_beam_options_widget import RectangularBeamOptionsWidget
 from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
+
 
 
 class GeometryDesignerWidget(QWidget):
@@ -32,15 +35,15 @@ class GeometryDesignerWidget(QWidget):
         self._create_layout()
         self._create_connections()
         self._initialize()
-        self.setContentsMargins(2,2,2,2)
+        # self.setContentsMargins(2,2,2,2)
 
     def _define_qt_variables(self):
         self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
 
-        self.set_section_button: QPushButton
-        self.set_material_button: QPushButton
-        self.set_fluid_button: QPushButton
+        # self.set_section_button: QPushButton
+        # self.set_material_button: QPushButton
+        # self.set_fluid_button: QPushButton
 
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
@@ -65,12 +68,17 @@ class GeometryDesignerWidget(QWidget):
         self.addAction(self.select_all_action)
     
     def _create_layout(self):
-        self.edit_pipe_widget = EditPipeWidget(self)
-        self.options_stack_widget.addWidget(self.edit_pipe_widget)
+        self.pipe_options_widget = PipeOptionsWidget(self)
+        self.rectangular_beam_options_widget = RectangularBeamOptionsWidget(self)
 
+        self.options_stack_widget.addWidget(self.pipe_options_widget)
+        self.options_stack_widget.addWidget(self.rectangular_beam_options_widget)
+
+        self.edit_pipe_widget = EditPipeWidget(self)
         self.cross_section_widget = CrossSectionWidget(self)
         self.material_widget = MaterialInputs(self)
 
+        self.edit_pipe_widget.hide()
         self.cross_section_widget.hide()
         self.material_widget.hide()
 
@@ -81,9 +89,9 @@ class GeometryDesignerWidget(QWidget):
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         
-        self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
-        self.set_material_button.clicked.connect(self.show_material_widget_callback)
-        self.set_fluid_button.clicked.connect(self.show_fluid_widget_callback)
+        # self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
+        # self.set_material_button.clicked.connect(self.show_material_widget_callback)
+        # self.set_fluid_button.clicked.connect(self.show_fluid_widget_callback)
 
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
@@ -107,14 +115,6 @@ class GeometryDesignerWidget(QWidget):
         self.current_material_info = None
         self.current_cross_section_info = None
         self._cached_sections = dict()
-
-        self.set_section_button.setProperty("warning", True)
-        self.set_material_button.setProperty("warning", False)
-        self.set_fluid_button.setProperty("warning", False)
-
-        self.style().polish(self.set_section_button)
-        self.style().polish(self.set_material_button)
-        self.style().polish(self.set_fluid_button)
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback("pipe")
@@ -155,7 +155,10 @@ class GeometryDesignerWidget(QWidget):
         self._show_deltas_mode(True)
 
         if issubclass(self.current_structure_type, Pipe):
-            self.options_stack_widget.setCurrentWidget(self.edit_pipe_widget)
+            self.options_stack_widget.setCurrentWidget(self.pipe_options_widget)
+
+        elif issubclass(self.current_structure_type, RectangularBeam):
+            self.options_stack_widget.setCurrentWidget(self.rectangular_beam_options_widget)
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
@@ -404,18 +407,30 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=True)
 
     def _xyz_structure_callback(self, xyz):
-        if self.current_cross_section_info is None:
-            return 
-        
+        current_widget = self.options_stack_widget.currentWidget()
+        if not hasattr(current_widget, "cross_section_info"):
+            print("a")
+            return
+
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
 
         if xyz == (0, 0, 0):
             self.render_widget.update_plot(reset_camera=False)
+            print("b")
+            return
+        
+        if not callable(current_widget.add_function):
+            print("c")
             return
 
-        add_function, _, kwargs = self._get_current_structure_functions()
-        add_function(xyz, **kwargs)
+        kwargs = current_widget.get_parameters()
+        if kwargs is None:
+            print("d")
+            return
+
+        kwargs["extra_info"]["material_info"] = self.current_material_info
+        current_widget.add_function(xyz, **kwargs)
         self.render_widget.update_plot(reset_camera=True)
 
     def _update_section_of_selected_structures(self):
@@ -650,9 +665,9 @@ class GeometryDesignerWidget(QWidget):
         is_point = issubclass(self.current_structure_type, Point)
         is_beam = issubclass(self.current_structure_type, Beam)
 
-        self.set_section_button.setDisabled(is_point)
-        self.set_material_button.setDisabled(is_point)
-        self.set_fluid_button.setDisabled(is_beam or is_point)
+        # self.set_section_button.setDisabled(is_point)
+        # self.set_material_button.setDisabled(is_point)
+        # self.set_fluid_button.setDisabled(is_beam or is_point)
 
         self.add_button.setDisabled(not have_staged)
         self.delete_button.setDisabled(not (have_selection or have_staged))
@@ -663,11 +678,11 @@ class GeometryDesignerWidget(QWidget):
         )
 
         enable_xyz = (not is_point and not have_cross_section)
-        self.x_line_edit.setDisabled(enable_xyz)
-        self.y_line_edit.setDisabled(enable_xyz)
-        self.z_line_edit.setDisabled(enable_xyz)
-        self.set_section_button.setProperty("warning", enable_xyz)
-        self.style().polish(self.set_section_button)
+        # self.x_line_edit.setDisabled(enable_xyz)
+        # self.y_line_edit.setDisabled(enable_xyz)
+        # self.z_line_edit.setDisabled(enable_xyz)
+        # self.set_section_button.setProperty("warning", enable_xyz)
+        # self.style().polish(self.set_section_button)
 
     def _load_project(self):
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
