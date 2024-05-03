@@ -275,13 +275,22 @@ class PulsationSuppressionDevice:
         path = project_path / "entity.dat"
         config.read(path)
 
+        psd_lines= []
+
         for section in config.sections():
-            if config[section]["psd label"] == device_label:
-                config.remove_section(section)
+            try:
+                if config[section]["psd label"] == device_label:
+                    config.remove_section(section)
+                    psd_lines.append(int(section))
+            except:
+                pass
         
         with open(path, 'w') as config_file:
             config.write(config_file)
 
+        pipeline = app().geometry_toolbox.pipeline
+        print(type(pipeline))
+        
         # needs to be deleted from the Pipeline as well
 
         self.load_project()
