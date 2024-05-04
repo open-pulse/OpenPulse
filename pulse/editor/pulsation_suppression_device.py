@@ -7,98 +7,109 @@ import numpy as np
 from pathlib import Path
 from pprint import pprint
 
-class PSDSingleChamber:
-    def __init__(self, 
-                 connection_type, 
-                 connection_point, 
-                 axis, 
-                 inlet_pipe_length, 
-                 inlet_pipe_diameter, 
-                 inlet_pipe_wall_thickness, 
-                 inlet_pipe_distance, 
-                 inlet_pipe_angle, 
-                 outlet_pipe_length, 
-                 outlet_pipe_diameter, 
-                 outlet_pipe_wall_thickness, 
-                 outlet_pipe_distance, 
-                 outlet_pipe_angle, 
-                 main_chamber_length, 
-                 main_chamber_diameter, 
-                 main_chamber_wall_thickness) -> None:
-        
-            self.connection_type = connection_type
-            self.connection_point = connection_point
-            self.axis = axis
+# fmt: off
+    
+def translate_to_connection_point(points, connection_point):
+    translated_points = list()
+    for point in points:
+        translated_point = point + connection_point
+        translated_points.append(translated_point)
+    return translated_points    
+    
+def rotation_matrix_y(angle):
+    return np.array([[ np.cos(angle), 0, np.sin(angle)], 
+                     [             0, 1,             0], 
+                     [-np.sin(angle), 0, np.cos(angle)]], dtype=float)
 
-            self.inlet_pipe_length = inlet_pipe_length
-            self.inlet_pipe_diameter = inlet_pipe_diameter
-            self.inlet_pipe_wall_thickness = inlet_pipe_wall_thickness
-            self.inlet_pipe_distance = inlet_pipe_distance
-            self.inlet_pipe_angle = inlet_pipe_angle
+def rotation_matrix_z(self, angle):
+    return np.array([[ np.cos(angle), -np.sin(angle), 0],
+                     [ np.sin(angle),  np.cos(angle), 0], 
+                     [             0,              0, 1]], dtype=float)
 
-            self.outlet_pipe_length = outlet_pipe_length
-            self.outlet_pipe_diameter = outlet_pipe_diameter
-            self.outlet_pipe_wall_thickness = outlet_pipe_wall_thickness
-            self.outlet_pipe_distance = outlet_pipe_distance
-            self.outlet_pipe_angle = outlet_pipe_angle
+def rotate_points(points, axis="along x-axis"):
+    if axis == "along y-axis":
+        matrix = rotation_matrix_z(np.pi/2)
+    elif axis == "along z-axis":
+        matrix = rotation_matrix_y(np.pi/2)
+    else:
+        matrix = np.identity(3)
 
-            self.main_chamber_length = main_chamber_length
-            self.main_chamber_diameter = main_chamber_diameter
-            self.main_chamber_wall_thickness = main_chamber_wall_thickness
+    rotated_points = list()
+    for point in points:
+        rotated_point = matrix @ point
+        rotated_points.append(rotated_point)
+    
+    return rotated_points
+
+class SingleChamberPSD:
+    def __init__(self, device_data : dict) -> None:
+            
+        self.unwrap_device_data(device_data)
+
+    def unwrap_device_data(self, device_data : dict):
+
+        self.connection_type = device_data["connection type"]
+        self.connection_point = device_data["connecting coords"]
+        self.axis = device_data["main axis"]
+
+        [   self.inlet_pipe_length,
+            self.inlet_pipe_diameter,
+            self.inlet_pipe_wall_thickness,
+            self.inlet_pipe_distance,
+            self.inlet_pipe_angle   ] = device_data["pipe #1 parameters"]
+
+        [   self.outlet_pipe_length,
+            self.outlet_pipe_diameter,
+            self.outlet_pipe_wall_thickness,
+            self.outlet_pipe_distance,
+            self.outlet_pipe_angle   ] = device_data["pipe #2 parameters"]
+
+        [   self.main_chamber_length,
+            self.main_chamber_diameter,
+            self.main_chamber_wall_thickness   ] = device_data["volume #1 parameters"]
 
     def get_points(self):
-        versor_x = np.array([1, 0, 0])
-        versor_y = np.array([0, 1, 0])
-        
-        inlet = np.array([0,0,0])
-        junction_0 = inlet - versor_y * self.inlet_pipe_length
-        deadleg_0 = junction_0 - versor_x * self.inlet_pipe_distance
-        junction_1 = deadleg_0 + versor_x * self.outlet_pipe_distance
-        deadleg_1 = deadleg_0 + versor_x * self.main_chamber_length
-        outlet = junction_1 - versor_y * self.outlet_pipe_length
 
+        # P0 -> connection point between inlet pipe and main chamber
+        # P1 -> connection point between outlet pipe and main chamber
+        # Q0 -> start point of the main chamber
+        # Q1 -> end point of the main chamber
 
-        if self.connection_type == "sucction": # fix this
-            delta = inlet - outlet
-            junction_0 = junction_0 + delta
-            junction_1 = junction_1 + delta
-            deadleg_0 = deadleg_0 + delta
-            deadleg_1= deadleg_1 + delta
-            outlet = outlet + delta
-            inlet = inlet + delta
-            # inlet, outlet = outlet, inlet
+        versor_x = np.array([1, 0, 0], dtype=float)
+        versor_y = np.array([0, 1, 0], dtype=float)
+        inlet = np.array([0, 0, 0], dtype=float)
 
-        points = self.rotate_points([inlet, outlet, junction_0, junction_1, deadleg_0, deadleg_1])
-        self.inlet, self.outlet, self.junction_0, self.junction_1, self.deadleg_0, self.deadleg_1 = self.translate_to_connection_point(points)
+        if self.connection_type == "discharge":
+            P0 = inlet - versor_y * self.inlet_pipe_length
+            Q0 = P0 - versor_x * self.inlet_pipe_distance
+            P1 = Q0 + versor_x * self.outlet_pipe_distance
+            Q1 = Q0 + versor_x * self.main_chamber_length
+            outlet = P1 - versor_y * self.outlet_pipe_length
 
-    def rotate_points(self, points):
-        if self.axis == "along y-axis":
-            matrix = self.rotation_matrix_z(np.pi/2)
-        elif self.axis == "along z-axis":
-            matrix = self.rotation_matrix_y(np.pi/2)
         else:
-            matrix = np.identity(3)
+            P0 = inlet + versor_y * self.inlet_pipe_length
+            Q0 = P0 - versor_x * self.inlet_pipe_distance
+            P1 = Q0 + versor_x * self.outlet_pipe_distance
+            Q1 = Q0 + versor_x * self.main_chamber_length
+            outlet = P1 + versor_y * self.outlet_pipe_length
 
-        rotated_points = []
-        for point in points:
-            rotated_point = matrix @ point
-            rotated_points.append(rotated_point)
-        
-        return rotated_points
-    
-    def translate_to_connection_point(self, points):
-        translated_points = []
-        for point in points:
-            translated_point = point + self.connection_point
-            translated_points.append(translated_point)
-        return translated_points    
-        
-    def rotation_matrix_y(self, angle):
-        return np.array([[np.cos(angle), 0, np.sin(angle)], [0, 1, 0], [-np.sin(angle), 0, np.cos(angle)]])
-    
-    def rotation_matrix_z(self, angle):
-        return np.array([[np.cos(angle), -np.sin(angle), 0],[np.sin(angle), np.cos(angle), 0], [0, 0, 1] ])
-    
+        base_points = [inlet, outlet, P0, P1, Q0, Q1]
+        rot_points = rotate_points(base_points, axis=self.axis)
+        inlet, outlet, P0, P1, Q0, Q1 = translate_to_connection_point(rot_points, self.connection_point)
+
+        if np.linalg.norm(P0-Q0) > np.linalg.norm(P1-Q0):
+            self.start_points = [inlet, outlet, Q0, P1, P0]
+            self.end_points = [P0, P1, P1, P0, Q1]
+        else:
+            self.start_points = [inlet, outlet, Q0, P0, P1]
+            self.end_points = [P0, P1, P0, P1, Q1]
+
+    def get_section_parameters(self):
+        self.section_parameters = list()
+        self.section_parameters.append([self.inlet_pipe_diameter, self.inlet_pipe_wall_thickness, 0, 0, 0, 0])
+        self.section_parameters.append([self.outlet_pipe_diameter, self.outlet_pipe_wall_thickness, 0, 0, 0, 0])
+        self.section_parameters.append([self.main_chamber_diameter, self.main_chamber_wall_thickness, 0, 0, 0, 0])
+
 class PulsationSuppressionDevice:
     def __init__(self, project):
 
@@ -109,7 +120,7 @@ class PulsationSuppressionDevice:
     
     def _initialize(self):
         self.pulsation_suppression_device = dict()
-        self.pulsation_suppression_devices = dict()
+        self.psd_entity_data = dict()
 
     def add_pulsation_suppression_device(self, device_label, suppression_device_data):
 
@@ -118,38 +129,62 @@ class PulsationSuppressionDevice:
             if data == suppression_device_data:
                 self.pulsation_suppression_device.pop(key)
                 break
-        
-        # to do: add check for single chamber and double chamber 
 
-        self.pulsation_suppression_devices[device_label] = PSDSingleChamber(
-                                                                            suppression_device_data["connection type"],
-                                                                            suppression_device_data["connecting coords"],
-                                                                            suppression_device_data["main axis"],
-                                                                            *suppression_device_data["pipe #1 parameters"],
-                                                                            *suppression_device_data["pipe #2 parameters"],
-                                                                            *suppression_device_data["volume #1 parameters"]
-                                                                            )
+        if "volume #2 parameters" in suppression_device_data.keys():
+            return
+            self.psd_entity_data[device_label] = DualChambersPSD(suppression_device_data)
+        else:
+            self.psd_entity_data[device_label] = SingleChamberPSD(suppression_device_data)
         
         self.pulsation_suppression_device[device_label] = suppression_device_data
         self.write_suppression_device_data_in_file()
 
-    def remove_suppression_device(self, device_label):
+    def build_device(self, device_label):
 
-        if device_label in self.pulsation_suppression_device.keys():
-            self.pulsation_suppression_device.pop(device_label)
+        entity_path = self.file._entity_path
+        config = configparser.ConfigParser()
+        config.read(entity_path)
 
-        self.write_suppression_device_data_in_file()
-    
-    def load_project(self):
-        self.project.initial_load_project_actions(self.file.project_ini_file_path)
-        self.project.load_project_files()
-        app().main_window.input_widget.initial_project_action(True)
-        app().update()
-        app().main_window.opv_widget.updatePlots()
-        app().main_window.use_structural_setup_workspace()
-        app().main_window.plot_entities_with_cross_section()
-        app().main_window.action_front_view_callback()
+        line_tags = list()
+        for section in config.sections():
+            if "-" in section:
+                tag = int(section.split("-")[0])
+            else:
+                tag = int(section)
 
+            if tag in line_tags:
+                continue
+            line_tags.append(tag)
+
+        if line_tags:
+            shifted_line = max(line_tags) + 1
+        else:
+            shifted_line = 1
+
+        device = self.psd_entity_data[device_label]
+        device.get_points()
+        device.get_section_parameters()
+
+        for i in range(len(device.start_points)):
+
+            section_parameters = device.section_parameters[i] if i < 2 else device.section_parameters[2]
+
+            aux = { 
+                    "start point" : list(np.round(device.start_points[i], 6)),
+                    "end point" : list(np.round(device.end_points[i], 6)),
+                    "section type" : "Pipe section",
+                    "section parameters" : section_parameters,
+                    "structural element type" : "pipe_1",
+                    "psd label" : device_label
+                    }
+
+            tag = int(shifted_line + i)
+            config[str(tag)] = aux
+
+        with open(entity_path, 'w') as config_file:
+            config.write(config_file)
+
+        self.load_project()  
 
     def write_suppression_device_data_in_file(self):
     
@@ -190,92 +225,26 @@ class PulsationSuppressionDevice:
                 section = config[tag]
 
                 for key in section.keys():
+
                     if key in ["main axis", "connection type", "volumes connection"]:
                         aux[key] = section[key]
+
                     elif key == "volumes spacing":
                         aux[key] = float(section[key])
+
                     elif key in list_data_keys:
                         aux[key] = get_list_of_values_from_string(section[key], int_values=False)
 
                 if aux:
                     self.pulsation_suppression_device[tag] = aux
 
-    def build_device(self, device_label):
+    def delete_device_related_lines(self, device_label):
+
+        entity_path = self.file._entity_path
         config = configparser.ConfigParser()
-        project_path = Path(self.file._project_path)
-        path = project_path / "entity.dat"
+        config.read(entity_path)
 
-        config.read(path)
-        if config.sections() == []:
-            last_line = 0
-        else:
-            last_line = int(config.sections()[-1])
-
-        device = self.pulsation_suppression_devices[device_label]
-        device.get_points()
-
-        config[str(last_line + 1)] = {}
-        config[str(last_line + 1)]["start point"] = str(list(device.deadleg_0))
-        config[str(last_line + 1)]["end point"] = str(list(device.junction_0))
-        config[str(last_line + 1)]["section type"] = "Pipe section"
-        config[str(last_line + 1)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line + 1)]["structural element type"] = "pipe_1"
-        config[str(last_line + 1)]["material id"] = "2"
-        config[str(last_line + 1)]["psd label"] = device_label
-        config[str(last_line + 1)]["psd part"] = "1"
-        
-        config[str(last_line + 2)] = {}
-        config[str(last_line + 2)]["start point"] = str(list(device.inlet))
-        config[str(last_line + 2)]["end point"] = str(list(device.junction_0))
-        config[str(last_line + 2)]["section type"] = "Pipe section"
-        config[str(last_line + 2)]["section parameters"] = str([device.inlet_pipe_diameter, device.inlet_pipe_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line + 2)]["structural element type"] = "pipe_1"
-        config[str(last_line + 2)]["material id"] = "2"
-        config[str(last_line + 2)]["psd label"] = device_label
-        config[str(last_line + 2)]["psd part"] = "2"
-        
-        config[str(last_line + 3)] = {}
-        config[str(last_line + 3)]["start point"] = str(list(device.junction_0))
-        config[str(last_line + 3)]["end point"] = str(list(device.junction_1))
-        config[str(last_line + 3)]["section type"] = "Pipe section"
-        config[str(last_line + 3)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line + 3)]["structural element type"] = "pipe_1"
-        config[str(last_line + 3)]["material id"] = "2"
-        config[str(last_line + 3)]["psd label"] = device_label
-        config[str(last_line + 3)]["psd part"] = "3"
-        
-        config[str(last_line + 4)] = {}
-        config[str(last_line + 4)]["start point"] = str(list(device.junction_1))
-        config[str(last_line + 4)]["end point"] = str(list(device.outlet))
-        config[str(last_line + 4)]["section type"] = "Pipe section"
-        config[str(last_line + 4)]["section parameters"] = str([device.outlet_pipe_diameter, device.outlet_pipe_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line + 4)]["structural element type"] = "pipe_1"
-        config[str(last_line + 4)]["material id"] = "2"
-        config[str(last_line + 4)]["psd label"] = device_label
-        config[str(last_line + 4)]["psd part"] = "4"
-        
-        config[str(last_line + 5)] = {}
-        config[str(last_line + 5)]["start point"] = str(list(device.junction_1))
-        config[str(last_line + 5)]["end point"] = str(list(device.deadleg_1))
-        config[str(last_line + 5)]["section type"] = "Pipe section"
-        config[str(last_line + 5)]["section parameters"] = str([device.main_chamber_diameter, device.main_chamber_wall_thickness, 0, 0, 0, 0])
-        config[str(last_line + 5)]["structural element type"] = "pipe_1"
-        config[str(last_line + 5)]["material id"] = "2"
-        config[str(last_line + 5)]["psd label"] = device_label
-        config[str(last_line + 5)]["psd part"] = "5"
-        
-        with open(path, 'w') as config_file:
-            config.write(config_file)
-
-        self.load_project()  
-
-    def delete_device(self, device_label):
-        config = configparser.ConfigParser()
-        project_path = Path(self.file._project_path)
-        path = project_path / "entity.dat"
-        config.read(path)
-
-        psd_lines= []
+        psd_lines= list()
 
         for section in config.sections():
             try:
@@ -285,12 +254,26 @@ class PulsationSuppressionDevice:
             except:
                 pass
         
-        with open(path, 'w') as config_file:
+        with open(entity_path, 'w') as config_file:
             config.write(config_file)
 
-        pipeline = app().geometry_toolbox.pipeline
-        print(type(pipeline))
-        
-        # needs to be deleted from the Pipeline as well
+    def remove_suppression_device(self, device_label):
 
+        if device_label in self.pulsation_suppression_device.keys():
+            self.pulsation_suppression_device.pop(device_label)
+
+        self.write_suppression_device_data_in_file()
+        self.delete_device_related_lines(device_label)
         self.load_project()
+
+    def load_project(self):
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.load_project_files()
+        app().main_window.input_widget.initial_project_action(True)
+        app().update()
+        app().main_window.opv_widget.updatePlots()
+        app().main_window.use_structural_setup_workspace()
+        app().main_window.plot_entities_with_cross_section()
+        app().main_window.action_front_view_callback()
+
+# fmt: on

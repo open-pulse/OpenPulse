@@ -223,7 +223,7 @@ class GeometryHandler:
             pipeline.structures.extend(structures)
             editor.merge_coincident_points()
             app().update()
-    
+
     def export_cad_file(self, path):
         self.create_geometry()
         # if '-nopopup' not in sys.argv:

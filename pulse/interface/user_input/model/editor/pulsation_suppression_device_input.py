@@ -204,6 +204,14 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.pushButton_cancel.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)       
     
+    def update(self):
+        list_nodes = self.opv.getListPickedPoints()
+        if len(list_nodes) == 1:
+            node = self.preprocessor.nodes[list_nodes[0]]
+            self.lineEdit_connecting_coord_x.setText(str(round(node.x, 6)))
+            self.lineEdit_connecting_coord_y.setText(str(round(node.y, 6)))
+            self.lineEdit_connecting_coord_z.setText(str(round(node.z, 6)))
+
     def update_tabs_visibility(self):
         if self.project.PSD.pulsation_suppression_device:
             self.tabWidget_main.setTabVisible(1, True)
@@ -250,17 +258,17 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def check_connecting_coords(self):
 
-        coord_x = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", zero_included=True)
+        coord_x = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
         if coord_x is None:
             self.lineEdit_connecting_coord_x.setFocus()
             return True
 
-        coord_y = check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", zero_included=True)
+        coord_y = check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", only_positive=False)
         if coord_y is None:
             self.lineEdit_connecting_coord_y.setFocus()
             return True
         
-        coord_z = check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", zero_included=True)
+        coord_z = check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", only_positive=False)
         if coord_z is None:
             self.lineEdit_connecting_coord_z.setFocus()
             return True
@@ -387,7 +395,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_pipe3_distance.setFocus()
             return True
 
-        self.suppression_device_data["pipe 3# parameters"] = [length, diameter, wall_thickness, distance]
+        self.suppression_device_data["pipe #3 parameters"] = [length, diameter, wall_thickness, distance]
 
     def check_psd_inputs(self):
 
@@ -467,8 +475,6 @@ class PulsationSuppressionDeviceInput(QDialog):
         if self.lineEdit_selection.text() != "":
             device_label = self.lineEdit_selection.text()
             self.project.PSD.remove_suppression_device(device_label)
-            self.project.PSD.delete_device(device_label)
-
             self.load_PSD_info()
 
     def load_PSD_info(self):
