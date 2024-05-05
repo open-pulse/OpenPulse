@@ -8,7 +8,6 @@ from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppe
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.utils import check_inputs
 
-import configparser
 import numpy as np
 from pprint import pprint
 
@@ -28,10 +27,16 @@ class PulsationSuppressionDeviceInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        ConfigWidgetAppearance(self)
         self._config_widgets()
+
+        self.load_psd_data_from_file()
         self.load_PSD_info()
+        self.update()
         self.exec()
+
+    def load_psd_data_from_file(self):
+        self.project.PSD.load_suppression_device_data_from_file()
+        self.project.PSD.get_device_related_lines()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -50,7 +55,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         # QComboBox
         self.comboBox_main_axis : QComboBox
-        self.comboBox_connection_type : QComboBox
+        self.comboBox_connection_pipe : QComboBox
         self.comboBox_number_volumes : QComboBox
         self.comboBox_volumes_connection : QComboBox
         self.comboBox_pipe1_connection : QComboBox
@@ -126,6 +131,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.confirm_button_pressed)
         self.pushButton_remove.clicked.connect(self.remove_button_pressed)
+        self.pushButton_reset.clicked.connect(self.reset_button_pressed)
 
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
 
@@ -133,15 +139,24 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.treeWidget_psd_info.itemDoubleClicked.connect(self.on_double_click_item)
 
         self.update_the_rotation_angle()
+        self.number_volumes_callback()
+
+        # temporary disabled
+        self.pushButton_reset.setDisabled(True)
 
     def _config_widgets(self):
+        #
+        ConfigWidgetAppearance(self)
         #
         self.lineEdit_device_label.setFocus()
         self.lineEdit_selection.setDisabled(True)
         self.pushButton_remove.setDisabled(True)
         #
-        widths = [160, 140, 240]
-        header_labels = ["PSD label", "Connection type", "Connection point"]
+        self.config_treeWidget()        
+
+    def config_treeWidget(self):
+        widths = [120, 140, 140, 140]
+        header_labels = ["PSD label", "Connection type", "Connection point", "Lines"]
         for col, label in enumerate(header_labels):
             self.treeWidget_psd_info.headerItem().setText(col, label)
             self.treeWidget_psd_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
@@ -165,23 +180,16 @@ class PulsationSuppressionDeviceInput(QDialog):
         index = self.comboBox_number_volumes.currentIndex()
         self.comboBox_volumes_connection.setDisabled(bool(index))
 
-        self.label_pipe3.setDisabled(bool(index))
-        self.label_rotation_plane.setDisabled(bool(index))
-        self.label_rotation_angle_pipe1.setDisabled(bool(index))
-        self.label_rotation_angle_pipe2.setDisabled(bool(index))
-        self.label_rotation_angle_pipe1_unit.setDisabled(bool(index))
-        self.label_rotation_angle_pipe2_unit.setDisabled(bool(index))
         self.label_volumes_connection.setDisabled(bool(index))
         self.label_volumes_spacing.setDisabled(bool(index))
         self.label_volumes_spacing_unit.setDisabled(bool(index))
 
+        self.label_pipe3.setDisabled(bool(index))
         self.lineEdit_pipe3_length.setDisabled(bool(index))
         self.lineEdit_pipe3_diameter.setDisabled(bool(index))
         self.lineEdit_pipe3_wall_thickness.setDisabled(bool(index))
         self.lineEdit_pipe3_distance.setDisabled(bool(index))
         self.lineEdit_volumes_spacing.setDisabled(bool(index))
-        self.spinBox_pipe1_rotation_angle.setDisabled(bool(index))
-        self.spinBox_pipe2_rotation_angle.setDisabled(bool(index))
 
         self.label_volume2.setDisabled(bool(index))
         self.lineEdit_volume2_length.setDisabled(bool(index))
@@ -222,9 +230,12 @@ class PulsationSuppressionDeviceInput(QDialog):
     def on_click_item(self, item):
         self.lineEdit_selection.setText(item.text(0))
         self.pushButton_remove.setDisabled(False)
+        if item.text(0) in self.project.PSD.psd_lines.keys():
+            device_lines = self.project.PSD.psd_lines[item.text(0)]
+            self.opv.opvRenderer.highlight_lines(device_lines)
 
     def on_double_click_item(self, item):
-        self.on_double_click_item(item)
+        self.on_click_item(item)
         # TODO: get detailed information about selected PSD
 
     def update_the_rotation_angle(self):
@@ -408,10 +419,10 @@ class PulsationSuppressionDeviceInput(QDialog):
         index = self.comboBox_main_axis.currentIndex()
         self.suppression_device_data["main axis"] = axes[index]
 
-        if self.comboBox_connection_type.currentIndex() == 0:
-            self.suppression_device_data["connection type"] = "discharge"
+        if self.comboBox_connection_pipe.currentIndex() == 0:
+            self.suppression_device_data["connection pipe"] = "pipe #1"
         else:
-            self.suppression_device_data["connection type"] = "sucction"
+            self.suppression_device_data["connection pipe"] = "pipe #2"
 
         if self.check_connecting_coords():
             return True
@@ -469,6 +480,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                                                           self.suppression_device_data)
         self.project.PSD.load_suppression_device_data_from_file()
         self.project.PSD.build_device(self.filter_label)
+        self.project.PSD.get_device_related_lines()
         self.close()
 
     def remove_button_pressed(self):
@@ -477,13 +489,17 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.project.PSD.remove_suppression_device(device_label)
             self.load_PSD_info()
 
+    def reset_button_pressed(self):
+        pass
+
     def load_PSD_info(self):
         self.treeWidget_psd_info.clear()
         for key, data in self.project.PSD.pulsation_suppression_device.items():
             coords = data["connecting coords"]
-            connection = data["connection type"]
-            new = QTreeWidgetItem([key, connection, str(coords)])
-            for col in range(3):
+            connection = data["connection pipe"]
+            psd_lines = self.project.PSD.psd_lines[key]
+            new = QTreeWidgetItem([key, connection, str(coords), str(psd_lines)])
+            for col in range(4):
                 new.setTextAlignment(col, Qt.AlignCenter)
             self.treeWidget_psd_info.addTopLevelItem(new)
 

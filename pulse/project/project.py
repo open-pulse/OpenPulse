@@ -157,7 +157,7 @@ class Project:
         self.load_entity_file()
         self.load_analysis_file()
         self.load_inertia_load_setup()
-        self.PSD.load_suppression_device_data_from_file()
+        # self.PSD.load_suppression_device_data_from_file()
 
     def update_node_ids_in_file_after_remesh(self, dict_mapped_indexes, dict_non_mapped_indexes):
         self.file.modify_node_ids_in_acoustic_bc_file(dict_mapped_indexes, dict_non_mapped_indexes)
