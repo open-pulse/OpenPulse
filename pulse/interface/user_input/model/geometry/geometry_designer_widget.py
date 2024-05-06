@@ -43,13 +43,11 @@ class GeometryDesignerWidget(QWidget):
         self._create_layout()
         self._create_connections()
         self._initialize()
-        # self.setContentsMargins(2,2,2,2)
 
     def _define_qt_variables(self):
         self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
 
-        # self.set_section_button: QPushButton
         self.set_material_button: QPushButton
         self.set_fluid_button: QPushButton
 
