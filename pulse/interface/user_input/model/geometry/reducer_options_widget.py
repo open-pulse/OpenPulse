@@ -34,9 +34,15 @@ class ReducerOptionsWidget(QWidget):
         self.set_section_button: QPushButton
         self.set_material_button: QPushButton
         self.set_fluid_button: QPushButton
+        self.cross_section_widget = CrossSectionWidget(self)
 
     def _create_layout(self):
-        self.cross_section_widget = CrossSectionWidget(self)
+        self.cross_section_widget._add_icon_and_title()
+        self.cross_section_widget.set_inputs_to_geometry_creator()     
+        self.cross_section_widget.hide_all_tabs()     
+        self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
+        self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
+        self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
         self.cross_section_widget.hide()
 
     def _create_connections(self):
@@ -70,18 +76,13 @@ class ReducerOptionsWidget(QWidget):
         return kwargs
 
     def show_cross_section_widget_callback(self):
-        self.cross_section_widget._add_icon_and_title()
-        self.cross_section_widget.set_inputs_to_geometry_creator()     
-        self.cross_section_widget.hide_all_tabs()     
-        self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
-        self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
-        self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
-        self.cross_section_widget.setVisible(True)
+        self.cross_section_widget.show()
 
     def define_cross_section_callback(self):
-        if self.cross_section_widget.get_constant_pipe_parameters():
+        if self.cross_section_widget.get_variable_section_pipe_parameters():
             return
         self.cross_section_info = self.cross_section_widget.pipe_section_info
         self.cross_section_widget.hide()
         self.set_section_button.setProperty("warning", False)
         self.style().polish(self.set_section_button)
+        self.edited.emit()

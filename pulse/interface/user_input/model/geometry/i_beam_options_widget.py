@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QTabWidget
+from PyQt5.QtCore import pyqtSignal
 from PyQt5 import uic
 
 from opps.model import IBeam
@@ -10,6 +11,8 @@ from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs i
 
 
 class IBeamOptionsWidget(QWidget):
+    edited = pyqtSignal()
+
     def __init__(self, parent):
         super().__init__(parent)
         ui_path = UI_DIR / "model/geometry/rectangular_beam_option_widget.ui"
@@ -80,3 +83,4 @@ class IBeamOptionsWidget(QWidget):
         self.cross_section_widget.hide()
         self.set_section_button.setProperty("warning", False)
         self.style().polish(self.set_section_button)
+        self.edited.emit()
