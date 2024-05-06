@@ -62,7 +62,7 @@ class PulsationSuppressionDevice:
             shifted_line = 1
 
         device = self.psd_entity_data[device_label]
-        device.get_points()
+        device.process_segment_data()
 
         for i in range(len(device.segment_data)):
 
@@ -99,7 +99,8 @@ class PulsationSuppressionDevice:
             with open(path, 'w') as config_file:
                 config.write(config_file)
         else:
-            os.remove(path)
+            if os.path.exists(path):
+                os.remove(path)
 
     def load_suppression_device_data_from_file(self):
     
@@ -151,22 +152,21 @@ class PulsationSuppressionDevice:
 
         return self.psd_lines
 
-    def delete_device_related_lines(self, device_label):
+    def delete_device_related_lines(self, device_labels):
 
         entity_path = self.file._entity_path
         config = configparser.ConfigParser()
         config.read(entity_path)
 
-        psd_lines= list()
+        if isinstance(device_labels, str):
+            device_labels = [device_labels]
 
-        for section in config.sections():
-            try:
-                if config[section]["psd label"] == device_label:
-                    config.remove_section(section)
-                    psd_lines.append(int(section))
-            except:
-                pass
-        
+        for device_label in device_labels:
+            for section in config.sections():
+                if "psd label" in config[section].keys():
+                    if config[section]["psd label"] == device_label:
+                        config.remove_section(section)
+
         with open(entity_path, 'w') as config_file:
             config.write(config_file)
 
@@ -177,6 +177,15 @@ class PulsationSuppressionDevice:
 
         self.write_suppression_device_data_in_file()
         self.delete_device_related_lines(device_label)
+        self.load_project()
+
+    def remove_all_psd(self):
+
+        device_labels = list(self.pulsation_suppression_device.keys())
+        self.pulsation_suppression_device.clear()
+
+        self.write_suppression_device_data_in_file()
+        self.delete_device_related_lines(device_labels)
         self.load_project()
 
     def load_project(self):

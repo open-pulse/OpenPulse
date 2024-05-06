@@ -5,6 +5,7 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
+from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.utils import check_inputs
 
@@ -141,9 +142,6 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.update_the_rotation_angle()
         self.number_volumes_callback()
 
-        # temporary disabled
-        self.pushButton_reset.setDisabled(True)
-
     def _config_widgets(self):
         #
         ConfigWidgetAppearance(self)
@@ -174,6 +172,15 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.spinBox_pipe1_rotation_angle.setDisabled(bool(index_1))
         self.spinBox_pipe2_rotation_angle.setDisabled(bool(index_2))
+
+        self.lineEdit_pipe1_distance.setDisabled(bool(index_1))
+        self.lineEdit_pipe2_distance.setDisabled(bool(index_2))
+
+        if bool(index_1):
+            self.lineEdit_pipe1_distance.setText("")
+
+        if bool(index_2):
+            self.lineEdit_pipe2_distance.setText("")
 
     def number_volumes_callback(self):
 
@@ -490,7 +497,19 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.load_PSD_info()
 
     def reset_button_pressed(self):
-        pass
+
+        title = "Resetting of the Pulsation Suppression Devices"
+        message = "Would you to remove the all Pulsation Suppression Devices from model?"
+
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._doNotRun:
+            return
+
+        if read._continue:    
+            self.project.PSD.remove_all_psd()
+            self.load_PSD_info()
 
     def load_PSD_info(self):
         self.treeWidget_psd_info.clear()

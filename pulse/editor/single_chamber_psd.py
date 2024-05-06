@@ -75,7 +75,7 @@ class SingleChamberPSD:
         self.volume1_diameter = device_data["volume #1 parameters"][1]
         self.volume1_wall_thickness = device_data["volume #1 parameters"][2] 
 
-    def get_points(self):
+    def process_segment_data(self):
 
         # P0 -> connection point between inlet pipe and main chamber
         # P1 -> connection point between outlet pipe and main chamber
@@ -90,6 +90,7 @@ class SingleChamberPSD:
 
         axial_axial = self.pipe1_angle is None and self.pipe2_angle is None
         if axial_axial:
+
             if self.connection_pipe == "pipe #1":
                 Q0 = inlet + versor_x * self.pipe1_distance
                 Q1 = Q0 + versor_x * self.volume1_length
@@ -103,44 +104,68 @@ class SingleChamberPSD:
             P0 = Q0
             P1 = Q1
 
-        elif self.pipe2_angle is None:
-            # radial-axial
-
-            inlet_angle = self.pipe1_angle * (np.pi / 180)
-            rot_inlet =  rotation_about_x_axis(inlet_angle) @ versor_z
-
-            P0 = inlet - rot_inlet * self.pipe1_length
-            Q0 = P0 - versor_x * self.pipe1_distance
-            P1 = Q0 + versor_x * self.volume1_length
-            Q1 = P1
-            outlet = P1 + versor_x * self.pipe2_length
-
         elif self.pipe1_angle is None:
+
             # axial-radial
+            pipe2_angle = self.pipe2_angle * (np.pi / 180)
+            rot_pipe2 =  rotation_about_x_axis(pipe2_angle) @ versor_z
 
-            angle = self.pipe2_angle * (np.pi / 180)
-            rot_outlet =  rotation_about_x_axis(angle) @ versor_z
+            if self.connection_pipe == "pipe #1":
+                P0 = inlet + versor_x * self.pipe1_length
+                Q0 = P0
+                P1 = Q0 + versor_x * self.pipe2_distance
+                Q1 = Q0 + versor_x * self.volume1_length
+                outlet = P1 - rot_pipe2 * self.pipe2_length
 
-            P0 = inlet + versor_x * self.pipe1_length
-            Q0 = P0
-            P1 = Q0 + versor_x * self.pipe2_distance
-            Q1 = Q0 + versor_x * self.volume1_length
-            outlet = P1 - rot_outlet * self.pipe2_length
+            else:
+                P0 = inlet - rot_pipe2 * self.pipe2_length
+                Q1 = P0 - versor_x * self.pipe2_distance
+                P1 = Q1
+                Q0 = Q1 + versor_x * self.volume1_length
+                outlet = P1 - versor_x * self.pipe1_length 
+
+        elif self.pipe2_angle is None:
+
+            # radial-axial
+            pipe1_angle = self.pipe1_angle * (np.pi / 180)
+            rot_pipe1 =  rotation_about_x_axis(pipe1_angle) @ versor_z
+
+            if self.connection_pipe == "pipe #1":
+                P0 = inlet - rot_pipe1 * self.pipe1_length
+                Q0 = P0 - versor_x * self.pipe1_distance
+                P1 = Q0 + versor_x * self.volume1_length
+                Q1 = P1
+                outlet = P1 + versor_x * self.pipe2_length
+
+            else:
+                P0 = inlet - versor_x * self.pipe2_length
+                Q0 = P0
+                Q1 = Q0 - versor_x * self.volume1_length
+                P1 = Q1 + versor_x * self.pipe1_distance
+                outlet = P1 + rot_pipe1 * self.pipe1_length
 
         else:
+
             # radial-radial
+            pipe1_angle = self.pipe1_angle * (np.pi / 180)
+            rot_pipe1 =  rotation_about_x_axis(pipe1_angle) @ versor_z
 
-            inlet_angle = self.pipe1_angle * (np.pi / 180)
-            rot_inlet =  rotation_about_x_axis(inlet_angle) @ versor_z
+            pipe2_angle = self.pipe2_angle * (np.pi / 180)
+            rot_pipe2 =  rotation_about_x_axis(pipe2_angle) @ versor_z
 
-            outlet_angle = self.pipe2_angle * (np.pi / 180)
-            rot_outlet =  rotation_about_x_axis(outlet_angle) @ versor_z
+            if self.connection_pipe == "pipe #1":
+                P0 = inlet - rot_pipe1 * self.pipe1_length
+                Q0 = P0 - versor_x * self.pipe1_distance
+                P1 = Q0 + versor_x * self.pipe2_distance
+                Q1 = Q0 + versor_x * self.volume1_length
+                outlet = P1 + rot_pipe2 * self.pipe2_length
 
-            P0 = inlet - rot_inlet * self.pipe1_length
-            Q0 = P0 - versor_x * self.pipe1_distance
-            P1 = Q0 + versor_x * self.pipe2_distance
-            Q1 = Q0 + versor_x * self.volume1_length
-            outlet = P1 + rot_outlet * self.pipe2_length
+            else:
+                P0 = inlet - rot_pipe2 * self.pipe2_length
+                Q0 = P0 - versor_x * self.pipe2_distance
+                P1 = Q0 + versor_x * self.pipe1_distance
+                Q1 = Q0 + versor_x * self.volume1_length
+                outlet = P1 + rot_pipe1 * self.pipe1_length
 
         base_points = [inlet, outlet, P0, P1, Q0, Q1]
         rot_points = rotate_points(base_points, axis=self.axis)
@@ -150,36 +175,54 @@ class SingleChamberPSD:
 
         self.segment_data = list()
         if axial_axial:
-            self.segment_data.append((inlet, Q0, self.pipe1_section_data))
-            self.segment_data.append((outlet, Q1, self.pipe2_section_data))
-            self.segment_data.append((Q0, Q1, self.volume1_section_data))
+            if self.connection_pipe == "pipe #1":
+                self.segment_data.append((inlet, Q0, self.pipe1_section_data))
+                self.segment_data.append((outlet, Q1, self.pipe2_section_data))
+                self.segment_data.append((Q0, Q1, self.volume1_section_data))
+            else:
+                self.segment_data.append((inlet, Q0, self.pipe2_section_data))
+                self.segment_data.append((outlet, Q1, self.pipe1_section_data))
+                self.segment_data.append((Q0, Q1, self.volume1_section_data))
 
         elif self.pipe1_angle is None:
-            self.segment_data.append((inlet, P0, self.pipe1_section_data))
-            self.segment_data.append((outlet, P1, self.pipe2_section_data))
-            self.segment_data.append((P0, P1, self.volume1_section_data))
-            self.segment_data.append((P1, Q1, self.volume1_section_data))
-
-        elif self.pipe2_angle is None:
-            self.segment_data.append((inlet, P0, self.pipe1_section_data))
-            self.segment_data.append((outlet, P1, self.pipe2_section_data))
-            self.segment_data.append((Q0, P0, self.volume1_section_data))
-            self.segment_data.append((P0, P1, self.volume1_section_data))
-
-        else:
-            if np.linalg.norm(P0-Q0) > np.linalg.norm(P1-Q0):
+            if self.connection_pipe == "pipe #1":
                 self.segment_data.append((inlet, P0, self.pipe1_section_data))
                 self.segment_data.append((outlet, P1, self.pipe2_section_data))
-                self.segment_data.append((Q0, P1, self.volume1_section_data))
-                self.segment_data.append((P1, P0, self.volume1_section_data))
-                self.segment_data.append((P0, Q1, self.volume1_section_data))
-
+                self.segment_data.append((P0, P1, self.volume1_section_data))
+                self.segment_data.append((P1, Q1, self.volume1_section_data))
             else:
+                self.segment_data.append((inlet, P0, self.pipe2_section_data))
+                self.segment_data.append((outlet, P1, self.pipe1_section_data))
+                self.segment_data.append((P0, P1, self.volume1_section_data))
+                self.segment_data.append((P0, Q0, self.volume1_section_data))
+
+        elif self.pipe2_angle is None:
+            if self.connection_pipe == "pipe #1":
+                self.segment_data.append((inlet, P0, self.pipe1_section_data))
+                self.segment_data.append((outlet, P1, self.pipe2_section_data))
+                self.segment_data.append((Q0, P0, self.volume1_section_data))
+                self.segment_data.append((P0, P1, self.volume1_section_data))
+            else:
+                self.segment_data.append((inlet, P0, self.pipe2_section_data))
+                self.segment_data.append((outlet, P1, self.pipe1_section_data))
+                self.segment_data.append((P0, P1, self.volume1_section_data))
+                self.segment_data.append((P1, Q1, self.volume1_section_data))
+
+        else:
+
+            if self.connection_pipe == "pipe #1":
                 self.segment_data.append((inlet, P0, self.pipe1_section_data))
                 self.segment_data.append((outlet, P1, self.pipe2_section_data))
                 self.segment_data.append((Q0, P0, self.volume1_section_data))
                 self.segment_data.append((P0, P1, self.volume1_section_data))
                 self.segment_data.append((P1, Q1, self.volume1_section_data))
+
+            else:
+                self.segment_data.append((inlet, P0, self.pipe2_section_data))
+                self.segment_data.append((outlet, P1, self.pipe1_section_data))
+                self.segment_data.append((Q0, P1, self.volume1_section_data))
+                self.segment_data.append((P1, P0, self.volume1_section_data))
+                self.segment_data.append((P0, Q1, self.volume1_section_data))
 
     def get_section_parameters(self):
         self.pipe1_section_data = [self.pipe1_diameter, self.pipe1_wall_thickness, 0, 0, 0, 0]

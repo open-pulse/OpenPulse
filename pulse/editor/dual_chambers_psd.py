@@ -87,7 +87,7 @@ class DualChambersPSD:
 
         self.volumes_spacing = device_data["volumes spacing"]
 
-    def get_points(self):
+    def process_segment_data(self):
 
         # P0 -> connection point between inlet pipe and main chamber
         # P1 -> connection point between outlet pipe and main chamber
@@ -106,7 +106,30 @@ class DualChambersPSD:
 
         axial_axial = self.pipe1_angle is None and self.pipe2_angle is None
         if axial_axial:
-            pass
+
+            if self.connection_pipe == "pipe #1":
+
+                P0 = inlet + versor_x * self.pipe1_length
+                Q0 = P0
+                Q1 = Q0 + versor_x * self.pipe3_distance
+                Q2 = Q0 + versor_x * self.volume1_length
+                Q3 = Q2 + versor_x * self.volumes_spacing
+                Q4 = Q1 + versor_x * self.pipe3_length
+                Q5 = Q3 + versor_x * self.volume2_length
+                P1 = Q0 + versor_x * self.pipe2_distance
+                outlet = Q5 + versor_x * self.pipe2_length
+
+            else:
+
+                P0 = inlet - versor_x * self.pipe2_length
+                Q0 = P0
+                P1 = Q0 - versor_x * self.pipe1_distance
+                Q1 = Q0 - versor_x * self.pipe3_distance
+                Q2 = Q0 - versor_x * self.volume1_length
+                Q3 = Q2 - versor_x * self.volumes_spacing
+                Q4 = Q1 - versor_x * self.pipe3_length
+                Q5 = Q3 - versor_x * self.volume2_length
+                outlet = Q5 - versor_x * self.pipe1_length
 
         elif self.pipe2_angle is None:
             # radial-axial
@@ -119,21 +142,35 @@ class DualChambersPSD:
         else:
             # radial-radial
 
-            inlet_angle = self.pipe1_angle * (np.pi / 180)
-            rot_inlet =  rotation_about_x_axis(inlet_angle) @ versor_z
+            pipe1_angle = self.pipe1_angle * (np.pi / 180)
+            rot_pipe1 =  rotation_about_x_axis(pipe1_angle) @ versor_z
 
-            outlet_angle = self.pipe2_angle * (np.pi / 180)
-            rot_outlet =  rotation_about_x_axis(outlet_angle) @ versor_z
+            pipe2_angle = self.pipe2_angle * (np.pi / 180)
+            rot_pipe2 =  rotation_about_x_axis(pipe2_angle) @ versor_z
 
-            P0 = inlet - rot_inlet * self.pipe1_length
-            Q0 = P0 - versor_x * self.pipe1_distance
-            P1 = Q0 + versor_x * self.pipe2_distance
-            Q1 = Q0 + versor_x * self.pipe3_distance
-            Q2 = Q0 + versor_x * self.volume1_length
-            Q3 = Q2 + versor_x * self.volumes_spacing
-            Q4 = Q1 + versor_x * self.pipe3_length
-            Q5 = Q3 + versor_x * self.volume2_length
-            outlet = P1 + rot_outlet * self.pipe2_length         
+            if self.connection_pipe == "pipe #1":
+
+                P0 = inlet - rot_pipe1 * self.pipe1_length
+                Q0 = P0 - versor_x * self.pipe1_distance
+                P1 = Q0 + versor_x * self.pipe2_distance
+                Q1 = Q0 + versor_x * self.pipe3_distance
+                Q2 = Q0 + versor_x * self.volume1_length
+                Q3 = Q2 + versor_x * self.volumes_spacing
+                Q4 = Q1 + versor_x * self.pipe3_length
+                Q5 = Q3 + versor_x * self.volume2_length
+                outlet = P1 + rot_pipe2 * self.pipe2_length
+
+            else:
+
+                P0 = inlet - rot_pipe2 * self.pipe2_length
+                Q0 = P0 - versor_x * self.pipe2_distance
+                P1 = Q0 + versor_x * self.pipe1_distance
+                Q1 = Q0 + versor_x * self.pipe3_distance
+                Q2 = Q0 + versor_x * self.volume1_length
+                Q3 = Q2 + versor_x * self.volumes_spacing
+                Q4 = Q1 + versor_x * self.pipe3_length
+                Q5 = Q3 + versor_x * self.volume2_length
+                outlet = P1 + rot_pipe1 * self.pipe2_length            
 
         base_points = [inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5]
         rot_points = rotate_points(base_points, axis=self.axis)
@@ -144,8 +181,24 @@ class DualChambersPSD:
         self.segment_data = list()
 
         if axial_axial:
-            self.segment_data.append((inlet, Q0, self.pipe1_section_data))
-            self.segment_data.append((outlet, Q1, self.pipe2_section_data))
+
+            if self.connection_pipe == "pipe #1":
+                self.segment_data.append((inlet, Q0, self.pipe1_section_data))
+                self.segment_data.append((outlet, Q1, self.pipe2_section_data))
+                self.segment_data.append((Q0, Q2, self.volume1_section_data))
+                self.segment_data.append((Q3, Q5, self.volume2_section_data))
+                self.segment_data.append((Q1, Q2, self.pipe3_section_data))
+                self.segment_data.append((Q2, Q3, self.pipe3_section_data))
+                self.segment_data.append((Q3, Q4, self.pipe3_section_data))
+
+            else:
+                self.segment_data.append((inlet, Q0, self.pipe2_section_data))
+                self.segment_data.append((outlet, Q1, self.pipe1_section_data))
+                self.segment_data.append((Q0, Q2, self.volume2_section_data))
+                self.segment_data.append((Q3, Q5, self.volume1_section_data))
+                self.segment_data.append((Q1, Q2, self.pipe3_section_data))
+                self.segment_data.append((Q2, Q3, self.pipe3_section_data))
+                self.segment_data.append((Q3, Q4, self.pipe3_section_data))
 
         elif self.pipe1_angle is None:
             self.segment_data.append((inlet, Q0, self.pipe1_section_data))
@@ -157,13 +210,13 @@ class DualChambersPSD:
 
         else:
 
-            if np.linalg.norm(P0-Q0) > np.linalg.norm(P1-Q0):
+            if self.connection_pipe == "pipe #1":
                 self.segment_data.append((inlet, P0, self.pipe1_section_data))
                 self.segment_data.append((outlet, P1, self.pipe2_section_data))
-                self.segment_data.append((Q0, P1, self.volume1_section_data))
-                self.segment_data.append((P1, Q2, self.volume1_section_data))
-                self.segment_data.append((Q3, P0, self.volume2_section_data))
-                self.segment_data.append((P0, Q5, self.volume2_section_data))
+                self.segment_data.append((Q0, P0, self.volume1_section_data))
+                self.segment_data.append((P0, Q2, self.volume1_section_data))
+                self.segment_data.append((Q3, P1, self.volume2_section_data))
+                self.segment_data.append((P1, Q5, self.volume2_section_data))
                 self.segment_data.append((Q1, Q2, self.pipe3_section_data))
                 self.segment_data.append((Q2, Q3, self.pipe3_section_data))
                 self.segment_data.append((Q3, Q4, self.pipe3_section_data))
@@ -171,10 +224,10 @@ class DualChambersPSD:
             else:
                 self.segment_data.append((inlet, P0, self.pipe1_section_data))
                 self.segment_data.append((outlet, P1, self.pipe2_section_data))
-                self.segment_data.append((Q0, P0, self.volume1_section_data))
-                self.segment_data.append((P0, Q2, self.volume1_section_data))
-                self.segment_data.append((Q3, P1, self.volume2_section_data))
-                self.segment_data.append((P1, Q5, self.volume2_section_data))
+                self.segment_data.append((Q0, P1, self.volume1_section_data))
+                self.segment_data.append((P1, Q2, self.volume1_section_data))
+                self.segment_data.append((Q3, P0, self.volume2_section_data))
+                self.segment_data.append((P0, Q5, self.volume2_section_data))
                 self.segment_data.append((Q1, Q2, self.pipe3_section_data))
                 self.segment_data.append((Q2, Q3, self.pipe3_section_data))
                 self.segment_data.append((Q3, Q4, self.pipe3_section_data))
