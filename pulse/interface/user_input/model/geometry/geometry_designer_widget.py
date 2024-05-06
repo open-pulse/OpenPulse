@@ -98,6 +98,8 @@ class GeometryDesignerWidget(QWidget):
         self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
 
         self.edit_pipe_widget.edited.connect(self.pipe_editor_changed_callback)
+        self.pipe_options_widget.edited.connect(self.pipe_editor_changed_callback)
+        # self.rectangular_beam_options_widget.edited.connect(self.pipe_editor_changed_callback)
 
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)
