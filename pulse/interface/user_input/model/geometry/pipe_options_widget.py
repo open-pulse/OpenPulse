@@ -20,7 +20,6 @@ class PipeOptionsWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.pipeline = app().project.pipeline
-
         self.structure_type = Pipe
         self.add_function = self.pipeline.add_bent_pipe
         self.attach_function = self.pipeline.connect_bent_pipes
@@ -30,10 +29,7 @@ class PipeOptionsWidget(QWidget):
         self._define_qt_variables()
         self._create_layout()
         self._create_connections()
-
-        self.bending_options_changed_callback("long radius")
-        self.set_section_button.setProperty("warning", True)
-        self.style().polish(self.set_section_button)
+        self._initialize()
 
     def _define_qt_variables(self):
         self.bending_options_combobox: QComboBox
@@ -52,6 +48,11 @@ class PipeOptionsWidget(QWidget):
         self.bending_radius_line_edit.textEdited.connect(self.bending_radius_changed_callback)
         self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
+
+    def _initialize(self):
+        self.bending_options_changed_callback("long radius")
+        self.set_section_button.setProperty("warning", True)
+        self.style().polish(self.set_section_button)
 
     def get_parameters(self) -> dict:
         if self.cross_section_info is None:
@@ -84,9 +85,9 @@ class PipeOptionsWidget(QWidget):
         if self.cross_section_widget.get_constant_pipe_parameters():
             return
         self.cross_section_info = self.cross_section_widget.pipe_section_info
+        self.cross_section_widget.hide()
         self.set_section_button.setProperty("warning", False)
         self.style().polish(self.set_section_button)
-        self.cross_section_widget.hide()
 
     def get_bending_radius(self, diameter):
         if (self.bending_option == "long radius") or (self.bending_option == "short radius"):

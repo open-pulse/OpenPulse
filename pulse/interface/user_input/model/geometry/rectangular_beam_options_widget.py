@@ -25,6 +25,7 @@ class RectangularBeamOptionsWidget(QWidget):
         self._define_qt_variables()
         self._create_layout()
         self._create_connections()
+        self._initialize()
 
     def _define_qt_variables(self):
         self.set_section_button: QPushButton
@@ -42,6 +43,10 @@ class RectangularBeamOptionsWidget(QWidget):
     def _create_connections(self):
         self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
         self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.define_cross_section_callback)
+
+    def _initialize(self):
+        self.set_section_button.setProperty("warning", True)
+        self.style().polish(self.set_section_button)
 
     def get_parameters(self) -> dict:
         if self.cross_section_info is None:
@@ -69,3 +74,5 @@ class RectangularBeamOptionsWidget(QWidget):
             return
         self.cross_section_info = self.cross_section_widget.beam_section_info
         self.cross_section_widget.hide()
+        self.set_section_button.setProperty("warning", False)
+        self.style().polish(self.set_section_button)
