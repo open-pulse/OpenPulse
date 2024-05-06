@@ -128,7 +128,6 @@ class GeometryDesignerWidget(QWidget):
     def _initialize(self):
         self.current_structure_type = None
         self.current_material_info = None
-        self.current_cross_section_info = None
         self._cached_sections = dict()
 
         self.unity_changed_callback("meter")
@@ -443,11 +442,14 @@ class GeometryDesignerWidget(QWidget):
         return structures.get(structure_name)
 
     def _update_information_text(self):
+        current_widget = self.options_stack_widget.currentWidget()
+        cross_section_info = getattr(current_widget, "cross_section_info", None)
+
         section_label = ""
         section_parameters = ""
-        if self.current_cross_section_info is not None:
-            section_label = self.current_cross_section_info["section_type_label"]
-            section_parameters = self.current_cross_section_info["section_parameters"]
+        if cross_section_info is not None:
+            section_label = cross_section_info["section_type_label"]
+            section_parameters = cross_section_info["section_parameters"]
 
         material_id = ""
         material_data = None
@@ -457,7 +459,7 @@ class GeometryDesignerWidget(QWidget):
 
         message = "Active configuration\n\n"
 
-        if self.current_cross_section_info is not None:
+        if cross_section_info is not None:
             if section_label == "Pipe section":
                 if len(section_parameters) == 6:
                     message += f"Section type: {section_label} (constant)\n"
