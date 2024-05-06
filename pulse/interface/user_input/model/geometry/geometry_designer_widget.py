@@ -98,13 +98,8 @@ class GeometryDesignerWidget(QWidget):
         self.options_stack_widget.addWidget(self.i_beam_options_widget)
         self.options_stack_widget.addWidget(self.c_beam_options_widget)
 
-        # self.edit_pipe_widget = EditPipeWidget(self)
-        # self.cross_section_widget = CrossSectionWidget(self)
         self.material_widget = MaterialInputs(self)
-
-        # self.edit_pipe_widget.hide()
         self.material_widget.hide()
-        # self.cross_section_widget.hide()
 
     def _create_connections(self):
         self.render_widget.selection_changed.connect(self.selection_callback)
@@ -120,16 +115,8 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
 
-        self.pipe_options_widget.edited.connect(self.options_changed_callback)
-        self.reducer_options_widget.edited.connect(self.options_changed_callback)
-        self.flange_options_widget.edited.connect(self.options_changed_callback)
-        self.valve_options_widget.edited.connect(self.options_changed_callback)
-        self.expansion_joint_options_widget.edited.connect(self.options_changed_callback)
-        self.rectangular_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.circular_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.t_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.i_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.c_beam_options_widget.edited.connect(self.options_changed_callback)
+        for widget in self.options_stack_widget.widget(self.options_stack_widget.count()):
+            widget.edited.connect(self.options_changed_callback)
 
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)
@@ -150,8 +137,9 @@ class GeometryDesignerWidget(QWidget):
     def selection_callback(self):
         if issubclass(self.current_structure_type, Point):
             self._set_xyz_to_selected_point()
-        self._update_information_text()
+
         self._update_permissions()
+        self._update_information_text()
 
     def select_all_callback(self):
         self.pipeline.select_points(self.pipeline.points)
@@ -214,74 +202,17 @@ class GeometryDesignerWidget(QWidget):
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
-
-        key = self.current_structure_type
-        # temporary until these structures are properly represented
-        if issubclass(self.current_structure_type, (Pipe, Valve, Flange, ExpansionJoint)):
-            key = Pipe
-
-        # Try to get the same cross section used before
-        self.current_cross_section_info = self._cached_sections.get(key)
-
-        self._update_permissions()
-        self._update_information_text()
-
-        if issubclass(self.current_structure_type, Point):
             self.pipeline.dismiss()
             self.pipeline.clear_structure_selection()
             self._set_xyz_to_selected_point()
             self.render_widget.update_plot(reset_camera=False)
-        else:
+
+        if not issubclass(self.current_structure_type, Point):
             self.xyz_changed_callback()
 
+        self._update_permissions()
+        self._update_information_text()
         self.x_line_edit.setFocus()
-
-    # def show_cross_section_widget_callback(self):
-    #     self.cross_section_widget._add_icon_and_title()
-    #     self.cross_section_widget.set_inputs_to_geometry_creator()     
-    #     self.cross_section_widget.hide_all_tabs()     
-
-    #     # Configure visible cross section tabs
-    #     # temporary configuration until the specific configurations are implemented
-    #     if issubclass(self.current_structure_type, (Pipe, Flange, Valve, ExpansionJoint)):
-    #         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
-    #         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
-    #         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
-        
-    #     elif issubclass(self.current_structure_type, Reducer):
-    #         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
-    #         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
-    #         self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
-
-    #     elif issubclass(self.current_structure_type, RectangularBeam):
-    #         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
-    #         self.cross_section_widget.tabWidget_beam_section.setTabVisible(0, True)
-    #         self.cross_section_widget.lineEdit_base_rectangular_section.setFocus()
-
-    #     elif issubclass(self.current_structure_type, CircularBeam):
-    #         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
-    #         self.cross_section_widget.tabWidget_beam_section.setTabVisible(1, True)
-    #         self.cross_section_widget.lineEdit_outside_diameter_circular_section.setFocus()
-
-    #     elif issubclass(self.current_structure_type, CBeam):
-    #         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
-    #         self.cross_section_widget.tabWidget_beam_section.setTabVisible(2, True)
-    #         self.cross_section_widget.lineEdit_height_C_section.setFocus()
-
-    #     elif issubclass(self.current_structure_type, IBeam):
-    #         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
-    #         self.cross_section_widget.tabWidget_beam_section.setTabVisible(3, True)
-    #         self.cross_section_widget.lineEdit_height_I_section.setFocus()
-
-    #     elif issubclass(self.current_structure_type, TBeam):
-    #         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
-    #         self.cross_section_widget.tabWidget_beam_section.setTabVisible(4, True)
-    #         self.cross_section_widget.lineEdit_height_T_section.setFocus()
-
-    #     else:
-    #         return
-
-    #     self.cross_section_widget.setVisible(True)
 
     def show_material_widget_callback(self):
         self.material_widget._initialize()
@@ -292,42 +223,9 @@ class GeometryDesignerWidget(QWidget):
     def show_fluid_widget_callback(self):
         pass 
 
-    # def define_cross_section_callback(self):
-    #     if issubclass(self.current_structure_type, Pipe):
-    #         if self.cross_section_widget.get_constant_pipe_parameters():
-    #             return
-    #         self.current_cross_section_info = self.cross_section_widget.pipe_section_info
-
-    #     elif issubclass(self.current_structure_type, Reducer):
-    #         if self.cross_section_widget.get_variable_section_pipe_parameters():
-    #             return
-    #         self.current_cross_section_info = self.cross_section_widget.pipe_section_info
-
-    #     elif issubclass(self.current_structure_type, Beam):
-    #         if self.cross_section_widget.get_beam_section_parameters():
-    #             return
-    #         self.current_cross_section_info = self.cross_section_widget.beam_section_info
-
-    #     else:
-    #         return
-
-    #     key = self.current_structure_type
-    #     # temporary until these structures are properly represented
-    #     if issubclass(self.current_structure_type, (Pipe, Valve, Flange, ExpansionJoint)):
-    #         key = Pipe
-
-    #     self._cached_sections[key] = self.current_cross_section_info
-
-    #     self.cross_section_widget.hide()
-    #     self._update_section_of_selected_structures()
-    #     self._update_permissions()
-    #     self._update_information_text()
-    #     self.x_line_edit.setFocus()
-    #     self.xyz_changed_callback()
-
     def options_changed_callback(self):
-        self.render_widget.update_plot(reset_camera=False)
         self._update_permissions()
+        self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):
         self.current_material_info = self.material_widget.get_selected_material_id()
@@ -349,16 +247,13 @@ class GeometryDesignerWidget(QWidget):
             self._xyz_structure_callback(xyz)
 
         self._update_permissions()
-    
-    def pipe_editor_changed_callback(self):
-        self.render_widget.update_plot(reset_camera=False)
-        self._update_permissions()
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()
         self.pipeline.delete_selection()
-        self.render_widget.update_plot(reset_camera=False)
         self._reset_xyz()
+        self._update_permissions()
+        self.render_widget.update_plot(reset_camera=False)
 
     def attach_selection_callback(self):
         current_widget = self.options_stack_widget.currentWidget()
@@ -469,7 +364,6 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.add_isolated_point(xyz)
 
         self.render_widget.update_plot(reset_camera=True)
-        self._update_permissions()
 
     def _xyz_structure_callback(self, xyz):
         current_widget = self.options_stack_widget.currentWidget()
@@ -489,7 +383,6 @@ class GeometryDesignerWidget(QWidget):
 
         current_widget.add_function(xyz, **kwargs)
         self.render_widget.update_plot(reset_camera=True)
-        self._update_permissions()
     
     def _get_parameters(self) -> dict | None:
         current_widget = self.options_stack_widget.currentWidget()
@@ -566,118 +459,6 @@ class GeometryDesignerWidget(QWidget):
 
         elif structure_name == "c-beam":
             return CBeam
-
-    def _get_current_structure_functions(self):
-        add_function = None
-        attach_function = None
-        kwargs = dict()
-
-        if issubclass(self.current_structure_type, Point):
-            add_function = self.pipeline.add_isolated_point
-            return add_function, attach_function, kwargs
-
-        # all other structures need a cross section defined
-        if self.current_cross_section_info is None:
-            return add_function, attach_function, kwargs
-
-        parameters = self.current_cross_section_info["section_parameters"]
-        kwargs["extra_info"] = dict(
-            cross_section_info = deepcopy(self.current_cross_section_info),
-            material_info = self.current_material_info
-        )
-        
-        if issubclass(self.current_structure_type, Pipe):
-            add_function = self.pipeline.add_bent_pipe
-            attach_function = self.pipeline.connect_bent_pipes
-            _curvature_radius = self.edit_pipe_widget.get_bending_radius(parameters[0])
-            kwargs["curvature_radius"] = _curvature_radius
-            kwargs["diameter"] = parameters[0]
-            kwargs["thickness"] = parameters[1]
-            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
-
-        elif issubclass(self.current_structure_type, Flange):
-            add_function = self.pipeline.add_flange
-            attach_function = self.pipeline.connect_flanges
-            kwargs["diameter"] = parameters[0]
-            kwargs["thickness"] = parameters[1]
-            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
-            # add remaining valve info here
-
-        elif issubclass(self.current_structure_type, Valve):
-            add_function = self.pipeline.add_valve
-            attach_function = self.pipeline.connect_valves
-            kwargs["diameter"] = parameters[0]
-            kwargs["thickness"] = parameters[1]
-            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
-            # add remaining valve info here
-
-        elif issubclass(self.current_structure_type, ExpansionJoint):
-            add_function = self.pipeline.add_expansion_joint
-            attach_function = self.pipeline.connect_expansion_joints
-            kwargs["diameter"] = parameters[0]
-            kwargs["thickness"] = parameters[1]
-            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
-            # add remaining valve info here
-
-        elif issubclass(self.current_structure_type, Reducer):
-            add_function = self.pipeline.add_reducer_eccentric
-            attach_function = self.pipeline.connect_reducer_eccentrics
-            kwargs["initial_diameter"] = parameters[0]
-            kwargs["final_diameter"] = parameters[4]
-            kwargs["thickness"] = parameters[1]
-            kwargs["initial_offset_y"] = -parameters[2]
-            kwargs["initial_offset_z"] = parameters[3]
-            kwargs["final_offset_y"] = -parameters[6]
-            kwargs["final_offset_z"] = parameters[7]
-            kwargs["extra_info"]["structural_element_type"] = "pipe_1"
-
-        elif issubclass(self.current_structure_type, CircularBeam):
-            add_function = self.pipeline.add_circular_beam
-            attach_function = self.pipeline.connect_circular_beams
-            kwargs["diameter"] = parameters[0]
-            kwargs["thickness"] = parameters[1]
-            kwargs["extra_info"]["structural_element_type"] = "beam_1"
-
-        elif issubclass(self.current_structure_type, RectangularBeam):
-            add_function = self.pipeline.add_rectangular_beam
-            attach_function = self.pipeline.connect_rectangular_beams
-            kwargs["width"] = parameters[0]
-            kwargs["height"] = parameters[1]
-            kwargs["thickness"] = (parameters[0] - parameters[2]) / 2
-            kwargs["extra_info"]["structural_element_type"] = "beam_1"
-
-        elif issubclass(self.current_structure_type, IBeam):
-            add_function = self.pipeline.add_i_beam
-            attach_function = self.pipeline.connect_i_beams
-            kwargs["height"] = parameters[0]
-            kwargs["width_1"] = parameters[1]
-            kwargs["width_2"] = parameters[3]
-            kwargs["thickness_1"] = parameters[2]
-            kwargs["thickness_2"] = parameters[4]
-            kwargs["thickness_3"] = parameters[5]
-            kwargs["extra_info"]["structural_element_type"] = "beam_1"
-
-        elif issubclass(self.current_structure_type, TBeam):
-            add_function = self.pipeline.add_t_beam
-            attach_function = self.pipeline.connect_t_beams
-            kwargs["height"] = parameters[0]
-            kwargs["width"] = parameters[1]
-            kwargs["thickness_1"] = parameters[2]
-            kwargs["thickness_2"] = parameters[3]
-            kwargs["extra_info"]["structural_element_type"] = "beam_1"
-
-        elif issubclass(self.current_structure_type, CBeam):
-            add_function = self.pipeline.add_c_beam
-            attach_function = self.pipeline.connect_c_beams
-            kwargs["height"] = parameters[0]
-            kwargs["width_1"] = parameters[1]
-            kwargs["width_2"] = parameters[3]
-            kwargs["thickness_1"] = parameters[2]
-            kwargs["thickness_2"] = parameters[4]
-            kwargs["thickness_3"] = parameters[5]
-            kwargs["extra_info"]["structural_element_type"] = "beam_1"
-    
-        return add_function, attach_function, kwargs
 
     def _update_information_text(self):
         section_label = ""
