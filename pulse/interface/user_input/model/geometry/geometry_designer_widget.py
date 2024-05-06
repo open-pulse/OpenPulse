@@ -115,8 +115,16 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
 
-        for widget in self.options_stack_widget.widget(self.options_stack_widget.count()):
-            widget.edited.connect(self.options_changed_callback)
+        self.pipe_options_widget.edited.connect(self.options_changed_callback)
+        self.reducer_options_widget.edited.connect(self.options_changed_callback)
+        self.flange_options_widget.edited.connect(self.options_changed_callback)
+        self.valve_options_widget.edited.connect(self.options_changed_callback)
+        self.expansion_joint_options_widget.edited.connect(self.options_changed_callback)
+        self.rectangular_beam_options_widget.edited.connect(self.options_changed_callback)
+        self.circular_beam_options_widget.edited.connect(self.options_changed_callback)
+        self.t_beam_options_widget.edited.connect(self.options_changed_callback)
+        self.i_beam_options_widget.edited.connect(self.options_changed_callback)
+        self.c_beam_options_widget.edited.connect(self.options_changed_callback)
 
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)

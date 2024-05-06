@@ -14,25 +14,46 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>4</number>
+   </property>
    <item>
-    <widget class="QLabel" name="pipe_options_label">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
+    <widget class="QPushButton" name="set_section_button">
      <property name="text">
-      <string>Pipe Options</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <string>Set Section</string>
      </property>
     </widget>
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="2">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <item row="2" column="3">
+      <widget class="QLabel" name="bending_radius_unity_label">
+       <property name="text">
+        <string>[m]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="bending_radius_label">
+       <property name="text">
+        <string>Bending Radius</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLineEdit" name="bending_radius_line_edit"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="bending_options_label">
+       <property name="text">
+        <string>Bending Options</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
       <widget class="QComboBox" name="bending_options_combobox">
        <item>
         <property name="text">
@@ -54,37 +75,6 @@
          <string>Disabled</string>
         </property>
        </item>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLineEdit" name="bending_radius_line_edit"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="bending_radius_label">
-       <property name="text">
-        <string>Bending Radius</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="bending_options_label">
-       <property name="text">
-        <string>Bending Options</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QLabel" name="bending_radius_unity_label">
-       <property name="text">
-        <string>[m]</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="set_section_button">
-       <property name="text">
-        <string>Set Section</string>
-       </property>
       </widget>
      </item>
     </layout>

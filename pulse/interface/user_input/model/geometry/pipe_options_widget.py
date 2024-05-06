@@ -16,7 +16,7 @@ class PipeOptionsWidget(QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
-        ui_path = UI_DIR / "model/geometry/edit_pipe_widget.ui"
+        ui_path = UI_DIR / "model/geometry/pipe_option_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.pipeline = app().project.pipeline
@@ -36,8 +36,6 @@ class PipeOptionsWidget(QWidget):
         self.bending_radius_line_edit: QLineEdit
 
         self.set_section_button: QPushButton
-        self.set_material_button: QPushButton
-        self.set_fluid_button: QPushButton
         self.cross_section_widget = CrossSectionWidget(self)
 
     def _create_layout(self):
