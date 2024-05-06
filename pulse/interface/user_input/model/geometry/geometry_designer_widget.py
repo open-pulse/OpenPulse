@@ -427,38 +427,20 @@ class GeometryDesignerWidget(QWidget):
             return
 
     def _structure_name_to_class(self, structure_name: str):
-        if structure_name == "point":
-            return Point
-        
-        elif structure_name == "pipe":
-            return Pipe
-
-        elif structure_name == "flange":
-            return Flange
-
-        elif structure_name == "valve":
-            return Valve
-
-        elif structure_name == "expansion joint":
-            return ExpansionJoint
-
-        elif structure_name == "reducer":
-            return Reducer
-
-        elif structure_name == "circular beam":
-            return CircularBeam
-
-        elif structure_name == "rectangular beam":
-            return RectangularBeam
-
-        elif structure_name == "i-beam":
-            return IBeam
-
-        elif structure_name == "t-beam":
-            return TBeam
-
-        elif structure_name == "c-beam":
-            return CBeam
+        structures = {
+            "point": Point,
+            "pipe": Pipe,
+            "flange": Flange,
+            "valve": Valve,
+            "expansion joint": ExpansionJoint,
+            "reducer": Reducer,
+            "circular beam": CircularBeam,
+            "rectangular beam": RectangularBeam,
+            "i-beam": IBeam,
+            "t-beam": TBeam,
+            "c-beam": CBeam,
+        }  # it is a bit cringe, but very understandable and compact
+        return structures.get(structure_name)
 
     def _update_information_text(self):
         section_label = ""
