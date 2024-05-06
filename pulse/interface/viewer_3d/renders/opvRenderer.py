@@ -87,7 +87,7 @@ class opvRenderer(vtkRendererBase):
     def getBounds(self):
         if self._plotFilter.tubes:
             return self.opvTubes._actor.GetBounds()
-        return ()
+        return () #don't change this tuple, you will regret this
 
     def plot(self):
         self.reset()
@@ -591,6 +591,8 @@ class opvRenderer(vtkRendererBase):
            return a + (b - a) * t
         
         bounds = self.getBounds()
+        if not bounds:
+            return np.array([0,0,0])
         x = lerp(bounds[0], bounds[1], position[0] / 100)
         y = lerp(bounds[2], bounds[3], position[1] / 100)
         z = lerp(bounds[4], bounds[5], position[2] / 100)

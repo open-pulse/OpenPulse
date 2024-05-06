@@ -92,14 +92,14 @@ class FluidWidget(QWidget):
         self.tableWidget_fluid_data.setStyleSheet("")
 
     def _create_connections(self):
-        # return
+        #
         self.pushButton_add_column.clicked.connect(self.add_column)
         self.pushButton_refprop.clicked.connect(self.call_refprop_interface)
         self.pushButton_remove_column.clicked.connect(self.remove_selected_column)
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
         #
-        self.tableWidget_fluid_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_fluid_data.cellClicked.connect(self.cell_clicked_callback)
+        self.tableWidget_fluid_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_fluid_data.cellDoubleClicked.connect(self.cell_double_clicked_callback)
 
     def config_table_of_fluid_data(self):
@@ -195,7 +195,10 @@ class FluidWidget(QWidget):
                 molar_fractions = None
 
             if 'molar mass' in keys:
-                molar_mass = float(section['molar mass'])
+                if section['molar mass'] == "None":
+                    molar_mass = None
+                else:
+                    molar_mass = float(section['molar mass'])
             else:
                 molar_mass = None
 
@@ -336,6 +339,7 @@ class FluidWidget(QWidget):
                 self.tableWidget_fluid_data.blockSignals(False)
                 return
 
+        self.go_to_next_cell(item)
         if self.column_has_empty_items(item.column()):
             self.tableWidget_fluid_data.blockSignals(False)
             return
@@ -345,6 +349,20 @@ class FluidWidget(QWidget):
 
         self.tableWidget_fluid_data.blockSignals(False)
     
+    def go_to_next_cell(self, item):
+
+        row = item.row()
+        column = item.column()
+
+        if row < COLOR_ROW - 1:
+            next_item = self.tableWidget_fluid_data.item(row + 1, column)
+            if next_item.text() == "":
+                self.tableWidget_fluid_data.setCurrentItem(next_item)
+                self.tableWidget_fluid_data.editItem(next_item)
+
+        elif row == COLOR_ROW - 1:
+            self.pick_color(row + 1, column)
+
     def column_has_invalid_name(self, column):
 
         item = self.tableWidget_fluid_data.item(0, column)
@@ -523,7 +541,7 @@ class FluidWidget(QWidget):
             if not self.refprop.complete:
                 self.opv.setInputObject(self.parent_widget)
                 return
-            
+
             self.selected_column = col
             self.after_getting_fluid_properties_from_refprop()
             self.selected_column = None
@@ -614,6 +632,7 @@ class FluidWidget(QWidget):
 
             if self.selected_column is None:
                 self.add_column()
+                self.tableWidget_fluid_data.blockSignals(True)
                 selected_column = self.tableWidget_fluid_data.columnCount() - 1
             else:
                 selected_column = self.selected_column
@@ -623,15 +642,11 @@ class FluidWidget(QWidget):
                 if key == "identifier":
                     _data = str(self.new_identifier())
 
-                # elif key == "molar mass":
-                #     continue
-
                 elif key == "color":
                     if self.selected_column is None:
-                        if self.pick_color(row, selected_column):
-                            return
+                        self.pick_color(row, selected_column)
                     continue
-                    
+
                 else:
 
                     data = self.fluid_data_refprop[key]
@@ -648,6 +663,7 @@ class FluidWidget(QWidget):
                 self.tableWidget_fluid_data.item(row, selected_column).setText(_data)
 
             self.add_fluid_to_file(selected_column)
+            self.tableWidget_fluid_data.blockSignals(False)
             self.load_data_from_fluids_library()
 
         else:
