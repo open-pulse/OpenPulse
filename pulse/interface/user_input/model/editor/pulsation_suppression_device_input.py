@@ -348,16 +348,18 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_pipe1_wall_thickness.setFocus()
             return True
 
-        distance = check_inputs(self.lineEdit_pipe1_distance, "'pipe #1 distance'")
-        if distance is None:
-            self.lineEdit_pipe1_distance.setFocus()
-            return True
-
         if self.comboBox_pipe1_connection.currentIndex() == 0:
+
+            distance = check_inputs(self.lineEdit_pipe1_distance, "'pipe #1 distance'")
+            if distance is None:
+                self.lineEdit_pipe1_distance.setFocus()
+                return True
+
             rot_angle = self.spinBox_pipe1_rotation_angle.value()
             values = [length, diameter, wall_thickness, distance, rot_angle]
+
         else:
-            values = [length, diameter, wall_thickness, distance]
+            values = [length, diameter, wall_thickness]
 
         self.suppression_device_data["pipe #1 parameters"] = values
 
@@ -378,16 +380,18 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_pipe2_wall_thickness.setFocus()
             return True
 
-        distance = check_inputs(self.lineEdit_pipe2_distance, "'pipe #2 distance'")
-        if distance is None:
-            self.lineEdit_pipe2_distance.setFocus()
-            return True
-
         if self.comboBox_pipe2_connection.currentIndex() == 0:
+            
+            distance = check_inputs(self.lineEdit_pipe2_distance, "'pipe #2 distance'")
+            if distance is None:
+                self.lineEdit_pipe2_distance.setFocus()
+                return True
+
             rot_angle = self.spinBox_pipe2_rotation_angle.value()
             values = [length, diameter, wall_thickness, distance, rot_angle]
+
         else:
-            values = [length, diameter, wall_thickness, distance]
+            values = [length, diameter, wall_thickness]
 
         self.suppression_device_data["pipe #2 parameters"] = values
 
