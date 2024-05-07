@@ -199,6 +199,7 @@
    <addaction name="action_front_view"/>
    <addaction name="action_back_view"/>
    <addaction name="action_isometric_view"/>
+   <addaction name="action_zoom"/>
    <addaction name="separator"/>
    <addaction name="action_clip_plane"/>
    <addaction name="action_show_points"/>
@@ -854,7 +855,19 @@
      <normaloff>../data/icons/clipping_plane_icon.png</normaloff>../data/icons/clipping_plane_icon.png</iconset>
    </property>
    <property name="text">
-    <string>Clip Plane</string>
+    <string>Section Plane</string>
+   </property>
+  </action>
+  <action name="action_zoom">
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/zoom_icon.png</normaloff>../data/icons/zoom_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom To Fit</string>
    </property>
   </action>
   <action name="action_pulsation_suppression_device_editor">

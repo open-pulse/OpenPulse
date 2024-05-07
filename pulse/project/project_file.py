@@ -841,7 +841,6 @@ class ProjectFile:
 
                 str_keys = [    'section parameters',
                                 'section properties',
-                                'variable section parameters',
                                 'section type',
                                 'expansion joint parameters',
                                 'expansion joint stiffness',
@@ -927,10 +926,12 @@ class ProjectFile:
         self.write_data_in_file(self._entity_path, config)
 
 
-    def modify_variable_cross_section_in_file(self, lines, parameters):
+    def modify_variable_cross_section_in_file(self, lines, section_info):
         
         if isinstance(lines, int):
             lines = [lines]
+
+        parameters = section_info["section_parameters"]
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -939,7 +940,7 @@ class ProjectFile:
         for line_id in lines:
             str_line = str(line_id)
             if str_line in sections:
-                config[str_line]['variable section parameters'] = str(parameters)
+                config[str_line]['section parameters'] = str(parameters)
 
             for section in sections:
                 prefix = f"{line_id}-"

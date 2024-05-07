@@ -12,6 +12,9 @@ from pulse.interface.utils import check_inputs
 import numpy as np
 from pprint import pprint
 
+window_title_1 = "Error"
+window_title_2 = "Warning"
+
 class PulsationSuppressionDeviceInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -254,7 +257,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.filter_label = self.lineEdit_device_label.text()
         if self.filter_label == "":
             self.lineEdit_device_label.setFocus()
-            window_title = "Warnig"
+            window_title = "Warning"
             title = "Empty field detected"
             message = "Enter a device label to proceed."
             PrintMessageInput([window_title, title, message])
@@ -262,7 +265,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         
         elif self.filter_label in self.project.PSD.pulsation_suppression_device.keys():
             self.lineEdit_device_label.setFocus()
-            window_title = "Warning"
+            
             title = "Invalid input"
             message = "The typed 'Device label' has already been applied to other PSD. "
             message += "You should enter a different label to proceed with the PSD configuration."
@@ -474,6 +477,50 @@ class PulsationSuppressionDeviceInput(QDialog):
             if self.check_pipe2_info():
                 return True
 
+            if self.check_geometric_criteria_for_single_volume_psd():
+                return True
+
+    def check_geometric_criteria_for_single_volume_psd(self):
+
+        volume1_length = self.suppression_device_data["volume #1 parameters"][0]
+
+        pipe1_distance = 0
+        if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
+
+            pipe1_diameter = self.suppression_device_data["pipe #1 parameters"][1]
+            pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
+
+            if len(self.suppression_device_data["pipe #2 parameters"]) == 3:
+                if pipe1_distance >= volume1_length - pipe1_diameter / 2:
+                    title = "Invalid pipe #1 distance"
+                    message = "For the radial-axial psd configuration, the 'pipe #1 distance' should be less "
+                    message += "than the 'volume #1 length'minus the half of the 'pipe #1 diameter'."
+                    PrintMessageInput([window_title_2, title, message])
+                    return True
+
+        if len(self.suppression_device_data["pipe #2 parameters"]) == 5:
+
+            pipe2_diameter = self.suppression_device_data["pipe #2 parameters"][1]
+            pipe2_distance = self.suppression_device_data["pipe #2 parameters"][3]
+
+            if pipe2_distance >= volume1_length - pipe2_diameter / 2:
+                title = "Invalid pipe #2 distance"
+                message = "The 'pipe #2 distance' should be less than the 'volume #1 length' "
+                message += "minus the half of the 'pipe #2 diameter'."
+                PrintMessageInput([window_title_2, title, message])
+                return True
+
+            pipe1_distance = 0
+            if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
+
+                pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
+
+                if pipe1_distance >= pipe2_distance:
+                    title = "Invalid pipe #1 distance"
+                    message = "The 'pipe #1 distance' should be less than the 'pipe #2 distance'."
+                    PrintMessageInput([window_title_2, title, message])
+                    return True
+
     def confirm_button_pressed(self):
 
         if self.check_psd_inputs():
@@ -485,6 +532,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.project.PSD.load_suppression_device_data_from_file()
         self.project.PSD.build_device(self.filter_label)
         self.project.PSD.get_device_related_lines()
+        self.opv.opvRenderer.resetCamera()
+        self.opv.opvRenderer.update()
         self.close()
 
     def remove_button_pressed(self):
@@ -492,6 +541,8 @@ class PulsationSuppressionDeviceInput(QDialog):
             device_label = self.lineEdit_selection.text()
             self.project.PSD.remove_suppression_device(device_label)
             self.load_PSD_info()
+            self.opv.opvRenderer.resetCamera()
+            self.opv.opvRenderer.update()
 
     def reset_button_pressed(self):
 
@@ -507,6 +558,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         if read._continue:    
             self.project.PSD.remove_all_psd()
             self.load_PSD_info()
+            self.opv.opvRenderer.resetCamera()
+            self.opv.opvRenderer.update()
 
     def load_PSD_info(self):
 
