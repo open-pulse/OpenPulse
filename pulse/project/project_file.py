@@ -1503,7 +1503,10 @@ class ProjectFile:
                     aux["material_id"] = int(config[section]["material id"])
                 except:
                     pass
-         
+
+            if 'psd label' in keys:
+                aux["psd_label"] = config[section]["psd label"]
+
             is_bend = ('corner point' in keys) and ('curvature' in keys)
             if is_bend:
                 segment_build_data[tag, "Bend"] = aux
@@ -1512,6 +1515,32 @@ class ProjectFile:
                 segment_build_data[tag, "Pipe"] = aux
 
         return segment_build_data
+
+    def remove_entity_gaps_from_file(self):
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        config_no_gap = configparser.ConfigParser()
+
+        splited_lines = list()
+        for section in config.sections():
+            if "-" in section:
+                splited_lines.append(section)
+
+        tag = 0
+        for section in config.sections():
+
+            if section not in splited_lines:
+                tag += 1
+
+            if "-" in section:
+                suffix = int(section.split("-")[1])
+                config_no_gap[f"{tag}-{suffix}"] = config[section]
+            else:
+                config_no_gap[str(tag)] = config[section]
+
+        self.write_data_in_file(self._entity_path, config_no_gap)
 
     def add_material_in_file(self, lines, material):
 
@@ -1544,6 +1573,19 @@ class ProjectFile:
 
         for line_id in lines:
             config[str(line_id)]['material id'] = str(material_id)
+            
+        self.write_data_in_file(self._entity_path, config)
+
+    def add_psd_label_in_file(self, lines, psd_label):
+
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for line_id in lines:
+            config[str(line_id)]['psd label'] = psd_label
             
         self.write_data_in_file(self._entity_path, config)
 

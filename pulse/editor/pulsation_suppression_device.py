@@ -1,8 +1,8 @@
 from pulse import app
 from pulse.tools.utils import *
 
-from pulse.editor.single_chamber_psd import SingleChamberPSD
-from pulse.editor.dual_chambers_psd import DualChambersPSD
+from pulse.editor.single_volume_psd import SingleVolumePSD
+from pulse.editor.dual_volume_psd import DualVolumePSD
 
 import os
 import configparser
@@ -20,8 +20,8 @@ class PulsationSuppressionDevice:
         self._initialize()
     
     def _initialize(self):
-        self.pulsation_suppression_device = dict()
         self.psd_entity_data = dict()
+        self.pulsation_suppression_device = dict()
 
     def add_pulsation_suppression_device(self, device_label, suppression_device_data):
 
@@ -32,12 +32,12 @@ class PulsationSuppressionDevice:
                 break
 
         if "volume #2 parameters" in suppression_device_data.keys():
-            self.psd_entity_data[device_label] = DualChambersPSD(suppression_device_data)
+            self.psd_entity_data[device_label] = DualVolumePSD(suppression_device_data)
         else:
-            self.psd_entity_data[device_label] = SingleChamberPSD(suppression_device_data)
+            self.psd_entity_data[device_label] = SingleVolumePSD(suppression_device_data)
         
         self.pulsation_suppression_device[device_label] = suppression_device_data
-        self.write_suppression_device_data_in_file()
+        self.write_psd_data_in_file()
 
     def build_device(self, device_label):
 
@@ -66,16 +66,27 @@ class PulsationSuppressionDevice:
 
         for i in range(len(device.segment_data)):
 
-            start_point, end_point, section_parameters = device.segment_data[i]
+            start_point, end_point, section_data = device.segment_data[i]
 
-            aux = { 
-                    "start point" : list(np.round(start_point, 6)),
-                    "end point" : list(np.round(end_point, 6)),
-                    "section type" : "Pipe section",
-                    "section parameters" : section_parameters,
-                    "structural element type" : "pipe_1",
-                    "psd label" : device_label
-                    }
+            if isinstance(section_data, list):
+
+                aux = { 
+                        "start point" : list(np.round(start_point, 6)),
+                        "end point" : list(np.round(end_point, 6)),
+                        "section type" : "Pipe section",
+                        "section parameters" : section_data,
+                        "structural element type" : "pipe_1",
+                        "psd label" : device_label
+                        }
+
+            else:
+
+                aux = { 
+                        "start point" : list(np.round(start_point, 6)),
+                        "end point" : list(np.round(end_point, 6)),
+                        "structural element type" : section_data,
+                        "psd label" : device_label
+                        }
 
             tag = int(shifted_line + i)
             config[str(tag)] = aux
@@ -85,7 +96,7 @@ class PulsationSuppressionDevice:
 
         self.load_project()  
 
-    def write_suppression_device_data_in_file(self):
+    def write_psd_data_in_file(self):
     
         project_path = Path(self.file._project_path)
         path = project_path / "psd_info.dat"
@@ -170,12 +181,15 @@ class PulsationSuppressionDevice:
         with open(entity_path, 'w') as config_file:
             config.write(config_file)
 
+        if list(config.sections()):
+            self.file.remove_entity_gaps_from_file()
+
     def remove_suppression_device(self, device_label):
 
         if device_label in self.pulsation_suppression_device.keys():
             self.pulsation_suppression_device.pop(device_label)
 
-        self.write_suppression_device_data_in_file()
+        self.write_psd_data_in_file()
         self.delete_device_related_lines(device_label)
         self.load_project()
 
@@ -184,15 +198,17 @@ class PulsationSuppressionDevice:
         device_labels = list(self.pulsation_suppression_device.keys())
         self.pulsation_suppression_device.clear()
 
-        self.write_suppression_device_data_in_file()
+        self.write_psd_data_in_file()
         self.delete_device_related_lines(device_labels)
         self.load_project()
 
     def load_project(self):
+
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
         app().main_window.input_widget.initial_project_action(True)
         app().update()
+
         # app().main_window.opv_widget.updatePlots()
         # app().main_window.use_structural_setup_workspace()
         # app().main_window.plot_entities_with_cross_section()

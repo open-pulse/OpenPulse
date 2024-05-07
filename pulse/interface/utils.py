@@ -9,10 +9,10 @@ window_title = "Error"
 
 def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title=None):
 
-        if lineEdit.text() != "":
+        if title is None:
+            title = "Invalid input"
 
-            if title is None:
-                title = "Invalid input"
+        if lineEdit.text() != "":
 
             try:
                 out = float(lineEdit.text())

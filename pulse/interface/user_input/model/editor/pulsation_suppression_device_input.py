@@ -30,14 +30,9 @@ class PulsationSuppressionDeviceInput(QDialog):
         self._create_connections()
         self._config_widgets()
 
-        self.load_psd_data_from_file()
         self.load_PSD_info()
         self.update()
         self.exec()
-
-    def load_psd_data_from_file(self):
-        self.project.PSD.load_suppression_device_data_from_file()
-        self.project.PSD.get_device_related_lines()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -480,7 +475,6 @@ class PulsationSuppressionDeviceInput(QDialog):
             if self.check_pipe2_info():
                 return True
 
-
     def confirm_button_pressed(self):
 
         if self.check_psd_inputs():
@@ -516,7 +510,12 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.load_PSD_info()
 
     def load_PSD_info(self):
+
         self.treeWidget_psd_info.clear()
+        self.pushButton_remove.setDisabled(True)
+        self.project.PSD.get_device_related_lines()
+        self.project.PSD.load_suppression_device_data_from_file()
+
         for key, data in self.project.PSD.pulsation_suppression_device.items():
             coords = data["connecting coords"]
             connection = data["connection pipe"]
