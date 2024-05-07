@@ -24,11 +24,17 @@ def rotation_matrix_z(angle):
                      [ np.sin(angle),  np.cos(angle), 0], 
                      [             0,              0, 1]], dtype=float)
 
-def rotate_points(points, axis="along x-axis"):
-    if axis == "along y-axis":
+def rotate_points(points, axis="x-axis (+)"):
+    if axis == "y-axis (+)":
         matrix = rotation_matrix_z(np.pi/2)
-    elif axis == "along z-axis":
+    elif axis == "y-axis (-)":
+        matrix = rotation_matrix_z(-np.pi/2)
+    elif axis == "z-axis (+)":
+        matrix = rotation_matrix_y(-np.pi/2)
+    elif axis == "z-axis (-)":
         matrix = rotation_matrix_y(np.pi/2)
+    elif axis == "x-axis (-)":
+        matrix = rotation_matrix_y(np.pi)
     else:
         matrix = np.identity(3)
 
@@ -90,11 +96,10 @@ class SingleVolumePSD:
         Q0 = inlet + versor_x * self.pipe1_length
         Q1 = Q0 + versor_x * self.volume1_length
         outlet = Q1 + versor_x * self.pipe2_length
-
         P0 = Q0
         P1 = Q1
 
-        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1])
+        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1], dtype=float)
 
         if self.connection_pipe == "pipe #2":
             base_points -= outlet
@@ -115,14 +120,13 @@ class SingleVolumePSD:
         pipe2_angle = self.pipe2_angle * (np.pi / 180)
         rot_pipe2 =  rotation_about_x_axis(pipe2_angle) @ versor_z
 
-        # if self.connection_pipe == "pipe #1":
         P0 = inlet + versor_x * self.pipe1_length
         Q0 = P0
         P1 = Q0 + versor_x * self.pipe2_distance
         Q1 = Q0 + versor_x * self.volume1_length
         outlet = P1 + rot_pipe2 * self.pipe2_length
 
-        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1])
+        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1], dtype=float)
 
         if self.connection_pipe == "pipe #2":
             base_points -= outlet
@@ -150,7 +154,7 @@ class SingleVolumePSD:
         Q1 = P1
         outlet = P1 + versor_x * self.pipe2_length
 
-        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1])
+        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1], dtype=float)
 
         if self.connection_pipe == "pipe #2":
             base_points -= outlet
@@ -181,7 +185,7 @@ class SingleVolumePSD:
         Q1 = Q0 + versor_x * self.volume1_length
         outlet = P1 + rot_pipe2 * self.pipe2_length
 
-        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1])
+        base_points = np.array([inlet, outlet, P0, P1, Q0, Q1], dtype=float)
 
         if self.connection_pipe == "pipe #2":
             base_points -= outlet

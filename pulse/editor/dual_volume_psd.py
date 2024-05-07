@@ -24,11 +24,17 @@ def rotation_matrix_z(angle):
                      [ np.sin(angle),  np.cos(angle), 0], 
                      [             0,              0, 1]], dtype=float)
 
-def rotate_points(points, axis="along x-axis"):
-    if axis == "along y-axis":
+def rotate_points(points, axis="x-axis (+)"):
+    if axis == "y-axis (+)":
         matrix = rotation_matrix_z(np.pi/2)
-    elif axis == "along z-axis":
+    elif axis == "y-axis (-)":
+        matrix = rotation_matrix_z(-np.pi/2)
+    elif axis == "z-axis (+)":
+        matrix = rotation_matrix_y(-np.pi/2)
+    elif axis == "z-axis (-)":
         matrix = rotation_matrix_y(np.pi/2)
+    elif axis == "x-axis (-)":
+        matrix = rotation_matrix_y(np.pi)
     else:
         matrix = np.identity(3)
 
@@ -121,6 +127,9 @@ class DualVolumePSD:
         outlet = Q5 + versor_x * self.pipe2_length
 
         base_points = np.array([inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5], dtype=float)
+        if self.connection_pipe == "pipe #2":
+            base_points -= outlet
+        
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5 = translate_to_connection_point(rot_points, self.connection_point)
 
@@ -198,6 +207,9 @@ class DualVolumePSD:
         Q4o = Q4 + offset_y
 
         base_points = np.array([inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5, Q1o, Q2o, Q3o, Q4o], dtype=float)
+        if self.connection_pipe == "pipe #2":
+            base_points -= outlet
+
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5, Q1o, Q2o, Q3o, Q4o = translate_to_connection_point(rot_points, self.connection_point)
 

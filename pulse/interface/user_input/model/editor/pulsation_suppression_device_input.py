@@ -421,9 +421,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         if self.check_input_label():
             return True
 
-        axes = ["along x-axis", "along y-axis", "along z-axis"]
-        index = self.comboBox_main_axis.currentIndex()
-        self.suppression_device_data["main axis"] = axes[index]
+        main_axis = self.comboBox_main_axis.currentText()[1:]
+        self.suppression_device_data["main axis"] = main_axis
 
         if self.comboBox_connection_pipe.currentIndex() == 0:
             self.suppression_device_data["connection pipe"] = "pipe #1"
