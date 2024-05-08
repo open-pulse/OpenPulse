@@ -259,7 +259,51 @@ class AssemblyAcoustic:
         Kr = [full[:, self.prescribed_indexes] for full in full_K]
 
         return K, Kr
-            
+
+    def get_link_matrices(self):
+
+        """
+        This method perform the assembly process of the acoustic FETM link matrices.
+
+        Returns
+        ----------
+        K_link : list
+            List of linked admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Kr_link : list
+            List of linked admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+        """
+
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+
+        rows = list()
+        cols = list()
+        data_Klink = list()
+
+        for key, (row_ind, col_ind, element) in self.preprocessor.nodes_with_acoustic_links.items():
+
+            # print(key, element.index)
+            data_Ke = element.fetm_link_matrix(self.frequencies)
+
+            for i in range(len(row_ind)):
+                rows.append(row_ind[i])
+                cols.append(col_ind[i])
+
+            if len(data_Klink):
+                data_Klink = np.c_[data_Klink, data_Ke]
+            else:
+                data_Klink = data_Ke
+
+        if len(data_Klink):
+            full_K_link = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof]) for data in data_Klink]
+        else:
+            full_K_link = [csr_matrix((total_dof, total_dof)) for _ in self.frequencies]
+        
+        K_link = [full[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for full in full_K_link]
+        Kr_link = [full[:, self.prescribed_indexes] for full in full_K_link]
+
+        return K_link, Kr_link  
+
     def get_lumped_matrices(self):
         """
         This method perform the assembly process of the acoustic FETM lumped matrices.
@@ -341,7 +385,7 @@ class AssemblyAcoustic:
         for element in self.acoustic_elements:
             index = element.index - 1
             length_correction = self.get_length_corretion(element)
-            mat_Ke[index,:,:], mat_Me[index,:,:] = element.fem_1d_matrix(length_correction)            
+            mat_Ke[index,:,:], mat_Me[index,:,:] = element.fem_1d_matrix(length_correction)
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])

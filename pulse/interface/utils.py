@@ -15,7 +15,10 @@ def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title
         if lineEdit.text() != "":
 
             try:
-                out = float(lineEdit.text())
+
+                str_value = lineEdit.text().replace(",", ".")
+                out = float(str_value)
+
                 if only_positive:
 
                     if zero_included:

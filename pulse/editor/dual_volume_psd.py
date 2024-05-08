@@ -1,5 +1,7 @@
 # fmt: off
 
+from pulse import app
+
 import numpy as np
 
 def translate_to_connection_point(points, connection_point):
@@ -48,6 +50,9 @@ def rotate_points(points, axis="x-axis (+)"):
 class DualVolumePSD:
     def __init__(self, device_data : dict) -> None:
 
+        self.project = app().project
+        self.preprocessor = app().project.preprocessor
+
         self.initialize()
         self.unwrap_device_data(device_data)
         self.get_section_parameters()
@@ -57,7 +62,6 @@ class DualVolumePSD:
         self.pipe2_angle = None
         self.segment_data = list()
         self.acoustic_link_coords = dict()
-        self.structural_link_coords = dict()
 
     def unwrap_device_data(self, device_data : dict):
 
@@ -212,12 +216,6 @@ class DualVolumePSD:
 
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5, Q1o, Q2o, Q3o, Q4o = translate_to_connection_point(rot_points, self.connection_point)
-
-        self.acoustic_link_coords[1] = (Q1, Q1o)
-        self.acoustic_link_coords[2] = (Q4, Q4o)
-
-        self.structural_link_coords[1] = (Q2, Q2o)
-        self.structural_link_coords[1] = (Q3, Q3o)
 
         self.segment_data.append((inlet, P0, self.pipe1_section_data))
         self.segment_data.append((outlet, P1, self.pipe2_section_data))

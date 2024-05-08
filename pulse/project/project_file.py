@@ -1508,6 +1508,9 @@ class ProjectFile:
             if 'psd label' in keys:
                 aux["psd_label"] = config[section]["psd label"]
 
+            if 'link type' in keys:
+                aux["link type"] = config[section]["link type"]
+
             is_bend = ('corner point' in keys) and ('curvature' in keys)
             if is_bend:
                 segment_build_data[tag, "Bend"] = aux

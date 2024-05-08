@@ -125,6 +125,9 @@ class GeometryHandler:
 
         structures = []
         for key, data in build_data.items():
+
+            if "link type" in data.keys():
+                continue
             
             structural_element_type = None
             if "structural_element_type" in data.keys():

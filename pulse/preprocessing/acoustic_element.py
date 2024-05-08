@@ -748,7 +748,35 @@ class AcousticElement:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
 
-        Ke = self.area_fluid/(rho*length) * np.array([[1,-1],[-1,1]])
+        Ke = self.area_fluid / (rho*length) * np.array([[1,-1],[-1,1]])
         Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
         
         return Ke, Me
+    
+    def fetm_link_matrix(self, frequencies):
+        """
+        This method returns the FETM 1D element's admittance matrix for each frequency of analysis. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
+
+        Parameters
+        ----------
+        frequencies : array
+            Frequencies of analysis in Hertz.
+            
+        length_correction : float, optional
+            Element length correction to be added into the element length.
+
+        Returns
+        -------
+        2D array
+            Element's admittance matrix. Each row of the output array is an element's admittance matrix corresponding to a frequency of analysis.
+        """
+        ones = np.ones(len(frequencies), dtype='float64')
+        kappa_complex, impedance_complex = self._fetm_damping_models(frequencies)
+        self.radiation_impedance(kappa_complex, impedance_complex)
+        
+        kappaLe = kappa_complex * (self.length / 10)
+        sine = np.sin(kappaLe)
+        cossine = np.cos(kappaLe)
+        matrix = ((self.area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
+
+        return matrix

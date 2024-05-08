@@ -6,10 +6,13 @@ from pulse.editor.dual_volume_psd import DualVolumePSD
 
 import os
 import configparser
+import json
+
 import numpy as np
 from pathlib import Path
 from pprint import pprint
 from collections import defaultdict
+from itertools import count
 
 class PulsationSuppressionDevice:
     def __init__(self, project):
@@ -22,7 +25,7 @@ class PulsationSuppressionDevice:
     def _initialize(self):
         self.psd_entity_data = dict()
         self.pulsation_suppression_device = dict()
-
+        
     def add_pulsation_suppression_device(self, device_label, suppression_device_data):
 
         aux = self.pulsation_suppression_device.copy()
@@ -64,6 +67,9 @@ class PulsationSuppressionDevice:
         device = self.psd_entity_data[device_label]
         device.process_segment_data()
 
+        counter = 0
+        self.psd_link_data = dict()
+        
         for i in range(len(device.segment_data)):
 
             start_point, end_point, section_data = device.segment_data[i]
@@ -79,75 +85,102 @@ class PulsationSuppressionDevice:
                         "psd label" : device_label
                         }
 
+                tag = int(shifted_line + i)
+                config[str(tag)] = aux
+
             else:
 
-                aux = { 
+                link = { 
                         "start point" : list(np.round(start_point, 6)),
                         "end point" : list(np.round(end_point, 6)),
-                        "structural element type" : section_data,
-                        "psd label" : device_label
+                        "link type" : section_data
                         }
 
-            tag = int(shifted_line + i)
-            config[str(tag)] = aux
+                counter += 1
+                self.psd_link_data[(counter, device_label)] = link
 
         with open(entity_path, 'w') as config_file:
             config.write(config_file)
 
-        self.load_project()  
+        self.load_project()
+
+        if self.psd_link_data:
+            self.write_psd_link_data_in_file()
 
     def write_psd_data_in_file(self):
     
         project_path = Path(self.file._project_path)
-        path = project_path / "psd_info.dat"
+        path = project_path / "psd_info.json"
 
-        config = configparser.ConfigParser()
+        with open(path, "w") as file:
+            json.dump(self.pulsation_suppression_device, file, indent=2)
 
-        for key, data in self.pulsation_suppression_device.items():
-            config[key] = data
+        with open(path) as file:
+            read_data = json.load(file)
 
-        if list(config.sections()):
-            with open(path, 'w') as config_file:
-                config.write(config_file)
-        else:
-            if os.path.exists(path):
-                os.remove(path)
+        if read_data == {}:
+            os.remove(path)
 
-    def load_suppression_device_data_from_file(self):
-    
+    def write_psd_link_data_in_file(self):
+
         project_path = Path(self.file._project_path)
-        path = project_path / "psd_info.dat"
+        path = project_path / "psd_info.json"
 
-        if os.path.exists(path):
+        if path.exists():
 
-            config = configparser.ConfigParser()
-            config.read(path)
+            with open(path) as file:
+                psd_info = json.load(file)
 
-            list_data_keys = [  "connecting coords",
-                                "volume #1 parameters",
-                                "volume #2 parameters",
-                                "pipe #1 parameters",
-                                "pipe #2 parameters",
-                                "pipe #3 parameters"  ]
+            for key, data in self.psd_link_data.items():
+                label = key[1]
+                psd_info[label][f"Link-{key[0]}"] = data
 
-            for tag in config.sections():
+            with open(path, "w") as file:
+                json.dump(psd_info, file, indent=2)
 
-                aux = dict()
-                section = config[tag]
+    def load_psd_data_from_file(self):
 
-                for key in section.keys():
+        project_path = Path(self.file._project_path)
+        path = project_path / "psd_info.json"
 
-                    if key in ["main axis", "connection pipe", "volumes connection"]:
-                        aux[key] = section[key]
+        self.link_info = defaultdict(list)
+        if not os.path.exists(path):
+            return
 
-                    elif key == "volumes spacing":
-                        aux[key] = float(section[key])
+        with open(path) as file:
+            read_data = json.load(file)
 
-                    elif key in list_data_keys:
-                        aux[key] = get_list_of_values_from_string(section[key], int_values=False)
+        for psd_label, data in read_data.items():
+            aux = dict()
+            for key, value in data.items():
 
-                if aux:
-                    self.pulsation_suppression_device[tag] = aux
+                if "Link-" in key:
+                    link_type = value["link type"]
+                    start_point = value["start point"]
+                    end_point = value["end point"]
+                    self.link_info[(psd_label, link_type)].append((start_point, end_point))
+
+                else:
+                    aux[key] = value
+
+            self.pulsation_suppression_device[psd_label] = aux
+
+        if self.link_info:
+            self.add_psd_link_data_to_nodes()
+    
+    def add_psd_link_data_to_nodes(self):
+
+        for key, values in  self.link_info.items():
+            for (start_coords, end_coords) in values:
+
+                id_1 = self.project.preprocessor.get_node_id_by_coordinates(start_coords)
+                id_2 = self.project.preprocessor.get_node_id_by_coordinates(end_coords)
+                nodes = (id_1, id_2)
+
+                if key[1] == "acoustic_link":
+                    self.project.preprocessor.add_acoustic_link_data(nodes)
+                else:
+                    self.project.preprocessor.add_structural_link_data(nodes)
 
     def get_device_related_lines(self):
 
@@ -163,7 +196,7 @@ class PulsationSuppressionDevice:
 
         return self.psd_lines
 
-    def delete_device_related_lines(self, device_labels):
+    def remove_psd_lines_from_entity_file(self, device_labels):
 
         entity_path = self.file._entity_path
         config = configparser.ConfigParser()
@@ -184,13 +217,13 @@ class PulsationSuppressionDevice:
         if list(config.sections()):
             self.file.remove_entity_gaps_from_file()
 
-    def remove_suppression_device(self, device_label):
+    def remove_selected_psd(self, device_label):
 
         if device_label in self.pulsation_suppression_device.keys():
             self.pulsation_suppression_device.pop(device_label)
 
         self.write_psd_data_in_file()
-        self.delete_device_related_lines(device_label)
+        self.remove_psd_lines_from_entity_file(device_label)
         self.load_project()
 
     def remove_all_psd(self):
@@ -199,7 +232,7 @@ class PulsationSuppressionDevice:
         self.pulsation_suppression_device.clear()
 
         self.write_psd_data_in_file()
-        self.delete_device_related_lines(device_labels)
+        self.remove_psd_lines_from_entity_file(device_labels)
         self.load_project()
 
     def load_project(self):

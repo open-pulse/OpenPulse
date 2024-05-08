@@ -529,9 +529,11 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.project.PSD.add_pulsation_suppression_device(self.filter_label, 
                                                           self.suppression_device_data)
-        self.project.PSD.load_suppression_device_data_from_file()
+
         self.project.PSD.build_device(self.filter_label)
         self.project.PSD.get_device_related_lines()
+        self.project.PSD.load_psd_data_from_file()
+
         self.opv.opvRenderer.resetCamera()
         self.opv.opvRenderer.update()
         self.close()
@@ -539,7 +541,7 @@ class PulsationSuppressionDeviceInput(QDialog):
     def remove_button_pressed(self):
         if self.lineEdit_selection.text() != "":
             device_label = self.lineEdit_selection.text()
-            self.project.PSD.remove_suppression_device(device_label)
+            self.project.PSD.remove_selected_psd(device_label)
             self.load_PSD_info()
             self.opv.opvRenderer.resetCamera()
             self.opv.opvRenderer.update()
@@ -566,7 +568,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.treeWidget_psd_info.clear()
         self.pushButton_remove.setDisabled(True)
         self.project.PSD.get_device_related_lines()
-        self.project.PSD.load_suppression_device_data_from_file()
+        self.project.PSD.load_psd_data_from_file()
 
         for key, data in self.project.PSD.pulsation_suppression_device.items():
             coords = data["connecting coords"]
