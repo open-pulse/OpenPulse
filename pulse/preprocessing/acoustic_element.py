@@ -113,9 +113,6 @@ class AcousticElement:
         self.vol_flow = kwargs.get('vol_flow', 0)
         self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
 
-        self.delta_pressure = 0
-        self.pp_impedance = None
-
         self.element_type = kwargs.get('element_type', 'undamped')
 
         self.reset()
@@ -161,6 +158,9 @@ class AcousticElement:
         return self.vol_flow / (self.speed_of_sound_corrected()*self.area_fluid)
     
     def reset(self):
+
+        self.pp_impedance = None
+
         self.flag_plane_wave = False
         self.flag_wide_duct = False
         self.flag_lrf_fluid_eq = False
@@ -169,6 +169,9 @@ class AcousticElement:
 
         self.max_valid_freq = np.inf
         self.min_valid_freq = 0
+        self.delta_pressure = 0
+
+        self.acoustic_link_diameters = list()
 
     def update_pressure(self, solution):
         pressure_first = solution[self.first_node.global_index, :]

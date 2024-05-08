@@ -170,7 +170,7 @@ class AssemblyAcoustic:
         unprescribed_pipe_indexes = np.delete(all_indexes, indexes_to_remove)
         self.preprocessor.set_unprescribed_pipe_indexes(unprescribed_pipe_indexes)
         return unprescribed_pipe_indexes
-
+    
     def get_length_corretion(self, element):
         """
         This method evaluate the acoustic length correction for an element. The necessary conditions and the type of correction are checked.
@@ -198,7 +198,7 @@ class AssemblyAcoustic:
             corrections_first = [0]
             corrections_last = [0]
 
-            for _,_,di in diameters_first:
+            for _, _, di in diameters_first:
                 if di_actual < di:
                     if element.acoustic_length_correction in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
@@ -210,7 +210,7 @@ class AssemblyAcoustic:
                         print("Datatype not understood")
                     corrections_first.append(correction)
 
-            for _,_,di in diameters_last:
+            for _, _, di in diameters_last:
                 if di_actual < di:
                     if element.acoustic_length_correction in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
@@ -223,6 +223,10 @@ class AssemblyAcoustic:
                     corrections_last.append(correction)
             length_correction = max(corrections_first) + max(corrections_last)
         return length_correction
+
+    def get_length_correction_for_acoustic_link(self, diameters):
+        d_minor, d_major = diameters
+        return length_correction_expansion(d_minor, d_major)
 
     def get_global_matrices(self):
         """
@@ -250,7 +254,11 @@ class AssemblyAcoustic:
             start = (index-1) * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT
 
-            length_correction = self.get_length_corretion(element)
+            if element.acoustic_link_diameters:
+                length_correction = self.get_length_correction_for_acoustic_link(element.acoustic_link_diameters)
+            else:
+                length_correction = self.get_length_corretion(element)
+
             data_k[:, start:end] = element.matrix(self.frequencies, length_correction = length_correction)
 
         full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex) for data in data_k]

@@ -3215,10 +3215,20 @@ class Preprocessor:
             neigh_elem_node_2 = self.neighboor_elements_of_node(ext_id2)
 
             if len(neigh_elem_node_1) == 1:
-                element = neigh_elem_node_1[0]
+
+                element_pipe = neigh_elem_node_1[0]
+                d_minor = element_pipe.cross_section.inner_diameter
+
+                element_volume = neigh_elem_node_2[0]
+                d_major = element_volume.cross_section.inner_diameter
 
             if len(neigh_elem_node_2) == 1:
-                element = neigh_elem_node_2[0]
+
+                element_pipe = neigh_elem_node_2[0]
+                d_minor = element_pipe.cross_section.inner_diameter
+
+                element_volume = neigh_elem_node_1[0]
+                d_major = element_volume.cross_section.inner_diameter
 
             node_id1 = self.nodes[ext_id1].global_index
             node_id2 = self.nodes[ext_id2].global_index
@@ -3226,7 +3236,8 @@ class Preprocessor:
             indexes_i = [ node_id1, node_id2, node_id1, node_id2 ] 
             indexes_j = [ node_id1, node_id1, node_id2, node_id2 ]
 
-            self.nodes_with_acoustic_links[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element ]
+            self.nodes_with_acoustic_links[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element_pipe ]
+            element_pipe.acoustic_link_diameters = [d_minor, d_major]
 
             # for node_id in nodes:
             #     self.nodes[node_id].acoustic_link[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element ]
