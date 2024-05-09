@@ -275,8 +275,9 @@ class ImportDataToCompare(QDialog):
 
     def cache_checkButtons_state(self):
         self.checkButtons_state = dict()
-        for key, check in self.ids_to_checkBox.items():
-            self.checkButtons_state[key] = check.isChecked()
+        for key, widget in self.ids_to_checkBox.items():
+            checkBox = widget.findChild(QCheckBox, "plot_button")
+            self.checkButtons_state[key] = checkBox.isChecked()
 
     def reset_imported_data(self):
         self.lineEdit_import_results_path.setText("")

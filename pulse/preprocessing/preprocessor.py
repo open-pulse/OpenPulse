@@ -3242,7 +3242,7 @@ class Preprocessor:
             # for node_id in nodes:
             #     self.nodes[node_id].acoustic_link[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element ]
 
-    def add_structural_link_data(self, nodes, k=1e9):
+    def add_structural_link_data(self, nodes, k=1e9, kr=1e8):
         """
         """
         if len(nodes) == 2:
@@ -3251,7 +3251,8 @@ class Preprocessor:
             gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
             gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
-            pos_data = k*np.ones(DOF_PER_NODE_STRUCTURAL, dtype=float)
+            stiffness = np.array([k, k, k, kr, kr, kr], dtype=float)
+            pos_data = np.ones(DOF_PER_NODE_STRUCTURAL, dtype=float)*stiffness
             neg_data = -pos_data
 
             indexes_i = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
