@@ -67,7 +67,7 @@ class SolutionAcoustic:
         """
         self.K, self.Kr = self.assembly.get_global_matrices()
         self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
-        self.K_link, self.Kr_link = self.assembly.get_link_matrices()
+        self.K_link, self.Kr_link = self.assembly.get_fetm_link_matrices()
         self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
@@ -174,8 +174,12 @@ class SolutionAcoustic:
         """
 
         K, M = self.assembly.get_global_matrices_modal()
-        
-        eigen_values, eigen_vectors = eigs(K, M=M, k=modes, which=which, sigma=sigma)
+        K_link, M_link = self.assembly.get_link_global_matrices_modal()
+
+        K_add = K + K_link
+        M_add = M + M_link
+
+        eigen_values, eigen_vectors = eigs(K_add, M=M_add, k=modes, which=which, sigma=sigma)
 
         positive_real = np.absolute(np.real(eigen_values))
         natural_frequencies = np.sqrt(positive_real)/(2*np.pi)

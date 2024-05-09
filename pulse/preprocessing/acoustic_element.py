@@ -783,3 +783,37 @@ class AcousticElement:
         matrix = ((self.area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
 
         return matrix
+
+    def fem_1d_link_matrix(self):
+        """
+        This method returns the FEM acoustic 1D elementary matrices. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The FEM is not compatible with any damping model.
+        
+        Obs.: In the OpenPulse, this formulation is only used to evaluate the acoustic modal analysis.
+
+        Parameters
+        ----------
+        length_correction : float, optional
+            Element length correction to be added into the element length.
+
+        Returns
+        -------
+        Ke : 2D array
+            Element acoustic stiffness matrix.
+
+        Me : 2D array
+            Element acoustic inertia matrix.
+        """
+        length = self.length / 10
+        rho = self.fluid.density
+        c = self.speed_of_sound_corrected()
+
+        self.area_fluid = self.cross_section.area_fluid
+        if self.perforated_plate:
+            if self.perforated_plate.type in [2]:
+                d = self.perforated_plate.hole_diameter
+                self.area_fluid = pi*(d**2)/4
+
+        Ke = self.area_fluid / (rho*length) * np.array([[1,-1],[-1,1]])
+        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
+        
+        return Ke.flatten(), Me.flatten()

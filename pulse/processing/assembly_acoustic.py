@@ -268,7 +268,7 @@ class AssemblyAcoustic:
 
         return K, Kr
 
-    def get_link_matrices(self):
+    def get_fetm_link_matrices(self):
 
         """
         This method perform the assembly process of the acoustic FETM link matrices.
@@ -391,8 +391,13 @@ class AssemblyAcoustic:
 
         # for index, element in enumerate(self.preprocessor.acoustic_elements.values()):
         for element in self.acoustic_elements:
+
             index = element.index - 1
-            length_correction = self.get_length_corretion(element)
+            if element.acoustic_link_diameters:
+                length_correction = self.get_length_correction_for_acoustic_link(element.acoustic_link_diameters)
+            else:
+                length_correction = self.get_length_corretion(element)
+            
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.fem_1d_matrix(length_correction)
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
@@ -402,6 +407,50 @@ class AssemblyAcoustic:
         M = full_M[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
 
         return K, M
+
+    def get_link_global_matrices_modal(self):
+        """
+        This method perform the assembly process of the acoustic link FEM matrices.
+
+        Returns
+        ----------
+        K : sparse csr_matrix
+            Acoustic stiffness matrix.
+
+        M : sparse csr_matrix
+            Acoustic inertia matrix.
+        """
+
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+
+        rows = list()
+        cols = list()
+        data_Klink = list()
+        data_Mlink = list()
+
+        K_link = 0.
+        M_link = 0.
+
+        for key, (row_ind, col_ind, element) in self.preprocessor.nodes_with_acoustic_links.items():
+
+            data_Ke, data_Me = element.fem_1d_link_matrix()
+
+            for i in range(len(row_ind)):
+
+                rows.append(row_ind[i])
+                cols.append(col_ind[i])
+
+                data_Klink.append(data_Ke[i])
+                data_Mlink.append(data_Me[i])
+
+        if len(data_Klink):
+            full_K_link = csr_matrix((data_Klink, (rows, cols)), shape=[total_dof, total_dof])
+            full_M_link = csr_matrix((data_Mlink, (rows, cols)), shape=[total_dof, total_dof])
+            
+            K_link = full_K_link[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+            M_link = full_M_link[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+
+            return K_link, M_link
 
     def get_global_volume_velocity(self):
         """
