@@ -56,6 +56,7 @@ class SingleVolumePSD:
         self.pipe1_angle = None
         self.pipe2_angle = None
         self.segment_data = list()
+        self.branch_data = list()
 
     def unwrap_device_data(self, device_data : dict):
 
@@ -63,25 +64,25 @@ class SingleVolumePSD:
         self.connection_point = device_data["connecting coords"]
         self.axis = device_data["main axis"]
 
-        self.pipe1_length = device_data["pipe #1 parameters"][0]
-        self.pipe1_diameter = device_data["pipe #1 parameters"][1]
-        self.pipe1_wall_thickness = device_data["pipe #1 parameters"][2]
+        self.pipe1_diameter = device_data["pipe #1 parameters"][0]
+        self.pipe1_wall_thickness = device_data["pipe #1 parameters"][1]
+        self.pipe1_length = device_data["pipe #1 parameters"][2]
 
         if len(device_data["pipe #1 parameters"]) == 5:
             self.pipe1_distance = device_data["pipe #1 parameters"][3]
             self.pipe1_angle = device_data["pipe #1 parameters"][4]
 
-        self.pipe2_length = device_data["pipe #2 parameters"][0]
-        self.pipe2_diameter = device_data["pipe #2 parameters"][1]
-        self.pipe2_wall_thickness = device_data["pipe #2 parameters"][2]
+        self.pipe2_diameter = device_data["pipe #2 parameters"][0]
+        self.pipe2_wall_thickness = device_data["pipe #2 parameters"][1]
+        self.pipe2_length = device_data["pipe #2 parameters"][2]
 
         if len(device_data["pipe #2 parameters"]) == 5:
             self.pipe2_distance = device_data["pipe #2 parameters"][3]
             self.pipe2_angle = device_data["pipe #2 parameters"][4]
 
-        self.volume1_length = device_data["volume #1 parameters"][0]     
-        self.volume1_diameter = device_data["volume #1 parameters"][1]
-        self.volume1_wall_thickness = device_data["volume #1 parameters"][2] 
+        self.volume1_diameter = device_data["volume #1 parameters"][0]
+        self.volume1_wall_thickness = device_data["volume #1 parameters"][1] 
+        self.volume1_length = device_data["volume #1 parameters"][2]     
 
     def get_section_parameters(self):
         self.pipe1_section_data = [self.pipe1_diameter, self.pipe1_wall_thickness, 0, 0, 0, 0]
@@ -107,9 +108,12 @@ class SingleVolumePSD:
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1 = translate_to_connection_point(rot_points, self.connection_point)
 
-        self.segment_data.append((inlet, Q0, self.pipe1_section_data))
-        self.segment_data.append((outlet, Q1, self.pipe2_section_data))
-        self.segment_data.append((Q0, Q1, self.volume1_section_data))
+        self.segment_data.append((inlet, Q0, self.pipe1_section_data, "pipe #1"))
+        self.segment_data.append((outlet, Q1, self.pipe2_section_data, "pipe #2"))
+        self.segment_data.append((Q0, Q1, self.volume1_section_data, "volume #1"))
+
+        self.branch_data.append((P0, "axial"))
+        self.branch_data.append((P1, "axial"))
 
     def get_axial_radial_segment_data(self):
 
@@ -134,10 +138,13 @@ class SingleVolumePSD:
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1 = translate_to_connection_point(rot_points, self.connection_point)
 
-        self.segment_data.append((inlet, P0, self.pipe1_section_data))
-        self.segment_data.append((outlet, P1, self.pipe2_section_data))
-        self.segment_data.append((P0, P1, self.volume1_section_data))
-        self.segment_data.append((P1, Q1, self.volume1_section_data))
+        self.segment_data.append((inlet, P0, self.pipe1_section_data, "pipe #1"))
+        self.segment_data.append((outlet, P1, self.pipe2_section_data, "pipe #2"))
+        self.segment_data.append((P0, P1, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((P1, Q1, self.volume1_section_data, "volume #1"))
+
+        self.branch_data.append((P0, "axial"))
+        self.branch_data.append((P1, "radial"))
 
     def get_radial_axial_segment_data(self):
 
@@ -162,10 +169,13 @@ class SingleVolumePSD:
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1 = translate_to_connection_point(rot_points, self.connection_point)
 
-        self.segment_data.append((inlet, P0, self.pipe1_section_data))
-        self.segment_data.append((outlet, P1, self.pipe2_section_data))
-        self.segment_data.append((Q0, P0, self.volume1_section_data))
-        self.segment_data.append((P0, P1, self.volume1_section_data))
+        self.segment_data.append((inlet, P0, self.pipe1_section_data, "pipe #1"))
+        self.segment_data.append((outlet, P1, self.pipe2_section_data, "pipe #2"))
+        self.segment_data.append((Q0, P0, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((P0, P1, self.volume1_section_data, "volume #1"))
+
+        self.branch_data.append((P0, "radial"))
+        self.branch_data.append((P1, "axial"))
 
     def get_radial_radial_segment_data(self):
 
@@ -193,11 +203,14 @@ class SingleVolumePSD:
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1 = translate_to_connection_point(rot_points, self.connection_point)
 
-        self.segment_data.append((inlet, P0, self.pipe1_section_data))
-        self.segment_data.append((outlet, P1, self.pipe2_section_data))
-        self.segment_data.append((Q0, P0, self.volume1_section_data))
-        self.segment_data.append((P0, P1, self.volume1_section_data))
-        self.segment_data.append((P1, Q1, self.volume1_section_data))
+        self.segment_data.append((inlet, P0, self.pipe1_section_data, "pipe #1"))
+        self.segment_data.append((outlet, P1, self.pipe2_section_data, "pipe #2"))
+        self.segment_data.append((Q0, P0, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((P0, P1, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((P1, Q1, self.volume1_section_data, "volume #1"))
+
+        self.branch_data.append((P0, "radial"))
+        self.branch_data.append((P1, "radial"))
 
     def process_segment_data(self):
 

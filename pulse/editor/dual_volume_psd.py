@@ -61,7 +61,7 @@ class DualVolumePSD:
         self.pipe1_angle = None
         self.pipe2_angle = None
         self.segment_data = list()
-        self.acoustic_link_coords = dict()
+        self.branch_data = list()
 
     def unwrap_device_data(self, device_data : dict):
 
@@ -69,39 +69,46 @@ class DualVolumePSD:
         self.connection_point = device_data["connecting coords"]
         self.axis = device_data["main axis"]
 
-        self.connection_pipe = device_data["connection pipe"]
-        self.connection_point = device_data["connecting coords"]
-        self.axis = device_data["main axis"]
-
-        self.pipe1_length = device_data["pipe #1 parameters"][0]
-        self.pipe1_diameter = device_data["pipe #1 parameters"][1]
-        self.pipe1_wall_thickness = device_data["pipe #1 parameters"][2]
+        self.pipe1_diameter = device_data["pipe #1 parameters"][0]
+        self.pipe1_wall_thickness = device_data["pipe #1 parameters"][1]
+        self.pipe1_length = device_data["pipe #1 parameters"][2]
 
         if len(device_data["pipe #1 parameters"]) == 5:
             self.pipe1_distance = device_data["pipe #1 parameters"][3]
             self.pipe1_angle = device_data["pipe #1 parameters"][4]
 
-        self.pipe2_length = device_data["pipe #2 parameters"][0]
-        self.pipe2_diameter = device_data["pipe #2 parameters"][1]
-        self.pipe2_wall_thickness = device_data["pipe #2 parameters"][2]
+        self.pipe2_diameter = device_data["pipe #2 parameters"][0]
+        self.pipe2_wall_thickness = device_data["pipe #2 parameters"][1]
+        self.pipe2_length = device_data["pipe #2 parameters"][2]
 
         if len(device_data["pipe #2 parameters"]) == 5:
             self.pipe2_distance = device_data["pipe #2 parameters"][3]
             self.pipe2_angle = device_data["pipe #2 parameters"][4]
 
-        self.volume1_length = device_data["volume #1 parameters"][0]     
-        self.volume1_diameter = device_data["volume #1 parameters"][1]
-        self.volume1_wall_thickness = device_data["volume #1 parameters"][2]
+        if "pipe #4 parameters" in device_data.keys():
+            self.pipe4_diameter = device_data["pipe #4 parameters"][0]
+            self.pipe4_wall_thickness = device_data["pipe #4 parameters"][1]
+            self.pipe4_length = device_data["pipe #4 parameters"][2]
 
-        self.volume2_length = device_data["volume #2 parameters"][0]     
-        self.volume2_diameter = device_data["volume #2 parameters"][1]
-        self.volume2_wall_thickness = device_data["volume #2 parameters"][2] 
+        else:
+            self.pipe4_diameter = None
+            self.pipe4_wall_thickness = None
+            self.pipe4_length = None
 
-        if device_data["volumes connection"] in ["pipe"]:
+        self.volume1_diameter = device_data["volume #1 parameters"][0]
+        self.volume1_wall_thickness = device_data["volume #1 parameters"][1]
+        self.volume1_length = device_data["volume #1 parameters"][2]   
 
-            self.pipe3_length = device_data["pipe #3 parameters"][0]
-            self.pipe3_diameter = device_data["pipe #3 parameters"][1]
-            self.pipe3_wall_thickness = device_data["pipe #3 parameters"][2]
+        self.volume2_diameter = device_data["volume #2 parameters"][0]
+        self.volume2_wall_thickness = device_data["volume #2 parameters"][1]
+        self.volume2_length = device_data["volume #2 parameters"][2]
+
+        self.volumes_connection = device_data["volumes connection"]    
+
+        if self.volumes_connection in ["pipe"]:
+            self.pipe3_diameter = device_data["pipe #3 parameters"][0]
+            self.pipe3_wall_thickness = device_data["pipe #3 parameters"][1]
+            self.pipe3_length = device_data["pipe #3 parameters"][2]
             self.pipe3_distance = device_data["pipe #3 parameters"][3]
 
         self.volumes_spacing = device_data["volumes spacing"]
@@ -110,6 +117,7 @@ class DualVolumePSD:
         self.pipe1_section_data = [self.pipe1_diameter, self.pipe1_wall_thickness, 0, 0, 0, 0]
         self.pipe2_section_data = [self.pipe2_diameter, self.pipe2_wall_thickness, 0, 0, 0, 0]
         self.pipe3_section_data = [self.pipe3_diameter, self.pipe3_wall_thickness, 0, 0, 0, 0]
+        self.pipe4_section_data = [self.pipe4_diameter, self.pipe4_wall_thickness, 0, 0, 0, 0]
         self.volume1_section_data = [self.volume1_diameter, self.volume1_wall_thickness, 0, 0, 0, 0]
         self.volume2_section_data = [self.volume2_diameter, self.volume2_wall_thickness, 0, 0, 0, 0]
 
@@ -133,20 +141,26 @@ class DualVolumePSD:
         base_points = np.array([inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5], dtype=float)
         if self.connection_pipe == "pipe #2":
             base_points -= outlet
-        
+
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5 = translate_to_connection_point(rot_points, self.connection_point)
 
-        self.acoustic_link_coords[1] = Q1
-        self.acoustic_link_coords[2] = Q4
+        self.segment_data.append((inlet, Q0, self.pipe1_section_data, "pipe #1"))
+        self.segment_data.append((outlet, Q1, self.pipe2_section_data, "pipe #2"))
+        self.segment_data.append((Q0, Q2, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((Q3, Q5, self.volume2_section_data, "volume #2"))
+ 
+        if self.volumes_connection in ["pipe", "pipe-plate"]:
+            self.segment_data.append((Q1, Q2, self.pipe3_section_data, "pipe #3"))
+            self.segment_data.append((Q3, Q4, self.pipe3_section_data, "pipe #3"))
+        
+        if self.volumes_connection == "pipe":
+            self.segment_data.append((Q2, Q3, self.pipe3_section_data, "pipe #3"))
+        else:
+            self.segment_data.append((Q2, Q3, self.pipe3_section_data, "pipe #4"))
 
-        self.segment_data.append((inlet, Q0, self.pipe1_section_data))
-        self.segment_data.append((outlet, Q1, self.pipe2_section_data))
-        self.segment_data.append((Q0, Q2, self.volume1_section_data))
-        self.segment_data.append((Q3, Q5, self.volume2_section_data))
-        self.segment_data.append((Q1, Q2, self.pipe3_section_data))
-        self.segment_data.append((Q2, Q3, self.pipe3_section_data))
-        self.segment_data.append((Q3, Q4, self.pipe3_section_data))
+        self.branch_data.append((P0, "axial"))
+        self.branch_data.append((P1, "axial"))
 
     def get_axial_radial_segment_data(self):
 
@@ -217,21 +231,31 @@ class DualVolumePSD:
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5, Q1o, Q2o, Q3o, Q4o = translate_to_connection_point(rot_points, self.connection_point)
 
-        self.segment_data.append((inlet, P0, self.pipe1_section_data))
-        self.segment_data.append((outlet, P1, self.pipe2_section_data))
-        self.segment_data.append((Q0, P0, self.volume1_section_data))
-        self.segment_data.append((P0, Q1, self.volume1_section_data))
-        self.segment_data.append((Q1, Q2, self.volume1_section_data))
-        self.segment_data.append((Q3, Q4, self.volume2_section_data))
-        self.segment_data.append((Q4, P1, self.volume2_section_data))
-        self.segment_data.append((P1, Q5, self.volume2_section_data))
-        self.segment_data.append((Q1o, Q2o, self.pipe3_section_data))
-        self.segment_data.append((Q2o, Q3o, self.pipe3_section_data))
-        self.segment_data.append((Q3o, Q4o, self.pipe3_section_data))
-        self.segment_data.append((Q1, Q1o, "acoustic_link"))
-        self.segment_data.append((Q4, Q4o, "acoustic_link"))
-        self.segment_data.append((Q2, Q2o, "structural_link"))
-        self.segment_data.append((Q3, Q3o, "structural_link"))
+        self.segment_data.append((inlet, P0, self.pipe1_section_data, "pipe #1"))
+        self.segment_data.append((outlet, P1, self.pipe2_section_data, "pipe #2"))
+        self.segment_data.append((Q0, P0, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((P0, Q1, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((Q1, Q2, self.volume1_section_data, "volume #1"))
+        self.segment_data.append((Q3, Q4, self.volume2_section_data, "volume #2"))
+        self.segment_data.append((Q4, P1, self.volume2_section_data, "volume #2"))
+        self.segment_data.append((P1, Q5, self.volume2_section_data, "volume #2"))
+
+        if self.volumes_connection in ["pipe", "pipe-plate"]:
+            self.segment_data.append((Q1o, Q2o, self.pipe3_section_data, "pipe #3"))
+            self.segment_data.append((Q3o, Q4o, self.pipe3_section_data, "pipe #3"))
+        
+        if self.volumes_connection == "pipe":
+            self.segment_data.append((Q2o, Q3o, self.pipe3_section_data, "pipe #3"))
+        else:
+            self.segment_data.append((Q2o, Q3o, self.pipe3_section_data, "pipe #4"))
+
+        self.segment_data.append((Q1, Q1o, "acoustic_link", None))
+        self.segment_data.append((Q4, Q4o, "acoustic_link", None))
+        self.segment_data.append((Q2, Q2o, "structural_link", None))
+        self.segment_data.append((Q3, Q3o, "structural_link", None))
+
+        self.branch_data.append((P0, "radial"))
+        self.branch_data.append((P1, "radial"))
 
     def process_segment_data(self):
 

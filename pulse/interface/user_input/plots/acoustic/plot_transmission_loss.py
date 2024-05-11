@@ -228,7 +228,7 @@ class PlotTransmissionLoss(QWidget):
         if index == 0:
             Q = self.input_volume_velocity
             u_n = Q/A_in
-            P_in = u_n*rho_in*c0_in/1
+            P_in = u_n*rho_in*c0_in/2
             Prms_in2 = (P_in/np.sqrt(2))**2
             W_in = 10*np.log10(Prms_in2*A_in/(rho_in*c0_in))
             W_out = 10*np.log10(Prms_out2*A_out/(rho_out*c0_out))

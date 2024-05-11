@@ -72,7 +72,7 @@ class PulsationSuppressionDevice:
         
         for i in range(len(device.segment_data)):
 
-            start_point, end_point, section_data = device.segment_data[i]
+            start_point, end_point, section_data, segment_label = device.segment_data[i]
 
             if isinstance(section_data, list):
 
@@ -82,7 +82,8 @@ class PulsationSuppressionDevice:
                         "section type" : "Pipe section",
                         "section parameters" : section_data,
                         "structural element type" : "pipe_1",
-                        "psd label" : device_label
+                        "psd label" : device_label,
+                        "psd segment" : segment_label
                         }
 
                 tag = int(shifted_line + i)
@@ -234,6 +235,103 @@ class PulsationSuppressionDevice:
         self.write_psd_data_in_file()
         self.remove_psd_lines_from_entity_file(device_labels)
         self.load_project()
+
+    def get_psd_info_from_selected_lines(self, lines):
+
+        config = configparser.ConfigParser()
+        config.read(self.file._entity_path)
+
+        psd_info = list()
+        for section in config.sections():
+
+            if "-" in section:
+                continue
+            
+            tag = int(section)
+            if tag in lines:
+
+                keys = list(config[section].keys())
+
+                psd_label = config[section]["psd label"]
+                psd_segment = config[section]["psd segment"]
+
+                if "psd label" in keys:
+                    psd_info.append((tag, psd_label, psd_segment))
+
+        return psd_info
+
+    def update_psd_cross_sections(self, lines, section_data):
+
+        psd_lines_data = self.get_psd_info_from_selected_lines(lines)
+
+        if psd_lines_data:
+
+            project_path = Path(self.file._project_path)
+            path = project_path / "psd_info.json"
+
+            self.link_info = defaultdict(list)
+            if not os.path.exists(path):
+                return
+
+            with open(path) as file:
+                psd_info = json.load(file)
+
+            diameter = section_data[0]
+            thickness = section_data[1]
+
+            for (tag, current_psd_label, segment_label) in psd_lines_data:
+
+                parameters = list()
+                for psd_label, psd_data in psd_info.items():
+                    if psd_label == current_psd_label:
+
+                        key = f"{segment_label} parameters"
+                        if key in psd_data.keys():
+
+                            length = psd_data[key][2]
+                            if len(psd_data[key]) == 4:
+                                distance = psd_data[key][3]
+                                parameters = [diameter, thickness, length, distance]
+
+                            else:
+                                parameters = [diameter, thickness, length]
+            
+                            break
+
+                if parameters:
+                    psd_info[current_psd_label][key] = parameters
+
+            with open(path, "w") as file:
+                json.dump(psd_info, file, indent=2)
+
+    def set_element_length_corrections(self, device_label):
+
+        device = self.psd_entity_data[device_label]
+        prefix = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
+
+        for (coords, connection_type) in device.branch_data:
+
+            node_id = self.project.preprocessor.get_node_id_by_coordinates(coords)
+            elements = self.project.preprocessor.neighboor_elements_of_node(node_id)
+            list_elements = [element.index for element in elements]
+
+            if connection_type == "radial":
+                _type = 1
+
+            else:
+                _type = 0
+
+            section = prefix.format("Selection-1")
+            keys = self.project.preprocessor.group_elements_with_length_correction.keys()
+
+            if section in keys:
+                index = 1
+                while section in keys:
+                    index += 1
+                    section = prefix.format(f"Selection-{index}")
+
+            self.project.set_element_length_correction_by_elements(list_elements, _type, section)
+
 
     def load_project(self):
 

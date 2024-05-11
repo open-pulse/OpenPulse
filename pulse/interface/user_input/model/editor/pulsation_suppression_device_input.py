@@ -126,6 +126,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.comboBox_number_volumes.currentIndexChanged.connect(self.number_volumes_callback)
         self.comboBox_pipe1_connection.currentIndexChanged.connect(self.pipe_connection_callback)
         self.comboBox_pipe2_connection.currentIndexChanged.connect(self.pipe_connection_callback)
+        self.comboBox_volumes_connection.currentIndexChanged.connect(self.volumes_connection_callback)
 
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.confirm_button_pressed)
@@ -207,6 +208,15 @@ class PulsationSuppressionDeviceInput(QDialog):
         else:
             self.lineEdit_volumes_spacing.setFocus()
             self.comboBox_volumes_connection.setCurrentIndex(0)
+
+    def volumes_connection_callback(self):
+        index = self.comboBox_volumes_connection.currentIndex()
+        if index == 2:
+            self.lineEdit_pipe3_distance.setText("")
+            self.lineEdit_pipe3_distance.setDisabled(True)
+        else:
+            if self.comboBox_number_volumes.currentIndex() == 0:
+                self.lineEdit_pipe3_distance.setEnabled(True)
 
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
@@ -308,7 +318,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_volume1_wall_thickness.setFocus()
             return True
 
-        self.suppression_device_data["volume #1 parameters"] = [length, diameter, wall_thickness]
+        self.suppression_device_data["volume #1 parameters"] = [diameter, wall_thickness, length]
 
     def check_volume2_info(self):
 
@@ -327,7 +337,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_volume2_wall_thickness.setFocus()
             return True
 
-        self.suppression_device_data["volume #2 parameters"] = [length, diameter, wall_thickness]
+        self.suppression_device_data["volume #2 parameters"] = [diameter, wall_thickness, length]
 
     def check_pipe1_info(self):
 
@@ -354,10 +364,10 @@ class PulsationSuppressionDeviceInput(QDialog):
                 return True
 
             rot_angle = self.spinBox_pipe1_rotation_angle.value()
-            values = [length, diameter, wall_thickness, distance, rot_angle]
+            values = [diameter, wall_thickness, length, distance, rot_angle]
 
         else:
-            values = [length, diameter, wall_thickness]
+            values = [diameter, wall_thickness, length]
 
         self.suppression_device_data["pipe #1 parameters"] = values
 
@@ -386,20 +396,15 @@ class PulsationSuppressionDeviceInput(QDialog):
                 return True
 
             rot_angle = self.spinBox_pipe2_rotation_angle.value()
-            values = [length, diameter, wall_thickness, distance, rot_angle]
+            values = [diameter, wall_thickness, length, distance, rot_angle]
 
         else:
-            values = [length, diameter, wall_thickness]
+            values = [diameter, wall_thickness, length]
 
         self.suppression_device_data["pipe #2 parameters"] = values
 
     def check_pipe3_info(self):
-
-        length = check_inputs(self.lineEdit_pipe3_length, "'pipe #3 length'")
-        if length is None:
-            self.lineEdit_pipe3_length.setFocus()
-            return True
-
+        
         diameter = check_inputs(self.lineEdit_pipe3_diameter, "'pipe #3 diameter'")
         if diameter is None:
             self.lineEdit_pipe3_diameter.setFocus()
@@ -409,13 +414,39 @@ class PulsationSuppressionDeviceInput(QDialog):
         if wall_thickness is None:
             self.lineEdit_pipe3_wall_thickness.setFocus()
             return True
+            
+        index = self.comboBox_volumes_connection.currentIndex()
+        if index in [1, 2]:
+            vol_diameter, *args = self.suppression_device_data["volume #1 parameters"]           
 
-        distance = check_inputs(self.lineEdit_pipe3_distance, "'pipe #3 distance'")
-        if distance is None:
-            self.lineEdit_pipe3_distance.setFocus()
-            return True
+        if index in [0 ,1]:
 
-        self.suppression_device_data["pipe #3 parameters"] = [length, diameter, wall_thickness, distance]
+            length = check_inputs(self.lineEdit_pipe3_length, "'pipe #3 length'")
+            if length is None:
+                self.lineEdit_pipe3_length.setFocus()
+                return True
+
+            distance = check_inputs(self.lineEdit_pipe3_distance, "'pipe #3 distance'")
+            if distance is None:
+                self.lineEdit_pipe3_distance.setFocus()
+                return True
+
+        if index in [0, 1]:
+            parameters = [diameter, wall_thickness, length, distance]
+            self.suppression_device_data["pipe #3 parameters"] = parameters  
+
+        elif index == 1:
+            _wall_thickness = round((vol_diameter - diameter) / 2 - wall_thickness, 6)
+            parameters = [vol_diameter, _wall_thickness, length, distance]
+            self.suppression_device_data["pipe #3 parameters"] = parameters  
+
+        if index in [1, 2]:
+
+            _length = self.suppression_device_data["volumes spacing"]
+            _wall_thickness = round((vol_diameter - diameter) / 2 - wall_thickness, 6)
+            _parameters = [vol_diameter, _wall_thickness, _length]
+
+            self.suppression_device_data["pipe #4 parameters"] = _parameters
 
     def check_psd_inputs(self):
 
@@ -451,23 +482,21 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             index_vol_connect = self.comboBox_volumes_connection.currentIndex()
 
+            if self.check_volumes_spacing():
+                return True
+
             if index_vol_connect in [0, 2]:
                 if self.check_pipe3_info():
                     return True
 
             if index_vol_connect == 0:
                 self.suppression_device_data["volumes connection"] = "pipe"
+
             elif index_vol_connect == 1:
                 self.suppression_device_data["volumes connection"] = "pipe-plate"
+
             elif index_vol_connect == 2:
                 self.suppression_device_data["volumes connection"] = "perf. plate"
-
-            value = check_inputs(self.lineEdit_volumes_spacing, "'volumes spacing'")
-            if value is None:
-                self.lineEdit_volumes_spacing.setFocus()
-                return True
-
-            self.suppression_device_data["volumes spacing"] = value
 
         else:
 
@@ -479,6 +508,15 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             if self.check_geometric_criteria_for_single_volume_psd():
                 return True
+
+    def check_volumes_spacing(self):
+
+        value = check_inputs(self.lineEdit_volumes_spacing, "'volumes spacing'")
+        if value is None:
+            self.lineEdit_volumes_spacing.setFocus()
+            return True
+
+        self.suppression_device_data["volumes spacing"] = value
 
     def check_geometric_criteria_for_single_volume_psd(self):
 
@@ -533,6 +571,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.project.PSD.build_device(self.filter_label)
         self.project.PSD.get_device_related_lines()
         self.project.PSD.load_psd_data_from_file()
+        self.project.PSD.set_element_length_corrections(self.filter_label)
 
         self.opv.opvRenderer.resetCamera()
         self.opv.opvRenderer.update()
