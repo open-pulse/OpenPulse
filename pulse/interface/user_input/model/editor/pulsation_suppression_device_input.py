@@ -267,10 +267,9 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.filter_label = self.lineEdit_device_label.text()
         if self.filter_label == "":
             self.lineEdit_device_label.setFocus()
-            window_title = "Warning"
             title = "Empty field detected"
             message = "Enter a device label to proceed."
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([window_title_2, title, message])
             return True
         
         elif self.filter_label in self.project.PSD.pulsation_suppression_device.keys():
@@ -279,7 +278,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             title = "Invalid input"
             message = "The typed 'Device label' has already been applied to other PSD. "
             message += "You should enter a different label to proceed with the PSD configuration."
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([window_title_2, title, message])
             return True
 
     def check_connecting_coords(self):
@@ -435,15 +434,9 @@ class PulsationSuppressionDeviceInput(QDialog):
             parameters = [diameter, wall_thickness, length, distance]
             self.suppression_device_data["pipe #3 parameters"] = parameters  
 
-        elif index == 1:
-            _wall_thickness = round((vol_diameter - diameter) / 2 - wall_thickness, 6)
-            parameters = [vol_diameter, _wall_thickness, length, distance]
-            self.suppression_device_data["pipe #3 parameters"] = parameters  
-
         if index in [1, 2]:
-
             _length = self.suppression_device_data["volumes spacing"]
-            _wall_thickness = round((vol_diameter - diameter) / 2 - wall_thickness, 6)
+            _wall_thickness = round((vol_diameter - diameter) / 2 + wall_thickness, 6)
             _parameters = [vol_diameter, _wall_thickness, _length]
 
             self.suppression_device_data["pipe #4 parameters"] = _parameters
@@ -485,9 +478,9 @@ class PulsationSuppressionDeviceInput(QDialog):
             if self.check_volumes_spacing():
                 return True
 
-            if index_vol_connect in [0, 2]:
-                if self.check_pipe3_info():
-                    return True
+            # if index_vol_connect in [0, 1]:
+            if self.check_pipe3_info():
+                return True
 
             if index_vol_connect == 0:
                 self.suppression_device_data["volumes connection"] = "pipe"
@@ -579,9 +572,11 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def remove_button_pressed(self):
         if self.lineEdit_selection.text() != "":
+
             device_label = self.lineEdit_selection.text()
             self.project.PSD.remove_selected_psd(device_label)
             self.load_PSD_info()
+
             self.opv.opvRenderer.resetCamera()
             self.opv.opvRenderer.update()
 

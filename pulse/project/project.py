@@ -1537,10 +1537,10 @@ class Project:
                     self.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")  
             remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None, equals_keys=True)
 
-    def set_element_length_correction_by_elements(self, elements, value, section):
+    def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
         # label = ["acoustic element length correction"] 
         self.preprocessor.set_length_correction_by_element(elements, value, section)
-        self.file.add_length_correction_in_file(elements, value, section)
+        self.file.add_length_correction_in_file(elements, value, section, psd_label=psd_label)
     
     def set_perforated_plate_by_elements(self, list_elements, perforated_plate, section):
         self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, section)

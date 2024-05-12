@@ -1183,7 +1183,7 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config)
 
-    def add_length_correction_in_file(self, elements, _type, section): 
+    def add_length_correction_in_file(self, elements, _type, section, psd_label=""): 
         
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
@@ -1191,9 +1191,13 @@ class ProjectFile:
         if section in list(config.sections()):
             config[section]['length correction type'] = str(_type)
             config[section]['list of elements'] = str(elements)
+            if psd_label != "":
+                config[section]['psd label'] = psd_label
+
         else:
-            config[section] =   { 'length correction type': str(_type),
-                                  'list of elements': str(elements) }
+            config[section] =   {   'length correction type': str(_type),
+                                    'list of elements': str(elements),
+                                    'psd label' : psd_label   }
 
         self.write_data_in_file(self._element_info_path, config)
 

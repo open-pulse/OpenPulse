@@ -225,6 +225,7 @@ class PulsationSuppressionDevice:
 
         self.write_psd_data_in_file()
         self.remove_psd_lines_from_entity_file(device_label)
+        self.remove_psd_related_element_length_correction(device_label)
         self.load_project()
 
     def remove_all_psd(self):
@@ -234,6 +235,7 @@ class PulsationSuppressionDevice:
 
         self.write_psd_data_in_file()
         self.remove_psd_lines_from_entity_file(device_labels)
+        self.remove_psd_related_element_length_correction("_remove_all_")
         self.load_project()
 
     def get_psd_info_from_selected_lines(self, lines):
@@ -330,8 +332,32 @@ class PulsationSuppressionDevice:
                     index += 1
                     section = prefix.format(f"Selection-{index}")
 
-            self.project.set_element_length_correction_by_elements(list_elements, _type, section)
+            self.project.set_element_length_correction_by_elements(list_elements, 
+                                                                   _type, 
+                                                                   section,
+                                                                   psd_label = device_label)
 
+    def remove_psd_related_element_length_correction(self, device_label):
+
+        path = self.file._element_info_path
+        config = configparser.ConfigParser()
+        config.read(path)
+
+        for section in config.sections():
+
+            if device_label == "_remove_all_":
+                config.remove_section(section=section)
+
+            if "psd label" in config[section].keys():
+                if device_label in config[section]["psd label"]:
+                    config.remove_section(section=section)
+
+        if list(config.sections()):
+            with open(path, 'w') as config_file:
+                config.write(config_file)
+
+        else:
+            os.remove(path)
 
     def load_project(self):
 
