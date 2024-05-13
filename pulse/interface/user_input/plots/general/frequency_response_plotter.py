@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QPushButton, QRadioButton, QVBoxLayout, QWidget
+from functools import partial
+
+from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QPushButton, QRadioButton, QVBoxLayout, QWidget, QAction, QToolButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -260,8 +262,18 @@ class FrequencyResponsePlotter(QDialog):
         else:
             return self.unit + "/s²"
 
-    def plot_data_in_freq_domain(self):
+    def paint_toolbar_icons(self, *args, **kwargs):
+        toolbar = self.findChild(NavigationToolbar2QT)
+        if toolbar is None:
+            return
 
+        for button in toolbar.findChildren(QToolButton):
+            button: QToolButton
+            icon = button.icon()
+            change_icon_color(icon, color=QColor("#5f9af4"))
+            button.setIcon(icon)
+
+    def plot_data_in_freq_domain(self):
         self.ax.cla()
         self.legends = []
         self.plots = []
@@ -289,6 +301,14 @@ class FrequencyResponsePlotter(QDialog):
 
                 if self._layout is None:
                     toolbar = NavigationToolbar2QT(self.mpl_canvas_frequency_plot, self)
+
+                    # Paint the toolbar icons and connect the buttons to paint
+                    # themselves after every click or draw events
+                    self.paint_toolbar_icons()
+                    for button in toolbar.findChildren(QToolButton):
+                        button.clicked.connect(self.paint_toolbar_icons)                    
+                    self.mpl_canvas_frequency_plot.mpl_connect("draw_event", self.paint_toolbar_icons)
+
                     self._layout = QVBoxLayout()
                     self._layout.addWidget(toolbar)
                     self._layout.addWidget(self.mpl_canvas_frequency_plot)
