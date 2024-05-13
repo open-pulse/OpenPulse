@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
@@ -104,6 +104,7 @@ class FrequencyResponsePlotter(QDialog):
         self.radioButton_harmonic_cursor.clicked.connect(self.update_cursor_controls)
         self.pushButton_import_data.clicked.connect(self.import_file)
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        app().main_window.theme_changed.connect(self.paint_toolbar_icons)
         self._initial_config()
 
     def import_file(self):
@@ -267,10 +268,15 @@ class FrequencyResponsePlotter(QDialog):
         if toolbar is None:
             return
 
+        if app().main_window.interface_theme == "dark":
+            color = QColor("#5f9af4")
+        else:
+            color = QColor("#619eef")
+
         for button in toolbar.findChildren(QToolButton):
             button: QToolButton
             icon = button.icon()
-            change_icon_color(icon, color=QColor("#5f9af4"))
+            change_icon_color(icon, color)
             button.setIcon(icon)
 
     def plot_data_in_freq_domain(self):

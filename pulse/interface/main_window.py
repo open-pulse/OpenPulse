@@ -37,6 +37,7 @@ class Workspace(IntEnum):
 
 class MainWindow(QMainWindow):
     permission_changed = pyqtSignal()
+    theme_changed = pyqtSignal(str)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -764,6 +765,7 @@ class MainWindow(QMainWindow):
             self.mesh_widget.set_theme("dark")
             self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("dark")
             self.results_viewer_wigdet.results_viewer_items.set_theme("dark")
+            self.theme_changed.emit("dark")
 
     def action_set_light_theme_callback(self):
         self.update_themes_in_file(theme="light")
@@ -776,6 +778,7 @@ class MainWindow(QMainWindow):
             self.mesh_widget.set_theme("light")
             self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("light")
             self.results_viewer_wigdet.results_viewer_items.set_theme("light")
+            self.theme_changed.emit("light")
 
     def update_themes_in_file(self, theme):
         if self.update_theme:
