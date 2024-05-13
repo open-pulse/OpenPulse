@@ -561,10 +561,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.project.PSD.add_pulsation_suppression_device(self.filter_label, 
                                                           self.suppression_device_data)
 
-        self.project.PSD.build_device(self.filter_label)
         self.project.PSD.get_device_related_lines()
         self.project.PSD.load_psd_data_from_file()
-        self.project.PSD.set_element_length_corrections(self.filter_label)
 
         self.opv.opvRenderer.resetCamera()
         self.opv.opvRenderer.update()

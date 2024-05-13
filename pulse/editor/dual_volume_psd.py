@@ -160,14 +160,14 @@ class DualVolumePSD:
         self.segment_data.append((inlet, P0, self.pipe1_section_data, "pipe #1"))
         self.segment_data.append((outlet, P1, self.pipe2_section_data, "pipe #2"))
         self.segment_data.append((Q0, Q1, self.volume1_section_data, "volume #1"))
-        self.segment_data.append((Q3, Q4, self.volume2_section_data, "volume #2"))
- 
+        self.segment_data.append((Q4, Q5, self.volume2_section_data, "volume #2"))
+
         if self.volumes_connection in ["pipe", "pipe-plate"]:
             self.segment_data.append((Q1o, Q2o, self.pipe3_section_data, "pipe #3"))
             self.segment_data.append((Q3o, Q4o, self.pipe3_section_data, "pipe #3"))
             self.segment_data.append((Q1, Q2, self.volume1_section_data, "volume #1"))
-            self.segment_data.append((Q4, Q5, self.volume2_section_data, "volume #2"))
-        
+            self.segment_data.append((Q3, Q4, self.volume2_section_data, "volume #2"))
+
         if self.volumes_connection == "pipe":
             self.segment_data.append((Q2o, Q3o, self.pipe3_section_data, "pipe #3"))
 
@@ -175,7 +175,7 @@ class DualVolumePSD:
             self.segment_data.append((Q2o, Q3o, self.pipe4_section_data, "pipe #4"))
 
         else:
-            self.segment_data.append((Q1, Q4, self.pipe4_section_data, "pipe #4"))
+            self.segment_data.append((Q2, Q3, self.pipe4_section_data, "pipe #4"))
 
         self.branch_data.append((P0, "axial"))
         self.branch_data.append((P1, "axial"))
@@ -229,17 +229,17 @@ class DualVolumePSD:
         rot_points = rotate_points(base_points, axis=self.axis)
         inlet, outlet, P0, P1, Q0, Q1, Q2, Q3, Q4, Q5, Q1o, Q2o, Q3o, Q4o = translate_to_connection_point(rot_points, self.connection_point)
 
-        self.segment_data.append((inlet, Q0, self.pipe1_section_data, "pipe #1"))
-        self.segment_data.append((outlet, Q1, self.pipe2_section_data, "pipe #2"))
+        self.segment_data.append((inlet, P0, self.pipe1_section_data, "pipe #1"))
+        self.segment_data.append((outlet, P1, self.pipe2_section_data, "pipe #2"))
         self.segment_data.append((Q0, Q1, self.volume1_section_data, "volume #1"))
         self.segment_data.append((Q4, P1, self.volume2_section_data, "volume #2"))
+        self.segment_data.append((P1, Q5, self.volume2_section_data, "volume #2"))
  
         if self.volumes_connection in ["pipe", "pipe-plate"]:
             self.segment_data.append((Q1o, Q2o, self.pipe3_section_data, "pipe #3"))
             self.segment_data.append((Q3o, Q4o, self.pipe3_section_data, "pipe #3"))
             self.segment_data.append((Q1, Q2, self.volume1_section_data, "volume #1"))
             self.segment_data.append((Q3, Q4, self.volume2_section_data, "volume #2"))
-            self.segment_data.append((P1, Q5, self.volume2_section_data, "volume #2"))
         
         if self.volumes_connection == "pipe":
             self.segment_data.append((Q2o, Q3o, self.pipe3_section_data, "pipe #3"))
@@ -248,10 +248,10 @@ class DualVolumePSD:
             self.segment_data.append((Q2o, Q3o, self.pipe4_section_data, "pipe #4"))
 
         else:
-            self.segment_data.append((Q1, Q4, self.pipe4_section_data, "pipe #4"))
+            self.segment_data.append((Q2, Q3, self.pipe4_section_data, "pipe #4"))
 
         self.branch_data.append((P0, "axial"))
-        self.branch_data.append((P1, "axial"))
+        self.branch_data.append((P1, "radial"))
 
         if self.volumes_connection in ["pipe", "pipe-plate"]:
             self.segment_data.append((Q1, Q1o, "acoustic_link", None))
@@ -270,11 +270,11 @@ class DualVolumePSD:
         versor_z = np.array([0, 0, 1], dtype=float)
         offset_y = np.array([0, 0.01, 0], dtype=float)
 
-        pipe2_angle = self.pipe2_angle * (np.pi / 180)
-        rot_pipe2 =  rotation_about_x_axis(pipe2_angle) @ versor_z
+        pipe1_angle = self.pipe1_angle * (np.pi / 180)
+        rot_pipe1 =  rotation_about_x_axis(pipe1_angle) @ versor_z
 
-        P0 = inlet + versor_x * self.pipe1_length
-        Q0 = P0
+        P0 = inlet - rot_pipe1 * self.pipe1_length
+        Q0 = P0 - versor_x * self.pipe1_distance
 
         Q2 = Q0 + versor_x * self.volume1_length
         Q3 = Q2 + versor_x * self.volumes_spacing
@@ -287,8 +287,8 @@ class DualVolumePSD:
             Q1 = Q2
             Q4 = Q3
 
-        P1 = Q0 + versor_x * self.pipe2_distance
-        outlet = P1 + rot_pipe2 * self.pipe2_length
+        P1 = Q5
+        outlet = Q5 + versor_x * self.pipe2_length
 
         Q1o = Q1 + offset_y
         Q2o = Q2 + offset_y
@@ -321,10 +321,10 @@ class DualVolumePSD:
             self.segment_data.append((Q2o, Q3o, self.pipe4_section_data, "pipe #4"))
 
         else:
-            self.segment_data.append((Q1, Q4, self.pipe4_section_data, "pipe #4"))
+            self.segment_data.append((Q2, Q3, self.pipe4_section_data, "pipe #4"))
 
         self.branch_data.append((P0, "radial"))
-        self.branch_data.append((P1, "radial"))
+        self.branch_data.append((P1, "axial"))
 
         if self.volumes_connection in ["pipe", "pipe-plate"]:
             self.segment_data.append((Q1, Q1o, "acoustic_link", None))
@@ -398,7 +398,7 @@ class DualVolumePSD:
             self.segment_data.append((Q2o, Q3o, self.pipe4_section_data, "pipe #4"))
 
         else:
-            self.segment_data.append((Q1, Q4, self.pipe4_section_data, "pipe #4"))
+            self.segment_data.append((Q2, Q3, self.pipe4_section_data, "pipe #4"))
 
         self.branch_data.append((P0, "radial"))
         self.branch_data.append((P1, "radial"))
