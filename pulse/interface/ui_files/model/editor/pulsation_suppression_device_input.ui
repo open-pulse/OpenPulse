@@ -73,7 +73,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Pulsation 'suppression' device editor</string>
+         <string>Pulsation suppression device editor</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -414,7 +414,7 @@
                   <number>6</number>
                  </property>
                  <item row="9" column="2">
-                  <widget class="QComboBox" name="comboBox_tunned_filter">
+                  <widget class="QComboBox" name="comboBox_tuned_filter">
                    <property name="minimumSize">
                     <size>
                      <width>120</width>
@@ -434,17 +434,12 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> none</string>
+                     <string> disabled</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> double-tunned</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string> user-defined</string>
+                     <string> double-tuned</string>
                     </property>
                    </item>
                   </widget>
@@ -562,33 +557,6 @@
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="2">
-                  <widget class="QLineEdit" name="lineEdit_volumes_spacing">
-                   <property name="minimumSize">
-                    <size>
-                     <width>120</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>140</width>
-                     <height>26</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>0.023</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -931,7 +899,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Tunned filter:</string>
+                    <string>Tuned filter:</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1222,6 +1190,42 @@
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="2">
+                  <widget class="QDoubleSpinBox" name="spinBox_volumes_spacing">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>26</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>26</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="decimals">
+                    <number>4</number>
+                   </property>
+                   <property name="maximum">
+                    <double>200.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.001000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>0.023000000000000</double>
                    </property>
                   </widget>
                  </item>

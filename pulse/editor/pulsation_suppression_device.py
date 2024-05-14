@@ -152,7 +152,7 @@ class PulsationSuppressionDevice:
         with open(path) as file:
             read_data = json.load(file)
             self.pulsation_suppression_device = read_data
-        
+
         self.link_data = defaultdict(list)
 
         for psd_label, data in read_data.items():
@@ -166,7 +166,7 @@ class PulsationSuppressionDevice:
 
         if self.link_data:
             self.add_psd_link_data_to_nodes(self.link_data)
-    
+
     def add_psd_link_data_to_nodes(self, link_data):
 
         for key, values in  link_data.items():

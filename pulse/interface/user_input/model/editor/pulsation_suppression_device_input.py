@@ -59,7 +59,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.comboBox_volumes_connection : QComboBox
         self.comboBox_pipe1_connection : QComboBox
         self.comboBox_pipe2_connection : QComboBox
-        self.comboBox_tunned_filter : QComboBox
+        self.comboBox_tuned_filter : QComboBox
 
         # QLabel
         self.label_pipe3 : QLabel
@@ -101,7 +101,6 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.lineEdit_pipe3_distance : QLineEdit
 
         self.lineEdit_rotation_plane : QLineEdit
-        self.lineEdit_volumes_spacing : QLineEdit
         self.lineEdit_selection : QLineEdit
 
         # QPushButton
@@ -113,6 +112,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         # QSpinBox
         self.spinBox_pipe1_rotation_angle : QDoubleSpinBox
         self.spinBox_pipe2_rotation_angle : QDoubleSpinBox
+        self.spinBox_volumes_spacing : QDoubleSpinBox
 
         # QTavbWidget
         self.tabWidget_main : QTabWidget
@@ -127,6 +127,10 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.comboBox_pipe1_connection.currentIndexChanged.connect(self.pipe_connection_callback)
         self.comboBox_pipe2_connection.currentIndexChanged.connect(self.pipe_connection_callback)
         self.comboBox_volumes_connection.currentIndexChanged.connect(self.volumes_connection_callback)
+        self.comboBox_tuned_filter.currentIndexChanged.connect(self.tuned_filter_callback)
+
+        self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
+        self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
 
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.confirm_button_pressed)
@@ -140,6 +144,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.update_the_rotation_angle()
         self.number_volumes_callback()
+        self.update_tuned_filter_callback()
 
     def _config_widgets(self):
         #
@@ -195,7 +200,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.lineEdit_pipe3_diameter.setDisabled(bool(index))
         self.lineEdit_pipe3_wall_thickness.setDisabled(bool(index))
         self.lineEdit_pipe3_distance.setDisabled(bool(index))
-        self.lineEdit_volumes_spacing.setDisabled(bool(index))
+        self.spinBox_volumes_spacing.setDisabled(bool(index))
 
         self.label_volume2.setDisabled(bool(index))
         self.lineEdit_volume2_length.setDisabled(bool(index))
@@ -203,11 +208,13 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.lineEdit_volume2_wall_thickness.setDisabled(bool(index))
 
         if index:
-            self.lineEdit_volumes_spacing.setText("")
+            self.spinBox_volumes_spacing.setValue(0.025)
             self.comboBox_volumes_connection.setCurrentIndex(3)
         else:
-            self.lineEdit_volumes_spacing.setFocus()
+            self.spinBox_volumes_spacing.setFocus()
             self.comboBox_volumes_connection.setCurrentIndex(0)
+
+        self.update_tuned_filter_callback()
 
     def volumes_connection_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
@@ -217,6 +224,61 @@ class PulsationSuppressionDeviceInput(QDialog):
         else:
             if self.comboBox_number_volumes.currentIndex() == 0:
                 self.lineEdit_pipe3_distance.setEnabled(True)
+
+    def tuned_filter_callback(self):
+
+        index = self.comboBox_tuned_filter.currentIndex()
+
+        if index == 1:
+            self.comboBox_pipe1_connection.setCurrentIndex(0)
+            self.comboBox_pipe2_connection.setCurrentIndex(0)
+
+        self.comboBox_pipe1_connection.setDisabled(bool(index))
+        self.comboBox_pipe2_connection.setDisabled(bool(index))
+
+        self.lineEdit_pipe1_distance.setDisabled(bool(index))
+        self.lineEdit_pipe2_distance.setDisabled(bool(index))
+        self.lineEdit_pipe3_distance.setDisabled(bool(index))
+        self.lineEdit_pipe3_length.setDisabled(bool(index))
+
+        self.update_tuned_filter_callback()
+
+    def update_tuned_filter_callback(self):
+
+        if self.comboBox_tuned_filter.currentIndex() == 1:
+
+            volume_spacing = self.spinBox_volumes_spacing.value()
+
+            if self.lineEdit_volume1_length.text() != "":
+                volume1_length = check_inputs(self.lineEdit_volume1_length, "'volume #1 length'")
+                if volume1_length is None:
+                    self.lineEdit_volume1_length.setFocus()
+                    return True
+
+            if self.lineEdit_volume2_length.text() != "": 
+                volume2_length = check_inputs(self.lineEdit_volume2_length, "'volume #2 length'")
+                if volume2_length is None:
+                    self.lineEdit_volume2_length.setFocus()
+                    return True
+
+            if self.comboBox_number_volumes.currentIndex() == 1:
+
+                self.lineEdit_pipe1_distance.setText(f"{round(volume1_length*(1/4), 6)}")
+                self.lineEdit_pipe2_distance.setText(f"{round(volume1_length*(3/4), 6)}")
+
+            else:
+
+                pipe2_distance = volume1_length + volume_spacing + volume2_length / 2
+                pipe3_length = volume1_length + volume_spacing + volume2_length / 4
+
+                self.lineEdit_pipe1_distance.setText(f"{round(volume1_length*(1/2), 6)}")
+                self.lineEdit_pipe3_distance.setText(f"{round(volume1_length*(3/4), 6)}")
+
+                self.lineEdit_pipe2_distance.setText(f"{round(pipe2_distance, 6)}")
+                self.lineEdit_pipe3_length.setText(f"{round(pipe3_length, 6)}")
+
+                self.lineEdit_pipe3_distance.setDisabled(True)
+                self.lineEdit_pipe3_length.setDisabled(True)
 
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
@@ -473,14 +535,12 @@ class PulsationSuppressionDeviceInput(QDialog):
             if self.check_pipe2_info():
                 return True
 
-            index_vol_connect = self.comboBox_volumes_connection.currentIndex()
+            self.suppression_device_data["volumes spacing"] = self.spinBox_volumes_spacing.value()
 
-            if self.check_volumes_spacing():
-                return True
-
-            # if index_vol_connect in [0, 1]:
             if self.check_pipe3_info():
                 return True
+
+            index_vol_connect = self.comboBox_volumes_connection.currentIndex()
 
             if index_vol_connect == 0:
                 self.suppression_device_data["volumes connection"] = "pipe"
@@ -501,15 +561,6 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             if self.check_geometric_criteria_for_single_volume_psd():
                 return True
-
-    def check_volumes_spacing(self):
-
-        value = check_inputs(self.lineEdit_volumes_spacing, "'volumes spacing'")
-        if value is None:
-            self.lineEdit_volumes_spacing.setFocus()
-            return True
-
-        self.suppression_device_data["volumes spacing"] = value
 
     def check_geometric_criteria_for_single_volume_psd(self):
 
