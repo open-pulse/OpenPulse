@@ -40,6 +40,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = (0, 0)
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
+        app().main_window.theme_changed.connect(self.set_theme)
         
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
