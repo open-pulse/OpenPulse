@@ -3,6 +3,8 @@ import vtk
 import numpy as np
 from math import pi
 
+from PyQt5.QtWidgets import QSlider
+
 from pulse import app
 
 from pulse.postprocessing.plot_structural_data import *
@@ -688,3 +690,13 @@ class opvAnalysisRenderer(vtkRendererBase):
         )
 
         return rx, ry, rz
+
+    def set_tube_actors_transparency(self, transparency):
+        opacity = 1 - transparency
+        
+        self.opvDeformedTubes.GetProperty().SetOpacity(opacity)
+        self.opvPressureTubes.GetProperty().SetOpacity(opacity)
+        self.opvClippableDeformedTubes.GetProperty().SetOpacity(opacity)
+        self.opvClippablePressureTubes.GetProperty().SetOpacity(opacity)
+
+
