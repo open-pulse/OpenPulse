@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
+from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QAbstractButton
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         self.last_index = None
 
     def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
+        self.pulse_icon = icons.get_openpulse_icon()
 
     def _config_window(self):
         self.showMaximized()
@@ -754,31 +754,65 @@ class MainWindow(QMainWindow):
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
-        self.update_themes_in_file(theme="dark")
-        if self.interface_theme in [None, "light"]:
-            self.interface_theme = "dark"
-            self.custom_colors = { "[dark]": { "toolbar.background": "#202124"} }
-            qdarktheme.setup_theme("dark", custom_colors=self.custom_colors)
-            self.action_set_light_theme.setDisabled(False)
-            self.action_set_dark_theme.setDisabled(True)
-            self.geometry_widget.set_theme("dark")
-            self.mesh_widget.set_theme("dark")
-            self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("dark")
-            self.results_viewer_wigdet.results_viewer_items.set_theme("dark")
-            self.theme_changed.emit("dark")
+        self.set_theme("dark")
+        # self.update_themes_in_file(theme="dark")
+        # if self.interface_theme in [None, "light"]:
+        #     self.interface_theme = "dark"
+        #     self.custom_colors = { "[dark]": { "toolbar.background": "#202124"} }
+        #     qdarktheme.setup_theme("dark", custom_colors=self.custom_colors)
+        #     self.action_set_light_theme.setDisabled(False)
+        #     self.action_set_dark_theme.setDisabled(True)
+        #     self.geometry_widget.set_theme("dark")
+        #     self.mesh_widget.set_theme("dark")
+        #     self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("dark")
+        #     self.results_viewer_wigdet.results_viewer_items.set_theme("dark")
+        #     self.theme_changed.emit("dark")
 
     def action_set_light_theme_callback(self):
-        self.update_themes_in_file(theme="light")
-        if self.interface_theme in [None, "dark"]:
-            self.interface_theme = "light"
-            qdarktheme.setup_theme("light")
-            self.action_set_light_theme.setDisabled(True)
-            self.action_set_dark_theme.setDisabled(False)
-            self.geometry_widget.set_theme("light")
-            self.mesh_widget.set_theme("light")
-            self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("light")
-            self.results_viewer_wigdet.results_viewer_items.set_theme("light")
-            self.theme_changed.emit("light")
+        self.set_theme("light")
+        # self.update_themes_in_file(theme="light")
+        # if self.interface_theme in [None, "dark"]:
+        #     self.interface_theme = "light"
+        #     qdarktheme.setup_theme("light")
+        #     self.action_set_light_theme.setDisabled(True)
+        #     self.action_set_dark_theme.setDisabled(False)
+        #     self.geometry_widget.set_theme("light")
+        #     self.mesh_widget.set_theme("light")
+        #     self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("light")
+        #     self.results_viewer_wigdet.results_viewer_items.set_theme("light")
+        #     self.theme_changed.emit("light")
+    
+    def set_theme(self, theme):
+        if theme not in ["light", "dark"]:
+            return
+    
+        self.update_themes_in_file(theme)
+        if self.interface_theme == theme:
+            return
+        
+        self.custom_colors = {}
+        if theme == "dark":
+            self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
+            icon_color = QColor("#5f9af4")
+
+        elif theme == "light":
+            icon_color = QColor("#1a73e8")
+    
+        self.interface_theme = theme
+        qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
+        self.theme_changed.emit(theme)
+        self.action_set_light_theme.setDisabled(theme == "light")
+        self.action_set_dark_theme.setDisabled(theme == "dark")
+
+        # paint the icons of every children widget
+        widgets = self.findChildren((QAbstractButton, QAction))
+        icons.change_icon_color_for_widgets(widgets, icon_color)
+
+        # TODO: Connect this via signaling
+        self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme(theme)
+        self.results_viewer_wigdet.results_viewer_items.set_theme(theme)
+        self.geometry_widget.set_theme("light")
+        self.mesh_widget.set_theme("light")
 
     def update_themes_in_file(self, theme):
         if self.update_theme:

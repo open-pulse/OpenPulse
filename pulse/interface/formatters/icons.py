@@ -2,6 +2,7 @@ import os
 import numpy as np
 from PIL import Image
 from pathlib import Path
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QColor, QIcon, QPainter, QPixmap, QImage
 from PyQt5.QtCore import QSize
 from pulse import ICON_DIR
@@ -42,16 +43,39 @@ def get_error_icon(color=None):
         return get_formatted_icon(icon_path, color)
 
 def change_icon_color(icon: QIcon, color: QColor):
+    if icon is None:
+        return 
+
     size = icon.actualSize(QSize(10_000, 10_000))
-    if size.width() == 10_000:
+    invalid_sizes = [-1, 0, 10_000]
+
+    if size.width() in invalid_sizes:
+        return
+    
+    if size.height() in invalid_sizes:
         return
 
     pixmap: QPixmap = icon.pixmap(size)
     painter = QPainter(pixmap)
+    if not painter.isActive():
+        return
+
     painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
     painter.fillRect(pixmap.rect(), color)
     painter.end()
     icon.addPixmap(pixmap)
+
+def change_icon_color_for_widgets(widgets: list[QWidget], color: QColor):
+    for widget in widgets:
+        if not hasattr(widget, "icon") or not callable(widget.icon):
+            continue
+        
+        if not hasattr(widget, "setIcon") or not callable(widget.setIcon):
+            continue
+        
+        icon = widget.icon()
+        change_icon_color(icon, color)
+        widget.setIcon(icon)
 
 # FIXIT
 # def add_border_to_icon(icon: QIcon, thickness=3, color=(255, 255, 255, 255)):

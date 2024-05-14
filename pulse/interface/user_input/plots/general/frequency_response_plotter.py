@@ -1,12 +1,12 @@
 from functools import partial
 
 from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QPushButton, QRadioButton, QVBoxLayout, QWidget, QAction, QToolButton
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters import icons
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
@@ -31,8 +31,8 @@ class FrequencyResponsePlotter(QDialog):
         self._create_connections()
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
+        self.icon = icons.get_openpulse_icon()
+        self.search_icon = QIcon(icons.get_icons_path('searchFile.png'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -271,13 +271,16 @@ class FrequencyResponsePlotter(QDialog):
         if app().main_window.interface_theme == "dark":
             color = QColor("#5f9af4")
         else:
-            color = QColor("#619eef")
+            # color = QColor("#619eef")
+            color = QColor("#ff0000")
 
-        for button in toolbar.findChildren(QToolButton):
-            button: QToolButton
-            icon = button.icon()
-            change_icon_color(icon, color)
-            button.setIcon(icon)
+        icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
+
+        # for button in toolbar.findChildren(QToolButton):
+        #     button: QToolButton
+        #     icon = button.icon()
+        #     change_icon_color(icon, color)
+        #     button.setIcon(icon)
 
     def plot_data_in_freq_domain(self):
         self.ax.cla()

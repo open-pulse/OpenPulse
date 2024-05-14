@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>26</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -781,7 +781,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/show_symbols_3d.png</normaloff>../data/icons/show_symbols_3d.png</iconset>
+     <normaloff>../data/icons/show_symbols.png</normaloff>../data/icons/show_symbols.png</iconset>
    </property>
    <property name="text">
     <string>Show Symbols</string>
