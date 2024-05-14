@@ -271,16 +271,9 @@ class FrequencyResponsePlotter(QDialog):
         if app().main_window.interface_theme == "dark":
             color = QColor("#5f9af4")
         else:
-            # color = QColor("#619eef")
             color = QColor("#ff0000")
 
         icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
-
-        # for button in toolbar.findChildren(QToolButton):
-        #     button: QToolButton
-        #     icon = button.icon()
-        #     change_icon_color(icon, color)
-        #     button.setIcon(icon)
 
     def plot_data_in_freq_domain(self):
         self.ax.cla()
