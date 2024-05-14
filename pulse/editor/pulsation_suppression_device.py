@@ -42,6 +42,10 @@ class PulsationSuppressionDevice:
         self.pulsation_suppression_device[device_label] = suppression_device_data
 
         self.build_device(device_label, device)
+        self.write_psd_data_in_file()
+        self.write_psd_length_correction_in_file(device_label, device)
+        self.load_project()
+        self.set_element_length_corrections(device_label, device.branch_data)
 
     def build_device(self, device_label, device):
 
@@ -101,12 +105,28 @@ class PulsationSuppressionDevice:
         with open(entity_path, 'w') as config_file:
             config.write(config_file)
 
-        self.write_psd_data_in_file()
-        self.load_project()
-        self.set_element_length_corrections(device_label, device)
+    def write_psd_length_correction_in_file(self, device_label, device):
+
+        project_path = Path(self.file._project_path)
+        path = project_path / "psd_info.json"
+
+        if path.exists():
+            with open(path) as file:
+                psd_data = json.load(file)
+
+            index = 0
+            if device_label in psd_data.keys():    
+                for (coords, connection_type) in device.branch_data:
+                    index += 1
+                    key = f"element length correction - {index}"
+                    psd_data[device_label][key] = { "connection coords" : list(np.round(coords, 6)),
+                                                    "connection type" : connection_type }
+
+            with open(path, "w") as file:
+                json.dump(psd_data, file, indent=2)
 
     def write_psd_data_in_file(self):
-    
+
         project_path = Path(self.file._project_path)
         path = project_path / "psd_info.json"
 
@@ -203,8 +223,9 @@ class PulsationSuppressionDevice:
 
         self.write_psd_data_in_file()
         self.remove_psd_lines_from_entity_file(device_label)
-        self.remove_psd_related_element_length_correction(device_label)
+        self.remove_psd_related_element_length_correction("_remove_all_")
         self.load_project()
+        self.update_length_correction_after_psd_removal()
 
     def remove_all_psd(self):
 
@@ -216,79 +237,33 @@ class PulsationSuppressionDevice:
         self.remove_psd_related_element_length_correction("_remove_all_")
         self.load_project()
 
-    def get_psd_info_from_selected_lines(self, lines):
+    def update_length_correction_after_psd_removal(self):
 
-        config = configparser.ConfigParser()
-        config.read(self.file._entity_path)
+        project_path = Path(self.file._project_path)
+        path = project_path / "psd_info.json"
 
-        psd_info = list()
-        for section in config.sections():
-
-            if "-" in section:
-                continue
-            
-            tag = int(section)
-            if tag in lines:
-
-                keys = list(config[section].keys())
-
-                psd_label = config[section]["psd label"]
-                psd_segment = config[section]["psd segment"]
-
-                if "psd label" in keys:
-                    psd_info.append((tag, psd_label, psd_segment))
-
-        return psd_info
-
-    def update_psd_cross_sections(self, lines, section_data):
-
-        psd_lines_data = self.get_psd_info_from_selected_lines(lines)
-
-        if psd_lines_data:
-
-            project_path = Path(self.file._project_path)
-            path = project_path / "psd_info.json"
-
-            self.link_info = defaultdict(list)
-            if not os.path.exists(path):
-                return
+        if path.exists():
 
             with open(path) as file:
-                psd_info = json.load(file)
+                read_data = json.load(file)
 
-            diameter = section_data[0]
-            thickness = section_data[1]
+            for device_label, psd_data in read_data.items():
 
-            for (tag, current_psd_label, segment_label) in psd_lines_data:
+                elc_data = list()
+                for key, value in psd_data.items():
+                    if "element length correction -" in key:
+                        elc_coords = value["connection coords"]
+                        elc_type = value["connection type"]
+                        elc_data.append((elc_coords, elc_type))
 
-                parameters = list()
-                for psd_label, psd_data in psd_info.items():
-                    if psd_label == current_psd_label:
+                if elc_data:
+                    self.set_element_length_corrections(device_label, elc_data)
 
-                        key = f"{segment_label} parameters"
-                        if key in psd_data.keys():
-
-                            length = psd_data[key][2]
-                            if len(psd_data[key]) == 4:
-                                distance = psd_data[key][3]
-                                parameters = [diameter, thickness, length, distance]
-
-                            else:
-                                parameters = [diameter, thickness, length]
-            
-                            break
-
-                if parameters:
-                    psd_info[current_psd_label][key] = parameters
-
-            with open(path, "w") as file:
-                json.dump(psd_info, file, indent=2)
-
-    def set_element_length_corrections(self, device_label, device):
+    def set_element_length_corrections(self, device_label, elc_data):
 
         prefix = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
 
-        for (coords, connection_type) in device.branch_data:
+        for (coords, connection_type) in elc_data:
 
             node_id = self.project.preprocessor.get_node_id_by_coordinates(coords)
             elements = self.project.preprocessor.neighboor_elements_of_node(node_id)
@@ -317,25 +292,27 @@ class PulsationSuppressionDevice:
     def remove_psd_related_element_length_correction(self, device_label):
 
         path = self.file._element_info_path
-        if device_label == "_remove_all_":
-            if os.path.exists(path):
-                os.remove(path)
-                return
-
         config = configparser.ConfigParser()
+
         config.read(path)
 
-        for section in config.sections():
+        if path.exists():
 
-            if "psd label" in config[section].keys():
-                if device_label in config[section]["psd label"]:
-                    config.remove_section(section=section)
+            for section in config.sections():
+                if "psd label" in config[section].keys():
+                    if device_label == "_remove_all_":
+                        config.remove_section(section=section)
 
-        if list(config.sections()):
-            with open(path, 'w') as config_file:
-                config.write(config_file)
-        else:
-            os.remove(path)
+                    elif device_label == config[section]["psd label"]:
+                        config.remove_section(section=section)
+
+            if list(config.sections()):
+                with open(path, 'w') as config_file:
+                    config.write(config_file)
+
+            else:
+                if path.exists():
+                    os.remove(path)
 
     def load_project(self):
 

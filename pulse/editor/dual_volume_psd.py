@@ -413,6 +413,9 @@ class DualVolumePSD:
             self.branch_data.append((Q2, "axial"))
             self.branch_data.append((Q3, "axial"))
 
+    def process_double_tunned_psd(self):
+        pass
+
     def process_segment_data(self):
 
         if self.pipe1_angle is None and self.pipe2_angle is None:
