@@ -694,9 +694,10 @@ class opvAnalysisRenderer(vtkRendererBase):
     def set_tube_actors_transparency(self, transparency):
         opacity = 1 - transparency
         
-        self.opvDeformedTubes.GetProperty().SetOpacity(opacity)
-        self.opvPressureTubes.GetProperty().SetOpacity(opacity)
-        self.opvClippableDeformedTubes.GetProperty().SetOpacity(opacity)
-        self.opvClippablePressureTubes.GetProperty().SetOpacity(opacity)
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvClippableDeformedTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvClippablePressureTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.update()
 
 
