@@ -271,7 +271,7 @@ class FrequencyResponsePlotter(QDialog):
         if app().main_window.interface_theme == "dark":
             color = QColor("#5f9af4")
         else:
-            color = QColor("#ff0000")
+            color = QColor("#1a73e8")
 
         icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
 
