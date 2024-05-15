@@ -10,6 +10,7 @@ from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
 #
 from pulse import app
+from pulse.editor.pulsation_suppression_device import PulsationSuppressionDevice
 # from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 # from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
@@ -26,7 +27,8 @@ class Project:
     def __init__(self):
 
         self.file = app().file
-        self.preprocessor = Preprocessor(self)        
+        self.preprocessor = Preprocessor(self)
+        self.PSD = PulsationSuppressionDevice(self)
 
         self.reset()
 
@@ -155,6 +157,7 @@ class Project:
         self.load_entity_file()
         self.load_analysis_file()
         self.load_inertia_load_setup()
+        self.PSD.load_psd_data_from_file()
 
     def update_node_ids_in_file_after_remesh(self, dict_mapped_indexes, dict_non_mapped_indexes):
         self.file.modify_node_ids_in_acoustic_bc_file(dict_mapped_indexes, dict_non_mapped_indexes)
@@ -1534,10 +1537,10 @@ class Project:
                     self.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")  
             remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None, equals_keys=True)
 
-    def set_element_length_correction_by_elements(self, elements, value, section):
+    def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
         # label = ["acoustic element length correction"] 
         self.preprocessor.set_length_correction_by_element(elements, value, section)
-        self.file.add_length_correction_in_file(elements, value, section)
+        self.file.add_length_correction_in_file(elements, value, section, psd_label=psd_label)
     
     def set_perforated_plate_by_elements(self, list_elements, perforated_plate, section):
         self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, section)

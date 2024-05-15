@@ -77,6 +77,8 @@ class Preprocessor:
         self.nodes_with_compressor_excitation = list()
         self.nodes_with_specific_impedance = list()
         self.nodes_with_radiation_impedance = list()
+        self.nodes_with_acoustic_links = dict()
+        self.nodes_with_structural_links = dict()
         self.element_with_length_correction = list()
         self.elements_with_perforated_plate = list()
         self.element_with_capped_end = list()
@@ -603,13 +605,14 @@ class Preprocessor:
             List of acoustic elements indexes.
         """
         node = self.nodes[node_ID]
-        neighboor_elments = defaultdict(list)      
+        neighboor_elements = defaultdict(list) 
+
         for element in self.acoustic_elements.values():
             first = element.first_node
             last = element.last_node
             if node in [first, last]:
-                neighboor_elments[node].append(element.index)
-        return neighboor_elments[node]
+                neighboor_elements[node].append(element)#.index)
+        return neighboor_elements[node]
 
     def add_lids_to_variable_cross_sections(self):
         """ 
@@ -1707,7 +1710,7 @@ class Preprocessor:
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
         neighboor_elements = self.neighboor_elements_of_node(node_ID)
-        if len(neighboor_elements)<3:
+        if len(neighboor_elements) < 3:
             return mat_ones
         
         mat_base = np.array([[1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
@@ -3012,14 +3015,14 @@ class Preprocessor:
         out_data = [ [ pos_data, neg_data ], [ neg_data, pos_data ] ]
         element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
         element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
-        
+
         if _stiffness:
             self.nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
             node1.elastic_nodal_link_stiffness[key] = [mask, value_labels]
             node2.elastic_nodal_link_stiffness[key] = [mask, value_labels]
             node1.there_are_elastic_nodal_link_stiffness = True
             node2.there_are_elastic_nodal_link_stiffness = True
-        
+
         if _damping:
             self.nodes_with_elastic_link_dampings[key] = [element_matrix_info_node1, element_matrix_info_node2]
             node1.elastic_nodal_link_dampings[key] = [mask, value_labels]
@@ -3154,6 +3157,116 @@ class Preprocessor:
                     self.dict_non_mapped_bcs[key] = old_external_index
         self.get_nodal_coordinates_matrix()
         return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
+    
+    def get_node_id_by_coordinates(self, coords, radius=None):
+        """
+            This method returns the external node ids inside a influence sphere centered in 'coords' point.
+
+        Parameters:
+        ------------
+
+            coordinates : list, np.ndarray or tuple
+                represents the nodal coordinates of interest
+
+            radius: float (default None)
+                the radius of interest considered. The sphere default radius is equal to element_size / 20.
+
+        Returns:
+        --------
+
+            external_index: int
+                this value correspond to the 
+        
+        """
+
+        coord_matrix = self.nodal_coordinates_matrix_external
+        list_coordinates = coord_matrix[:,1:].tolist()
+        external_indexes = coord_matrix[:,0]
+
+        if isinstance(coords, (np.ndarray, tuple)):
+            coords = list(coords)
+
+        if radius is None:
+            radius = self.element_size / 20
+
+        if coords in list_coordinates:
+            ind = list_coordinates.index(coords)
+            external_index = int(external_indexes[ind])
+        else:
+            diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
+            mask = diff < radius
+            try:
+                external_index = int(external_indexes[mask])
+            except:
+                return None
+        
+        return external_index
+
+
+    def add_acoustic_link_data(self, nodes):
+        """
+        """
+        if len(nodes) == 2:
+            
+            ext_id1 = min(nodes) 
+            ext_id2 = max(nodes)
+
+            neigh_elem_node_1 = self.neighboor_elements_of_node(ext_id1)
+            neigh_elem_node_2 = self.neighboor_elements_of_node(ext_id2)
+
+            if len(neigh_elem_node_1) == 1:
+
+                element_pipe = neigh_elem_node_1[0]
+                d_minor = element_pipe.cross_section.inner_diameter
+
+                element_volume = neigh_elem_node_2[0]
+                d_major = element_volume.cross_section.inner_diameter
+
+            if len(neigh_elem_node_2) == 1:
+
+                element_pipe = neigh_elem_node_2[0]
+                d_minor = element_pipe.cross_section.inner_diameter
+
+                element_volume = neigh_elem_node_1[0]
+                d_major = element_volume.cross_section.inner_diameter
+
+            node_id1 = self.nodes[ext_id1].global_index
+            node_id2 = self.nodes[ext_id2].global_index
+
+            indexes_i = [ node_id1, node_id2, node_id1, node_id2 ] 
+            indexes_j = [ node_id1, node_id1, node_id2, node_id2 ]
+
+            self.nodes_with_acoustic_links[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element_pipe ]
+            element_pipe.acoustic_link_diameters = [d_minor, d_major]
+
+            # for node_id in nodes:
+            #     self.nodes[node_id].acoustic_link[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element ]
+
+    def add_structural_link_data(self, nodes, k=1e9, kr=1e8):
+        """
+        """
+        if len(nodes) == 2:
+
+            gdofs, *args = self.get_gdofs_from_nodes(nodes[0], nodes[1])
+            gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
+            gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
+
+            stiffness = np.array([k, k, k, kr, kr, kr], dtype=float)
+            pos_data = np.ones(DOF_PER_NODE_STRUCTURAL, dtype=float)*stiffness
+            neg_data = -pos_data
+
+            indexes_i = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
+            indexes_j = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
+            out_data = [ pos_data, neg_data, neg_data, pos_data ]
+
+            indexes_i = np.array(indexes_i, dtype=int).flatten()
+            indexes_j = np.array(indexes_j, dtype=int).flatten()
+            out_data = np.array(out_data, dtype=float).flatten()
+
+            self.nodes_with_structural_links[nodes] = [indexes_i, indexes_j, out_data]
+
+            # for node_id in nodes:
+            #     self.nodes[node_id].structural_link[nodes] = [indexes_i, indexes_j, out_data]
 
 
     def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):

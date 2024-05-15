@@ -1,3 +1,5 @@
+import vtk
+
 from pulse import SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 from pulse.tools.utils import transformation_matrix_3x3
@@ -15,8 +17,39 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 (self._get_compressor_discharge_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/compressor_discharge.obj'))
             ]
 
+    def source(self):
+        super().source()
+        self._create_acoustic_links()
+
     # def _createSequence(self):
     #     return self.project.get_nodes().values()
+
+    def _create_acoustic_links(self):
+
+        nodes = self.preprocessor.nodes
+        linkedSymbols = vtk.vtkAppendPolyData()
+
+        for (a, b) in self.preprocessor.nodes_with_acoustic_links.keys():
+            # divide the value of the coordinates by the scale factor
+            source = vtk.vtkLineSource()
+            source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
+            source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
+            source.Update()
+            linkedSymbols.AddInputData(source.GetOutput())
+        
+        s = vtk.vtkSphereSource()
+        s.SetRadius(0)
+
+        linkedSymbols.AddInputData(s.GetOutput())
+        linkedSymbols.Update()
+
+        index = len(self._connections)
+        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._sources.InsertNextTuple1(index)
+        self._positions.InsertNextPoint(0,0,0)
+        self._rotations.InsertNextTuple3(0,0,0)
+        self._scales.InsertNextTuple3(1,1,1)
+        self._colors.InsertNextTuple3(0,250,250)
 
     def _get_acoustic_pressure_symbol(self):
 
