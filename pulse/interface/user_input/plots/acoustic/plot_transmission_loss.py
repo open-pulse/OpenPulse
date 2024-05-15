@@ -241,7 +241,6 @@ class PlotTransmissionLoss(QWidget):
             ## Reference: 
             ## Howard, Carl Q. and Cazzolato, Benjamin S. Acoustic Analyses Using MATLAB® and ANSYS®. pags. 74 and 75. 2014.
   
-    
             Q = self.input_volume_velocity
             u_n = Q / A_in
             P_in = u_n*rho_in*c0_in / 2

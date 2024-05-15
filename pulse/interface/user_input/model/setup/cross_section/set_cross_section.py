@@ -565,8 +565,6 @@ class SetCrossSectionInput(QDialog):
 
     def update_line_and_element_ids(self, lines_id, elements_id):
 
-        print("entrei aqui", lines_id)
-
         if self.check_if_lines_belongs_to_psd(lines_id):
             return
 
@@ -575,7 +573,7 @@ class SetCrossSectionInput(QDialog):
             self.label_selected_id.setText("Lines IDs:")
             self.comboBox_selection.setCurrentIndex(1)
             self.write_ids(lines_id)
-            
+
         elif elements_id:
             self.label_selected_id.setText("Elements IDs:")
             self.comboBox_selection.setCurrentIndex(2)
