@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
-from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QAbstractButton, QAction
+from PyQt5.QtGui import QCloseEvent, QIcon, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 
@@ -38,7 +38,9 @@ class GetStartedInput(QDialog):
         self.complete = False
 
     def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        widgets = self.findChildren((QAbstractButton, QAction))
+        icons.change_icon_color_for_widgets(widgets, QColor("#1a73e8"))
+        self.icon = icons.get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
