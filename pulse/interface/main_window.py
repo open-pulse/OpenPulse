@@ -605,24 +605,32 @@ class MainWindow(QMainWindow):
         
     def set_clip_plane_configs(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.opv_widget.opvAnalysisRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
-        
-        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
-            self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
+            if self.opv_widget.opvAnalysisRenderer.getInUse():
+                self.opv_widget.opvAnalysisRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
+            else:
+                self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
 
+        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+            self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
 
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.opv_widget.opvAnalysisRenderer.apply_clipping_plane()
+            if self.opv_widget.opvAnalysisRenderer.getInUse():
+                self.opv_widget.opvAnalysisRenderer.apply_clipping_plane()
+            else:
+                self.opv_widget.opvRenderer.apply_clipping_plane()
         
-        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
+        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.opv_widget.opvRenderer.apply_clipping_plane()
         
     def close_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.opv_widget.opvAnalysisRenderer.dismiss_clipping_plane()
+            if self.opv_widget.opvAnalysisRenderer.getInUse():
+                self.opv_widget.opvAnalysisRenderer.dismiss_clipping_plane()
+            else:
+                self.opv_widget.opvRenderer.dismiss_clipping_plane()
         
-        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
+        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.opv_widget.opvRenderer.dismiss_clipping_plane()
 
     def action_set_structural_element_type_callback(self):
