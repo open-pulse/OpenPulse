@@ -386,6 +386,8 @@ class ModelInfoText:
                 if entity.material is not None:
                     text += f"Material:  {entity.material.name}\n"
 
+                text += f"Structural element type:  {structural_element_type}\n\n"
+
                 if entity.cross_section is not None:
                     if entity.structural_element_type == "beam_1":
 
@@ -396,7 +398,6 @@ class ModelInfoText:
                         section_label = entity.getCrossSection().section_label
                         xaxis_rotation = entity.xaxis_beam_rotation
 
-                        text += f"Structural element type:  {structural_element_type} "
                         text += f"({section_label.capitalize()})\n\n"
 
                         text += f"Area:  {area} [m²]\n"
@@ -407,8 +408,6 @@ class ModelInfoText:
 
                     elif entity.structural_element_type in ["pipe_1", "valve"]:
 
-                        text += f"Structural element type:  {structural_element_type}\n\n"
-                        
                         outer_diameter = entity.cross_section.outer_diameter
                         thickness = entity.cross_section.thickness
                         offset_y = entity.cross_section.offset_y

@@ -50,7 +50,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.dkey = None
         self.log_removal = True
         self.elements_info_path = self.project.file._element_info_path
-        self.dict_label = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
+        self.prefix_label = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -125,14 +125,14 @@ class AcousticElementLengthCorrectionInput(QDialog):
             type_id = 2
             self.type_label = "'Loop'"
         
-        section = self.dict_label.format("Selection-1")
+        section = self.prefix_label.format("Selection-1")
         keys = self.preprocessor.group_elements_with_length_correction.keys()
 
         if section in keys:
             index = 1
             while section in keys:
                 index += 1
-                section = self.dict_label.format(f"Selection-{index}")
+                section = self.prefix_label.format(f"Selection-{index}")
 
         self.set_elements_to_correct(type_id, section, _print=True)
         self.replaced = False
@@ -184,7 +184,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.load_elements_info()
 
     def load_elements_info(self):
-        keys = [0,1,2]
+        keys = [0, 1, 2]
         labels = ['Expansion', 'Side branch', 'Loop']
         self.dict_correction_types = dict(zip(keys, labels))
         self.treeWidget_length_correction_groups.clear()
@@ -200,9 +200,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def on_click_item(self, item):
         self.lineEdit_element_id.setText(item.text(0))
+        key = self.prefix_label.format(item.text(0))
+        list_elements = self.dict_group_elements[key][1]
+        self.opv.opvRenderer.highlight_elements(list_elements)
 
     def on_doubleclick_item(self, item):
-        self.lineEdit_element_id.setText(item.text(0))
+        self.on_click_item(item)
         self.get_information_of_group()
 
     def remove_function(self, key):
@@ -225,7 +228,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def remove_element_length_correction_by_group(self):
         if self.dkey is None:
-            key = self.dict_label.format(self.lineEdit_element_id.text())
+            key = self.prefix_label.format(self.lineEdit_element_id.text())
             if "Selection-" in self.lineEdit_element_id.text():
                 self.remove_function(key)
             self.lineEdit_element_id.setText("")
@@ -246,12 +249,13 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def get_information_of_group(self):
         try:
 
-            selected_key = self.dict_label.format(self.lineEdit_element_id.text())
+            selected_key = self.prefix_label.format(self.lineEdit_element_id.text())
             if "Selection-" in selected_key:
 
                 self.close()
                 data = dict()
                 group_data = self.dict_group_elements[selected_key]
+
                 key = self.dict_correction_types[group_data[0]]
                 for element_id in group_data[1]:
                     data[element_id] = [key]
