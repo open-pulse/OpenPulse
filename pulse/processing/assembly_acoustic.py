@@ -450,7 +450,7 @@ class AssemblyAcoustic:
             K_link = full_K_link[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
             M_link = full_M_link[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
 
-            return K_link, M_link
+        return K_link, M_link
 
     def get_global_volume_velocity(self):
         """
