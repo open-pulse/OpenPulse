@@ -295,9 +295,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         elif view == BACK:
             z -= 1 
         elif view == ORTH:
-            x -= 1
-            y -= 1
-            z -= 1
+            x += 1
+            y += 1
+            z += 1
         else:
             return
 
