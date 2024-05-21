@@ -168,11 +168,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.update_min_max_stresses_text()
         self.opv.update()
         self._renderer.ResetCameraClippingRange()
-        
-        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
-        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
-        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
-        
+
         self.update()
 
     def updateHud(self):
@@ -210,6 +206,10 @@ class opvAnalysisRenderer(vtkRendererBase):
                 self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
         self._currentPhase = phase_step
         self._currentPlot(self._currentFrequencyIndex, phase_step)
         self.updateAll()
@@ -581,6 +581,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         pass
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
         if self.playingAnimation:
             self.pauseAnimation()
         
@@ -615,7 +620,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
     
-    def dismiss_clipping_plane(self):                
+    def dismiss_clipping_plane(self):
+
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
         self.plane_origin = None
         self.plane_normal = None
     
