@@ -168,6 +168,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.update_min_max_stresses_text()
         self.opv.update()
         self._renderer.ResetCameraClippingRange()
+        
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        
         self.update()
 
     def updateHud(self):
@@ -622,7 +627,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.first_configuration = True
         self.clipping_plane_active = False
         self._plotOnce(self._currentPhase)
-
+    
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
         for i, element in self.project.get_structural_elements().items():
@@ -698,6 +703,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().GetProperty().SetOpacity(opacity)
         self.opvClippableDeformedTubes.getActor().GetProperty().SetOpacity(opacity)
         self.opvClippablePressureTubes.getActor().GetProperty().SetOpacity(opacity)
+    
         self.update()
 
 
