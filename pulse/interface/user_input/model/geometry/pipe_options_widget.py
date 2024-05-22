@@ -1,7 +1,7 @@
 from copy import deepcopy
 import warnings
 
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QTabWidget
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QSlider, QLabel
 from PyQt5.QtCore import pyqtSignal
 from PyQt5 import uic
 
@@ -20,6 +20,8 @@ class PipeOptionsWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.pipeline = app().project.pipeline
+        self.render_widget = app().main_window.geometry_widget
+
         self.structure_type = Pipe
         self.add_function = self.pipeline.add_bent_pipe
         self.attach_function = self.pipeline.connect_bent_pipes
@@ -34,6 +36,13 @@ class PipeOptionsWidget(QWidget):
     def _define_qt_variables(self):
         self.bending_options_combobox: QComboBox
         self.bending_radius_line_edit: QLineEdit
+
+        self.division_combobox: QComboBox
+        self.division_slider: QSlider
+        self.cancel_division_button: QPushButton
+        self.apply_division_button: QPushButton
+        self.division_amount_label: QLabel
+        self.division_slider_label: QLabel
 
         self.set_section_button: QPushButton
         self.cross_section_widget = CrossSectionWidget(self)
@@ -53,8 +62,14 @@ class PipeOptionsWidget(QWidget):
         self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
 
+        self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
+        self.division_slider.valueChanged.connect(self.division_slider_callback)
+        self.cancel_division_button.clicked.connect(self.cancel_division_callback)
+        self.apply_division_button.clicked.connect(self.apply_division_callback)
+
     def _initialize(self):
         self.bending_options_changed_callback("long radius")
+        self.division_type_changed_callback("single division")
         self.set_section_button.setProperty("warning", True)
         self.style().polish(self.set_section_button)
 
@@ -137,6 +152,53 @@ class PipeOptionsWidget(QWidget):
         else:
             self._apply_bending_radius_to_selection()
             self.edited.emit()
+
+    def division_type_changed_callback(self, text: str):
+        division_type = text.lower()
+
+        if division_type == "single division":
+            self.division_slider.setMinimum(0)
+            self.division_slider.setMaximum(100)
+            self.division_slider.setValue(50)
+            self.division_slider_label.setText("Position")
+
+        elif division_type == "multiple division":
+            self.division_slider.setMinimum(1)
+            self.division_slider.setMaximum(10)
+            self.division_slider.setValue(1)
+            self.division_slider_label.setText("Divisions")
+
+    def division_slider_callback(self, value):
+        division_type = self.division_combobox.currentText().lower()
+        self.pipeline.dismiss()
+
+        if division_type == "single division":
+            self.pipeline.preview_divide_structures(value / 100)
+            self.division_amount_label.setText(f"[{value} %]")
+
+        elif division_type == "multiple division":
+            self.pipeline.preview_divide_structures_evenly(value)
+            self.division_amount_label.setText(f"[{value}]")
+
+        self.render_widget.update_plot(reset_camera=False)
+    
+    def cancel_division_callback(self):
+        self.pipeline.dismiss()
+        self.render_widget.update_plot(reset_camera=False)
+
+    def apply_division_callback(self):
+        self.pipeline.dismiss()
+        value = self.division_slider.value()
+        division_type = self.division_combobox.currentText().lower()
+
+        if division_type == "single division":
+            self.pipeline.divide_structures(value / 100)
+
+        elif division_type == "multiple division":
+            self.pipeline.divide_structures_evenly(value)
+
+        self.pipeline.clear_structure_selection()
+        self.render_widget.update_plot(reset_camera=False)
 
     def _apply_bending_radius_to_selection(self):
         for bend in self.pipeline.selected_structures:
