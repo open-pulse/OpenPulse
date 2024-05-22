@@ -142,7 +142,6 @@ class GeometryHandler:
             self.pipeline.merge_coincident_points()
             app().update()
     
-
     def _process_pipe(self, key: str, data: dict):
         if "section_parameters" not in data.keys():
             return
@@ -194,8 +193,12 @@ class GeometryHandler:
 
         structure.extra_info["cross_section_info"] = section_info
         structure.extra_info["structural_element_type"] = "pipe_1"
+
         if "material_id" in data.keys():
             structure.extra_info["material_info"] = data['material_id']
+        
+        if "psd_label" in data.keys():
+            structure.extra_info["psd_label"] = data["psd_label"]
 
         return structure
 
@@ -587,7 +590,6 @@ class GeometryHandler:
 
         PrintMessageInput([window_title_2, title, message])
 
-
     def export_entity_file(self):
 
         tag = 1
@@ -595,6 +597,8 @@ class GeometryHandler:
         section_info = dict()
         element_type_info = dict()
         material_info = dict()
+        psd_info = dict()
+        pipeline = app().geometry_toolbox.pipeline
 
         for structure in self.pipeline.structures:
 
@@ -617,6 +621,9 @@ class GeometryHandler:
             if "structural_element_type" in structure.extra_info.keys():
                 if structure.extra_info["structural_element_type"] is not None:
                     element_type_info[tag] = structure.extra_info["structural_element_type"]
+
+            if "psd_label" in structure.extra_info.keys():
+                psd_info[tag] = structure.extra_info["psd_label"]
 
             tag += 1
 
@@ -641,6 +648,10 @@ class GeometryHandler:
             if len(material_info):
                 for tag, material_id in material_info.items():
                     self.file.add_material_segment_in_file(tag, material_id)
+
+            if psd_info:
+                for tag, label in psd_info.items():
+                    self.file.add_psd_label_in_file(tag, label)
 
             self.file.modify_project_attributes(import_type = 1)
             # self.load_project()

@@ -3,6 +3,7 @@ from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, 
 from PyQt5.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
+from pulse import app
 from pulse.interface.menu.common_menu_items import CommonMenuItems
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -106,6 +107,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_select_analysis_type.clicked.connect(self.item_child_select_analysis_type_callback)
         self.item_child_analysis_setup.clicked.connect(self.item_child_analisys_setup_callback)
         self.item_child_run_analysis.clicked.connect(self.item_child_run_analysis_callback)
+        app().main_window.theme_changed.connect(self.set_theme)
 
     def update_plot_mesh(self):
 

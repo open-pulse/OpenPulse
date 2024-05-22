@@ -74,9 +74,7 @@ class opvRenderer(vtkRendererBase):
         self.plane_normal = None
         self.first_configuration = True
 
-        self._style.AddObserver("SelectionChangedEvent", self.highlight)
-        self._style.AddObserver("SelectionChangedEvent", self.updateInfoText)
-        self._style.AddObserver("SelectionChangedEvent", self.showElementAxes)
+        self._style.AddObserver("SelectionChangedEvent", self.selection_callback)
 
         self.updateHud()
 
@@ -428,13 +426,13 @@ class opvRenderer(vtkRendererBase):
         self.opvLines.setColor(self.lines_color)
         self.opvTubes.setColor(self.surfaces_color)
 
+    def selection_callback(self, obj, event):
+        self.highlight_selection(allow_updates=False)
+        self.updateInfoText(allow_updates=False)
+        self.showElementAxes(allow_updates=False)
+        self.update()
 
-    def call_update_in_QDialogs_if_highlighted(self):
-        self.opv.updateDialogs()
-        # renWin = self._renderer.GetRenderWindow()
-        # if renWin: renWin.Render()    
-
-    def highlight(self, obj, event):
+    def highlight_selection(self, *args, allow_updates=True, **kwargs):
         visual = [self.opvNodes, self.opvLines, self.opvTubes]
         if any([v is None for v in visual]):
             return
@@ -466,8 +464,8 @@ class opvRenderer(vtkRendererBase):
             self.opvTubes.setColor(selectionColor, keys=elementsFromLines)
             _update = True
 
-        if _update:
-            self.call_update_in_QDialogs_if_highlighted()
+        if _update and allow_updates:
+            self.update()
 
     def highlight_lines(self, line_ids, reset_colors=True, color=(255,0,0)):
         if reset_colors:
@@ -499,9 +497,10 @@ class opvRenderer(vtkRendererBase):
 
         self.opvNodes.setColor(selectionColor, keys=node_ids)
 
-    def showElementAxes(self, obj, event):
+    def showElementAxes(self, *args, allow_updates=True, **kwargs):
         self._renderer.RemoveActor(self.elementAxes)
-        self.update()
+        if allow_updates:
+            self.update()
 
         ids = self.getListPickedElements()
 
@@ -530,7 +529,8 @@ class opvRenderer(vtkRendererBase):
         self.elementAxes.SetShaftTypeToCylinder()
 
         self._renderer.AddActor(self.elementAxes)
-        self.update()
+        if allow_updates:
+            self.update()
 
     def getPlotRadius(self, *args, **kwargs):
         return 
@@ -541,7 +541,7 @@ class opvRenderer(vtkRendererBase):
     def setPlotRadius(self, *args, **kwargs):
         pass
 
-    def updateInfoText(self, obj, event):
+    def updateInfoText(self, *args, allow_updates=True, **kwargs):
         text = ""
         if self.selectionToNodes() and self.getListPickedPoints():
             text += self.model_info_text.get_nodes_info_text() + "\n"
@@ -553,7 +553,8 @@ class opvRenderer(vtkRendererBase):
             text += self.model_info_text.get_entities_info_text()  + "\n"
 
         self.createInfoText(text)
-        self.update()
+        if allow_updates:
+            self.update()
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
         self.opvTubes.disable_cut()

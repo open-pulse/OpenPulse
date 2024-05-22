@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
+from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QAbstractButton
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
 
 from pulse import app, UI_DIR, QSS_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
@@ -37,6 +37,7 @@ class Workspace(IntEnum):
 
 class MainWindow(QMainWindow):
     permission_changed = pyqtSignal()
+    theme_changed = pyqtSignal(str)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -67,7 +68,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(combined_stylesheet)
 
     def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
+        self.pulse_icon = icons.get_openpulse_icon()
 
     def _config_window(self):
         self.showMaximized()
@@ -109,6 +110,7 @@ class MainWindow(QMainWindow):
         self.action_export_piping : QAction
         self.action_user_preferences : QAction
         self.action_geometry_editor_help : QAction
+        self.action_pulsation_suppression_device_editor : QAction
 
         # QMenu
         self.menu_recent : QMenu
@@ -519,6 +521,9 @@ class MainWindow(QMainWindow):
     def action_geometry_editor_help_callback(self):
         self.input_widget.geometry_editor_help()
 
+    def action_pulsation_suppression_device_editor_callback(self):
+        self.input_widget.pulsation_suppression_device_editor()
+
     def action_plot_lines_callback(self):
         self.use_structural_setup_workspace()
         self.plot_entities()
@@ -611,24 +616,32 @@ class MainWindow(QMainWindow):
         
     def set_clip_plane_configs(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.opv_widget.opvAnalysisRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
-        
-        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
-            self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
+            if self.opv_widget.opvAnalysisRenderer.getInUse():
+                self.opv_widget.opvAnalysisRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
+            else:
+                self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
 
+        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+            self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
 
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.opv_widget.opvAnalysisRenderer.apply_clipping_plane()
+            if self.opv_widget.opvAnalysisRenderer.getInUse():
+                self.opv_widget.opvAnalysisRenderer.apply_clipping_plane()
+            else:
+                self.opv_widget.opvRenderer.apply_clipping_plane()
         
-        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
+        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.opv_widget.opvRenderer.apply_clipping_plane()
         
     def close_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.opv_widget.opvAnalysisRenderer.dismiss_clipping_plane()
+            if self.opv_widget.opvAnalysisRenderer.getInUse():
+                self.opv_widget.opvAnalysisRenderer.dismiss_clipping_plane()
+            else:
+                self.opv_widget.opvRenderer.dismiss_clipping_plane()
         
-        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
+        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.opv_widget.opvRenderer.dismiss_clipping_plane()
 
     def action_set_structural_element_type_callback(self):
@@ -755,31 +768,41 @@ class MainWindow(QMainWindow):
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
-        self.update_themes_in_file(theme="dark")
-        if self.interface_theme in [None, "light"]:
-            self.interface_theme = "dark"
-            self.custom_colors = { "[dark]": { "toolbar.background": "#202124"} }
-            qdarktheme.setup_theme("dark", custom_colors=self.custom_colors)
-            self.action_set_light_theme.setDisabled(False)
-            self.action_set_dark_theme.setDisabled(True)
-            self.geometry_widget.set_theme("dark")
-            self.mesh_widget.set_theme("dark")
-            self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("dark")
-            self.results_viewer_wigdet.results_viewer_items.set_theme("dark")
-        self._load_stylesheets()
+        self.set_theme("dark")
 
     def action_set_light_theme_callback(self):
-        self.update_themes_in_file(theme="light")
-        if self.interface_theme in [None, "dark"]:
-            self.interface_theme = "light"
-            qdarktheme.setup_theme("light")
-            self.action_set_light_theme.setDisabled(True)
-            self.action_set_dark_theme.setDisabled(False)
-            self.geometry_widget.set_theme("light")
-            self.mesh_widget.set_theme("light")
-            self.model_and_analysis_setup_widget.model_and_analysis_setup_items.set_theme("light")
-            self.results_viewer_wigdet.results_viewer_items.set_theme("light")
+        self.set_theme("light")
+    
+    def set_theme(self, theme):
+        if theme not in ["light", "dark"]:
+            return
+    
+        self.update_themes_in_file(theme)
+        if self.interface_theme == theme:
+            return
+        
+        self.custom_colors = {}
+        if theme == "dark":
+            self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
+            icon_color = QColor("#5f9af4")
+
+        elif theme == "light":
+            icon_color = QColor("#1a73e8")
+    
+        self.interface_theme = theme
+        qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
+        self.theme_changed.emit(theme)
+        
+        self.action_set_light_theme.setDisabled(theme == "light")
+        self.action_set_dark_theme.setDisabled(theme == "dark")
         self._load_stylesheets()
+
+        # paint the icons of every children widget
+        widgets = self.findChildren((QAbstractButton, QAction))
+        icons.change_icon_color_for_widgets(widgets, icon_color)
+
+        # TODO: Connect this via signaling
+        self.geometry_widget.set_theme(theme)
 
     def update_themes_in_file(self, theme):
         if self.update_theme:

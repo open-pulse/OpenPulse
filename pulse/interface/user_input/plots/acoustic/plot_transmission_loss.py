@@ -162,20 +162,32 @@ class PlotTransmissionLoss(QWidget):
 
         if self.comboBox_processing_selector.currentIndex() == 0:
             for node_id in selected_ids:
+
                 neigh_elements = self.neighboor_elements(node_id)
                 if len(neigh_elements) == 1:
                     node = self.preprocessor.nodes[node_id]
                     if node in self.preprocessor.nodes_with_volume_velocity:
                         self.input_volume_velocity = np.real(node.volume_velocity)
                         self.input_node_ID = node_id
-                        self.lineEdit_input_node_id.setText(str(node_id))
-                    if node in self.preprocessor.nodes_with_radiation_impedance:
+
+                    elif node in self.preprocessor.nodes_with_radiation_impedance:
                         if node not in self.preprocessor.nodes_with_volume_velocity:
                             self.output_node_ID = node_id
-                            self.lineEdit_output_node_id.setText(str(node_id))
+
                 else:
                     return True
-        
+
+        else:
+
+            if len(selected_ids) == 2:
+                self.input_node_ID = selected_ids[0]
+                self.output_node_ID = selected_ids[1]
+            else:
+                return True
+
+        self.lineEdit_input_node_id.setText(str(self.input_node_ID))
+        self.lineEdit_output_node_id.setText(str(self.output_node_ID))
+
     def check_inputs(self):
 
         lineEdit_input = self.lineEdit_input_node_id.text()
@@ -214,31 +226,44 @@ class PlotTransmissionLoss(QWidget):
     def get_TL_NR(self):
 
         P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
-        
-        # the zero_shift constant is summed to avoid zero values either in P_input2 or P_output2 variables
-        zero_shift = 1e-12
-        Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
 
         d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
         d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_ID)
         A_in = np.pi*(d_in**2)/4
         A_out = np.pi*(d_out**2)/4
 
+        # the zero_shift constant is summed to avoid zero values either in P_input2 or P_output2 variables
+        zero_shift = 1e-12
+
         index = self.comboBox_processing_selector.currentIndex()
         if index == 0:
+
+            ## Reference: 
+            ## Howard, Carl Q. and Cazzolato, Benjamin S. Acoustic Analyses Using MATLAB® and ANSYS®. pags. 74 and 75. 2014.
+  
             Q = self.input_volume_velocity
-            u_n = Q/A_in
-            P_in = u_n*rho_in*c0_in/1
-            Prms_in2 = (P_in/np.sqrt(2))**2
-            W_in = 10*np.log10(Prms_in2*A_in/(rho_in*c0_in))
-            W_out = 10*np.log10(Prms_out2*A_out/(rho_out*c0_out))
-            TL = W_in - W_out
+            u_n = Q / A_in
+            P_in = u_n*rho_in*c0_in / 2
+            # P_out += zero_shift
+
+            # Prms_in2 = (P_in/np.sqrt(2))**2
+            # Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
+
+            # W_in = 10*np.log10(Prms_in2*A_in/(rho_in*c0_in))
+            # W_out = 10*np.log10(Prms_out2*A_out/(rho_out*c0_out))
+            # TL = W_in - W_out
+
+            TL = 20*np.log10(P_in/P_out) + 20*np.log10(A_in/A_out)
+
             return TL
 
         if index == 1:
+
             P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
             Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
+            Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
             NR = 10*np.log10(Prms_in2/Prms_out2)
+
             return NR
 
     def join_model_data(self):

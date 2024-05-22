@@ -90,7 +90,7 @@ class AssemblyStructural:
                 elif isinstance(value, np.ndarray):
                     list_prescribed_dofs.append(value[0:number_frequencies])
             array_prescribed_values = np.array(list_prescribed_dofs)
-        
+
         except Exception as _error_log:
             print(str(_error_log))
 
@@ -249,7 +249,6 @@ class AssemblyStructural:
         self.nodes_with_lumped_masses = []
         self.nodes_connected_to_springs = []
         self.nodes_connected_to_dampers = []
-        # self.nodes_with_nodal_elastic_links = []
 
         flag_Clump = False
 
@@ -280,7 +279,15 @@ class AssemblyStructural:
                 i_indexes_C.append(position)
                 j_indexes_C.append(position)
                 flag_Clump = True
-        
+ 
+        # structural elastic link in PSDs
+        for key, cluster_data in self.preprocessor.nodes_with_structural_links.items():
+            indexes_i, indexes_j, data = cluster_data
+            i_indexes_K.append(indexes_i)
+            j_indexes_K.append(indexes_j)
+            list_Kdata.append(self.get_bc_array_for_all_frequencies(None, data))
+
+        # structural nodal link for stiffness
         for key, cluster_data in self.preprocessor.nodes_with_elastic_link_stiffness.items():
             node = self.preprocessor.nodes[int(key.split("-")[0])]
             for indexes_i, indexes_j, data, in cluster_data:
@@ -288,7 +295,8 @@ class AssemblyStructural:
                     i_indexes_K.append(indexes_i[i])
                     j_indexes_K.append(indexes_j[i])
                     list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
-        
+
+        # structural nodal link for damping
         for key, cluster_data in self.preprocessor.nodes_with_elastic_link_dampings.items():
             node = self.preprocessor.nodes[int(key.split("-")[0])]
             for indexes_i, indexes_j, data, in cluster_data:
