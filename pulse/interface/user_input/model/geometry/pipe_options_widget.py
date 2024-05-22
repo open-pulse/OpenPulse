@@ -62,6 +62,7 @@ class PipeOptionsWidget(QWidget):
         self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
 
+        self.render_widget.selection_changed.connect(self.selection_callback)
         self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
@@ -90,6 +91,10 @@ class PipeOptionsWidget(QWidget):
             cross_section_info = deepcopy(self.cross_section_info),
         )
         return kwargs
+
+    def selection_callback(self):
+        if not self.pipeline.selected_structures:
+            self.cancel_division_callback()
 
     def show_cross_section_widget_callback(self):
         self.cross_section_widget.show()
