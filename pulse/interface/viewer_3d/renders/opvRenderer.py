@@ -637,5 +637,13 @@ class opvRenderer(vtkRendererBase):
         )
 
         return rx, ry, rz
+    
+    def set_tube_actors_transparency(self, transparency):
+        opacity = 1 - transparency
+
+        self.opvTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.update()
+
+    
 
     
