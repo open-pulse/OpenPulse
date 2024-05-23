@@ -539,6 +539,9 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             if self.check_pipe3_info():
                 return True
+            
+            if self.check_geometric_criteria_for_double_volume_psd():
+                return True
 
             index_vol_connect = self.comboBox_volumes_connection.currentIndex()
 
@@ -564,15 +567,24 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def check_geometric_criteria_for_single_volume_psd(self):
 
-        volume1_length = self.suppression_device_data["volume #1 parameters"][0]
+        volume1_length = self.suppression_device_data["volume #1 parameters"][2]
+        volume1_diameter = self.suppression_device_data["volume #1 parameters"][0]
 
-        pipe1_distance = 0
+        # pipe1_distance = 0
         if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
 
             pipe1_diameter = self.suppression_device_data["pipe #1 parameters"][1]
+            pipe1_length = self.suppression_device_data["pipe #1 parameters"][2]
             pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
+        
+            if pipe1_length <= volume1_diameter / 2:
+                title = "Invalid pipe #1 length"
+                message = "For the radial psd configuration, the 'pipe #1 length' should be greater "
+                message += "than half of the 'volume #1 diameter'."
+                PrintMessageInput([window_title_2, title, message])
+                return True
 
-            if len(self.suppression_device_data["pipe #2 parameters"]) == 3:
+            if len(self.suppression_device_data["pipe #2 parameters"]) == 3: # i.e. pipe #2 is axial
                 if pipe1_distance >= volume1_length - pipe1_diameter / 2:
                     title = "Invalid pipe #1 distance"
                     message = "For the radial-axial psd configuration, the 'pipe #1 distance' should be less "
@@ -583,7 +595,15 @@ class PulsationSuppressionDeviceInput(QDialog):
         if len(self.suppression_device_data["pipe #2 parameters"]) == 5:
 
             pipe2_diameter = self.suppression_device_data["pipe #2 parameters"][1]
+            pipe2_length = self.suppression_device_data["pipe #2 parameters"][2]
             pipe2_distance = self.suppression_device_data["pipe #2 parameters"][3]
+
+            if pipe2_length <= volume1_diameter / 2:
+                title = "Invalid pipe #2 length"
+                message = "For the radial psd configuration, the 'pipe #2 length' should be greater "
+                message += "than half of the 'volume #1 diameter'."
+                PrintMessageInput([window_title_2, title, message])
+                return True
 
             if pipe2_distance >= volume1_length - pipe2_diameter / 2:
                 title = "Invalid pipe #2 distance"
@@ -592,7 +612,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                 PrintMessageInput([window_title_2, title, message])
                 return True
 
-            pipe1_distance = 0
+            # pipe1_distance = 0
             if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
 
                 pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
@@ -602,6 +622,10 @@ class PulsationSuppressionDeviceInput(QDialog):
                     message = "The 'pipe #1 distance' should be less than the 'pipe #2 distance'."
                     PrintMessageInput([window_title_2, title, message])
                     return True
+    def check_geometric_criteria_for_double_volume_psd(self):
+        if self.check_geometric_criteria_for_single_volume_psd():
+            return True
+        
 
     def confirm_button_pressed(self):
 
