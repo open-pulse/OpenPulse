@@ -598,7 +598,6 @@ class GeometryHandler:
         element_type_info = dict()
         material_info = dict()
         psd_info = dict()
-        pipeline = app().geometry_toolbox.pipeline
 
         for structure in self.pipeline.structures:
 
