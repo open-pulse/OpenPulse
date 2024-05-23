@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction
 from PyQt5 import uic
 import re
+from numbers import Number
 import numpy as np
-import warnings
+import math
 from copy import deepcopy
 from opps.model import Point, Pipe, Bend, Flange, ExpansionJoint, Valve, Reducer, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
@@ -112,6 +113,10 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
+
+        self.x_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
+        self.y_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
+        self.z_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
 
         self.pipe_options_widget.edited.connect(self.options_changed_callback)
         self.reducer_options_widget.edited.connect(self.options_changed_callback)
@@ -245,6 +250,8 @@ class GeometryDesignerWidget(QWidget):
             xyz = self._get_xyz()
         except ValueError:
             return
+        except TypeError:
+            return
 
         if issubclass(self.current_structure_type, Point):
             self._xyz_point_callback(xyz)
@@ -252,6 +259,28 @@ class GeometryDesignerWidget(QWidget):
             self._xyz_structure_callback(xyz)
 
         self._update_permissions()
+
+    def xyz_apply_evaluation_callback(self):
+        self.x_line_edit.blockSignals(True)
+        self.y_line_edit.blockSignals(True)
+        self.z_line_edit.blockSignals(True)
+
+        dx = self._eval_number(self.x_line_edit.text())
+        dy = self._eval_number(self.y_line_edit.text())
+        dz = self._eval_number(self.z_line_edit.text())
+
+        if dx is not None:
+            self.x_line_edit.setText(str(dx))
+
+        if dy is not None:
+            self.y_line_edit.setText(str(dy))
+
+        if dz is not None:
+            self.z_line_edit.setText(str(dz))
+
+        self.x_line_edit.blockSignals(False)
+        self.y_line_edit.blockSignals(False)
+        self.z_line_edit.blockSignals(False)
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()
@@ -318,10 +347,54 @@ class GeometryDesignerWidget(QWidget):
     def widget_disappears_callback(self):
         pass
 
+    def _eval_number(self, expression: str):
+        '''
+        We should avoid at all cost to run
+        eval on our code due to safety reasons.
+
+        I am trying my best to avoid any leaks, 
+        because this functionality is pretty cool.
+        '''
+        global_context = {"__builtins__" : None}
+        local_context = {
+            "sqrt": math.sqrt,
+            "sin": lambda x: math.sin(math.radians(x)),
+            "cos": lambda x: math.cos(math.radians(x)),
+        }
+
+        if not expression:
+            return None
+
+        try:
+            result = eval(expression, global_context, local_context)
+        except Exception:
+            return None
+
+        if isinstance(result, Number):
+            return result
+        else:
+            return None
+
     def _get_xyz(self):
+        '''
+        If you find some concerning problem with eval
+        please remove everyting and use the previous 
+        version of this code:
+
         dx = float(self.x_line_edit.text() or 0)
         dy = float(self.y_line_edit.text() or 0)
         dz = float(self.z_line_edit.text() or 0)
+        return dx, dy, dz
+        '''
+
+        dx = self._eval_number(self.x_line_edit.text())
+        dy = self._eval_number(self.y_line_edit.text())
+        dz = self._eval_number(self.z_line_edit.text())
+
+        dx = dx if dx is not None else 0
+        dy = dy if dy is not None else 0
+        dz = dz if dz is not None else 0
+
         return dx, dy, dz
 
     def _set_xyz(self, x, y, z):
