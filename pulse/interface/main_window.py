@@ -62,8 +62,21 @@ class MainWindow(QMainWindow):
 
     def _load_stylesheets(self):
         stylesheets = []
-        for path in QSS_DIR.rglob("*.qss"):
+        common_dir = QSS_DIR / "common_theme"
+        
+        if self.interface_theme == "light":
+            theme_dir = QSS_DIR / "light_theme"
+        elif self.interface_theme == "dark":
+            theme_dir = QSS_DIR / "dark_theme"
+        else:
+            return
+
+        for path in common_dir.rglob("*.qss"):
             stylesheets.append(path.read_text())
+
+        for path in theme_dir.rglob("*.qss"):
+            stylesheets.append(path.read_text())
+
         combined_stylesheet = "\n\n".join(stylesheets)
         self.setStyleSheet(combined_stylesheet)
 
