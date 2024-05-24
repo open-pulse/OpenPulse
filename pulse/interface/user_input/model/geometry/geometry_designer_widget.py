@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction, QSlider
 from PyQt5 import uic
 import re
 from numbers import Number
@@ -61,6 +61,13 @@ class GeometryDesignerWidget(QWidget):
         self.dy_label: QLabel
         self.dz_label: QLabel
 
+        self.division_combobox: QComboBox
+        self.division_slider: QSlider
+        self.cancel_division_button: QPushButton
+        self.apply_division_button: QPushButton
+        self.division_amount_label: QLabel
+        self.division_slider_label: QLabel
+
         self.options_stack_widget: QStackedWidget
         self.empty_widget: QWidget
 
@@ -118,6 +125,11 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
         self.z_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
 
+        self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
+        self.division_slider.valueChanged.connect(self.division_slider_callback)
+        self.cancel_division_button.clicked.connect(self.cancel_division_callback)
+        self.apply_division_button.clicked.connect(self.apply_division_callback)
+
         self.pipe_options_widget.edited.connect(self.options_changed_callback)
         self.reducer_options_widget.edited.connect(self.options_changed_callback)
         self.flange_options_widget.edited.connect(self.options_changed_callback)
@@ -143,10 +155,14 @@ class GeometryDesignerWidget(QWidget):
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback("pipe")
+        self.division_type_changed_callback("single division")
 
     def selection_callback(self):
         if issubclass(self.current_structure_type, Point):
             self._set_xyz_to_selected_point()
+
+        if not self.pipeline.selected_structures:
+            self.cancel_division_callback()
 
         self._update_permissions()
         self._update_information_text()
@@ -281,6 +297,53 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit.blockSignals(False)
         self.y_line_edit.blockSignals(False)
         self.z_line_edit.blockSignals(False)
+
+    def division_type_changed_callback(self, text: str):
+        division_type = text.lower()
+
+        if division_type == "single division":
+            self.division_slider.setMinimum(0)
+            self.division_slider.setMaximum(100)
+            self.division_slider.setValue(50)
+            self.division_slider_label.setText("Position")
+
+        elif division_type == "multiple division":
+            self.division_slider.setMinimum(1)
+            self.division_slider.setMaximum(10)
+            self.division_slider.setValue(1)
+            self.division_slider_label.setText("Divisions")
+
+    def division_slider_callback(self, value):
+        division_type = self.division_combobox.currentText().lower()
+        self.pipeline.dismiss()
+
+        if division_type == "single division":
+            self.pipeline.preview_divide_structures(value / 100)
+            self.division_amount_label.setText(f"[{value} %]")
+
+        elif division_type == "multiple division":
+            self.pipeline.preview_divide_structures_evenly(value)
+            self.division_amount_label.setText(f"[{value}]")
+
+        self.render_widget.update_plot(reset_camera=False)
+    
+    def cancel_division_callback(self):
+        self.pipeline.dismiss()
+        self.render_widget.update_plot(reset_camera=False)
+
+    def apply_division_callback(self):
+        self.pipeline.dismiss()
+        value = self.division_slider.value()
+        division_type = self.division_combobox.currentText().lower()
+
+        if division_type == "single division":
+            self.pipeline.divide_structures(value / 100)
+
+        elif division_type == "multiple division":
+            self.pipeline.divide_structures_evenly(value)
+
+        self.pipeline.clear_structure_selection()
+        self.render_widget.update_plot(reset_camera=False)
 
     def delete_selection_callback(self):
         self.pipeline.dismiss()
