@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction, QSlider
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
 from PyQt5 import uic
 import re
 from numbers import Number
@@ -65,7 +65,7 @@ class GeometryDesignerWidget(QWidget):
         self.division_slider: QSlider
         self.cancel_division_button: QPushButton
         self.apply_division_button: QPushButton
-        self.division_amount_label: QLabel
+        self.division_amount_spinbox: QSpinBox
         self.division_slider_label: QLabel
 
         self.options_stack_widget: QStackedWidget
@@ -127,6 +127,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
+        self.division_amount_spinbox.textChanged.connect(self.division_amount_spinbox_callback)
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
 
@@ -314,16 +315,22 @@ class GeometryDesignerWidget(QWidget):
             self.division_slider_label.setText("Divisions")
 
     def division_slider_callback(self, value):
+        self.division_amount_spinbox.setValue(value)
+
+    def division_amount_spinbox_callback(self, value):
+        value = int(value)
         division_type = self.division_combobox.currentText().lower()
         self.pipeline.dismiss()
 
         if division_type == "single division":
             self.pipeline.preview_divide_structures(value / 100)
-            self.division_amount_label.setText(f"[{value} %]")
 
         elif division_type == "multiple division":
             self.pipeline.preview_divide_structures_evenly(value)
-            self.division_amount_label.setText(f"[{value}]")
+
+        self.division_slider.blockSignals(True)
+        self.division_slider.setValue(value)
+        self.division_slider.blockSignals(False)
 
         self.render_widget.update_plot(reset_camera=False)
     
