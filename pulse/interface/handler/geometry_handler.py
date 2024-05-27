@@ -243,7 +243,7 @@ class GeometryHandler:
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.option.setNumber('Geometry.Tolerance', 0.001)
+        gmsh.option.setNumber('Geometry.Tolerance', 1e-6)
         gmsh.open(str(path))
 
         if self.length_unit == "meter":
@@ -259,7 +259,7 @@ class GeometryHandler:
         self.points_coords = dict()
         for point in points:
             coords = gmsh.model.getValue(*point, [])
-            self.points_coords[point[1]] = self.conv_unit(coords)
+            self.points_coords[point[1]] = np.round(self.conv_unit(coords), 5)
 
         self.points_coords_cache = self.points_coords.copy()
         self.map_points_according_to_coordinates()
@@ -346,7 +346,7 @@ class GeometryHandler:
 
                     if len(self.get_point_by_coords(end_coords)) < 2:
                         self.merge_near_points(end_coords)
-                        end_coords = self.get_point_coords(end_point)                    
+                        end_coords = self.get_point_coords(end_point)               
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
 
@@ -418,7 +418,8 @@ class GeometryHandler:
         """
         self.points_map  = defaultdict(list)
         for index, coords in self.points_coords.items():
-            key = str(list(np.round(coords, 8)))
+            # key = str(list(np.round(coords, 8)))
+            key = str(list(coords))
             self.points_map[key].append(index)
 
     def get_point_coords(self, point):
@@ -427,7 +428,7 @@ class GeometryHandler:
     def get_point_by_coords(self, coords):
         """ This method returns the points with 'coords' nodal coordinates. 
         """
-        key = str(list(np.round(coords, 8)))
+        key = str(list(np.round(coords, 5)))
         try:
             points = self.points_map[key]
             return points
@@ -473,7 +474,7 @@ class GeometryHandler:
         if np.round(np.linalg.norm(cross_ab), 8) != 0:
             s = np.dot(cross_cb, cross_ab)/(((np.linalg.norm(cross_ab)))**2)
             Xc = X1 + a*s
-            return Xc
+            return np.round(Xc, 5)
         else:
             return None
 
