@@ -333,6 +333,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
             self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(True)
@@ -371,6 +372,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.clipping_plane_active:
             self.opvClippablePressureTubes.build()
             self.opvClippablePressureTubes.setColorTable(colorTable)
+            self.opvClippablePressureTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(False)
