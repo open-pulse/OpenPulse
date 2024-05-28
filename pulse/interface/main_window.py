@@ -791,7 +791,7 @@ class MainWindow(QMainWindow):
         icons.change_icon_color_for_widgets(widgets, icon_color)
 
         # TODO: Connect this via signaling
-        self.geometry_widget.set_theme("light")
+        self.geometry_widget.set_theme(theme)
 
     def update_themes_in_file(self, theme):
         if self.update_theme:
