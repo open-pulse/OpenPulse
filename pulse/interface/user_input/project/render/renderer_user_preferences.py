@@ -154,7 +154,6 @@ class RendererUserPreferencesInput(QDialog):
         # self.opv.background_color = self.background_color
         self.opv.opvRenderer.set_background_color(self.background_color)
         self.opv.opvAnalysisRenderer.set_background_color(self.background_color)
-        self.opv.opvGeometryRenderer.set_background_color(self.background_color)
 
     def update_font_color_state(self):
         self.opv.bottom_font_color = self.bottom_font_color

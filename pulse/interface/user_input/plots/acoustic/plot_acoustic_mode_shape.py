@@ -134,8 +134,13 @@ class PlotAcousticModeShape(QWidget):
         self.opv.plot_pressure_field(self.mode_index)
 
     def update_transparency_callback(self):
-        #TODO: connect this method with the opv-related structures
-        pass
+        transparency = self.slider_transparency.value() / 100
+        
+        if self.opv.opvAnalysisRenderer.getInUse():
+            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
+        else:
+            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+        
 
     def get_user_color_scale_setup(self):
 

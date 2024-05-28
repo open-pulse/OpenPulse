@@ -149,7 +149,7 @@ class Project:
                                     element_size = self.file.element_size, 
                                     tolerance = self.file.geometry_tolerance )
         # dt = time()-t0
-        # print(f"process_geometry_and_mesh: {dt} [s]")
+        # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
     def load_project_files(self):
         self.load_structural_bc_file()

@@ -135,6 +135,7 @@ class GetStartedInput(QDialog):
         self.input_ui.about_OpenPulse()
 
     def load_recent_project(self, dir):
+
         if os.path.exists(dir):
             if self.input_ui.load_project(path=dir):
                 self.complete = True
