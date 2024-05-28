@@ -206,8 +206,6 @@ class opvAnalysisRenderer(vtkRendererBase):
                 self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
-        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
-        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
         app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
 
         self._currentPhase = phase_step
@@ -583,8 +581,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         pass
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
-        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
-        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
         app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
 
         if self.playingAnimation:
@@ -622,8 +618,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.update()
     
     def dismiss_clipping_plane(self):
-        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
-        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
         app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
 
         self.plane_origin = None
