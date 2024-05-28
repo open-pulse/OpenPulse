@@ -15,9 +15,13 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
 
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
+
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
+
+from time import time
 
 import os
 import sys
@@ -178,14 +182,17 @@ class MainWindow(QMainWindow):
     def _create_layout(self):
 
         self.opv_widget = OPVUi(self.project, self)
+        self.opv_widget.opvAnalysisRenderer._createPlayer()
+
         self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
         self.results_viewer_wigdet = ResultsViewerWidget()
-        self.opv_widget.opvAnalysisRenderer._createPlayer()
         self.input_widget = InputUi(self)
 
         editor = app().geometry_toolbox.editor
         self.mesh_widget = MeshRenderWidget()
-        self.geometry_widget = EditorRenderWidget(editor)
+
+        self.geometry_widget = EditorRenderWidget(editor)     
+
         self.geometry_widget.set_theme("light")
 
         self.render_widgets_stack.addWidget(self.mesh_widget)
@@ -203,12 +210,15 @@ class MainWindow(QMainWindow):
         self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
-
+        
+        # t0 = time()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
+
         self._create_layout()
+
         self._create_workspaces_toolbar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
@@ -216,6 +226,9 @@ class MainWindow(QMainWindow):
         self.plot_entities()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
+        
+        # dt = time() - t0
+        # print(f"Time to load interface: {dt} [s]")
         self.load_recent_project()
  
     # public
@@ -381,10 +394,6 @@ class MainWindow(QMainWindow):
 
         if key != [False, False, True, False]:
             self.plot_entities_with_cross_section()
-
-    def plot_raw_geometry(self):
-        # self.use_structural_setup_workspace()
-        self.action_show_points.setChecked()
     
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
@@ -396,15 +405,19 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def load_recent_project(self):
+        # t0 = time()
         if self.config.open_last_project and self.config.haveRecentProjects():
             self.import_project_call(self.config.getMostRecentProjectDir())
         elif self.input_widget.get_started():
-            self.update()  # update the renders before change the view
+            # self.update()  # update the renders before change the view
+            # self.opv_widget.updatePlots()
             self.action_front_view_callback()
             self._update_recent_projects()
             self.set_window_title(self.file.project_name)
         else:
             self.disable_workspace_selector_and_geometry_editor(True)
+        # dt = time() - t0
+        # print(f"Elapsed time to load_recent_project: {dt}s")
 
     # internal
     def _update_recent_projects(self):
@@ -587,9 +600,8 @@ class MainWindow(QMainWindow):
 
     def action_zoom_callback(self):
         if self.get_current_workspace() == Workspace.GEOMETRY:
-            self.opv_widget.opvGeometryRenderer.resetCamera()
             self.update()
-        
+
         elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
             self.opv_widget.opvRenderer.resetCamera()
             self.opv_widget.opvRenderer.update()
@@ -603,7 +615,7 @@ class MainWindow(QMainWindow):
         else:
             self.opv_widget.opvRenderer.resetCamera()
             self.opv_widget.opvRenderer.update()
-        
+
     def set_clip_plane_configs(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             if self.opv_widget.opvAnalysisRenderer.getInUse():
