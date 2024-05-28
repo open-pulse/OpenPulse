@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>696</width>
-    <height>434</height>
+    <height>472</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -188,6 +188,11 @@
         <row>
          <property name="text">
           <string>Dynamic viscosity [Ns/m²]</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Molar mass [kg/kmol]</string>
          </property>
         </row>
         <row>
@@ -396,7 +401,7 @@
             </font>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Reset to default material library&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Press to open the REFPROP interface&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
             <string notr="true"/>

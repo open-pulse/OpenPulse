@@ -38,6 +38,10 @@ class Node:
         self.global_index = kwargs.get('global_index', None)
         self.external_index = kwargs.get('external_index', None)
 
+        self.reset()
+
+    def reset(self):
+        
         # Structural boundary conditions and external lumped elements
         self.nodal_loads = [None, None, None, None, None, None]
         self.nodal_loads_table_names = [None, None, None, None, None, None]
@@ -65,11 +69,11 @@ class Node:
         self.there_are_lumped_dampings = False
         self.loaded_table_for_lumped_dampings = False
         
-        self.elastic_nodal_link_stiffness = {}
+        self.elastic_nodal_link_stiffness = dict()
         self.there_are_elastic_nodal_link_stiffness = False
         self.loaded_table_for_elastic_link_stiffness = False
 
-        self.elastic_nodal_link_dampings = {}
+        self.elastic_nodal_link_dampings = dict()
         self.there_are_elastic_nodal_link_dampings = False
         self.loaded_table_for_elastic_link_dampings = False
 
@@ -86,9 +90,12 @@ class Node:
         self.radiation_impedance = None
         self.radiation_impedance_type = None
 
-        self.compressor_excitation_table_names = []
-        self.dict_index_to_compressor_connection_info = {}
-        self.compressor_excitation_table_indexes = []
+        self.acoustic_link = dict()
+        self.structural_link = dict()
+
+        self.compressor_excitation_table_names = list()
+        self.dict_index_to_compressor_connection_info = dict()
+        self.compressor_excitation_table_indexes = list()
         
         self.deformed_coordinates = None
         self.deformed_rotations_xyz_gcs = None
@@ -108,7 +115,7 @@ class Node:
         array
             Node coordinates
         """
-        return np.array([self.x, self.y, self.z])
+        return np.array([self.x, self.y, self.z], dtype=float)
 
     @property
     def local_dof(self):
@@ -439,6 +446,7 @@ class Node:
             
             if isinstance(self.specific_impedance, complex):
                 admittance_specific = 1/Z_specific * np.ones_like(frequencies)
+
             elif isinstance(self.specific_impedance, np.ndarray):
                 if len(self.specific_impedance) != len(frequencies):
                     raise TypeError("The Specific Impedance array and frequencies array must have \nthe same length.")
@@ -449,6 +457,7 @@ class Node:
 
             if isinstance(self.radiation_impedance, complex):
                 admittance_rad = np.divide(1, Z_rad) 
+
             elif isinstance(self.radiation_impedance, np.ndarray):
                 if len(self.radiation_impedance) != len(frequencies):
                     raise TypeError("The Radiation Impedance array and frequencies array must have \nthe same length.")

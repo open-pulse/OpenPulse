@@ -16,6 +16,8 @@ from pulse.interface.viewer_3d.actors.raw_lines_actor import RawLinesActor
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse.interface.viewer_3d.actors.tube_deformed_actor import TubeDeformedActor
+from pulse.interface.viewer_3d.actors.tube_clippable_actor import TubeClippableActor
+from pulse.interface.viewer_3d.actors.cutting_plane_actor import CuttingPlaneActor
 
 from pulse.interface.viewer_3d.renders.model_info_texts import ModelInfoText
 
@@ -68,9 +70,11 @@ class opvRenderer(vtkRendererBase):
         self.elementAxes = None 
         self.scaleBar = None
 
-        self._style.AddObserver("SelectionChangedEvent", self.highlight)
-        self._style.AddObserver("SelectionChangedEvent", self.updateInfoText)
-        self._style.AddObserver("SelectionChangedEvent", self.showElementAxes)
+        self.plane_origin = None
+        self.plane_normal = None
+        self.first_configuration = True
+
+        self._style.AddObserver("SelectionChangedEvent", self.selection_callback)
 
         self.updateHud()
 
@@ -81,14 +85,17 @@ class opvRenderer(vtkRendererBase):
     def getBounds(self):
         if self._plotFilter.tubes:
             return self.opvTubes._actor.GetBounds()
-        return ()
-
+        return () #don't change this tuple, you will regret this
     def plot(self):
         self.reset()
 
         self.opvNodes = NodesActor(self.project)
         self.opvLines = LinesActor(self.project)
-        self.opvTubes = TubeActor(self.project, self.opv)
+        self.opvTubes = TubeClippableActor(self.project, self.opv)
+
+        self.plane_actor = CuttingPlaneActor()
+        self.plane_actor.VisibilityOff()
+        self.plane_actor.SetScale(3, 3, 3)
 
         self.opvAcousticNodesSymbols = AcousticNodesSymbolsActor(self.project)
         self.opvAcousticElementsSymbols = AcousticElementsSymbolsActor(self.project)
@@ -104,15 +111,15 @@ class opvRenderer(vtkRendererBase):
         self.saveElementsBounds()
         self.saveLineToElements()
         self.saveRawLinesData()
-        
-        plt = lambda x: self._renderer.AddActor(x.getActor())
-        plt(self.opvNodes)
-        plt(self.opvLines)
-        plt(self.opvTubes)
-        plt(self.opvAcousticNodesSymbols)
-        plt(self.opvAcousticElementsSymbols)
-        plt(self.opvStructuralNodesSymbols)
-        plt(self.opvStructuralElementsSymbols)
+
+        self._renderer.AddActor(self.opvNodes.getActor())
+        self._renderer.AddActor(self.opvLines.getActor())
+        self._renderer.AddActor(self.opvTubes.getActor())
+        self._renderer.AddActor(self.opvAcousticNodesSymbols.getActor())
+        self._renderer.AddActor(self.opvAcousticElementsSymbols.getActor())
+        self._renderer.AddActor(self.opvStructuralNodesSymbols.getActor())
+        self._renderer.AddActor(self.opvStructuralElementsSymbols.getActor())
+        self._renderer.AddActor(self.plane_actor)
 
         self.updateColors()
         self.updateHud()
@@ -418,13 +425,13 @@ class opvRenderer(vtkRendererBase):
         self.opvLines.setColor(self.lines_color)
         self.opvTubes.setColor(self.surfaces_color)
 
+    def selection_callback(self, obj, event):
+        self.highlight_selection(allow_updates=False)
+        self.updateInfoText(allow_updates=False)
+        self.showElementAxes(allow_updates=False)
+        self.update()
 
-    def call_update_in_QDialogs_if_highlighted(self):
-        self.opv.updateDialogs()
-        # renWin = self._renderer.GetRenderWindow()
-        # if renWin: renWin.Render()    
-
-    def highlight(self, obj, event):
+    def highlight_selection(self, *args, allow_updates=True, **kwargs):
         visual = [self.opvNodes, self.opvLines, self.opvTubes]
         if any([v is None for v in visual]):
             return
@@ -456,8 +463,8 @@ class opvRenderer(vtkRendererBase):
             self.opvTubes.setColor(selectionColor, keys=elementsFromLines)
             _update = True
 
-        if _update:
-            self.call_update_in_QDialogs_if_highlighted()
+        if _update and allow_updates:
+            self.update()
 
     def highlight_lines(self, line_ids, reset_colors=True, color=(255,0,0)):
         if reset_colors:
@@ -489,9 +496,10 @@ class opvRenderer(vtkRendererBase):
 
         self.opvNodes.setColor(selectionColor, keys=node_ids)
 
-    def showElementAxes(self, obj, event):
+    def showElementAxes(self, *args, allow_updates=True, **kwargs):
         self._renderer.RemoveActor(self.elementAxes)
-        self.update()
+        if allow_updates:
+            self.update()
 
         ids = self.getListPickedElements()
 
@@ -520,7 +528,8 @@ class opvRenderer(vtkRendererBase):
         self.elementAxes.SetShaftTypeToCylinder()
 
         self._renderer.AddActor(self.elementAxes)
-        self.update()
+        if allow_updates:
+            self.update()
 
     def getPlotRadius(self, *args, **kwargs):
         return 
@@ -531,7 +540,7 @@ class opvRenderer(vtkRendererBase):
     def setPlotRadius(self, *args, **kwargs):
         pass
 
-    def updateInfoText(self, obj, event):
+    def updateInfoText(self, *args, allow_updates=True, **kwargs):
         text = ""
         if self.selectionToNodes() and self.getListPickedPoints():
             text += self.model_info_text.get_nodes_info_text() + "\n"
@@ -543,4 +552,98 @@ class opvRenderer(vtkRendererBase):
             text += self.model_info_text.get_entities_info_text()  + "\n"
 
         self.createInfoText(text)
+        if allow_updates:
+            self.update()
+
+    def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+        self.opvTubes.disable_cut()
+
+        self.plane_origin = self._calculate_relative_position([x, y, z])
+        self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
+        
+        self.plane_actor.SetPosition(self.plane_origin)
+        self.plane_actor.SetOrientation(rx, ry, rz)
+        self.plane_actor.GetProperty().SetOpacity(0.9)
+        self.plane_actor.VisibilityOn()
         self.update()
+    
+    def apply_clipping_plane(self):
+        if self.plane_origin is None:
+            return
+
+        if self.plane_normal is None:
+            return
+        
+        self.opvTubes.apply_cut(self.plane_origin, self.plane_normal)
+        self.plane_actor.GetProperty().SetOpacity(0.2)
+        self.update()
+
+    def dismiss_clipping_plane(self):
+        self.plane_origin = None
+        self.plane_normal = None
+
+        self.opvTubes.disable_cut()
+        self.plane_actor.VisibilityOff()
+        self.update()
+        
+    def _calculate_relative_position(self, position):
+        def lerp(a, b, t):
+           return a + (b - a) * t
+        
+        bounds = self.getBounds()
+        if not bounds:
+            return np.array([0,0,0])
+        x = lerp(bounds[0], bounds[1], position[0] / 100)
+        y = lerp(bounds[2], bounds[3], position[1] / 100)
+        z = lerp(bounds[4], bounds[5], position[2] / 100)
+        return np.array([x, y, z])
+    
+    def _calculate_normal_vector(self, orientation):
+        orientation = np.array(orientation) * np.pi / 180
+        rx, ry, rz = self._rotation_matrices(*orientation)
+
+        normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
+        return -normal[:3]
+
+    def _rotation_matrices(self, ax, ay, az):
+        sin = np.sin([ax, ay, az])
+        cos = np.cos([ax, ay, az])
+
+        rx = np.array(
+            [
+                [1, 0, 0, 0],
+                [0, cos[0], -sin[0], 0],
+                [0, sin[0], cos[0], 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+        ry = np.array(
+            [
+                [cos[1], 0, sin[1], 0],
+                [0, 1, 0, 0],
+                [-sin[1], 0, cos[1], 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+        rz = np.array(
+            [
+                [cos[2], -sin[2], 0, 0],
+                [sin[2], cos[2], 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+        return rx, ry, rz
+    
+    def set_tube_actors_transparency(self, transparency):
+        opacity = 1 - transparency
+
+        self.opvTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.update()
+
+    
+
+    

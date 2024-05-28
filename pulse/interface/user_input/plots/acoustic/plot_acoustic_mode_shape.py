@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -26,6 +26,7 @@ class PlotAcousticModeShape(QWidget):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.load_natural_frequencies()
         self.load_user_preference_colormap()
        
@@ -39,35 +40,52 @@ class PlotAcousticModeShape(QWidget):
                           "grayscale"]
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_color_scale : QComboBox
         self.comboBox_colormaps : QComboBox
+
         # QFrame
         self.frame_button : QFrame
-        self.frame_button.setVisible(False)
+
         # QLineEdit
         self.lineEdit_natural_frequency : QLineEdit
-        self.lineEdit_natural_frequency.setDisabled(True)
+
         # QPushButton
         self.pushButton_plot : QPushButton
+
         # QLineEdit
         self.lineEdit_selected_frequency : QLineEdit
+
         # QPushButton
         self.pushButton_plot : QPushButton
+
+        # QSlider
+        self.slider_transparency : QSlider
+
         # QTreeWidget
         self.treeWidget_frequencies : QTreeWidget
-        self._config_treeWidget()
 
     def _create_connections(self):
+        #
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
+        #
         self.pushButton_plot.clicked.connect(self.update_plot)
+        #
+        self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
+        #      
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
         self.update_animation_widget_visibility()
         self.update_colormap_type()
 
-    def _config_treeWidget(self):
+    def _config_widgets(self):
+
+        self.frame_button.setVisible(False)
+        self.lineEdit_natural_frequency.setDisabled(True)
+
         widths = [80, 140]
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
@@ -114,6 +132,15 @@ class PlotAcousticModeShape(QWidget):
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_pressure_field(self.mode_index)
+
+    def update_transparency_callback(self):
+        transparency = self.slider_transparency.value() / 100
+        
+        if self.opv.opvAnalysisRenderer.getInUse():
+            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
+        else:
+            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+        
 
     def get_user_color_scale_setup(self):
 

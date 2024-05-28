@@ -18,6 +18,8 @@ class vtkRendererBase(ABC):
         self.textProperty = vtk.vtkTextProperty()
         self._renderer = vtk.vtkRenderer()
 
+        self._renderer.SetUseDepthPeeling(True)  # dont't remove it, transparency depends on it
+
         self.colorBarTitleProperty = vtk.vtkTextProperty()
         self.colorBarLabelProperty = vtk.vtkTextProperty()
         
