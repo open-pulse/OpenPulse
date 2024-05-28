@@ -23,7 +23,7 @@ class SetFluidInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        ui_path = UI_DIR / "model/setup/fluid/set_fluid_inputs.ui"
+        ui_path = UI_DIR / "model/setup/fluid/set_fluid_input.ui"
         uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
@@ -105,6 +105,7 @@ class SetFluidInput(QDialog):
     def _add_fluid_input_widget(self):
         self.fluid_widget = FluidWidget(parent_widget=self, compressor_thermodynamic_state=self.compressor_thermodynamic_state)
         self.grid_layout.addWidget(self.fluid_widget)
+
 
     def load_compressor_info(self):
         self.fluid_widget.load_compressor_info()

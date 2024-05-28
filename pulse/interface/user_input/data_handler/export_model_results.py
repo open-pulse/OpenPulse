@@ -8,6 +8,7 @@ import os
 import numpy as np
 
 from pulse import UI_DIR
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -24,6 +25,7 @@ class ExportModelResults(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
 
     def _load_icons(self):
         self.pulse_icon = get_openpulse_icon()
@@ -48,16 +50,13 @@ class ExportModelResults(QDialog):
         # QPushButton
         self.pushButton_choose_folder_export : QPushButton
         self.pushButton_export_results : QPushButton
-        self.pushButton_reset_filename : QPushButton
 
     def _create_connections(self):
         self.pushButton_choose_folder_export.clicked.connect(self._choose_path_export_results)
         self.pushButton_export_results.clicked.connect(self._export_results)
-        self.pushButton_reset_filename.clicked.connect(self._reset_file_name)
 
-    def _reset_file_name(self):
-        self.lineEdit_file_name.setText("")
-        self.lineEdit_file_name.setFocus()
+    def _config_widgets(self):
+        ConfigWidgetAppearance(self, tool_tip=True)
 
     def _set_data_to_export(self, data):
         self.data = data

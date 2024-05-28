@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QAction, QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -77,11 +77,19 @@ class SetCrossSectionInput(QDialog):
 
         self.structural_elements = self.project.preprocessor.structural_elements
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
-        self.lines_id = self.opv.getListPickedLines()
-        self.elements_id = self.opv.getListPickedElements()
+
         self.before_run = self.project.get_pre_solution_model_checks()
 
+        self.psd_lines = self.project.PSD.get_device_related_lines()
+
     def _define_qt_variables(self):
+
+        # QAction
+        self.action_all_lines = QAction(self)
+        # self.action_all_lines.setVisible(False)
+        self.action_all_lines.setShortcut("Ctrl+A")
+        self.action_all_lines.triggered.connect(self.select_all_lines_callback)
+        self.addAction(self.action_all_lines)
 
         # QComboBox
         self.comboBox_selection : QComboBox
@@ -217,7 +225,7 @@ class SetCrossSectionInput(QDialog):
         elements_id = self.opv.getListPickedElements()
 
         self.input_widget.reset_all_input_texts()
-        self.update_line_and_element_ids()
+        self.update_line_and_element_ids(lines_id, elements_id)
 
         if len(lines_id) == 1:   
             self.selection = self.dict_tag_to_entity[lines_id[0]]
@@ -517,12 +525,13 @@ class SetCrossSectionInput(QDialog):
             self.input_widget.lineEdit_offsetz_T_section.setText(str(offset_z))  
 
     def update_variable_section_element_ids(self):
-        if len(self.lines_id) > 0:
-            line_id = self.lines_id[0]
+        lines_id = self.opv.getListPickedLines()
+        if len(lines_id) > 0:
+            line_id = lines_id[0]
             # entity = self.dict_tag_to_entity[line_id]
             self.tabWidget_general.setCurrentIndex(0)
             self.tabWidget_pipe_section.setCurrentIndex(1)
-            if len(self.lines_id) == 1:
+            if len(lines_id) == 1:
                 self.list_elements = self.project.preprocessor.line_to_elements[line_id]
                 self.input_widget.lineEdit_element_id_initial.setText(str(self.list_elements[0]))
                 self.input_widget.lineEdit_element_id_final.setText(str(self.list_elements[-1]))
@@ -543,35 +552,54 @@ class SetCrossSectionInput(QDialog):
     def update(self):
         self.update_QDialog_info()
 
-    def update_line_and_element_ids(self):
-        if self.lines_id != []:
+    def check_if_lines_belongs_to_psd(self, lines):
+        for psd_lines in self.psd_lines.values():
+            for line in lines:
+                if line in psd_lines:
+                    self.lineEdit_selected_id.setText("")
+                    title = "PSD cross-section edition not allowed"
+                    message = "The PSD line sections could not be edited in the cross-section setup interface. "
+                    message += "You must switch to the PSD configuration interface for this specific section editing."
+                    PrintMessageInput([window_title_2, title, message])
+                    return True
+
+    def update_line_and_element_ids(self, lines_id, elements_id):
+
+        if self.check_if_lines_belongs_to_psd(lines_id):
+            return
+
+        self.comboBox_selection.blockSignals(True)
+        if lines_id:
             self.label_selected_id.setText("Lines IDs:")
             self.comboBox_selection.setCurrentIndex(1)
-            self.write_ids(self.lines_id)
-            
-        elif self.elements_id != []:
+            self.write_ids(lines_id)
+
+        elif elements_id:
             self.label_selected_id.setText("Elements IDs:")
             self.comboBox_selection.setCurrentIndex(2)
-            self.write_ids(self.elements_id)
-            
-        else:
-            if self.tabWidget_general.currentIndex() == 0:
-                if self.tabWidget_pipe_section.currentIndex() == 1:
-                    self.lineEdit_selected_id.setText("")
-                    return
-            self.comboBox_selection.setCurrentIndex(0)
-            self.label_selected_id.setText("Lines IDs:")
-            self.lineEdit_selected_id.setText("All lines")
+            self.write_ids(elements_id)
+
+        self.comboBox_selection.blockSignals(False)
+
+    def select_all_lines_callback(self):
+
+
+        self.comboBox_selection.setCurrentIndex(0)
+        self.label_selected_id.setText("Lines IDs:")
+        self.lineEdit_selected_id.setText("All lines")
 
     def update_highlights(self):
+
         lineEdit = self.lineEdit_selected_id.text()
         selection_index = self.comboBox_selection.currentIndex()
         if lineEdit != "":
+
             if selection_index == 1:
                 _stop, _lines_typed = self.before_run.check_input_LineID(lineEdit)
                 if _stop:
                     return
                 self.opv.opvRenderer.highlight_lines(_lines_typed)
+
             if selection_index == 2:
                 _stop, _elements_typed = self.before_run.check_input_ElementID(lineEdit)
                 if _stop:
@@ -597,13 +625,9 @@ class SetCrossSectionInput(QDialog):
 
         elif selection_index == 1:
             self.label_selected_id.setText("Lines IDs:")
-            # if self.lines_id != []:
-            #     self.write_ids(self.lines_id)
                     
         elif selection_index == 2:
             self.label_selected_id.setText("Elements IDs:")
-            # if self.elements_id != []:
-            #     self.write_ids(self.elements_id)
         
     def write_ids(self, list_ids):
         text = ""
@@ -717,7 +741,7 @@ class SetCrossSectionInput(QDialog):
 
             if self.input_widget.get_beam_section_parameters():
                 return
-            
+
             self.section_label = self.input_widget.section_label
             self.section_parameters = self.input_widget.section_parameters
             self.section_properties = self.input_widget.section_properties
@@ -725,8 +749,9 @@ class SetCrossSectionInput(QDialog):
             self.beam_section_info = {  "section_type_label" : self.section_label,
                                         "section_parameters" : self.section_parameters,
                                         "section_properties" : self.section_properties  }
-       
+
             self.cross_section = CrossSection(beam_section_info=self.beam_section_info)
+
             self.set_cross_sections()
             self.project.set_capped_end_by_lines(self.lines_typed, False)
             self.project.set_structural_element_wall_formulation_by_lines(self.lines_typed, None)
@@ -736,22 +761,29 @@ class SetCrossSectionInput(QDialog):
     def set_cross_sections(self):
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 1:
+
+            if self.check_if_lines_belongs_to_psd(self.lines_typed):
+                return
+
             if self.remove_expansion_joint_tables_files:
                 self.process_expansion_joint_table_files_removal(self.lines_typed)
+
             for line_id in self.lines_typed:
                 self.project.reset_number_sections_by_line(line_id)
+
             self.project.add_valve_by_line(line_id, None, reset_cross=False)
             self.project._set_expansion_joint_to_selected_lines(self.lines_typed, None)
-                
+
             self.project.set_cross_section_by_lines(self.lines_typed, self.cross_section)
             self.project.set_structural_element_type_by_lines(self.lines_typed, self.element_type)
-            
+
             if len(self.lines_typed) < 20:
                 print("[Set Cross-section] - defined at the {} lines".format(self.lines_typed))
             else:
                 print("[Set Cross-section] - defined at {} selected lines".format(len(self.lines_typed)))
 
         elif selection_index == 2:
+
             self.project.set_cross_section_by_elements(self.elements_typed, self.cross_section)
             self.project.add_cross_sections_expansion_joints_valves_in_file(self.elements_typed)
             # self.preprocessor.set_structural_element_type_by_element(self.elements_typed, self.element_type)
@@ -762,9 +794,14 @@ class SetCrossSectionInput(QDialog):
                 print("[Set Cross-section] - defined at {} selected elements".format(len(self.elements_typed)))
 
         else:
+
             line_ids = self.preprocessor.all_lines
+            if self.check_if_lines_belongs_to_psd(line_ids):
+                return
+
             if self.remove_expansion_joint_tables_files:
                 self.process_expansion_joint_table_files_removal(line_ids)
+
             self.project.add_valve_by_line(line_ids, None, reset_cross=False)
             self.project._set_expansion_joint_to_selected_lines(line_ids, None)
 
@@ -801,5 +838,6 @@ class SetCrossSectionInput(QDialog):
                 self.confirm_pipe()
             if self.tabWidget_general.currentIndex() == 1:
                 self.confirm_beam()
+
         elif event.key() == Qt.Key_Escape:
             self.close()

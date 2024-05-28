@@ -24,6 +24,7 @@ class ResultsViewerItems(CommonMenuItems):
 
         self.setObjectName("results_viewer_items")
         self._create_items()
+        self._create_connections()
 
     def _create_items(self):
         # Structural results items
@@ -143,7 +144,10 @@ class ResultsViewerItems(CommonMenuItems):
                 self.item_child_plot_stress_frequency_response.setDisabled(False)
 
             self.modify_item_names_according_to_analysis()
-            
+    
+    def _create_connections(self):
+        app().main_window.theme_changed.connect(self.set_theme)
+
     def update_tree_visibility_after_solution(self):
         """ Expands and collapses the Top Level Items on 
             the menu after the solution is done.

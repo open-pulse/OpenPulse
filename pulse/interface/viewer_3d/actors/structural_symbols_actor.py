@@ -1,6 +1,8 @@
 import vtk
+
 from pulse import SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
+
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -20,7 +22,8 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def source(self):
         super().source()
-        self._createNodalLinks()    # a very special case
+        self._createNodalLinks()
+        self._create_structural_links()
 
     def _createNodalLinks(self):
         linkedNodes = set()
@@ -62,6 +65,33 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         self._rotations.InsertNextTuple3(0,0,0)
         self._scales.InsertNextTuple3(1,1,1)
         self._colors.InsertNextTuple3(16,222,129)
+
+    def _create_structural_links(self):
+
+        nodes = self.preprocessor.nodes
+        linkedSymbols = vtk.vtkAppendPolyData()
+
+        for (a, b) in self.preprocessor.nodes_with_structural_links.keys():
+            # divide the value of the coordinates by the scale factor
+            source = vtk.vtkLineSource()
+            source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
+            source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
+            source.Update()
+            linkedSymbols.AddInputData(source.GetOutput())
+
+        s = vtk.vtkSphereSource()
+        s.SetRadius(0)
+
+        linkedSymbols.AddInputData(s.GetOutput())
+        linkedSymbols.Update()
+
+        index = len(self._connections)
+        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._sources.InsertNextTuple1(index)
+        self._positions.InsertNextPoint(0,0,0)
+        self._rotations.InsertNextTuple3(0,0,0)
+        self._scales.InsertNextTuple3(1,1,1)
+        self._colors.InsertNextTuple3(10,0,10)
 
     def _get_prescribed_displacement_symbol(self):
         
