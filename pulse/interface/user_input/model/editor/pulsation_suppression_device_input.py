@@ -610,7 +610,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         volume1_length = self.suppression_device_data["volume #1 parameters"][2]
         volume2_length = self.suppression_device_data["volume #2 parameters"][2]
         pipe3_length = self.suppression_device_data["pipe #3 parameters"][2]
-        pipe3_diameter = self.suppression_device_data["pipe #3 parameters"][0]
+        pipe3_distance = self.suppression_device_data["pipe #3 parameters"][3]
+        
 
         if len(self.suppression_device_data["pipe #1 parameters"]) == 5: # i.e. pipe #1 is radial
             pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
@@ -634,13 +635,26 @@ class PulsationSuppressionDeviceInput(QDialog):
                 message += "minus the half of the 'pipe #2 diameter'"
                 PrintMessageInput([window_title_2, title, message])
                 return True
-        
-        if pipe3_length < volumes_spacing: # TODO: modify to cover it being greater than the spacing but offset from it 
+        # TODO: check if the cases where these are equal to each other and see if they are valid
+        if pipe3_distance > volume1_length:
             title = "Invalid pipe #3 length"
-            message = "The 'pipe #3 distance' must be greater than or equal to the 'volumes spacing'"
+            message = "The 'pipe #3 distance' must be less than the 'volume #1 length'"
             PrintMessageInput([window_title_2, title, message])
             return True
         
+        if pipe3_length < volumes_spacing:
+            title = "Invalid pipe #3 length"
+            message = "The 'pipe #3 length' must be greater than or equal to the 'volumes spacing'"
+            PrintMessageInput([window_title_2, title, message])
+            return True            
+        
+        if pipe3_distance + pipe3_length < volume1_length + volumes_spacing:
+            title = "Invalid combination of pipe #3 length and distance"
+            message = "The pipe #3 length plus the pipe #3 distance must be less "
+            message += "than the volume #1 length plus the volumes spacing"
+            PrintMessageInput([window_title_2, title, message])
+            return True
+
 
     def confirm_button_pressed(self):
 
