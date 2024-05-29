@@ -568,14 +568,12 @@ class PulsationSuppressionDeviceInput(QDialog):
     def check_geometric_criteria_for_single_volume_psd(self):
 
         volume1_length = self.suppression_device_data["volume #1 parameters"][2]
-        volume1_diameter = self.suppression_device_data["volume #1 parameters"][0]
 
-        # pipe1_distance = 0
         if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
 
-            pipe1_diameter = self.suppression_device_data["pipe #1 parameters"][1]
+            pipe1_diameter = self.suppression_device_data["pipe #1 parameters"][0]
             pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
-        
+
             if len(self.suppression_device_data["pipe #2 parameters"]) == 3: # i.e. pipe #2 is axial
                 if pipe1_distance >= volume1_length - pipe1_diameter / 2:
                     title = "Invalid pipe #1 distance"
@@ -596,7 +594,6 @@ class PulsationSuppressionDeviceInput(QDialog):
                 PrintMessageInput([window_title_2, title, message])
                 return True
 
-            # pipe1_distance = 0
             if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
 
                 pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
@@ -606,8 +603,42 @@ class PulsationSuppressionDeviceInput(QDialog):
                     message = "The 'pipe #1 distance' should be less than the 'pipe #2 distance'."
                     PrintMessageInput([window_title_2, title, message])
                     return True
+                
     def check_geometric_criteria_for_double_volume_psd(self):
-        if self.check_geometric_criteria_for_single_volume_psd():
+        
+        volumes_spacing = self.suppression_device_data["volumes spacing"]
+        volume1_length = self.suppression_device_data["volume #1 parameters"][2]
+        volume2_length = self.suppression_device_data["volume #2 parameters"][2]
+        pipe3_length = self.suppression_device_data["pipe #3 parameters"][2]
+        pipe3_diameter = self.suppression_device_data["pipe #3 parameters"][0]
+
+        if len(self.suppression_device_data["pipe #1 parameters"]) == 5: # i.e. pipe #1 is radial
+            pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
+            pipe1_diameter = self.suppression_device_data["pipe #1 parameters"][0]
+
+            if pipe1_distance >= volume1_length - pipe1_diameter / 2: # i.e. pipe #1 must derive from the volume #1
+                title = "Invalid pipe #1 distance"
+                message = "The 'pipe #1 distance' must be less than the 'volume #1 length' "
+                message += "minus the half of the 'pipe #1 diameter'"
+                PrintMessageInput([window_title_2, title, message])
+                return True
+        
+        if len(self.suppression_device_data["pipe #2 parameters"]) == 5: # i.e. pipe #2 is radial
+            pipe2_distance = self.suppression_device_data["pipe #2 parameters"][3]
+            pipe2_diameter = self.suppression_device_data["pipe #2 parameters"][0]
+
+            if pipe2_distance >= volume1_length + volumes_spacing + volume2_length - pipe2_diameter / 2 : # i.e. pipe #2 must derive from the volume #2
+                title = "Invalid pipe #2 distance"
+                message = "The 'pipe #2 distance' must be less than the 'volume #1 length' "
+                message += "+ 'volumes spacing' + 'volume #2 length' "
+                message += "minus the half of the 'pipe #2 diameter'"
+                PrintMessageInput([window_title_2, title, message])
+                return True
+        
+        if pipe3_length < volumes_spacing: # TODO: modify to cover it being greater than the spacing but offset from it 
+            title = "Invalid pipe #3 length"
+            message = "The 'pipe #3 distance' must be greater than or equal to the 'volumes spacing'"
+            PrintMessageInput([window_title_2, title, message])
             return True
         
 
