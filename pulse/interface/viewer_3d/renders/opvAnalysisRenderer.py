@@ -3,6 +3,8 @@ import vtk
 import numpy as np
 from math import pi
 
+from PyQt5.QtWidgets import QSlider
+
 from pulse import app
 
 from pulse.postprocessing.plot_structural_data import *
@@ -166,6 +168,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.update_min_max_stresses_text()
         self.opv.update()
         self._renderer.ResetCameraClippingRange()
+
         self.update()
 
     def updateHud(self):
@@ -203,6 +206,10 @@ class opvAnalysisRenderer(vtkRendererBase):
                 self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
         self._currentPhase = phase_step
         self._currentPlot(self._currentFrequencyIndex, phase_step)
         self.updateAll()
@@ -574,6 +581,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         pass
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
         if self.playingAnimation:
             self.pauseAnimation()
         
@@ -608,7 +619,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
     
-    def dismiss_clipping_plane(self):                
+    def dismiss_clipping_plane(self):
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
         self.plane_origin = None
         self.plane_normal = None
     
@@ -620,7 +635,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.first_configuration = True
         self.clipping_plane_active = False
         self._plotOnce(self._currentPhase)
-
+    
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
         for i, element in self.project.get_structural_elements().items():
@@ -688,3 +703,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         )
 
         return rx, ry, rz
+
+    def set_tube_actors_transparency(self, transparency):
+        opacity = 1 - transparency
+        
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvClippableDeformedTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvClippablePressureTubes.getActor().GetProperty().SetOpacity(opacity)
+    
+        self.update()
+
+

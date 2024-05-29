@@ -3,7 +3,7 @@
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*v2.0 April 30th 2024 (now: v2.0.0a March 15th 2024)*
+*v2.0 April 30th 2024 (now: v2.0.0a5 May 28th 2024)*
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to create or/and import the geometry of the pipe system, insert materials properties, set standardized or customized sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time-harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Matrix Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time-harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -114,6 +114,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Olavo M. Silva](https://www.linkedin.com/in/olavo-m-silva-5822a5151/) - Engineer;
    - [Jacson G. Vargas](https://www.linkedin.com/in/jacson-gil-vargas-a54b0768/) - Engineer;
    - [Andre F. Fernandes](https://www.linkedin.com/in/andrefpf/) - Computer Scientist; 
+   - [Rodrigo Schwartz](https://www.linkedin.com/in/rodrigo-schwartz-249308244/) - Computer Scientist; 
    - [Diego M. Tuozzo](https://www.linkedin.com/in/martintuozzo/) - Engineer (Former Member);
    - [Lucas V. Q. Kulakauskas](https://www.linkedin.com/in/lucas-kulakauskas-5a0314182/) - Engineer (Former Member);
    - [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer (Former Member);

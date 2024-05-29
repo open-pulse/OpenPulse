@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pulse"
-version = "2.0.0a4"
+version = "2.0.0a5"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
 authors = [
     "Olavo Silva <olavus@gmail.com>",
@@ -8,6 +8,7 @@ authors = [
     "André Fernandes <fpf.andre@gmail.com>",
     "Danilo Espindola <daniloespindola.grad@gmail.com>",
     "Vitor Voigt Slongo <v.v.slongo@gmail.com>",
+    "Rodrigo Schwartz <rodrigo32003@gmail.com>",
     "Gildean Almeida <gildean185@gmail.com>",
     "Fabrício Cruz <fabricioemanuelcruzz@gmail.com>"
 ]
