@@ -114,6 +114,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Olavo M. Silva](https://www.linkedin.com/in/olavo-m-silva-5822a5151/) - Engineer;
    - [Jacson G. Vargas](https://www.linkedin.com/in/jacson-gil-vargas-a54b0768/) - Engineer;
    - [Andre F. Fernandes](https://www.linkedin.com/in/andrefpf/) - Computer Scientist; 
+   - [Rodrigo Schwartz](https://www.linkedin.com/in/rodrigo-schwartz-249308244/) - Computer Scientist; 
    - [Diego M. Tuozzo](https://www.linkedin.com/in/martintuozzo/) - Engineer (Former Member);
    - [Lucas V. Q. Kulakauskas](https://www.linkedin.com/in/lucas-kulakauskas-5a0314182/) - Engineer (Former Member);
    - [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer (Former Member);
