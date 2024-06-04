@@ -6,7 +6,6 @@ import vtk
 import numpy as np
 
 from pulse.interface.viewer_3d.renders.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
-from pulse.interface.viewer_3d.renders.opvGeometryRenderer import opvGeometryRenderer
 from pulse.interface.viewer_3d.renders.opvAnalysisRenderer import opvAnalysisRenderer
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
@@ -22,7 +21,6 @@ class OPVUi(QVTKRenderWindowInteractor):
     
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
-        self.opvGeometryRenderer = opvGeometryRenderer(self.project, self)
 
         self.default_user_preferences()
 
@@ -84,16 +82,14 @@ class OPVUi(QVTKRenderWindowInteractor):
                 self.opvRenderer.show_reference_scale = preferences['reference scale']
                 self.opvAnalysisRenderer.show_reference_scale = preferences['reference scale']
 
-            if "colormap" in preferences.keys():
-                self.opvGeometryRenderer.colormap = preferences['colormap']
+            # if "colormap" in preferences.keys():
+            #     colormap = preferences['colormap']
 
         self.opvRenderer.set_background_color(background_color)
         self.opvAnalysisRenderer.set_background_color(background_color)
-        self.opvGeometryRenderer.set_background_color(background_color)
 
         self.opvRenderer.change_font_color(self.bottom_font_color)
         self.opvAnalysisRenderer.change_font_color(self.bottom_font_color)
-        self.opvGeometryRenderer.change_font_color(self.bottom_font_color)
 
         self.opvRenderer.changeNodesColor(nodes_color)
         self.opvRenderer.changeLinesColor(lines_color)
@@ -103,40 +99,19 @@ class OPVUi(QVTKRenderWindowInteractor):
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.opvAnalysisRenderer.getRenderer())
-        self.GetRenderWindow().RemoveRenderer(self.opvGeometryRenderer.getRenderer())
 
     def clearRendereresUse(self):
         self.opvRenderer.setInUse(False)
         self.opvAnalysisRenderer.setInUse(False)
-        self.opvGeometryRenderer.setInUse(False)
 
     def updatePlots(self):
         # def callback():
         self.project.preprocessor.add_lids_to_variable_cross_sections()
         self.opvRenderer.plot()
         self.opvAnalysisRenderer.plot()
-        self.opvGeometryRenderer.plot()
         # LoadingScreen(title = 'Processing model',
         #               message = "Updating render",
         #               target = callback)
-
-    def plot_raw_geometry(self):
-
-        if self.opvGeometryRenderer.plot():
-            return
-
-        self.change_plot_to_mesh = False
-        self.change_plot_to_entities = False
-        self.change_plot_to_entities_with_cross_section = False
-        self.change_plot_to_raw_lines = True
-        self.setRenderer(self.opvGeometryRenderer)
-
-        plot_filter = PlotFilter(raw_lines=True)
-        selection_filter = SelectionFilter()
-
-        # self.opvRenderer.setPlotFilter(plot_filter)
-        # self.opvRenderer.setSelectionFilter(selection_filter)
-        self._updateAxes()
 
     def plot_entities(self):
         self.change_plot_to_mesh = False
@@ -241,9 +216,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         elif (self.opvAnalysisRenderer.getInUse()):
             lastCamera = self.opvAnalysisRenderer._renderer.GetActiveCamera()
-
-        elif (self.opvGeometryRenderer.getInUse()):
-            lastCamera = self.opvGeometryRenderer._renderer.GetActiveCamera()
         
         else:
             lastCamera = None
@@ -265,8 +237,6 @@ class OPVUi(QVTKRenderWindowInteractor):
             x,y,z = self.opvRenderer._renderer.GetActiveCamera().GetFocalPoint()
         elif (self.opvAnalysisRenderer.getInUse()):
             x,y,z = self.opvAnalysisRenderer._renderer.GetActiveCamera().GetFocalPoint()
-        elif (self.opvGeometryRenderer.getInUse()):
-            x,y,z = self.opvGeometryRenderer._renderer.GetActiveCamera().GetFocalPoint()
         else:
             return
 
@@ -306,12 +276,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
         self.opvRenderer._renderer.ResetCamera(*self.opvRenderer.getBounds())
         self.opvRenderer.update()
-
-        self.opvGeometryRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
-        self.opvGeometryRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
-        self.opvGeometryRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
-        self.opvGeometryRenderer._renderer.ResetCamera(*self.opvGeometryRenderer.getBounds())
-        self.opvGeometryRenderer.update()
 
         self.opvAnalysisRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
         self.opvAnalysisRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
@@ -388,7 +352,6 @@ class OPVUi(QVTKRenderWindowInteractor):
     def update_section_radius(self, *args, **kwargs):
         self.opvRenderer.plot()
         self.opvAnalysisRenderer.plot()
-        self.opvGeometryRenderer.plot()
         # self.updatePlots()
 
     def updateRendererMesh(self, *args, **kwargs):

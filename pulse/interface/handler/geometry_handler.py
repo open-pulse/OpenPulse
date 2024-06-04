@@ -43,6 +43,7 @@ class GeometryHandler:
             self.length_unit = unit
 
     def create_geometry(self):
+
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)

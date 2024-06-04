@@ -119,9 +119,12 @@ class InputUi:
             return self.initial_project_action(new_project.complete)
 
     def load_project(self, path=None):
+        # t0 = time()
         self.reset_geometry_render()
         load_project = self.process_input(LoadProjectInput, path=path)
         self.main_window.mesh_toolbar.update_mesh_attributes()
+        # dt = time() - t0
+        # print(f"load_project: {dt} [s]")
         return self.initial_project_action(load_project.complete)
 
     def get_started(self):
@@ -130,6 +133,7 @@ class InputUi:
         return get_started.complete
 
     def initial_project_action(self, finalized):
+        # t0 = time()
         self.main_window.action_front_view_callback()
         self.main_window.update_export_geometry_file_access()
         self.menu_items.modify_model_setup_items_access(True)
@@ -138,6 +142,8 @@ class InputUi:
             if self.project.file.check_if_entity_file_is_active():
                 self.project.none_project_action = False
                 self.menu_items.modify_model_setup_items_access(False)
+                # dt = time() - t0
+                # print(f"initial_project_action: {dt} s")
                 return True
             else:
                 self.menu_items.modify_geometry_item_access(False)
