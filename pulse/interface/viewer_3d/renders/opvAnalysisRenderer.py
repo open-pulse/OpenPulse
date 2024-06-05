@@ -208,7 +208,11 @@ class opvAnalysisRenderer(vtkRendererBase):
     def _plotOnce(self, phase_step):
         self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
         self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
-        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
+        try:
+            app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        except:
+            pass
 
         self._currentPhase = phase_step
         self._currentPlot(self._currentFrequencyIndex, phase_step)
@@ -270,7 +274,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.result_disp_max = r_max
 
     def computeDisplacementField(self, frequency_index, phase_step):
-
         preprocessor = app().main_window.project.preprocessor
         solution = app().main_window.project.get_structural_solution()
 
@@ -292,6 +295,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
             self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(True)
@@ -333,6 +337,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
             self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(True)
@@ -371,6 +376,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.clipping_plane_active:
             self.opvClippablePressureTubes.build()
             self.opvClippablePressureTubes.setColorTable(colorTable)
+            self.opvClippablePressureTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(False)
@@ -583,7 +589,11 @@ class opvAnalysisRenderer(vtkRendererBase):
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
         self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
         self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
-        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
+        try:
+            app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        except:
+            pass
 
         if self.playingAnimation:
             self.pauseAnimation()
@@ -622,7 +632,11 @@ class opvAnalysisRenderer(vtkRendererBase):
     def dismiss_clipping_plane(self):
         self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
         self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
-        app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+
+        try:
+            app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        except:
+            pass
 
         self.plane_origin = None
         self.plane_normal = None

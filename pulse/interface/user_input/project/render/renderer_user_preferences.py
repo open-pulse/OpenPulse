@@ -50,15 +50,20 @@ class RendererUserPreferencesInput(QDialog):
                             self.opv.opvRenderer.show_reference_scale]
 
     def _define_qt_variables(self):
+
         # QCheckBox
         self.checkBox_OpenPulse_logo : QCheckBox
         self.checkBox_reference_scale : QCheckBox
+
         # QComboBox
         self.comboBox_background_theme : QComboBox
+
         # QFrame
         self.frame_background_color : QFrame
+
         # QSlider
         self.slider_transparency : QSlider
+
         # QLineEdit
         self.lineEdit_background_color : QLineEdit
         self.lineEdit_font_color : QLineEdit
@@ -66,6 +71,7 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_lines_color : QLineEdit
         self.lineEdit_surfaces_color : QLineEdit
         self.lineEdit_elements_transparency : QLineEdit
+
         # QPushButton
         self.pushButton_background_color : QPushButton
         self.pushButton_font_color : QPushButton
@@ -74,6 +80,7 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_surfaces_color : QPushButton
         self.pushButton_reset_to_default : QPushButton
         self.pushButton_update_settings : QPushButton
+
         # QTabWidget
         self.tabWidget_main : QTabWidget
 
@@ -154,7 +161,6 @@ class RendererUserPreferencesInput(QDialog):
         # self.opv.background_color = self.background_color
         self.opv.opvRenderer.set_background_color(self.background_color)
         self.opv.opvAnalysisRenderer.set_background_color(self.background_color)
-        self.opv.opvGeometryRenderer.set_background_color(self.background_color)
 
     def update_font_color_state(self):
         self.opv.bottom_font_color = self.bottom_font_color
