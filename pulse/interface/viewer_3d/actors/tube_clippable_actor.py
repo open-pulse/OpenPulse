@@ -137,9 +137,7 @@ class TubeClippableActor(ActorBase):
         self._data.GetPointData().SetScalars(c)
         self._colors = c
         self._mapper.Update()
-        if (self.origin is not None) and (self.normal is not None):
-            self.apply_cut(self.origin, self.normal) 
-    
+            
     def setColorTable(self, colorTable):
         self.colorTable = colorTable
 
