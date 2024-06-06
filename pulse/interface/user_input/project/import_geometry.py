@@ -80,7 +80,7 @@ class ImportGeometry(QFileDialog):
         self.project.load_project_files()
         self.project.preprocessor.check_disconnected_lines(self.file._element_size)
         self.opv.updatePlots()
-        self.opv.plot_mesh()
+        self.main_window.update_plot_mesh()
         self.complete = True
 
     def print_user_message(self):

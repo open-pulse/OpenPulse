@@ -1,6 +1,6 @@
 
 from PyQt5.QtWidgets import QComboBox, QDialog, QFileDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
@@ -37,7 +37,9 @@ class PrescribedDofsInput(QDialog):
         self._config_widgets()
         self.update()
         self.load_nodes_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -49,6 +51,8 @@ class PrescribedDofsInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.file = self.project.file
@@ -584,7 +588,7 @@ class PrescribedDofsInput(QDialog):
                             data[index, dof_label] = node.prescribed_dofs[i]
 
             if len(data):
-                self.close()
+                self.hide()
                 header_labels = ["Node ID", "Dof label", "Value"]
                 GetInformationOfGroup(  group_label = "Prescribed dof",
                                         selection_label = "Node ID:",
@@ -597,28 +601,26 @@ class PrescribedDofsInput(QDialog):
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
             return
-        
-        self.show()
 
     def check_remove_bc_from_node(self):
+
+        if  self.lineEdit_nodeID.text() != "":
         
-        self.basenames = []
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
-            return
+            self.basenames = []
+            lineEdit_nodeID = self.lineEdit_nodeID.text()
+            self.stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+            if self.stop:
+                return
 
-        key_strings = ["displacements", "rotations"]
-        message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) have been removed."
+            key_strings = ["displacements", "rotations"]
+            self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
+            self.remove_all_table_files_from_nodes(nodes_typed)
+            data = [self.list_Nones, self.list_Nones]
+            self.preprocessor.set_prescribed_dofs_bc_by_node(nodes_typed, data)
+            self.opv.updateRendererMesh()
+            self.load_nodes_info()
+            # self.close()
 
-        remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-        self.remove_all_table_files_from_nodes(self.nodes_typed)
-        data = [self.list_Nones, self.list_Nones]
-        self.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
-        self.opv.updateRendererMesh()
-        self.load_nodes_info()
-        self.close()
-    
     def get_list_tables_names_from_selected_nodes(self, list_node_ids):
         table_names_from_nodes = []
         for node_id in list_node_ids:
@@ -636,25 +638,26 @@ class PrescribedDofsInput(QDialog):
 
     def reset_all(self):
 
-        title = "Remove all prescribed dofs from structural model"
-        message = "Would you like to remove all prescribed dofs from the structural model?\n\n\n"
+        self.hide()
+
+        title = "Resetting of prescribed dofs"
+        message = "Would you like to remove all prescribed dofs from the structural model?"
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._continue:
+
             self.basenames = []
             temp_list_nodes = self.preprocessor.nodes_with_prescribed_dofs.copy()
-            self.nodes_typed = [node.external_index for node in temp_list_nodes]
+            nodes_typed = [node.external_index for node in temp_list_nodes]
 
             key_strings = ["displacements", "rotations"]
-            message = None
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-            self.remove_all_table_files_from_nodes(self.nodes_typed)
+            self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
+            self.remove_all_table_files_from_nodes(nodes_typed)
             data = [self.list_Nones, self.list_Nones]
-            self.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
+            self.preprocessor.set_prescribed_dofs_bc_by_node(nodes_typed, data)
 
             self.opv.updateRendererMesh()
-            self.load_nodes_info()
             self.close()
 
     def process_table_file_removal(self, list_table_names):
@@ -720,3 +723,7 @@ class PrescribedDofsInput(QDialog):
                 self.check_table_values()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

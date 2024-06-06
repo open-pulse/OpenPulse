@@ -148,9 +148,10 @@ class RadiationImpedanceInput(QDialog):
             return
 
         key_strings = ["radiation impedance"]
-        message = "The radiation impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
-        remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
+        # message = "The radiation impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
+        self.project.file.filter_bc_data_from_dat_file(self.nodes_typed, key_strings, self.acoustic_bc_info_path)
         self.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
+
         self.opv.updateRendererMesh()
         self.load_nodes_info()
         # self.close()
@@ -169,22 +170,21 @@ class RadiationImpedanceInput(QDialog):
             
             buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
             read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
+            
+            _node_ids = list()
             _nodes_with_radiation_impedance = self.preprocessor.nodes_with_radiation_impedance.copy()
             if read._continue:
                 for node in _nodes_with_radiation_impedance:
                     node_id = node.external_index
                     key_strings = ["radiation impedance"]
-                    remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
-                    self.preprocessor.set_radiation_impedance_bc_by_node(node_id, None)
-                
-                title = "Radiation impedance resetting process complete"
-                message = "All radiation impedances applied to the acoustic " 
-                message += "model have been removed from the model."
-                PrintMessageInput([window_title_2, title, message])
+                    if node_id not in _node_ids:
+                        _node_ids.append(node_id)
 
-                self.opv.updateRendererMesh()
+                self.project.file.filter_bc_data_from_dat_file(_node_ids, key_strings, self.acoustic_bc_info_path)
+                self.preprocessor.set_radiation_impedance_bc_by_node(_node_ids, None)
+
                 self.close()
+                self.opv.updateRendererMesh()
 
     def load_nodes_info(self):
         self.treeWidget_radiation_impedance.clear()

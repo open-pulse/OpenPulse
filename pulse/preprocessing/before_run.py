@@ -11,6 +11,7 @@ window_title_2 = "Warning"
 class BeforeRun:
     def __init__(self, **kwargs):
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
 
@@ -422,7 +423,7 @@ class BeforeRun:
 
         for index, flag in enumerate(list_flags):
             if flag:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 self.opv.opvRenderer.highlight_elements(lists_elements[index])
                 PrintMessageInput([window_title, title, list_messages[index]])
 

@@ -996,21 +996,21 @@ class MassSpringDamperInput(QDialog):
                 return
             for node in self.preprocessor.nodes_with_masses:
                 index = node.external_index
-                if index not in self.nodes_typed:
-                    self.nodes_typed.append(index)
+                if index not in nodes_typed:
+                    nodes_typed.append(index)
 
             for node in self.preprocessor.nodes_connected_to_springs:
                 index = node.external_index
-                if index not in self.nodes_typed:
-                    self.nodes_typed.append(index)
+                if index not in nodes_typed:
+                    nodes_typed.append(index)
 
             for node in self.preprocessor.nodes_connected_to_dampers:
                 index = node.external_index
-                if index not in self.nodes_typed:
-                    self.nodes_typed.append(index)
+                if index not in nodes_typed:
+                    nodes_typed.append(index)
         else:
             lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-            _stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+            _stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
             if _stop:
                 return
 
@@ -1021,25 +1021,25 @@ class MassSpringDamperInput(QDialog):
         remove_spring = self.checkBox_remove_spring.isChecked()
         remove_damper = self.checkBox_remove_damper.isChecked()
 
-        if self.nodes_typed:
+        if nodes_typed:
 
             if (remove_mass and tab_remove_index == 0) or tab_remove_index == 1:    
                 key_strings = ["masses", "moments of inertia"]
-                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
                 self.remove_masses_table_files()
-                self.preprocessor.add_mass_to_node(self.nodes_typed, data)
+                self.preprocessor.add_mass_to_node(nodes_typed, data)
 
             if (remove_spring and tab_remove_index == 0) or tab_remove_index == 2:   
                 key_strings = ["spring stiffness", "torsional spring stiffness"]
-                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
                 self.remove_stiffness_table_files()
-                self.preprocessor.add_spring_to_node(self.nodes_typed, data)
+                self.preprocessor.add_spring_to_node(nodes_typed, data)
 
             if (remove_damper and tab_remove_index == 0) or tab_remove_index == 3: 
                 key_strings = ["damping coefficients", "torsional damping coefficients"]
-                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
                 self.remove_damping_table_files()
-                self.preprocessor.add_damper_to_node(self.nodes_typed, data)
+                self.preprocessor.add_damper_to_node(nodes_typed, data)
 
             self.load_treeWidgets_info()
             self.opv.updateRendererMesh()

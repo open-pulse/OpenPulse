@@ -16,6 +16,7 @@ class ResetProjectInput(QDialog):
         ui_path = UI_DIR / "project/reset_project.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().main_window.project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
@@ -65,7 +66,7 @@ class ResetProjectInput(QDialog):
         reset_config = self.get_reset_config()
         self.project.reset_project(**reset_config)
         self.opv.opvRenderer.plot()
-        self.opv.plot_mesh()
+        self.main_window.update_plot_mesh()
         self.print_final_message()
     
     def print_final_message(self):

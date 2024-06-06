@@ -15,8 +15,6 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
 
-from pulse.interface.user_input.project.loading_screen import LoadingScreen
-
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
@@ -160,7 +158,7 @@ class MainWindow(QMainWindow):
         # iterating sorted items make the icons appear in the same 
         # order as defined in the Workspace enumerator
         for _, action in sorted(actions.items()):
-            self.combo_box_workspaces.addItem(action.text())
+            self.combo_box_workspaces.addItem(f" {action.text()}")
 
         self.combo_box_workspaces.currentIndexChanged.connect(self.update_combobox_indexes)
         self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
@@ -207,7 +205,7 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([100, 400])
         self.splitter.widget(0).setMinimumWidth(380)
         self.opv_widget.updatePlots()
-        self.opv_widget.plot_entities_with_cross_section()
+        # self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
         
@@ -358,7 +356,7 @@ class MainWindow(QMainWindow):
         # Configure the mesh plot as a combination of the interface buttons
         self.action_show_points.setChecked(True)
         self.action_show_lines.setChecked(True)
-        self.action_show_tubes.setChecked(True)
+        self.action_show_tubes.setChecked(False)
         self.action_show_symbols.setChecked(True)
         self._update_visualization()
 
@@ -370,7 +368,7 @@ class MainWindow(QMainWindow):
         key.append(self.action_show_tubes.isChecked())
         key.append(self.action_show_symbols.isChecked())
 
-        if key != [True, True, True, True]:
+        if key != [True, True, False, True]:
             self.plot_mesh()
 
     def update_plot_entities(self):
@@ -406,6 +404,7 @@ class MainWindow(QMainWindow):
 
     def load_recent_project(self):
         # t0 = time()
+        self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
         if self.config.open_last_project and self.config.haveRecentProjects():
             self.import_project_call(self.config.getMostRecentProjectDir())
         elif self.input_widget.get_started():
@@ -836,6 +835,18 @@ class MainWindow(QMainWindow):
     #             return
     #             self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
     #     return super(MainWindow, self).eventFilter(obj, event)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.ShortcutOverride:
+            if event.key() == Qt.Key_E:
+                self.combo_box_workspaces.setCurrentIndex(0)
+            elif event.key() == Qt.Key_S:
+                self.combo_box_workspaces.setCurrentIndex(1)
+            elif event.key() == Qt.Key_A:
+                self.combo_box_workspaces.setCurrentIndex(2)
+            elif event.key() == Qt.Key_R:
+                self.combo_box_workspaces.setCurrentIndex(3)
+        return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
 

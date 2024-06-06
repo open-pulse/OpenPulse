@@ -890,9 +890,9 @@ class ElasticNodalLinksInput(QDialog):
         self.nodeID_1, self.nodeID_2 = [int(str_id) for str_id in str_ids]
     
         key_strings = ["connecting stiffness", "connecting torsional stiffness"]
-        message = None
 
-        remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
         self.remove_elastic_link_stiffness_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _stiffness=True)
         self.load_elastic_links_stiffness_info()
@@ -907,7 +907,9 @@ class ElasticNodalLinksInput(QDialog):
         key_strings = ["connecting damping", "connecting torsional damping"]
         message = None
 
-        remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
+
         self.remove_elastic_link_damping_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _damping=True)
         self.load_elastic_links_damping_info()

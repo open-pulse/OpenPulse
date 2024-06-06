@@ -511,15 +511,14 @@ class NodalLoadsInput(QDialog):
     def check_remove_bc_from_node(self):
         self.basenames = []
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
+        stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if stop:
             return
         key_strings = ["forces", "moments"]
-        message = f"The nodal load(s) value(s) attributed to the {self.nodes_typed} node(s) have been removed."
-        remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-        self.remove_all_table_files_from_nodes(self.nodes_typed)
+        self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
+        self.remove_all_table_files_from_nodes(nodes_typed)
         data = [self.list_Nones, self.list_Nones]
-        self.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, data)
+        self.preprocessor.set_structural_load_bc_by_node(nodes_typed, data)
         self.opv.updateRendererMesh()
         self.load_nodes_info()
         self.close()
@@ -551,20 +550,19 @@ class NodalLoadsInput(QDialog):
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._continue:
-            self.basenames = []
+            self.basenames = list()
             temp_list_nodes = self.preprocessor.nodes_with_nodal_loads.copy()
-            self.nodes_typed = [node.external_index for node in temp_list_nodes]
+            nodes_typed = [node.external_index for node in temp_list_nodes]
 
             key_strings = ["forces", "moments"]
-            message = None
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-            self.remove_all_table_files_from_nodes(self.nodes_typed)
-            data = [self.list_Nones, self.list_Nones]
-            self.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, data)
+            self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
 
-            self.opv.updateRendererMesh()
-            self.load_nodes_info()
+            self.remove_all_table_files_from_nodes(nodes_typed)
+            data = [self.list_Nones, self.list_Nones]
+            self.preprocessor.set_structural_load_bc_by_node(nodes_typed, data)
+
             self.close()
+            self.opv.updateRendererMesh()
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:

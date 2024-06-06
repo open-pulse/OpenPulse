@@ -1091,7 +1091,8 @@ class CompressorModelInput(QDialog):
             for list_data in self.dict_node_to_compressor_excitation[node_id]:
                 [str_key, table_name_file] = list_data
                 if self.selected_table in table_name_file:
-                    remove_bc_from_file([node_id], self.node_acoustic_path, [str_key], None)
+                    self.project.file.filter_bc_data_from_dat_file([node_id], [str_key], self.node_acoustic_path)
+                    # remove_bc_from_file([node_id], self.node_acoustic_path, [str_key], None)
 
             title = "Compressor excitation table removal finished"
             message = f"The following compressor excitation table attributed to \n"

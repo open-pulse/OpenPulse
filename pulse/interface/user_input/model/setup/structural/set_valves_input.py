@@ -24,6 +24,7 @@ class ValvesInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/set_valve_input.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
@@ -203,7 +204,7 @@ class ValvesInput(QDialog):
             self.lineEdit_valve_length.setDisabled(False)
 
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 if element_id:
                     self.opv.opvRenderer.highlight_elements(element_id)
 
@@ -660,7 +661,7 @@ class ValvesInput(QDialog):
 
         self.complete = True
         self.opv.update_section_radius()
-        self.opv.plot_mesh()
+        self.main_window.update_plot_mesh()
         # self.opv.plot_entities_with_cross_section()
 
         if self.isVisible():
@@ -1009,7 +1010,9 @@ class ValvesInput(QDialog):
 
         [_, list_elements] = self.preprocessor.group_elements_with_perforated_plate[key]
         key_strings = ['perforated plate data', 'dimensionless impedance', 'list of elements']
+
         remove_bc_from_file([key], self.elements_info_path, key_strings, message)
+        # self.project.file.filter_bc_data_from_dat_file([key], key_strings, self.elements_info_path)
 
         self.preprocessor.set_perforated_plate_by_elements(list_elements, None, key, delete_from_dict=True)
 

@@ -25,7 +25,7 @@ class MeshUpdater:
         self.element_size = 0.01
         self.geometry_tolerance = 1e-6
         self.dict_old_to_new_node_external_indexes = {}
-        self.dict_non_mapped_bcs = {}
+        self.non_mapped_bcs = list()
         self.dict_group_elements_to_update_entity_file = {}
         self.dict_group_elements_to_update_element_info_file = {}
         self.dict_non_mapped_subgroups_entity_file = {}
@@ -42,52 +42,50 @@ class MeshUpdater:
             
     def process_mesh_and_load_project(self):
 
-        self.cache_dict_nodes = self.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
         self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
         self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()        
 
         if self.file.check_if_entity_file_is_active():
+
             self.process_intermediate_actions() 
-        else:
-            self.process_intermediate_actions()
 
-        if len(self.dict_non_mapped_bcs) > 0:
+            if self.non_mapped_bcs:
 
-            title = "Error while mapping boundary conditions"
-            message = "The boundary conditions associated to the following nodal coordinates cannot be mapped directly after remesh:\n\n"
+                title = "Error while mapping boundary conditions"
+                message = "The boundary conditions associated to the following nodal coordinates cannot be mapped directly after remesh:\n\n"
 
-            for coord in list(self.dict_non_mapped_bcs.keys()):
-                message += f"{coord};\n"
-
-            message = message[:-2]
-            message += ".\n\nPress the 'Return' or 'Close' buttons if you want to abort the mesh operation, "
-            message += "otherwise, press the 'Remove data' button to remove unmapped boundary conditions."
-            buttons_config = {"left_button_label" : "Remove data", "right_button_label" : "Abort remesh"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-            
-            if read._doNotRun:
-                self.undo_mesh_actions()
-
-            elif read._stop:
-
-                self.process_final_actions()
-                
-                title = "Removal of unmapped boundary conditions"
-                message = "The boundary conditions associated to the following nodal coordinates "
-                message += "has been removed from the current model setup:\n\n"
-                for coord in list(self.dict_non_mapped_bcs.keys()):
+                for _, coord in self.non_mapped_bcs:
                     message += f"{coord};\n"
-                message = message[:-2] 
-                message += ".\n\nPlease, take this information into account henceforward."
-                PrintMessageInput([window_title_2, title, message])
 
-            elif read._continue:
-                self.undo_mesh_actions()
-                return
+                message = message[:-2]
+                message += ".\n\nPress the 'Return' or 'Close' buttons if you want to abort the mesh operation, "
+                message += "otherwise, press the 'Remove data' button to remove unmapped boundary conditions."
+                buttons_config = {"left_button_label" : "Remove data", "right_button_label" : "Abort remesh"}
+                read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
-        else:
-            self.process_final_actions()
+                if read._doNotRun:
+                    self.undo_mesh_actions()
+
+                elif read._stop:
+
+                    self.process_final_actions()
+                    
+                    title = "Removal of unmapped boundary conditions"
+                    message = "The boundary conditions associated to the following nodal coordinates "
+                    message += "has been removed from the current model setup:\n\n"
+                    for coord in list(self.dict_non_mapped_bcs.keys()):
+                        message += f"{coord};\n"
+                    message = message[:-2] 
+                    message += ".\n\nPlease, take this information into account henceforward."
+                    PrintMessageInput([window_title_2, title, message])
+
+                elif read._continue:
+                    self.undo_mesh_actions()
+                    return
+
+            else:
+                self.process_final_actions()
 
         self.project.time_to_load_or_create_project = time() - self.t0
 
@@ -95,14 +93,12 @@ class MeshUpdater:
         self.current_element_size, self.current_geometry_tolerance = self.file.get_mesh_attributes_from_project_file()
         self.t0 = time()
         self.project.file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
-        self.project.initial_load_project_actions(self.file.project_ini_file_path )
-        if len(self.preprocessor.structural_elements) > 0:
+        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        if self.preprocessor.structural_elements:
             #
-            data_1 = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)
             data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
             data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
             #
-            [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = data_1
             [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
             [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
 
@@ -117,12 +113,9 @@ class MeshUpdater:
         self.project.initial_load_project_actions(self.file.project_ini_file_path )
         self.project.load_project_files()
         self.opv.updatePlots()
-        self.opv.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def process_final_actions(self):
-
-        if len(self.dict_old_to_new_node_external_indexes) > 0:
-            self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs)
 
         if (len(self.dict_group_elements_to_update_entity_file) + len(self.dict_non_mapped_subgroups_entity_file)) > 0:
             self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
@@ -147,5 +140,5 @@ class MeshUpdater:
 
         self.project.load_project_files()     
         self.opv.updatePlots()
-        self.opv.plot_mesh()   
+        self.main_window.update_plot_mesh()   
         self.complete = True

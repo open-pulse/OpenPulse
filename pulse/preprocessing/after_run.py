@@ -9,6 +9,7 @@ window_title_2 = "Warning"
 class AfterRun:
     def __init__(self):
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.preprocessor = self.project.preprocessor
@@ -49,7 +50,7 @@ class AfterRun:
                 self.list_nodes.sort()
         
                 if np.any(criteria):
-                    self.opv.plot_mesh()
+                    self.main_window.update_plot_mesh()
                     self.opv.opvRenderer.highlight_nodes(self.list_nodes, reset_colors=False)
                     title = "Acoustic nonlinearity criteria not satisfied"
                     message_nl = f"The acoustic model is out of its linear validity range at "

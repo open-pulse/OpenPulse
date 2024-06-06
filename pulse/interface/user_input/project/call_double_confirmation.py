@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 
 from pulse import UI_DIR, __version__
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.formatters.icons import * 
 
 
@@ -23,7 +24,10 @@ class CallDoubleConfirmationInput(QDialog):
         self._config_window()
         self._reset_variables()
         self._define_qt_variables()
-        self._create_actions()
+        self._create_connections()
+
+        ConfigWidgetAppearance(self)
+
         self._configure_labels()
         self._configure_buttons()
         self.exec()
@@ -50,7 +54,7 @@ class CallDoubleConfirmationInput(QDialog):
         self.pushButton_rightButton : QPushButton
         self.pushButton_leftButton : QPushButton
 
-    def _create_actions(self):
+    def _create_connections(self):
         self.pushButton_rightButton.clicked.connect(self.confirm_action)
         self.pushButton_leftButton.clicked.connect(self.force_to_close)
 

@@ -167,7 +167,7 @@ class VolumeVelocityInput(QDialog):
             data = [self.volume_velocity, None]
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
             self.process_table_file_removal(list_table_names) 
-            self.project.set_volume_velocity_bc_by_node(self.nodes_typed, data, False)
+            self.project.set_volume_velocity_bc_by_node(self.nodes_typed, data)
             self.opv.updateRendererMesh()
             print(f"[Set Volume Velocity] - defined at node(s) {self.nodes_typed}")
             self.close()
@@ -286,7 +286,7 @@ class VolumeVelocityInput(QDialog):
                     if self.basename_volume_velocity in list_table_names:
                         list_table_names.remove(self.basename_volume_velocity)
                     data = [self.volume_velocity, self.basename_volume_velocity]
-                    self.project.set_volume_velocity_bc_by_node([node_id], data, True)
+                    self.project.set_volume_velocity_bc_by_node([node_id], data)
 
             self.process_table_file_removal(list_table_names)
             self.opv.updateRendererMesh()
@@ -327,18 +327,20 @@ class VolumeVelocityInput(QDialog):
 
     def check_remove_bc_from_node(self):
         if self.lineEdit_selection_id.text() != "":
-            picked_node_id = int(self.lineEdit_selection_id.text())
-            node = self.preprocessor.nodes[picked_node_id]          
-            if node in self.preprocessor.nodes_with_volume_velocity:            
-                key_strings = ["volume velocity"]
-                message = f"The volume velocity attributed to the {picked_node_id} node has been removed."
-                remove_bc_from_file([picked_node_id], self.acoustic_bc_info_path, key_strings, message)
-                list_table_names = self.get_list_table_names_from_selected_nodes([picked_node_id])
-                self.process_table_file_removal(list_table_names)
-                self.preprocessor.set_volume_velocity_bc_by_node(picked_node_id, [None, None])
-                self.opv.updateRendererMesh()
-                self.load_nodes_info()
-                # self.close()
+
+            lineEdit_selection_id = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            if stop:
+                return
+
+            key_strings = ["volume velocity"]
+            self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.acoustic_bc_info_path)
+            list_table_names = self.get_list_table_names_from_selected_nodes(nodes_typed)
+            self.process_table_file_removal(list_table_names)
+            self.preprocessor.set_volume_velocity_bc_by_node(nodes_typed, [None, None])
+            self.opv.updateRendererMesh()
+            self.load_nodes_info()
+            # self.close()
 
     def process_table_file_removal(self, list_table_names):
         if list_table_names != []:
@@ -365,29 +367,29 @@ class VolumeVelocityInput(QDialog):
 
             if read._continue:
 
-                _list_table_names = []
+                _node_ids = list()
+                _list_table_names = list()
                 _nodes_with_volume_velocity = self.preprocessor.nodes_with_volume_velocity.copy()
 
                 for node in _nodes_with_volume_velocity:
+
                     node_id = node.external_index
                     key_strings = ["volume velocity"]
                     table_name = node.volume_velocity_table_name
+
                     if table_name is not None:
                         if table_name not in _list_table_names:
                             _list_table_names.append(table_name)
-                    remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
-                    self.preprocessor.set_volume_velocity_bc_by_node(node_id, [None, None])
+                            
+                    if node_id not in _node_ids:
+                        _node_ids.append(node_id)
                 
+                self.project.file.filter_bc_data_from_dat_file(_node_ids, key_strings, self.acoustic_bc_info_path)
+                self.preprocessor.set_volume_velocity_bc_by_node(_node_ids, [None, None])
                 self.process_table_file_removal(_list_table_names)
-                self.load_nodes_info()
 
-                title = "Volume velocity resetting process complete"
-                message = "All volume velocity applied to the acoustic "
-                message += "model have been removed from the model."
-                PrintMessageInput([window_title_2, title, message])
-
-                self.opv.updateRendererMesh()
                 self.close()
+                self.opv.updateRendererMesh()
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:

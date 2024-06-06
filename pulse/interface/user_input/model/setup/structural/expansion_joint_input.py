@@ -25,6 +25,7 @@ class ExpansionJointInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
@@ -210,7 +211,7 @@ class ExpansionJointInput(QDialog):
             self.lineEdit_joint_length.setDisabled(False)
 
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 if node_id:
                     self.opv.opvRenderer.highlight_elements(node_id)
 
@@ -220,7 +221,7 @@ class ExpansionJointInput(QDialog):
             self.lineEdit_joint_length.setDisabled(False)
 
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 if element_id:
                     self.opv.opvRenderer.highlight_elements(element_id)
 
