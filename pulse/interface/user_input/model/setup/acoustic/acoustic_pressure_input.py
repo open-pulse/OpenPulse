@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 
 import os
@@ -33,9 +33,13 @@ class AcousticPressureInput(QDialog):
         self._create_connections()
         self.update()
         self.load_nodes_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -349,21 +353,22 @@ class AcousticPressureInput(QDialog):
                 self.project.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")
 
     def reset_callback(self):
-        if len(self.preprocessor.nodes_with_acoustic_pressure)>0:
+        if self.preprocessor.nodes_with_acoustic_pressure:
 
             list_nodes = list()
             for node in self.preprocessor.nodes_with_acoustic_pressure:
                 list_nodes.append(node.external_index)
             
-            title = f"Resetting of all applied acoustic pressures"
-            message = "Would you like to remove the acoustic pressure(s) "
-            message += "applied to the following node(s)?\n"
-            message += f"\n{list_nodes}"
+            self.hide()
+
+            title = f"Resetting of acoustic pressures"
+            message = "Would you like to remove all acoustic pressures from the acoustic model?"
             
             buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._doNotRun:
+            if read._cancel:
+                self.opv.setInputObject(self)
                 return
             
             if read._continue:
@@ -447,3 +452,7 @@ class AcousticPressureInput(QDialog):
                 self.check_remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

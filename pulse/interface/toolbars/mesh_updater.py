@@ -1,6 +1,6 @@
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from time import time
 
@@ -62,12 +62,12 @@ class MeshUpdater:
                 message += ".\n\nPress the 'Return' or 'Close' buttons if you want to abort the mesh operation, "
                 message += "otherwise, press the 'Remove data' button to remove unmapped boundary conditions."
                 buttons_config = {"left_button_label" : "Remove data", "right_button_label" : "Abort remesh"}
-                read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+                read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-                if read._doNotRun:
+                if read._cancel:
                     self.undo_mesh_actions()
 
-                elif read._stop:
+                elif read._cancel:
 
                     self.process_final_actions()
                     

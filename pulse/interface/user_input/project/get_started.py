@@ -7,7 +7,7 @@ from pathlib import Path
 from pulse import app, UI_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import os
 
@@ -153,14 +153,14 @@ class GetStartedInput(QDialog):
             message = "The following project folder path cannot be found, check if the project " 
             message += f"folder have not been deleted or moved to another directory. \n\n{dir}"
             PrintMessageInput([window_title, title, message])
-        
+
     def reset_list_projects(self):
         title = "Resetting of the recent projects list"
         message = "Dear user, do you want to proceed with the 'Recent Projects' list clean-up and resetting?"
         buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
             return
 
         if read._continue:

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 
 import os
@@ -35,7 +35,9 @@ class ElasticNodalLinksInput(QDialog):
         self._config_widgets()
         self.update()
         self.load_treeWidgets_info()
-        self.exec()
+        
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -47,6 +49,8 @@ class ElasticNodalLinksInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -918,16 +922,16 @@ class ElasticNodalLinksInput(QDialog):
 
     def reset_elastic_links(self):
 
-        self.setVisible(False)
-        title = "Resetting the elastic links from the model"
+        self.hide()
+
+        title = "Resetting of elastic links"
         message = "Would you like to remove all nodal elastic links from the structural model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
             self.opv.setInputObject(self)
-            self.setVisible(False)
             return
 
         if read._continue:
@@ -940,8 +944,10 @@ class ElasticNodalLinksInput(QDialog):
             for key in temp_dict_damping.keys():
                 self.remove_selected_link_damping(key)
 
-            self.reset_nodes_input_fields()
+            # self.reset_nodes_input_fields()
+
             self.close()
+            self.opv.updateRendererMesh()
 
     def get_information(self):
         try:
@@ -1105,6 +1111,10 @@ class ElasticNodalLinksInput(QDialog):
             self.add_elastic_link()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)           
 
     # def remove_table_files(self, values):          
     #     for value in values:

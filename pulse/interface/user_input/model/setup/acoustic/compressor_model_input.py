@@ -8,7 +8,7 @@ from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppe
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 # from pulse.preprocessing.compressor_model import CompressorModel
 from compressors.reciprocating.model import CompressorModel
@@ -1126,17 +1126,18 @@ class CompressorModelInput(QDialog):
         self.opv.updateRendererMesh()
 
     def reset_all(self):
-        if len(self.preprocessor.nodes_with_compressor_excitation) > 0:
-            title = f"Removal of all compressor excitations"
-            message = "Do you really want to remove all compressor excitations \napplied to the following nodes?\n\n"
-            for node in self.preprocessor.nodes_with_compressor_excitation:
-                message += f"{node.external_index}\n"
-            message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
-            message += "\nClose buttons to abort the current operation."
-            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        if self.preprocessor.nodes_with_compressor_excitation:
 
-            if read._doNotRun:
+            self.hide()
+
+            title = f"Resetting of compressor excitations"
+            message = "Would you like to remove all compressor excitations from the acoustic model?\n\n"
+
+            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+            if read._cancel:
+                self.opv.setInputObject(self)
                 return
 
             if read._continue:
@@ -1145,10 +1146,14 @@ class CompressorModelInput(QDialog):
                     self.remove_message = False
                     self.node_ID_remove = node_id
                     self.reset_node()
+
                 self.node_ID_remove = None
                 title = "Reset of compressor excitations"
                 message = "All compressor excitations have been removed from the model."
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([window_title_2, title, message], auto_close=True)
+
+                self.close()
+                self.opv.updateRendererMesh()
 
     def load_compressor_excitation_tables_info(self):
         self.treeWidget_compressor_excitation.clear()

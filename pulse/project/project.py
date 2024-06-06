@@ -13,7 +13,7 @@ from pulse import app
 from pulse.editor.pulsation_suppression_device import PulsationSuppressionDevice
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-# from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+# from pulse.interface.user_input.project.call_double_confirmation import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
 #
 import os

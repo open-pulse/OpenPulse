@@ -6,7 +6,7 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import get_new_path
@@ -1239,9 +1239,9 @@ class ExpansionJointInput(QDialog):
         message = "Would you like to remove all expansion joints from the model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
             self.setVisible(True)
             return
 
@@ -1359,9 +1359,9 @@ class ExpansionJointInput(QDialog):
             message += f"{table}\n"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
             return
 
         if read._continue:

@@ -8,7 +8,7 @@ from pulse.interface.formatters.icons import *
 from pulse.libraries.default_libraries import default_material_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.preprocessing.material import Material
 
 import configparser
@@ -389,9 +389,9 @@ class MaterialInputs(QWidget):
                             "right_button_label" : "Yes",
                             "left_button_size" : 80,
                             "right_button_size" : 80}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
             return False
 
         if read._continue:

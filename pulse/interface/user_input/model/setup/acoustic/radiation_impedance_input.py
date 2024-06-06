@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import remove_bc_from_file
 
 import numpy as np
@@ -32,9 +32,13 @@ class RadiationImpedanceInput(QDialog):
         self._create_connections()
         self.update()
         self.load_nodes_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -157,23 +161,29 @@ class RadiationImpedanceInput(QDialog):
         # self.close()
 
     def check_reset(self):
-        if len(self.preprocessor.nodes_with_radiation_impedance) > 0:
+        if self.preprocessor.nodes_with_radiation_impedance:
 
             list_nodes = list()
             for node in self.preprocessor.nodes_with_radiation_impedance:
                 list_nodes.append(node.external_index)
+
+            self.hide()
             
-            title = f"Removal of all applied radiation impedances"
-            message = "Would you like to remove the radiation impedance(s) "
-            message += "applied to the following node(s)?\n"
-            message += f"\n{list_nodes}"
-            
+            title = f"Removal of radiation impedances"
+            message = "Would you like to remove all radiation impedances from the acoustic model?"
+
             buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
             
-            _node_ids = list()
-            _nodes_with_radiation_impedance = self.preprocessor.nodes_with_radiation_impedance.copy()
+            if read._cancel:
+                self.opv.setInputObject(self)
+                return
+
             if read._continue:
+
+                _node_ids = list()
+                _nodes_with_radiation_impedance = self.preprocessor.nodes_with_radiation_impedance.copy()
+
                 for node in _nodes_with_radiation_impedance:
                     node_id = node.external_index
                     key_strings = ["radiation impedance"]
@@ -240,3 +250,7 @@ class RadiationImpedanceInput(QDialog):
                 self.check_remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

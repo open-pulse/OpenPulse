@@ -8,11 +8,11 @@ from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppe
 from pulse.interface.formatters.icons import * 
 
 
-class CallDoubleConfirmationInput(QDialog):
+class GetUserConfirmationInput(QDialog):
     def __init__(self, title, message, buttons_config={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "messages/call_double_confirmation.ui"
+        ui_path = UI_DIR / "messages/get_user_confirmation.ui"
         uic.loadUi(ui_path, self)
 
         self.title = title
@@ -44,7 +44,7 @@ class CallDoubleConfirmationInput(QDialog):
     def _reset_variables(self):
         self._stop = True
         self._continue = False
-        self._doNotRun = True
+        self._cancel = True
 
     def _define_qt_variables(self):
         # QLabel
@@ -84,13 +84,13 @@ class CallDoubleConfirmationInput(QDialog):
         self.adjustSize()
 
     def confirm_action(self):
+        self._cancel = False
         self._continue = True
         self._stop = False
-        self._doNotRun = False
         self.close()
 
     def force_to_close(self):
+        self._cancel = False
         self._continue = False
         self._stop = True
-        self._doNotRun = False
         self.close()

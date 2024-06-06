@@ -10,7 +10,7 @@ from pulse.interface.formatters.icons import *
 from pulse.tools.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import os
 import numpy as np
@@ -642,8 +642,12 @@ class PrescribedDofsInput(QDialog):
 
         title = "Resetting of prescribed dofs"
         message = "Would you like to remove all prescribed dofs from the structural model?"
+
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
+            return
 
         if read._continue:
 
@@ -657,8 +661,8 @@ class PrescribedDofsInput(QDialog):
             data = [self.list_Nones, self.list_Nones]
             self.preprocessor.set_prescribed_dofs_bc_by_node(nodes_typed, data)
 
-            self.opv.updateRendererMesh()
             self.close()
+            self.opv.updateRendererMesh()
 
     def process_table_file_removal(self, list_table_names):
         for table_name in list_table_names:

@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path
 
 import os
@@ -324,9 +324,9 @@ class SetFluidCompositionInput(QDialog):
         message = "Would you like to reset the current fluid composition?\n\n"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._stop:
+        if read._cancel:
             return
 
         self.fluid_to_composition.clear()

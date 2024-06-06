@@ -9,7 +9,7 @@ from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input impo
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import get_V_linear_distribution, remove_bc_from_file
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import numpy as np
 from collections import defaultdict
@@ -973,9 +973,9 @@ class ValvesInput(QDialog):
         message = "Would you like to remove all valves from the model?"
         
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._stop:
+        if read._cancel:
             self.opv.setInputObject(self)
             return
 

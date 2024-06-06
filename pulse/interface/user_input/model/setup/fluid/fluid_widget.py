@@ -9,7 +9,7 @@ from pulse.preprocessing.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.tools.utils import *
@@ -569,16 +569,22 @@ class FluidWidget(QWidget):
         self.tableWidget_fluid_data.setItem(row, col, item)
         self.tableWidget_fluid_data.item(row, 0).setSelected(True)
 
-    def get_confirmation_to_proceed(self, title : str, message : str):
+    def get_confirmation_to_proceed(self):
+
+        self.hide()
+
+        title = "Additional confirmation required to proceed"
+        message = "Would you like to reset the fluid library to default values?"
 
         buttons_config = {  "left_button_label" : "No", 
                             "right_button_label" : "Yes",
                             "left_button_size" : 80,
                             "right_button_size" : 80}
 
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
+            self.opv.setInputObject(self)
             return False
 
         if read._continue:
@@ -586,10 +592,7 @@ class FluidWidget(QWidget):
 
     def reset_library_to_default(self):
 
-        title = "Additional confirmation required to proceed"
-        message = "Would you like to reset the fluid library to default values?"
-
-        if self.get_confirmation_to_proceed(title, message):
+        if self.get_confirmation_to_proceed():
 
             config_cache = configparser.ConfigParser()
             config_cache.read(self.fluid_path)  

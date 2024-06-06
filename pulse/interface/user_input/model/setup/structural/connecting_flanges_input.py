@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import numpy as np
 from copy import deepcopy

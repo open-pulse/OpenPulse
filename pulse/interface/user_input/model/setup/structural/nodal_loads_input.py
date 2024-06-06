@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -8,7 +8,7 @@ from pulse.interface.formatters.icons import *
 from pulse.tools.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import os
 import numpy as np
@@ -34,7 +34,9 @@ class NodalLoadsInput(QDialog):
         self._config_widgets()
         self.update()
         self.load_nodes_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -46,7 +48,8 @@ class NodalLoadsInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
+        
+        self.keep_window_open = True
         self.preprocessor = self.project.preprocessor
         self.file = self.project.file
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -544,10 +547,17 @@ class NodalLoadsInput(QDialog):
 
     def reset_all(self):
 
-        title = "Remove all nodal loads from the structural model"
-        message = "Would you like to remove all nodal loads from the structural model?\n\n\n"
+        self.hide()
+
+        title = "Resetting of nodal loads"
+        message = "Would you like to remove all nodal loads from the structural model?"
+
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
+            self.opv.setInputObject(self)
+            return
 
         if read._continue:
             self.basenames = list()
@@ -623,3 +633,7 @@ class NodalLoadsInput(QDialog):
     #     PrintMessageInput([window_title, title, message])
     #     lineEdit.setText("")
     #     lineEdit.setFocus()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)
