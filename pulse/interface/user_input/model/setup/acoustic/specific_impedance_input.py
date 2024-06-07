@@ -89,7 +89,7 @@ class SpecificImpedanceInput(QDialog):
     def _create_connections(self):
         #
         self.constant_value_confirm_button.clicked.connect(self.check_constant_values)
-        self.remove_button.clicked.connect(self.check_remove_bc_from_node)
+        self.remove_button.clicked.connect(self.remove_bc_from_node)
         self.reset_button.clicked.connect(self.reset_callback)
         self.table_values_confirm_button.clicked.connect(self.check_table_values)
         self.search_button.clicked.connect(self.load_specific_impedance_table)
@@ -320,9 +320,9 @@ class SpecificImpedanceInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        self.check_remove_bc_from_node()
+        # self.remove_bc_from_node()
     
-    def check_remove_bc_from_node(self):
+    def remove_bc_from_node(self):
         if self.lineEdit_selection_id.text() != "":            
 
             lineEdit_selection_id = self.lineEdit_selection_id.text()
@@ -335,9 +335,12 @@ class SpecificImpedanceInput(QDialog):
             list_table_names = self.get_list_table_names_from_selected_nodes(nodes_typed)
             self.process_table_file_removal(list_table_names)
             self.preprocessor.set_specific_impedance_bc_by_node(nodes_typed, [None, None])
-            self.opv.updateRendererMesh()
+
+            self.lineEdit_selection_id.setText("")
+            self.remove_button.setDisabled(True)
             self.load_nodes_info()
-            # self.close()  
+            self.opv.updateRendererMesh()
+            # self.close()
 
     def process_table_file_removal(self, list_table_names):
         if list_table_names != []:
@@ -439,7 +442,7 @@ class SpecificImpedanceInput(QDialog):
                 self.check_table_values()
         elif event.key() == Qt.Key_Delete:
             if self.tabWidget_specific_impedance.currentIndex() == 2:
-                self.check_remove_bc_from_node()
+                self.remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

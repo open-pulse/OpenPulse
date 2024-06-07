@@ -888,7 +888,7 @@ class ElasticNodalLinksInput(QDialog):
             elif self.current_selection == "damping":
                 self.remove_selected_link_damping(selection)
 
-    def remove_selected_link_stiffness(self, selection):
+    def remove_selected_link_stiffness(self, selection, reset=False):
 
         str_ids = selection.split("-")
         self.nodeID_1, self.nodeID_2 = [int(str_id) for str_id in str_ids]
@@ -899,11 +899,13 @@ class ElasticNodalLinksInput(QDialog):
         self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
         self.remove_elastic_link_stiffness_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _stiffness=True)
-        self.load_elastic_links_stiffness_info()
-        self.opv.updateRendererMesh()
-        self.lineEdit_selection.setText("")
 
-    def remove_selected_link_damping(self, selection):
+        if not reset:
+            self.load_elastic_links_stiffness_info()
+            self.opv.updateRendererMesh()
+            self.lineEdit_selection.setText("")
+
+    def remove_selected_link_damping(self, selection, reset=False):
 
         str_ids = selection.split("-")
         self.nodeID_1, self.nodeID_2 = [int(str_id) for str_id in str_ids]
@@ -913,12 +915,13 @@ class ElasticNodalLinksInput(QDialog):
 
         # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
         self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
-
         self.remove_elastic_link_damping_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _damping=True)
-        self.load_elastic_links_damping_info()
-        self.opv.updateRendererMesh()
-        self.lineEdit_selection.setText("")
+
+        if not reset:
+            self.load_elastic_links_damping_info()
+            self.opv.updateRendererMesh()
+            self.lineEdit_selection.setText("")
 
     def reset_elastic_links(self):
 
@@ -934,16 +937,14 @@ class ElasticNodalLinksInput(QDialog):
             return
 
         if read._continue:
+
             temp_dict_stiffness = self.preprocessor.nodes_with_elastic_link_stiffness.copy()
-            temp_dict_damping = self.preprocessor.nodes_with_elastic_link_dampings.copy()
-
             for key in temp_dict_stiffness.keys():
-                self.remove_selected_link_stiffness(key)
+                self.remove_selected_link_stiffness(key, reset=True)
 
+            temp_dict_damping = self.preprocessor.nodes_with_elastic_link_dampings.copy()
             for key in temp_dict_damping.keys():
-                self.remove_selected_link_damping(key)
-
-            # self.reset_nodes_input_fields()
+                self.remove_selected_link_damping(key, reset=True)
 
             self.close()
             self.opv.updateRendererMesh()

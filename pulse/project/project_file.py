@@ -2100,7 +2100,7 @@ class ProjectFile:
 
         return keys_to_remove
 
-    def filter_bc_data_from_dat_file(self, node_ids, bc_keys_to_remove, path):
+    def filter_bc_data_from_dat_file(self, selection_key, bc_keys_to_remove, path):
         
         def internal_check(bc_label):
             for bc_key_to_remove in bc_keys_to_remove:
@@ -2116,13 +2116,13 @@ class ProjectFile:
 
             for key in config_input.sections():
 
-                node_data = config_input[key]
-                try:
-                    bc_node_id = int(key.split(" - ")[0])
-                except:
-                    bc_node_id = key.split(" - ")[0]
+                if "-" in key:
+                    _key = key
+                else:
+                    _key = int(key)
 
-                if bc_node_id not in node_ids:
+                node_data = config_input[key]
+                if _key not in selection_key:
                     config_output[key] = node_data
 
                 else:
@@ -2231,8 +2231,6 @@ class ProjectFile:
                 continue
 
             key = f"{node_id}"
-            print(key)
-            print(coords)
 
             if key in config.sections():
                 config[key]["coords"] = f"{list(coords)}"
@@ -2285,15 +2283,26 @@ class ProjectFile:
                         new_node_id2 = preprocessor.get_node_id_by_coordinates(coords_2)
                         new_key = f"{new_node_id1}-{new_node_id2}"
 
+                        if new_node_id1 is None:
+                            if new_node_id1 not in non_mapped_nodes:
+                                non_mapped_nodes.append((key, coords))
+                            continue
+
+                        if new_node_id2 is None:
+                            if new_node_id2 not in non_mapped_nodes:
+                                non_mapped_nodes.append((key, coords))
+                            continue
+
                     else:
                         new_node_id = preprocessor.get_node_id_by_coordinates(coords)
                         new_key = f"{new_node_id}"
 
-                    if new_node_id is None:
-                        non_mapped_nodes.append((key, coords))
-                        continue
+                        if new_node_id is None:
+                            if new_node_id not in non_mapped_nodes:
+                                non_mapped_nodes.append((key, coords))
+                            continue
 
-                    print(key, new_node_id)
+                    # print(key, new_node_id)
                     config_output[new_key] = config_input[key]
 
                 if len(config_output.sections()):

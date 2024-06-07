@@ -84,7 +84,7 @@ class RadiationImpedanceInput(QDialog):
     def _create_connections(self):
         #
         self.confirm_radiation_impedance_button.clicked.connect(self.check_radiation_impedance_type)
-        self.remove_button.clicked.connect(self.check_remove_bc_from_node)
+        self.remove_button.clicked.connect(self.remove_bc_from_node)
         self.reset_button.clicked.connect(self.check_reset)
         #
         self.tabWidget_radiation_impedance.currentChanged.connect(self.tabEvent_radiation_impedance)
@@ -142,9 +142,9 @@ class RadiationImpedanceInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        self.check_remove_bc_from_node()
+        self.remove_bc_from_node()
 
-    def check_remove_bc_from_node(self):
+    def remove_bc_from_node(self):
 
         lineEdit_selection_id = self.lineEdit_selection_id.text()
         self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
@@ -156,8 +156,10 @@ class RadiationImpedanceInput(QDialog):
         self.project.file.filter_bc_data_from_dat_file(self.nodes_typed, key_strings, self.acoustic_bc_info_path)
         self.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
 
-        self.opv.updateRendererMesh()
+        self.lineEdit_selection_id.setText("")
+        self.remove_button.setDisabled(True)
         self.load_nodes_info()
+        self.opv.updateRendererMesh()
         # self.close()
 
     def check_reset(self):
@@ -246,7 +248,7 @@ class RadiationImpedanceInput(QDialog):
                 self.check_radiation_impedance_type()
         elif event.key() == Qt.Key_Delete:
             if self.tabWidget_radiation_impedance.currentIndex()==1:
-                self.check_remove_bc_from_node()
+                self.remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

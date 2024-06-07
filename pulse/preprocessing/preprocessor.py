@@ -2982,7 +2982,7 @@ class Preprocessor:
             if _damping:
                 if key in self.nodes_with_elastic_link_dampings.keys():
                     self.nodes_with_elastic_link_dampings.pop(key)
-           
+
             return
 
         [parameters, table_names] = data

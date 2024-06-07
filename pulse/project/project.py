@@ -523,6 +523,7 @@ class Project:
             frequency_setup_pass = True
             [stiffness_data, elastic_link_stiffness_tables, connecting_stiffness_list_freq] = values_els
             if isinstance(stiffness_data, list):
+                print(key)
                 nodes = [int(node) for node in key.split("-")]
                 try:
                     for i, connecting_stiffness_freq in enumerate(connecting_stiffness_list_freq):

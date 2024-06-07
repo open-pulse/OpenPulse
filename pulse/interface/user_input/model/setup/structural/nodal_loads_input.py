@@ -5,6 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.tools.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -32,6 +33,9 @@ class NodalLoadsInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
         self.update()
         self.load_nodes_info()
 
@@ -96,7 +100,7 @@ class NodalLoadsInput(QDialog):
 
     def _define_qt_variables(self):
         # QLineEdit        
-        self.lineEdit_nodeID : QLineEdit
+        self.lineEdit_selection_id : QLineEdit
         self.lineEdit_real_Fx : QLineEdit
         self.lineEdit_real_Fy : QLineEdit
         self.lineEdit_real_Fz : QLineEdit
@@ -134,6 +138,7 @@ class NodalLoadsInput(QDialog):
         self.treeWidget_nodal_loads : QTreeWidget
 
     def _create_connections(self):
+        #
         self.pushButton_load_Fx_table.clicked.connect(self.load_Fx_table)
         self.pushButton_load_Fy_table.clicked.connect(self.load_Fy_table)
         self.pushButton_load_Fz_table.clicked.connect(self.load_Fz_table)
@@ -142,8 +147,11 @@ class NodalLoadsInput(QDialog):
         self.pushButton_load_Mz_table.clicked.connect(self.load_Mz_table)
         self.pushButton_constant_value_confirm.clicked.connect(self.check_constant_values)
         self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
-        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_remove_bc_confirm.clicked.connect(self.remove_bc_from_node)
         self.pushButton_reset.clicked.connect(self.reset_all)
+        #
+        self.tabWidget_nodal_loads.currentChanged.connect(self.tabWidget_selection_event)
+        #
         self.treeWidget_nodal_loads.itemClicked.connect(self.on_click_item)
         self.treeWidget_nodal_loads.itemDoubleClicked.connect(self.on_doubleclick_item)
 
@@ -201,10 +209,10 @@ class NodalLoadsInput(QDialog):
 
     def check_constant_values(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_selection_id = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
         if self.stop:
-            self.lineEdit_nodeID.setFocus()
+            self.lineEdit_selection_id.setFocus()
             return
 
         Fx = self.check_complex_entries(self.lineEdit_real_Fx, self.lineEdit_imag_Fx, "Fx")
@@ -362,8 +370,8 @@ class NodalLoadsInput(QDialog):
 
     def check_table_values(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_selection_id = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
         if self.stop:
             return
         list_table_names = self.get_table_names_from_selected_nodes(self.nodes_typed)
@@ -473,11 +481,22 @@ class NodalLoadsInput(QDialog):
         else:
             self.tabWidget_nodal_loads.setTabVisible(2, True)
 
+    def tabWidget_selection_event(self):
+        self.pushButton_remove_bc_confirm.setDisabled(True)
+        if self.tabWidget_nodal_loads.currentIndex() == 2:
+            self.lineEdit_selection_id.setText("")
+            self.lineEdit_selection_id.setDisabled(True)
+        else:
+            self.lineEdit_selection_id.setDisabled(False)
+            self.update()
+
     def on_click_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+        self.pushButton_remove_bc_confirm.setDisabled(False)
+        self.lineEdit_selection_id.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+        # self.on_click_item(item)
+        self.lineEdit_selection_id.setText(item.text(0))
         self.get_nodal_loads_info(item)
 
     def get_nodal_loads_info(self, item):
@@ -511,20 +530,26 @@ class NodalLoadsInput(QDialog):
         
         self.show()
             
-    def check_remove_bc_from_node(self):
-        self.basenames = []
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if stop:
-            return
-        key_strings = ["forces", "moments"]
-        self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
-        self.remove_all_table_files_from_nodes(nodes_typed)
-        data = [self.list_Nones, self.list_Nones]
-        self.preprocessor.set_structural_load_bc_by_node(nodes_typed, data)
-        self.opv.updateRendererMesh()
-        self.load_nodes_info()
-        self.close()
+    def remove_bc_from_node(self):
+
+        if  self.lineEdit_selection_id.text() != "":
+
+            lineEdit_selection_id = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            if stop:
+                return
+
+            key_strings = ["forces", "moments"]
+            self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
+            self.remove_all_table_files_from_nodes(nodes_typed)
+            data = [self.list_Nones, self.list_Nones]
+            self.preprocessor.set_structural_load_bc_by_node(nodes_typed, data)
+
+            self.lineEdit_selection_id.setText("")
+            self.pushButton_remove_bc_confirm.setDisabled(True)
+            self.load_nodes_info()
+            self.opv.updateRendererMesh()
+            # self.close()
 
     def get_table_names_from_selected_nodes(self, list_node_ids):
         table_names_from_nodes = []
@@ -612,7 +637,7 @@ class NodalLoadsInput(QDialog):
         text = ""
         for node in list_node_ids:
             text += f"{node}, "
-        self.lineEdit_nodeID.setText(text[:-2])
+        self.lineEdit_selection_id.setText(text[:-2])
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

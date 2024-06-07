@@ -7,6 +7,7 @@ from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.tools.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -34,6 +35,9 @@ class PrescribedDofsInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
         self._config_widgets()
         self.update()
         self.load_nodes_info()
@@ -103,7 +107,7 @@ class PrescribedDofsInput(QDialog):
         self.comboBox_linear_data_type : QComboBox
         self.comboBox_angular_data_type : QComboBox
         # QLineEdit
-        self.lineEdit_nodeID : QLineEdit
+        self.lineEdit_selection_id : QLineEdit
         self.lineEdit_real_ux : QLineEdit
         self.lineEdit_real_uy : QLineEdit
         self.lineEdit_real_uz : QLineEdit
@@ -168,7 +172,7 @@ class PrescribedDofsInput(QDialog):
         #
         self.pushButton_constant_value_confirm.clicked.connect(self.check_constant_values)
         self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
-        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_remove_bc_confirm.clicked.connect(self.remove_bc_from_node)
         self.pushButton_load_ux_table.clicked.connect(self.load_ux_table)
         self.pushButton_load_uy_table.clicked.connect(self.load_uy_table)
         self.pushButton_load_uz_table.clicked.connect(self.load_uz_table)
@@ -176,6 +180,8 @@ class PrescribedDofsInput(QDialog):
         self.pushButton_load_ry_table.clicked.connect(self.load_ry_table)
         self.pushButton_load_rz_table.clicked.connect(self.load_rz_table)
         self.pushButton_reset.clicked.connect(self.reset_all)
+        #
+        self.tabWidget_prescribed_dofs.currentChanged.connect(self.tabWidget_selection_event)
         #
         self.treeWidget_prescribed_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_double_click_item)
@@ -236,10 +242,10 @@ class PrescribedDofsInput(QDialog):
 
     def check_constant_values(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_selection_id = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
         if self.stop:
-            self.lineEdit_nodeID.setFocus()
+            self.lineEdit_selection_id.setFocus()
             return
 
         if self.lineEdit_real_alldofs.text() != "" or self.lineEdit_imag_alldofs.text() != "":
@@ -436,10 +442,10 @@ class PrescribedDofsInput(QDialog):
 
     def check_table_values(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit_selection_id = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
         if self.stop:
-            self.lineEdit_nodeID.setFocus()
+            self.lineEdit_selection_id.setFocus()
             return
         list_table_names = self.get_list_tables_names_from_selected_nodes(self.nodes_typed)
 
@@ -566,11 +572,22 @@ class PrescribedDofsInput(QDialog):
         else:
             self.tabWidget_prescribed_dofs.setTabVisible(2, True)
 
+    def tabWidget_selection_event(self):
+        self.pushButton_remove_bc_confirm.setDisabled(True)
+        if self.tabWidget_prescribed_dofs.currentIndex() == 2:
+            self.lineEdit_selection_id.setText("")
+            self.lineEdit_selection_id.setDisabled(True)
+        else:
+            self.lineEdit_selection_id.setDisabled(False)
+            self.update()
+
     def on_click_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+        self.pushButton_remove_bc_confirm.setDisabled(False)
+        self.lineEdit_selection_id.setText(item.text(0))
 
     def on_double_click_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+        # self.on_click_item(item)
+        self.lineEdit_selection_id.setText(item.text(0))
         self.get_nodal_loads_info(item)
 
     def get_nodal_loads_info(self, item):
@@ -602,13 +619,13 @@ class PrescribedDofsInput(QDialog):
             PrintMessageInput([window_title, title, message])
             return
 
-    def check_remove_bc_from_node(self):
+    def remove_bc_from_node(self):
 
-        if  self.lineEdit_nodeID.text() != "":
-        
+        if  self.lineEdit_selection_id.text() != "":
+
             self.basenames = []
-            lineEdit_nodeID = self.lineEdit_nodeID.text()
-            self.stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+            lineEdit_selection_id = self.lineEdit_selection_id.text()
+            self.stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
             if self.stop:
                 return
 
@@ -617,8 +634,11 @@ class PrescribedDofsInput(QDialog):
             self.remove_all_table_files_from_nodes(nodes_typed)
             data = [self.list_Nones, self.list_Nones]
             self.preprocessor.set_prescribed_dofs_bc_by_node(nodes_typed, data)
-            self.opv.updateRendererMesh()
+
+            self.lineEdit_selection_id.setText("")
+            self.pushButton_remove_bc_confirm.setDisabled(True)
             self.load_nodes_info()
+            self.opv.updateRendererMesh()
             # self.close()
 
     def get_list_tables_names_from_selected_nodes(self, list_node_ids):
@@ -707,7 +727,7 @@ class PrescribedDofsInput(QDialog):
         text = ""
         for node in list_node_ids:
             text += f"{node}, "
-        self.lineEdit_nodeID.setText(text[:-2])
+        self.lineEdit_selection_id.setText(text[:-2])
 
     # def tables_frequency_setup_message(self, lineEdit, label):
     #     title = f"Invalid frequency setup of the '{label}' imported table"
