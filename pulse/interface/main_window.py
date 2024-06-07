@@ -14,6 +14,7 @@ from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysi
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
@@ -47,26 +48,26 @@ class MainWindow(QMainWindow):
         ui_path = UI_DIR / 'main_window.ui'
         uic.loadUi(ui_path, self)
 
-        self.ui_dir = UI_DIR
         self.config = app().config
         self.project = app().project
         self.file = app().project.file
         self.reset()
 
     def reset(self):
-        self.interface_theme = None
-        self.model_and_analysis_setup_widget = None
-        self.results_viewer_wigdet = None
         self.opv_widget = None
         self.input_widget = None
-        self.cache_indexes = list()
+        self.model_and_analysis_setup_widget = None
+        self.results_viewer_wigdet = None
+        self.interface_theme = None
         self.last_index = None
+        self.cache_indexes = list()
 
     def _load_icons(self):
         self.pulse_icon = icons.get_openpulse_icon()
 
     def _config_window(self):
-        self.showMaximized()
+        # self.showMaximized()
+        self.showMinimized()
         self.installEventFilter(self)
         self.setWindowIcon(self.pulse_icon)
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
@@ -179,6 +180,8 @@ class MainWindow(QMainWindow):
 
     def _create_layout(self):
 
+        editor = app().geometry_toolbox.editor
+
         self.opv_widget = OPVUi(self.project, self)
         self.opv_widget.opvAnalysisRenderer._createPlayer()
 
@@ -186,11 +189,8 @@ class MainWindow(QMainWindow):
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_widget = InputUi(self)
 
-        editor = app().geometry_toolbox.editor
         self.mesh_widget = MeshRenderWidget()
-
-        self.geometry_widget = EditorRenderWidget(editor)     
-
+        self.geometry_widget = EditorRenderWidget(editor)
         self.geometry_widget.set_theme("light")
 
         self.render_widgets_stack.addWidget(self.mesh_widget)
@@ -208,23 +208,28 @@ class MainWindow(QMainWindow):
         # self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
-        
+
         # t0 = time()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
+        app().splash.update_progress(30)
 
         self._create_layout()
-
         self._create_workspaces_toolbar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
+        app().splash.update_progress(70)
 
         self.plot_entities()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
-        
+        app().splash.update_progress(98)
+
+        app().splash.close()
+        self.showMaximized()
+
         # dt = time() - t0
         # print(f"Time to load interface: {dt} [s]")
         self.load_recent_project()

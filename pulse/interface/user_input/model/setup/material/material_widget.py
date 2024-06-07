@@ -382,13 +382,18 @@ class MaterialInputs(QWidget):
             return None
         return material.identifier
             
-    def get_confirmation_to_proceed(self, title : str, message : str):
-        """
-        """
+    def get_confirmation_to_proceed(self):
+
+        self.hide()
+
+        title = "Additional confirmation required to proceed"
+        message = "Would you like to reset the material library to default values?"
+
         buttons_config = {  "left_button_label" : "No", 
                             "right_button_label" : "Yes",
                             "left_button_size" : 80,
                             "right_button_size" : 80}
+
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
@@ -399,10 +404,7 @@ class MaterialInputs(QWidget):
 
     def reset_library_to_default(self):
 
-        title = "Additional confirmation required to proceed"
-        message = "Would you like to reset the material library to default values?"
-
-        if self.get_confirmation_to_proceed(title, message):
+        if self.get_confirmation_to_proceed():
 
             config_cache = configparser.ConfigParser()
             config_cache.read(self.material_path)  
@@ -432,5 +434,6 @@ class MaterialInputs(QWidget):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        return super().closeEvent(a0)
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False

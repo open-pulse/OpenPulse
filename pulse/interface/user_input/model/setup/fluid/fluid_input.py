@@ -1420,6 +1420,8 @@ class FluidInput(QDialog):
 
     def reset_library_to_default(self):
 
+        self.hide()
+
         title = "Resetting of fluids library"
         message = "Would you like to reset the fluid library to default values?"
 
@@ -1479,10 +1481,6 @@ class FluidInput(QDialog):
     #     self.reset_add_texts()
     #     self.reset_edit_texts()
 
-    def closeEvent(self, event):
-        super().closeEvent(event)
-        self.keep_window_open = False
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.compressor_thermodynamic_state == {}:
@@ -1495,3 +1493,7 @@ class FluidInput(QDialog):
             self.confirm_fluid_removal()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False

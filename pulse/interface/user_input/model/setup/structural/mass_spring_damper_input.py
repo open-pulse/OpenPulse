@@ -996,7 +996,6 @@ class MassSpringDamperInput(QDialog):
             read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
             if read._cancel:
-                self.opv.setInputObject(self)
                 return
 
             for node in self.preprocessor.nodes_with_masses:

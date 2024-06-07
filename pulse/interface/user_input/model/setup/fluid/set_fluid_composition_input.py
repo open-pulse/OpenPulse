@@ -320,8 +320,10 @@ class SetFluidCompositionInput(QDialog):
 
     def reset_fluid(self):
 
+        self.hide()
+
         title = f"Resetting of the fluid composition"
-        message = "Would you like to reset the current fluid composition?\n\n"
+        message = "Would you like to reset the current fluid composition?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
@@ -993,10 +995,6 @@ class SetFluidCompositionInput(QDialog):
             self.update_remainig_composition()
         self.opv.setInputObject(self)
 
-    def closeEvent(self, event):
-        super().closeEvent(event)
-        self.keep_window_open = False
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.get_fluid_properties()
@@ -1004,3 +1002,7 @@ class SetFluidCompositionInput(QDialog):
             self.remove_selected_gas()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False

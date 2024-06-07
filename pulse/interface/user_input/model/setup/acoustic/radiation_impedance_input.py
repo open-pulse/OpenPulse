@@ -176,7 +176,6 @@ class RadiationImpedanceInput(QDialog):
             read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
             
             if read._cancel:
-                self.opv.setInputObject(self)
                 return
 
             if read._continue:

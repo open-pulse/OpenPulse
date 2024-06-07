@@ -67,7 +67,7 @@ class MeshUpdater:
                 if read._cancel:
                     self.undo_mesh_actions()
 
-                elif read._cancel:
+                elif read._continue:
 
                     self.process_final_actions()
                     

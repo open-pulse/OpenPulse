@@ -273,8 +273,11 @@ class BeamXaxisRotationInput(QDialog):
 
     def reset_all(self):
 
-        title = "Resetting all x-axis beam rotations"
+        self.hide()
+
+        title = "Resetting x-axis beam rotations"
         message = "Would you like to remove all x-axis rotations attributed to beam elements?"
+
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 

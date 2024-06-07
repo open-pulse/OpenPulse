@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, QSize, QPoint
+from PyQt5.QtGui import QCloseEvent, QFont
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
@@ -140,10 +140,6 @@ class ValvesInput(QDialog):
     def start_execution(self):
         while self.keep_window_open:
             self.exec()
-
-    def closeEvent(self, event):
-        super().closeEvent(event)
-        self.keep_window_open = False
 
     def _config_widgets(self):
         self.cache_tab = self.tabWidget_main.currentIndex()
@@ -969,6 +965,7 @@ class ValvesInput(QDialog):
     def reset_valves(self):
 
         self.hide()
+
         title = f"Removal of all valves from model"
         message = "Would you like to remove all valves from the model?"
         
@@ -976,7 +973,6 @@ class ValvesInput(QDialog):
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
-            self.opv.setInputObject(self)
             return
 
         aux = self.preprocessor.group_elements_with_valves.copy()
@@ -1021,3 +1017,7 @@ class ValvesInput(QDialog):
             self.add_valve_to_selection()
         if event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

@@ -573,7 +573,7 @@ class FluidWidget(QWidget):
 
         self.hide()
 
-        title = "Additional confirmation required to proceed"
+        title = "Resetting the fluids library"
         message = "Would you like to reset the fluid library to default values?"
 
         buttons_config = {  "left_button_label" : "No", 
@@ -584,7 +584,6 @@ class FluidWidget(QWidget):
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
-            self.opv.setInputObject(self)
             return False
 
         if read._continue:

@@ -38,7 +38,9 @@ class ExpansionJointInput(QDialog):
         self._config_widgets()
         self.load_treeWidgets_info()
         self.update()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = app().main_window.pulse_icon
@@ -50,6 +52,8 @@ class ExpansionJointInput(QDialog):
         self.setWindowTitle("OpenPulse")
     
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -1234,7 +1238,8 @@ class ExpansionJointInput(QDialog):
 
     def reset_expansion_joints(self):
 
-        self.setVisible(False)
+        self.hide()
+
         title = "Resetting of expansion joints"
         message = "Would you like to remove all expansion joints from the model?"
 
@@ -1242,7 +1247,6 @@ class ExpansionJointInput(QDialog):
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
-            self.setVisible(True)
             return
 
         temp_dict_1 = self.preprocessor.dict_lines_with_expansion_joints.copy()
@@ -1351,6 +1355,8 @@ class ExpansionJointInput(QDialog):
             # self.confirm_table_file_removal(list_table_names)
 
     def confirm_table_file_removal(self, list_tables):
+
+        self.hide()
 
         title = "Removal of imported table files"
         
