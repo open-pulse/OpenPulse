@@ -73,7 +73,7 @@ class LoadFluidCompositionInput(QDialog):
         self.pushButton_search.clicked.connect(self.search_button_callback)
 
     def _config_widgets(self):
-        ConfigWidgetAppearance(self, toolTip=True)
+        ConfigWidgetAppearance(self, tool_tip=True)
         self.lineEdit_file_path.setDisabled(True)
         self.comboBox_sheet_names.setDisabled(True)
 

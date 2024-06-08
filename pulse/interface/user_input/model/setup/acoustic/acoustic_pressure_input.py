@@ -5,6 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
@@ -31,6 +32,9 @@ class AcousticPressureInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
         self.update()
         self.load_nodes_info()
 
@@ -66,21 +70,26 @@ class AcousticPressureInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QLineEdit
         self.lineEdit_imag_value : QLineEdit
         self.lineEdit_real_value : QLineEdit
         self.lineEdit_selection_id : QLineEdit
         self.lineEdit_table_path : QLineEdit
+
         # QPushButton
         self.constant_value_confirm_button : QPushButton
         self.remove_button : QPushButton
         self.reset_button : QPushButton
         self.search_button : QPushButton
         self.table_values_confirm_button : QPushButton
+
         # QSpinBox
         self.spinBox_skip_wors : QSpinBox
+
         # QTabWidget
         self.tabWidget_acoustic_pressure : QTabWidget
+
         # QTreeWidget
         self.treeWidget_acoustic_pressure : QTreeWidget
         self.treeWidget_acoustic_pressure.setColumnWidth(1, 20)
@@ -100,6 +109,7 @@ class AcousticPressureInput(QDialog):
         self.treeWidget_acoustic_pressure.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def tabEvent_acoustic_pressure(self):
+        self.remove_button.setDisabled(True)
         if self.tabWidget_acoustic_pressure.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
@@ -323,12 +333,13 @@ class AcousticPressureInput(QDialog):
         return text
 
     def on_click_item(self, item):
+        self.remove_button.setDisabled(False)
         self.lineEdit_selection_id.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
         self.remove_bc_from_node()
-    
+
     def remove_bc_from_node(self):
         if self.lineEdit_selection_id.text() != "":
 

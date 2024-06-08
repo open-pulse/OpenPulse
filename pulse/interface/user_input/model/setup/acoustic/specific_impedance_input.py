@@ -5,6 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import remove_bc_from_file, get_new_path
@@ -31,6 +32,9 @@ class SpecificImpedanceInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
         self.update()
         self.load_nodes_info()
 
@@ -66,21 +70,26 @@ class SpecificImpedanceInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QLineEdit
         self.lineEdit_imag_value : QLineEdit
         self.lineEdit_real_value : QLineEdit
         self.lineEdit_selection_id : QLineEdit
         self.lineEdit_table_path : QLineEdit
+
         # QPushButton
         self.constant_value_confirm_button : QPushButton
         self.remove_button : QPushButton
         self.reset_button : QPushButton
         self.search_button : QPushButton
         self.table_values_confirm_button : QPushButton
+
         # QSpinBox
         self.spinBox_skip_wors : QSpinBox
+
         # QTabWidget
         self.tabWidget_specific_impedance : QTabWidget
+
         # QTreeWidget
         self.treeWidget_specific_impedance : QTreeWidget
         self.treeWidget_specific_impedance.setColumnWidth(1, 20)
@@ -100,6 +109,7 @@ class SpecificImpedanceInput(QDialog):
         self.treeWidget_specific_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def tabEvent_specific_impedance(self):
+        self.remove_button.setDisabled(True)
         if self.tabWidget_specific_impedance.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
@@ -316,6 +326,7 @@ class SpecificImpedanceInput(QDialog):
         return text
 
     def on_click_item(self, item):
+        self.remove_button.setDisabled(False)
         self.lineEdit_selection_id.setText(item.text(0))
 
     def on_doubleclick_item(self, item):

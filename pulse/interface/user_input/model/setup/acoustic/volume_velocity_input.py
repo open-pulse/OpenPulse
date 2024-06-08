@@ -5,6 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
@@ -31,6 +32,9 @@ class VolumeVelocityInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
         self.update()
         self.load_nodes_info()
         
@@ -99,6 +103,7 @@ class VolumeVelocityInput(QDialog):
         self.treeWidget_volume_velocity.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def tabEvent_volume_velocity(self):
+        self.remove_button.setDisabled(True)
         if self.tabWidget_volume_velocity.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
@@ -322,6 +327,7 @@ class VolumeVelocityInput(QDialog):
         return text
 
     def on_click_item(self, item):
+        self.remove_button.setDisabled(False)
         self.lineEdit_selection_id.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
