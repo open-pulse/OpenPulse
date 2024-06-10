@@ -100,6 +100,7 @@ class MainWindow(QMainWindow):
         self.action_show_lines : QAction
         self.action_show_tubes : QAction
         self.action_show_symbols : QAction
+        self.action_show_transparent : QAction
         self.action_plot_geometry_editor : QAction
         self.action_plot_lines : QAction
         self.action_plot_lines_with_cross_section : QAction
@@ -385,7 +386,6 @@ class MainWindow(QMainWindow):
             self.plot_entities()  
 
     def update_plot_entities_with_cross_section(self):
-
         key = list()
         key.append(self.action_show_points.isChecked())
         key.append(self.action_show_lines.isChecked())
@@ -495,10 +495,9 @@ class MainWindow(QMainWindow):
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-        self.plot_entities_with_cross_section()
         # self.render_widgets_stack.setCurrentWidget(self.opv_widget)
         # update the internal renderer to the setup mode
-        self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
+        # self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
 
     def action_coupled_setup_workspace_callback(self):
         self.model_and_analysis_setup_widget.update_visibility_for_coupled_analysis()
