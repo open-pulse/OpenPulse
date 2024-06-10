@@ -1,20 +1,24 @@
 # from pulse.preprocessing.before_run import BeforeRun
 from collections import defaultdict
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 import numpy as np
+
+from pulse import app
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class BeforeRun:
-    def __init__(self, project, opv, **kwargs):
-        self.project = project
-        self.opv = opv
-        self.preprocessor = project.preprocessor
-        self.nodes = project.preprocessor.nodes
-        self.structural_elements = project.preprocessor.structural_elements
-        self.acoustic_elements = project.preprocessor.acoustic_elements
-        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
+    def __init__(self, **kwargs):
+
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
+
+        self.preprocessor = self.project.preprocessor
+        self.nodes = self.preprocessor.nodes
+        self.structural_elements = self.preprocessor.structural_elements
+        self.acoustic_elements = self.preprocessor.acoustic_elements
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
 
     def check_modal_analysis_imported_data(self):
         message = ""
@@ -23,16 +27,16 @@ class BeforeRun:
             [zero_frequency, f_min, table_name] = self.project.file.non_zero_frequency_info
             if not zero_frequency:
                 message = "The current project setup has at least one loaded table of values for boundary conditions or external elements. "
-                message += f"The first frequency point\n f={f_min}Hz from '{table_name}' file has been considered in the \ncurrent analysis, "
-                message += "however, it differs from the 0Hz value. Please, take \nthis information into account when checking the obtained results."
+                message += f"The first frequency point f={f_min}Hz from '{table_name}' file has been considered in the current analysis, "
+                message += "however, it differs from the 0Hz value. Please, take this information into account when checking the obtained results."
 
         elif self.project.file.zero_frequency:    
             message = "The current project setup has at least one loaded table of values for boundary conditions or external elements. "
-            message += "The first frequency point\n f=0Hz from imported files have been considered in the current analysis. \nPlease, "
+            message += "The first frequency point f=0Hz from imported files have been considered in the current analysis. Please, "
             message += "take this information into account when checking the obtained results."
             
         if message != "":
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
 
     def check_input_NodeID(self, lineEdit, single_ID=False):
         try:
@@ -51,7 +55,7 @@ class BeforeRun:
             list_nodes_typed = list(map(int, tokens))
 
             if len(list_nodes_typed) == 0:
-                    message = "An empty input field for the Node ID has been detected. \n\nPlease, enter a valid Node ID to proceed!"
+                    message = "An empty input field for the Node ID has been detected. Please, enter a valid Node ID to proceed!"
             
             elif len(list_nodes_typed) >= 1: 
                 if single_ID and len(list_nodes_typed) > 1:
@@ -61,14 +65,14 @@ class BeforeRun:
                         for node_ID in list_nodes_typed:
                             self.nodes[node_ID]
                     except:
-                        message = "Dear user, you have typed an invalid entry at the Node ID input field.\n\n" 
-                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
+                        message = "Dear user, you have typed an invalid entry at the Node ID input field. " 
+                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and less than {_size}."
 
         except Exception as log_error:
             message = f"Wrong input for the Node ID's! \n\n{str(log_error)}"
 
         if message != "":
-            PrintMessageInput([title, message, window_title_1])               
+            PrintMessageInput([window_title_1, title, message])               
             return True, [] 
 
         if single_ID:
@@ -94,7 +98,7 @@ class BeforeRun:
             list_elements_typed = list(map(int, tokens))
 
             if len(list_elements_typed) == 0:
-                    message = "An empty input field for the Element ID has been detected. \n\nPlease, enter a valid Element ID to proceed!"
+                    message = "An empty input field for the Element ID has been detected. Please, enter a valid Element ID to proceed!"
 
             elif len(list_elements_typed) >= 1: 
                 if single_ID and len(list_elements_typed)>1:
@@ -104,14 +108,14 @@ class BeforeRun:
                         for element_ID in list_elements_typed:
                             self.structural_elements[element_ID]
                     except:
-                        message = "Dear user, you have typed an invalid entry at the Element ID input field.\n\n" 
+                        message = "Dear user, you have typed an invalid entry at the Element ID input field. " 
                         message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
 
         except Exception as log_error:
             message = f"Wrong input for the Element ID's! \n\n{str(log_error)}"
 
         if message != "":
-            PrintMessageInput([title, message, window_title_1])               
+            PrintMessageInput([window_title_1, title, message])               
             return True, [] 
 
         if single_ID:
@@ -137,7 +141,7 @@ class BeforeRun:
             list_lines_typed = list(map(int, tokens))
 
             if len(list_lines_typed) == 0:
-                    message = "An empty input field for the Line ID has been detected. \n\nPlease, enter a valid Line ID to proceed!"
+                    message = "An empty input field for the Line ID has been detected. Please, enter a valid Line ID to proceed!"
 
             elif len(list_lines_typed) >= 1: 
                 if single_ID and len(list_lines_typed)>1:
@@ -147,14 +151,14 @@ class BeforeRun:
                         for line_ID in list_lines_typed:
                             self.dict_tag_to_entity[line_ID]
                     except:
-                        message = "Dear user, you have typed an invalid entry at the Line ID input field.\n\n" 
-                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
+                        message = "Dear user, you have typed an invalid entry at the Line ID input field. " 
+                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and less than {_size}."
 
         except Exception as log_error:
             message = f"Wrong input for the Line ID's! \n\n{str(log_error)}"
 
         if message != "":
-            PrintMessageInput([title, message, window_title_1])               
+            PrintMessageInput([window_title_1, title, message])               
             return True, [] 
 
         if single_ID:
@@ -418,36 +422,37 @@ class BeforeRun:
 
         for index, flag in enumerate(list_flags):
             if flag:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
                 self.opv.opvRenderer.highlight_elements(lists_elements[index])
-                PrintMessageInput([title, list_messages[index], window_title])
+                PrintMessageInput([window_title, title, list_messages[index]])
 
 
     def check_is_there_a_problem(self, analysis_ID):
 
         title = " Insufficient model inputs "
 
-        cross_section_message = "You should set a Cross-Section to all elements \nbefore proceeding with the model solution.!\n\n"
+        cross_section_message = "You should set a Cross-Section to all elements before proceeding with the model solution.!"
         #
-        material_message = "You should to set a Material to all elements\n before trying to run any Analysis!\n\n"
+        material_message = "You should to set a Material to all elements before trying to run any Analysis!\n\n"
         material_message += "Lines without material assignment: \n{}"
         #
-        fluid_message = "You should to set a Fluid to all elements\n before trying to run any Analysis!\n\n"
+        fluid_message = "You should to set a Fluid to all elements before trying to run any Analysis!\n\n"
         fluid_message += "Lines without fluid assignment: \n{}"
         #
-        all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF \nfluid equivalent and " 
-        all_fluid_inputs_message += "LRF full acoustic element types \n before proceeding with the model solution.\n\n"
+        all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF fluid equivalent and " 
+        all_fluid_inputs_message += "LRF full acoustic element types before proceeding with the model solution.\n\n"
         all_fluid_inputs_message += "Lines with incomplete fluid properties: \n{}"
         #
-        structural_message = "You should to apply an external load to the model or prescribe a \nnon-null DOF value before trying to solve the Harmonic Analysis!"
-        acoustic_message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
+        structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis!"
+        acoustic_message = "You should to insert a 'Volume velocity' or prescribe an 'Acoustic pressure' to a node before trying to solve the Harmonic Analysis!"
     
         if analysis_ID == 2:
             
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
                 self.opv.opvRenderer.highlight_lines(lines_without_materials)
-                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
+                message = material_message.format(lines_without_materials)
+                PrintMessageInput([window_title_1, title, message])
                 return True
             elif self.check_set_crossSection:
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
@@ -462,7 +467,7 @@ class BeforeRun:
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
                     self.opv.opvRenderer.highlight_lines(list_lines)
                     self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
-                PrintMessageInput([title, cross_section_message, window_title_1])
+                PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
         
         elif analysis_ID == 4:
@@ -471,15 +476,15 @@ class BeforeRun:
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             if self.check_set_material:
                 self.opv.opvRenderer.highlight_lines(lines_without_materials)
-                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
+                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
             elif self.check_set_fluid:
                 self.opv.opvRenderer.highlight_lines(lines_without_fluids)
-                PrintMessageInput([title, fluid_message.format(lines_without_fluids), window_title_1])
+                PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
             elif self.check_all_fluid_inputs:
                 self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
-                PrintMessageInput([title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs), window_title_1])
+                PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
             elif self.check_set_crossSection:
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
@@ -494,7 +499,7 @@ class BeforeRun:
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
                     self.opv.opvRenderer.highlight_lines(list_lines)
                     self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
-                PrintMessageInput([title, cross_section_message, window_title_1])
+                PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
         elif analysis_ID == 0 or analysis_ID == 1:
@@ -502,7 +507,7 @@ class BeforeRun:
             self.check_nodes_attributes(structural=True)
             if self.check_set_material:
                 self.opv.opvRenderer.highlight_lines(lines_without_materials)
-                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
+                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
             elif self.check_set_crossSection:
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
@@ -517,11 +522,11 @@ class BeforeRun:
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
                     self.opv.opvRenderer.highlight_lines(list_lines)
                     self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
-                PrintMessageInput([title, cross_section_message, window_title_1])
+                PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
             elif not self.is_there_loads:
                 if not self.is_there_prescribed_dofs:
-                    PrintMessageInput([title, structural_message, window_title_1])
+                    PrintMessageInput([window_title_1, title, structural_message])
                     return True
     
         elif analysis_ID == 3:
@@ -532,15 +537,15 @@ class BeforeRun:
             self.check_nodes_attributes(acoustic=True)
             if self.check_set_fluid:
                 self.opv.opvRenderer.highlight_lines(lines_without_fluids)
-                PrintMessageInput([title, fluid_message.format(lines_without_fluids), window_title_1])
+                PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
             elif self.check_all_fluid_inputs:
                 self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
-                PrintMessageInput([title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs), window_title_1])
+                PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
             elif self.check_set_material:
                 self.opv.opvRenderer.highlight_lines(lines_without_materials)
-                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
+                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
             elif self.check_set_crossSection:
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
@@ -555,11 +560,11 @@ class BeforeRun:
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
                     self.opv.opvRenderer.highlight_lines(list_lines)
                     self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
-                PrintMessageInput([title, cross_section_message, window_title_1])
+                PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
             elif not self.is_there_volume_velocity:
                 if not self.is_there_acoustic_pressure:
-                    PrintMessageInput([title, acoustic_message, window_title_1])
+                    PrintMessageInput([window_title_1, title, acoustic_message])
                     return True
 
         elif analysis_ID == 5 or analysis_ID == 6:
@@ -569,15 +574,15 @@ class BeforeRun:
             self.check_nodes_attributes(coupled=True)
             if self.check_set_material:
                 self.opv.opvRenderer.highlight_lines(lines_without_materials)
-                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
+                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
             elif self.check_set_fluid:
                 self.opv.opvRenderer.highlight_lines(lines_without_fluids)
-                PrintMessageInput([title, fluid_message.format(lines_without_fluids), window_title_1])
+                PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
             elif self.check_all_fluid_inputs:
                 self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
-                PrintMessageInput([title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs), window_title_1])
+                PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
             elif self.check_set_crossSection:  
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
@@ -592,11 +597,11 @@ class BeforeRun:
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
                     self.opv.opvRenderer.highlight_lines(list_lines)
                     self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
-                PrintMessageInput([title, cross_section_message, window_title_1])
+                PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
             elif not self.is_there_volume_velocity:
                 if not self.is_there_acoustic_pressure:
-                    PrintMessageInput([title, acoustic_message, window_title_1])
+                    PrintMessageInput([window_title_1, title, acoustic_message])
                     return True
     
     def check_cross_section_in_lines_and_elements(self, data):
@@ -655,7 +660,6 @@ class BeforeRun:
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
 
             if (element_type == "pipe_1" and len(section_parameters) == 6) or "beam_1" in element_type:
-                # print(f"\nTags: {tags} - {section_parameters}")
 
                 if len(tags) == 1:
                     line_ID = tags[0]

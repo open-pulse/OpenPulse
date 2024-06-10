@@ -2,30 +2,34 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+
+import numpy as np
+from pathlib import Path
+
 
 class GetNodalResultsForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_nodal_results_for_static_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_static_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
+        self._create_list_lineEdits()
         self._create_connections()
+        self._config_widgets()
         self.update()
 
     def _initialize(self):
@@ -33,25 +37,30 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         self.solution = np.real(solution)
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Structural nodal response")
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
         #
-        self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
-        self.lineEdit_response_ux = self.findChild(QLineEdit, 'lineEdit_response_ux')
-        self.lineEdit_response_uy = self.findChild(QLineEdit, 'lineEdit_response_uy')
-        self.lineEdit_response_uz = self.findChild(QLineEdit, 'lineEdit_response_uz')
-        self.lineEdit_response_rx = self.findChild(QLineEdit, 'lineEdit_response_rx')
-        self.lineEdit_response_ry = self.findChild(QLineEdit, 'lineEdit_response_ry')
-        self.lineEdit_response_rz = self.findChild(QLineEdit, 'lineEdit_response_rz')
+        self.lineEdit_node_id : QLineEdit
+        self.lineEdit_response_ux : QLineEdit
+        self.lineEdit_response_uy : QLineEdit
+        self.lineEdit_response_uz : QLineEdit
+        self.lineEdit_response_rx : QLineEdit
+        self.lineEdit_response_ry : QLineEdit
+        self.lineEdit_response_rz : QLineEdit
         #
+        self.pushButton_reset : QPushButton
+
+    def _create_connections(self):
+        self.pushButton_reset.clicked.connect(self.reset_selection)
+
+    def _create_list_lineEdits(self):
         self.lineEdits = [  self.lineEdit_node_id,
                             self.lineEdit_response_ux,
                             self.lineEdit_response_uy,
@@ -59,17 +68,9 @@ class GetNodalResultsForStaticAnalysis(QWidget):
                             self.lineEdit_response_rx,
                             self.lineEdit_response_ry,
                             self.lineEdit_response_rz  ]
-        #
-        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        self._config_lineEdits()
 
-    def _create_connections(self):
-        self.pushButton_reset.clicked.connect(self.reset_selection)
-
-    def _config_lineEdits(self):
-        for lineEdit in self.lineEdits:
-            lineEdit.setDisabled(True)
-            lineEdit.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)")
+    def _config_widgets(self):
+        return
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:

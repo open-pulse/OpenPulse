@@ -6,27 +6,18 @@ from PyQt5 import uic
 import matplotlib
 import matplotlib.pyplot as plt
 
-from pulse.processing.solution_acoustic import relative_error
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-
 from pulse import app
 
 class PlotPerforatedPlateConvergenceData(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.project = project
 
         main_window = app().main_window
-        self.project = main_window.getProject()
+        self.project = main_window.project
         data_log = self.project.perforated_plate_data_log
 
         [iterations, pressure_residues, delta_residues, target] = data_log
         self.plot_convergence_graph(iterations, pressure_residues, delta_residues, target)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            plt.close()
-            self.close()
 
     def plot_convergence_graph(self, iterations, pressure_residues, delta_residues, target):
         
@@ -66,3 +57,8 @@ class PlotPerforatedPlateConvergenceData(QDialog):
         # plt.xlim(1, max(iterations))
         plt.show()
         # plt.pause(0.001)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            plt.close()
+            self.close()

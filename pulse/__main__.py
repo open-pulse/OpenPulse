@@ -1,3 +1,3 @@
-from pulse.run import init
+from pulse.launch import main
 
-init()
+main()

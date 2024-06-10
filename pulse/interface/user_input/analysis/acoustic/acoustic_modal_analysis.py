@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-import numpy as np
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.formatters.icons import *
+
 from math import pi
 
 window_title_1 = "Error"
@@ -16,13 +16,13 @@ class AcousticModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/analysis/acoustic/modal_analysis.ui")
+        ui_path = UI_DIR / "analysis/acoustic/modal_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._load_icons()
         self._config_window()
@@ -32,21 +32,20 @@ class AcousticModalAnalysisInput(QDialog):
         self.exec()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Modal analysis setup")
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
         # QLineEdit
-        self.lineEdit_number_modes = self.findChild(QLineEdit, 'lineEdit_number_modes')
-        self.lineEdit_input_sigma_factor = self.findChild(QLineEdit, 'lineEdit_input_sigma_factor')
+        self.lineEdit_number_modes : QLineEdit
+        self.lineEdit_input_sigma_factor : QLineEdit
         # QPushButton
-        self.pushButton_run_analysis = self.findChild(QPushButton, 'pushButton_run_analysis')
+        self.pushButton_run_analysis : QPushButton
 
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)

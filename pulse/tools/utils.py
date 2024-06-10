@@ -8,7 +8,7 @@ from scipy.sparse import issparse
 from pathlib import Path
 from scipy.spatial.transform import Rotation
 
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -167,9 +167,29 @@ def in_to_mm(value):
         return value * 25.4
     return float(value) * 25.4
 
+def in_to_m(value):
+    ''' 
+    Converts inches to meters.
+
+    Parameters
+    ----------
+    value: int, float, list, np.ndarray
+        Value in inches
+
+    Returns
+    -------
+    out: float or np.ndarray
+        Value in meters
+    '''
+    if isinstance(value, list):
+        return np.array(value) * 0.0254
+    elif isinstance(value, np.ndarray):
+        return value * 0.0254
+    return float(value) * 0.0254
+
 def mm_to_m(value):
     ''' 
-    Converts milimeters to meters.
+    Converts millimeters to meters.
 
     Parameters
     ----------
@@ -183,10 +203,51 @@ def mm_to_m(value):
 
     '''
     if isinstance(value, list):
-        return value * 1e-3
+        return np.array(value) * 1e-3
     elif isinstance(value, np.ndarray):
         return value * 1e-3
     return float(value) * 1e-3
+
+def mm_to_in(value):
+    ''' 
+    Converts inches to millimeters.
+
+    Parameters
+    ----------
+    m: int, float
+        Value in meters
+
+    Returns
+    -------
+    out: float
+        Value in millimeters
+    '''
+    if isinstance(value, list):
+        return np.array(value) / 25.4
+    elif isinstance(value, np.ndarray):
+        return value / 25.4
+    return float(value) / 25.4
+
+def um_to_m(value):
+    ''' 
+    Converts millimeters to meters.
+
+    Parameters
+    ----------
+    mm: int, float
+        Value in millimeters
+
+    Returns
+    -------
+    out: float
+        Value in meters
+
+    '''
+    if isinstance(value, list):
+        return np.array(value) * 1e-6
+    elif isinstance(value, np.ndarray):
+        return value * 1e-6
+    return float(value) * 1e-6
 
 def inverse_matrix_Nx3x3(A):
     ''' 
@@ -534,14 +595,19 @@ def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys
                                 config.remove_section(section=_typed_value)
                                         
             if bc_removed:
-                with open(path, 'w') as config_file:
-                    config.write(config_file)
+                if len(list(config.sections())):    
+                    with open(path, 'w') as config_file:
+                        config.write(config_file)
+                else:
+                    os.remove(path)
 
         if message is not None and bc_removed:
-            PrintMessageInput(["Removal of selected boundary condition" , message, "WARNING"])
+            title = "Removal of selected boundary condition"
+            PrintMessageInput([window_title_2, title, message])
 
     except Exception as log_error:
-        PrintMessageInput(["Error while removing BC from file", str(log_error), window_title_1])
+        title = "Error while removing BC from file"
+        PrintMessageInput([window_title_1, title, str(log_error)])
 
 
 def getColorRGB(color):
@@ -607,6 +673,16 @@ def get_edited_filename(path):
                     new_path = get_new_path(dirname, new_basename)
                     break
     return new_path, new_basename
+
+def get_offset_from_string(offset):
+    offset = offset[1:-1].split(',')
+    offset_y = offset_z = 0.0
+    if len(offset) == 2:
+        if offset[0] != '0.0':
+            offset_y = float(offset[0])
+        if offset[1] != '0.0':
+            offset_z = float(offset[1])
+    return offset_y, offset_z
 
 def get_list_of_values_from_string(input_string, int_values=True):
     """ 

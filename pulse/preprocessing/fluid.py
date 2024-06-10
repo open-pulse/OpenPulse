@@ -55,9 +55,10 @@ class Fluid:
         self.isentropic_exponent = kwargs.get("isentropic_exponent", None)
         self.thermal_conductivity = kwargs.get("thermal_conductivity", None)
         self.specific_heat_Cp = kwargs.get("specific_heat_Cp", None)
-        self.dynamic_viscosity = kwargs.get("dynamic_viscosity", None)  
+        self.dynamic_viscosity = kwargs.get("dynamic_viscosity", None)
         self.temperature = kwargs.get("temperature", None)
-        self.pressure = kwargs.get("pressure", None)   
+        self.pressure = kwargs.get("pressure", None)
+        self.molar_mass = kwargs.get("molar_mass", None)
 
     @property
     def impedance(self):

@@ -46,13 +46,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>40</height>
+       <height>48</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>650</width>
-       <height>40</height>
+       <height>48</height>
       </size>
      </property>
      <property name="frameShape">
@@ -100,8 +100,8 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>11</pointsize>
-          <weight>9</weight>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -109,7 +109,8 @@
         <property name="styleSheet">
          <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
 QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
+QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
         </property>
         <property name="text">
          <string>Close</string>
@@ -127,6 +128,11 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
    </item>
    <item row="1" column="0">
     <widget class="QFrame" name="frame_message">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
@@ -150,52 +156,82 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_message">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>650</width>
-          <height>500</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>MS Shell Dlg 2</family>
-          <pointsize>11</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
+       <widget class="QScrollArea" name="scrollArea">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <property name="text">
-         <string>&lt; message &gt;</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::AutoText</enum>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="wordWrap">
+        <property name="widgetResizable">
          <bool>true</bool>
         </property>
-        <property name="margin">
-         <number>16</number>
-        </property>
-        <property name="indent">
-         <number>-1</number>
-        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>284</width>
+           <height>82</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_message">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>650</width>
+              <height>1200</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <property name="text">
+             <string>&lt; message &gt;</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::AutoText</enum>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="margin">
+             <number>2</number>
+            </property>
+            <property name="indent">
+             <number>-1</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -206,13 +242,13 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>48</height>
+       <height>42</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>650</width>
-       <height>48</height>
+       <height>42</height>
       </size>
      </property>
      <property name="frameShape">

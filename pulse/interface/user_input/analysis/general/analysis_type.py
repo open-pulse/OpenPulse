@@ -2,15 +2,16 @@ from PyQt5.QtWidgets import QDialog, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.analysis.structural.structural_harmonic_analysis import StructuralHarmonicAnalysisInput
-from pulse.interface.user_input.analysis.acoustic.acoustic_harmonic_analysis import AcousticHarmonicAnalysisInput
 from pulse.interface.user_input.analysis.coupled.coupled_harmonic_analysis import CoupledHarmonicAnalysisInput
 from pulse.interface.user_input.analysis.structural.structural_modal_analysis import StructuralModalAnalysisInput
 from pulse.interface.user_input.analysis.acoustic.acoustic_modal_analysis import AcousticModalAnalysisInput
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
-from pulse import app, UI_DIR
+
+from pathlib import Path
 
 
 """
@@ -32,13 +33,13 @@ class AnalysisTypeInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/analysis/general/analysis_type.ui")
+        ui_path = UI_DIR / "analysis/general/analysis_type.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()
         self._load_icons()
@@ -57,22 +58,21 @@ class AnalysisTypeInput(QDialog):
         self.complete = False
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
         
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle("Analysis type")
 
     def _define_qt_variables(self):
-        self.pushButton_harmonic_structural = self.findChild(QPushButton, 'pushButton_harmonic_structural')
-        self.pushButton_harmonic_acoustic = self.findChild(QPushButton, 'pushButton_harmonic_acoustic')
-        self.pushButton_harmonic_coupled = self.findChild(QPushButton, 'pushButton_harmonic_coupled')
-        self.pushButton_modal_structural = self.findChild(QPushButton, 'pushButton_modal_structural')
-        self.pushButton_modal_acoustic = self.findChild(QPushButton, 'pushButton_modal_acoustic')
-        self.pushButton_static_analysis = self.findChild(QPushButton, 'pushButton_static_analysis')
+        self.pushButton_harmonic_structural : QPushButton
+        self.pushButton_harmonic_acoustic : QPushButton
+        self.pushButton_harmonic_coupled : QPushButton
+        self.pushButton_modal_structural : QPushButton
+        self.pushButton_modal_acoustic : QPushButton
+        self.pushButton_static_analysis : QPushButton
 
     def _create_connections(self):
         self.pushButton_harmonic_structural.clicked.connect(self.harmonic_structural)
@@ -115,7 +115,9 @@ class AnalysisTypeInput(QDialog):
         else:
             return
     
-        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_analysis_type(self.analysis_ID, 
+                                       self.analysis_type_label, 
+                                       self.analysis_method_label)
         self.complete = True
 
     def harmonic_coupled(self):
@@ -134,7 +136,9 @@ class AnalysisTypeInput(QDialog):
         else:
             self.analysis_ID = 6
             self.analysis_method_label = "Mode Superposition Method"
-        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_analysis_type(self.analysis_ID, 
+                                       self.analysis_type_label, 
+                                       self.analysis_method_label)
         self.complete = True
 
     def modal_structural(self):
@@ -147,7 +151,9 @@ class AnalysisTypeInput(QDialog):
 
         self.analysis_ID = 2
         self.analysis_type_label = "Structural Modal Analysis"
-        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_analysis_type(self.analysis_ID, 
+                                       self.analysis_type_label, 
+                                       self.analysis_method_label)
         self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
         self.complete = modal.complete
 
@@ -161,7 +167,9 @@ class AnalysisTypeInput(QDialog):
 
         self.analysis_ID = 4
         self.analysis_type_label = "Acoustic Modal Analysis"
-        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_analysis_type(self.analysis_ID, 
+                                       self.analysis_type_label, 
+                                       self.analysis_method_label)
         self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
         self.complete = modal.complete
 
@@ -176,7 +184,9 @@ class AnalysisTypeInput(QDialog):
         self.analysis_ID = 7
         self.analysis_type_label = "Static Analysis"
         self.complete = static.complete
-        self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.set_analysis_type(self.analysis_ID, 
+                                       self.analysis_type_label, 
+                                       self.analysis_method_label)
         self.complete = static.complete
     
     def keyPressEvent(self, event):

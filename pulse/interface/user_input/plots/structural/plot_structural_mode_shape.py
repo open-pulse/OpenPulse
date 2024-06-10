@@ -1,14 +1,12 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 
 import numpy as np
-import configparser
-
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse import app, UI_DIR
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -19,86 +17,198 @@ class PlotStructuralModeShape(QWidget):
 
         main_window = app().main_window
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/plot_structural_mode_shape.ui")
+        ui_path = UI_DIR / "plots/results/structural/plot_structural_mode_shape.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
-        self.reset()
+        self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.load_natural_frequencies()
+        self.load_user_preference_colormap()
 
-    def reset(self):
+    def _initialize(self):
         self.mode_index = None
-        
-        self.scaling_key = {0 : "absolute",
-                            1 : "real_ux",
-                            2 : "real_uy",
-                            3 : "real_uz"}
+        self.colormaps = ["jet",
+                          "viridis",
+                          "inferno",
+                          "magma",
+                          "plasma",
+                          "grayscale"]
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon) 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
+
         # QComboBox
-        self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
+        self.comboBox_color_scale : QComboBox
+        self.comboBox_colormaps : QComboBox
+
         # QFrame
-        self.frame_button = self.findChild(QFrame, 'frame_button')
-        self.frame_button.setVisible(False)
+        self.frame_button : QFrame
+
         # QLineEdit
-        self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
-        self.lineEdit_natural_frequency.setDisabled(True)
+        self.lineEdit_natural_frequency : QLineEdit
+
         # QPushButton
-        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.pushButton_plot : QPushButton
+
+        # QLineEdit
+        self.lineEdit_selected_frequency : QLineEdit
+
+        # QSlider
+        self.slider_transparency : QSlider
+
+        # QPushButton
+        self.pushButton_plot : QPushButton
+
         # QTreeWidget
-        self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
-        self._config_treeWidget()
+        self.treeWidget_frequencies : QTreeWidget
 
     def _create_connections(self):
-        self.comboBox_color_scaling.currentIndexChanged.connect(self.update_plot)
+        #
+        self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
+        self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
+        #
         self.pushButton_plot.clicked.connect(self.update_plot)
+        #
+        self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
+        #
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
+        self.update_animation_widget_visibility()
+        self.update_colormap_type()
 
-    def _config_treeWidget(self):
+    def _config_widgets(self):
+
+        self.frame_button.setVisible(False)
+        self.lineEdit_natural_frequency.setDisabled(True)
+
         widths = [80, 140]
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+  
+    def update_animation_widget_visibility(self):
+        index = self.comboBox_color_scale.currentIndex()
+        if index >= 4:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+        else:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False)
+
+    def load_user_preference_colormap(self):
+        try:
+            colormap = app().main_window.user_preferences["colormap"]
+            if colormap in self.colormaps:
+                index = self.colormaps.index(colormap)
+                self.comboBox_colormaps.setCurrentIndex(index)
+        except:
+            self.comboBox_colormaps.setCurrentIndex(0)
+
+    def update_colormap_type(self):
+        index = self.comboBox_colormaps.currentIndex()
+        colormap = self.colormaps[index]
+        app().config.write_colormap_in_file(colormap)
+        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        self.update_plot()
 
     def update_plot(self):
-        self.complete = False
-        if self.lineEdit_natural_frequency.text() != "":
-            if self.check_selected_frequency():
-                self.complete = True
-
-    def check_selected_frequency(self):
-        message = ""
+        self.update_animation_widget_visibility()
         if self.lineEdit_natural_frequency.text() == "":
-            title = "Additional action required to plot the results"
-            message = "You should select a natural frequency from the available "
-            message += "list before trying to plot the structural mode shape."
-            self.text_data = [title, message, window_title_2]
+            return
         else:
             self.project.analysis_type_label = "Structural Modal Analysis"
             frequency = self.selected_natural_frequency
             self.mode_index = self.natural_frequencies.index(frequency)
-            current_scaling = self.scaling_key[self.comboBox_color_scaling.currentIndex()]
-            self.opv.plot_displacement_field(self.mode_index, current_scaling)
+            color_scale_setup = self.get_user_color_scale_setup()
+            self.project.set_color_scale_setup(color_scale_setup)
+            self.opv.plot_displacement_field(self.mode_index)
 
-        if message != "":
-            PrintMessageInput(self.text_data)
-            return True
+    def update_transparency_callback(self):
+        transparency = self.slider_transparency.value() / 100
+        
+        if self.opv.opvAnalysisRenderer.getInUse():
+            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
         else:
-            return False
+            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+
+    def get_user_color_scale_setup(self):
+
+        absolute = False
+        ux_abs_values = False
+        uy_abs_values = False
+        uz_abs_values = False
+        ux_real_values = False
+        uy_real_values = False
+        uz_real_values = False
+        ux_imag_values = False
+        uy_imag_values = False
+        uz_imag_values = False
+        absolute_animation = False
+        ux_animation = False
+        uy_animation = False
+        uz_animation = False
+
+        index = self.comboBox_color_scale.currentIndex()
+
+        if index == 0:
+            absolute_animation = True
+        elif index == 1:
+            ux_animation = True
+        elif index == 2:
+            uy_animation = True
+        elif index == 3:
+            uz_animation = True
+        elif index == 4:
+            absolute = True
+        elif index == 5:
+            ux_abs_values = True
+        elif index == 6:
+            uy_abs_values = True
+        elif index == 7:
+            uz_abs_values = True
+        elif index == 8:
+            ux_real_values = True
+        elif index == 9:
+            uy_real_values = True
+        elif index == 10:
+            uz_real_values = True
+        elif index == 11:
+            ux_imag_values = True
+        elif index == 12:
+            uy_imag_values = True
+        elif index == 13:
+            uz_imag_values = True
+
+        color_scale_setup = {   "absolute" : absolute,
+                                "ux_abs_values" : ux_abs_values,
+                                "uy_abs_values" : uy_abs_values,
+                                "uz_abs_values" : uz_abs_values,
+                                "ux_real_values" : ux_real_values,
+                                "uy_real_values" : uy_real_values,
+                                "uz_real_values" : uz_real_values,
+                                "ux_imag_values" : ux_imag_values,
+                                "uy_imag_values" : uy_imag_values,
+                                "uz_imag_values" : uz_imag_values,
+                                "absolute_animation" : absolute_animation,
+                                "ux_animation" : ux_animation,
+                                "uy_animation" : uy_animation,
+                                "uz_animation" : uz_animation   }
+
+        return color_scale_setup
 
     def load_natural_frequencies(self):
         

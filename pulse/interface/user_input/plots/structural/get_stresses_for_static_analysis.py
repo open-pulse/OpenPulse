@@ -2,30 +2,31 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 
 import numpy as np
-
-from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
-from pulse import app, UI_DIR
 
 class GetStressesForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_stresses_for_static_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/get_stresses_for_static_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
+        self._create_list_lineEdits()
+        self._create_connections()
         self.update()
 
     def _initialize(self):
@@ -40,26 +41,29 @@ class GetStressesForStaticAnalysis(QWidget):
         self.solve = self.project.structural_solve
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Plot stresses for static analysis")
 
     def _define_qt_variables(self):
-        #
-        self.lineEdit_element_id = self.findChild(QLineEdit, 'lineEdit_element_id')
-        self.lineEdit_axial_stress = self.findChild(QLineEdit, 'lineEdit_axial_stress')
-        self.lineEdit_bending_stress_y = self.findChild(QLineEdit, 'lineEdit_bending_stress_y')
-        self.lineEdit_bending_stress_z = self.findChild(QLineEdit, 'lineEdit_bending_stress_z')
-        self.lineEdit_hoop_stress = self.findChild(QLineEdit, 'lineEdit_hoop_stress')
-        self.lineEdit_torsional_stress = self.findChild(QLineEdit, 'lineEdit_torsional_stress')
-        self.lineEdit_shear_stress_xy = self.findChild(QLineEdit, 'lineEdit_shear_stress_xy')
-        self.lineEdit_shear_stress_yz = self.findChild(QLineEdit, 'lineEdit_shear_stress_yz')
-        #
+
+        # QLineEdit
+        self.lineEdit_element_id : QLineEdit
+        self.lineEdit_axial_stress : QLineEdit
+        self.lineEdit_bending_stress_y : QLineEdit
+        self.lineEdit_bending_stress_z : QLineEdit
+        self.lineEdit_hoop_stress : QLineEdit
+        self.lineEdit_torsional_stress : QLineEdit
+        self.lineEdit_shear_stress_xy : QLineEdit
+        self.lineEdit_shear_stress_yz : QLineEdit
+
+        # QPushButton
+        self.pushButton_reset : QPushButton
+
+    def _create_list_lineEdits(self):
         self.lineEdits = [  self.lineEdit_element_id,
                             self.lineEdit_axial_stress,
                             self.lineEdit_bending_stress_y,
@@ -68,15 +72,9 @@ class GetStressesForStaticAnalysis(QWidget):
                             self.lineEdit_torsional_stress,
                             self.lineEdit_shear_stress_xy,
                             self.lineEdit_shear_stress_yz  ]
-        #
-        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        self.pushButton_reset.clicked.connect(self.reset_selection)
-        self._config_lineEdits()
 
-    def _config_lineEdits(self):
-        for k, lineEdit in enumerate(self.lineEdits):
-            lineEdit.setDisabled(True)
-            lineEdit.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)")
+    def _create_connections(self):
+        self.pushButton_reset.clicked.connect(self.reset_selection)
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:

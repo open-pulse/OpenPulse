@@ -21,6 +21,7 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
 )
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
 
+from pulse import ICON_DIR
 
 @dataclass
 class PlotFilter:
@@ -47,7 +48,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = (0, 0)
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
-
+        app().main_window.theme_changed.connect(self.set_theme)
+        
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
 
@@ -224,7 +226,7 @@ class MeshRenderWidget(CommonRenderWidget):
     def set_theme(self, theme):
         super().set_theme(theme)
         try:
-            self.create_logos(theme)
+            self.create_logos(theme=theme)
         except:
             return
 
@@ -235,11 +237,11 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.AddViewProp(self.mopt_logo)
 
         if theme == "light":
-            open_pulse_path = Path("data/icons/OpenPulse_logo_black.png")
-            mopt_path = Path("data/icons/mopt_logo_black.png")
+            open_pulse_path = str(ICON_DIR/ 'logos/OpenPulse_logo_black.png')
+            mopt_path = str(ICON_DIR / 'logos/mopt_logo_black.png')     
         elif theme == "dark":
-            open_pulse_path = Path("data/icons/OpenPulse_logo_white.png")
-            mopt_path = Path("data/icons/mopt_logo_white.png")
+            open_pulse_path = str(ICON_DIR / 'logos/OpenPulse_logo_white.png')
+            mopt_path =  str(ICON_DIR / 'logos/mopt_logo_white.png')
         else:
             raise NotImplementedError()
 

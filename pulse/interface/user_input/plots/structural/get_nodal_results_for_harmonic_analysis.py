@@ -2,33 +2,26 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QRadioButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from pulse import app, UI_DIR
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class GetNodalResultsForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_nodal_results_for_harmonic_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()
         self._load_icons()
@@ -48,7 +41,7 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self.solution = self.project.get_structural_solution()
     
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
+        self.pulse_icon = get_openpulse_icon()
         self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
 
     def _config_window(self):
@@ -57,18 +50,21 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self.setWindowIcon(self.pulse_icon)
 
     def _define_qt_variables(self):
+
         # LineEdit
-        self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
+        self.lineEdit_node_id : QLineEdit
+
         # PushButton
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
-        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
+        self.pushButton_export_data : QPushButton
+        self.pushButton_plot_data : QPushButton
+
         # RadioButton
-        self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
-        self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
-        self.radioButton_uz = self.findChild(QRadioButton, 'radioButton_uz')
-        self.radioButton_rx = self.findChild(QRadioButton, 'radioButton_rx')
-        self.radioButton_ry = self.findChild(QRadioButton, 'radioButton_ry')
-        self.radioButton_rz = self.findChild(QRadioButton, 'radioButton_rz')
+        self.radioButton_ux : QRadioButton
+        self.radioButton_uy : QRadioButton
+        self.radioButton_uz : QRadioButton
+        self.radioButton_rx : QRadioButton
+        self.radioButton_ry : QRadioButton
+        self.radioButton_rz : QRadioButton
 
     def _create_connections(self):
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
@@ -130,10 +126,10 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         return False
 
     def get_response(self):
-        response = get_structural_frf(self.preprocessor, 
-                                      self.solution,
-                                      self.node_ID, 
-                                      self.local_dof)
+        response = get_structural_frf(  self.preprocessor,
+                                        self.solution,
+                                        self.node_ID, 
+                                        self.local_dof  )
         return response
 
     def join_model_data(self):

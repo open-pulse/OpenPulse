@@ -7,11 +7,14 @@ class CuttingPlaneActor(vtk.vtkActor):
         self.configure_appearance()
 
     def create_geometry(self):
-        plane = vtk.vtkPlaneSource()
+        plane = vtk.vtkCubeSource()
         cylinder = vtk.vtkCylinderSource()
         cone = vtk.vtkConeSource()
 
-        plane.SetNormal(1, 0, 0)
+        plane.SetCenter(0, 0, 0)
+        plane.SetXLength(0.005)
+        plane.SetYLength(1)
+        plane.SetZLength(1)
         cone.SetCenter(0.025, 0, 0)
         cone.SetRadius(0.01)
         cone.SetHeight(0.04)

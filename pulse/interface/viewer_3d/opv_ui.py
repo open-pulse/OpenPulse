@@ -6,7 +6,6 @@ import vtk
 import numpy as np
 
 from pulse.interface.viewer_3d.renders.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
-from pulse.interface.viewer_3d.renders.opvGeometryRenderer import opvGeometryRenderer
 from pulse.interface.viewer_3d.renders.opvAnalysisRenderer import opvAnalysisRenderer
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
@@ -19,11 +18,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.project = project
 
         self.inputObject = None
-        self.defaultPreferences()
     
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
-        self.opvGeometryRenderer = opvGeometryRenderer(self.project, self)
+
+        self.default_user_preferences()
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
@@ -32,83 +31,89 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self._createAxes()        
 
-    def defaultPreferences(self):
-        self.background_color = (1,1,1)
-        self.font_color = (0,0,0)
-        self.add_OpenPulse_logo = True
-        self.add_MOPT_logo = True
-        self.show_reference_scale = True
+    def default_user_preferences(self):
+        self.bottom_font_color = (0, 0, 0)
+        self.top_font_color = (0, 0, 0)
 
     def set_user_interface_preferences(self, preferences):
+        """ This method updates the render appearance according to the user preferences.
+
+            Parameters:
+            -----------
+                preferences : dict
+                    a dicitonary containing all required data to update the render
+
         """
-        """
-        if preferences:
+        if isinstance(preferences, dict):
 
-            self.background_color = preferences['background_color']
-            self.font_color = preferences['font_color']
-            self.nodes_color = preferences['nodes_color']
-            self.lines_color = preferences['lines_color']
-            self.surfaces_color = preferences['surfaces_color']
-            self.add_OpenPulse_logo = preferences['OpenPulse_logo']
-            self.add_MOPT_logo = preferences['mopt_logo']
-            self.show_reference_scale = preferences['reference_scale']
-            self.elements_transparency = preferences['transparency']
-            #
-            self.opvRenderer.changeBackgroundColor(self.background_color)
-            self.opvAnalysisRenderer.changeBackgroundColor(self.background_color)
-            self.opvGeometryRenderer.changeBackgroundColor(self.background_color)
+            if "background color" in preferences.keys():
+                background_color = preferences['background color']
+            else:
+                background_color = self.opvRenderer.background_color
 
-            self.opvRenderer.changeFontColor(self.font_color)
-            self.opvAnalysisRenderer.changeFontColor(self.font_color)
-            self.opvGeometryRenderer.changeFontColor(self.font_color)
+            if "bottom font color" in preferences.keys():
+                self.bottom_font_color = preferences['bottom font color']
 
-            self.opvRenderer.changeReferenceScaleFontColor(self.font_color)
-            self.opvAnalysisRenderer.changeReferenceScaleFontColor(self.font_color)
-            self.opvGeometryRenderer.changeReferenceScaleFontColor(self.font_color)
+            if "nodes color" in preferences.keys():
+                nodes_color = preferences['nodes color']
+            else:
+                nodes_color = self.opvRenderer.nodes_color
 
-            self.opvRenderer.changeNodesColor(self.nodes_color)
-            self.opvRenderer.changeSurfacesColor(self.surfaces_color)
-            self.opvRenderer.changeElementsTransparency(self.elements_transparency)
-        
+            if "lines color" in preferences.keys():
+                lines_color = preferences['lines color']
+            else:
+                lines_color = self.opvRenderer.lines_color
+
+            if "surfaces color" in preferences.keys():
+                surfaces_color = preferences['surfaces color']
+            else:
+                surfaces_color = self.opvRenderer.surfaces_color
+
+            if "transparency" in preferences.keys():
+                elements_transparency = preferences['transparency']
+            else:
+                elements_transparency = self.opvRenderer.elements_transparency
+
+            if "openpulse logo" in preferences.keys():
+                self.opvRenderer.add_OpenPulse_logo = preferences['openpulse logo']
+                self.opvAnalysisRenderer.add_OpenPulse_logo = preferences['openpulse logo']
+
+            if "reference scale" in preferences.keys():
+                self.opvRenderer.show_reference_scale = preferences['reference scale']
+                self.opvAnalysisRenderer.show_reference_scale = preferences['reference scale']
+
+            # if "colormap" in preferences.keys():
+            #     colormap = preferences['colormap']
+
+        self.opvRenderer.set_background_color(background_color)
+        self.opvAnalysisRenderer.set_background_color(background_color)
+
+        self.opvRenderer.change_font_color(self.bottom_font_color)
+        self.opvAnalysisRenderer.change_font_color(self.bottom_font_color)
+
+        self.opvRenderer.changeNodesColor(nodes_color)
+        self.opvRenderer.changeLinesColor(lines_color)
+        self.opvRenderer.changeSurfacesColor(surfaces_color)
+        self.opvRenderer.changeElementsTransparency(elements_transparency)
+
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.opvAnalysisRenderer.getRenderer())
-        self.GetRenderWindow().RemoveRenderer(self.opvGeometryRenderer.getRenderer())
 
     def clearRendereresUse(self):
         self.opvRenderer.setInUse(False)
         self.opvAnalysisRenderer.setInUse(False)
-        self.opvGeometryRenderer.setInUse(False)
 
     def updatePlots(self):
         # def callback():
         self.project.preprocessor.add_lids_to_variable_cross_sections()
         self.opvRenderer.plot()
         self.opvAnalysisRenderer.plot()
-        self.opvGeometryRenderer.plot()
         # LoadingScreen(title = 'Processing model',
         #               message = "Updating render",
         #               target = callback)
 
-    def changePlotToRawGeometry(self):
-        
-        if self.opvGeometryRenderer.plot():
-            return
-
-        self.change_plot_to_mesh = False
-        self.change_plot_to_entities = False
-        self.change_plot_to_entities_with_cross_section = False
-        self.change_plot_to_raw_lines = True
-        self.setRenderer(self.opvGeometryRenderer)
-
-        plot_filter = PlotFilter(raw_lines=True)
-        selection_filter = SelectionFilter()
-
-        # self.opvRenderer.setPlotFilter(plot_filter)
-        # self.opvRenderer.setSelectionFilter(selection_filter)
-        self._updateAxes()
-
-    def changePlotToEntities(self):
+    def plot_entities(self):
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = True
         self.change_plot_to_entities_with_cross_section = False
@@ -122,7 +127,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
-    def changePlotToEntitiesWithCrossSection(self):
+    def plot_entities_with_cross_section(self):
         self.change_plot_to_mesh = False
         self.change_plot_to_entities_with_cross_section = True
         self.change_plot_to_entities = False
@@ -136,7 +141,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
-    def changePlotToMesh(self):
+    def plot_mesh(self):
         self.change_plot_to_mesh = True
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
@@ -168,11 +173,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
-    def plot_displacement_field(self, frequency_indice, current_scaling):
+    def plot_displacement_field(self, *args, **kwargs):
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-        self.opvAnalysisRenderer.showDisplacementField(frequency_indice, 
-                                                       current_scaling)
+        self.opvAnalysisRenderer.showDisplacementField(*args, **kwargs)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #
@@ -180,11 +184,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-    def plot_stress_field(self, frequency_indice, scaling_type): 
+    def plot_stress_field(self, frequency_indice): 
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-        self.opvAnalysisRenderer.show_stress_field(frequency_indice, 
-                                                   scaling_type)
+        self.opvAnalysisRenderer.show_stress_field(frequency_indice)
+
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #
@@ -192,11 +196,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-    def plot_pressure_field(self, frequency_indice, absolute=False): 
+    def plot_pressure_field(self, *args): 
         self.setRenderer(self.opvAnalysisRenderer)
         self.opvAnalysisRenderer.updateHud()
-        self.opvAnalysisRenderer.showPressureField(frequency_indice, 
-                                                   absolute=absolute)
+        self.opvAnalysisRenderer.showPressureField(*args)
         self._updateAxes()
         self.opvAnalysisRenderer._renderer.ResetCamera()
         #
@@ -213,9 +216,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         elif (self.opvAnalysisRenderer.getInUse()):
             lastCamera = self.opvAnalysisRenderer._renderer.GetActiveCamera()
-
-        elif (self.opvGeometryRenderer.getInUse()):
-            lastCamera = self.opvGeometryRenderer._renderer.GetActiveCamera()
         
         else:
             lastCamera = None
@@ -230,14 +230,13 @@ class OPVUi(QVTKRenderWindowInteractor):
         renderer.setInUse(True)
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
+        self.GetRenderWindow().Render()
 
     def setCameraView(self, view=5):
         if (self.opvRenderer.getInUse()):
             x,y,z = self.opvRenderer._renderer.GetActiveCamera().GetFocalPoint()
         elif (self.opvAnalysisRenderer.getInUse()):
             x,y,z = self.opvAnalysisRenderer._renderer.GetActiveCamera().GetFocalPoint()
-        elif (self.opvGeometryRenderer.getInUse()):
-            x,y,z = self.opvGeometryRenderer._renderer.GetActiveCamera().GetFocalPoint()
         else:
             return
 
@@ -266,9 +265,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         elif view == BACK:
             z -= 1 
         elif view == ORTH:
-            x -= 1
-            y -= 1
-            z -= 1
+            x += 1
+            y += 1
+            z += 1
         else:
             return
 
@@ -277,12 +276,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
         self.opvRenderer._renderer.ResetCamera(*self.opvRenderer.getBounds())
         self.opvRenderer.update()
-
-        self.opvGeometryRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
-        self.opvGeometryRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
-        self.opvGeometryRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
-        self.opvGeometryRenderer._renderer.ResetCamera(*self.opvGeometryRenderer.getBounds())
-        self.opvGeometryRenderer.update()
 
         self.opvAnalysisRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
         self.opvAnalysisRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
@@ -361,10 +354,9 @@ class OPVUi(QVTKRenderWindowInteractor):
     def getListPickedLines(self):
         return self.opvRenderer.getListPickedLines()
 
-    def updateEntityRadius(self, *args, **kwargs):
+    def update_section_radius(self, *args, **kwargs):
         self.opvRenderer.plot()
         self.opvAnalysisRenderer.plot()
-        self.opvGeometryRenderer.plot()
         # self.updatePlots()
 
     def updateRendererMesh(self, *args, **kwargs):

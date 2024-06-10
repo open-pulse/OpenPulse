@@ -4,32 +4,33 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
 from pathlib import Path
 
-from time import time, sleep
-
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-
-from pulse import UI_DIR
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.processing.solution_acoustic import SolutionAcoustic
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
+
+from time import time, sleep
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class RunAnalysisInput(QDialog):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "messages/solution_log.ui", self)
+        ui_path = UI_DIR / "messages/solution_log.ui"
+        uic.loadUi(ui_path, self)
 
-        self.project = project
+        self.project = app().main_window.project
 
-        self._config_window()
         self._load_icons()
-        self._reset_variables()
+        self._config_window()
+        self._initialize()
         self._load_analysis_info()
         self._define_qt_variables()
         self._create_connections()
@@ -37,7 +38,7 @@ class RunAnalysisInput(QDialog):
         LoadingScreen(title = 'Solution in progress', 
                       message = 'Processing the cross-sections',  
                       target = self.process_cross_sections, 
-                      project = project)
+                      project = self.project)
         
         if self.project.preprocessor.stop_processing:
             self.project.preprocessor.stop_processing = False
@@ -52,7 +53,7 @@ class RunAnalysisInput(QDialog):
         LoadingScreen(title = 'Solution in progress', 
                       message = 'Solving the analysis',  
                       target = self.process_analysis, 
-                      project = project)
+                      project = self.project)
 
         self.post_non_linear_convergence_plot()  
 
@@ -69,17 +70,16 @@ class RunAnalysisInput(QDialog):
             self.exec()
             self.check_warnings()
 
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 
-    def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-    def _reset_variables(self):
+    def _initialize(self):
         self.solution_acoustic = None
         self.solution_structural = None
         self.convergence_dataLog = None
@@ -90,13 +90,13 @@ class RunAnalysisInput(QDialog):
 
     def _define_qt_variables(self):
         # QFrame
-        self.frame_message = self.findChild(QFrame, 'frame_message')
-        self.frame_progress_bar = self.findChild(QFrame, 'frame_progress_bar')
+        self.frame_message : QFrame
+        self.frame_progress_bar : QFrame
         # QLabel
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_message = self.findChild(QLabel, 'label_message')
+        self.label_title : QLabel
+        self.label_message : QLabel
         # QProgressBar
-        self.progress_bar_timer = self.findChild(QProgressBar, 'progress_bar_timer')
+        self.progress_bar_timer : QProgressBar
         # QTimer
         self.timer = QTimer()
 
@@ -134,7 +134,6 @@ class RunAnalysisInput(QDialog):
                     self.anime._stop()
 
     def process_cross_sections(self):
-
         t0 = time()
         self.complete = False
         self.project.process_cross_sections_mapping()
@@ -152,8 +151,9 @@ class RunAnalysisInput(QDialog):
         if self.project.preprocessor._process_beam_nodes_and_indexes():
             if self.analysis_ID not in [0, 1, 2]:
                 title = "INCORRECT ANALYSIS TYPE"
-                message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
-                info_text = [title, message, window_title_2]
+                message = "There are only BEAM_1 elements in the model, therefore, "
+                message += "only structural analysis are allowable."
+                info_text = [window_title_2, title, message]
                 PrintMessageInput(info_text)
                 return
 
@@ -342,7 +342,7 @@ class RunAnalysisInput(QDialog):
             if self.solve.flag_Modal_prescribed_NonNull_DOFs:
                 message = self.solve.warning_Modal_prescribedDOFs[0] 
         if message != "":
-            PrintMessageInput([title, message, window_title_2])
+            PrintMessageInput([window_title_2, title, message])
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

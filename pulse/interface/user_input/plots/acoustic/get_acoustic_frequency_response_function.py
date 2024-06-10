@@ -2,20 +2,12 @@ from PyQt5.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-
-from pulse import app, UI_DIR
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -24,14 +16,12 @@ class GetAcousticFrequencyResponseFunction(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
-        ui_path = Path(f"{UI_DIR}/plots/results/acoustic/get_acoustic_frequency_response_function.ui")
+        ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response_function.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.getOPVWidget()
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
 
         self._initialize()
         self._load_icons()
@@ -50,9 +40,7 @@ class GetAcousticFrequencyResponseFunction(QWidget):
         self.list_node_IDs = self.opv.getListPickedPoints()
 
     def _load_icons(self):
-        self.pulse_icon = QIcon(get_icons_path('pulse.png'))
-        self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
-        self.update_icon = QIcon(get_icons_path('update_icon.jpg'))
+        self.pulse_icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -61,18 +49,16 @@ class GetAcousticFrequencyResponseFunction(QWidget):
 
     def _define_qt_variables(self):
         # QFrame
-        self.frame_denominator = self.findChild(QFrame, 'frame_denominator')
-        self.frame_numerator = self.findChild(QFrame, 'frame_numerator')
+        self.frame_denominator : QFrame
+        self.frame_numerator : QFrame
         # QLineEdit
-        self.lineEdit_input_node_id = self.findChild(QLineEdit, 'lineEdit_input_node_id')
-        self.lineEdit_output_node_id = self.findChild(QLineEdit, 'lineEdit_output_node_id')
+        self.lineEdit_input_node_id : QLineEdit
+        self.lineEdit_output_node_id : QLineEdit
         self.current_lineEdit = self.lineEdit_input_node_id
         # QPushButton
-        self.pushButton_flip_nodes = self.findChild(QPushButton, 'pushButton_flip_nodes')
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
-        self.pushButton_plot_data = self.findChild(QPushButton, 'pushButton_plot_data')
-        # self.pushButton_export_data.setIcon(self.export_icon)
-        self.pushButton_flip_nodes.setIcon(self.update_icon)
+        self.pushButton_flip_nodes : QPushButton
+        self.pushButton_export_data : QPushButton
+        self.pushButton_plot_data : QPushButton
 
     def _create_connections(self):
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
@@ -149,13 +135,9 @@ class GetAcousticFrequencyResponseFunction(QWidget):
 
     def get_response(self):
         
-        numerator = get_acoustic_frf(   self.preprocessor, 
-                                        self.solution,
-                                        self.node_ID_2   )
+        numerator = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID_2)
+        denominator = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID_1)
 
-        denominator = get_acoustic_frf( self.preprocessor, 
-                                        self.solution,
-                                        self.node_ID_1 )
         if complex(0) in denominator:
             denominator += 1e-12
 

@@ -2,30 +2,31 @@ from PyQt5.QtWidgets import QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTr
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
-
-import numpy as np
 
 from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
+
+import numpy as np
+from pathlib import Path
 
 class GetReactionsForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/get_reactions_for_static_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/get_reactions_for_static_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-
-        self.opv = main_window.getOPVWidget()
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
-        
+
         self._initialize()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self._load_nodes_info()
+        self._config_widgets()
 
     def _initialize(self):
         [   self.dict_reactions_at_constrained_dofs, 
@@ -35,8 +36,7 @@ class GetReactionsForStaticAnalysis(QWidget):
         self.preprocessor = self.project.preprocessor
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -45,15 +45,16 @@ class GetReactionsForStaticAnalysis(QWidget):
         self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
-        #
-        self.lineEdit_node_id = self.findChild(QLineEdit, 'lineEdit_node_id')
-        self.lineEdit_reaction_fx = self.findChild(QLineEdit, 'lineEdit_reaction_fx')
-        self.lineEdit_reaction_fy = self.findChild(QLineEdit, 'lineEdit_reaction_fy')
-        self.lineEdit_reaction_fz = self.findChild(QLineEdit, 'lineEdit_reaction_fz')
-        self.lineEdit_reaction_mx = self.findChild(QLineEdit, 'lineEdit_reaction_mx')
-        self.lineEdit_reaction_my = self.findChild(QLineEdit, 'lineEdit_reaction_my')
-        self.lineEdit_reaction_mz = self.findChild(QLineEdit, 'lineEdit_reaction_mz')
-        #
+        
+        # QLineEdit
+        self.lineEdit_node_id : QLineEdit
+        self.lineEdit_reaction_fx : QLineEdit
+        self.lineEdit_reaction_fy : QLineEdit
+        self.lineEdit_reaction_fz : QLineEdit
+        self.lineEdit_reaction_mx : QLineEdit
+        self.lineEdit_reaction_my : QLineEdit
+        self.lineEdit_reaction_mz : QLineEdit
+
         self.lineEdits = [  self.lineEdit_node_id,
                             self.lineEdit_reaction_fx,
                             self.lineEdit_reaction_fy,
@@ -61,32 +62,18 @@ class GetReactionsForStaticAnalysis(QWidget):
                             self.lineEdit_reaction_mx,
                             self.lineEdit_reaction_my,
                             self.lineEdit_reaction_mz  ]
-        #
-        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
-        #
-        self.tabWidget_reactions = self.findChild(QTabWidget, "tabWidget_reactions")
-        self.tab_constrained_dofs = self.tabWidget_reactions.findChild(QWidget, "tab_constrained_dofs")
-        self.tab_external_springs_dampers = self.tabWidget_reactions.findChild(QWidget, "tab_external_springs_dampers")
+
+        # QPushButton
+        self.pushButton_reset : QPushButton
         
-        self.tabWidget_springs_dampers = self.findChild(QTabWidget, "tabWidget_springs_dampers")
-        self.tab_nodes_with_springs = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_springs")
-        self.tab_nodes_with_dampers = self.tabWidget_springs_dampers.findChild(QWidget, "tab_nodes_with_dampers")
+        # QTabWidget
+        self.tabWidget_reactions : QTabWidget    
+        self.tabWidget_springs_dampers : QTabWidget
 
-        self.treeWidget_reactions_at_constrained_dofs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_constrained_dofs')
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
-
-        self.treeWidget_reactions_at_dampers = self.findChild(QTreeWidget, 'treeWidget_reactions_at_dampers')
-        self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
-
-        self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
-        self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
-
-        self._load_nodes_info()
-        self._config_lineEdits()
-        self._tabWidgets_visibility()
+        # QTreeWidget        
+        self.treeWidget_reactions_at_constrained_dofs : QTreeWidget
+        self.treeWidget_reactions_at_dampers : QTreeWidget
+        self.treeWidget_reactions_at_springs : QTreeWidget
 
     def _create_connections(self):
         self.pushButton_reset.clicked.connect(self._reset_lineEdits)
@@ -96,11 +83,18 @@ class GetReactionsForStaticAnalysis(QWidget):
         self.treeWidget_reactions_at_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self._tabWidgets_visibility()
 
-    def _config_lineEdits(self):
-        for lineEdit in self.lineEdits:
-            lineEdit.setDisabled(True)
-            lineEdit.setStyleSheet("background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)")
+    def _config_widgets(self):
+
+        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
+
+        self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
+
+        self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
+        self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
 
     def _tabWidgets_visibility(self):
         self.tabWidget_springs_dampers.removeTab(1)

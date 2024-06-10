@@ -25,7 +25,7 @@ class Entity:
         self.structural_element_type = None
         self.force_offset = None
         self.structural_element_wall_formulation = None
-        self.capped_end = False
+        self.capped_end = True
         self.length_correction = None
         self.stress_stiffening_parameters = None
         self.expansion_joint_parameters = None

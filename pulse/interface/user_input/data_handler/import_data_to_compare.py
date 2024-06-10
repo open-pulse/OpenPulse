@@ -1,45 +1,44 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QFileDialog, QLineEdit, QPushButton, QSpinBox, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QDialog, QCheckBox, QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QSpinBox, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import UI_DIR
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
+from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import os
 import numpy as np
 import pandas as pd
 import openpyxl
+from pathlib import Path
 
-from pulse import UI_DIR
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class ImportDataToCompare(QDialog):
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "data_handler/import_data_to_compare.ui", self)
+        ui_path = UI_DIR / "data_handler/import_data_to_compare.ui"
+        uic.loadUi(ui_path, self)
 
         self.plotter = plotter
 
-        self._config_window()
         self._load_icons()
+        self._config_window()
         self._reset_variables()
         self._define_and_configure_Qt_variables()
         self._create_connections()
+        self._config_widgets()
         self.exec()
+
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Import data to compare")
-
-    def _load_icons(self):
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
+        self.setWindowTitle("OpenPulse")
         self.setWindowIcon(self.icon)
 
     def _reset_variables(self):
@@ -61,20 +60,19 @@ class ImportDataToCompare(QDialog):
 
     def _define_and_configure_Qt_variables(self):
         # CheckBox
-        self.checkBox_skiprows = self.findChild(QCheckBox, "checkBox_skiprows")
+        self.checkBox_skiprows : QCheckBox
         # LineEdit
-        self.lineEdit_import_results_path = self.findChild(QLineEdit, 'lineEdit_import_results_path')
+        self.lineEdit_import_results_path : QLineEdit
         self.lineEdit_import_results_path.setDisabled(True)
         # PushButton
-        self.pushButton_add_imported_data_to_plot = self.findChild(QPushButton, 'pushButton_add_imported_data_to_plot')
-        self.pushButton_reset_imported_data = self.findChild(QPushButton, 'pushButton_reset_imported_data')
-        self.pushButton_search_file_to_import = self.findChild(QPushButton, 'pushButton_search_file_to_import')
-        self.pushButton_search_file_to_import.setIcon(self.search_icon)
+        self.pushButton_add_imported_data_to_plot : QPushButton
+        self.pushButton_reset_imported_data : QPushButton
+        self.pushButton_search_file_to_import : QPushButton
         # SpinBox
-        self.spinBox_skiprows = self.findChild(QSpinBox, 'spinBox_skiprows')
+        self.spinBox_skiprows : QSpinBox
         # TreeWidget
-        self.treeWidget_import_text_files = self.findChild(QTreeWidget, "treeWidget_import_text_files")
-        self.treeWidget_import_sheet_files = self.findChild(QTreeWidget, "treeWidget_import_sheet_files")
+        self.treeWidget_import_text_files : QTreeWidget
+        self.treeWidget_import_sheet_files : QTreeWidget
 
         widths_1 = [320, 60]
         for i, width in enumerate(widths_1):
@@ -90,6 +88,9 @@ class ImportDataToCompare(QDialog):
         self.pushButton_reset_imported_data.clicked.connect(self.reset_imported_data)
         self.pushButton_add_imported_data_to_plot.clicked.connect(self.add_imported_data_to_plot)
         self.update_skiprows_visibility()
+
+    def _config_widgets(self):
+        ConfigWidgetAppearance(self, tool_tip=True)
         
     def update_skiprows_visibility(self):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
@@ -176,7 +177,21 @@ class ImportDataToCompare(QDialog):
             return
         
         if message != "":
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([window_title, title, message])
+
+    def get_centered_checkBox(self):
+        checkBox = QCheckBox()
+        checkBox.setObjectName("plot_button")
+        # checkBox.setFixedWidth(40)
+        # checkBox.setStyleSheet("margin-left:50%; margin-right:50%;")
+        widget = QWidget()
+        layout = QHBoxLayout()
+        layout.addStretch()
+        layout.addWidget(checkBox)
+        layout.addStretch()
+        layout.setContentsMargins(0, 0, 0, 0)
+        widget.setLayout(layout)
+        return widget
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
@@ -185,9 +200,9 @@ class ImportDataToCompare(QDialog):
         #
         if len(self.imported_results) > 0:
             for i, (id, data) in enumerate(self.imported_results.items()):
+
                 # Creates the QCheckButtons to control data to be plotted
-                self.ids_to_checkBox[id] = QCheckBox()
-                self.ids_to_checkBox[id].setStyleSheet("margin-left:40%; margin-right:50%;")
+                self.ids_to_checkBox[id] = self.get_centered_checkBox()
 
                 if id in self.checkButtons_state.keys():
                     self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])
@@ -218,8 +233,11 @@ class ImportDataToCompare(QDialog):
     
     def join_imported_data(self):
         j = 0
-        for id, checkBox in self.ids_to_checkBox.items():
+        for id, widget in self.ids_to_checkBox.items():
+
             temp_dict = dict()
+            checkBox = widget.findChild(QCheckBox, "plot_button")
+
             if checkBox.isChecked():
 
                 if id < len(self.colors):
@@ -257,8 +275,9 @@ class ImportDataToCompare(QDialog):
 
     def cache_checkButtons_state(self):
         self.checkButtons_state = dict()
-        for key, check in self.ids_to_checkBox.items():
-            self.checkButtons_state[key] = check.isChecked()
+        for key, widget in self.ids_to_checkBox.items():
+            checkBox = widget.findChild(QCheckBox, "plot_button")
+            self.checkButtons_state[key] = checkBox.isChecked()
 
     def reset_imported_data(self):
         self.lineEdit_import_results_path.setText("")

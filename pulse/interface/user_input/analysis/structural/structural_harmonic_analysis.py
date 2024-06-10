@@ -3,46 +3,46 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
-from pathlib import Path
-
 from pulse import  app, UI_DIR
+from pulse.interface.formatters.icons import *
+
+from pathlib import Path
 
 
 class StructuralHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
-        ui_path = Path(f"{UI_DIR}/analysis/general/harmonic_analysis_method.ui")
+        ui_path = UI_DIR / "analysis/general/harmonic_analysis_method.ui"
         uic.loadUi(ui_path, self)
 
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()       
         self._create_connections()
         self.exec()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
         
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowTitle("Structural harmonic analysis")
         self.setWindowIcon(self.icon)
+        self.setWindowTitle("Structural harmonic analysis")
 
     def _initialize(self):
         self.index = -1
 
     def _define_qt_variables(self):
         # QComboBox
-        self.comboBox = self.findChild(QComboBox, 'comboBox')
+        self.comboBox_method : QComboBox
         # QLabel
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.label_title.setText("  Harmonic Analysis - Structural  ")
+        self.label_method : QLabel
+        self.label_method.setText("Harmonic Analysis - Structural")
         # QPushButton
-        self.pushButton_go_to_analysis_setup = self.findChild(QPushButton, 'pushButton_go_to_analysis_setup')
+        self.pushButton_go_to_analysis_setup : QPushButton
     
     def _create_connections(self):
         self.pushButton_go_to_analysis_setup.clicked.connect(self.button_clicked)
@@ -51,7 +51,7 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.check()
 
     def check(self):
-        self.index = self.comboBox.currentIndex()
+        self.index = self.comboBox_method.currentIndex()
         self.close()
 
     def keyPressEvent(self, event):

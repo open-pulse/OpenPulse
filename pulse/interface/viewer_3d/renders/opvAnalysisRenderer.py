@@ -3,8 +3,12 @@ import vtk
 import numpy as np
 from math import pi
 
-from pulse.postprocessing.plot_structural_data import get_structural_response, get_max_min_values_of_resultant_displacements, get_stresses_to_plot, get_min_max_stresses_values
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_max_min_values_of_pressures
+from PyQt5.QtWidgets import QSlider
+
+from pulse import app
+
+from pulse.postprocessing.plot_structural_data import *
+from pulse.postprocessing.plot_acoustic_data import *
 
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 from pulse.interface.viewer_3d.vtk.vtkRendererBase import vtkRendererBase
@@ -16,6 +20,7 @@ from pulse.interface.viewer_3d.actors.tube_deformed_actor import TubeDeformedAct
 from pulse.interface.viewer_3d.actors.tube_clippable_actor import TubeClippableActor
 from pulse.interface.viewer_3d.actors.tube_clippable_deformed_actor import TubeClippableDeformedActor
 
+
 class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):
         super().__init__(vtkMeshClicker(self))
@@ -26,9 +31,8 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.hidden_elements = set()
 
-        self._absolute = False
-        self._scaling_type = None
-        self._magnificationFactor = 1
+        # self._scaling_type = None
+        self._magnification_factor = 1
         self._currentFrequencyIndex = 0
         self._currentPhase = 0
         self._cacheFrequencyIndex = None
@@ -55,7 +59,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.total_frames = (self.number_frames+1)*self.number_cycles
         self.number_frames_changed = False
         self.export_animation = False
-        self.update_phase_steps_attribute()
+        # self.update_phase_steps_attribute()
                 
         # just ignore it 
         self.nodesBounds = dict()
@@ -67,7 +71,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvTubes = None
         self.opvSymbols = None
 
-        self.slider = None
         self.logoWidget = None
         self.stressesTextProperty = vtk.vtkTextProperty()
 
@@ -95,16 +98,27 @@ class opvAnalysisRenderer(vtkRendererBase):
  
     def reset_min_max_values(self):
         self.count_cycles = 0
-        self.rDisp_min = None
-        self.rDisp_max = None
+        self.r_xyz_abs = None
+        self.result_disp_min = None
+        self.result_disp_max = None
         self.stress_min = None
         self.stress_max = None
         self.pressure_min = None
         self.pressure_max = None
-        self.min_max_rDisp_values_current = None
         self.min_max_stresses_values_current = None
         self.min_max_pressures_values_current = None
         self.plot_state = [False, False, False]
+
+    def set_colormap(self, colormap):
+        super().set_colormap(colormap)
+
+        colortable_structural: ColorTable = self.opvDeformedTubes.colorTable
+        if colortable_structural is not None:
+            colortable_structural.set_colormap(colormap)
+
+        colortable_acoustic: ColorTable = self.opvPressureTubes.colorTable
+        if colortable_acoustic is not None:
+            colortable_acoustic.set_colormap(colormap)
 
     def plot(self):
         self.reset()
@@ -121,16 +135,13 @@ class opvAnalysisRenderer(vtkRendererBase):
         # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
-        # self._createSlider()
-        plt = lambda x: self._renderer.AddActor(x.getActor())
-        plt(self.opvDeformedTubes)
-        plt(self.opvPressureTubes)
-        plt(self.opvClippableDeformedTubes)
-        plt(self.opvClippablePressureTubes)
-        # plt(self.opvSymbols)
+        self._renderer.AddActor(self.opvDeformedTubes.getActor())
+        self._renderer.AddActor(self.opvPressureTubes.getActor())
+        self._renderer.AddActor(self.opvClippableDeformedTubes.getActor())
+        self._renderer.AddActor(self.opvClippablePressureTubes.getActor())
         self._renderer.AddActor(self.plane_actor)
 
-        self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self.add_openpulse_logo()
 
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
@@ -157,10 +168,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.update_min_max_stresses_text()
         self.opv.update()
         self._renderer.ResetCameraClippingRange()
+
         self.update()
 
     def updateHud(self):
-        # self._createSlider()
         self._createColorBar()
         self._createScaleBar()
 
@@ -186,10 +197,7 @@ class opvAnalysisRenderer(vtkRendererBase):
                 
             i = self.animationIndex
             self.animationIndex += 1
-                            
-            # _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
-            # self._currentPhase = _phase_deg
-            # self.slider.GetRepresentation().SetValue(_phase_deg)
+
             cached = self._animationFrames[i]
             self.opvTubes._data.DeepCopy(cached)
             self.updateAll()
@@ -198,6 +206,14 @@ class opvAnalysisRenderer(vtkRendererBase):
                 self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+
+        try:
+            app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        except:
+            pass
+
         self._currentPhase = phase_step
         self._currentPlot(self._currentFrequencyIndex, phase_step)
         self.updateAll()
@@ -208,43 +224,39 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._animationFrames.clear()
         self._cacheFrequencyIndex = None
         
-    def showDisplacementField(self, frequency_index, scaling_type):
+    def showDisplacementField(self, frequency_index):
         self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._scaling_type = scaling_type
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
-            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex,
-                                                               scaling_type)
+            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
         #
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacementField
         self.last_frequency_index = frequency_index 
         self._plotOnce(self._currentPhase)
 
-    def show_stress_field(self, frequency_index, scaling_setup):
+    def show_stress_field(self, frequency_index):
         self.cache_plot_state(stress=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._scaling_type = None
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
-            self.get_min_max_values_to_stresses(scaling_setup)
-            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex, None)
+            self.get_min_max_values_to_stresses()
+            self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
         #
         self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
         self._plotOnce(self._currentPhase)
 
-    def showPressureField(self, frequency_index, absolute=False):
+    def showPressureField(self, frequency_index):
         self.cache_plot_state(pressure=True)
         self._currentFrequencyIndex = frequency_index
         self._currentPhase = 0
-        self._absolute = absolute
         if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
             self.reset_plot_data()
             self.reset_min_max_values()
@@ -255,35 +267,35 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.last_frequency_index = frequency_index
         self._plotOnce(self._currentPhase)
 
-    def get_min_max_values_to_resultant_displacements(self, frequency_index, scaling_type):
-        solution = self.project.get_structural_solution()
-        self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, 
-                                                                                       frequency_index,
-                                                                                       scaling_type)
+    def get_min_max_values_to_resultant_displacements(self, frequency_index):
+        solution = app().main_window.project.get_structural_solution()
+        _, r_min, r_max, self.r_xyz_abs = get_min_max_resultant_displacements(solution, frequency_index)
+        self.result_disp_min = r_min
+        self.result_disp_max = r_max
 
     def computeDisplacementField(self, frequency_index, phase_step):
+        preprocessor = app().main_window.project.preprocessor
+        solution = app().main_window.project.get_structural_solution()
 
-        preprocessor = self.project.preprocessor
-        solution = self.project.get_structural_solution()
+        _, _, u_def, self._magnification_factor = get_structural_response(   preprocessor,
+                                                                            solution,
+                                                                            frequency_index, 
+                                                                            phase_step = phase_step,
+                                                                            r_max = self.r_xyz_abs   )
 
-        _, _, u_def, self._magnificationFactor, self.min_max_rDisp_values_current = get_structural_response(preprocessor, 
-                                                                                                            solution, 
-                                                                                                            frequency_index, 
-                                                                                                            phase_step = phase_step,
-                                                                                                            r_max = self.rDisp_max,
-                                                                                                            scaling_type = self._scaling_type)
-        
         self.opvDeformedTubes.build()
-        min_max_values_all = [self.rDisp_min, self.rDisp_max]
-        colorTable = ColorTable(self.project, u_def, min_max_values_all)
+        min_max_values_all = [self.result_disp_min, self.result_disp_max]
+        colorTable = ColorTable(self.project, 
+                                u_def, 
+                                min_max_values_all, 
+                                self.colormap)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
-
-        # self.slider.SetEnabled(True)
 
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
             self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(True)
@@ -295,37 +307,37 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvPressureTubes.getActor().SetVisibility(False)
 
         
-    def get_min_max_values_to_stresses(self, scaling_type):
-        solution = self.project.stresses_values_for_color_table
-        self.stress_min, self.stress_max = get_min_max_stresses_values(solution, scaling_type)
+    def get_min_max_values_to_stresses(self):
+        self.stress_min, self.stress_max = get_min_max_stresses_values()
         
     def computeStressField(self, frequency, phase_step):
 
-        preprocessor = self.project.preprocessor
-        solution = self.project.get_structural_solution()
+        preprocessor = app().main_window.project.preprocessor
+        solution = app().main_window.project.get_structural_solution()
 
-        *args, self._magnificationFactor, _ = get_structural_response(  preprocessor,
-                                                                        solution, 
-                                                                        frequency,
-                                                                        phase_step = phase_step,
-                                                                        r_max = self.rDisp_max,
-                                                                        scaling_type = self._scaling_type  )
+        *args, self._magnification_factor = get_structural_response( preprocessor,
+                                                                    solution,
+                                                                    frequency,
+                                                                    phase_step = phase_step,
+                                                                    r_max = self.r_xyz_abs )
+
         self.opvDeformedTubes.build()
         
-        _stresses = self.project.stresses_values_for_color_table
-        stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot( _stresses, 
-                                                                                    phase_step=phase_step )
+        stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(phase_step=phase_step)
 
         min_max_values_all = [self.stress_min, self.stress_max]
-        colorTable = ColorTable(self.project, stresses_data, min_max_values_all, stress_field_plot=True)
+        colorTable = ColorTable(self.project, 
+                                stresses_data, 
+                                min_max_values_all,
+                                self.colormap, 
+                                stress_field_plot=True)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
-        
-        # self.slider.SetEnabled(True)
 
         if self.clipping_plane_active:
             self.opvClippableDeformedTubes.build()
             self.opvClippableDeformedTubes.setColorTable(colorTable)
+            self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(True)
@@ -336,38 +348,35 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvDeformedTubes.getActor().SetVisibility(True)
             self.opvPressureTubes.getActor().SetVisibility(False)
 
-
-
     def get_min_max_values_to_pressure(self, frequency_index):
-        solution = self.project.get_acoustic_solution()
-        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, 
-                                                                               frequency_index, 
-                                                                               absolute=self._absolute)
+        solution = app().main_window.project.get_acoustic_solution()
+        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
 
     def computePressureField(self, frequency, phase_step):
 
-        preprocessor = self.project.preprocessor
-        solution = self.project.get_acoustic_solution()
+        preprocessor = app().main_window.project.preprocessor
+        solution = app().main_window.project.get_acoustic_solution()
         self._currentFrequencyIndex = frequency
-        self._colorScalling = 'absolute' if self._absolute else 'real part'
 
-        *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  preprocessor, 
-                                                                                                    solution, 
+        *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  preprocessor,
+                                                                                                    solution,
                                                                                                     frequency, 
-                                                                                                    phase_step=phase_step,
-                                                                                                    absolute=self._absolute  )
+                                                                                                    phase_step=phase_step  )
         
         self.opvPressureTubes.build()
         min_max_values_all = [self.pressure_min, self.pressure_max]
-        colorTable = ColorTable(self.project, pressure_field_data, min_max_values_all, pressure_field_plot=True)
+        colorTable = ColorTable(self.project, 
+                                pressure_field_data, 
+                                min_max_values_all, 
+                                self.colormap,
+                                pressure_field_plot=True)
         self.opvPressureTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
-        
-        # self.slider.SetEnabled(True)
 
         if self.clipping_plane_active:
             self.opvClippablePressureTubes.build()
             self.opvClippablePressureTubes.setColorTable(colorTable)
+            self.opvClippablePressureTubes.apply_cut(self.plane_origin, self.plane_normal)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(False)
             self.opvClippableDeformedTubes.getActor().SetVisibility(False)
@@ -377,59 +386,6 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvClippablePressureTubes.getActor().SetVisibility(False)
             self.opvDeformedTubes.getActor().SetVisibility(False)
             self.opvPressureTubes.getActor().SetVisibility(True)
-
-
-    # def _createSlider(self):
-
-    #     width, height = self.getSize()
-    #     self.sliderTitleProperty = vtk.vtkTextProperty()
-    #     self._titleActor = vtk.vtkTextActor()
-    #     self._renderer.RemoveActor2D(self._titleActor)
-    #     self.sliderTitleProperty.SetFontSize(15)
-    #     self.sliderTitleProperty.SetColor(self.opv.font_color)
-    #     # self.sliderTitleProperty.BoldOn()
-    #     self.sliderTitleProperty.SetFontFamilyAsString('Arial')        
-    #     self.sliderTitleProperty.SetVerticalJustificationToTop()
-    #     self.sliderTitleProperty.SetJustificationToLeft()
-    #     self._titleActor.SetInput('Animation phase controller [deg]')
-    #     self._titleActor.SetTextProperty(self.sliderTitleProperty)
-    #     self._titleActor.SetDisplayPosition(20, height-190)
-    #     self._renderer.AddActor2D(self._titleActor)
-
-    #     self.slider = vtk.vtkSliderWidget()
-    #     self.sldRep = vtk.vtkSliderRepresentation2D()
-
-    #     self.sldRep.SetMinimumValue(0)
-    #     self.sldRep.SetMaximumValue(360)
-    #     self.sldRep.SetValue(0)
-    #     self.sliderLabelProperty = self.sldRep.GetLabelProperty()
-        
-    #     self.sliderLabelProperty.SetColor(self.opv.font_color)
-    #     self.sliderLabelProperty.ShadowOff()
-    #     # self.sliderLabelProperty.SetFontSize(10)
-
-    #     self.sldRep.GetSelectedProperty().SetColor(1, 0, 0)
-    #     self.sldRep.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
-    #     self.sldRep.GetCapProperty().SetColor(0.8, 0.8, 0.8)
-        
-    #     self.sldRep.SetSliderLength(0.01)
-    #     self.sldRep.SetSliderWidth(0.03)
-    #     self.sldRep.SetTubeWidth(0.02)
-
-    #     self.sldRep.SetEndCapWidth(0.02)
-    #     self.sldRep.SetEndCapLength(0.005)
-
-    #     # self.sldRep.SetTitleHeight(0.010)
-    #     self.sldRep.SetLabelHeight(0.018)
-
-    #     self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-    #     self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-    #     self.sldRep.GetPoint1Coordinate().SetValue(20, height-165)
-    #     self.sldRep.GetPoint2Coordinate().SetValue(220, height-165)
-
-    #     self.slider.SetInteractor(self.opv)
-    #     self.slider.SetRepresentation(self.sldRep)
-    #     self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
 
     def _createPlayer(self):
         self.opv.Initialize()
@@ -459,13 +415,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.number_frames_changed:
             self.number_frames_changed = False
 
-        title = "Processing in progress"
+        title = "Wait a moment"
 
         if self.export_animation:
-            message = "The animation file exporting is in progress..."
+            message = "Animation file exporting in progress..."
         else:
-            message = "The animation frames calculation is in progress..."
+            message = "Animation frames calculation in progress..."
         
+        # cache_callback()
         LoadingScreen(title = title, 
                       message = message, 
                       target = cache_callback)
@@ -486,8 +443,6 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         if not self.playingAnimation:
             return
-
-        # self.slider.GetRepresentation().SetValue(0)
         
         self.count_cycles += 1
         if self.count_cycles <= self.total_frames:
@@ -564,17 +519,6 @@ class opvAnalysisRenderer(vtkRendererBase):
     #         writer.append_data(im)
     #     writer.close()
 
-    def _updateFontColor(self, color):
-        self.sliderTitleProperty.SetColor(color)
-        self.sliderLabelProperty.SetColor(color)
-        self.colorBarTitleProperty.SetColor(color)
-        self.stressesTextProperty.SetColor(color)
-        self.scaleBarTitleProperty.SetColor(color)
-        self.colorBarLabelProperty.SetColor(color)
-        self.scaleBarLabelProperty.SetColor(color)
-        self.colorBarTitleProperty.SetColor(color)
-        self.changeReferenceScaleFontColor(color)
-
     # info text
     def updateInfoText(self, *args, **kwargs):
         
@@ -594,10 +538,10 @@ class opvAnalysisRenderer(vtkRendererBase):
             text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
 
         # if not self.project.plot_pressure_field:
-        #     text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
+        #     text += "\nMagnification factor: {:.4e}\n".format(self._magnification_factor)
         
         # vertical_position_adjust = None
-        self.createInfoText(text, color=self.opv.font_color)
+        self.createInfoText(text)
 
     def update_min_max_stresses_text(self):
                 
@@ -613,10 +557,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         
         self.textActorStress.SetInput(text)
         self.stressesTextProperty.SetFontSize(17)
-        self.stressesTextProperty.SetBold(1)
+        # self.stressesTextProperty.SetBold(1)
         # self.stressesTextProperty.SetItalic(1)
         self.stressesTextProperty.ShadowOff()
-        self.stressesTextProperty.SetColor(self.opv.font_color)
+        self.stressesTextProperty.SetColor(self.top_font_color)
         self.textActorStress.SetTextProperty(self.stressesTextProperty)
         self.textSize = [0,0]
         self.textActorStress.GetSize(self._renderer, self.textSize)
@@ -643,8 +587,19 @@ class opvAnalysisRenderer(vtkRendererBase):
         pass
 
     def configure_clipping_plane(self, x, y, z, rx, ry, rz):
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+
+        try:
+            app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        except:
+            pass
+
         if self.playingAnimation:
             self.pauseAnimation()
+        
+        self.opvClippablePressureTubes.disable_cut()
+        self.opvClippableDeformedTubes.disable_cut()
 
         self.clipping_plane_active = True
         self.plane_origin = self._calculate_relative_position([x, y, z])
@@ -674,7 +629,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
     
-    def dismiss_clipping_plane(self):                
+    def dismiss_clipping_plane(self):
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
+
+        try:
+            app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        except:
+            pass
+
         self.plane_origin = None
         self.plane_normal = None
     
@@ -682,10 +645,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvClippableDeformedTubes.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
+        
         self.first_configuration = True
         self.clipping_plane_active = False
         self._plotOnce(self._currentPhase)
-
+    
     def calculate_hidden_by_plane(self, plane_origin, plane_normal):
         hidden = set()
         for i, element in self.project.get_structural_elements().items():
@@ -694,11 +658,21 @@ class opvAnalysisRenderer(vtkRendererBase):
                 hidden.add(i)
         return hidden
 
+    def getBounds(self):
+        if self.opvClippableDeformedTubes._actor.GetVisibility():
+            return self.opvClippableDeformedTubes._actor.GetBounds()
+        elif self.opvDeformedTubes._actor.GetVisibility():
+            return self.opvDeformedTubes._actor.GetBounds()
+        elif self.opvClippablePressureTubes._actor.GetVisibility():
+            return self.opvClippablePressureTubes._actor.GetBounds()
+        else:
+            return self.opvPressureTubes._actor.GetBounds()
+
     def _calculate_relative_position(self, position):
         def lerp(a, b, t):
            return a + (b - a) * t
         
-        bounds = self.opv.opvRenderer.getBounds()
+        bounds = self.getBounds()
         x = lerp(bounds[0], bounds[1], position[0] / 100)
         y = lerp(bounds[2], bounds[3], position[1] / 100)
         z = lerp(bounds[4], bounds[5], position[2] / 100)
@@ -743,3 +717,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         )
 
         return rx, ry, rz
+
+    def set_tube_actors_transparency(self, transparency):
+        opacity = 1 - transparency
+        
+        self.opvDeformedTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvPressureTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvClippableDeformedTubes.getActor().GetProperty().SetOpacity(opacity)
+        self.opvClippablePressureTubes.getActor().GetProperty().SetOpacity(opacity)
+    
+        self.update()
+
+

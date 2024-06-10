@@ -4,14 +4,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 from pathlib import Path
 
-import numpy as np
-
-from pulse.tools.utils import get_new_path
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import get_new_path
 
-from pulse import app, UI_DIR
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -23,14 +23,14 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/criterias/pulsation_criteria_widget.ui")
+        ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
 
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
 
         self._initialize()        
         self._load_icons()
@@ -60,8 +60,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.node_id = self.opv.getListPickedPoints()
 
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -69,23 +68,21 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
+        # QComboBox
+        self.comboBox_line_ids : QComboBox
         # QLineEdit
-        self.lineEdit_compressor_node_id = self.findChild(QLineEdit, 'lineEdit_compressor_node_id')
-        self.lineEdit_pressure_ratio = self.findChild(QLineEdit, 'lineEdit_pressure_ratio')
-        self.lineEdit_unfiltered_criteria = self.findChild(QLineEdit, 'lineEdit_unfiltered_criteria')
-        
-        self.lineEdit_nozzle_id = self.findChild(QLineEdit, 'lineEdit_nozzle_id')
-        self.lineEdit_line_pressure = self.findChild(QLineEdit, 'lineEdit_line_pressure')
-        self.lineEdit_speed_of_sound = self.findChild(QLineEdit, 'lineEdit_speed_of_sound')
-        self.lineEdit_internal_diameter = self.findChild(QLineEdit, 'lineEdit_internal_diameter')
+        self.lineEdit_compressor_node_id : QLineEdit
+        self.lineEdit_pressure_ratio : QLineEdit
+        self.lineEdit_unfiltered_criteria : QLineEdit      
+        self.lineEdit_nozzle_id : QLineEdit
+        self.lineEdit_line_pressure : QLineEdit
+        self.lineEdit_speed_of_sound : QLineEdit
+        self.lineEdit_internal_diameter : QLineEdit
         # QPushButton
-        self.pushButton_plot_unfiltered_criteria = self.findChild(QPushButton, 'pushButton_plot_unfiltered_criteria')
-        self.pushButton_plot_filtered_criteria = self.findChild(QPushButton, 'pushButton_plot_filtered_criteria')
+        self.pushButton_plot_unfiltered_criteria : QPushButton
+        self.pushButton_plot_filtered_criteria : QPushButton
 
     def _create_connections(self):
-        #
-        self.comboBox_line_ids = self.findChild(QComboBox, 'comboBox_line_ids')
-        #
         self.pushButton_plot_unfiltered_criteria.clicked.connect(self.plot_unfiltered_criteria)
         self.pushButton_plot_filtered_criteria.clicked.connect(self.plot_filtered_criteria)
 
@@ -114,7 +111,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         if len(self.line_ids) > 0:
             self.comboBox_line_ids.clear()
             for line_id in self.line_ids:
-                self.comboBox_line_ids.addItem(f"      {line_id}")
+                self.comboBox_line_ids.addItem(f"     {line_id}")
 
             speed_of_sound, line_pressure, inner_diameter = self.get_line_properties()
             self.lineEdit_speed_of_sound.setText(str(round(speed_of_sound, 2)))
@@ -161,7 +158,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
             except Exception as log_error:
                 title = f"Error while loading compressor parameters"
                 message = str(log_error) 
-                PrintMessageInput([title, message, window_title_1])
+                PrintMessageInput([window_title_1, title, message])
 
     def update_compressor_data(self, stage_data):
         self.suction_pressure = stage_data["pressure at suction"]
@@ -172,9 +169,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_acoustic_pressure(self):
         self.solution = self.project.get_acoustic_solution()
-        response = get_acoustic_frf(self.preprocessor, 
-                                    self.solution,
-                                    self.node_id[0])
+        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_id[0])
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-12)
         return response

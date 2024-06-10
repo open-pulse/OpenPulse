@@ -1,28 +1,22 @@
-from PyQt5.QtWidgets import QFrame, QCheckBox, QLabel, QLineEdit, QPushButton, QSlider, QSpinBox, QWidget
+from PyQt5.QtWidgets import QFileDialog, QPushButton, QSlider, QSpinBox, QWidget
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5 import uic
 
-from pathlib import Path
-import os
-
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse.tools.utils import get_new_path
 from pulse import app, UI_DIR
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+import os
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
 
 class AnimationWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        ui_path = Path(f"{UI_DIR}/plots/animation/animation_widget.ui")
+        ui_path = UI_DIR / "plots/animation/animation_widget.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
@@ -32,23 +26,19 @@ class AnimationWidget(QWidget):
         self._create_connections()
 
     def _define_qt_variables(self):
-        # QCheckBox
-        self.checkBox_export = self.findChild(QCheckBox, 'checkBox_export')
-        # QLabel
-        self.label_export_path = self.findChild(QLabel, 'label_export_path')
-        # QLineEdit
-        self.lineEdit_file_name = self.findChild(QLineEdit, 'lineEdit_file_name')      
         # QPushButton
-        self.pushButton_animate = self.findChild(QPushButton, "pushButton_animate")
+        self.pushButton_animate : QPushButton
+        self.pushButton_export : QPushButton
         # QSlider
-        self.phase_slider = self.findChild(QSlider, "phase_slider")
+        self.phase_slider : QSlider
         # QSpinBox
-        self.spinBox_frames = self.findChild(QSpinBox, 'spinBox_frames')
-        self.spinBox_cycles = self.findChild(QSpinBox, 'spinBox_cycles')
+        self.spinBox_frames : QSpinBox
+        self.spinBox_cycles : QSpinBox
 
     def _create_connections(self):
         self.phase_slider.valueChanged.connect(self.slider_callback)
         self.pushButton_animate.clicked.connect(self.process_animation)
+        self.pushButton_export.clicked.connect(self.export_animation_to_file)
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
 
@@ -74,28 +64,24 @@ class AnimationWidget(QWidget):
         self.frames = self.spinBox_frames.value()
         self.cycles = self.spinBox_cycles.value()
 
-    def get_file_format(self):
-        index = self.comboBox_file_format.currentIndex()
-        _formats = [".mp4", ".ogv", ".mpeg", ".avi"]
-        return _formats[index]
-
     def export_animation_to_file(self):
-        if self.lineEdit_file_name.text() != "":
-            file_format = self.get_file_format()
-            filename = self.lineEdit_file_name.text() + file_format
-            if os.path.exists(self.save_path):
-                self.export_file_path = get_new_path(self.save_path, filename)
-                self.update_animation_settings()
-                self.opv.opvAnalysisRenderer.start_export_animation_to_file(self.export_file_path, self.frames)
-                self.process_animation()
-            else:
-                title = "Invalid folder path"
-                message = "Inform a valid folder path before trying export the animation.\n\n"
-                message += f"{self.label_export_path.text()}"
-                PrintMessageInput([title, message, window_title_1])
-                self.label_export_path.setText("<Folder path>")
-        else:
-            title = "Empty file name"
-            message = "Inform a file name before trying export the animation."
-            PrintMessageInput([title, message, window_title_1])
-            self.lineEdit_file_name.setFocus()
+
+        init_path = os.path.expanduser("~")
+        path, ok = QFileDialog.getSaveFileName(self, 
+                                               'Export geometry file', 
+                                               init_path, 
+                                               'MP4 (*.mp4);; MPEG (*.mpeg);; OGV (*.ogv)')
+        if not ok:
+            return
+
+        try:
+
+            self.update_animation_settings()
+            self.main_window.opv_widget.opvAnalysisRenderer.start_export_animation_to_file(path, self.frames)
+            self.process_animation()
+
+        except Exception as error_log:
+            title = "Error while exporting animation"
+            message = "An error has occured while exporting the animation file.\n"
+            message += str(error_log)
+            PrintMessageInput([window_title_1, title, message])

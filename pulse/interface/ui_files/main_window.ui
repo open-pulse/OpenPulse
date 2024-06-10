@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../data/icons/pulse.png</normaloff>../../../data/icons/pulse.png</iconset>
+    <normaloff>../data/icons/pulse_icon.png</normaloff>../data/icons/pulse_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -97,86 +97,49 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>29</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
     <property name="title">
      <string>Project</string>
     </property>
-    <widget class="QMenu" name="menurecent">
+    <widget class="QMenu" name="menu_recent">
      <property name="title">
       <string>Recent Projects</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>../data/icons/common/recent.png</normaloff>../data/icons/common/recent.png</iconset>
      </property>
      <addaction name="actionfiles"/>
     </widget>
     <addaction name="action_new_project"/>
     <addaction name="action_open_project"/>
-    <addaction name="menurecent"/>
+    <addaction name="menu_recent"/>
     <addaction name="action_save_project"/>
     <addaction name="action_save_project_as"/>
+    <addaction name="action_reset"/>
     <addaction name="separator"/>
     <addaction name="action_import_geometry"/>
     <addaction name="action_export_geometry"/>
-    <addaction name="action_import_piping"/>
-    <addaction name="action_export_png"/>
-    <addaction name="action_reset"/>
+    <addaction name="action_import_pcf"/>
+    <addaction name="action_export_pcf"/>
+    <addaction name="separator"/>
     <addaction name="action_exit"/>
     <addaction name="separator"/>
-    <addaction name="action_set_dark_theme"/>
-    <addaction name="action_set_light_theme"/>
-    <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menu_graphic">
+   <widget class="QMenu" name="menu_plots">
     <property name="title">
-     <string>Graphic</string>
+     <string>Plots</string>
     </property>
-    <addaction name="action_plot_raw_lines"/>
+    <addaction name="action_plot_geometry_editor"/>
     <addaction name="action_plot_lines"/>
-    <addaction name="action_plot_mesh"/>
     <addaction name="action_plot_lines_with_cross_section"/>
+    <addaction name="action_plot_mesh"/>
     <addaction name="action_plot_cross_section"/>
     <addaction name="action_plot_material"/>
     <addaction name="action_plot_fluid"/>
-    <addaction name="action_user_preferences"/>
-    <addaction name="action_plot_geometry_editor"/>
-   </widget>
-   <widget class="QMenu" name="menu_general_settings">
-    <property name="title">
-     <string>General Settings</string>
-    </property>
-    <addaction name="action_create_edit_geometry"/>
-    <addaction name="action_edit_geometry"/>
-    <addaction name="action_set_project_attributes"/>
-    <addaction name="action_set_geometry_file"/>
-    <addaction name="action_set_material"/>
-    <addaction name="action_set_fluid"/>
-    <addaction name="action_set_cross_section"/>
-   </widget>
-   <widget class="QMenu" name="menu_structural_model">
-    <property name="title">
-     <string>Structural Model Setup</string>
-    </property>
-    <addaction name="action_set_structural_element_type"/>
-    <addaction name="action_add_connecting_flanges"/>
-    <addaction name="action_set_prescribed_dofs"/>
-    <addaction name="action_set_nodal_loads"/>
-    <addaction name="action_add_mass_spring_damper"/>
-    <addaction name="action_set_capped_end"/>
-    <addaction name="action_set_stress_stiffening"/>
-    <addaction name="action_add_elastic_nodal_links"/>
-   </widget>
-   <widget class="QMenu" name="menu_acoustic_model">
-    <property name="title">
-     <string>Acoustic Model Setup</string>
-    </property>
-    <addaction name="action_set_acoustic_element_type"/>
-    <addaction name="action_set_acoustic_pressure"/>
-    <addaction name="action_set_volume_velocity"/>
-    <addaction name="action_set_specific_impedance"/>
-    <addaction name="action_add_perforated_plate"/>
-    <addaction name="action_set_acoustic_element_length_correction"/>
-    <addaction name="action_add_compressor_excitation"/>
    </widget>
    <widget class="QMenu" name="menu_model_info">
     <property name="title">
@@ -186,46 +149,32 @@
     <addaction name="action_acoustic_model_info"/>
     <addaction name="action_check_beam_criteria"/>
    </widget>
-   <widget class="QMenu" name="menu_analysis">
-    <property name="title">
-     <string>Analysis</string>
-    </property>
-    <addaction name="action_select_analysis_type"/>
-    <addaction name="action_analysis_setup"/>
-    <addaction name="action_run_analysis"/>
-   </widget>
-   <widget class="QMenu" name="menu_results_viewer">
-    <property name="title">
-     <string>Results Viewer</string>
-    </property>
-    <addaction name="action_plot_structural_mode_shapes"/>
-    <addaction name="action_plot_displacement_field"/>
-    <addaction name="action_plot_structural_frequency_response"/>
-    <addaction name="action_plot_reactions_frequency_response"/>
-    <addaction name="action_plot_stress_field"/>
-    <addaction name="action_plot_stress_frequency_response"/>
-    <addaction name="action_plot_acoustic_pressure_field"/>
-    <addaction name="action_plot_acoustic_frequency_response"/>
-    <addaction name="action_plot_acoustic_frequency_response_function"/>
-    <addaction name="acoustic_plot_acoustic_delta_pressures"/>
-    <addaction name="action_plot_transmission_loss_or_attenuation"/>
-    <addaction name="action_play_pause_animation"/>
-    <addaction name="action_animation_settings"/>
-   </widget>
    <widget class="QMenu" name="menu_help">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="action_about_openpulse"/>
+    <addaction name="action_geometry_editor_help"/>
+   </widget>
+   <widget class="QMenu" name="menu_general_settings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="action_set_dark_theme"/>
+    <addaction name="action_set_light_theme"/>
+    <addaction name="action_user_preferences"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="action_pulsation_suppression_device_editor"/>
    </widget>
    <addaction name="menu_project"/>
-   <addaction name="menu_graphic"/>
    <addaction name="menu_general_settings"/>
-   <addaction name="menu_structural_model"/>
-   <addaction name="menu_acoustic_model"/>
+   <addaction name="menu_plots"/>
    <addaction name="menu_model_info"/>
-   <addaction name="menu_analysis"/>
-   <addaction name="menu_results_viewer"/>
+   <addaction name="menuTools"/>
    <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -242,7 +191,6 @@
    <addaction name="action_new_project"/>
    <addaction name="action_open_project"/>
    <addaction name="action_reset"/>
-   <addaction name="action_export_png"/>
    <addaction name="separator"/>
    <addaction name="action_top_view"/>
    <addaction name="action_bottom_view"/>
@@ -251,7 +199,9 @@
    <addaction name="action_front_view"/>
    <addaction name="action_back_view"/>
    <addaction name="action_isometric_view"/>
+   <addaction name="action_zoom"/>
    <addaction name="separator"/>
+   <addaction name="action_clip_plane"/>
    <addaction name="action_show_points"/>
    <addaction name="action_show_lines"/>
    <addaction name="action_show_tubes"/>
@@ -265,7 +215,7 @@
   <action name="action_new_project">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/add.png</normaloff>../../../data/icons/add.png</iconset>
+     <normaloff>../data/icons/common/new_file.png</normaloff>../data/icons/common/new_file.png</iconset>
    </property>
    <property name="text">
     <string>New Project</string>
@@ -277,7 +227,7 @@
   <action name="action_open_project">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/009-download.png</normaloff>../../../data/icons/009-download.png</iconset>
+     <normaloff>../data/icons/common/import.png</normaloff>../data/icons/common/import.png</iconset>
    </property>
    <property name="text">
     <string>Open Project</string>
@@ -292,7 +242,7 @@
   <action name="action_export_png">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/save_image.png</normaloff>../../../data/icons/save_image.png</iconset>
+     <normaloff>../data/icons/save_image.png</normaloff>../data/icons/save_image.png</iconset>
    </property>
    <property name="text">
     <string>Export PNG</string>
@@ -301,10 +251,10 @@
   <action name="action_reset">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/refresh.png</normaloff>../../../data/icons/refresh.png</iconset>
+     <normaloff>../data/icons/common/reset-image (2).png</normaloff>../data/icons/common/reset-image (2).png</iconset>
    </property>
    <property name="text">
-    <string>Reset</string>
+    <string>Reset Project</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+R</string>
@@ -313,6 +263,10 @@
   <action name="action_save_project">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/common/save.png</normaloff>../data/icons/common/save.png</iconset>
    </property>
    <property name="text">
     <string>Save Project</string>
@@ -323,7 +277,11 @@
   </action>
   <action name="action_save_project_as">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/common/save_as.png</normaloff>../data/icons/common/save_as.png</iconset>
    </property>
    <property name="text">
     <string>Save Project As</string>
@@ -336,16 +294,20 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/geometry_icon.png</normaloff>../data/icons/geometry_icon.png</iconset>
+   </property>
    <property name="text">
     <string>Import Geometry</string>
    </property>
   </action>
-  <action name="action_import_piping">
+  <action name="action_import_pcf">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-    <string>Import piping</string>
+    <string>Import PCF</string>
    </property>
    <property name="toolTip">
     <string>Import Piping</string>
@@ -354,7 +316,7 @@
   <action name="action_top_view">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/views/top.png</normaloff>../../../data/icons/views/top.png</iconset>
+     <normaloff>../data/icons/views/top.png</normaloff>../data/icons/views/top.png</iconset>
    </property>
    <property name="text">
     <string>Top View</string>
@@ -366,7 +328,7 @@
   <action name="action_bottom_view">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/views/bottom.png</normaloff>../../../data/icons/views/bottom.png</iconset>
+     <normaloff>../data/icons/views/bottom.png</normaloff>../data/icons/views/bottom.png</iconset>
    </property>
    <property name="text">
     <string>Bottom View</string>
@@ -378,7 +340,7 @@
   <action name="action_front_view">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/views/front.png</normaloff>../../../data/icons/views/front.png</iconset>
+     <normaloff>../data/icons/views/front.png</normaloff>../data/icons/views/front.png</iconset>
    </property>
    <property name="text">
     <string>Front View</string>
@@ -390,7 +352,7 @@
   <action name="action_back_view">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/views/back.png</normaloff>../../../data/icons/views/back.png</iconset>
+     <normaloff>../data/icons/views/back.png</normaloff>../data/icons/views/back.png</iconset>
    </property>
    <property name="text">
     <string>Back View</string>
@@ -402,7 +364,7 @@
   <action name="action_left_view">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/views/left.png</normaloff>../../../data/icons/views/left.png</iconset>
+     <normaloff>../data/icons/views/left.png</normaloff>../data/icons/views/left.png</iconset>
    </property>
    <property name="text">
     <string>Left View</string>
@@ -414,7 +376,7 @@
   <action name="action_right_view">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/views/right.png</normaloff>../../../data/icons/views/right.png</iconset>
+     <normaloff>../data/icons/views/right.png</normaloff>../data/icons/views/right.png</iconset>
    </property>
    <property name="text">
     <string>Right View</string>
@@ -426,7 +388,7 @@
   <action name="action_isometric_view">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/views/isometric.png</normaloff>../../../data/icons/views/isometric.png</iconset>
+     <normaloff>../data/icons/views/isometric.png</normaloff>../data/icons/views/isometric.png</iconset>
    </property>
    <property name="text">
     <string>Isometric View</string>
@@ -483,7 +445,7 @@
   <action name="action_exit">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/exit.png</normaloff>../../../data/icons/exit.png</iconset>
+     <normaloff>../data/icons/common/exit.png</normaloff>../data/icons/common/exit.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -501,28 +463,46 @@
    <property name="text">
     <string>Plot Lines</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
   </action>
   <action name="action_plot_mesh">
    <property name="text">
     <string>Plot Mesh</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
    </property>
   </action>
   <action name="action_plot_lines_with_cross_section">
    <property name="text">
     <string>Plot Lines with Cross-section</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
   </action>
   <action name="action_plot_cross_section">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Plot Cross-section</string>
    </property>
   </action>
   <action name="action_plot_material">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Plot Material</string>
    </property>
   </action>
   <action name="action_plot_fluid">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Plot Fluid</string>
    </property>
@@ -535,6 +515,9 @@
   <action name="action_plot_geometry_editor">
    <property name="text">
     <string>Plot Geometry Editor</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="action_create_edit_geometry">
@@ -764,7 +747,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/geometry.png</normaloff>../../../data/icons/geometry.png</iconset>
+     <normaloff>../data/icons/plot_mesh.png</normaloff>../data/icons/plot_mesh.png</iconset>
    </property>
    <property name="text">
     <string>Show Points</string>
@@ -779,7 +762,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/lines.png</normaloff>../../../data/icons/lines.png</iconset>
+     <normaloff>../data/icons/lines_blue.png</normaloff>../data/icons/lines_blue.png</iconset>
    </property>
    <property name="text">
     <string>Show Lines</string>
@@ -794,7 +777,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/lines_cross_section.png</normaloff>../../../data/icons/lines_cross_section.png</iconset>
+     <normaloff>../data/icons/plot_cross_sections.png</normaloff>../data/icons/plot_cross_sections.png</iconset>
    </property>
    <property name="text">
     <string>Show Tubes</string>
@@ -809,7 +792,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/loading1.gif</normaloff>../../../data/icons/loading1.gif</iconset>
+     <normaloff>../data/icons/show_symbols.png</normaloff>../data/icons/show_symbols.png</iconset>
    </property>
    <property name="text">
     <string>Show Symbols</string>
@@ -828,7 +811,7 @@
   <action name="action_export_geometry">
    <property name="icon">
     <iconset>
-     <normaloff>../../../data/icons/send_to_disk.png</normaloff>../../../data/icons/send_to_disk.png</iconset>
+     <normaloff>../data/icons/send_to_disk.png</normaloff>../data/icons/send_to_disk.png</iconset>
    </property>
    <property name="text">
     <string>Export Geometry</string>
@@ -838,11 +821,19 @@
    </property>
   </action>
   <action name="action_set_dark_theme">
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/common/moon_icon.png</normaloff>../data/icons/common/moon_icon.png</iconset>
+   </property>
    <property name="text">
     <string>Use dark theme</string>
    </property>
   </action>
   <action name="action_set_light_theme">
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/common/sun_icon.png</normaloff>../data/icons/common/sun_icon.png</iconset>
+   </property>
    <property name="text">
     <string>Use light theme</string>
    </property>
@@ -876,6 +867,42 @@
    </property>
    <property name="toolTip">
     <string>Selection to Elements</string>
+   </property>
+  </action>
+  <action name="action_export_pcf">
+   <property name="text">
+    <string>Export PCF</string>
+   </property>
+  </action>
+  <action name="action_geometry_editor_help">
+   <property name="text">
+    <string>Geometry Editor Help</string>
+   </property>
+  </action>
+  <action name="action_clip_plane">
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/clipping_plane_icon.png</normaloff>../data/icons/clipping_plane_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Section Plane</string>
+   </property>
+  </action>
+  <action name="action_zoom">
+   <property name="icon">
+    <iconset>
+     <normaloff>../data/icons/zoom_icon.png</normaloff>../data/icons/zoom_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom To Fit</string>
+   </property>
+  </action>
+  <action name="action_pulsation_suppression_device_editor">
+   <property name="text">
+    <string>Pulsation suppression device editor</string>
    </property>
   </action>
  </widget>

@@ -71,13 +71,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>40</height>
+       <height>42</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>600</width>
-       <height>40</height>
+       <height>42</height>
       </size>
      </property>
      <property name="frameShape">
@@ -165,7 +165,7 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>11</pointsize>
+          <pointsize>10</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>

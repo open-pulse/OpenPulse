@@ -1,33 +1,33 @@
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
+
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import *
 
 import numpy as np
 
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
-from pulse import app, UI_DIR
 
 class PlotStressesFieldForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = Path(f"{UI_DIR}/plots/results/structural/plot_stresses_field_for_harmonic_analysis.ui")
+        ui_path = UI_DIR / "plots/results/structural/plot_stresses_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
         main_window = app().main_window
-
-        self.opv = main_window.getOPVWidget()
+        self.opv = main_window.opv_widget
         self.opv.setInputObject(self)
-        self.project = main_window.getProject()
+        self.project = main_window.project
         
-        self._initialize()
         self._load_icons()
         self._config_window()
+        self._initialize()
         self._define_qt_variables()
         self._create_connection()
         self.load_frequencies()
+        self.load_user_preference_colormap()
 
     def _initialize(self):
 
@@ -46,17 +46,20 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                                 "Transversal shear xy", 
                                 "Transversal shear xz"])
 
-        self.scaling_key = {0 : "absolute",
-                            1 : "real"}
-
         self.solve = self.project.structural_solve
         self.preprocessor = self.project.preprocessor
         self.frequencies = self.project.frequencies
         self.dict_frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
 
+        self.colormaps = ["jet",
+                          "viridis",
+                          "inferno",
+                          "magma",
+                          "plasma",
+                          "grayscale"]
+
     def _load_icons(self):
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
+        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowIcon(self.icon)
@@ -64,52 +67,118 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         self.setWindowModality(Qt.WindowModal)
 
     def _define_qt_variables(self):
+
         # QCheckBox
-        self.checkBox_damping_effect = self.findChild(QCheckBox, 'checkBox_damping_effect')
+        self.checkBox_damping_effect : QCheckBox
+        self.comboBox_colormaps : QComboBox
+
         # QComboBox
-        self.comboBox_color_scaling = self.findChild(QComboBox, 'comboBox_color_scaling')
-        self.comboBox_stress_type = self.findChild(QComboBox, 'comboBox_stress_type')
+        self.comboBox_color_scale : QComboBox
+        self.comboBox_stress_type : QComboBox
+
         # QFrame
-        self.frame_button = self.findChild(QFrame, 'frame_button')
+        self.frame_button : QFrame
         self.frame_button.setVisible(False)
+
         # QLineEdit
-        self.lineEdit_selected_frequency = self.findChild(QLineEdit, 'lineEdit_selected_frequency')
+        self.lineEdit_selected_frequency : QLineEdit
+
+        # QSlider
+        self.slider_transparency : QSlider
+
         # QPushButton
-        self.pushButton_plot = self.findChild(QPushButton, 'pushButton_plot')
+        self.pushButton_plot : QPushButton
+
         # QTreeWidget
-        self.treeWidget_frequencies = self.findChild(QTreeWidget, 'treeWidget_frequencies')
+        self.treeWidget_frequencies : QTreeWidget
     
     def _create_connection(self):
+        #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
-        self.comboBox_color_scaling.currentIndexChanged.connect(self.plot_stress_field)
-        self.comboBox_stress_type.currentIndexChanged.connect(self.plot_stress_field)
-        self.pushButton_plot.clicked.connect(self.plot_stress_field)
+        #
+        self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
+        self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
+        self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
+        #
+        self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
+        #
+        self.pushButton_plot.clicked.connect(self.update_plot)
+        #
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
+        self.update_animation_widget_visibility()
+        self.update_colormap_type()
 
     def _update_damping_effect(self):
         self.update_damping = True
-        self.plot_stress_field()
+        self.update_plot()
+
+    def update_animation_widget_visibility(self):
+        index = self.comboBox_color_scale.currentIndex()
+        if index >= 2:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+        else:
+            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+
+    def load_user_preference_colormap(self):
+        try:
+            colormap = app().main_window.user_preferences["colormap"]
+            if colormap in self.colormaps:
+                index = self.colormaps.index(colormap)
+                self.comboBox_colormaps.setCurrentIndex(index)
+        except:
+            self.comboBox_colormaps.setCurrentIndex(0)
+
+    def update_colormap_type(self):
+        index = self.comboBox_colormaps.currentIndex()
+        colormap = self.colormaps[index]
+        app().config.write_colormap_in_file(colormap)
+        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        self.update_plot()
+
+    def update_transparency_callback(self):
+        transparency = self.slider_transparency.value() / 100
         
-    def plot_stress_field(self):
-        window_title = "WARNING"
+        if self.opv.opvAnalysisRenderer.getInUse():
+            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
+        else:
+            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+
+    def update_plot(self):
+        self.update_animation_widget_visibility()
         if self.lineEdit_selected_frequency.text() == "":
-            title = "Aditional action required"
-            message = "Select a frequency from the available list \n"
-            message += "of frequencies to continue."
-            PrintMessageInput([title, message, window_title])
             return
         else:
             frequency_selected = float(self.lineEdit_selected_frequency.text())
             if frequency_selected in self.frequencies:
                 self.selected_index = self.dict_frequency_to_index[frequency_selected]
                 self.get_stress_data()
-            # else:
-            #     title = "Aditional action required"
-            #     message = "You have typed an invalid frequency. It's recommended "
-            #     message += "to select a frequency from the available list of frequencies."
-            #     PrintMessageInput([title, message, window_title])
-            #     return
+
+    def get_user_color_scale_setup(self):
+
+        absolute = False
+        real_values = False
+        imag_values = False
+        absolute_animation = False
+
+        index = self.comboBox_color_scale.currentIndex()
+
+        if index == 0:
+            absolute_animation = True
+        if index == 2:
+            absolute = True
+        elif index == 3:
+            real_values = True
+        elif index == 4:
+            imag_values = True
+        
+        color_scale_setup = {   "absolute" : absolute,
+                                "real_values" : real_values,
+                                "imag_values" : imag_values,
+                                "absolute_animation" : absolute_animation   }
+
+        return color_scale_setup
 
     def get_stress_data(self):
 
@@ -129,17 +198,17 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                                                 np.max(list(self.stress_field.values())), 
                                                 self.stress_label )
         
-        scale_index = self.comboBox_color_scaling.currentIndex()
-        scaling_type = self.scaling_key[scale_index]
-        self.opv.plot_stress_field(self.selected_index, scaling_type)
+        color_scale_setup = self.get_user_color_scale_setup()
+        self.project.set_color_scale_setup(color_scale_setup)
+        self.opv.plot_stress_field(self.selected_index)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))
-        self.plot_stress_field()
+        self.update_plot()
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))
-        self.plot_stress_field()
+        self.update_plot()
 
     def load_frequencies(self):
         for index, frequency in enumerate(self.frequencies):
@@ -150,6 +219,6 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.plot_stress_field()
+            self.update_plot()
         elif event.key() == Qt.Key_Escape:
             self.close()

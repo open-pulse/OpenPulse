@@ -1,103 +1,93 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QRadioButton
+from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QRadioButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-from pulse import UI_DIR
-from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
-from pulse.interface.user_input.project.printMessageInput import PrintMessageInput
+from pulse import app, UI_DIR
+from pulse.interface.formatters.icons import get_openpulse_icon
+from pulse.preprocessing.cross_section import get_points_to_plot_section
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
 import matplotlib.pyplot as plt    
-    
+
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class PlotCrossSectionInput(QDialog):
-    def __init__(self, project,  opv, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        uic.loadUi(UI_DIR / "plots/model/plot_section_input.ui", self)
+        ui_path = UI_DIR / "plots/model/plot_section.ui"
+        uic.loadUi(ui_path, self)
 
-        icons_path = str(Path('data/icons/pulse.png'))
-        self.icon = QIcon(icons_path)
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        self.opv = opv
+        self.project = app().project
+        self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
-        self.line_id = self.opv.getListPickedLines()
-        self.element_id = self.opv.getListPickedElements()
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.before_run = project.get_pre_solution_model_checks()
+        self._load_icons()
+        self._config_window()
+        self._initialize() 
+        self._define_qt_variables()
+        self._create_connections()
+        self.update()
+        self.exec()
+
+    def _define_qt_variables(self):
+        # QComboBox
+        self.comboBox_selection : QComboBox
+        # QLabel
+        self.label_selected_id : QLabel
+        # QLineEdit
+        self.lineEdit_selected_id : QLineEdit
+        # QPushButton
+        self.pushButton_plot_cross_section : QPushButton 
+
+    def _create_connections(self):
+        self.comboBox_selection.currentIndexChanged.connect(self.selection_type_update)
+        self.pushButton_plot_cross_section.clicked.connect(self.plot_section)
+
+    def _initialize(self):
+
+        self.project = self.project
+        self.preprocessor = self.project.preprocessor
+        self.before_run = self.project.get_pre_solution_model_checks()
         
         self.structural_elements = self.project.preprocessor.structural_elements
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
 
         self.stop = False
 
-        # self._get_dict_key_section()
+    def _load_icons(self):
+        self.icon = get_openpulse_icon()
 
-        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
+    def _config_window(self):
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(self.icon)
+        self.setWindowTitle("OpenPulse")
 
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
-        self.radioButton_selected_elements = self.findChild(QRadioButton, 'radioButton_selected_elements')
-        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
-        self.radioButton_selected_elements.toggled.connect(self.radioButtonEvent)
-        self.flagEntity = self.radioButton_selected_lines.isChecked()
-        self.flagElements = self.radioButton_selected_elements.isChecked()
+    def selection_type_update(self):
+        
+        index = self.comboBox_selection.currentIndex()
 
-        self.pushButton_plot_cross_section = self.findChild(QPushButton, 'pushButton_plot_cross_section')  
-        self.pushButton_plot_cross_section.clicked.connect(self.plot_section)
-
-        if self.line_id != []:
-            self.lineEdit_id_labels.setText("Line ID:")
-            self.write_ids(self.line_id)
-            self.radioButton_selected_lines.setChecked(True)
-
-        elif self.element_id != []:
-            self.lineEdit_id_labels.setText("Element ID:")
-            self.write_ids(self.element_id)
-            self.radioButton_selected_elements.setChecked(True)
-        else:
-            self.lineEdit_id_labels.setText("Line ID:")
-            self.lineEdit_selected_ID.setText("")
-        self.exec()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.plot_section()
-        if event.key() == Qt.Key_Escape:
-            plt.close()
-            self.close()
-
-    def radioButtonEvent(self):
-        self.flagEntity = self.radioButton_selected_lines.isChecked()
-        self.flagElements = self.radioButton_selected_elements.isChecked()
-
-        if self.flagEntity:
-            self.lineEdit_id_labels.setText("Line ID:")
+        if index == 0:
+            self.label_selected_id.setText("Line ID:")
             self.write_ids(self.line_id)
             if self.opv.change_plot_to_mesh:
-                self.opv.changePlotToEntitiesWithCrossSection()
+                self.opv.plot_entities_with_cross_section()
 
-        elif self.flagElements:
-            self.lineEdit_id_labels.setText("Element ID:")
+        elif index == 1:
+            self.label_selected_id.setText("Element ID:")
             self.write_ids(self.element_id)
             if not self.opv.change_plot_to_mesh:
-                self.opv.changePlotToMesh()
+                self.opv.plot_mesh()
 
     def write_ids(self, list_ids):
         text = ""
         for _id in list_ids:
             text += "{}, ".format(_id)
-        self.lineEdit_selected_ID.setText(text)
+        self.lineEdit_selected_id.setText(text)
 
     def update(self):
 
@@ -105,15 +95,18 @@ class PlotCrossSectionInput(QDialog):
         self.element_id = self.opv.getListPickedElements()
 
         if self.line_id != []:
-            self.lineEdit_id_labels.setText("Line ID:")
+            self.label_selected_id.setText("Line ID:")
             self.write_ids(self.line_id)
-            self.radioButton_selected_lines.setChecked(True)
+            self.comboBox_selection.setCurrentIndex(0)
+        
         elif self.element_id != []:
-            self.lineEdit_id_labels.setText("Element ID:")
+            self.label_selected_id.setText("Element ID:")
             self.write_ids(self.element_id)
-            self.radioButton_selected_elements.setChecked(True)
+            self.comboBox_selection.setCurrentIndex(1)
+
         else:
-            self.lineEdit_selected_ID.setText("")
+            self.lineEdit_selected_id.setText("")
+            self.comboBox_selection.setCurrentIndex(0)
 
     # def _get_dict_key_section(self):
     #     self.labels = [ "Pipe section", 
@@ -129,9 +122,11 @@ class PlotCrossSectionInput(QDialog):
         self.stop = False
         self.message = ""
 
-        if self.flagEntity:
+        index = self.comboBox_selection.currentIndex()
 
-            lineEdit = self.lineEdit_selected_ID.text()
+        if index == 0:
+
+            lineEdit = self.lineEdit_selected_id.text()
             self.stop, self.line_typed = self.before_run.check_input_LineID(lineEdit, single_ID=True)
             if self.stop:
                 return True
@@ -155,9 +150,9 @@ class PlotCrossSectionInput(QDialog):
 
             cross_section = entity.cross_section
             
-        elif self.flagElements:
+        elif index == 1:
 
-            lineEdit = self.lineEdit_selected_ID.text()
+            lineEdit = self.lineEdit_selected_id.text()
             self.stop, self.element_typed = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
             if self.stop:
                 return True
@@ -189,11 +184,12 @@ class PlotCrossSectionInput(QDialog):
        
     def plot_section(self):
 
+        plt.ion()
         plt.close()
 
         if self.preprocess_selection():
             if not self.stop:
-                PrintMessageInput([self.title, self.message, self.window_title])
+                PrintMessageInput([self.window_title, self.title, self.message])
             return
         
         if self.section_label == "Pipe section":
@@ -237,3 +233,10 @@ class PlotCrossSectionInput(QDialog):
         plt.ylim(-_max*f, _max*f)
         plt.grid()
         plt.show()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.plot_section()
+        if event.key() == Qt.Key_Escape:
+            plt.close()
+            self.close()

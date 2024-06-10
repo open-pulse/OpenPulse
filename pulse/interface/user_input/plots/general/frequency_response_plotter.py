@@ -1,49 +1,46 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QPushButton, QRadioButton, QVBoxLayout, QWidget
-from PyQt5.QtGui import QIcon
+from functools import partial
+
+from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QPushButton, QRadioButton, QVBoxLayout, QWidget, QAction, QToolButton
+from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-import os
-import numpy as np
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
-
+from pulse import app, UI_DIR
+from pulse.interface.formatters import icons
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
-
-from pulse import UI_DIR
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
 
-def get_icons_path(filename):
-    path = f"data/icons/{filename}"
-    if os.path.exists(path):
-        return str(Path(path))
+import numpy as np
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
+
 
 class FrequencyResponsePlotter(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        uic.loadUi(UI_DIR / "plots/results/general/frequency_response_plot.ui", self)
+        ui_path = UI_DIR / "plots/results/general/frequency_response_plot.ui"
+        uic.loadUi(ui_path, self)
 
-        self._config_window()
         self._load_icons()
-        self._reset_variables()
+        self._config_window()
+        self._initialize()
         self._initialize_canvas()
         self._define_qt_variables()
         self._create_connections()
+
+    def _load_icons(self):
+        self.icon = icons.get_openpulse_icon()
+        self.search_icon = QIcon(icons.get_icons_path('searchFile.png'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowTitle("Frequency response plotter")
-
-    def _load_icons(self):
-        self.icon = QIcon(get_icons_path('pulse.png'))
-        self.search_icon = QIcon(get_icons_path('searchFile.png'))
         self.setWindowIcon(self.icon)
 
-    def _reset_variables(self):
+    def _initialize(self):
         self.imported_dB = False
         self._layout = None
         self.x_data = None
@@ -63,28 +60,34 @@ class FrequencyResponsePlotter(QDialog):
                         [0.25, 0.25, 0.25] ]
 
     def _define_qt_variables(self):
+
         # QCheckBox
-        self.checkBox_grid = self.findChild(QCheckBox, 'checkBox_grid')
-        self.checkBox_legends = self.findChild(QCheckBox, 'checkBox_legends')
-        self.checkBox_cursor_legends = self.findChild(QCheckBox, 'checkBox_cursor_legends')
+        self.checkBox_grid : QCheckBox
+        self.checkBox_legends : QCheckBox
+        self.checkBox_cursor_legends : QCheckBox
+
         # QComboBox
-        self.comboBox_plot_type = self.findChild(QComboBox, 'comboBox_plot_type')
-        self.comboBox_differentiate_data = self.findChild(QComboBox, 'comboBox_differentiate_data')
+        self.comboBox_plot_type : QComboBox
+        self.comboBox_differentiate_data : QComboBox
+
         # QFrame
-        self.frame_vertical_lines = self.findChild(QFrame, 'frame_vertical_lines') 
+        self.frame_vertical_lines : QFrame
+
         # QPushButton
-        self.pushButton_import_data = self.findChild(QPushButton, 'pushButton_import_data')
+        self.pushButton_import_data : QPushButton
+
         # QRadioButton
-        self.radioButton_absolute = self.findChild(QRadioButton, 'radioButton_absolute')
-        self.radioButton_real = self.findChild(QRadioButton, 'radioButton_real')
-        self.radioButton_imaginary = self.findChild(QRadioButton, 'radioButton_imaginary')
-        self.radioButton_decibel_scale = self.findChild(QRadioButton, 'radioButton_decibel_scale')
-        self.radioButton_disable_cursors = self.findChild(QRadioButton, 'radioButton_disable_cursors')
-        self.radioButton_cross_cursor = self.findChild(QRadioButton, 'radioButton_cross_cursor')
-        self.radioButton_harmonic_cursor = self.findChild(QRadioButton, 'radioButton_harmonic_cursor')
-        self.pushButton_export_data = self.findChild(QPushButton, 'pushButton_export_data')
+        self.radioButton_absolute : QRadioButton
+        self.radioButton_real : QRadioButton
+        self.radioButton_imaginary : QRadioButton
+        self.radioButton_decibel_scale : QRadioButton
+        self.radioButton_disable_cursors : QRadioButton
+        self.radioButton_cross_cursor : QRadioButton
+        self.radioButton_harmonic_cursor : QRadioButton
+        self.pushButton_export_data : QPushButton
+
         # QWidget
-        self.widget_plot = self.findChild(QWidget, 'widget_plot')
+        self.widget_plot : QWidget
 
     def _create_connections(self):
         self.checkBox_grid.stateChanged.connect(self.plot_data_in_freq_domain)
@@ -101,6 +104,7 @@ class FrequencyResponsePlotter(QDialog):
         self.radioButton_harmonic_cursor.clicked.connect(self.update_cursor_controls)
         self.pushButton_import_data.clicked.connect(self.import_file)
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        app().main_window.theme_changed.connect(self.paint_toolbar_icons)
         self._initial_config()
 
     def import_file(self):
@@ -259,8 +263,19 @@ class FrequencyResponsePlotter(QDialog):
         else:
             return self.unit + "/s²"
 
-    def plot_data_in_freq_domain(self):
+    def paint_toolbar_icons(self, *args, **kwargs):
+        toolbar = self.findChild(NavigationToolbar2QT)
+        if toolbar is None:
+            return
 
+        if app().main_window.interface_theme == "dark":
+            color = QColor("#5f9af4")
+        else:
+            color = QColor("#1a73e8")
+
+        icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
+
+    def plot_data_in_freq_domain(self):
         self.ax.cla()
         self.legends = []
         self.plots = []
@@ -288,6 +303,14 @@ class FrequencyResponsePlotter(QDialog):
 
                 if self._layout is None:
                     toolbar = NavigationToolbar2QT(self.mpl_canvas_frequency_plot, self)
+
+                    # Paint the toolbar icons and connect the buttons to paint
+                    # themselves after every click or draw events
+                    self.paint_toolbar_icons()
+                    for button in toolbar.findChildren(QToolButton):
+                        button.clicked.connect(self.paint_toolbar_icons)                    
+                    self.mpl_canvas_frequency_plot.mpl_connect("draw_event", self.paint_toolbar_icons)
+
                     self._layout = QVBoxLayout()
                     self._layout.addWidget(toolbar)
                     self._layout.addWidget(self.mpl_canvas_frequency_plot)
