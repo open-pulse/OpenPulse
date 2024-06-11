@@ -279,7 +279,8 @@ class MeshRenderWidget(CommonRenderWidget):
         picked_entities = set()
 
         if mouse_moved:
-            picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
+            if self.selection_filter.nodes:
+                picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
 
             if self.selection_filter.elements:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
@@ -288,8 +289,9 @@ class MeshRenderWidget(CommonRenderWidget):
                 picked_entities = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
 
         else:
-            picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
-            picked_nodes.difference_update([-1])
+            if self.selection_filter.nodes:
+                picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
+                picked_nodes.difference_update([-1])
 
             if self.selection_filter.elements:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
