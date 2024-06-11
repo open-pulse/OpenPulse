@@ -274,11 +274,13 @@ class MeshRenderWidget(CommonRenderWidget):
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
 
-        picked_nodes = self._pick_nodes(x1, y1)
+        picked_nodes = set()
         picked_elements = set()
         picked_entities = set()
 
         if mouse_moved:
+            picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
+
             if self.selection_filter.elements:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
     
@@ -286,6 +288,9 @@ class MeshRenderWidget(CommonRenderWidget):
                 picked_entities = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
 
         else:
+            picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
+            picked_nodes.difference_update([-1])
+
             if self.selection_filter.elements:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])
@@ -294,6 +299,7 @@ class MeshRenderWidget(CommonRenderWidget):
                 picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_entities.difference_update([-1])
 
+        # give priority to node selection
         if picked_nodes and not mouse_moved:
             picked_entities.clear()
             picked_elements.clear()
@@ -326,12 +332,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.update_selection()
 
     def update_selection(self):
-        self.update_selection_info(
-            self.selected_nodes,
-            self.selected_elements,
-            self.selected_entities,
-        )
-
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
         self.tubes_actor.clear_colors()
@@ -348,65 +348,11 @@ class MeshRenderWidget(CommonRenderWidget):
             entities=self.selected_entities,
         )
 
-    def _pick_nodes(self, x, y):
-        picked = self._pick_actor(x, y, self.nodes_actor)
-        if not self.nodes_actor in picked:
-            return set()
-
-        cells = picked[self.nodes_actor]
-        return set(cells)
-
-    def _pick_actor(self, x, y, actor_to_select):
-        selection_picker = CellAreaPicker()
-        selection_picker._cell_picker.SetTolerance(0.0015)
-        pickability = dict()
-
-        for actor in self.renderer.GetActors():
-            pickability[actor] = actor.GetPickable()
-            if actor == actor_to_select:
-                actor.PickableOn()
-            else:
-                actor.PickableOff()
-
-        x0, y0 = self.mouse_click
-        mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
-        if mouse_moved:
-            selection_picker.area_pick(x0, y0, x, y, self.renderer)
-        else:
-            # ugly solution that works better than expected
-            selection_picker.area_pick(x - 5, y - 5, x + 5, y + 5, self.renderer)
-
-        for actor in self.renderer.GetActors():
-            actor.SetPickable(pickability[actor])
-
-        return selection_picker.get_picked()
-
-    def _pick_property(self, x, y, property_name, desired_actor):
-        selection_picker = CellPropertyAreaPicker(property_name, desired_actor)
-        selection_picker._cell_picker.SetTolerance(0.0015)
-        pickability = dict()
-
-        for actor in self.renderer.GetActors():
-            pickability[actor] = actor.GetPickable()
-            if actor == desired_actor:
-                actor.PickableOn()
-            else:
-                actor.PickableOff()
-
-        x0, y0 = self.mouse_click
-        mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
-        if mouse_moved:
-            selection_picker.area_pick(x0, y0, x, y, self.renderer)
-        else:
-            selection_picker.area_pick(x - 5, y - 5, x + 5, y + 5, self.renderer)
-            if len(selection_picker._picked) > 1:
-                first, *_ = selection_picker.get_picked()
-                selection_picker._picked = {first}
-
-        for actor in self.renderer.GetActors():
-            actor.SetPickable(pickability[actor])
-
-        return selection_picker.get_picked()
+        self.update_selection_info(
+            self.selected_nodes,
+            self.selected_elements,
+            self.selected_entities,
+        )
 
     def update_selection_info(self, nodes, elements, entities):
         info_text = ""

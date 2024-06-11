@@ -4,7 +4,7 @@ if TYPE_CHECKING:
 
 import vtk
 from pulse import app
-from itertools import product
+from vtkat.pickers import CellAreaPicker
 
 
 class MeshPicker:
@@ -37,7 +37,23 @@ class MeshPicker:
             self.elements_bounds[key] = bounds
 
     def area_pick_nodes(self, x0, y0, x1, y1) -> set[int]:
-        pass
+        selection_picker = CellAreaPicker()
+        selection_picker._cell_picker.SetTolerance(0.0015)
+        nodes_actor = self.mesh_render_widget.nodes_actor
+
+        pickability = dict()
+        # make only the target actor pickable
+        for actor in self.mesh_render_widget.renderer.GetActors():
+            pickability[actor] = actor.GetPickable()
+            actor.SetPickable(actor == nodes_actor)
+
+        selection_picker.area_pick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
+
+        # restore the pickable status for every actor
+        for actor in self.mesh_render_widget.renderer.GetActors():
+            actor.SetPickable(pickability[actor])
+
+        return selection_picker.get_picked().get(nodes_actor, set())
 
     def area_pick_elements(self, x0, y0, x1, y1) -> set[int]:
         picker = vtk.vtkAreaPicker()
@@ -77,8 +93,12 @@ class MeshPicker:
 
         return picked_entities
 
-    def pick_node(self, x, y):
-        pass
+    def pick_node(self, x, y) -> int:
+        nodes = self.area_pick_nodes(x - 5, y - 5, x + 5, y + 5)
+        if not nodes:
+            return -1
+        node, *_ = nodes 
+        return node
 
     def pick_element(self, x, y) -> int:
         lines_actor = self.mesh_render_widget.lines_actor
