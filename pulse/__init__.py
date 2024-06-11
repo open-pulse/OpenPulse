@@ -14,6 +14,7 @@ from pathlib import Path
 
 OPEN_PULSE_DIR = Path(__file__).parent
 ICON_DIR = OPEN_PULSE_DIR / "interface/data/icons/"
+QSS_DIR = OPEN_PULSE_DIR / "interface/data/qss_files/"
 UI_DIR = OPEN_PULSE_DIR / "interface/ui_files/"
 SYMBOLS_DIR = OPEN_PULSE_DIR / "interface/data/symbols/"
 

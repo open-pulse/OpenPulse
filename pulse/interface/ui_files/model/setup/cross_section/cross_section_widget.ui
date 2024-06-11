@@ -195,6 +195,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <property name="text">
              <string>Confirm</string>
             </property>
+            <property name="shortcut">
+             <string>Ctrl+Return</string>
+            </property>
            </widget>
           </item>
          </layout>
@@ -2673,6 +2676,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             </property>
             <property name="text">
              <string>Confirm</string>
+            </property>
+            <property name="shortcut">
+             <string>Ctrl+Return</string>
             </property>
            </widget>
           </item>

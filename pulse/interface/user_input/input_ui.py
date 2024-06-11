@@ -153,8 +153,7 @@ class InputUi:
             return False
 
     def reset_geometry_render(self):
-        editor = app().geometry_toolbox.editor
-        editor.reset()
+        self.project.pipeline.reset()
 
     def reset_project(self):
         if not self.project.none_project_action:

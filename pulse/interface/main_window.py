@@ -3,13 +3,13 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
 
-from pulse import app, UI_DIR
+from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer import OPPGeometryDesignerInput
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -63,6 +63,26 @@ class MainWindow(QMainWindow):
         self.input_widget = None
         self.cache_indexes = list()
         self.last_index = None
+
+    def _load_stylesheets(self):
+        stylesheets = []
+        common_dir = QSS_DIR / "common_theme"
+        
+        if self.interface_theme == "light":
+            theme_dir = QSS_DIR / "light_theme"
+        elif self.interface_theme == "dark":
+            theme_dir = QSS_DIR / "dark_theme"
+        else:
+            return
+
+        for path in common_dir.rglob("*.qss"):
+            stylesheets.append(path.read_text())
+
+        for path in theme_dir.rglob("*.qss"):
+            stylesheets.append(path.read_text())
+
+        combined_stylesheet = "\n\n".join(stylesheets)
+        self.setStyleSheet(combined_stylesheet)
 
     def _load_icons(self):
         self.pulse_icon = icons.get_openpulse_icon()
@@ -189,18 +209,15 @@ class MainWindow(QMainWindow):
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_widget = InputUi(self)
 
-        editor = app().geometry_toolbox.editor
         self.mesh_widget = MeshRenderWidget()
-
-        self.geometry_widget = EditorRenderWidget(editor)     
-
+        self.geometry_widget = EditorRenderWidget(self.project.pipeline)
         self.geometry_widget.set_theme("light")
 
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
 
-        self.geometry_input_wigdet = OPPGeometryDesignerInput(self.geometry_widget)
+        self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
         self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
@@ -211,8 +228,7 @@ class MainWindow(QMainWindow):
         self.opv_widget.plot_entities_with_cross_section()
 
     def configure_window(self):
-        
-        # t0 = time()
+        self._load_stylesheets()
         self._load_icons()
         self._config_window()
         self._define_qt_variables()
@@ -427,6 +443,9 @@ class MainWindow(QMainWindow):
 
         self.menu_actions = []
         for name, path in reversed(self.config.recent_projects.items()):
+            path = Path(path)
+            if not path.exists():
+                continue
             import_action = QAction(str(name) + "\t" + str(path))
             import_action.setStatusTip(str(path))
             import_action.triggered.connect(partial(self.open_project, path))
@@ -477,10 +496,11 @@ class MainWindow(QMainWindow):
     def action_geometry_workspace_callback(self):
         self.close_opened_windows()
         self.mesh_toolbar.setDisabled(True)
-        self.geometry_input_wigdet._disable_finalize_button(True)
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
-        self.geometry_input_wigdet.add_widget.load_defined_unit()
+        self.geometry_input_wigdet.widget_appears_callback()
+        # self.geometry_input_wigdet._disable_finalize_button(True)
+        # self.geometry_input_wigdet.add_widget.load_defined_unit()
 
     def action_structural_setup_workspace_callback(self):
         self.mesh_toolbar.setDisabled(False)
@@ -818,6 +838,7 @@ class MainWindow(QMainWindow):
         
         self.action_set_light_theme.setDisabled(theme == "light")
         self.action_set_dark_theme.setDisabled(theme == "dark")
+        self._load_stylesheets()
 
         # paint the icons of every children widget
         widgets = self.findChildren((QAbstractButton, QAction))

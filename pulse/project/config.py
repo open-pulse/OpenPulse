@@ -58,7 +58,7 @@ class Config:
         return self.recent_projects[list(self.recent_projects.keys())[id_]]
 
     def haveRecentProjects(self):
-        return self.recent_projectsSize() > 0
+        return self.recentProjectsSize() > 0
 
     def recentProjectsSize(self):
         return len(self.recent_projects)

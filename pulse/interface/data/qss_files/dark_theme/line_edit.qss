@@ -1,0 +1,11 @@
+QLineEdit{
+	background-color: lightgrey;
+	color: black;
+	border-width: 2px;
+}
+
+QLineEdit:!enabled{
+	background-color: rgb(29, 29, 29);
+	color: grey;
+	border-width: 0;
+}

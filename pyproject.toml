@@ -28,7 +28,7 @@ ctREFPROP = "^0.10.2"
 pandas = "^2.1.0"
 openpyxl = "^3.1.2"
 h5py = "^3.9.0"
-opps = {git = "https://github.com/open-pulse/opps"}
+opps = {git = "https://github.com/open-pulse/opps", branch = "add_new_structures"}
 vtkat = {git = "https://github.com/andrefpf/vtkat"}
 compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
 

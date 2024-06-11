@@ -45,8 +45,8 @@ class MaterialInputs(QWidget):
         self.icon = get_openpulse_icon()
 
     def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
+        self.setWindowModality(Qt.ApplicationModal)
         self.setWindowIcon(self.icon)
         self.setWindowTitle("OpenPulse")
 

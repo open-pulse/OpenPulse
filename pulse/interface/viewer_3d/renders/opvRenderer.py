@@ -86,6 +86,7 @@ class opvRenderer(vtkRendererBase):
         if self._plotFilter.tubes:
             return self.opvTubes._actor.GetBounds()
         return () #don't change this tuple, you will regret this
+
     def plot(self):
         self.reset()
 
