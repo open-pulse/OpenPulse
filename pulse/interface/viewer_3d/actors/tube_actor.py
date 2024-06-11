@@ -1,9 +1,10 @@
 import vtk
-from vtkat.utils import set_polydata_property, set_polydata_colors
-from pulse.interface.viewer_3d.sources import cross_section_sources
 from collections import defaultdict
 import numpy as np
 from enum import Enum
+
+from vtkat.utils import set_polydata_property, set_polydata_colors
+from opps.interface.viewer_3d.utils import cross_section_sources 
 
 
 class ColorMode(Enum):

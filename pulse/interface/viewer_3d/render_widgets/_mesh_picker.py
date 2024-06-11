@@ -81,7 +81,7 @@ class MeshPicker:
         pass
 
     def pick_element(self, x, y) -> int:
-        lines_actor = self.mesh_render_widget.tubes_actor
+        lines_actor = self.mesh_render_widget.lines_actor
         element = self._pick_cell_property(x, y, "element_index", lines_actor)
         if element >= 0:
             return element
@@ -103,9 +103,18 @@ class MeshPicker:
         return -1
 
     def _pick_cell_property(self, x: float, y: float, property_name: str, target_actor: vtk.vtkActor):
+        actor: vtk.vtkActor
         cell_picker = vtk.vtkCellPicker()
-        cell_picker.Pick(x, y, 0, self.mesh_render_widget.renderer)
+        cell_picker.SetTolerance(0.0005)
+        pickability = dict()
 
+        # make only the target actor pickable
+        for actor in self.mesh_render_widget.renderer.GetActors():
+            pickability[actor] = actor.GetPickable()
+            actor.SetPickable(actor == target_actor)
+
+        cell_picker.Pick(x, y, 0, self.mesh_render_widget.renderer)
+        
         if target_actor != cell_picker.GetActor():
             return -1
 
@@ -118,4 +127,9 @@ class MeshPicker:
             return -1
 
         cell = cell_picker.GetCellId()
+        
+        # restore the pickable status for every actor
+        for actor in self.mesh_render_widget.renderer.GetActors():
+            actor.SetPickable(pickability[actor])
+
         return property_array.GetValue(cell)
