@@ -8,7 +8,7 @@ from vtkat.interactor_styles import BoxSelectionInteractorStyle
 from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from vtkat.render_widgets import CommonRenderWidget
 
-from pulse import app
+from ._mesh_picker import MeshPicker
 from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, TubeActor
 from pulse.interface.viewer_3d.actors.tube_actor import ColorMode
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
@@ -20,8 +20,8 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
     StructuralNodesSymbolsActor,
 )
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
+from pulse import app, ICON_DIR
 
-from pulse import ICON_DIR
 
 @dataclass
 class PlotFilter:
@@ -52,6 +52,7 @@ class MeshRenderWidget(CommonRenderWidget):
         
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
         self.mopt_logo = None
@@ -87,9 +88,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_logos()
         self.set_theme("light")
 
-    def update_plot(self, reset_camera=True):
+    def update_plot(self, reset_camera=False):
         self.remove_actors()
         self.create_logos()
+        self.mesh_picker.update_bounds()
 
         project = app().project
 
@@ -108,13 +110,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self._structural_nodes_symbols.build()
         self._structural_elements_symbols.build()
         self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
-        self.acoustic_elements_symbols_actor = (
-            self._acoustic_elements_symbols.getActor()
-        )
+        self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
         self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
-        self.structural_elements_symbols_actor = (
-            self._structural_elements_symbols.getActor()
-        )
+        self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
 
         self.renderer.AddActor(self.lines_actor)
         self.renderer.AddActor(self.nodes_actor)
@@ -272,40 +270,33 @@ class MeshRenderWidget(CommonRenderWidget):
     def click_callback(self, x, y):
         self.mouse_click = x, y
 
-    def selection_callback(self, x, y):
+    def selection_callback(self, x1, y1):
         if not self._actor_exists():
             return
+        x0, y0 = self.mouse_click
+        mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
 
-        picked_nodes = self._pick_nodes(x, y)
-        picked_entities = set()
+        picked_nodes = self._pick_nodes(x1, y1)
         picked_elements = set()
+        picked_entities = set()
 
-        # try to select tubes_actor only if lines selection was not successfull
-        if self.selection_filter.entities:
-            picked_entities = self._pick_property(
-                x, y, "entity_index", self.lines_actor
-            )
-            if not picked_entities:
-                picked_entities = self._pick_property(
-                    x, y, "entity_index", self.tubes_actor
-                )
+        if mouse_moved:
+            if self.selection_filter.elements:
+                picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
+    
+            if self.selection_filter.entities:
+                picked_entities = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
 
-        # try to select tubes_actor only if lines selection was not successfull
-        if self.selection_filter.elements:
-            picked_elements = self._pick_property(
-                x, y, "element_index", self.lines_actor
-            )
-            if not picked_elements:
-                picked_elements = self._pick_property(
-                    x, y, "element_index", self.tubes_actor
-                )
+        else:
+            if self.selection_filter.elements:
+                picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
+                picked_elements.difference_update([-1])
+    
+            if self.selection_filter.entities:
+                picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
+                picked_entities.difference_update([-1])
 
-        # give higher priority to points selection
-        if (
-            len(picked_nodes) == 1
-            and len(picked_entities) <= 1
-            and len(picked_elements) <= 1
-        ):
+        if picked_nodes and not mouse_moved:
             picked_entities.clear()
             picked_elements.clear()
 
