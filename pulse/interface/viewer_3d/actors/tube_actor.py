@@ -55,8 +55,8 @@ class TubeActor(vtk.vtkActor):
             transform.RotateX(section_rotation_xyz[0])
             transform.RotateZ(section_rotation_xyz[2])
             transform.RotateY(section_rotation_xyz[1])
-            transform.RotateZ(90)
-
+            transform.RotateY(180)
+            transform.RotateZ(-90)
             transform.Update()
 
             transform_filter = vtk.vtkTransformFilter()
