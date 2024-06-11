@@ -209,8 +209,6 @@
    <addaction name="action_show_symbols"/>
    <addaction name="separator"/>
    <addaction name="action_select_elements"/>
-   <addaction name="action_hide_selection"/>
-   <addaction name="action_unhide_all"/>
   </widget>
   <action name="action_new_project">
    <property name="icon">
@@ -493,7 +491,7 @@
   </action>
   <action name="action_plot_material">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Plot Material</string>
@@ -501,7 +499,7 @@
   </action>
   <action name="action_plot_fluid">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Plot Fluid</string>
