@@ -144,6 +144,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_elements_symbols_actor = None
 
     def update_visualization(self, nodes, lines, tubes, symbols, transparent):
+        # TODO: change this function to grab the info directly 
+        # from main window and connect it in a callback
+
         self.plot_filter = PlotFilter(
             nodes=nodes,
             lines=lines,
@@ -226,32 +229,14 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def create_logos(self, theme="light"):
         self.renderer.RemoveViewProp(self.open_pulse_logo)
-        # self.renderer.RemoveViewProp(self.mopt_logo)
         self.renderer.AddViewProp(self.open_pulse_logo)
-        # self.renderer.AddViewProp(self.mopt_logo)
-
         open_pulse_path = str(ICON_DIR/ 'logos/OpenPulse_logo_gray.png')
-
-        # if theme == "light":
-        #     open_pulse_path = str(ICON_DIR/ 'logos/OpenPulse_logo_black.png')
-        #     mopt_path = str(ICON_DIR / 'logos/mopt_logo_black.png')     
-        # elif theme == "dark":
-        #     open_pulse_path = str(ICON_DIR / 'logos/OpenPulse_logo_white.png')
-        #     mopt_path =  str(ICON_DIR / 'logos/mopt_logo_white.png')
-        # else:
-        #     raise NotImplementedError()
 
         self.open_pulse_logo = self._load_vtk_logo(open_pulse_path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
         self.renderer.AddViewProp(self.open_pulse_logo)
         self.open_pulse_logo.SetRenderer(self.renderer)
-
-        # self.mopt_logo = self._load_vtk_logo(mopt_path)
-        # self.mopt_logo.SetPosition(0.01, -0.015)
-        # self.mopt_logo.SetPosition2(0.07, 0.1)
-        # self.renderer.AddViewProp(self.mopt_logo)
-        # self.mopt_logo.SetRenderer(self.renderer)
 
     def _load_vtk_logo(self, path):
         image_reader = vtk.vtkPNGReader()

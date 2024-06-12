@@ -7,7 +7,7 @@ from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.viewer_3d.opv_ui import OPVUi
-from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget
+from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
@@ -210,10 +210,12 @@ class MainWindow(QMainWindow):
         self.input_widget = InputUi(self)
 
         self.mesh_widget = MeshRenderWidget()
+        self.results_widget = ResultsRenderWidget()
         self.geometry_widget = EditorRenderWidget(self.project.pipeline)
         self.geometry_widget.set_theme("light")
 
         self.render_widgets_stack.addWidget(self.mesh_widget)
+        self.render_widgets_stack.addWidget(self.results_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
 
@@ -338,6 +340,7 @@ class MainWindow(QMainWindow):
     def update(self):
         self.geometry_widget.update_plot(reset_camera=True)
         self.mesh_widget.update_plot(reset_camera=True)
+        self.results_widget.update_plot(reset_camera=True)
         self.opv_widget.updatePlots()
 
     def get_current_workspace(self):
@@ -499,8 +502,6 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
         self.geometry_input_wigdet.widget_appears_callback()
-        # self.geometry_input_wigdet._disable_finalize_button(True)
-        # self.geometry_input_wigdet.add_widget.load_defined_unit()
 
     def action_structural_setup_workspace_callback(self):
         self.mesh_toolbar.setDisabled(False)
@@ -524,7 +525,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
 
-    def action_results_workspace_callback(self):
+    def action_results_workspace_callback(self):   
         if self.project.is_the_solution_finished():
             self.results_viewer_wigdet.animation_widget.setVisible(False)
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
