@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem, QWidget
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -67,30 +67,46 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         self.setWindowModality(Qt.WindowModal)
 
     def _define_qt_variables(self):
+
         # QCheckBox
         self.checkBox_damping_effect : QCheckBox
         self.comboBox_colormaps : QComboBox
+
         # QComboBox
         self.comboBox_color_scale : QComboBox
         self.comboBox_stress_type : QComboBox
+
         # QFrame
         self.frame_button : QFrame
         self.frame_button.setVisible(False)
+
         # QLineEdit
         self.lineEdit_selected_frequency : QLineEdit
+
+        # QSlider
+        self.slider_transparency : QSlider
+
         # QPushButton
         self.pushButton_plot : QPushButton
+
         # QTreeWidget
         self.treeWidget_frequencies : QTreeWidget
     
     def _create_connection(self):
+        #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
+        #
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
+        #
+        self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
+        #
         self.pushButton_plot.clicked.connect(self.update_plot)
+        #
         self.treeWidget_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
         self.update_animation_widget_visibility()
         self.update_colormap_type()
 
@@ -120,6 +136,14 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         app().config.write_colormap_in_file(colormap)
         self.opv.opvAnalysisRenderer.set_colormap(colormap)
         self.update_plot()
+
+    def update_transparency_callback(self):
+        transparency = self.slider_transparency.value() / 100
+        
+        if self.opv.opvAnalysisRenderer.getInUse():
+            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
+        else:
+            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
 
     def update_plot(self):
         self.update_animation_widget_visibility()

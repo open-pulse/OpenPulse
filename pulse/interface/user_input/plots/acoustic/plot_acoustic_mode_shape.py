@@ -140,7 +140,6 @@ class PlotAcousticModeShape(QWidget):
             self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
         else:
             self.opv.opvRenderer.set_tube_actors_transparency(transparency)
-        
 
     def get_user_color_scale_setup(self):
 

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QPushButton, QWidget
+from PyQt5.QtWidgets import QComboBox, QFrame, QPushButton, QSlider, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -62,21 +62,32 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.setWindowIcon(self.icon)
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_color_scale : QComboBox
         self.comboBox_colormaps : QComboBox
         self.comboBox_stress_type : QComboBox
+
         # QFrame
         self.frame_button : QFrame
         self.frame_button.setVisible(False)
+
         # QPushButton
         self.pushButton_plot : QPushButton
 
+        # QSlider
+        self.slider_transparency : QSlider
+
     def _create_connections(self):
+        #
         self.comboBox_colormaps.currentIndexChanged.connect(self.update_colormap_type)
         self.comboBox_color_scale.currentIndexChanged.connect(self.update_plot)
         self.comboBox_stress_type.currentIndexChanged.connect(self.update_plot)
+        #
         self.pushButton_plot.clicked.connect(self.update_plot)
+        #
+        self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
+        #
         self.update_animation_widget_visibility()
         self.update_colormap_type()
 
@@ -147,6 +158,14 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
                                 "absolute_animation" : absolute_animation   }
 
         return color_scale_setup
+
+    def update_transparency_callback(self):
+        transparency = self.slider_transparency.value() / 100
+        
+        if self.opv.opvAnalysisRenderer.getInUse():
+            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
+        else:
+            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
 
     def update_plot(self):
         self.update_animation_widget_visibility()

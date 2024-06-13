@@ -184,12 +184,12 @@ class Preprocessor:
         self._mapping_nodes_indexes()
         # dt = time() - t0
         # print(f"Time to process _order_global_indexes: {dt}")
-        
+
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
         self.get_dict_nodes_to_element_indexes()
         self.get_principal_diagonal_structure_parallelepiped()
-        
+
         # t0 = time()
         self.process_all_rotation_matrices()
         self.create_dict_lines_to_rotation_angles()
@@ -218,7 +218,7 @@ class Preprocessor:
         """
         build_data = self.file.get_segment_build_data_from_file()
         geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(self.file.length_unit)
+        geometry_handler.set_length_unit(self.file.length_unit)     
         geometry_handler.process_pipeline(build_data)
         geometry_handler.create_geometry()
 
