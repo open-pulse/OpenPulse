@@ -40,8 +40,8 @@ class Workspace(IntEnum):
 
 
 class MainWindow(QMainWindow):
-    permission_changed = pyqtSignal()
     theme_changed = pyqtSignal(str)
+    visualization_changed = pyqtSignal()
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -476,6 +476,8 @@ class MainWindow(QMainWindow):
         else:
             self.opv_widget.set_selection_to_lines()
             self.mesh_widget.set_selection_to_lines()
+
+        self.visualization_changed.emit()
 
     # callbacks
     def action_new_project_callback(self):
