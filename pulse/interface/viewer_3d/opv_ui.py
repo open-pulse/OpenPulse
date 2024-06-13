@@ -178,7 +178,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer.updateHud()
         self.opvAnalysisRenderer.showDisplacementField(*args, **kwargs)
         self._updateAxes()
-        self.opvAnalysisRenderer._renderer.ResetCamera()
         #
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
@@ -190,7 +189,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer.show_stress_field(frequency_indice)
 
         self._updateAxes()
-        self.opvAnalysisRenderer._renderer.ResetCamera()
         #
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
@@ -201,7 +199,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer.updateHud()
         self.opvAnalysisRenderer.showPressureField(*args)
         self._updateAxes()
-        self.opvAnalysisRenderer._renderer.ResetCamera()
         #
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
