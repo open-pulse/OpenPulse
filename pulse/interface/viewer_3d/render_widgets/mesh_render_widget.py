@@ -237,7 +237,6 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def create_logos(self, theme="light"):
         self.renderer.RemoveViewProp(self.open_pulse_logo)
-        self.renderer.AddViewProp(self.open_pulse_logo)
         open_pulse_path = str(ICON_DIR/ 'logos/OpenPulse_logo_gray.png')
 
         self.open_pulse_logo = self._load_vtk_logo(open_pulse_path)

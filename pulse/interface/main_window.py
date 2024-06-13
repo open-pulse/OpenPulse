@@ -7,7 +7,7 @@ from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.viewer_3d.opv_ui import OPVUi
-from pulse.interface.viewer_3d.render_widgets import MeshRenderWidget, ResultsRenderWidget
+from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
@@ -42,6 +42,7 @@ class Workspace(IntEnum):
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal(str)
     visualization_changed = pyqtSignal()
+    selection_changed = pyqtSignal()
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -211,8 +212,7 @@ class MainWindow(QMainWindow):
 
         self.mesh_widget = MeshRenderWidget()
         self.results_widget = ResultsRenderWidget()
-        self.geometry_widget = EditorRenderWidget(self.project.pipeline)
-        self.geometry_widget.set_theme("light")
+        self.geometry_widget = GeometryRenderWidget()
 
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.results_widget)
