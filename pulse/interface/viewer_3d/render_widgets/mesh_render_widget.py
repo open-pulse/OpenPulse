@@ -48,7 +48,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = (0, 0)
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
+
         app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.visualization_changed.connect(self.update_visualization_style)
         
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
@@ -142,6 +144,12 @@ class MeshRenderWidget(CommonRenderWidget):
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
+
+    def update_visualization_style(self):
+        # visualization_setup = app().main_window.visualization_setup()
+        # self.nodes_actor.SetVisibility(visualization_setup.show_nodes)
+        # self.lines_actor.SetVisibility(visualization_setup.show_lines)
+        ...
 
     def update_visualization(self, nodes, lines, tubes, symbols, transparent):
         # TODO: change this function to grab the info directly 
