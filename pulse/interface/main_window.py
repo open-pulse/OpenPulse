@@ -527,7 +527,13 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
 
-    def action_results_workspace_callback(self):   
+    def action_results_workspace_callback(self):
+        self.results_viewer_wigdet.animation_widget.setVisible(False)
+        self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
+        self.render_widgets_stack.setCurrentWidget(self.results_widget)
+        self.results_viewer_wigdet.udate_visibility_items()
+        return 
+
         if self.project.is_the_solution_finished():
             self.results_viewer_wigdet.animation_widget.setVisible(False)
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)

@@ -68,6 +68,8 @@ class ColorTable(vtk.vtkLookupTable):
         return np.linalg.norm(cord1 - cord2)
 
     def get_color(self, element):
+        if self.is_empty():
+            return [0, 0, 0]
 
         key1 = element.first_node.global_index
         key2 = element.last_node.global_index

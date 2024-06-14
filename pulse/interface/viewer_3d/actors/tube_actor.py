@@ -5,6 +5,7 @@ from enum import Enum
 
 from vtkat.utils import set_polydata_property, set_polydata_colors
 from opps.interface.viewer_3d.utils import cross_section_sources 
+from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 
 
 class ColorMode(Enum):
@@ -180,8 +181,33 @@ class TubeActor(vtk.vtkActor):
         self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
         self.GetMapper().ScalarVisibilityOn()
 
-    def set_color_table(self, color_table):
-        pass
+    def set_color_table(self, color_table: ColorTable):
+        data = self.GetMapper().GetInput()
+        n_cells = data.GetNumberOfCells()
+        element_indexes: vtk.vtkIntArray = data.GetCellData().GetArray("element_index")
+        colors: vtk.vtkCharArray = data.GetCellData().GetArray("colors")
+
+        # for i in range(n_cells):
+        #     element = element_indexes.GetValue(i)
+        #     color = color_table.get_color(element)
+        #     colors.SetTuple3(i, *list(color))
+
+        self.GetMapper().SetScalarModeToUseCellData()
+        self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
+        self.GetMapper().ScalarVisibilityOn()
+
+
+        # c = vtk.vtkUnsignedCharArray()
+        # c.DeepCopy(self._colors)
+        # for key, element in self.elements.items():
+        #     index = self._key_indexes.get(key, None)
+        #     if index is None:
+        #         continue
+        #     color = self.colorTable.get_color(element)
+        #     c.SetTuple(index, color)
+
+        # self._data.GetPointData().SetScalars(c)
+        # self._colors = c
     
     def get_cell_element(self, cell):
         data = self.GetMapper().GetInput()
