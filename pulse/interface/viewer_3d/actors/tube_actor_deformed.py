@@ -1,46 +1,36 @@
 import vtk
-from collections import defaultdict
-import numpy as np
-from enum import Enum
 
 from .tube_actor import TubeActor
-from vtkat.utils import set_polydata_property, set_polydata_colors
-from opps.interface.viewer_3d.utils import cross_section_sources 
-
-class ColorMode(Enum):
-    empty = 0
-    material = 1
-    fluid = 2
+from vtkat.utils import set_polydata_property
 
 
 class TubeActorDeformed(TubeActor):
-    def build(self):
+    def __init__(self, project, **kwargs) -> None:
+        self.cached = dict()
+        super().__init__(project, **kwargs)
+
+    def build(self, use_cache=False):
         visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
-        # self._key_index  = {j:i for i,j in enumerate(visible_elements)}
-        self._key_indexes = dict()
 
         mapper = vtk.vtkPolyDataMapper()
         append_polydata = vtk.vtkAppendPolyData()
+        append_polydata.SetOutputPointsPrecision(0)
 
-        total_points_appended = 0 
-        for i, element in visible_elements.items():            
-            x,y,z = element.first_node.deformed_coordinates
-            section_rotation_xyz = element.section_rotation_xyz_deformed
+        for i, element in visible_elements.items():
+            section_coords = element.first_node.deformed_coordinates
+            section_rotation_xyz = element.deformed_rotation_xyz
 
-            source: vtk.vtkPolyData = self.create_element_data(element)
+            if (section_coords is None) or (section_rotation_xyz is None):
+                section_coords = element.first_node.coordinates
+                section_rotation_xyz = element.section_rotation_xyz_undeformed
+
+            source: vtk.vtkPolyData = self.create_element_data(element, use_cache)
             if source is None:
                 continue
 
-            entity = self.preprocessor.elements_to_line[i]
-            set_polydata_property(source, i, "element_index")
-            set_polydata_property(source, entity, "entity_index")
-
-            self._key_indexes[i] = range(total_points_appended, total_points_appended + source.GetNumberOfPoints())
-            total_points_appended += source.GetNumberOfPoints()
-
             transform = vtk.vtkTransform()
             transform.Translate((element.length/2, 0, 0))
-            transform.Translate((x,y,z))
+            transform.Translate(*section_coords)
             transform.RotateX(section_rotation_xyz[0])
             transform.RotateZ(section_rotation_xyz[2])
             transform.RotateY(section_rotation_xyz[1])
@@ -53,7 +43,12 @@ class TubeActorDeformed(TubeActor):
             transform_filter.SetTransform(transform)
             transform_filter.Update()
 
-            append_polydata.AddInputData(transform_filter.GetOutput())
+            transformed_source = transform_filter.GetOutput()
+            entity = self.preprocessor.elements_to_line[i]
+            set_polydata_property(transformed_source, i, "element_index")
+            set_polydata_property(transformed_source, entity, "entity_index")
+
+            append_polydata.AddInputData(transformed_source)
         
         append_polydata.Update()
         data: vtk.vtkPolyData = append_polydata.GetOutput()
@@ -63,3 +58,17 @@ class TubeActorDeformed(TubeActor):
         self.SetMapper(mapper)
 
         self.clear_colors()
+
+    def create_element_data(self, element, use_cache=False):
+        key = (
+            round(element.length, 5),
+            element.cross_section.section_label,
+            tuple(element.cross_section.section_parameters),
+        )
+
+        if use_cache and (key in self.cached):
+            return self.cached[key]
+
+        source = super().create_element_data(element)
+        self.cached[key] = source
+        return source
