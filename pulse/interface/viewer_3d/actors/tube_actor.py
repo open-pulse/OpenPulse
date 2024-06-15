@@ -183,31 +183,22 @@ class TubeActor(vtk.vtkActor):
 
     def set_color_table(self, color_table: ColorTable):
         data = self.GetMapper().GetInput()
-        n_cells = data.GetNumberOfCells()
         element_indexes: vtk.vtkIntArray = data.GetCellData().GetArray("element_index")
         colors: vtk.vtkCharArray = data.GetCellData().GetArray("colors")
 
-        # for i in range(n_cells):
-        #     element = element_indexes.GetValue(i)
-        #     color = color_table.get_color(element)
-        #     colors.SetTuple3(i, *list(color))
+        element_colors = dict()
+        for i, element in self.elements.items():
+            element_colors[i] = color_table.get_color(element)
+
+        n_cells = data.GetNumberOfCells()
+        for i in range(n_cells):
+            element_index = element_indexes.GetValue(i)
+            color = element_colors[element_index]
+            colors.SetTuple(i, color)
 
         self.GetMapper().SetScalarModeToUseCellData()
         self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
         self.GetMapper().ScalarVisibilityOn()
-
-
-        # c = vtk.vtkUnsignedCharArray()
-        # c.DeepCopy(self._colors)
-        # for key, element in self.elements.items():
-        #     index = self._key_indexes.get(key, None)
-        #     if index is None:
-        #         continue
-        #     color = self.colorTable.get_color(element)
-        #     c.SetTuple(index, color)
-
-        # self._data.GetPointData().SetScalars(c)
-        # self._colors = c
     
     def get_cell_element(self, cell):
         data = self.GetMapper().GetInput()
