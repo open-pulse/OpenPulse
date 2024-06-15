@@ -8,7 +8,7 @@ from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from vtkat.render_widgets import AnimatedRenderWidget
 
 
-from pulse.interface.viewer_3d.actors import TubeActor
+from pulse.interface.viewer_3d.actors import TubeActorDeformed
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
 from pulse.postprocessing.plot_structural_data import get_structural_response, get_min_max_resultant_displacements
@@ -76,7 +76,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if self.analysis_mode == AnalysisMode.DISPLACEMENT:
             self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
 
-        self.tubes_actor = TubeActor(project)
+        self.tubes_actor = TubeActorDeformed(project)
 
         self.renderer.AddActor(self.tubes_actor)
 
@@ -86,7 +86,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if reset_camera:
             self.renderer.ResetCamera()
-        # self.update()
+        self.update()
     
     def show_empty(self, *args, **kwargs):
         pass
