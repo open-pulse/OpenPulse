@@ -9,7 +9,7 @@ from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from vtkat.render_widgets import CommonRenderWidget
 
 from ._mesh_picker import MeshPicker
-from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, TubeActor
+from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, TubeActorGPU
 from pulse.interface.viewer_3d.actors.tube_actor import ColorMode
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
@@ -99,7 +99,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.nodes_actor = NodesActor(project)
         self.lines_actor = ElementLinesActor(project)
-        self.tubes_actor = TubeActor(project)
+        self.tubes_actor = TubeActorGPU(project)
 
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update

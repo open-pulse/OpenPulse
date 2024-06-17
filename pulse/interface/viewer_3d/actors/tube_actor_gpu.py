@@ -1,7 +1,8 @@
 import vtk
 
+from time import time
 
-class TubeActor(vtk.vtkActor):
+class TubeActorGPU(vtk.vtkActor):
     def __init__(self, project, **kwargs) -> None:
         super().__init__()
 
@@ -31,8 +32,8 @@ class TubeActor(vtk.vtkActor):
             rotations.InsertNextTuple(element.section_rotation_xyz_undeformed)
             sources.InsertNextTuple1(0)
 
-        source = self.create_element_data(element)
-        mapper.SetSourceData(0, source)
+            source = self.create_element_data(element)
+            mapper.SetSourceData(0, source)
 
         data.SetPoints(points)
         data.GetPointData().AddArray(sources)
@@ -49,8 +50,22 @@ class TubeActor(vtk.vtkActor):
 
         self.SetMapper(mapper)
 
+        self.plane = vtk.vtkPlane()
+        self.plane.SetOrigin((0.5, 0.5, 0.5))
+        self.plane.SetNormal((1, 1, 0))
+        mapper.AddClippingPlane(self.plane)
+
     def create_element_data(self, element):
         sphere = vtk.vtkSphereSource()
         sphere.SetRadius(0.1)
         sphere.Update()
         return sphere.GetOutput()
+
+    def clear_colors(self, *args, **kwargs):
+        pass
+
+    def set_color(self, *args, **kwargs):
+        pass
+
+    def set_color_table(self, *args, **kwargs):
+        pass
