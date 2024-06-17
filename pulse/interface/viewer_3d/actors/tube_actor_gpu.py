@@ -20,13 +20,14 @@ class TubeActorGPU(TubeActor):
     With vtkGlyph3DMapper we just need to create some arrays and very few meshes, and
     send it to the GPU, and the hard work is handled there (very fastly btw).
     '''
-    def __init__(self, project, **kwargs) -> None:
+    def __init__(self, project, show_deformed=False, **kwargs) -> None:
         super().__init__(project, **kwargs)
 
         self.project = project
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
         self.hidden_elements = kwargs.get('hidden_elements', set())
+        self.show_deformed = show_deformed
         self.color_mode = ColorMode.empty
 
         self.build()
@@ -54,8 +55,12 @@ class TubeActorGPU(TubeActor):
 
         section_index = dict()
         for element in visible_elements.values():
-            points.InsertNextPoint(*element.first_node.coordinates)
-            rotations.InsertNextTuple(element.section_rotation_xyz_undeformed)
+            if self.show_deformed:
+                points.InsertNextPoint(*element.first_node.deformed_coordinates)
+                rotations.InsertNextTuple(element.deformed_rotation_xyz)
+            else:
+                points.InsertNextPoint(*element.first_node.coordinates)
+                rotations.InsertNextTuple(element.section_rotation_xyz_undeformed)
 
             key = self._hash_element_section(element)
             if key not in section_index:
