@@ -3,7 +3,6 @@ from enum import Enum
 
 from .tube_actor import TubeActor
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
-from pulse import app
 
 class ColorMode(Enum):
     empty = 0
@@ -110,7 +109,7 @@ class TubeActorGPU(TubeActor):
             elements = set()
 
         # Get the elements inside every entity to paint them
-        line_to_elements = app().project.preprocessor.line_to_elements
+        line_to_elements = self.project.preprocessor.line_to_elements
         for entity in entities:
             entity_elements = line_to_elements[entity]
             elements |= set(entity_elements)
