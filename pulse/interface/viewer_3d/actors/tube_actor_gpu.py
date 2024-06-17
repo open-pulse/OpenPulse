@@ -166,8 +166,8 @@ class TubeActorGPU(vtk.vtkActor):
         colors = vtk.vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for element in self.elements.values():
-            index = self._key_index.get(element)
+        for i, element in self.elements.items():
+            index = self._key_index.get(i)
             if index is None:
                 continue
             color = color_table.get_color(element)
