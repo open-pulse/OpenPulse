@@ -83,11 +83,6 @@ class TubeActorGPU(TubeActor):
 
         self.SetMapper(mapper)
 
-        self.plane = vtk.vtkPlane()
-        self.plane.SetOrigin((0.5, 0.5, 0.5))
-        self.plane.SetNormal((1, 1, 0))
-        mapper.AddClippingPlane(self.plane)
-
     def clear_colors(self):
         if self.color_mode == ColorMode.empty:
             self.set_color((255, 255, 255))
@@ -140,6 +135,15 @@ class TubeActorGPU(TubeActor):
 
         data.GetPointData().SetScalars(colors)
         self.GetMapper().Update()
+
+    def apply_cut(self, origin, normal):
+        self.plane = vtk.vtkPlane()
+        self.plane.SetOrigin(origin)
+        self.plane.SetNormal(normal)
+        self.GetMapper().AddClippingPlane(self.plane)
+
+    def disable_cut(self):
+        self.GetMapper().RemoveAllClippingPlanes()
 
     def _hash_element_section(self, element):
         return hash((
