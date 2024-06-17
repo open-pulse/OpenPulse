@@ -1,7 +1,8 @@
 import vtk
+import numpy as np
 from enum import Enum
 
-from .tube_actor import TubeActor
+from opps.interface.viewer_3d.utils import cross_section_sources 
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 
 class ColorMode(Enum):
@@ -10,7 +11,7 @@ class ColorMode(Enum):
     fluid = 2
 
 
-class TubeActorGPU(TubeActor):
+class TubeActorGPU(vtk.vtkActor):
     '''
     This is an implementation of the tube actor that shows every element separatedly.
     Because we usually hava a lot of elements, this actor need to be incredbly fast.
@@ -21,7 +22,7 @@ class TubeActorGPU(TubeActor):
     send it to the GPU, and the hard work is handled there (very fastly btw).
     '''
     def __init__(self, project, show_deformed=False, **kwargs) -> None:
-        super().__init__(project, **kwargs)
+        super().__init__()
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -87,6 +88,39 @@ class TubeActorGPU(TubeActor):
 
         self.SetMapper(mapper)
 
+    def create_element_data(self, element):
+        cross_section = element.cross_section
+        if cross_section is None:
+            return None
+
+        if "Pipe section" in cross_section.section_label:
+            d_out = cross_section.outer_diameter
+            t = cross_section.thickness
+            return cross_section_sources.pipe_data(element.length, d_out, t)
+
+        elif cross_section.section_label == "Rectangular section":
+            b, h, t, *_ = cross_section.section_parameters
+            return cross_section_sources.rectangular_beam_data(element.length, b, h, t)
+
+        elif cross_section.section_label == "Circular section":
+            d_out, t, *_ = cross_section.section_parameters
+            return cross_section_sources.circular_beam_data(element.length, d_out, t)
+
+        elif cross_section.section_label == "C-section":
+            h, w1, t1, w2, t2, tw, *_ = cross_section.section_parameters
+            return cross_section_sources.c_beam_data(element.length, h, w1, w2, t1, t2, tw)
+
+        elif cross_section.section_label == "I-section":
+
+            h, w1, t1, w2, t2, tw, *_ = cross_section.section_parameters
+            return cross_section_sources.i_beam_data(element.length, h, w1, w2, t1, t2, tw)
+
+        elif cross_section.section_label == "T-section":
+            h, w1, t1, tw, *_ = cross_section.section_parameters
+            return cross_section_sources.t_beam_data(element.length, h, w1, t1, tw)
+
+        return None
+
     def clear_colors(self):
         if self.color_mode == ColorMode.empty:
             self.set_color((255, 255, 255))
@@ -133,8 +167,48 @@ class TubeActorGPU(TubeActor):
         colors.DeepCopy(data.GetPointData().GetScalars())
 
         for element in self.elements.values():
-            color = color_table.get_color(element)
             index = self._key_index.get(element)
+            if index is None:
+                continue
+            color = color_table.get_color(element)
+            colors.SetTuple(index, color)
+
+        data.GetPointData().SetScalars(colors)
+        self.GetMapper().Update()
+
+    def color_by_material(self):
+        # This copy is needed, otherwise the mapper is not updated
+        data: vtk.vtkPolyData = self.GetMapper().GetInput()
+        colors = vtk.vtkUnsignedCharArray()
+        colors.DeepCopy(data.GetPointData().GetScalars())
+
+        for element in self.elements.values():
+            index = self._key_index.get(element)
+            if index is None:
+                continue
+
+            # get the element color and make it a bit brighter
+            color = np.array(element.material.getColorRGB()) + 50
+            color = tuple(np.clip(color, 0, 255))
+            colors.SetTuple(index, color)
+
+        data.GetPointData().SetScalars(colors)
+        self.GetMapper().Update()
+
+    def color_by_fluid(self):
+        # This copy is needed, otherwise the mapper is not updated
+        data: vtk.vtkPolyData = self.GetMapper().GetInput()
+        colors = vtk.vtkUnsignedCharArray()
+        colors.DeepCopy(data.GetPointData().GetScalars())
+
+        for element in self.elements.values():
+            index = self._key_index.get(element)
+            if index is None:
+                continue
+
+            # get the element color and make it a bit brighter
+            color = np.array(element.fluid.getColorRGB()) + 50
+            color = tuple(np.clip(color, 0, 255))
             colors.SetTuple(index, color)
 
         data.GetPointData().SetScalars(colors)
