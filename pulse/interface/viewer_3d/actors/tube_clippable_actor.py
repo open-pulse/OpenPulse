@@ -86,10 +86,12 @@ class TubeClippableActor(ActorBase):
             transform_filter.Update()
 
             append_polydata.AddInputData(transform_filter.GetOutput())
-        
-        append_polydata.Update()
-        self._data = append_polydata.GetOutput()
 
+        if visible_elements:
+            append_polydata.Update()
+            self._data = append_polydata.GetOutput()
+        else:
+            self._data = vtk.vtkPolyData()
 
     def map(self):
         self._mapper.SetInputData(self._data)
@@ -154,6 +156,9 @@ class TubeClippableActor(ActorBase):
         self.bff = 1
 
     def createTubeSection(self, element) -> vtk.vtkPolyData:
+        sphere = vtk.vtkSphereSource()
+        return sphere.GetOutput()
+
         extruderFilter = vtk.vtkLinearExtrusionFilter()
         polygon = self.createSectionPolygon(element)
         size = element.length

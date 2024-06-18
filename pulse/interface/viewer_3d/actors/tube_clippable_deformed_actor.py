@@ -44,5 +44,8 @@ class TubeClippableDeformedActor(TubeClippableActor):
 
             append_polydata.AddInputData(transform_filter.GetOutput())
         
-        append_polydata.Update()
-        self._data = append_polydata.GetOutput()
+        if visible_elements:
+            append_polydata.Update()
+            self._data = append_polydata.GetOutput()
+        else:
+            self._data = vtk.vtkPolyData()

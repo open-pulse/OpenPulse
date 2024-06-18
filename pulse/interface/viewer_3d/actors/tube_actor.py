@@ -67,10 +67,14 @@ class TubeActor(vtk.vtkActor):
 
             append_polydata.AddInputData(transform_filter.GetOutput())
         
-        append_polydata.Update()
+        if visible_elements:
+            append_polydata.Update()
+            appended_data = append_polydata.GetOutput()
+        else:
+            appended_data = vtk.vtkPolyData()
 
         normals_filter = vtk.vtkPolyDataNormals()
-        normals_filter.AddInputData(append_polydata.GetOutput())
+        normals_filter.AddInputData(appended_data)
         normals_filter.Update()
 
         data: vtk.vtkPolyData = normals_filter.GetOutput()
