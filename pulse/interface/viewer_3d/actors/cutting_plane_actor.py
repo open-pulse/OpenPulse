@@ -24,14 +24,8 @@ class CuttingPlaneActor(vtk.vtkActor):
         cone.Update()
         cylinder.Update()
 
-        append_filter = vtk.vtkAppendPolyData()
-        append_filter.AddInputData(plane.GetOutput())
-        # append_filter.AddInputData(cone.GetOutput())
-        # append_filter.AddInputData(cylinder.GetOutput())
-        append_filter.Update()
-
         mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInputData(append_filter.GetOutput())
+        mapper.SetInputData(plane.GetOutput())
         self.SetMapper(mapper)
 
     def configure_appearance(self):
