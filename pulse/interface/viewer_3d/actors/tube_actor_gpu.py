@@ -231,8 +231,8 @@ class TubeActorGPU(vtk.vtkActor):
 
     def _fixed_section(self, source):
         transform = vtk.vtkTransform()
-        transform.RotateY(180)
         transform.RotateZ(-90)
+        transform.RotateY(180)
         transform.Update()
 
         transform_filter = vtk.vtkTransformFilter()
