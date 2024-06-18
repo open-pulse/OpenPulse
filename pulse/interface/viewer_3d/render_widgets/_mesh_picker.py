@@ -2,9 +2,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .mesh_render_widget import MeshRenderWidget
 
+from itertools import product
+import numpy as np
 import vtk
-from pulse import app
 from vtkat.pickers import CellAreaPicker
+from pulse import app
 
 
 class MeshPicker:
@@ -15,14 +17,16 @@ class MeshPicker:
         self.mesh_render_widget = mesh_render_widget
 
         self.nodes_bounds = dict()
-        self.elements_bounds = dict()
-        self.entities_bounds = dict()
+        self.line_bounds = dict()
+        self.tube_bounds = dict()
     
     def update_bounds(self):
         elements = app().project.get_structural_elements()
+        self.line_bounds.clear()
+        self.tube_bounds.clear()
         
-        self.elements_bounds.clear()
         for key, element in elements.items():
+
             first_node = element.first_node.coordinates
             last_node = element.last_node.coordinates
 
@@ -33,25 +37,39 @@ class MeshPicker:
             y1 = max(first_node[1], last_node[1])
             z1 = max(first_node[2], last_node[2])
 
-            bounds = (x0,x1,y0,y1,z0,z1)
-            self.elements_bounds[key] = bounds
+            # not sure if it works every time, but is a good approximation
+            radius = max(element.cross_section.section_parameters)
+            center = element.element_center_coordinates
+            
+            line_bounds = (x0, x1, y0, y1, z0, z1)
+            self.line_bounds[key] = line_bounds
+
+            # If the cross section is bigger than the element in some dimension
+            # increase this dimension by the radius of the cross section
+            if abs(x1 - x0) < radius:
+                x0 = center[0] - radius / 2
+                x1 = center[0] + radius / 2
+            
+            if abs(y1 - y0) < radius:
+                y0 = center[1] - radius / 2
+                y1 = center[1] + radius / 2
+
+            if abs(z1 - z0) < radius:
+                z0 = center[2] - radius / 2
+                z1 = center[2] + radius / 2
+
+            # The xyz sizes may have changed
+            tube_bounds = (x0, x1, y0, y1, z0, z1)
+            self.tube_bounds[key] = tube_bounds
 
     def area_pick_nodes(self, x0, y0, x1, y1) -> set[int]:
         selection_picker = CellAreaPicker()
         selection_picker._cell_picker.SetTolerance(0.0015)
         nodes_actor = self.mesh_render_widget.nodes_actor
 
-        pickability = dict()
-        # make only the target actor pickable
-        for actor in self.mesh_render_widget.renderer.GetActors():
-            pickability[actor] = actor.GetPickable()
-            actor.SetPickable(actor == nodes_actor)
-
+        pickability = self._narrow_pickability_to_actor(nodes_actor)
         selection_picker.area_pick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
-
-        # restore the pickable status for every actor
-        for actor in self.mesh_render_widget.renderer.GetActors():
-            actor.SetPickable(pickability[actor])
+        self._restore_pickability(pickability)
 
         return selection_picker.get_picked().get(nodes_actor, set())
 
@@ -62,7 +80,7 @@ class MeshPicker:
         extractor.SetFrustum(picker.GetFrustum())
 
         picked_elements = {
-            key for key, bound in self.elements_bounds.items()
+            key for key, bound in self.line_bounds.items()
             if extractor.OverallBoundsTest(bound)
         }
         
@@ -82,7 +100,7 @@ class MeshPicker:
         elements_to_line = app().project.preprocessor.elements_to_line
         picked_entities = set()
 
-        for element, bound in self.elements_bounds.items():
+        for element, bound in self.line_bounds.items():
             entity = elements_to_line[element]
 
             if entity in picked_entities:
@@ -107,7 +125,7 @@ class MeshPicker:
             return element
 
         tubes_actor = self.mesh_render_widget.tubes_actor
-        element = self._pick_cell_property(x, y, "element_index", tubes_actor)
+        element = self._pick_tube_element(x, y, tubes_actor)
         return element
 
     def pick_entity(self, x, y) -> int:
@@ -121,20 +139,39 @@ class MeshPicker:
                 return i
 
         return -1
+    
+    def _pick_tube_element(self, x: float, y: float, target_actor: vtk.vtkActor):
+        actor: vtk.vtkActor
+        picker = vtk.vtkPropPicker()
+        elements = app().project.get_structural_elements()
+
+        pickability = self._narrow_pickability_to_actor(target_actor)
+        picker.Pick(x, y, 0, self.mesh_render_widget.renderer)
+        self._restore_pickability(pickability)
+
+        if picker.GetActor() != target_actor:
+            return -1
+        
+        point = picker.GetPickPosition()
+        closest_id = -1
+        closest_dist = None
+        for i, bounds in self.tube_bounds.items():
+            if self._point_inside_bounds(point, bounds):
+                dist = np.linalg.norm(elements[i].element_center_coordinates - point)
+                if (closest_dist is None) or (dist < closest_dist):
+                    closest_id = i
+                    closest_dist = dist
+
+        return closest_id
 
     def _pick_cell_property(self, x: float, y: float, property_name: str, target_actor: vtk.vtkActor):
-        actor: vtk.vtkActor
         cell_picker = vtk.vtkCellPicker()
         cell_picker.SetTolerance(0.0005)
-        pickability = dict()
 
-        # make only the target actor pickable
-        for actor in self.mesh_render_widget.renderer.GetActors():
-            pickability[actor] = actor.GetPickable()
-            actor.SetPickable(actor == target_actor)
-
+        pickability = self._narrow_pickability_to_actor(target_actor)
         cell_picker.Pick(x, y, 0, self.mesh_render_widget.renderer)
-        
+        self._restore_pickability(pickability)
+
         if target_actor != cell_picker.GetActor():
             return -1
 
@@ -147,9 +184,37 @@ class MeshPicker:
             return -1
 
         cell = cell_picker.GetCellId()
-        
-        # restore the pickable status for every actor
-        for actor in self.mesh_render_widget.renderer.GetActors():
-            actor.SetPickable(pickability[actor])
 
         return property_array.GetValue(cell)
+
+    def _point_inside_bounds(self, point, bounds) -> bool:
+        x, y, z = point
+        x0, x1, y0, y1, z0, z1 = bounds
+        return all([
+            (x0 < x < x1) or (x0 > x > x1),  # inside x
+            (y0 < y < y1) or (y0 > y > y1),  # inside y
+            (z0 < z < z1) or (z0 > z > z1),  # inside z
+        ])
+    
+    def _verts_from_bounds(self, bounds):
+        x0, x1, y0, y1, z0, z1 = bounds
+        return product((x0, x1), (y0, y1), (z0, z1))
+
+    def _distance_point_bounds(self, point, bounds) -> float:
+        point = np.array(point)
+        distance_fn = lambda _vertice: np.linalg.norm(point - _vertice)
+        vertices = self._verts_from_bounds(bounds)
+        return min(vertices, key=distance_fn)
+
+    def _narrow_pickability_to_actor(self, target_actor: vtk.vtkActor):
+        actor: vtk.vtkActor
+        pickability = dict()
+        for actor in self.mesh_render_widget.renderer.GetActors():
+            pickability[actor] = actor.GetPickable()
+            actor.SetPickable(actor == target_actor)
+        return pickability 
+    
+    def _restore_pickability(self, pickability: dict):
+        actor: vtk.vtkActor
+        for actor in self.mesh_render_widget.renderer.GetActors():
+            actor.SetPickable(pickability[actor])
