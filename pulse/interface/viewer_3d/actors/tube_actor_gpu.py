@@ -88,6 +88,12 @@ class TubeActorGPU(vtk.vtkActor):
 
         self.SetMapper(mapper)
 
+        self.GetProperty().SetInterpolationToPhong()
+        self.GetProperty().SetDiffuse(0.8)
+        self.GetProperty().SetSpecular(1.5)
+        self.GetProperty().SetSpecularPower(80)
+        self.GetProperty().SetSpecularColor(1, 1, 1)
+
     def create_element_data(self, element):
         cross_section = element.cross_section
         if cross_section is None:
