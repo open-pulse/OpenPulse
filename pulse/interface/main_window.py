@@ -897,6 +897,9 @@ class MainWindow(QMainWindow):
         message = "Would you like to exit from the OpenPulse application?"
         close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
         if close == QMessageBox.Yes:
+            self.mesh_widget.render_interactor.Finalize()
+            self.results_widget.render_interactor.Finalize()
+            self.opv_widget.Finalize()
             sys.exit()
         else:
             event.ignore()
