@@ -11,6 +11,9 @@ class GeometryRenderWidget(EditorRenderWidget):
         self.create_logos()
         self.set_theme("light")
 
+        self.renderer.RemoveAllLights()
+        self.create_camera_light(0.1, 0.1)
+
     def create_logos(self, theme="light"):
         self.renderer.RemoveViewProp(self.open_pulse_logo)
         self.open_pulse_logo = self.create_logo(ICON_DIR/ 'logos/OpenPulse_logo_gray.png')
