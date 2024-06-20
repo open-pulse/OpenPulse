@@ -314,12 +314,9 @@ class FluidWidget(QWidget):
             self.tableWidget_fluid_data.setColumnCount(current_size - 1)
             return
 
-        title = "Additional confirmation required to proceed"
-        message = "Would you like to remove the selected fluid from fluid library?"
-        if self.get_confirmation_to_proceed(title, message):
-            fluid = self.list_of_fluids[selected_column]
-            self.remove_fluid_from_file(fluid)
-    
+        fluid = self.list_of_fluids[selected_column]
+        self.remove_fluid_from_file(fluid)
+
     def item_changed_callback(self, item):
 
         self.tableWidget_fluid_data.blockSignals(True)
