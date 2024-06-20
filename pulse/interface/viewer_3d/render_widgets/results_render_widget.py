@@ -65,6 +65,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_color_bar()
         self.create_logos()
         self.set_theme("light")
+        self.create_camera_light(0.1, 0.1)
 
     def update_plot(self, reset_camera=False):
         self.remove_actors()
