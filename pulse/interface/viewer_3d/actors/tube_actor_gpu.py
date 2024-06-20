@@ -101,7 +101,7 @@ class TubeActorGPU(vtk.vtkActor):
 
         if "Pipe section" in cross_section.section_label:
             d_out, t, *_ = cross_section.section_parameters
-            return cross_section_sources.pipe_data(element.length, d_out, t)
+            return cross_section_sources.pipe_data(element.length, d_out, t, sides=30)
 
         elif cross_section.section_label == "Rectangular section":
             b, h, t, *_ = cross_section.section_parameters
