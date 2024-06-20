@@ -11,7 +11,15 @@ from vtkat.render_widgets import AnimatedRenderWidget
 from pulse.interface.viewer_3d.actors import TubeActorGPU
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
-from pulse.postprocessing.plot_structural_data import get_structural_response, get_min_max_resultant_displacements
+from pulse.postprocessing.plot_structural_data import (
+    get_structural_response,
+    get_stresses_to_plot,
+    get_min_max_resultant_displacements,
+)
+from pulse.postprocessing.plot_acoustic_data import (
+    get_max_min_values_of_pressures,
+    get_acoustic_response,
+)
 from pulse import app, ICON_DIR
 
 
@@ -53,8 +61,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.current_frequency_index = 0
         self.current_phase_step = 0
-        self.result_disp_min = 0
-        self.result_disp_max = 0
+        self._result_min = 0
+        self._result_max = 0
         self.u_def = []
 
         self.analysis_mode = AnalysisMode.EMPTY
@@ -73,15 +81,21 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         project = app().project
 
-        # update the data according to 
+        # update the data according to the current analysis
         if self.analysis_mode == AnalysisMode.DISPLACEMENT:
             self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
+
+        elif self.analysis_mode == AnalysisMode.STRESS:
+            self._compute_stress_field(self.current_frequency_index, self.current_phase_step)
+
+        elif self.analysis_mode == AnalysisMode.PRESURE:
+            self._compute_pressure_field(self.current_frequency_index, self.current_phase_step)
 
         self.tubes_actor = TubeActorGPU(project)
 
         self.renderer.AddActor(self.tubes_actor)
 
-        color_table = ColorTable(project, self.u_def, [self.result_disp_min, self.result_disp_max], self.colormap)
+        color_table = ColorTable(project, self.u_def, [self._result_min, self._result_max], self.colormap)
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
 
@@ -100,15 +114,38 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.analysis_mode = AnalysisMode.DISPLACEMENT
 
         tmp = get_min_max_resultant_displacements(solution, frequency_index)
-        _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
+        _, self._result_min, self._result_max, self.r_xyz_abs = tmp
 
         self.update_plot()
 
     def show_stress_field(self, frequency_index):
-        pass
+        return
+        solution = app().main_window.project.get_structural_solution()
+
+        self.current_frequency_index = frequency_index
+        self.current_phase_step = 0
+        self.analysis_mode = AnalysisMode.STRESS
+
+        tmp = get_min_max_resultant_displacements(solution, frequency_index)
+        _, self._result_min, self._result_max, self.r_xyz_abs = tmp
+
+        self.update_plot()
 
     def show_pressure_field(self, frequency_index):
-        pass
+        return
+        solution = app().main_window.project.get_structural_solution()
+
+        self.current_frequency_index = frequency_index
+        self.current_phase_step = 0
+        self.analysis_mode = AnalysisMode.PRESURE
+
+        tmp = get_max_min_values_of_pressures(solution, frequency_index)
+        self.pressure_min, self.pressure_max = tmp
+
+        tmp = get_max_min_values_of_pressures(solution, frequency_index)
+        _, self._result_min, self._result_max, self.r_xyz_abs = tmp
+
+        self.update_plot()
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.tubes_actor)
@@ -143,8 +180,21 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             r_max = self.r_xyz_abs
         )
 
+    def _compute_stress_field(self, frequency_index, phase_step):
+        return
+        project = app().project
+        preprocessor = project.preprocessor
+        solution = project.get_structural_solution()
+        get_stresses_to_plot(phase_step)
 
-        # if self.clipping_plane_active:
-        #     self.opvClippableDeformedTubes.build()
-        #     self.opvClippableDeformedTubes.setColorTable(colorTable)
-        #     self.opvClippableDeformedTubes.apply_cut(self.plane_origin, self.plane_normal)
+    def _compute_pressure_field(self, frequency_index, phase_step):
+        return
+        project = app().project
+        preprocessor = project.preprocessor
+        solution = project.get_acoustic_solution()
+
+        *_, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(
+            preprocessor,
+            solution,
+            frequency_index, 
+            phase_step=phase_step  )
