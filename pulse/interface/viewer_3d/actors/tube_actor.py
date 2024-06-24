@@ -5,7 +5,7 @@ from enum import Enum
 
 from vtkat.utils import set_polydata_property, set_polydata_colors
 from opps.interface.viewer_3d.utils import cross_section_sources 
-from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
+from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
 
 class ColorMode(Enum):

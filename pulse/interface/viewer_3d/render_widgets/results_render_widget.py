@@ -9,7 +9,7 @@ from vtkat.render_widgets import AnimatedRenderWidget
 
 
 from pulse.interface.viewer_3d.actors import TubeActorGPU, CuttingPlaneActor
-from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
+from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
 from pulse.interface.utils import rotation_matrices
 from pulse.postprocessing.plot_structural_data import (
@@ -123,7 +123,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update()
 
     def set_colormap(self, colormap):
-        print(colormap)
         self.colormap = colormap
         self.update_plot()
 

@@ -7,7 +7,7 @@ from pulse import app
 
 from pulse.interface.viewer_3d.vtk.vtkRendererBase import vtkRendererBase
 from pulse.interface.viewer_3d.vtk.vtkMeshClicker import vtkMeshClicker
-from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
+from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor

@@ -3,7 +3,7 @@ import numpy as np
 from enum import Enum
 
 from opps.interface.viewer_3d.utils import cross_section_sources 
-from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
+from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
 class ColorMode(Enum):
     empty = 0

@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation
 from time import time
 
 from pulse.interface.tubeActor import TubeActor
-from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
+from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
 class TubeDeformedActor(TubeActor):
     def __init__(self, project, opv, *args, **kwargs):
