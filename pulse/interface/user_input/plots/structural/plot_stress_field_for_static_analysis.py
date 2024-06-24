@@ -112,6 +112,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
         self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
     def get_stress_data(self):

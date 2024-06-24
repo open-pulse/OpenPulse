@@ -121,7 +121,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if reset_camera:
             self.renderer.ResetCamera()
         self.update()
-    
+
+    def set_colormap(self, colormap):
+        print(colormap)
+        self.colormap = colormap
+        self.update_plot()
+
     def show_empty(self, *args, **kwargs):
         pass
 

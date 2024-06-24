@@ -209,10 +209,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvDeformedTubes.getActor().GetProperty().SetOpacity(1)
         self.opvPressureTubes.getActor().GetProperty().SetOpacity(1)
 
-        try:
-            app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
-        except:
-            pass
+        # try:
+        #     app().main_window.results_viewer_wigdet.current_widget.slider_transparency.setValue(0)
+        # except:
+        #     pass
 
         self._currentPhase = phase_step
         self._currentPlot(self._currentFrequencyIndex, phase_step)
