@@ -37,7 +37,13 @@ class PlotAcousticModeShape(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _define_qt_variables(self):
 

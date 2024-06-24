@@ -3,7 +3,7 @@ import numpy as np
 from pulse.interface.viewer_3d.coloring.color_palettes import (
     grey_colors, jet_colors, 
     viridis_colors, inferno_colors, magma_colors, plasma_colors,
-    bwr_colors, PiYG_colors,
+    bwr_colors, PiYG_colors, PRGn_colors, BrBG_colors, PuOR_colors,
 )
 
 class ColorTable(vtk.vtkLookupTable):
@@ -48,13 +48,19 @@ class ColorTable(vtk.vtkLookupTable):
             self.set_colors(plasma_colors)
         elif colormap == "bwr":
             self.set_colors(bwr_colors)
-        elif colormap == "PiYG":
+        elif colormap == "piyg":
             self.set_colors(PiYG_colors)
+        elif colormap == "prgn":
+            self.set_colors(PRGn_colors)            
+        elif colormap == "brbg":
+            self.set_colors(BrBG_colors)
+        elif colormap == "puor":
+            self.set_colors(PuOR_colors)
         else:
             print(f'Invalid colormap "{colormap}". Using "viridis" instead.')
             self.set_colors(viridis_colors)
 
-        diverging_colormaps = ["bwr", "PiYG"]
+        diverging_colormaps = ["bwr", "piyg", "prgn", "brbg", "puor"]
         if colormap in diverging_colormaps:
             # Center values on Zeros
             max_abs = max(abs(self.min_value), abs(self.max_value))
