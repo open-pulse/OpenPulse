@@ -1,3 +1,4 @@
+# Common
 grey_colors = [
     (0, 0, 0),
     (255, 255, 255),
@@ -11,6 +12,7 @@ jet_colors = [
     (255, 0, 0),
 ]
 
+# Perceptually Uniform Sequential Colormaps
 # https://waldyrious.net/viridis-palette-generator/
 viridis_colors = [
     (68, 1, 84),
@@ -42,4 +44,35 @@ plasma_colors = [
     (204, 71, 120),
     (248, 149, 64),
     (240, 249, 33),
+]
+
+# Diverging Colormaps
+bwr = [
+    (0, 0, 255),
+    (255, 255, 255),
+    (255, 0, 0),
+]
+
+PiYG = [
+    (142, 1, 82),
+    (247, 247, 247),
+    (39, 100, 25),
+]
+
+PRGn = [
+    (64, 0, 75),
+    (247, 247, 247),
+    (0, 68, 27),
+]
+
+BrBG = [
+    (84, 48, 5),
+    (245, 245, 245),
+    (0, 60, 48),
+]
+
+PuOR = [
+    (127, 59, 8),
+    (247, 247, 247),
+    (45, 0, 75),
 ]
