@@ -2,27 +2,19 @@ import vtk
 
 
 class CuttingPlaneActor(vtk.vtkActor):
-    def __init__(self):
+    def __init__(self, size=1):
+        self.size = size
         self.create_geometry()
         self.configure_appearance()
 
     def create_geometry(self):
         plane = vtk.vtkCubeSource()
-        cylinder = vtk.vtkCylinderSource()
-        cone = vtk.vtkConeSource()
 
         plane.SetCenter(0, 0, 0)
-        plane.SetXLength(0.005)
-        plane.SetYLength(1)
-        plane.SetZLength(1)
-        cone.SetCenter(0.025, 0, 0)
-        cone.SetRadius(0.01)
-        cone.SetHeight(0.04)
-        cone.SetResolution(10)
-
+        plane.SetXLength(self.size * 0.005)
+        plane.SetYLength(self.size)
+        plane.SetZLength(self.size)
         plane.Update()
-        cone.Update()
-        cylinder.Update()
 
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputData(plane.GetOutput())

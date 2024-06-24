@@ -1,16 +1,17 @@
 from dataclasses import dataclass
 from pathlib import Path
 from enum import Enum, auto
+import numpy as np
 
-from PyQt5.QtWidgets import QApplication
 from vtkat.interactor_styles import BoxSelectionInteractorStyle
 from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from vtkat.render_widgets import AnimatedRenderWidget
 
 
-from pulse.interface.viewer_3d.actors import TubeActorGPU
+from pulse.interface.viewer_3d.actors import TubeActorGPU, CuttingPlaneActor
 from pulse.interface.viewer_3d.coloring.colorTable import ColorTable
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
+from pulse.interface.utils import rotation_matrices
 from pulse.postprocessing.plot_structural_data import (
     get_structural_response,
     get_stresses_to_plot,
@@ -60,6 +61,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.open_pulse_logo = None
         self.tubes_actor = None
+        self.plane_actor = None
 
         self.current_frequency_index = 0
         self.current_phase_step = 0
@@ -77,6 +79,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
 
+    def create_logos(self, theme="light"):
+        self.renderer.RemoveViewProp(self.open_pulse_logo)
+        self.open_pulse_logo = self.create_logo(ICON_DIR/ 'logos/OpenPulse_logo_gray.png')
+        self.open_pulse_logo.SetPosition(0.845, 0.89)
+        self.open_pulse_logo.SetPosition2(0.15, 0.15)
+
     def update_plot(self, reset_camera=False):
         self.remove_actors()
         self.create_logos()
@@ -84,7 +92,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         project = app().project
 
         # update the data according to the current analysis
+        deformed = False
         if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+            deformed = True
             color_table = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
 
         elif self.analysis_mode == AnalysisMode.STRESS:
@@ -98,9 +108,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             color_table = ColorTable(project, [], [0, 0], self.colormap)
 
 
-        self.tubes_actor = TubeActorGPU(project)
+        self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
+        self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
+        self.plane_actor.VisibilityOff()
 
         self.renderer.AddActor(self.tubes_actor)
+        self.renderer.AddActor(self.plane_actor)
 
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
@@ -157,6 +170,39 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.GetProperty().SetOpacity(opacity)
         self.update()
 
+    def configure_cutting_plane(self, x, y, z, rx, ry, rz):
+        self.tubes_actor.disable_cut()
+
+        self.plane_origin = self._calculate_relative_position([x, y, z])
+        self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
+        self.plane_actor.SetPosition(self.plane_origin)
+        self.plane_actor.SetOrientation(rx, ry, rz)
+        self.plane_actor.GetProperty().SetOpacity(0.9)
+        self.plane_actor.VisibilityOn()
+        self.update()
+
+    def apply_cutting_plane(self):
+        if self.plane_origin is None:
+            return
+
+        if self.plane_normal is None:
+            return
+        
+        self.cutting_plane_active = True
+        self.tubes_actor.apply_cut(self.plane_origin, self.plane_normal)
+        self.plane_actor.GetProperty().SetOpacity(0.2)
+
+        self.update()
+    
+    def dismiss_cutting_plane(self):
+        if not self._actor_exists():
+            return
+        
+        self.cutting_plane = False
+        self.tubes_actor.disable_cut()
+        self.plane_actor.VisibilityOff()
+        self.update()
+
     def remove_actors(self):
         self.renderer.RemoveActor(self.tubes_actor)
         self.tubes_actor = None
@@ -166,12 +212,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.tubes_actor,
         ]
         return all([actor is not None for actor in actors])
-
-    def create_logos(self, theme="light"):
-        self.renderer.RemoveViewProp(self.open_pulse_logo)
-        self.open_pulse_logo = self.create_logo(ICON_DIR/ 'logos/OpenPulse_logo_gray.png')
-        self.open_pulse_logo.SetPosition(0.845, 0.89)
-        self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
     def _compute_displacement_field(self, frequency_index, phase_step):
         project = app().project
@@ -260,3 +300,28 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.min_max_stresses_values_current = None
         self.min_max_pressures_values_current = None
         self.plot_state = [False, False, False]
+
+    def _get_plane_size(self):
+        x0, x1, y0, y1, z0, z1 = self.tubes_actor.GetBounds()
+        size = np.max(np.abs([x1-x0, y1-y0, z1-z0]))
+        return size
+
+    def _calculate_relative_position(self, position):
+        def lerp(a, b, t):
+           return a + (b - a) * t
+
+        if not self._actor_exists():
+            return       
+        
+        bounds = self.tubes_actor.GetBounds()
+        x = lerp(bounds[0], bounds[1], position[0] / 100)
+        y = lerp(bounds[2], bounds[3], position[1] / 100)
+        z = lerp(bounds[4], bounds[5], position[2] / 100)
+        return np.array([x, y, z])
+    
+    def _calculate_normal_vector(self, orientation):
+        orientation = np.array(orientation) * np.pi / 180
+        rx, ry, rz = rotation_matrices(*orientation)
+
+        normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
+        return -normal[:3]

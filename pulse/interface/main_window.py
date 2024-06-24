@@ -3,6 +3,10 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
 
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+from opps.io.pcf.pcf_exporter import PCFExporter
+from opps.io.pcf.pcf_handler import PCFHandler
+
 from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
@@ -14,12 +18,8 @@ from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysi
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
-
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-from opps.io.pcf.pcf_exporter import PCFExporter
-from opps.io.pcf.pcf_handler import PCFHandler
 
 from time import time
 
@@ -656,30 +656,21 @@ class MainWindow(QMainWindow):
 
     def set_clip_plane_configs(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            if self.opv_widget.opvAnalysisRenderer.getInUse():
-                self.opv_widget.opvAnalysisRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
-            else:
-                self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
+            self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
 
         elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
 
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            if self.opv_widget.opvAnalysisRenderer.getInUse():
-                self.opv_widget.opvAnalysisRenderer.apply_clipping_plane()
-            else:
-                self.opv_widget.opvRenderer.apply_clipping_plane()
+            self.results_widget.apply_cutting_plane()
         
         elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.opv_widget.opvRenderer.apply_clipping_plane()
         
     def close_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            if self.opv_widget.opvAnalysisRenderer.getInUse():
-                self.opv_widget.opvAnalysisRenderer.dismiss_clipping_plane()
-            else:
-                self.opv_widget.opvRenderer.dismiss_clipping_plane()
+            self.results_widget.dismiss_cutting_plane()
         
         elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.opv_widget.opvRenderer.dismiss_clipping_plane()
