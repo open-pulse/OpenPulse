@@ -53,6 +53,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         super().__init__(parent)
 
         app().main_window.theme_changed.connect(self.set_theme)
+        self.renderer.SetUseDepthPeeling(True)  # dont't remove, transparency depends on it
         
         # self.interactor_style = BoxSelectionInteractorStyle()
         # self.render_interactor.SetInteractorStyle(self.interactor_style)
@@ -151,6 +152,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.update_plot()
 
+    def set_tube_actors_transparency(self, transparency):
+        opacity = 1 - transparency
+        self.tubes_actor.GetProperty().SetOpacity(opacity)
+        self.update()
+
     def remove_actors(self):
         self.renderer.RemoveActor(self.tubes_actor)
         self.tubes_actor = None
@@ -189,7 +195,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             u_def,
             (self.result_disp_min, self.result_disp_max),
             self.colormap,
-            stress_field_plot=True,   
         )
 
         return color_table
