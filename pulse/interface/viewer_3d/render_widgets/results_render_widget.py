@@ -55,7 +55,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         app().main_window.theme_changed.connect(self.set_theme)
         self.renderer.SetUseDepthPeeling(True)  # dont't remove, transparency depends on it
-        
+
         # self.interactor_style = BoxSelectionInteractorStyle()
         # self.render_interactor.SetInteractorStyle(self.interactor_style)
 
@@ -68,6 +68,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._result_min = 0
         self._result_max = 0
         self.u_def = []
+
+        self.cutting_plane_active = False
+        self.transparency = 0
+        self.plane_origin = (0, 0, 0)
+        self.plane_normal = (1, 0, 0)
+        self.config_tube_args = (0, 0, 0, 0, 0, 0)
 
         self.analysis_mode = AnalysisMode.EMPTY
         self.colormap = "viridis"
@@ -117,6 +123,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
+
+        if self.cutting_plane_active:
+            self.configure_cutting_plane(*self.config_tube_args)
+            self.apply_cutting_plane()
+        self.set_tube_actors_transparency(self.transparency)
 
         if reset_camera:
             self.renderer.ResetCamera()
@@ -174,12 +185,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update_plot()
 
     def set_tube_actors_transparency(self, transparency):
+        self.transparency = transparency
         opacity = 1 - transparency
         self.tubes_actor.GetProperty().SetOpacity(opacity)
         self.update()
 
     def configure_cutting_plane(self, x, y, z, rx, ry, rz):
         self.tubes_actor.disable_cut()
+        self.config_tube_args = x, y, z, rx, ry, rz
 
         self.plane_origin = self._calculate_relative_position([x, y, z])
         self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
@@ -195,29 +208,32 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if self.plane_normal is None:
             return
-        
+
         self.cutting_plane_active = True
         self.tubes_actor.apply_cut(self.plane_origin, self.plane_normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
-
+        self.plane_actor.VisibilityOn()
         self.update()
     
     def dismiss_cutting_plane(self):
         if not self._actor_exists():
             return
         
-        self.cutting_plane = False
+        self.cutting_plane_active = False
         self.tubes_actor.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.tubes_actor)
+        self.renderer.RemoveActor(self.plane_actor)
         self.tubes_actor = None
+        self.plane_actor = None
 
     def _actor_exists(self):
         actors = [
             self.tubes_actor,
+            self.plane_actor,
         ]
         return all([actor is not None for actor in actors])
 
