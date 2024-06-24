@@ -136,6 +136,7 @@ class PlotAcousticPressureField(QWidget):
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_pressure_field(self.frequency)
+        app().main_window.results_widget.show_pressure_field(self.frequency)
 
     def get_user_color_scale_setup(self):
 

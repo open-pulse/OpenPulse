@@ -201,6 +201,7 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_stress_field(self.selected_index)
+        app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))

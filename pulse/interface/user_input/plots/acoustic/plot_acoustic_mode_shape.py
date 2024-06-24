@@ -132,6 +132,7 @@ class PlotAcousticModeShape(QWidget):
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_pressure_field(self.mode_index)
+        app().main_window.results_widget.show_pressure_field(self.mode_index)
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100

@@ -135,6 +135,8 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
                 color_scale_setup = self.get_user_color_scale_setup()
                 self.project.set_color_scale_setup(color_scale_setup)
                 self.opv.plot_displacement_field(self.frequency)
+                app().main_window.results_widget.show_displacement_field(self.frequency)
+
 
     def get_user_color_scale_setup(self):
 
@@ -221,6 +223,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
         self.opv.plot_displacement_field(self.frequency[0])
+        app().main_window.results_widget.show_displacement_field(self.frequency[0])
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))
