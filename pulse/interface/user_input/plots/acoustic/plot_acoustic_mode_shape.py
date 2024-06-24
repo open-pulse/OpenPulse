@@ -143,6 +143,7 @@ class PlotAcousticModeShape(QWidget):
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
+        app().main_window.results_widget.set_tube_actors_transparency(transparency)
         
         if self.opv.opvAnalysisRenderer.getInUse():
             self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)

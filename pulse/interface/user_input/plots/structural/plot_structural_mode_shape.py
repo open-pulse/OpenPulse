@@ -141,13 +141,13 @@ class PlotStructuralModeShape(QWidget):
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
+        app().main_window.results_widget.set_tube_actors_transparency(transparency)
         
         if self.opv.opvAnalysisRenderer.getInUse():
             self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
         else:
             self.opv.opvRenderer.set_tube_actors_transparency(transparency)
 
-        app().main_window.results_widget.set_tube_actors_transparency(transparency)
             
 
     def get_user_color_scale_setup(self):
