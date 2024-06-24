@@ -3,6 +3,7 @@ import numpy as np
 from pulse.interface.viewer_3d.coloring.color_palettes import (
     grey_colors, jet_colors, 
     viridis_colors, inferno_colors, magma_colors, plasma_colors,
+    bwr_colors, PiYG_colors,
 )
 
 class ColorTable(vtk.vtkLookupTable):
@@ -45,14 +46,26 @@ class ColorTable(vtk.vtkLookupTable):
             self.set_colors(magma_colors)
         elif colormap == "plasma":
             self.set_colors(plasma_colors)
+        elif colormap == "bwr":
+            self.set_colors(bwr_colors)
+        elif colormap == "PiYG":
+            self.set_colors(PiYG_colors)
         else:
             print(f'Invalid colormap "{colormap}". Using "viridis" instead.')
             self.set_colors(viridis_colors)
 
+        diverging_colormaps = ["bwr", "PiYG"]
+        if colormap in diverging_colormaps:
+            # Center values on Zeros
+            max_abs = max(abs(self.min_value), abs(self.max_value))
+            self.SetTableRange(-max_abs, max_abs)
+        else:
+            self.SetTableRange(self.min_value, self.max_value)
+
     def set_colors(self, colors, shades=256):
         color_transfer = vtk.vtkColorTransferFunction()
         for i, color in enumerate(colors):
-            color_transfer.AddRGBPoint(i/len(colors), *color)
+            color_transfer.AddRGBPoint(i/(len(colors) - 1), *color)
 
         self.SetNumberOfColors(shades)
         for i in range(shades):
@@ -79,7 +92,7 @@ class ColorTable(vtk.vtkLookupTable):
         if self.stress_field_plot and element.element_type in ['beam_1', 'expansion_joint', 'valve']:
             return [255,255,255]
         elif self.pressure_field_plot and element.element_type == 'beam_1':
-            return [255,255,255]
+            return [0, 0, 0]
         elif self.pressure_field_plot:
             value = (self.valueVector[key1] + self.valueVector[key2])/2
         elif self.stress_field_plot:
@@ -88,6 +101,5 @@ class ColorTable(vtk.vtkLookupTable):
             value = (self.valueVector[key1] + self.valueVector[key2])/2
         
         self.GetColor(value, color_temp)
-        color_temp = [  int(color_temp[0]*255), int(color_temp[1]*255), int(color_temp[2]*255)  ]
-                
+        color_temp = [int(i * 255) for i in color_temp]
         return color_temp

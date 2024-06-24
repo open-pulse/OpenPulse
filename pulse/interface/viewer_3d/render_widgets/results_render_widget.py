@@ -126,6 +126,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.colormap = colormap
         self.update_plot()
 
+    def slider_callback(self, phase_deg):        
+        self.current_phase_step = phase_deg * (2 * np.pi / 360)
+        self.update_plot()
+
     def show_empty(self, *args, **kwargs):
         pass
 

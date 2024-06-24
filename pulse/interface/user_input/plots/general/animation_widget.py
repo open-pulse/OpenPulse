@@ -52,6 +52,7 @@ class AnimationWidget(QWidget):
     def slider_callback(self):
         value = self.phase_slider.value()
         self.main_window.opv_widget.opvAnalysisRenderer.slider_callback(value)
+        self.main_window.results_widget.slider_callback(value)
 
     def process_animation(self):
         self.update_animation_settings()
