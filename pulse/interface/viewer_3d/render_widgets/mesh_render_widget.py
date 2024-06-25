@@ -192,33 +192,31 @@ class MeshRenderWidget(CommonRenderWidget):
     def selection_callback(self, x1, y1):
         if not self._actor_exists():
             return
+
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
-
-        picked_nodes = set()
-        picked_elements = set()
-        picked_entities = set()
+        selection_filter = app().main_window.selection_filter
 
         if mouse_moved:
-            if self.selection_filter.nodes:
+            if selection_filter.nodes:
                 picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
 
-            if self.selection_filter.elements:
+            if selection_filter.elements:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
-    
-            if self.selection_filter.entities:
+
+            if selection_filter.entities:
                 picked_entities = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
 
         else:
-            if self.selection_filter.nodes:
+            if selection_filter.nodes:
                 picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
                 picked_nodes.difference_update([-1])
 
-            if self.selection_filter.elements:
+            if selection_filter.elements:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])
-    
-            if self.selection_filter.entities:
+
+            if selection_filter.entities:
                 picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_entities.difference_update([-1])
 
@@ -232,25 +230,13 @@ class MeshRenderWidget(CommonRenderWidget):
         shift_pressed = bool(modifiers & Qt.ShiftModifier)
         alt_pressed = bool(modifiers & Qt.AltModifier)
 
-        join = ctrl_pressed | shift_pressed
-        remove = alt_pressed
-
-        if join and remove:
-            self.selected_nodes ^= set(picked_nodes)
-            self.selected_entities ^= set(picked_entities)
-            self.selected_elements ^= set(picked_elements)
-        elif join:
-            self.selected_nodes |= set(picked_nodes)
-            self.selected_entities |= set(picked_entities)
-            self.selected_elements |= set(picked_elements)
-        elif remove:
-            self.selected_nodes -= set(picked_nodes)
-            self.selected_entities -= set(picked_entities)
-            self.selected_elements -= set(picked_elements)
-        else:
-            self.selected_nodes = set(picked_nodes)
-            self.selected_entities = set(picked_entities)
-            self.selected_elements = set(picked_elements)
+        app().main_window.set_selection(
+            nodes=picked_nodes,
+            entities=picked_entities,
+            elements=picked_elements,
+            join=ctrl_pressed | shift_pressed,
+            remove=alt_pressed,   
+        )
 
         self.update_selection()
 
@@ -259,23 +245,14 @@ class MeshRenderWidget(CommonRenderWidget):
         self.lines_actor.clear_colors()
         self.tubes_actor.clear_colors()
 
-        self.nodes_actor.set_color((255, 50, 50), self.selected_nodes)
-        self.lines_actor.set_color(
-            (200, 0, 0),
-            elements=self.selected_elements,
-            entities=self.selected_entities,
-        )
-        self.tubes_actor.set_color(
-            (255, 0, 50),
-            elements=self.selected_elements,
-            entities=self.selected_entities,
-        )
+        nodes = app().main_window.selected_nodes
+        entities = app().main_window.selected_entities
+        elements = app().main_window.selected_elements
 
-        self.update_selection_info(
-            self.selected_nodes,
-            self.selected_elements,
-            self.selected_entities,
-        )
+        self.nodes_actor.set_color((255, 50, 50), nodes)
+        self.lines_actor.set_color((200, 0, 0), elements, entities)
+        self.tubes_actor.set_color((255, 0, 50), elements, entities)
+        self.update_selection_info(nodes, elements, entities)
 
     def update_selection_info(self, nodes, elements, entities):
         info_text = ""

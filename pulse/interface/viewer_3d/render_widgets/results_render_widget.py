@@ -3,6 +3,9 @@ from pathlib import Path
 from enum import Enum, auto
 import numpy as np
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+
 from vtkat.interactor_styles import BoxSelectionInteractorStyle
 from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from vtkat.render_widgets import AnimatedRenderWidget
@@ -25,23 +28,6 @@ from pulse.postprocessing.plot_acoustic_data import (
 from pulse import app, ICON_DIR
 
 
-@dataclass
-class PlotFilter:
-    nodes: bool = False
-    lines: bool = False
-    tubes: bool = False
-    transparent: bool = False
-    acoustic_symbols: bool = False
-    structural_symbols: bool = False
-    raw_lines: bool = False
-
-
-@dataclass
-class SelectionFilter:
-    nodes: bool = False
-    entities: bool = False
-    elements: bool = False
-
 class AnalysisMode(Enum):
     EMPTY = auto()
     STRESS = auto()
@@ -52,6 +38,10 @@ class AnalysisMode(Enum):
 class ResultsRenderWidget(AnimatedRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.mouse_click = (0, 0)
+        self.left_clicked.connect(self.click_callback)
+        self.left_released.connect(self.selection_callback)
 
         app().main_window.theme_changed.connect(self.set_theme)
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
@@ -247,6 +237,72 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.VisibilityOff()
         self.update()
 
+    def click_callback(self, x, y):
+        self.mouse_click = x, y
+    
+    def selection_callback(self, x1, y1):
+        if not self._actor_exists():
+            return
+        
+        x0, y0 = self.mouse_click
+        mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
+        visualization_filter = app().main_window.visualization_filter
+        selection_filter = app().main_window.selection_filter
+
+        if mouse_moved:
+            if selection_filter.nodes:
+                picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
+
+            if selection_filter.elements and visualization_filter.lines:
+                picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
+    
+            if selection_filter.entities and visualization_filter.lines:
+                picked_entities = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
+
+        else:
+            if selection_filter.nodes:
+                picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
+                picked_nodes.difference_update([-1])
+
+            if selection_filter.elements and visualization_filter.lines:
+                picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
+                picked_elements.difference_update([-1])
+    
+            if selection_filter.entities and visualization_filter.lines:
+                picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
+                picked_entities.difference_update([-1])
+
+        # give priority to node selection
+        if picked_nodes and not mouse_moved:
+            picked_entities.clear()
+            picked_elements.clear()
+
+        modifiers = QApplication.keyboardModifiers()
+        ctrl_pressed = bool(modifiers & Qt.ControlModifier)
+        shift_pressed = bool(modifiers & Qt.ShiftModifier)
+        alt_pressed = bool(modifiers & Qt.AltModifier)
+
+        app().main_window.set_selection(
+            nodes=picked_nodes,
+            entities=picked_entities,
+            elements=picked_elements,
+            join=ctrl_pressed | shift_pressed,
+            remove=alt_pressed,   
+        )
+
+        self.update_selection()
+
+    def update_selection(self):
+        self.nodes_actor.clear_colors()
+        self.lines_actor.clear_colors()
+
+        nodes = app().main_window.selected_nodes
+        entities = app().main_window.selected_entities
+        elements = app().main_window.selected_elements
+
+        self.nodes_actor.set_color((255, 50, 50), nodes)
+        self.lines_actor.set_color((200, 0, 0), elements, entities)
+    
     def remove_actors(self):
         self.renderer.RemoveActor(self.nodes_actor)
         self.renderer.RemoveActor(self.lines_actor)

@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
         uic.loadUi(ui_path, self)
 
         self.selected_nodes = set()
-        self.selected_lines = set()
+        self.selected_entities = set()
         self.selected_elements = set()
         
         self.visualization_filter = VisualizationFilter.all_true()
@@ -250,6 +250,12 @@ class MainWindow(QMainWindow):
         self.load_recent_project()
  
     # public
+    def update(self):
+        self.geometry_widget.update_plot(reset_camera=True)
+        self.mesh_widget.update_plot(reset_camera=True)
+        self.results_widget.update_plot(reset_camera=True)
+        self.opv_widget.updatePlots()
+
     def new_project(self):
         if not self.input_widget.new_project():
             return 
@@ -336,11 +342,34 @@ class MainWindow(QMainWindow):
         geometry_handler = GeometryHandler()
         geometry_handler.export_cad_file(path)
 
-    def update(self):
-        self.geometry_widget.update_plot(reset_camera=True)
-        self.mesh_widget.update_plot(reset_camera=True)
-        self.results_widget.update_plot(reset_camera=True)
-        self.opv_widget.updatePlots()
+    def set_selection(self, *, nodes=None, elements=None, entities=None, join=False, remove=True):
+        if nodes is None:
+            nodes = set()
+        
+        if elements is None:
+            elements = set()
+        
+        if entities is None:
+            entities = set()
+        
+        if join and remove:
+            self.selected_nodes ^= set(nodes)
+            self.selected_entities ^= set(entities)
+            self.selected_elements ^= set(elements)
+        elif join:
+            self.selected_nodes |= set(nodes)
+            self.selected_entities |= set(entities)
+            self.selected_elements |= set(elements)
+        elif remove:
+            self.selected_nodes -= set(nodes)
+            self.selected_entities -= set(entities)
+            self.selected_elements -= set(elements)
+        else:
+            self.selected_nodes = set(nodes)
+            self.selected_entities = set(entities)
+            self.selected_elements = set(elements)
+
+        self.selection_changed.emit()
 
     def get_current_workspace(self):
         return self.combo_box_workspaces.currentIndex()
