@@ -7,8 +7,8 @@ from vtkat.interactor_styles import BoxSelectionInteractorStyle
 from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from vtkat.render_widgets import AnimatedRenderWidget
 
-
-from pulse.interface.viewer_3d.actors import TubeActorGPU, CuttingPlaneActor
+from ._mesh_picker import MeshPicker
+from pulse.interface.viewer_3d.actors import TubeActorGPU, NodesActor, ElementLinesActor, CuttingPlaneActor
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
 from pulse.interface.utils import rotation_matrices
@@ -56,10 +56,13 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         app().main_window.theme_changed.connect(self.set_theme)
         self.renderer.SetUseDepthPeeling(True)  # dont't remove, transparency depends on it
 
-        # self.interactor_style = BoxSelectionInteractorStyle()
-        # self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.interactor_style = BoxSelectionInteractorStyle()
+        self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
+        self.nodes_actor = None
+        self.lines_actor = None
         self.tubes_actor = None
         self.plane_actor = None
 
@@ -93,8 +96,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def update_plot(self, reset_camera=False):
         self.remove_actors()
-        self.create_logos()
-
+        self.mesh_picker.update_bounds()
         project = app().project
 
         try:
@@ -117,10 +119,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         except Exception as e:
             return 
 
+        self.nodes_actor = NodesActor(project)
+        self.lines_actor = ElementLinesActor(project)
         self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
         self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()
 
+        self.renderer.AddActor(self.nodes_actor)
+        self.renderer.AddActor(self.lines_actor)
         self.renderer.AddActor(self.tubes_actor)
         self.renderer.AddActor(self.plane_actor)
 
@@ -228,13 +234,19 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update()
 
     def remove_actors(self):
+        self.renderer.RemoveActor(self.nodes_actor)
+        self.renderer.RemoveActor(self.lines_actor)
         self.renderer.RemoveActor(self.tubes_actor)
         self.renderer.RemoveActor(self.plane_actor)
+        self.nodes_actor = None
+        self.lines_actor = None
         self.tubes_actor = None
         self.plane_actor = None
 
     def _actor_exists(self):
         actors = [
+            self.nodes_actor,
+            self.lines_actor,
             self.tubes_actor,
             self.plane_actor,
         ]

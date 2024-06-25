@@ -57,8 +57,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
-        self.mopt_logo = None
-
         self.nodes_actor = None
         self.lines_actor = None
         self.tubes_actor = None
@@ -93,9 +91,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def update_plot(self, reset_camera=False):
         self.remove_actors()
-        self.create_logos()
         self.mesh_picker.update_bounds()
-
         project = app().project
 
         self.nodes_actor = NodesActor(project)
