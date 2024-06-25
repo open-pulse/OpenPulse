@@ -175,7 +175,7 @@ class TubeActorGPU(vtk.vtkActor):
             index = self._key_index.get(i)
             if index is None:
                 continue
-            color = color_table.get_color(element)
+            color = color_table.get_element_color(element)
             colors.SetTuple(index, color)
 
         data.GetPointData().SetScalars(colors)

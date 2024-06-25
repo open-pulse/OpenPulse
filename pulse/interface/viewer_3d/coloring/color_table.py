@@ -85,8 +85,11 @@ class ColorTable(vtk.vtkLookupTable):
 
     def distance_to(self, cord1, cord2):
         return np.linalg.norm(cord1 - cord2)
+    
+    def get_node_color(self, node):
+        pass
 
-    def get_color(self, element):
+    def get_element_color(self, element):
         key1 = element.first_node.global_index
         key2 = element.last_node.global_index
 

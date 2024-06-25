@@ -197,7 +197,7 @@ class TubeActor(vtk.vtkActor):
 
         element_colors = dict()
         for i, element in self.elements.items():
-            element_colors[i] = color_table.get_color(element)
+            element_colors[i] = color_table.get_element_color(element)
 
         n_cells = data.GetNumberOfCells()
         for i in range(n_cells):

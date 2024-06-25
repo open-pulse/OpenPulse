@@ -144,7 +144,7 @@ class TubeClippableActor(ActorBase):
         self.colorTable = colorTable
 
         for key, element in self.elements.items():
-            color = self.colorTable.get_color(element)
+            color = self.colorTable.get_element_color(element)
             self.setColor(color, keys=[key])
 
     def updateBff(self):

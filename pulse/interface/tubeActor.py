@@ -141,7 +141,7 @@ class TubeActor(ActorBase):
             index = self._key_index.get(key, None)
             if index is None:
                 continue
-            color = self.colorTable.get_color(element)
+            color = self.colorTable.get_element_color(element)
             c.SetTuple(index, color)
 
         self._data.GetPointData().SetScalars(c)
