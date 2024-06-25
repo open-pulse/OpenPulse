@@ -97,22 +97,25 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         project = app().project
 
-        # update the data according to the current analysis
-        deformed = False
-        if self.analysis_mode == AnalysisMode.DISPLACEMENT:
-            deformed = True
-            color_table = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
+        try:
+            # update the data according to the current analysis
+            deformed = False
+            if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+                deformed = True
+                color_table = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
 
-        elif self.analysis_mode == AnalysisMode.STRESS:
-            color_table = self._compute_stress_field(self.current_frequency_index, self.current_phase_step)
+            elif self.analysis_mode == AnalysisMode.STRESS:
+                color_table = self._compute_stress_field(self.current_frequency_index, self.current_phase_step)
 
-        elif self.analysis_mode == AnalysisMode.PRESURE:
-            color_table = self._compute_pressure_field(self.current_frequency_index, self.current_phase_step)
+            elif self.analysis_mode == AnalysisMode.PRESURE:
+                color_table = self._compute_pressure_field(self.current_frequency_index, self.current_phase_step)
 
-        else:
-            # Empty color table
-            color_table = ColorTable(project, [], [0, 0], self.colormap)
+            else:
+                # Empty color table
+                color_table = ColorTable(project, [], [0, 0], self.colormap)
 
+        except Exception as e:
+            return 
 
         self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
         self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
