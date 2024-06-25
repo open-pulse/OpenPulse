@@ -54,6 +54,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         super().__init__(parent)
 
         app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.visualization_changed.connect(self.visualization_changed_callback)
+
         self.renderer.SetUseDepthPeeling(True)  # dont't remove, transparency depends on it
 
         self.interactor_style = BoxSelectionInteractorStyle()
@@ -140,11 +142,23 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if reset_camera:
             self.renderer.ResetCamera()
-        self.update()
+        self.visualization_changed_callback()
 
     def set_colormap(self, colormap):
         self.colormap = colormap
         self.update_plot()
+
+    def visualization_changed_callback(self):
+        if not self._actor_exists():
+            return
+
+        visualization = app().main_window.visualization_filter
+        self.nodes_actor.SetVisibility(visualization.nodes)
+        self.lines_actor.SetVisibility(visualization.lines)
+        self.tubes_actor.SetVisibility(visualization.tubes)
+        opacity = 0.9 if visualization.transparent else 1
+        self.tubes_actor.GetProperty().SetOpacity(opacity)
+        self.update()
 
     def slider_callback(self, phase_deg):        
         self.current_phase_step = phase_deg * (2 * np.pi / 360)

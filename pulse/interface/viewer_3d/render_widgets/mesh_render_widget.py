@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 
 import vtk
@@ -21,25 +20,7 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
 )
 from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
 from pulse import app, ICON_DIR
-
-
-@dataclass
-class PlotFilter:
-    nodes: bool = False
-    lines: bool = False
-    tubes: bool = False
-    transparent: bool = False
-    acoustic_symbols: bool = False
-    structural_symbols: bool = False
-    raw_lines: bool = False
-
-
-@dataclass
-class SelectionFilter:
-    nodes: bool = False
-    entities: bool = False
-    elements: bool = False
-
+from pulse.interface.utils import PlotFilter, SelectionFilter
 
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
@@ -50,7 +31,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.left_released.connect(self.selection_callback)
 
         app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(self.update_visualization_style)
+        app().main_window.visualization_changed.connect(self.visualization_changed_callback)
         
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
@@ -123,7 +104,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         if reset_camera:
             self.renderer.ResetCamera()
-        # self.update()
+        self.visualization_changed_callback()
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.lines_actor)
@@ -142,49 +123,16 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
 
-    def update_visualization_style(self):
-        # visualization_setup = app().main_window.visualization_setup()
-        # self.nodes_actor.SetVisibility(visualization_setup.show_nodes)
-        # self.lines_actor.SetVisibility(visualization_setup.show_lines)
-        ...
-
-    def update_visualization(self, nodes, lines, tubes, symbols, transparent):
-        # TODO: change this function to grab the info directly 
-        # from main window and connect it in a callback
-
-        self.plot_filter = PlotFilter(
-            nodes=nodes,
-            lines=lines,
-            tubes=tubes,
-            acoustic_symbols=symbols,
-            structural_symbols=symbols,
-            transparent=transparent,
-        )
-
+    def visualization_changed_callback(self):
         if not self._actor_exists():
             return
 
-        self.nodes_actor.SetVisibility(self.plot_filter.nodes)
-        self.lines_actor.SetVisibility(self.plot_filter.lines)
-        self.tubes_actor.SetVisibility(self.plot_filter.tubes)
-
-        if self.plot_filter.transparent:
-            self.tubes_actor.GetProperty().SetOpacity(0.9)
-        else:
-            self.tubes_actor.GetProperty().SetOpacity(1)
-
-        self.acoustic_nodes_symbols_actor.SetVisibility(
-            self.plot_filter.acoustic_symbols
-        )
-        self.acoustic_elements_symbols_actor.SetVisibility(
-            self.plot_filter.acoustic_symbols
-        )
-        self.structural_nodes_symbols_actor.SetVisibility(
-            self.plot_filter.structural_symbols
-        )
-        self.structural_elements_symbols_actor.SetVisibility(
-            self.plot_filter.structural_symbols
-        )
+        visualization = app().main_window.visualization_filter
+        self.nodes_actor.SetVisibility(visualization.nodes)
+        self.lines_actor.SetVisibility(visualization.lines)
+        self.tubes_actor.SetVisibility(visualization.tubes)
+        opacity = 0.9 if visualization.transparent else 1
+        self.tubes_actor.GetProperty().SetOpacity(opacity)
         self.update()
 
     def set_selection_to_lines(self):

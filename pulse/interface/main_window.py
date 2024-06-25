@@ -19,7 +19,7 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
-
+from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter
 
 from time import time
 
@@ -28,15 +28,6 @@ import sys
 import qdarktheme
 from functools import partial
 from pathlib import Path
-
-from enum import IntEnum
-
-
-class Workspace(IntEnum):
-    GEOMETRY = 0 
-    STRUCTURAL_SETUP = 1
-    ACOUSTIC_SETUP = 2
-    RESULTS = 3
 
 
 class MainWindow(QMainWindow):
@@ -49,6 +40,13 @@ class MainWindow(QMainWindow):
 
         ui_path = UI_DIR / 'main_window.ui'
         uic.loadUi(ui_path, self)
+
+        self.selected_nodes = set()
+        self.selected_lines = set()
+        self.selected_elements = set()
+        
+        self.visualization_filter = VisualizationFilter.all_true()
+        self.selection_filter = SelectionFilter.all_true()
 
         self.ui_dir = UI_DIR
         self.config = app().config
@@ -228,6 +226,7 @@ class MainWindow(QMainWindow):
         self.splitter.widget(0).setMinimumWidth(380)
         self.opv_widget.updatePlots()
         self.opv_widget.plot_entities_with_cross_section()
+        self._update_visualization()
 
     def configure_window(self):
         self._load_stylesheets()
@@ -462,21 +461,13 @@ class MainWindow(QMainWindow):
         pass
 
     def _update_visualization(self):
-        points = self.action_show_points.isChecked()
-        lines = self.action_show_lines.isChecked()
-        tubes = self.action_show_tubes.isChecked()
         symbols = self.action_show_symbols.isChecked()
-        transparent = self.action_show_transparent.isChecked()
-        self.opv_widget.update_visualization(points, lines, tubes, symbols, transparent)
-        self.mesh_widget.update_visualization(points, lines, tubes, symbols, transparent)
-
-        if self.action_select_elements.isChecked():
-            self.opv_widget.set_selection_to_elements()
-            self.mesh_widget.set_selection_to_elements()
-        else:
-            self.opv_widget.set_selection_to_lines()
-            self.mesh_widget.set_selection_to_lines()
-
+        self.visualization_filter.nodes = self.action_show_points.isChecked()
+        self.visualization_filter.tubes = self.action_show_tubes.isChecked()
+        self.visualization_filter.lines = self.action_show_lines.isChecked()
+        self.visualization_filter.transparent = self.action_show_transparent.isChecked()
+        self.visualization_filter.acoustic_symbols = symbols
+        self.visualization_filter.structural_symbols = symbols
         self.visualization_changed.emit()
 
     # callbacks

@@ -1,12 +1,74 @@
 
-import os
-from pathlib import Path
-from pulse import ICON_DIR
 import numpy as np
+from enum import IntEnum
+from pulse import ICON_DIR
+from dataclasses import dataclass
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
+
 window_title = "Error"
+
+
+class Workspace(IntEnum):
+    GEOMETRY = 0 
+    STRUCTURAL_SETUP = 1
+    ACOUSTIC_SETUP = 2
+    RESULTS = 3
+
+
+@dataclass
+class VisualizationFilter:
+    nodes: bool = False
+    lines: bool = False
+    tubes: bool = False
+    transparent: bool = False
+    acoustic_symbols: bool = False
+    structural_symbols: bool = False
+
+    @classmethod
+    def all_false(cls):
+        # It is dumb, but it works
+        args = [False] * 6
+        return cls(*args)
+    
+    @classmethod
+    def all_true(cls):
+        # It is dumb, but it works
+        args = [True] * 6
+        return cls(*args)
+
+@dataclass
+class SelectionFilter:
+    nodes: bool = False
+    entities: bool = False
+    elements: bool = False
+
+    @classmethod
+    def all_false(cls):
+        # It is dumb, but it works
+        args = [False] * 3
+        return cls(*args)
+    
+    @classmethod
+    def all_true(cls):
+        # It is dumb, but it works
+        args = [True] * 3
+        return cls(*args)
+
+
+# Abandon this
+@dataclass
+class PlotFilter:
+    nodes: bool = False
+    lines: bool = False
+    tubes: bool = False
+    transparent: bool = False
+    acoustic_symbols: bool = False
+    structural_symbols: bool = False
+    raw_lines: bool = False
+
+
 
 def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title=None):
 
