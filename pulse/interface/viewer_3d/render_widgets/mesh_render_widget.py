@@ -46,20 +46,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
 
-        self.plot_filter = PlotFilter(
-            nodes=False,
-            lines=True,
-            tubes=True,
-            transparent=False,
-            acoustic_symbols=True,
-            structural_symbols=True,
-        )
-        self.selection_filter = SelectionFilter(
-            nodes=True,
-            elements=False,
-            entities=True,
-        )
-
         self.selected_nodes = set()
         self.selected_entities = set()
         self.selected_elements = set()
@@ -135,18 +121,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.GetProperty().SetOpacity(opacity)
         self.update()
 
-    def set_selection_to_lines(self):
-        self.selection_filter = SelectionFilter(
-            nodes=True,
-            entities=True,
-        )
-
-    def set_selection_to_elements(self):
-        self.selection_filter = SelectionFilter(
-            nodes=True,
-            elements=True,
-        )
-    
     def set_color_mode_to_empty(self):
         if not self._actor_exists():
             return
