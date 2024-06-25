@@ -534,6 +534,7 @@ class MainWindow(QMainWindow):
         self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
 
     def action_acoustic_setup_workspace_callback(self):
+        self.mesh_widget.update_selection()
         self.mesh_toolbar.setDisabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
@@ -548,6 +549,7 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
 
     def action_results_workspace_callback(self):
+        self.results_widget.update_selection()
         self.results_viewer_wigdet.animation_widget.setVisible(False)
         self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
