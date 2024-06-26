@@ -242,7 +242,7 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self._add_mesh_toolbar()
 
-        self.plot_entities()
+        self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
         
@@ -388,31 +388,20 @@ class MainWindow(QMainWindow):
         self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
 
     def plot_entities(self):
-        # Configure the mesh plot as a combination of the interface buttons
-        self.action_show_points.setChecked(False)
-        self.action_show_lines.setChecked(True)
-        self.action_show_tubes.setChecked(False)
-        self.action_show_symbols.setChecked(False)
-        self._update_visualization()
+        self._configure_visualization(lines=True)
 
     def plot_entities_with_cross_section(self):
-        # Configure the mesh plot as a combination of the interface buttons
-        self.action_show_points.setChecked(False)
-        self.action_show_lines.setChecked(False)
-        self.action_show_tubes.setChecked(True)
-        self.action_show_symbols.setChecked(False)
-        self._update_visualization()
+        self._configure_visualization(lines=True, tubes=True)
 
     def plot_mesh(self):
-        # Configure the mesh plot as a combination of the interface buttons
-        self.action_show_points.setChecked(True)
-        self.action_show_lines.setChecked(True)
-        self.action_show_tubes.setChecked(True)
-        self.action_show_symbols.setChecked(True)
-        self._update_visualization()
+        self._configure_visualization(
+            nodes=True, lines=True, tubes=True,
+            acoustic_symbols=True, structural_symbols=True,
+        )
 
+    # TODO: These update_plot_X can now be removed, because the function
+    # is now extremelly fast and we dont need to bother
     def update_plot_mesh(self):
-
         key = list()
         key.append(self.action_show_points.isChecked())
         key.append(self.action_show_lines.isChecked())
@@ -423,7 +412,6 @@ class MainWindow(QMainWindow):
             self.plot_mesh()
 
     def update_plot_entities(self):
-
         key = list()
         key.append(self.action_show_points.isChecked())
         key.append(self.action_show_lines.isChecked())
@@ -431,7 +419,7 @@ class MainWindow(QMainWindow):
         key.append(self.action_show_symbols.isChecked())
 
         if key != [False, True, False, False]:
-            self.plot_entities()  
+            self.plot_entities()
 
     def update_plot_entities_with_cross_section(self):
         key = list()
@@ -490,6 +478,15 @@ class MainWindow(QMainWindow):
     def _update_permissions(self):
         pass
 
+    def _configure_visualization(self, *args, **kwargs):
+        self.visualization_filter = VisualizationFilter(*args, **kwargs)
+        self.action_show_points.setChecked(self.visualization_filter.nodes)
+        self.action_show_lines.setChecked(self.visualization_filter.lines)
+        self.action_show_tubes.setChecked(self.visualization_filter.tubes)
+        symbols = self.visualization_filter.acoustic_symbols | self.visualization_filter.structural_symbols
+        self.action_show_symbols.setChecked(symbols)
+        self.visualization_changed.emit()
+
     def _update_visualization(self):
         symbols = self.action_show_symbols.isChecked()
         self.visualization_filter.nodes = self.action_show_points.isChecked()
@@ -520,11 +517,12 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+        self._configure_visualization(nodes=True, tubes=True)
         self.close_opened_windows()
         self.mesh_toolbar.setDisabled(True)
+
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
-        self.geometry_input_wigdet.widget_appears_callback()
 
     def action_structural_setup_workspace_callback(self):
         self.mesh_toolbar.setDisabled(False)
@@ -538,6 +536,7 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update_selection()
         self.mesh_toolbar.setDisabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
+
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
         # self.render_widgets_stack.setCurrentWidget(self.opv_widget)
@@ -550,11 +549,13 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
 
     def action_results_workspace_callback(self):
+        self._configure_visualization(tubes=True)
         self.results_widget.update_selection()
         self.results_viewer_wigdet.animation_widget.setVisible(False)
+        self.results_viewer_wigdet.udate_visibility_items()
+
         self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
-        self.results_viewer_wigdet.udate_visibility_items()
         return 
 
         if self.project.is_the_solution_finished():
@@ -612,15 +613,18 @@ class MainWindow(QMainWindow):
         self.input_widget.pulsation_suppression_device_editor()
 
     def action_plot_lines_callback(self):
-        self.use_structural_setup_workspace()
+        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+            self.use_structural_setup_workspace()
         self.plot_entities()
 
     def action_plot_lines_with_cross_section_callback(self):
-        self.use_structural_setup_workspace()
+        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+            self.use_structural_setup_workspace()
         self.plot_entities_with_cross_section()
 
     def action_plot_mesh_callback(self):
-        self.use_structural_setup_workspace()
+        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+            self.use_structural_setup_workspace()
         self.plot_mesh()
 
     def action_plot_cross_section_callback(self):

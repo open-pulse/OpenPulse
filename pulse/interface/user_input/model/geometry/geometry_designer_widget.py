@@ -411,11 +411,8 @@ class GeometryDesignerWidget(QWidget):
         app().main_window.action_front_view_callback()
         self.render_widget.set_info_text("")
 
-    def widget_appears_callback(self):
+    def showEvent(self, event):
         self._update_permissions()
-
-    def widget_disappears_callback(self):
-        pass
 
     def _eval_number(self, expression: str):
         '''
