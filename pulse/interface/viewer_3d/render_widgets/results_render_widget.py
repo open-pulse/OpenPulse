@@ -111,8 +111,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         except Exception as e:
             return 
 
-        self.nodes_actor = NodesActor(project)
-        self.lines_actor = ElementLinesActor(project)
+        self.nodes_actor = NodesActor(project, show_deformed=deformed)
+        self.lines_actor = ElementLinesActor(project, show_deformed=deformed)
         self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
         self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()

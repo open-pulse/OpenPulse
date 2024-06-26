@@ -4,13 +4,14 @@ from vtkat.utils import set_polydata_property, set_polydata_colors
 from vtkat.actors import GhostActor
 
 class ElementLinesActor(GhostActor):
-    def __init__(self, project, **kwargs) -> None:
+    def __init__(self, project, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
         self.project = project
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
         self.hidden_elements = kwargs.get('hidden_elements', set())
+        self.show_deformed = show_deformed
         self.build()
 
     def build(self):
@@ -24,8 +25,13 @@ class ElementLinesActor(GhostActor):
         element_index.SetName("element_index")
 
         for i, element in visible_elements.items():
-            x0, y0, z0 = element.first_node.coordinates
-            x1, y1, z1 = element.last_node.coordinates
+            if self.show_deformed:
+                x0, y0, z0 = element.first_node.deformed_coordinates
+                x1, y1, z1 = element.last_node.deformed_coordinates
+            else:
+                x0, y0, z0 = element.first_node.coordinates
+                x1, y1, z1 = element.last_node.coordinates
+
             lines.append((x0, y0, z0, x1, y1, z1))
             entity = self.preprocessor.elements_to_line[i]
             entity_index.InsertNextTuple1(entity)

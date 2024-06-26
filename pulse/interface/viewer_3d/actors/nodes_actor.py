@@ -4,17 +4,24 @@ from vtkat.utils import set_polydata_property, set_polydata_colors
 from vtkat.actors import GhostActor
 
 class NodesActor(GhostActor):
-    def __init__(self, project, **kwargs) -> None:
+    def __init__(self, project, show_deformed=False, **kwargs) -> None:
         super().__init__()
+
         self.project = project
         self.nodes = project.get_nodes()
         self.hidden_nodes = kwargs.get('hidden_nodes', set())
+        self.show_deformed = show_deformed
         self.build()
     
     def build(self):
         visible_nodes = {i:e for i,e in self.nodes.items() if (i not in self.hidden_nodes)}
         self._key_index = {j:i for i,j in enumerate(visible_nodes)}
-        coords = [n.coordinates for n in visible_nodes.values()]
+
+        if self.show_deformed:
+            coords = [n.deformed_coordinates for n in visible_nodes.values()]
+        else:
+            coords = [n.coordinates for n in visible_nodes.values()]
+
         data = VerticesData(coords)
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputData(data)
