@@ -91,6 +91,7 @@ class MeshRenderWidget(CommonRenderWidget):
         if reset_camera:
             self.renderer.ResetCamera()
         self.visualization_changed_callback()
+        self.update_info_text()
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.lines_actor)
@@ -171,6 +172,10 @@ class MeshRenderWidget(CommonRenderWidget):
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
         selection_filter = app().main_window.selection_filter
 
+        picked_nodes = set()
+        picked_elements = set()
+        picked_entities = set()
+
         if mouse_moved:
             if selection_filter.nodes:
                 picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
@@ -226,16 +231,17 @@ class MeshRenderWidget(CommonRenderWidget):
         self.nodes_actor.set_color((255, 50, 50), nodes)
         self.lines_actor.set_color((200, 0, 0), elements, entities)
         self.tubes_actor.set_color((255, 0, 50), elements, entities)
-        self.update_selection_info(nodes, elements, entities)
+        self.update_info_text()
 
-    def update_selection_info(self, nodes, elements, entities):
+    def update_info_text(self):
         info_text = ""
-        info_text += self._nodes_info_text(nodes)
-        info_text += self._elements_info_text(elements)
-        info_text += self._entity_info_text(entities)
+        info_text += self._nodes_info_text()
+        info_text += self._elements_info_text()
+        info_text += self._entity_info_text()
         self.set_info_text(info_text)
 
-    def _nodes_info_text(self, nodes):
+    def _nodes_info_text(self):
+        nodes = app().main_window.selected_nodes
         info_text = ""
         if len(nodes) > 1:
             info_text += (
@@ -244,7 +250,8 @@ class MeshRenderWidget(CommonRenderWidget):
             )
         return info_text
 
-    def _elements_info_text(self, elements):
+    def _elements_info_text(self):
+        elements = app().main_window.selected_elements
         info_text = ""
         project = app().project
 
@@ -286,7 +293,8 @@ class MeshRenderWidget(CommonRenderWidget):
             )
         return info_text
 
-    def _entity_info_text(self, entities):
+    def _entity_info_text(self):
+        entities = app().main_window.selected_entities
         info_text = ""
         project = app().project
 
