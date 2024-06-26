@@ -23,6 +23,7 @@ from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilte
 
 from time import time
 
+from vtkat.render_widgets import CommonRenderWidget
 import os
 import sys
 import qdarktheme
@@ -186,8 +187,7 @@ class MainWindow(QMainWindow):
         self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
         self.tool_bar.addWidget(self.combo_box_workspaces)
 
-    def update_combobox_indexes(self):
-        index = self.combo_box_workspaces.currentIndex()
+    def update_combobox_indexes(self, index):
         self.cache_indexes.append(index)
 
     def disable_workspace_selector_and_geometry_editor(self, _bool):
@@ -216,6 +216,7 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.addWidget(self.results_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
+        self.render_widgets_stack.currentChanged.connect(self.copy_camera)
 
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
@@ -564,6 +565,29 @@ class MainWindow(QMainWindow):
         else:
             if self.cache_indexes:
                 self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
+
+    def copy_camera(self):
+        def get_workspace_render(index):
+            if index == Workspace.GEOMETRY:
+                return self.geometry_widget
+            elif index == Workspace.STRUCTURAL_SETUP:
+                pass
+            elif index == Workspace.ACOUSTIC_SETUP:
+                return self.mesh_widget
+            elif index == Workspace.RESULTS:
+                return self.results_widget
+
+        if len(self.cache_indexes) < 2:
+            return
+        
+        last_render = get_workspace_render(self.cache_indexes[-2])
+        current_render = get_workspace_render(self.cache_indexes[-1])
+
+        if not isinstance(current_render, CommonRenderWidget):
+            return
+
+        current_render.copy_camera_from(last_render)
+        current_render.update()
 
     def action_save_as_png_callback(self):
         self.savePNG_call()
