@@ -336,7 +336,7 @@ class AcousticElementTypeInput(QDialog):
             self.show()
 
     def update(self):
-        self.lines_id  = self.opv.getListPickedLines()
+        self.lines_id  = list(self.opv.getListPickedLines())
         if self.lines_id != []:
 
             self.comboBox_selection.setCurrentIndex(1)

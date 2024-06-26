@@ -145,9 +145,13 @@ class ConnectingFlangesInput(QDialog):
 
     def selection_type_callback(self):
 
-        line_id = self.opv.getListPickedLines()
-        node_id = self.opv.getListPickedPoints()
-        element_id = self.opv.getListPickedElements()
+        # line_id = self.opv.getListPickedLines()
+        # node_id = self.opv.getListPickedPoints()
+        # element_id = self.opv.getListPickedElements()
+
+        node_id = app().main_window.list_selected_nodes()
+        line_id = app().main_window.list_selected_entities()
+        element_id = app().main_window.list_selected_elements()
 
         self.lineEdit_selected_id.setText("")
         self.tabWidget_inputs.setTabVisible(0, False)
@@ -193,9 +197,13 @@ class ConnectingFlangesInput(QDialog):
 
     def update(self):
 
-        line_id = self.opv.getListPickedLines()
-        node_id = self.opv.getListPickedPoints()
-        element_id = self.opv.getListPickedElements()
+        # line_id = self.opv.getListPickedLines()
+        # node_id = self.opv.getListPickedPoints()
+        # element_id = self.opv.getListPickedElements()
+
+        node_id = app().main_window.list_selected_nodes()
+        line_id = app().main_window.list_selected_entities()
+        element_id = app().main_window.list_selected_elements()
 
         if node_id and element_id:
             title = "Multiples node(s) and element(s) in selection"
@@ -336,7 +344,7 @@ class ConnectingFlangesInput(QDialog):
 
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
-        for element_id in self.opv.getListPickedElements():
+        for element_id in app().main_window.list_selected_elements():
             line = self.preprocessor.elements_to_line[element_id]
             elements_from_line[line].append(element_id)
         return elements_from_line

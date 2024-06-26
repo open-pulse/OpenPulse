@@ -188,9 +188,13 @@ class ExpansionJointInput(QDialog):
 
     def selection_type_callback(self):
 
-        line_id = self.opv.getListPickedLines()
-        node_id = self.opv.getListPickedPoints()
-        element_id = self.opv.getListPickedElements()
+        # line_id = self.opv.getListPickedLines()
+        # node_id = self.opv.getListPickedPoints()
+        # element_id = self.opv.getListPickedElements()
+
+        node_id = app().main_window.list_selected_nodes()
+        line_id = app().main_window.list_selected_entities()
+        element_id = app().main_window.list_selected_elements()
 
         self.lineEdit_selected_id.setText("")
 
@@ -229,9 +233,13 @@ class ExpansionJointInput(QDialog):
 
     def update(self):
 
-        line_id = self.opv.getListPickedLines()
-        node_id = self.opv.getListPickedPoints()
-        element_id = self.opv.getListPickedElements()
+        # line_id = self.opv.getListPickedLines()
+        # node_id = self.opv.getListPickedPoints()
+        # element_id = self.opv.getListPickedElements()
+
+        node_id = app().main_window.list_selected_nodes()
+        line_id = app().main_window.list_selected_entities()
+        element_id = app().main_window.list_selected_elements()
 
         if line_id:
             element_id = list()
@@ -381,8 +389,11 @@ class ExpansionJointInput(QDialog):
 
     def load_input_fields(self):
 
-        lines_id = self.opv.getListPickedLines()
-        elements_id = self.opv.getListPickedElements()
+        # lines_id = self.opv.getListPickedLines()
+        # elements_id = self.opv.getListPickedElements()
+
+        lines_id = app().main_window.list_selected_entities()
+        elements_id = app().main_window.list_selected_elements()
 
         if len(lines_id) == 1:
 

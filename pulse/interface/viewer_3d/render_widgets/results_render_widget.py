@@ -350,7 +350,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         return str(tree)
 
     def _nodes_info_text(self):
-        nodes = app().main_window.selected_nodes
+        nodes = app().main_window.list_selected_nodes()
         info_text = ""
         if len(nodes) > 1:
             info_text += (
@@ -360,7 +360,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         return info_text
 
     def _elements_info_text(self):
-        elements = app().main_window.selected_elements
+        elements = app().main_window.list_selected_elements()
         info_text = ""
         project = app().project
 
@@ -392,7 +392,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         return info_text
 
     def _entity_info_text(self):
-        entities = app().main_window.selected_entities
+        entities = app().main_window.list_selected_entities()
         info_text = ""
         project = app().project
 

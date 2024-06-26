@@ -85,7 +85,7 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self.update_damping = True
 
     def update(self):
-        self.write_ids(self.opv.getListPickedElements())
+        self.write_ids(app().main_window.list_selected_elements())
 
     def write_ids(self, list_elements_ids):
         text = ""

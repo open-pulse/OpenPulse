@@ -182,8 +182,12 @@ class ValvesInput(QDialog):
 
     def selection_type_callback(self):
 
-        line_id = self.opv.getListPickedLines()
-        element_id = self.opv.getListPickedElements()
+        # line_id = self.opv.getListPickedLines()
+        # element_id = self.opv.getListPickedElements()
+
+        line_id = app().main_window.list_selected_entities()
+        element_id = app().main_window.list_selected_elements()
+
 
         self.lineEdit_selected_id.setText("")
 
@@ -211,9 +215,11 @@ class ValvesInput(QDialog):
             self.update()
 
     def update(self):
+        # line_id = self.opv.getListPickedLines()
+        # element_id = self.opv.getListPickedElements()
 
-        line_id = self.opv.getListPickedLines()
-        element_id = self.opv.getListPickedElements()
+        line_id = app().main_window.list_selected_entities()
+        element_id = app().main_window.list_selected_elements()
 
         if line_id:
             element_id = list()
@@ -313,9 +319,11 @@ class ValvesInput(QDialog):
             self.lineEdit_valve_length.setText(str(round(valve_length, 6)))
 
     def update_valve_info(self):
+        # line_id = self.opv.getListPickedLines()
+        # element_id = self.opv.getListPickedElements()
 
-        line_id = self.opv.getListPickedLines()
-        element_id = self.opv.getListPickedElements()
+        line_id = app().main_window.list_selected_entities()
+        element_id = app().main_window.list_selected_elements()
 
         valve_parameters = None
         if len(line_id) == 1:
@@ -370,7 +378,7 @@ class ValvesInput(QDialog):
 
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
-        for element_id in self.opv.getListPickedElements():
+        for element_id in app().main_window.list_selected_elements():
             line = self.preprocessor.elements_to_line[element_id]
             elements_from_line[line].append(element_id)
         return elements_from_line

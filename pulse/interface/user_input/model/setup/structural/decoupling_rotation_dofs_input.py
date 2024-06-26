@@ -48,9 +48,13 @@ class DecouplingRotationDOFsInput(QDialog):
 
     def _initialize(self):
 
-        self.line_id = self.opv.getListPickedLines()
-        self.element_id = self.opv.getListPickedElements()
-        self.node_id = self.opv.getListPickedPoints()
+        # self.line_id = self.opv.getListPickedLines()
+        # self.element_id = self.opv.getListPickedElements()
+        # self.node_id = self.opv.getListPickedPoints()
+
+        self.node_id = app().main_window.list_selected_nodes()
+        self.line_id = app().main_window.list_selected_entities()
+        self.element_id = app().main_window.list_selected_elements()
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks() 
@@ -314,8 +318,8 @@ class DecouplingRotationDOFsInput(QDialog):
         self.lineEdit_selected_element.setText(text)
 
     def update(self):
-        if len(self.opv.getListPickedElements()):
-            self.element_id = self.opv.getListPickedElements()[0]
+        if len(app().main_window.list_selected_elements()):
+            self.element_id, *_ = app().main_window.list_selected_elements()
             for key, elements in self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.items():
                 if self.element_id in elements:
                     decoupling_dofs_mask = get_list_bool_from_string(key)

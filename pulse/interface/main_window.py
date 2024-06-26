@@ -371,6 +371,15 @@ class MainWindow(QMainWindow):
             self.selected_elements = set(elements)
 
         self.selection_changed.emit()
+    
+    def list_selected_nodes(self) -> list[int]:
+        return list(self.selected_nodes)
+
+    def list_selected_entities(self) -> list[int]:
+        return list(self.selected_entities)
+
+    def list_selected_elements(self) -> list[int]:
+        return list(self.selected_elements)
 
     def get_current_workspace(self):
         return self.combo_box_workspaces.currentIndex()

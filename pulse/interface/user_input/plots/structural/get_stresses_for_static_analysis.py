@@ -100,7 +100,7 @@ class GetStressesForStaticAnalysis(QWidget):
         self.opv.opvRenderer.update()
 
     def update(self):
-        self.list_elements_IDs = self.opv.getListPickedElements()
+        self.list_elements_IDs = app().main_window.list_selected_elements()
         if len(self.list_elements_IDs) == 1:
             self.lineEdit_element_id.setText(str(self.list_elements_IDs[0]))
             self._update_lineEdit()

@@ -90,9 +90,11 @@ class PlotCrossSectionInput(QDialog):
         self.lineEdit_selected_id.setText(text)
 
     def update(self):
+        # self.line_id = self.opv.getListPickedLines()
+        # self.element_id = self.opv.getListPickedElements()
 
-        self.line_id = self.opv.getListPickedLines()
-        self.element_id = self.opv.getListPickedElements()
+        self.line_id = app().main_window.list_selected_entities()
+        self.element_id = app().main_window.list_selected_elements()
 
         if self.line_id != []:
             self.label_selected_id.setText("Line ID:")

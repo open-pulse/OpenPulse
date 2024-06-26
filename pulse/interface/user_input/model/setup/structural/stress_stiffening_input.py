@@ -44,9 +44,11 @@ class StressStiffeningInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+        # self.lines_id = self.opv.getListPickedLines()
+        # self.elements_id = self.opv.getListPickedElements()
 
-        self.lines_id = self.opv.getListPickedLines()
-        self.elements_id = self.opv.getListPickedElements()
+        self.lines_id = app().main_window.list_selected_entities()
+        self.elements_id = app().main_window.list_selected_elements()
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -487,9 +489,11 @@ class StressStiffeningInput(QDialog):
             self.tabWidget_groups.setTabVisible(0, True)
 
     def update(self):
+        # self.lines_id = self.opv.getListPickedLines()
+        # self.elements_id = self.opv.getListPickedElements()
 
-        self.lines_id = self.opv.getListPickedLines()
-        self.elements_id = self.opv.getListPickedElements()
+        self.lines_id = app().main_window.list_selected_entities()
+        self.elements_id = app().main_window.list_selected_elements()
 
         selection_index = self.comboBox_selection.currentIndex()
         if self.lines_id != []:

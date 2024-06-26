@@ -40,8 +40,10 @@ class CappedEndInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
 
-        self.lines_id = self.opv.getListPickedLines()
-        self.elements_id = self.opv.getListPickedElements()
+        # self.lines_id = self.opv.getListPickedLines()
+        # self.elements_id = self.opv.getListPickedElements()
+        self.lines_id = app().main_window.list_selected_entities()
+        self.elements_id = app().main_window.list_selected_elements()
         self.structural_elements = self.preprocessor.structural_elements
         self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
     
@@ -114,8 +116,10 @@ class CappedEndInput(QDialog):
 
     def update(self):
 
-        self.lines_id = self.opv.getListPickedLines()
-        self.elements_id = self.opv.getListPickedElements()
+        # self.lines_id = self.opv.getListPickedLines()
+        # self.elements_id = self.opv.getListPickedElements()
+        self.lines_id = app().main_window.list_selected_entities()
+        self.elements_id = app().main_window.list_selected_elements()
 
         selection_index = self.comboBox_selection.currentIndex()
         if self.lines_id != []:

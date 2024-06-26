@@ -82,7 +82,8 @@ class PerforatedPlateInput(QDialog):
         self.acoustic_elements = self.project.preprocessor.acoustic_elements
         self.structural_elements = self.project.preprocessor.structural_elements
         self.group_elements_with_perforated_plates = self.project.preprocessor.group_elements_with_perforated_plate
-        self.elements_id = self.opv.getListPickedElements()
+        # self.elements_id = self.opv.getListPickedElements()
+        self.elements_id = app().main_window.list_selected_elements()
 
         self.elements_info_path = self.project.file._element_info_path
 
@@ -931,7 +932,8 @@ class PerforatedPlateInput(QDialog):
     def update(self):
         
         if len(self.valve_ids) == 0:
-            self.elements_id = self.opv.getListPickedElements()
+            # self.elements_id = self.opv.getListPickedElements()
+            self.elements_id = app().main_window.list_selected_elements()
         
         if self.elements_id != []:
             self.elements_id.sort()

@@ -166,7 +166,9 @@ class ModelInfoText:
 
     def get_elements_info_text(self):
     
-        selected_elements = self.opvRenderer.getListPickedElements()
+        # selected_elements = self.opvRenderer.getListPickedElements()
+        selected_elements = app().main_window.list_selected_elements()
+
         text = ""
 
         if len(selected_elements) == 1:

@@ -221,8 +221,11 @@ class SetCrossSectionInput(QDialog):
 
     def update_QDialog_info(self):
 
-        lines_id = self.opv.getListPickedLines()
-        elements_id = self.opv.getListPickedElements()
+        # lines_id = self.opv.getListPickedLines()
+        # elements_id = self.opv.getListPickedElements()
+
+        lines_id = app().main_window.list_selected_entities()
+        elements_id = app().main_window.list_selected_elements()
 
         self.input_widget.reset_all_input_texts()
         self.update_line_and_element_ids(lines_id, elements_id)
@@ -525,7 +528,8 @@ class SetCrossSectionInput(QDialog):
             self.input_widget.lineEdit_offsetz_T_section.setText(str(offset_z))  
 
     def update_variable_section_element_ids(self):
-        lines_id = self.opv.getListPickedLines()
+        # lines_id = self.opv.getListPickedLines()
+        lines_id = app().main_window.list_selected_entities()
         if len(lines_id) > 0:
             line_id = lines_id[0]
             # entity = self.dict_tag_to_entity[line_id]
