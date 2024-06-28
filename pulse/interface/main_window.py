@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         self.selected_elements = set()
         
         self.visualization_filter = VisualizationFilter.all_true()
-        self.selection_filter = SelectionFilter.all_true()
+        self.selection_filter = SelectionFilter.all_false()
 
         self.ui_dir = UI_DIR
         self.config = app().config
@@ -121,6 +121,7 @@ class MainWindow(QMainWindow):
         self.action_show_tubes : QAction
         self.action_show_symbols : QAction
         self.action_show_transparent : QAction
+        self.action_select_elements : QAction
         self.action_plot_geometry_editor : QAction
         self.action_plot_lines : QAction
         self.action_plot_lines_with_cross_section : QAction
@@ -504,6 +505,10 @@ class MainWindow(QMainWindow):
         self.visualization_filter.transparent = self.action_show_transparent.isChecked()
         self.visualization_filter.acoustic_symbols = symbols
         self.visualization_filter.structural_symbols = symbols
+        select_elements = self.action_select_elements.isChecked()
+        self.selection_filter.nodes = True
+        self.selection_filter.elements = select_elements
+        self.selection_filter.entities = not select_elements
         self.visualization_changed.emit()
 
     # callbacks
