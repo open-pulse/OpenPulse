@@ -88,9 +88,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.AddActor(self.structural_nodes_symbols_actor)
         self.renderer.AddActor(self.structural_elements_symbols_actor)
 
+        self.visualization_changed_callback()
         if reset_camera:
             self.renderer.ResetCamera()
-        self.visualization_changed_callback()
         self.update_info_text()
 
     def remove_actors(self):

@@ -127,6 +127,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
 
+        self.visualization_changed_callback(update=False)
         if self.cutting_plane_active:
             self.configure_cutting_plane(*self.config_tube_args)
             self.apply_cutting_plane()
@@ -134,8 +135,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if reset_camera:
             self.renderer.ResetCamera()
-        self.visualization_changed_callback()
         self.update_info_text()
+        self.update()
 
     def set_colormap(self, colormap):
         self.colormap = colormap
@@ -143,11 +144,22 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def update_animation(self, frame: int):
         if self._animation_current_frequency != self.current_frequency_index:
-            self._cache_frames()
+            self._animation_cached_data.clear()
+            self._animation_current_frequency = self.current_frequency_index
 
-        cached = self._animation_cached_data[frame]
-        self.tubes_actor.GetMapper().SetInputData(cached)
-        self.update()
+        d_theta = 2 * np.pi / self._animation_total_frames
+        phase_step = frame * d_theta
+        self.current_phase_step = phase_step
+
+        if frame in self._animation_cached_data:
+            cached = self._animation_cached_data[frame]
+            self.tubes_actor.GetMapper().SetInputData(cached)
+            self.update()
+        else:
+            self.update_plot()
+            cached = vtk.vtkPolyData()
+            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+            self._animation_cached_data[frame] = cached
     
     def _cache_frames(self):
         self._animation_cached_data.clear()
@@ -156,7 +168,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         for frame in range(0, self._animation_total_frames+1):
             phase_step = frame * d_theta
             self.current_phase_step = phase_step
-            self.update_plot(False)
+            self.update_plot()
             cached = vtk.vtkPolyData()
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
             self._animation_cached_data[frame] = cached
@@ -165,7 +177,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         from pprint import pprint
         pprint(self._animation_cached_data)
 
-    def visualization_changed_callback(self):
+    def visualization_changed_callback(self, update=True):
         if not self._actor_exists():
             return
 
@@ -175,7 +187,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.SetVisibility(visualization.tubes)
         opacity = 0.9 if visualization.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
-        self.update()
+        if update:
+            self.update()
 
     def slider_callback(self, phase_deg):        
         self.current_phase_step = phase_deg * (2 * np.pi / 360)
