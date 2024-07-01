@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from pathlib import Path
 from enum import Enum, auto
 import numpy as np
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
+import vtk
 from vtkat.interactor_styles import BoxSelectionInteractorStyle
 from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
 from vtkat.render_widgets import AnimatedRenderWidget
@@ -62,7 +62,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.current_phase_step = 0
         self._result_min = 0
         self._result_max = 0
-        self.u_def = []
+
+        self._animation_current_frequency = None
+        self._animation_cached_data = dict()
 
         self.cutting_plane_active = False
         self.transparency = 0
@@ -138,6 +140,30 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def set_colormap(self, colormap):
         self.colormap = colormap
         self.update_plot()
+
+    def update_animation(self, frame: int):
+        if self._animation_current_frequency != self.current_frequency_index:
+            self._cache_frames()
+
+        cached = self._animation_cached_data[frame]
+        self.tubes_actor.GetMapper().SetInputData(cached)
+        self.update()
+    
+    def _cache_frames(self):
+        self._animation_cached_data.clear()
+        d_theta = 2 * np.pi / self._animation_total_frames
+
+        for frame in range(0, self._animation_total_frames+1):
+            phase_step = frame * d_theta
+            self.current_phase_step = phase_step
+            self.update_plot(False)
+            cached = vtk.vtkPolyData()
+            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+            self._animation_cached_data[frame] = cached
+
+        self._animation_current_frequency = self.current_frequency_index
+        from pprint import pprint
+        pprint(self._animation_cached_data)
 
     def visualization_changed_callback(self):
         if not self._actor_exists():
