@@ -160,22 +160,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             cached = vtk.vtkPolyData()
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
             self._animation_cached_data[frame] = cached
-    
-    def _cache_frames(self):
-        self._animation_cached_data.clear()
-        d_theta = 2 * np.pi / self._animation_total_frames
-
-        for frame in range(0, self._animation_total_frames+1):
-            phase_step = frame * d_theta
-            self.current_phase_step = phase_step
-            self.update_plot()
-            cached = vtk.vtkPolyData()
-            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-            self._animation_cached_data[frame] = cached
-
-        self._animation_current_frequency = self.current_frequency_index
-        from pprint import pprint
-        pprint(self._animation_cached_data)
 
     def visualization_changed_callback(self, update=True):
         if not self._actor_exists():
