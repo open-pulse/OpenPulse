@@ -9,7 +9,7 @@ from opps.model import Point, Pipe, Bend, Flange, ExpansionJoint, Valve, Reducer
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 
 from pulse import app, UI_DIR
-from pulse.interface.viewer_3d.text_helppers import TreeInfo
+from molde.utils import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
 from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget

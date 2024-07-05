@@ -18,7 +18,7 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
     StructuralElementsSymbolsActor,
     StructuralNodesSymbolsActor,
 )
-from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
+from molde.utils import TreeInfo, format_long_sequence
 from pulse import app, ICON_DIR
 from pulse.interface.utils import PlotFilter, SelectionFilter
 

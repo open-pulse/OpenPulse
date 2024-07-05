@@ -559,7 +559,7 @@ vtk = "^9.3.0"
 type = "git"
 url = "https://github.com/andrefpf/molde"
 reference = "HEAD"
-resolved_reference = "5cc58fe67c518fb6bdd3d9e900ca9a8428f8bb13"
+resolved_reference = "51d16255ad410aaff863afbc4cb66664b7ef1f7a"
 
 [[package]]
 name = "mypy-extensions"

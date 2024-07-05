@@ -9,11 +9,11 @@ import vtk
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import AnimatedRenderWidget
+from molde.utils import TreeInfo, format_long_sequence
 
 from ._mesh_picker import MeshPicker
 from pulse.interface.viewer_3d.actors import TubeActorGPU, NodesActor, ElementLinesActor, CuttingPlaneActor
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
-from pulse.interface.viewer_3d.text_helppers import TreeInfo, format_long_sequence
 from pulse.interface.utils import rotation_matrices
 from pulse.postprocessing.plot_structural_data import (
     get_structural_response,
