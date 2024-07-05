@@ -2,7 +2,7 @@ import vtk
 
 from abc import ABC, abstractmethod 
 from pathlib import Path
-from vtkat import VTKAT_DIR
+from molde import MOLDE_DIR
 from pulse import ICON_DIR
 
 class vtkRendererBase(ABC):
@@ -36,7 +36,7 @@ class vtkRendererBase(ABC):
         self._inUse = False
         self._usePicker = True
 
-        font_file = VTKAT_DIR / "fonts/LiberationMono-Bold.ttf"
+        font_file = MOLDE_DIR / "fonts/IBMPlexMono-Bold.ttf"
         self.textProperty.SetFontSize(14)
         self.textProperty.SetFontFamily(vtk.VTK_FONT_FILE)
         self.textProperty.SetFontFile(font_file)

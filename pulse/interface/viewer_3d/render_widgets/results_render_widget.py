@@ -6,9 +6,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 import vtk
-from vtkat.interactor_styles import BoxSelectionInteractorStyle
-from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
-from vtkat.render_widgets import AnimatedRenderWidget
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
+from molde.render_widgets import AnimatedRenderWidget
 
 from ._mesh_picker import MeshPicker
 from pulse.interface.viewer_3d.actors import TubeActorGPU, NodesActor, ElementLinesActor, CuttingPlaneActor

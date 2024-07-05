@@ -3,9 +3,9 @@ from pathlib import Path
 import vtk
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
-from vtkat.interactor_styles import BoxSelectionInteractorStyle
-from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
-from vtkat.render_widgets import CommonRenderWidget
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
+from molde.render_widgets import CommonRenderWidget
 
 from ._mesh_picker import MeshPicker
 from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, TubeActorGPU

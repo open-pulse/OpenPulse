@@ -23,7 +23,7 @@ from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilte
 
 from time import time
 
-from vtkat.render_widgets import CommonRenderWidget
+from molde.render_widgets import CommonRenderWidget
 import os
 import sys
 import qdarktheme

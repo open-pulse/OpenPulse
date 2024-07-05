@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 from itertools import product
 import numpy as np
 import vtk
-from vtkat.pickers import CellAreaPicker
+from molde.pickers import CellAreaPicker
 from pulse import app
 
 

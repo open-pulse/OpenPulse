@@ -1,7 +1,8 @@
 import vtk
-from vtkat.poly_data import LinesData
-from vtkat.utils import set_polydata_property, set_polydata_colors
-from vtkat.actors import GhostActor
+from molde.poly_data import LinesData
+from molde.utils import set_polydata_property, set_polydata_colors
+from molde.actors import GhostActor
+
 
 class ElementLinesActor(GhostActor):
     def __init__(self, project, show_deformed=False, **kwargs) -> None:

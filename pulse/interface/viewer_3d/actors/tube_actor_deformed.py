@@ -1,7 +1,7 @@
 import vtk
 
 from .tube_actor import TubeActor
-from vtkat.utils import set_polydata_property
+from molde.utils import set_polydata_property
 
 
 class TubeActorDeformed(TubeActor):
