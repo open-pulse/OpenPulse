@@ -94,7 +94,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         index = self.tabWidget_element_length_correction.currentIndex()
         if index == 0:
             text = "Element IDs:"
-            # selected_elements = self.opv.getListPickedElements()
             selected_elements = app().main_window.list_selected_elements()
             self.write_ids(selected_elements)
             self.lineEdit_element_id.setDisabled(False)
@@ -284,7 +283,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def update(self):
         index = self.tabWidget_element_length_correction.currentIndex()
         if index == 0:
-            # selected_elements = self.opv.getListPickedElements()
             selected_elements = app().main_window.list_selected_elements()
             self.write_ids(selected_elements)
         else:
@@ -295,7 +293,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         for _id in list_ids:
             text += "{}, ".format(_id)
         self.lineEdit_element_id.setText(text)
-        # self.elements_id = self.opv.getListPickedElements()
         self.elements_id = app().main_window.list_selected_elements()
 
     def update_tabs_visibility(self):

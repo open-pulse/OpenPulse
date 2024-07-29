@@ -37,7 +37,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.update_selection()
 
     def _initialize(self):
         self.table_name = ""
@@ -57,7 +57,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.project_folder_path = self.project.file._project_path
         self.node_acoustic_path = self.project.file._node_acoustic_path   
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
-        self.node_id = self.opv.getListPickedPoints()
+        self.node_id = app().main_window.list_selected_nodes()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -83,15 +83,16 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.pushButton_plot_filtered_criteria : QPushButton
 
     def _create_connections(self):
+        app().main_window.selection_changed.connect(self.update_selection)
         self.pushButton_plot_unfiltered_criteria.clicked.connect(self.plot_unfiltered_criteria)
         self.pushButton_plot_filtered_criteria.clicked.connect(self.plot_filtered_criteria)
 
-    def update(self):
+    def update_selection(self):
 
         self.reset_unfiltered_fields()
         self.reset_filtered_fields()
 
-        self.node_id = self.opv.getListPickedPoints()
+        self.node_id = app().main_window.list_selected_nodes()
         self.line_ids = self.preprocessor.get_line_from_node_id(self.node_id)
         self.pushButton_plot_unfiltered_criteria.setDisabled(True)
         self.pushButton_plot_filtered_criteria.setDisabled(True)

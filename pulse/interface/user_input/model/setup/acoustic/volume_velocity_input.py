@@ -31,7 +31,7 @@ class VolumeVelocityInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.update_selection()
         self.load_nodes_info()
         self.exec()
 
@@ -83,6 +83,7 @@ class VolumeVelocityInput(QDialog):
         self.treeWidget_volume_velocity.setColumnWidth(2, 80)
 
     def _create_connections(self):
+        app().main_window.selection_changed.connect(self.update_selection)
         #
         self.constant_value_confirm_button.clicked.connect(self.check_constant_values)
         self.remove_button.clicked.connect(self.check_remove_bc_from_node)
@@ -396,8 +397,8 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_table_path.setText("")
             self.inputs_from_node = False
 
-    def update(self):
-        list_picked_nodes = self.opv.getListPickedPoints()
+    def update_selection(self):
+        list_picked_nodes = app().main_window.list_selected_nodes()
         if list_picked_nodes != []:
             picked_node = list_picked_nodes[0]
             node = self.preprocessor.nodes[picked_node]
@@ -417,7 +418,7 @@ class VolumeVelocityInput(QDialog):
                     self.inputs_from_node = True
             else:
                 self.reset_input_fields()
-            self.writeNodes(self.opv.getListPickedPoints())
+            self.writeNodes(app().main_window.list_selected_nodes())
         
     def writeNodes(self, list_node_ids):
         text = ""

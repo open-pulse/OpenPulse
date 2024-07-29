@@ -39,7 +39,7 @@ class CompressorModelInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widget()
-        self.update()
+        self.update_selection()
         self.load_compressor_excitation_tables_info()
 
         while self.keep_window_open:
@@ -165,7 +165,7 @@ class CompressorModelInput(QDialog):
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
     def _create_connections(self):
-
+        app().main_window.selection_changed.connect(self.update_selection)
         self.comboBox_connection_setup.currentIndexChanged.connect(self.update_compressor_to_pipeline_connections)
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
@@ -274,7 +274,7 @@ class CompressorModelInput(QDialog):
         self.lineEdit_suction_node_ID.setDisabled(False)
         self.lineEdit_discharge_node_ID.setDisabled(False)     
         index = self.comboBox_connection_setup.currentIndex()
-        list_node_ids = self.opv.getListPickedPoints()
+        list_node_ids = app().main_window.list_selected_nodes()
 
         if index == 1:
             self.current_lineEdit = self.lineEdit_suction_node_ID
@@ -316,7 +316,7 @@ class CompressorModelInput(QDialog):
             return
         self.currentIndex_table = self.comboBox_compressors_tables.currentIndex()
         self.table_name = self.comboBox_compressors_tables.currentText()
-        list_node_ids = self.opv.getListPickedPoints()
+        list_node_ids = app().main_window.list_selected_nodes()
         self.get_existing_compressor_info(list_node_ids)
         
     def change_aquisition_parameters_controls(self, _bool):
@@ -377,8 +377,8 @@ class CompressorModelInput(QDialog):
         self.N_rev = N_rev
         return f_min, f_max, df, N_rev
 
-    def update(self):
-        list_nodes = self.opv.getListPickedPoints()
+    def update_selection(self):
+        list_nodes = app().main_window.list_selected_nodes()
         if len(list_nodes) == 1:
             self.writeNodes(list_nodes)
         else:

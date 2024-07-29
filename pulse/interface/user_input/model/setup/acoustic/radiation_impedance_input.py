@@ -30,7 +30,7 @@ class RadiationImpedanceInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.update_selection()
         self.load_nodes_info()
         self.exec()
 
@@ -78,6 +78,7 @@ class RadiationImpedanceInput(QDialog):
         self.treeWidget_radiation_impedance.setColumnWidth(2, 80)
 
     def _create_connections(self):
+        app().main_window.selection_changed.connect(self.update_selection)
         #
         self.confirm_radiation_impedance_button.clicked.connect(self.check_radiation_impedance_type)
         self.remove_button.clicked.connect(self.check_remove_bc_from_node)
@@ -204,8 +205,8 @@ class RadiationImpedanceInput(QDialog):
             self.treeWidget_radiation_impedance.addTopLevelItem(new)
         self.update_tabs_visibility()
 
-    def update(self):
-        list_picked_nodes = self.opv.getListPickedPoints()
+    def update_selection(self):
+        list_picked_nodes = app().main_window.list_selected_nodes()
         if list_picked_nodes != []:
             picked_node = list_picked_nodes[0]
             node = self.preprocessor.nodes[picked_node]
