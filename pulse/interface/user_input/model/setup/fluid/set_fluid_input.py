@@ -114,6 +114,7 @@ class SetFluidInput(QDialog):
         ConfigWidgetAppearance(self, tool_tip=True)
 
     def _create_connections(self):
+        self.main_window.selection_changed.connect(self.update_selection)
         self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
         self.pushButton_attribute_fluid.clicked.connect(self.confirm_fluid_attribution)
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
@@ -145,7 +146,7 @@ class SetFluidInput(QDialog):
         if index == 0:
             self.lineEdit_selected_id.setText("All lines")
         elif index == 1:
-            line_ids = self.opv.getListPickedLines()
+            line_ids = self.main_window.selected_entities
             self.write_ids(line_ids)
 
         self.lineEdit_selected_id.setEnabled(bool(index))
@@ -163,25 +164,24 @@ class SetFluidInput(QDialog):
         self.lineEdit_selected_id.setText(text)
 
     def _loading_info_at_start(self):
+        self.update_selection()
+        # line_ids = list()
+        # if self.cache_selected_lines:
+        #     line_ids = self.cache_selected_lines
 
-        line_ids = list()
-        if self.cache_selected_lines:
-            line_ids = self.cache_selected_lines
+        # elif self.opv.getListPickedLines():
+        #     line_ids = self.opv.getListPickedLines()
 
-        elif self.opv.getListPickedLines():
-            line_ids = self.opv.getListPickedLines()
+        # if line_ids:
+        #     self.write_ids(line_ids)
+        #     self.lineEdit_selected_id.setEnabled(True)
+        #     self.comboBox_attribution_type.setCurrentIndex(1)      
 
-        if line_ids:
-            self.write_ids(line_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)      
-
-    def update(self):
-        line_ids = self.opv.getListPickedLines()
-        if line_ids:
-            self.write_ids(line_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
+    def update_selection(self):
+        line_ids = self.main_window.selected_entities
+        self.write_ids(line_ids)
+        self.lineEdit_selected_id.setEnabled(True)
+        self.comboBox_attribution_type.setCurrentIndex(1)
 
     def confirm_fluid_attribution(self):
 

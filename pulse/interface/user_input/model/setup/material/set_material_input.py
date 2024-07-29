@@ -95,6 +95,7 @@ class SetMaterialInput(QDialog):
         ConfigWidgetAppearance(self, tool_tip=True)
 
     def _create_connections(self):
+        self.main_window.selection_changed.connect(self.update_selection)
         self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
         self.pushButton_attribute_material.clicked.connect(self.confirm_material_attribution)
         # self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
@@ -131,7 +132,8 @@ class SetMaterialInput(QDialog):
             self.lineEdit_selected_id.setEnabled(False)
             self.comboBox_attribution_type.setCurrentIndex(0)
         elif index == 1:
-            self.write_ids(self.lines_ids)
+            lines_ids = self.main_window.selected_entities
+            self.write_ids(lines_ids)
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
 
@@ -142,8 +144,10 @@ class SetMaterialInput(QDialog):
         self.lineEdit_selected_id.setText(text)
 
     def update_selection(self):
-        if self.lines_ids != []:
-            self.write_ids(self.lines_ids)
+        lines_ids = self.main_window.selected_entities
+
+        if lines_ids:
+            self.write_ids(lines_ids)
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
         else:
@@ -152,14 +156,15 @@ class SetMaterialInput(QDialog):
             self.comboBox_attribution_type.setCurrentIndex(0)
 
     def _loading_info_at_start(self):
-        if self.cache_selected_lines != []:
-            self.lines_ids = self.cache_selected_lines
-            self.update_selection()
-        else:
-            self.update()        
+        self.update_selection()
+        # if self.cache_selected_lines != []:
+        #     # self.lines_ids = self.cache_selected_lines
+        #     self.update_selection()
+        # else:
+        #     self.update()        
 
     def update(self):
-        self.lines_ids = self.opv.getListPickedLines()
+        # self.lines_ids = self.opv.getListPickedLines()
         self.update_selection()
 
     def confirm_material_attribution(self):
