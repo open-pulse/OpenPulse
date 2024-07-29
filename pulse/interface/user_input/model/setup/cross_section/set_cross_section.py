@@ -134,6 +134,7 @@ class SetCrossSectionInput(QDialog):
         self.treeWidget_sections_parameters_by_elements = self.findChild(QTreeWidget, 'treeWidget_sections_parameters_by_elements')  
             
     def _create_connections(self):
+        app().main_window.selection_changed.connect(self.update)
         #
         self.comboBox_selection.currentIndexChanged.connect(self.update_selection)
         #
