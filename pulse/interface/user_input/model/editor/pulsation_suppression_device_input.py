@@ -34,7 +34,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self._config_widgets()
 
         self.load_PSD_info()
-        self.update()
+        self.update_selection()
         self.exec()
 
     def _load_icons(self):
@@ -121,6 +121,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.treeWidget_psd_info : QTreeWidget
 
     def _create_connections(self):
+        app().main_window.selection_changed.connect(self.update_selection)
 
         self.comboBox_main_axis.currentIndexChanged.connect(self.update_the_rotation_angle)
         self.comboBox_number_volumes.currentIndexChanged.connect(self.number_volumes_callback)
@@ -289,8 +290,8 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.pushButton_cancel.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)       
     
-    def update(self):
-        list_nodes = self.opv.getListPickedPoints()
+    def update_selection(self):
+        list_nodes = app().main_window.list_selected_nodes()
         if len(list_nodes) == 1:
             node = self.preprocessor.nodes[list_nodes[0]]
             self.lineEdit_connecting_coord_x.setText(str(round(node.x, 6)))

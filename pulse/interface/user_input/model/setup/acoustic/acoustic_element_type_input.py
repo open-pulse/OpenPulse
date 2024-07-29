@@ -28,7 +28,7 @@ class AcousticElementTypeInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self.update()
+        self.update_selection()
         self.attribution_type_callback()
         self.element_type_change_callback()
         self.load_element_type_info()
@@ -47,7 +47,7 @@ class AcousticElementTypeInput(QDialog):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.lines_id = self.opv.getListPickedLines()
+        self.lines_id = app().main_window.list_selected_entities()
 
         self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
         self.element_type = 'undamped'
@@ -80,6 +80,7 @@ class AcousticElementTypeInput(QDialog):
         self.treeWidget_element_type : QTreeWidget
 
     def _create_connections(self):
+        app().main_window.selection_changed.connect(self.update_selection)
         self.checkBox_flow_effects.toggled.connect(self.checkBoxEvent_flow_effects)
         self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
@@ -114,7 +115,7 @@ class AcousticElementTypeInput(QDialog):
             self.lineEdit_selected_id.setText("All lines")
         elif index == 1:
             self.lineEdit_selected_id.setDisabled(False)
-            self.lines_id  = self.opv.getListPickedLines()
+            self.lines_id  = app().main_window.list_selected_entities()
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
             else:
@@ -335,8 +336,8 @@ class AcousticElementTypeInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.show()
 
-    def update(self):
-        self.lines_id  = list(self.opv.getListPickedLines())
+    def update_selection(self):
+        self.lines_id  = app().main_window.list_selected_entities()
         if self.lines_id != []:
 
             self.comboBox_selection.setCurrentIndex(1)
