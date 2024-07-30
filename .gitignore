@@ -10,6 +10,10 @@ src/
 .config
 test.py
 
+# Profiling files
+*.log
+*.prof
+
 # Installation related
 dist/
 build/

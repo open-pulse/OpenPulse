@@ -1240,6 +1240,17 @@ files = [
 ]
 
 [[package]]
+name = "tuna"
+version = "0.5.11"
+description = "Visualize Python performance profiles"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "tuna-0.5.11-py3-none-any.whl", hash = "sha256:ab352a6d836014ace585ecd882148f1f7c68be9ea4bf9e9298b7127594dab2ef"},
+    {file = "tuna-0.5.11.tar.gz", hash = "sha256:d47f3e39e80af961c8df016ac97d1643c3c60b5eb451299da0ab5fe411d8866c"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1326,4 +1337,4 @@ resolved_reference = "fbf4c59c19d6152b748fc0a4b8749c39629710cc"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "db6a93caa8e1873253697d12833761d4f66bf429d1a34daa022bbcfdece956e3"
+content-hash = "4ab2a0676e86a346e84e0b909c4ce790bf2bb4c1db578effdfb8b8553acd26b4"
