@@ -21,6 +21,7 @@ class PlotCrossSectionInput(QDialog):
         ui_path = UI_DIR / "plots/model/plot_section.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
@@ -81,7 +82,7 @@ class PlotCrossSectionInput(QDialog):
             self.label_selected_id.setText("Element ID:")
             self.write_ids(self.element_id)
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
 
     def write_ids(self, list_ids):
         text = ""

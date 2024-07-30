@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import numpy as np
 from copy import deepcopy
@@ -23,6 +23,7 @@ class ConnectingFlangesInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/connecting_flanges_input.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
@@ -174,7 +175,7 @@ class ConnectingFlangesInput(QDialog):
             self.label_selected_id.setText("Nodes ID:")
 
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 if len(node_id):
                     self.opv.opvRenderer.highlight_nodes(node_id)
 
@@ -184,7 +185,7 @@ class ConnectingFlangesInput(QDialog):
             self.label_selected_id.setText("Elements ID:")
 
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 if element_id:
                     self.opv.opvRenderer.highlight_elements(element_id)
 
@@ -290,7 +291,7 @@ class ConnectingFlangesInput(QDialog):
     def reset_selection(self):
         self.lineEdit_selected_id.setText("")
         self.treeWidget_flange_by_elements.clear()
-        self.opv.plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def get_elements_from_start_end_line(self):
         number_elements = self.spinBox_number_elements_line.value()

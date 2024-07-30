@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QToolButton, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import remove_bc_from_file, get_new_path
 
 import os
@@ -31,11 +32,18 @@ class SpecificImpedanceInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
         self.update()
         self.load_nodes_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -62,21 +70,26 @@ class SpecificImpedanceInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QLineEdit
         self.lineEdit_imag_value : QLineEdit
         self.lineEdit_real_value : QLineEdit
         self.lineEdit_selection_id : QLineEdit
         self.lineEdit_table_path : QLineEdit
+
         # QPushButton
         self.constant_value_confirm_button : QPushButton
         self.remove_button : QPushButton
         self.reset_button : QPushButton
         self.search_button : QPushButton
         self.table_values_confirm_button : QPushButton
+
         # QSpinBox
         self.spinBox_skip_wors : QSpinBox
+
         # QTabWidget
         self.tabWidget_specific_impedance : QTabWidget
+
         # QTreeWidget
         self.treeWidget_specific_impedance : QTreeWidget
         self.treeWidget_specific_impedance.setColumnWidth(1, 20)
@@ -85,7 +98,7 @@ class SpecificImpedanceInput(QDialog):
     def _create_connections(self):
         #
         self.constant_value_confirm_button.clicked.connect(self.check_constant_values)
-        self.remove_button.clicked.connect(self.check_remove_bc_from_node)
+        self.remove_button.clicked.connect(self.remove_bc_from_node)
         self.reset_button.clicked.connect(self.reset_callback)
         self.table_values_confirm_button.clicked.connect(self.check_table_values)
         self.search_button.clicked.connect(self.load_specific_impedance_table)
@@ -96,6 +109,7 @@ class SpecificImpedanceInput(QDialog):
         self.treeWidget_specific_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def tabEvent_specific_impedance(self):
+        self.remove_button.setDisabled(True)
         if self.tabWidget_specific_impedance.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
@@ -163,7 +177,7 @@ class SpecificImpedanceInput(QDialog):
             data = [self.specific_impedance, None]
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
             self.process_table_file_removal(list_table_names) 
-            self.project.set_specific_impedance_bc_by_node(self.nodes_typed, data, False)
+            self.project.set_specific_impedance_bc_by_node(self.nodes_typed, data)
             self.opv.updateRendererMesh()
             print(f"[Set Specific Impedance] - defined at node(s) {self.nodes_typed}")
             self.close()
@@ -279,7 +293,7 @@ class SpecificImpedanceInput(QDialog):
                     if self.basename_specific_impedance in list_table_names:
                         list_table_names.remove(self.basename_specific_impedance)
                     data = [self.specific_impedance, self.basename_specific_impedance]
-                    self.project.set_specific_impedance_bc_by_node([node_id], data, True)
+                    self.project.set_specific_impedance_bc_by_node([node_id], data)
 
             self.process_table_file_removal(list_table_names)
             self.opv.updateRendererMesh()
@@ -312,26 +326,32 @@ class SpecificImpedanceInput(QDialog):
         return text
 
     def on_click_item(self, item):
+        self.remove_button.setDisabled(False)
         self.lineEdit_selection_id.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        self.check_remove_bc_from_node()
+        # self.remove_bc_from_node()
     
-    def check_remove_bc_from_node(self):
-        if self.lineEdit_selection_id.text() != "":
-            picked_node_id = int(self.lineEdit_selection_id.text())
-            node = self.preprocessor.nodes[picked_node_id]            
-            if node in self.preprocessor.nodes_with_specific_impedance:
-                key_strings = ["specific impedance"]
-                message = f"The specific impedance attributed to the {picked_node_id} node has been removed."
-                remove_bc_from_file([picked_node_id], self.acoustic_bc_info_path, key_strings, message)
-                list_table_names = self.get_list_table_names_from_selected_nodes([picked_node_id])
-                self.process_table_file_removal(list_table_names)
-                self.preprocessor.set_specific_impedance_bc_by_node(picked_node_id, [None, None])
-                self.opv.updateRendererMesh()
-                self.load_nodes_info()
-                # self.close()  
+    def remove_bc_from_node(self):
+        if self.lineEdit_selection_id.text() != "":            
+
+            lineEdit_selection_id = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            if stop:
+                return
+            
+            key_strings = ["specific impedance"]
+            self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.acoustic_bc_info_path)
+            list_table_names = self.get_list_table_names_from_selected_nodes(nodes_typed)
+            self.process_table_file_removal(list_table_names)
+            self.preprocessor.set_specific_impedance_bc_by_node(nodes_typed, [None, None])
+
+            self.lineEdit_selection_id.setText("")
+            self.remove_button.setDisabled(True)
+            self.load_nodes_info()
+            self.opv.updateRendererMesh()
+            # self.close()
 
     def process_table_file_removal(self, list_table_names):
         if list_table_names != []:
@@ -339,48 +359,48 @@ class SpecificImpedanceInput(QDialog):
                 self.project.remove_acoustic_table_files_from_folder(table_name, "specific_impedance_files")    
 
     def reset_callback(self):
-        if len(self.preprocessor.nodes_with_specific_impedance) > 0:
+        if self.preprocessor.nodes_with_specific_impedance:
 
             list_nodes = list()
             for node in self.preprocessor.nodes_with_specific_impedance:
                 list_nodes.append(node.external_index)
-            
-            title = f"Removal of all applied specific impedances"
-            message = "Would you like to remove the specific impedance(s) "
-            message += "applied to the following node(s)?\n"
-            message += f"\n{list_nodes}"
+
+            self.hide()
+
+            title = f"Resetting of specific impedances"
+            message = "Would you like to remove all specific impedances from the acoustic model?"
 
             buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._doNotRun:
+            if read._cancel:
                 return
 
             if read._continue:
 
-                _list_table_names = []
+                _node_ids = list()
+                _list_table_names = list()
                 _nodes_with_specific_impedance = self.preprocessor.nodes_with_specific_impedance.copy()
 
                 for node in _nodes_with_specific_impedance:
+
                     node_id = node.external_index
                     key_strings = ["specific impedance"]
                     table_name = node.specific_impedance_table_name
+
                     if table_name is not None:
                         if table_name not in _list_table_names:
                             _list_table_names.append(table_name)
-                    remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
-                    self.preprocessor.set_specific_impedance_bc_by_node(node_id, [None, None])
-                
+
+                    if node_id not in _node_ids:
+                        _node_ids.append(node_id)
+
+                self.project.file.filter_bc_data_from_dat_file(_node_ids, key_strings, self.acoustic_bc_info_path)
+                self.preprocessor.set_specific_impedance_bc_by_node(_node_ids, [None, None])
                 self.process_table_file_removal(_list_table_names)
-                self.load_nodes_info()
 
-                title = "Specific impedance resetting process complete"
-                message = "All specific impedances applied to the acoustic " 
-                message += "model have been removed from the model."
-                PrintMessageInput([window_title_2, title, message])
-
-                self.opv.updateRendererMesh()
                 self.close()
+                self.opv.updateRendererMesh()
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:
@@ -433,6 +453,10 @@ class SpecificImpedanceInput(QDialog):
                 self.check_table_values()
         elif event.key() == Qt.Key_Delete:
             if self.tabWidget_specific_impedance.currentIndex() == 2:
-                self.check_remove_bc_from_node()
+                self.remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)    

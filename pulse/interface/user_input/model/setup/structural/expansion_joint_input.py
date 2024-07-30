@@ -6,7 +6,7 @@ from PyQt5 import uic
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import get_new_path
@@ -25,6 +25,7 @@ class ExpansionJointInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         self.opv.setInputObject(self)
@@ -37,7 +38,9 @@ class ExpansionJointInput(QDialog):
         self._config_widgets()
         self.load_treeWidgets_info()
         self.update()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = app().main_window.pulse_icon
@@ -49,6 +52,8 @@ class ExpansionJointInput(QDialog):
         self.setWindowTitle("OpenPulse")
     
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -210,7 +215,7 @@ class ExpansionJointInput(QDialog):
             self.lineEdit_joint_length.setDisabled(False)
 
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 if node_id:
                     self.opv.opvRenderer.highlight_elements(node_id)
 
@@ -220,7 +225,7 @@ class ExpansionJointInput(QDialog):
             self.lineEdit_joint_length.setDisabled(False)
 
             if not self.opv.change_plot_to_mesh:
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
                 if element_id:
                     self.opv.opvRenderer.highlight_elements(element_id)
 
@@ -1233,15 +1238,15 @@ class ExpansionJointInput(QDialog):
 
     def reset_expansion_joints(self):
 
-        self.setVisible(False)
+        self.hide()
+
         title = "Resetting of expansion joints"
         message = "Would you like to remove all expansion joints from the model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
-            self.setVisible(True)
+        if read._cancel:
             return
 
         temp_dict_1 = self.preprocessor.dict_lines_with_expansion_joints.copy()
@@ -1351,6 +1356,8 @@ class ExpansionJointInput(QDialog):
 
     def confirm_table_file_removal(self, list_tables):
 
+        self.hide()
+
         title = "Removal of imported table files"
         
         message = "Would you like to remove the following unused imported table from the project folder?\n\n"
@@ -1358,9 +1365,9 @@ class ExpansionJointInput(QDialog):
             message += f"{table}\n"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
             return
 
         if read._continue:

@@ -4,14 +4,15 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 
 from pulse import UI_DIR, __version__
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.formatters.icons import * 
 
 
-class CallDoubleConfirmationInput(QDialog):
+class GetUserConfirmationInput(QDialog):
     def __init__(self, title, message, buttons_config={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "messages/call_double_confirmation.ui"
+        ui_path = UI_DIR / "messages/get_user_confirmation.ui"
         uic.loadUi(ui_path, self)
 
         self.title = title
@@ -23,7 +24,10 @@ class CallDoubleConfirmationInput(QDialog):
         self._config_window()
         self._reset_variables()
         self._define_qt_variables()
-        self._create_actions()
+        self._create_connections()
+
+        ConfigWidgetAppearance(self)
+
         self._configure_labels()
         self._configure_buttons()
         self.exec()
@@ -40,7 +44,7 @@ class CallDoubleConfirmationInput(QDialog):
     def _reset_variables(self):
         self._stop = True
         self._continue = False
-        self._doNotRun = True
+        self._cancel = True
 
     def _define_qt_variables(self):
         # QLabel
@@ -50,7 +54,7 @@ class CallDoubleConfirmationInput(QDialog):
         self.pushButton_rightButton : QPushButton
         self.pushButton_leftButton : QPushButton
 
-    def _create_actions(self):
+    def _create_connections(self):
         self.pushButton_rightButton.clicked.connect(self.confirm_action)
         self.pushButton_leftButton.clicked.connect(self.force_to_close)
 
@@ -80,13 +84,13 @@ class CallDoubleConfirmationInput(QDialog):
         self.adjustSize()
 
     def confirm_action(self):
+        self._cancel = False
         self._continue = True
         self._stop = False
-        self._doNotRun = False
         self.close()
 
     def force_to_close(self):
+        self._cancel = False
         self._continue = False
         self._stop = True
-        self._doNotRun = False
         self.close()

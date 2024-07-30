@@ -109,9 +109,10 @@ class OPPGeometryDesignerInput(QWidget):
         self.geometry_widget.set_info_text("")
 
     def update_project_attributes(self):
+        element_size, geometry_tolerance = self.project.file.get_mesh_attributes_from_project_file()
         self.file.modify_project_attributes(length_unit = self.add_widget.length_unit,
-                                            element_size = 0.01, 
-                                            geometry_tolerance = 1e-6,
+                                            element_size = element_size, 
+                                            geometry_tolerance = geometry_tolerance,
                                             import_type = 1)
 
     def load_project(self):

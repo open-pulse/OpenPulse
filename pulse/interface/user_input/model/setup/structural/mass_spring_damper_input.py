@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import QCheckBox, QDialog, QFileDialog, QFrame, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import remove_bc_from_file, get_new_path, create_new_folder
 from pulse.interface.formatters.icons import get_openpulse_icon
 
@@ -35,7 +35,9 @@ class MassSpringDamperInput(QDialog):
         self._config_widgets()
         self.update()
         self.load_treeWidgets_info()
-        self.exec()
+               
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -47,6 +49,8 @@ class MassSpringDamperInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -978,39 +982,40 @@ class MassSpringDamperInput(QDialog):
 
     def check_remove_bc_from_node(self):
 
-        self.nodes_typed = list()
+        nodes_typed = list()
         tab_remove_index = self.tabWidget_remove.currentIndex()
 
         if tab_remove_index == 0:
 
-            self.setVisible(False)
-            title = "Resetting the elastic links from the model"
-            message = "Would you like to remove all nodal elastic links from the structural model?"
+            self.hide()
+
+            title = "Resetting of lumped elements"
+            message = "Would you like to remove all lumped elements from the structural model?"
 
             buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._doNotRun:
-                self.opv.setInputObject(self)
-                self.setVisible(False)
+            if read._cancel:
                 return
+
             for node in self.preprocessor.nodes_with_masses:
                 index = node.external_index
-                if index not in self.nodes_typed:
-                    self.nodes_typed.append(index)
+                if index not in nodes_typed:
+                    nodes_typed.append(index)
 
             for node in self.preprocessor.nodes_connected_to_springs:
                 index = node.external_index
-                if index not in self.nodes_typed:
-                    self.nodes_typed.append(index)
+                if index not in nodes_typed:
+                    nodes_typed.append(index)
 
             for node in self.preprocessor.nodes_connected_to_dampers:
                 index = node.external_index
-                if index not in self.nodes_typed:
-                    self.nodes_typed.append(index)
+                if index not in nodes_typed:
+                    nodes_typed.append(index)
         else:
+
             lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-            _stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+            _stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
             if _stop:
                 return
 
@@ -1021,27 +1026,28 @@ class MassSpringDamperInput(QDialog):
         remove_spring = self.checkBox_remove_spring.isChecked()
         remove_damper = self.checkBox_remove_damper.isChecked()
 
-        if self.nodes_typed:
+        if nodes_typed:
 
             if (remove_mass and tab_remove_index == 0) or tab_remove_index == 1:    
                 key_strings = ["masses", "moments of inertia"]
-                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
                 self.remove_masses_table_files()
-                self.preprocessor.add_mass_to_node(self.nodes_typed, data)
+                self.preprocessor.add_mass_to_node(nodes_typed, data)
 
             if (remove_spring and tab_remove_index == 0) or tab_remove_index == 2:   
                 key_strings = ["spring stiffness", "torsional spring stiffness"]
-                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
                 self.remove_stiffness_table_files()
-                self.preprocessor.add_spring_to_node(self.nodes_typed, data)
+                self.preprocessor.add_spring_to_node(nodes_typed, data)
 
             if (remove_damper and tab_remove_index == 0) or tab_remove_index == 3: 
                 key_strings = ["damping coefficients", "torsional damping coefficients"]
-                remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, None, equals_keys=True)
+                self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.structural_bc_info_path)
                 self.remove_damping_table_files()
-                self.preprocessor.add_damper_to_node(self.nodes_typed, data)
+                self.preprocessor.add_damper_to_node(nodes_typed, data)
 
             self.load_treeWidgets_info()
+
             self.opv.updateRendererMesh()
 
             if tab_remove_index == 0:
@@ -1135,7 +1141,6 @@ class MassSpringDamperInput(QDialog):
 
     def on_doubleclick_item_masses(self, item):
         self.on_click_item_masses(item)
-        # self.check_remove_bc_from_node()
 
     def on_click_item_springs(self, item):
         self.current_selection = "lumped stiffness"
@@ -1144,7 +1149,6 @@ class MassSpringDamperInput(QDialog):
 
     def on_doubleclick_item_springs(self, item):
         self.on_click_item_springs(item)
-        # self.check_remove_bc_from_node()
 
     def on_click_item_dampings(self, item):
         self.current_selection = "lumped dampings"
@@ -1153,7 +1157,6 @@ class MassSpringDamperInput(QDialog):
 
     def on_doubleclick_item_dampings(self, item):
         self.on_click_item_dampings(item)
-        # self.check_remove_bc_from_node()
 
     def reset_input_fields_masses(self):
         for lineEdit_constant_masses in self.list_lineEdit_constant_values_lumped_masses:    
@@ -1262,3 +1265,7 @@ class MassSpringDamperInput(QDialog):
             self.add_lumped_elements()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

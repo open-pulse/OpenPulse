@@ -86,7 +86,6 @@ class InputUi:
         self.file = app().main_window.project.file
         self.opv = app().main_window.opv_widget
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
-
         self._reset()
 
     def _reset(self):

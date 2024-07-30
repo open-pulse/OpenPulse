@@ -7,7 +7,7 @@ from pathlib import Path
 from pulse import app, UI_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import os
 
@@ -49,13 +49,15 @@ class GetStartedInput(QDialog):
         self.setWindowTitle("Get started")
         
     def _define_qt_variables(self):
-        # QLable
+
+        # QLabel
         self.recents_label : QLabel
         self.project1_path_label : QLabel
         self.project2_path_label : QLabel
         self.project3_path_label : QLabel
         self.project4_path_label : QLabel
         self.project5_path_label : QLabel
+
         # QPushButton
         self.create_button : QPushButton
         self.load_button : QPushButton
@@ -75,13 +77,15 @@ class GetStartedInput(QDialog):
         self.create_lists_of_buttons_and_labels()
 
     def create_lists_of_buttons_and_labels(self):
-        self.project_buttons = []
+
+        self.project_buttons = list()
         self.project_buttons.append(self.project1_button)
         self.project_buttons.append(self.project2_button)
         self.project_buttons.append(self.project3_button)
         self.project_buttons.append(self.project4_button)
         self.project_buttons.append(self.project5_button)
-        self.project_path_labels = []
+
+        self.project_path_labels = list()
         self.project_path_labels.append(self.project1_path_label)
         self.project_path_labels.append(self.project2_path_label)
         self.project_path_labels.append(self.project3_path_label)
@@ -89,7 +93,7 @@ class GetStartedInput(QDialog):
         self.project_path_labels.append(self.project5_path_label)
 
     def update_buttons_visibility(self):
-        self.project_dir = []
+        self.project_dir = list()
         for i in range(5):
             self.project_dir.append("")
             # self.project_buttons[i].setIcon()
@@ -153,14 +157,18 @@ class GetStartedInput(QDialog):
             message = "The following project folder path cannot be found, check if the project " 
             message += f"folder have not been deleted or moved to another directory. \n\n{dir}"
             PrintMessageInput([window_title, title, message])
-        
+
     def reset_list_projects(self):
+
+        self.hide()
+
         title = "Resetting of the recent projects list"
         message = "Dear user, do you want to proceed with the 'Recent Projects' list clean-up and resetting?"
-        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
             return
 
         if read._continue:

@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -273,12 +273,15 @@ class BeamXaxisRotationInput(QDialog):
 
     def reset_all(self):
 
-        title = "Resetting all x-axis beam rotations"
-        message = "Would you like to remove all x-axis rotations attributed to beam elements?"
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        self.hide()
 
-        if read._doNotRun:
+        title = "Resetting x-axis beam rotations"
+        message = "Would you like to remove all x-axis rotations attributed to beam elements?"
+
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
             return
 
         if read._continue:

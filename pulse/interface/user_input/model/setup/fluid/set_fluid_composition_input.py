@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path
 
 import os
@@ -320,13 +320,15 @@ class SetFluidCompositionInput(QDialog):
 
     def reset_fluid(self):
 
+        self.hide()
+
         title = f"Resetting of the fluid composition"
-        message = "Would you like to reset the current fluid composition?\n\n"
+        message = "Would you like to reset the current fluid composition?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._stop:
+        if read._cancel:
             return
 
         self.fluid_to_composition.clear()
@@ -993,10 +995,6 @@ class SetFluidCompositionInput(QDialog):
             self.update_remainig_composition()
         self.opv.setInputObject(self)
 
-    def closeEvent(self, event):
-        super().closeEvent(event)
-        self.keep_window_open = False
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.get_fluid_properties()
@@ -1004,3 +1002,7 @@ class SetFluidCompositionInput(QDialog):
             self.remove_selected_gas()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False

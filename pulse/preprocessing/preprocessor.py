@@ -1495,7 +1495,7 @@ class Preprocessor:
             node.nodal_loads = values
             node.nodal_loads_table_names = table_names            
             node.prescribed_dofs = [None, None, None, None, None, None]
-            self.process_nodes_to_update_indexes_after_remesh(node)
+
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1534,7 +1534,7 @@ class Preprocessor:
         for node in slicer(self.nodes, nodes):
             node.lumped_masses = values
             node.lumped_masses_table_names = table_names
-            self.process_nodes_to_update_indexes_after_remesh(node)
+
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1572,7 +1572,7 @@ class Preprocessor:
         for node in slicer(self.nodes, nodes):
             node.lumped_stiffness = values
             node.lumped_stiffness_table_names = table_names
-            self.process_nodes_to_update_indexes_after_remesh(node)
+
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1610,7 +1610,7 @@ class Preprocessor:
         for node in slicer(self.nodes, nodes):
             node.lumped_dampings = values
             node.lumped_dampings_table_names = table_names
-            self.process_nodes_to_update_indexes_after_remesh(node)
+
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1649,7 +1649,7 @@ class Preprocessor:
             node.prescribed_dofs = values
             node.prescribed_dofs_table_names = table_names
             node.nodal_loads = [None, None, None, None, None, None]
-            self.process_nodes_to_update_indexes_after_remesh(node)
+
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -2417,7 +2417,7 @@ class Preprocessor:
             self.group_elements_with_length_correction.pop(section) 
         else:
             self.group_elements_with_length_correction[section] = [value, elements]
-            
+
     def set_acoustic_pressure_bc_by_node(self, nodes, data):
         """
         This method attributes acoustic pressure boundary condition to a list of nodes.
@@ -2433,10 +2433,16 @@ class Preprocessor:
         try:
             [value, table_name] = data
             for node in slicer(self.nodes, nodes):
+
                 node.acoustic_pressure = value
-                node.acoustic_pressure_table_name = table_name
+                node.acoustic_pressure_table_name = None
+
+                if isinstance(data, str):
+                    node.acoustic_pressure_table_name = table_name
+
                 if not node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.append(node)
+                
                 if value is None:
                     if node in self.nodes_with_acoustic_pressure:
                         self.nodes_with_acoustic_pressure.remove(node)
@@ -2445,12 +2451,12 @@ class Preprocessor:
                 node.volume_velocity_table = None
                 if node in self.nodes_with_volume_velocity:
                     self.nodes_with_volume_velocity.remove(node)
-                node.compressor_excitation_table_names = []
-                node.dict_index_to_compressor_connection_info = {}
+
+                node.compressor_excitation_table_names = list()
+                node.dict_index_to_compressor_connection_info = dict()
                 if node in self.nodes_with_compressor_excitation:
                     self.nodes_with_compressor_excitation.remove(node)
-                
-                self.process_nodes_to_update_indexes_after_remesh(node)
+
             return False
                 
         except Exception as log_error:
@@ -2496,8 +2502,7 @@ class Preprocessor:
                 node.acoustic_pressure_table_name = None
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
-                
-                self.process_nodes_to_update_indexes_after_remesh(node)
+
             return False
 
         except Exception as error:
@@ -2604,7 +2609,7 @@ class Preprocessor:
                 node.acoustic_pressure_table_name = None
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
-                self.process_nodes_to_update_indexes_after_remesh(node)
+
             return False
 
         except Exception as error:
@@ -2641,8 +2646,7 @@ class Preprocessor:
                         self.nodes_with_specific_impedance.remove(node)
                 if node in self.nodes_with_radiation_impedance:
                     self.nodes_with_radiation_impedance.remove(node)
-                
-                self.process_nodes_to_update_indexes_after_remesh(node) 
+
             return False
 
         except Exception as error:
@@ -2681,8 +2685,6 @@ class Preprocessor:
                     node.radiation_impedance = None
                 if node in self.nodes_with_specific_impedance:
                     self.nodes_with_specific_impedance.remove(node)
-
-                self.process_nodes_to_update_indexes_after_remesh(node)
                 
             return False
 
@@ -2944,7 +2946,7 @@ class Preprocessor:
         gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)     
         min_node_ID = min(node1.external_index, node2.external_index)
         max_node_ID = max(node1.external_index, node2.external_index)
-        key = "{}-{}".format(min_node_ID, max_node_ID)
+        key = f"{min_node_ID}-{max_node_ID}"
         
         if data is None:
             for node in [node1, node2]:
@@ -2980,16 +2982,13 @@ class Preprocessor:
             if _damping:
                 if key in self.nodes_with_elastic_link_dampings.keys():
                     self.nodes_with_elastic_link_dampings.pop(key)
-           
+
             return
 
         [parameters, table_names] = data
                
         gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
         gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
-
-        self.process_nodes_to_update_indexes_after_remesh(node1)
-        self.process_nodes_to_update_indexes_after_remesh(node2)
         
         pos_data = parameters
         neg_data = [-value if value is not None else None for value in parameters]
