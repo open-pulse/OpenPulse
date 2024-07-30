@@ -84,7 +84,7 @@ class ResultsViewerWidget(QWidget):
         self.adjustSize()
         self.animation_widget.setVisible(False)
 
-    def udate_visibility_items(self):
+    def update_visibility_items(self):
         self.results_viewer_items._update_items()
         self.results_viewer_items.update_tree_visibility_after_solution()
 

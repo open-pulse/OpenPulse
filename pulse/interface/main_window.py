@@ -546,10 +546,14 @@ class MainWindow(QMainWindow):
     def action_structural_setup_workspace_callback(self):
         self.mesh_toolbar.setDisabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
+
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-        # update the internal renderer to the setup mode
-        self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
+        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
+
+        # self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
+        # self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        # # update the internal renderer to the setup mode
+        # self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
 
     def action_acoustic_setup_workspace_callback(self):
         self.mesh_widget.update_selection()
@@ -568,20 +572,19 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.setCurrentWidget(self.opv_widget)
 
     def action_results_workspace_callback(self):
-        self._configure_visualization(tubes=True)
         self.results_widget.update_selection()
         self.results_viewer_wigdet.animation_widget.setVisible(False)
-        self.results_viewer_wigdet.udate_visibility_items()
+        self.results_viewer_wigdet.update_visibility_items()
 
         self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
-        return 
 
         if self.project.is_the_solution_finished():
             self.results_viewer_wigdet.animation_widget.setVisible(False)
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
             self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-            self.results_viewer_wigdet.udate_visibility_items()
+            self.results_viewer_wigdet.update_visibility_items()
+            self._configure_visualization(tubes=True)
         else:
             if self.cache_indexes:
                 self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
