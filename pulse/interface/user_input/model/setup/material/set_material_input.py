@@ -30,7 +30,7 @@ class SetMaterialInput(QDialog):
 
         self.main_window = app().main_window
         self.opv = app().main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
         self.project = app().project
         self.file = self.project.file
         
@@ -211,7 +211,7 @@ class SetMaterialInput(QDialog):
     def load_project(self):
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
-        app().main_window.input_widget.initial_project_action(True)
+        app().main_window.input_ui.initial_project_action(True)
         self.complete = True
 
     def keyPressEvent(self, event):

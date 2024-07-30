@@ -35,7 +35,7 @@ class AnalysisSetupInput(QDialog):
         self.project = self.main_window.project
         self.analysis_ID = self.project.analysis_ID
         self.opv = self.main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
 
         if self.analysis_ID in [1, 6]:
             ui_path = UI_DIR / "analysis/structural/harmonic_analysis_mode_superposition_method.ui"

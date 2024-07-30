@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
         self.opv_widget = None
-        self.input_widget = None
+        self.input_ui = None
         self.cache_indexes = list()
         self.last_index = None
 
@@ -209,7 +209,7 @@ class MainWindow(QMainWindow):
 
         self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
         self.results_viewer_wigdet = ResultsViewerWidget()
-        self.input_widget = InputUi(self)
+        self.input_ui = InputUi(self)
 
         self.mesh_widget = MeshRenderWidget()
         self.results_widget = ResultsRenderWidget()
@@ -261,10 +261,10 @@ class MainWindow(QMainWindow):
         self.opv_widget.updatePlots()
 
     def update_input_widget_callback(self):
-        self.input_widget.update_input_widget()
+        self.input_ui.update_input_widget()
 
     def new_project(self):
-        if not self.input_widget.new_project():
+        if not self.input_ui.new_project():
             return 
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
@@ -272,7 +272,7 @@ class MainWindow(QMainWindow):
         app().update()
 
     def open_project(self, path=None):
-        if not self.input_widget.load_project(path):
+        if not self.input_ui.load_project(path):
             return
 
         self._update_recent_projects()
@@ -459,7 +459,7 @@ class MainWindow(QMainWindow):
         # t0 = time()
         if self.config.open_last_project and self.config.haveRecentProjects():
             self.import_project_call(self.config.getMostRecentProjectDir())
-        elif self.input_widget.get_started():
+        elif self.input_ui.get_started():
             # self.update()  # update the renders before change the view
             # self.opv_widget.updatePlots()
             self.action_front_view_callback()
@@ -524,7 +524,7 @@ class MainWindow(QMainWindow):
         self.open_project()
 
     def action_save_project_as_callback(self):
-        self.input_widget.save_project_as()
+        self.input_ui.save_project_as()
 
     def action_import_pcf_callback(self):
         self.open_pcf()
@@ -613,7 +613,7 @@ class MainWindow(QMainWindow):
         self.savePNG_call()
     
     def action_reset_callback(self):
-        self.input_widget.reset_project()
+        self.input_ui.reset_project()
 
     def action_plot_geometry_editor_callback(self):
         self.action_show_points.setChecked(True)
@@ -623,13 +623,13 @@ class MainWindow(QMainWindow):
         self.use_geometry_workspace()
     
     def action_user_preferences_callback(self):
-        self.input_widget.mesh_setup_visibility()
+        self.input_ui.mesh_setup_visibility()
 
     def action_geometry_editor_help_callback(self):
-        self.input_widget.geometry_editor_help()
+        self.input_ui.geometry_editor_help()
 
     def action_pulsation_suppression_device_editor_callback(self):
-        self.input_widget.pulsation_suppression_device_editor()
+        self.input_ui.pulsation_suppression_device_editor()
 
     def action_plot_lines_callback(self):
         if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
@@ -647,7 +647,7 @@ class MainWindow(QMainWindow):
         self.plot_mesh()
 
     def action_plot_cross_section_callback(self):
-        self.input_widget.plot_cross_section()
+        self.input_ui.plot_cross_section()
 
     def action_isometric_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
@@ -745,70 +745,70 @@ class MainWindow(QMainWindow):
             self.opv_widget.opvRenderer.dismiss_clipping_plane()
 
     def action_set_structural_element_type_callback(self):
-        self.input_widget.set_structural_element_type()
+        self.input_ui.set_structural_element_type()
 
     def action_add_connecting_flanges_callback(self):
-        self.input_widget.add_flanges()
+        self.input_ui.add_flanges()
 
     def action_set_prescribed_dofs_callback(self):
-        self.input_widget.set_prescribed_dofs()
+        self.input_ui.set_prescribed_dofs()
 
     def action_set_nodal_loads_callback(self):
-        self.input_widget.set_nodal_loads()
+        self.input_ui.set_nodal_loads()
 
     def action_add_mass_spring_damper_callback(self):
-        self.input_widget.add_mass_spring_damper()
+        self.input_ui.add_mass_spring_damper()
 
     def action_set_capped_end_callback(self):
-        self.input_widget.set_capped_end()
+        self.input_ui.set_capped_end()
 
     def action_set_stress_stiffening_callback(self):
-        self.input_widget.set_stress_stress_stiffening()
+        self.input_ui.set_stress_stress_stiffening()
 
     def action_add_elastic_nodal_links_callback(self):
-        self.input_widget.add_elastic_nodal_links()
+        self.input_ui.add_elastic_nodal_links()
 
     def action_structural_model_info_callback(self):
-        self.input_widget.structural_model_info()
+        self.input_ui.structural_model_info()
 
     def action_set_acoustic_element_type_callback(self):
-        self.input_widget.set_acoustic_element_type()
+        self.input_ui.set_acoustic_element_type()
 
     def action_set_acoustic_pressure_callback(self):
-        self.input_widget.set_acoustic_pressure()
+        self.input_ui.set_acoustic_pressure()
 
     def action_set_volume_velocity_callback(self):
-        self.input_widget.set_volume_velocity()
+        self.input_ui.set_volume_velocity()
 
     def action_set_specific_impedance_callback(self):
-        self.input_widget.set_specific_impedance()
+        self.input_ui.set_specific_impedance()
 
     def action_add_perforated_plate_callback(self):
-        self.input_widget.add_perforated_plate()
+        self.input_ui.add_perforated_plate()
 
     def action_set_acoustic_element_length_correction_callback(self):
-        self.input_widget.set_acoustic_element_length_correction()
+        self.input_ui.set_acoustic_element_length_correction()
 
     def action_add_compressor_excitation_callback(self):
-        self.input_widget.add_compressor_excitation()
+        self.input_ui.add_compressor_excitation()
 
     def action_acoustic_model_info_callback(self):
-        self.input_widget.acoustic_model_info()
+        self.input_ui.acoustic_model_info()
     
     def action_check_beam_criteria_callback(self):
-        self.input_widget.check_beam_criteria()
+        self.input_ui.check_beam_criteria()
 
     def action_select_analysis_type_callback(self):
-        self.input_widget.analysis_type_input()
+        self.input_ui.analysis_type_input()
 
     def action_analysis_setup_callback(self):
-        self.input_widget.analysis_setup()
+        self.input_ui.analysis_setup()
     
     def action_run_analysis_callback(self):
-        self.input_widget.run_analysis()
+        self.input_ui.run_analysis()
 
     def action_about_openpulse_callback(self):
-        self.input_widget.about_OpenPulse()
+        self.input_ui.about_OpenPulse()
 
     def action_show_points_callback(self, cond):
         self._update_visualization()
@@ -842,10 +842,10 @@ class MainWindow(QMainWindow):
             self.action_export_geometry.setDisabled(False)
 
     def action_import_geometry_callback(self):
-        self.input_widget.import_geometry()
+        self.input_ui.import_geometry()
 
     def import_project_call(self, path=None):
-        if self.input_widget.load_project(path):
+        if self.input_ui.load_project(path):
             self._update_recent_projects()
             self.change_window_title(self.file.project_name)
             self.update()
@@ -862,7 +862,7 @@ class MainWindow(QMainWindow):
         pass
 
     def close_opened_windows(self):
-        self.input_widget.set_input_widget(None)
+        self.input_ui.set_input_widget(None)
 
     def load_user_preferences(self):
         self.update_theme = False
@@ -947,7 +947,7 @@ class MainWindow(QMainWindow):
     #     return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
-        self.input_widget.set_input_widget(None)
+        self.input_ui.set_input_widget(None)
 
         title = "OpenPulse"
         message = "Would you like to exit from the OpenPulse application?"

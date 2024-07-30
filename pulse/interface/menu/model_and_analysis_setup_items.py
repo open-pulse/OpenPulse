@@ -147,139 +147,139 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     # Callbacks
     def item_child_create_geometry_callback(self):
-        self.main_window.input_widget.call_geometry_editor()
+        self.main_window.input_ui.call_geometry_editor()
 
     def item_child_edit_geometry_callback(self):
-        obj = self.main_window.input_widget.edit_an_imported_geometry()
+        obj = self.main_window.input_ui.edit_an_imported_geometry()
 
     def item_child_set_material_callback(self):
         self.main_window.update_plot_entities()
-        self.main_window.input_widget.set_material()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_material()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_fluid_callback(self):
         self.main_window.update_plot_entities()
-        self.main_window.input_widget.set_fluid()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_fluid()
+        app().main_window.input_ui.set_input_widget(None)
     
     def item_child_set_cross_section_callback(self):
-        if self.main_window.input_widget.set_cross_section():
+        if self.main_window.input_ui.set_cross_section():
             self.main_window.update_plot_entities_with_cross_section()
-        app().main_window.input_widget.set_input_widget(None)
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_structural_element_type_callback(self):
         self.main_window.update_plot_entities()
-        self.main_window.input_widget.set_structural_element_type()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_structural_element_type()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_prescribed_dofs_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.set_prescribed_dofs()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_prescribed_dofs()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_nodal_loads_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.set_nodal_loads()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_nodal_loads()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_add_mass_spring_damper_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.add_mass_spring_damper()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.add_mass_spring_damper()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_add_elastic_nodal_links_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.add_elastic_nodal_links()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.add_elastic_nodal_links()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_inertial_loads_callback(self):
-        obj = self.main_window.input_widget.set_inertial_load()
+        obj = self.main_window.input_ui.set_inertial_load()
         if obj.complete:
             self.main_window.update_plot_mesh()
-        app().main_window.input_widget.set_input_widget(None)
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_stress_stiffening_callback(self):
-        self.main_window.input_widget.set_stress_stress_stiffening()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_stress_stress_stiffening()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_capped_end_callback(self):
-        self.main_window.input_widget.set_capped_end()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_capped_end()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_add_valves_callback(self):
-        obj = self.main_window.input_widget.add_valve()
+        obj = self.main_window.input_ui.add_valve()
         if obj.complete:
             self.main_window.update_plot_mesh()
-        app().main_window.input_widget.set_input_widget(None)
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_add_flanges_callback(self):
-        self.main_window.input_widget.add_flanges()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.add_flanges()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_add_expansion_joint_callback(self):
-        self.main_window.input_widget.add_expansion_joint()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.add_expansion_joint()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_beam_x_axis_rotation_callback(self):
         self.main_window.update_plot_entities_with_cross_section()
-        self.main_window.input_widget.set_beam_xaxis_rotation()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_beam_xaxis_rotation()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_rotation_decoupling_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.set_rotation_decoupling_dofs()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_rotation_decoupling_dofs()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_acoustic_element_type_callback(self):
         self.main_window.update_plot_entities()
-        self.main_window.input_widget.set_acoustic_element_type()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_acoustic_element_type()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_acoustic_pressure_callback(self):
         self.main_window.update_plot_mesh()      
-        self.main_window.input_widget.set_acoustic_pressure()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_acoustic_pressure()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_volume_velocity_callback(self):
         self.main_window.update_plot_mesh()  
-        self.main_window.input_widget.set_volume_velocity()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_volume_velocity()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_specific_impedance_callback(self):
         self.main_window.update_plot_mesh() 
-        self.main_window.input_widget.set_specific_impedance()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_specific_impedance()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_radiation_impedance_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.set_radiation_impedance()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_radiation_impedance()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_add_perforated_plate_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.add_perforated_plate()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.add_perforated_plate()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_set_acoustic_element_length_correction_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.set_acoustic_element_length_correction()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.set_acoustic_element_length_correction()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_add_compressor_excitation_callback(self):
         self.main_window.update_plot_mesh()
-        self.main_window.input_widget.add_compressor_excitation()
-        app().main_window.input_widget.set_input_widget(None)
+        self.main_window.input_ui.add_compressor_excitation()
+        app().main_window.input_ui.set_input_widget(None)
 
     def item_child_select_analysis_type_callback(self):
-        self.main_window.input_widget.analysis_type_input()
+        self.main_window.input_ui.analysis_type_input()
         self._update_items()
     
     def item_child_analisys_setup_callback(self):
-        self.main_window.input_widget.analysis_setup()
+        self.main_window.input_ui.analysis_setup()
         self._update_items()
 
     def item_child_run_analysis_callback(self):
-        self.main_window.input_widget.run_analysis()
+        self.main_window.input_ui.run_analysis()
         self._update_items()
         self.main_window.use_results_workspace()
 

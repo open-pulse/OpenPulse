@@ -20,7 +20,7 @@ class GetStartedInput(QDialog):
 
         self.main_window = app().main_window
         self.opv = app().main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
        
         self._initialize()
         self._load_icons()
@@ -34,7 +34,7 @@ class GetStartedInput(QDialog):
         self.project = self.main_window.project
         self.opv = self.main_window.opv_widget
         self.config = self.main_window.config
-        self.input_ui = self.main_window.input_widget
+        self.input_ui = self.main_window.input_ui
         self.complete = False
 
     def _load_icons(self):

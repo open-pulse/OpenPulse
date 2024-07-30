@@ -39,7 +39,7 @@ class FluidInput(QDialog):
         
         self.project = app().project
         self.opv = app().main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -241,14 +241,14 @@ class FluidInput(QDialog):
         self.hide()
         self.REFPROP = SetFluidCompositionInput(selected_fluid_to_edit = self.selected_REFPROP_fluid, 
                                                 compressor_info = self.compressor_thermodynamic_state)
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
         self.after_getting_fluid_properties_from_REFPROP()
 
     def call_refprop_interface(self):
         self.hide()
         self.REFPROP = SetFluidCompositionInput(compressor_info = self.compressor_thermodynamic_state)
         # if not self.REFPROP.complete:
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
         # return
         self.after_getting_fluid_properties_from_REFPROP()
 

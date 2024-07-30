@@ -29,7 +29,7 @@ class SetCrossSectionInput(QDialog):
 
         self.project = app().project
         self.opv = app().main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
 
         self.preprocessor = self.project.preprocessor
         self.file = self.project.file
@@ -674,7 +674,7 @@ class SetCrossSectionInput(QDialog):
     def load_project(self):
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
-        app().main_window.input_widget.initial_project_action(True)
+        app().main_window.input_ui.initial_project_action(True)
         self.complete = True
 
     def check_constant_pipe(self, plot=False):

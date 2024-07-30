@@ -25,7 +25,7 @@ class ElasticNodalLinksInput(QDialog):
 
         self.project = app().project
         self.opv = app().main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -924,7 +924,7 @@ class ElasticNodalLinksInput(QDialog):
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._doNotRun:
-            app().main_window.input_widget.set_input_widget(self)
+            app().main_window.input_ui.set_input_widget(self)
             self.setVisible(False)
             return
 

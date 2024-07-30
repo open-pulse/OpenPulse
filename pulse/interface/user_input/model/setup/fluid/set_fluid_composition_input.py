@@ -27,7 +27,7 @@ class SetFluidCompositionInput(QDialog):
         
         self.project = app().project
         self.opv = app().main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -991,7 +991,7 @@ class SetFluidCompositionInput(QDialog):
 
             self.load_fluid_composition_info()
             self.update_remainig_composition()
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
 
     def closeEvent(self, event):
         super().closeEvent(event)

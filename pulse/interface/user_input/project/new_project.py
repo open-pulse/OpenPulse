@@ -24,7 +24,7 @@ class NewProjectInput(QDialog):
         
         self.main_window = app().main_window
         self.opv = self.main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
         self.project = self.main_window.project
         self.file = self.project.file
         self.config = self.main_window.config

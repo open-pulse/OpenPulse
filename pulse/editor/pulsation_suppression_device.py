@@ -318,7 +318,7 @@ class PulsationSuppressionDevice:
 
         self.project.initial_load_project_actions(self.file.project_ini_file_path)
         self.project.load_project_files()
-        app().main_window.input_widget.initial_project_action(True)
+        app().main_window.input_ui.initial_project_action(True)
         app().update()
 
         # app().main_window.opv_widget.updatePlots()

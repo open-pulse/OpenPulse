@@ -19,7 +19,7 @@ class PlotAcousticPressureField(QWidget):
         uic.loadUi(ui_path, self)
 
         self.opv = main_window.opv_widget
-        app().main_window.input_widget.set_input_widget(self)
+        app().main_window.input_ui.set_input_widget(self)
         self.project = main_window.project
 
         self._load_icons()
