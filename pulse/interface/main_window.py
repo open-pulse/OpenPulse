@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
         self.results_viewer_wigdet = None
         self.interface_theme = None
         self.last_index = None
+        self.last_render_index = None
         self.cache_indexes = list()
 
     def _load_stylesheets(self):
@@ -219,7 +220,7 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.addWidget(self.results_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
         self.render_widgets_stack.addWidget(self.opv_widget)
-        self.render_widgets_stack.currentChanged.connect(self.copy_camera)
+        self.render_widgets_stack.currentChanged.connect(self.render_changed_callback)
 
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
@@ -586,28 +587,18 @@ class MainWindow(QMainWindow):
             if self.cache_indexes:
                 self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
 
-    def copy_camera(self):
-        def get_workspace_render(index):
-            if index == Workspace.GEOMETRY:
-                return self.geometry_widget
-            elif index == Workspace.STRUCTURAL_SETUP:
-                pass
-            elif index == Workspace.ACOUSTIC_SETUP:
-                return self.mesh_widget
-            elif index == Workspace.RESULTS:
-                return self.results_widget
-
-        if len(self.cache_indexes) < 2:
-            return
-        
-        last_render = get_workspace_render(self.cache_indexes[-2])
-        current_render = get_workspace_render(self.cache_indexes[-1])
-
-        if not isinstance(current_render, CommonRenderWidget):
+    def render_changed_callback(self, new_index):
+        if self.last_render_index is None:
+            self.last_render_index = new_index
             return
 
-        current_render.copy_camera_from(last_render)
-        current_render.update()
+        new_widget = self.render_widgets_stack.widget(new_index)
+        if isinstance(new_widget, CommonRenderWidget):
+            last_widget = self.render_widgets_stack.widget(self.last_render_index)
+            new_widget.copy_camera_from(last_widget)
+            # if last_widget is not a valid render the operation will be ignored
+
+        self.last_render_index = new_index
 
     def action_save_as_png_callback(self):
         self.savePNG_call()

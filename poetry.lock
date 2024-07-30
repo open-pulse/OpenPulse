@@ -642,18 +642,18 @@ develop = false
 
 [package.dependencies]
 gmsh = "^4.11.1"
+molde = {git = "https://github.com/andrefpf/molde"}
 ordered-set = "^4.1.0"
 pyqt5 = "^5.15.9"
 pyqtdarktheme = "^2.1.0"
 pyyaml = "^6.0.1"
 vtk = "^9.2.6"
-vtkat = {git = "https://github.com/andrefpf/vtkat"}
 
 [package.source]
 type = "git"
 url = "https://github.com/open-pulse/opps"
 reference = "add_new_structures"
-resolved_reference = "8cf6c7ee2b00ae156cf06b137227dd6eed5c1edb"
+resolved_reference = "bd38b6829dd4da03826359e8f94795165860aa01"
 
 [[package]]
 name = "ordered-set"
@@ -1312,27 +1312,6 @@ matplotlib = ">=2.0.0"
 [package.extras]
 numpy = ["numpy (>=1.9)"]
 web = ["wslink (>=1.0.4)"]
-
-[[package]]
-name = "vtkat"
-version = "0.1.0"
-description = ""
-optional = false
-python-versions = ">=3.10,<3.12"
-files = []
-develop = false
-
-[package.dependencies]
-numpy = "^1.26.3"
-pyqt5 = "^5.15.10"
-pyqt5-qt5 = "5.15.2"
-vtk = "^9.3.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/andrefpf/vtkat"
-reference = "HEAD"
-resolved_reference = "fbf4c59c19d6152b748fc0a4b8749c39629710cc"
 
 [metadata]
 lock-version = "2.0"
