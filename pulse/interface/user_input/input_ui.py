@@ -1,3 +1,4 @@
+from PyQt5.QtWidgets import QWidget
 #
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
@@ -86,6 +87,7 @@ class InputUi:
         self.file = app().main_window.project.file
         self.opv = app().main_window.opv_widget
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
+        self.input_widget: QWidget | None = None
 
         self._reset()
 
@@ -94,10 +96,23 @@ class InputUi:
         self.global_damping = [0,0,0,0]
         self.project.none_project_action = False
 
+    def update_input_widget(self):
+        if self.input_widget is None:
+            return
+
+        try:
+            self.input_widget.update()
+        except Exception as err:
+            print("Update function error:", err)
+
+    def set_input_widget(self, widget):
+        if hasattr(self.input_widget, "close"):
+            self.input_widget.close()
+        self.input_widget = widget
+
     def before_initiate(self):
         try:
-            self.opv.inputObject.close()
-            self.opv.setInputObject(None)
+            self.set_input_widget(None)
         except:
             return
 

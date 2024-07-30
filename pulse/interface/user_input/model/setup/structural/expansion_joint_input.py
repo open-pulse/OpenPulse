@@ -27,7 +27,7 @@ class ExpansionJointInput(QDialog):
 
         self.project = app().project
         self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
+        app().main_window.input_widget.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -654,7 +654,7 @@ class ExpansionJointInput(QDialog):
                     read = SetCrossSectionInput(beam_to_pipe = True, 
                                                 elements_to_update_cross_section = elements_to_change)
                     if not read.complete:
-                        self.opv.setInputObject(self)
+                        app().main_window.input_widget.set_input_widget(self)
                         self.setVisible(True)
                         return
                 else:

@@ -27,7 +27,7 @@ class SaveProjectAsInput(QDialog):
         self.file = self.project.file
         self.opv = self.main_window.opv_widget
 
-        self.opv.setInputObject(self)
+        app().main_window.input_widget.set_input_widget(self)
 
         self._initialize()
         self._load_icons()

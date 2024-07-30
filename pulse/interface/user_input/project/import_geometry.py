@@ -24,7 +24,7 @@ class ImportGeometry(QFileDialog):
         self.config = app().config
         self.opv = app().main_window.opv_widget
         
-        self.opv.setInputObject(self)
+        app().main_window.input_widget.set_input_widget(self)
         self.preprocessor = self.project.preprocessor
 
         self._initialize()

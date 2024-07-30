@@ -23,7 +23,7 @@ class LoadFluidCompositionInput(QDialog):
 
         self.main_window = app().main_window
         self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
+        app().main_window.input_widget.set_input_widget(self)
 
         self.file_path = kwargs.get("file_path", "")
        

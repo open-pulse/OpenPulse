@@ -38,7 +38,7 @@ class AnalysisTypeInput(QDialog):
 
         main_window = app().main_window
         self.opv = main_window.opv_widget
-        self.opv.setInputObject(self)
+        app().main_window.input_widget.set_input_widget(self)
         self.project = main_window.project
 
         self._initialize()

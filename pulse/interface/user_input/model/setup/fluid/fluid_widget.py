@@ -539,7 +539,7 @@ class FluidWidget(QWidget):
                                                     compressor_info = self.compressor_thermodynamic_state)
 
             if not self.refprop.complete:
-                self.opv.setInputObject(self.parent_widget)
+                app().main_window.input_widget.set_input_widget(self.parent_widget)
                 return
 
             self.selected_column = col
@@ -618,7 +618,7 @@ class FluidWidget(QWidget):
 
         self.refprop = SetFluidCompositionInput(compressor_info = self.compressor_thermodynamic_state)
         if not self.refprop.complete:
-            self.opv.setInputObject(self.parent_widget)
+            app().main_window.input_widget.set_input_widget(self.parent_widget)
             return True
 
         self.after_getting_fluid_properties_from_refprop()

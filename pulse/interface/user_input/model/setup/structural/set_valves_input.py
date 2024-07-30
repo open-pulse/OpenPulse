@@ -26,7 +26,7 @@ class ValvesInput(QDialog):
 
         self.project = app().project
         self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
+        app().main_window.input_widget.set_input_widget(self)
         
         self._load_icons()
         self._config_window()
@@ -562,7 +562,7 @@ class ValvesInput(QDialog):
             perforated_plate = PerforatedPlateInput(valve_ids = valve_ids)
            
             if not perforated_plate.complete:
-                self.opv.setInputObject(self)
+                app().main_window.input_widget.set_input_widget(self)
                 return
 
         valve_parameters = dict()
@@ -983,7 +983,7 @@ class ValvesInput(QDialog):
         read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._stop:
-            self.opv.setInputObject(self)
+            app().main_window.input_widget.set_input_widget(self)
             return
 
         aux = self.preprocessor.group_elements_with_valves.copy()

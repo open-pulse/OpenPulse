@@ -167,6 +167,8 @@ class MainWindow(QMainWindow):
             function = getattr(self, function_name)
             if callable(function):
                 action.triggered.connect(function)
+        
+        self.selection_changed.connect(self.update_input_widget_callback)
 
     def _create_workspaces_toolbar(self):
         actions = {
@@ -257,6 +259,9 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update_plot(reset_camera=True)
         self.results_widget.update_plot(reset_camera=True)
         self.opv_widget.updatePlots()
+
+    def update_input_widget_callback(self):
+        self.input_widget.update_input_widget()
 
     def new_project(self):
         if not self.input_widget.new_project():
@@ -857,9 +862,7 @@ class MainWindow(QMainWindow):
         pass
 
     def close_opened_windows(self):
-        if self.opv_widget.inputObject is not None:
-            self.opv_widget.inputObject.close()
-            self.opv_widget.setInputObject(None)
+        self.input_widget.set_input_widget(None)
 
     def load_user_preferences(self):
         self.update_theme = False
@@ -944,9 +947,7 @@ class MainWindow(QMainWindow):
     #     return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
-
-        if self.opv_widget.inputObject is not None:
-            self.opv_widget.inputObject.close()
+        self.input_widget.set_input_widget(None)
 
         title = "OpenPulse"
         message = "Would you like to exit from the OpenPulse application?"
