@@ -56,13 +56,13 @@ class MainWindow(QMainWindow):
         self.reset()
 
     def reset(self):
-        self.interface_theme = None
-        self.model_and_analysis_setup_widget = None
-        self.results_viewer_wigdet = None
         self.opv_widget = None
         self.input_ui = None
-        self.cache_indexes = list()
+        self.model_and_analysis_setup_widget = None
+        self.results_viewer_wigdet = None
+        self.interface_theme = None
         self.last_index = None
+        self.cache_indexes = list()
 
     def _load_stylesheets(self):
         stylesheets = []
@@ -88,7 +88,8 @@ class MainWindow(QMainWindow):
         self.pulse_icon = icons.get_openpulse_icon()
 
     def _config_window(self):
-        self.showMaximized()
+        # self.showMaximized()
+        self.showMinimized()
         self.installEventFilter(self)
         self.setWindowIcon(self.pulse_icon)
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
@@ -184,7 +185,7 @@ class MainWindow(QMainWindow):
         # iterating sorted items make the icons appear in the same 
         # order as defined in the Workspace enumerator
         for _, action in sorted(actions.items()):
-            self.combo_box_workspaces.addItem(action.text())
+            self.combo_box_workspaces.addItem(f" {action.text()}")
 
         self.combo_box_workspaces.currentIndexChanged.connect(self.update_combobox_indexes)
         self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
@@ -203,7 +204,6 @@ class MainWindow(QMainWindow):
         self.action_import_pcf.setDisabled(_bool)
 
     def _create_layout(self):
-
         self.opv_widget = OPVUi(self.project, self)
         self.opv_widget.opvAnalysisRenderer._createPlayer()
 
@@ -233,22 +233,28 @@ class MainWindow(QMainWindow):
         self._update_visualization()
 
     def configure_window(self):
-        self._load_stylesheets()
+        # t0 = time()
         self._load_icons()
+        self._load_stylesheets()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
+        app().splash.update_progress(30)
 
         self._create_layout()
-
         self._create_workspaces_toolbar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
+        app().splash.update_progress(70)
 
         self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
-        
+        app().splash.update_progress(98)
+
+        app().splash.close()
+        self.showMaximized()
+
         # dt = time() - t0
         # print(f"Time to load interface: {dt} [s]")
         self.load_recent_project()
@@ -291,8 +297,9 @@ class MainWindow(QMainWindow):
         if not ok:
             return
 
-        app().geometry_toolbox.open(path)
-        pipeline = app().geometry_toolbox.pipeline
+        pipeline = app().project.pipeline
+        pcf_handler = PCFHandler()
+        pcf_handler.load(path, pipeline)
 
         for structure in pipeline.structures:
             if isinstance(structure, Pipe | Bend):
@@ -332,7 +339,7 @@ class MainWindow(QMainWindow):
         if not ok:
             return
 
-        pipeline = app().geometry_toolbox.pipeline
+        pipeline = app().project.pipeline
         pcf_exporter = PCFExporter()
         pcf_exporter.save(path, pipeline)
         self.update()
@@ -423,7 +430,7 @@ class MainWindow(QMainWindow):
         key.append(self.action_show_tubes.isChecked())
         key.append(self.action_show_symbols.isChecked())
 
-        if key != [True, True, True, True]:
+        if key != [True, True, False, True]:
             self.plot_mesh()
 
     def update_plot_entities(self):
@@ -457,6 +464,7 @@ class MainWindow(QMainWindow):
 
     def load_recent_project(self):
         # t0 = time()
+        self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
         if self.config.open_last_project and self.config.haveRecentProjects():
             self.import_project_call(self.config.getMostRecentProjectDir())
         elif self.input_ui.get_started():
@@ -550,11 +558,6 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
 
-        # self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        # self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-        # # update the internal renderer to the setup mode
-        # self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
-
     def action_acoustic_setup_workspace_callback(self):
         self.mesh_widget.update_selection()
         self.mesh_toolbar.setDisabled(False)
@@ -562,27 +565,21 @@ class MainWindow(QMainWindow):
 
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-        # self.render_widgets_stack.setCurrentWidget(self.opv_widget)
-        # update the internal renderer to the setup mode
-        # self.opv_widget.setRenderer(self.opv_widget.opvRenderer)
 
     def action_coupled_setup_workspace_callback(self):
         self.model_and_analysis_setup_widget.update_visibility_for_coupled_analysis()
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+        self.render_widgets_stack.setCurrentWidget(self.results_widget)
 
     def action_results_workspace_callback(self):
         self.results_widget.update_selection()
         self.results_viewer_wigdet.animation_widget.setVisible(False)
         self.results_viewer_wigdet.update_visibility_items()
 
-        self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
-        self.render_widgets_stack.setCurrentWidget(self.results_widget)
-
         if self.project.is_the_solution_finished():
             self.results_viewer_wigdet.animation_widget.setVisible(False)
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
-            self.render_widgets_stack.setCurrentWidget(self.opv_widget)
+            self.render_widgets_stack.setCurrentWidget(self.results_widget)
             self.results_viewer_wigdet.update_visibility_items()
             self._configure_visualization(tubes=True)
         else:
@@ -948,6 +945,18 @@ class MainWindow(QMainWindow):
     #             return
     #             self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
     #     return super(MainWindow, self).eventFilter(obj, event)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.ShortcutOverride:
+            if event.key() == Qt.Key_E:
+                self.combo_box_workspaces.setCurrentIndex(0)
+            elif event.key() == Qt.Key_S:
+                self.combo_box_workspaces.setCurrentIndex(1)
+            elif event.key() == Qt.Key_A:
+                self.combo_box_workspaces.setCurrentIndex(2)
+            elif event.key() == Qt.Key_R:
+                self.combo_box_workspaces.setCurrentIndex(3)
+        return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
         self.input_ui.set_input_widget(None)

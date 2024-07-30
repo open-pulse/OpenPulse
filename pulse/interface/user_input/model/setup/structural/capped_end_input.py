@@ -20,6 +20,7 @@ class CappedEndInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/capped_end_input.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         app().main_window.input_ui.set_input_widget(self)    
@@ -193,7 +194,7 @@ class CappedEndInput(QDialog):
     def update_renders(self):
         if self.comboBox_selection.currentIndex() == 2:
             if not self.opv.change_plot_to_mesh:  
-                self.opv.plot_mesh()
+                self.main_window.update_plot_mesh()
         else:
             if not self.opv.change_plot_to_entities:
                 self.opv.plot_entities()

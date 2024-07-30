@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 
 import os
@@ -31,11 +32,18 @@ class AcousticPressureInput(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+
+        ConfigWidgetAppearance(self, tool_tip=True)
+
         self.update_selection()
         self.load_nodes_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -62,21 +70,26 @@ class AcousticPressureInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QLineEdit
         self.lineEdit_imag_value : QLineEdit
         self.lineEdit_real_value : QLineEdit
         self.lineEdit_selection_id : QLineEdit
         self.lineEdit_table_path : QLineEdit
+
         # QPushButton
         self.constant_value_confirm_button : QPushButton
         self.remove_button : QPushButton
         self.reset_button : QPushButton
         self.search_button : QPushButton
         self.table_values_confirm_button : QPushButton
+
         # QSpinBox
         self.spinBox_skip_wors : QSpinBox
+
         # QTabWidget
         self.tabWidget_acoustic_pressure : QTabWidget
+
         # QTreeWidget
         self.treeWidget_acoustic_pressure : QTreeWidget
         self.treeWidget_acoustic_pressure.setColumnWidth(1, 20)
@@ -86,7 +99,7 @@ class AcousticPressureInput(QDialog):
         app().main_window.selection_changed.connect(self.update_selection)
         #
         self.constant_value_confirm_button.clicked.connect(self.check_constant_values)
-        self.remove_button.clicked.connect(self.check_remove_bc_from_node)
+        self.remove_button.clicked.connect(self.remove_bc_from_node)
         self.reset_button.clicked.connect(self.reset_callback)
         self.table_values_confirm_button.clicked.connect(self.check_table_values)
         self.search_button.clicked.connect(self.load_acoustic_pressure_table)
@@ -97,6 +110,7 @@ class AcousticPressureInput(QDialog):
         self.treeWidget_acoustic_pressure.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def tabEvent_acoustic_pressure(self):
+        self.remove_button.setDisabled(True)
         if self.tabWidget_acoustic_pressure.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
@@ -168,7 +182,7 @@ class AcousticPressureInput(QDialog):
             data = [self.acoustic_pressure, None]
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
             self.process_table_file_removal(list_table_names) 
-            self.project.set_acoustic_pressure_bc_by_node(self.nodes_typed, data, False)
+            self.project.set_acoustic_pressure_bc_by_node(self.nodes_typed, data)
             self.opv.updateRendererMesh()
             print(f"[Set Acoustic Pressure] - defined at node(s) {self.nodes_typed}")
             self.close()
@@ -287,7 +301,7 @@ class AcousticPressureInput(QDialog):
                     if self.basename_acoustic_pressure in list_table_names:
                         list_table_names.remove(self.basename_acoustic_pressure)
                     data = [self.acoustic_pressure, self.basename_acoustic_pressure]
-                    self.project.set_acoustic_pressure_bc_by_node([node_id], data, True)
+                    self.project.set_acoustic_pressure_bc_by_node([node_id], data)
                 
             self.process_table_file_removal(list_table_names)
             self.opv.updateRendererMesh()
@@ -320,26 +334,32 @@ class AcousticPressureInput(QDialog):
         return text
 
     def on_click_item(self, item):
+        self.remove_button.setDisabled(False)
         self.lineEdit_selection_id.setText(item.text(0))
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        self.check_remove_bc_from_node()
-    
-    def check_remove_bc_from_node(self):
+        self.remove_bc_from_node()
+
+    def remove_bc_from_node(self):
         if self.lineEdit_selection_id.text() != "":
-            picked_node_id = int(self.lineEdit_selection_id.text())
-            node = self.preprocessor.nodes[picked_node_id]            
-            if node in self.preprocessor.nodes_with_acoustic_pressure:
-                key_strings = ["acoustic pressure"]
-                message = f"The acoustic pressure attributed to the {picked_node_id} node has been removed."
-                remove_bc_from_file([picked_node_id], self.acoustic_bc_info_path, key_strings, message)
-                list_table_names = self.get_list_table_names_from_selected_nodes([picked_node_id])
-                self.process_table_file_removal(list_table_names)
-                self.preprocessor.set_acoustic_pressure_bc_by_node(picked_node_id, [None, None])
-                self.opv.updateRendererMesh()
-                self.load_nodes_info()
-                # self.close()
+
+            lineEdit_selection_id = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            if stop:
+                return
+
+            key_strings = ["acoustic pressure"]
+            self.project.file.filter_bc_data_from_dat_file(nodes_typed, key_strings, self.acoustic_bc_info_path)
+            list_table_names = self.get_list_table_names_from_selected_nodes(nodes_typed)
+            self.preprocessor.set_acoustic_pressure_bc_by_node(nodes_typed, [None, None])
+            self.process_table_file_removal(list_table_names)
+
+            self.lineEdit_selection_id.setText("")
+            self.remove_button.setDisabled(True)
+            self.load_nodes_info()
+            self.opv.updateRendererMesh()
+            # self.close()
 
     def process_table_file_removal(self, list_table_names):
         if list_table_names != []:
@@ -347,48 +367,48 @@ class AcousticPressureInput(QDialog):
                 self.project.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")
 
     def reset_callback(self):
-        if len(self.preprocessor.nodes_with_acoustic_pressure)>0:
+        if self.preprocessor.nodes_with_acoustic_pressure:
 
             list_nodes = list()
             for node in self.preprocessor.nodes_with_acoustic_pressure:
                 list_nodes.append(node.external_index)
             
-            title = f"Resetting of all applied acoustic pressures"
-            message = "Would you like to remove the acoustic pressure(s) "
-            message += "applied to the following node(s)?\n"
-            message += f"\n{list_nodes}"
+            self.hide()
+
+            title = f"Resetting of acoustic pressures"
+            message = "Would you like to remove all acoustic pressures from the acoustic model?"
             
             buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._doNotRun:
+            if read._cancel:
                 return
             
             if read._continue:
 
-                _list_table_names = []
+                _node_ids = list()
+                _list_table_names = list()
                 _nodes_with_acoustic_pressure = self.preprocessor.nodes_with_acoustic_pressure.copy()
                 
                 for node in _nodes_with_acoustic_pressure:
+
                     node_id = node.external_index
                     key_strings = ["acoustic pressure"]
                     table_name = node.acoustic_pressure_table_name
+
                     if table_name is not None:
                         if table_name not in _list_table_names:
                             _list_table_names.append(table_name)
-                    remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
-                    self.preprocessor.set_acoustic_pressure_bc_by_node(node_id, [None, None])
-                
+
+                    if node_id not in _node_ids:
+                        _node_ids.append(node_id)
+
+                self.project.file.filter_bc_data_from_dat_file(_node_ids, key_strings, self.acoustic_bc_info_path)
+                self.preprocessor.set_acoustic_pressure_bc_by_node(_node_ids, [None, None])
                 self.process_table_file_removal(_list_table_names)
-                self.load_nodes_info()
 
-                title = "Resetting process complete"
-                message = "All acoustic pressures applied to the acoustic " 
-                message += "model have been removed."
-                PrintMessageInput([window_title_2, title, message], auto_close=True)
-
-                self.opv.updateRendererMesh()
                 self.close()
+                self.opv.updateRendererMesh()
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:
@@ -442,6 +462,10 @@ class AcousticPressureInput(QDialog):
                 self.check_table_values()
         elif event.key() == Qt.Key_Delete:
             if self.tabWidget_acoustic_pressure.currentIndex()==2:
-                self.check_remove_bc_from_node()
+                self.remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

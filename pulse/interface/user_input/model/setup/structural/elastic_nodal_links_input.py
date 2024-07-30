@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 
 import os
@@ -35,7 +35,9 @@ class ElasticNodalLinksInput(QDialog):
         self._config_widgets()
         self.update()
         self.load_treeWidgets_info()
-        self.exec()
+        
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -47,6 +49,8 @@ class ElasticNodalLinksInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
+        self.keep_window_open = True
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -884,22 +888,24 @@ class ElasticNodalLinksInput(QDialog):
             elif self.current_selection == "damping":
                 self.remove_selected_link_damping(selection)
 
-    def remove_selected_link_stiffness(self, selection):
+    def remove_selected_link_stiffness(self, selection, reset=False):
 
         str_ids = selection.split("-")
         self.nodeID_1, self.nodeID_2 = [int(str_id) for str_id in str_ids]
     
         key_strings = ["connecting stiffness", "connecting torsional stiffness"]
-        message = None
 
-        remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
         self.remove_elastic_link_stiffness_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _stiffness=True)
-        self.load_elastic_links_stiffness_info()
-        self.opv.updateRendererMesh()
-        self.lineEdit_selection.setText("")
 
-    def remove_selected_link_damping(self, selection):
+        if not reset:
+            self.load_elastic_links_stiffness_info()
+            self.opv.updateRendererMesh()
+            self.lineEdit_selection.setText("")
+
+    def remove_selected_link_damping(self, selection, reset=False):
 
         str_ids = selection.split("-")
         self.nodeID_1, self.nodeID_2 = [int(str_id) for str_id in str_ids]
@@ -907,39 +913,41 @@ class ElasticNodalLinksInput(QDialog):
         key_strings = ["connecting damping", "connecting torsional damping"]
         message = None
 
-        remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
+        self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
         self.remove_elastic_link_damping_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _damping=True)
-        self.load_elastic_links_damping_info()
-        self.opv.updateRendererMesh()
-        self.lineEdit_selection.setText("")
+
+        if not reset:
+            self.load_elastic_links_damping_info()
+            self.opv.updateRendererMesh()
+            self.lineEdit_selection.setText("")
 
     def reset_elastic_links(self):
 
-        self.setVisible(False)
-        title = "Resetting the elastic links from the model"
+        self.hide()
+
+        title = "Resetting of elastic links"
         message = "Would you like to remove all nodal elastic links from the structural model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
-            app().main_window.input_ui.set_input_widget(self)
-            self.setVisible(False)
+        if read._cancel:
             return
 
         if read._continue:
+
             temp_dict_stiffness = self.preprocessor.nodes_with_elastic_link_stiffness.copy()
-            temp_dict_damping = self.preprocessor.nodes_with_elastic_link_dampings.copy()
-
             for key in temp_dict_stiffness.keys():
-                self.remove_selected_link_stiffness(key)
+                self.remove_selected_link_stiffness(key, reset=True)
 
+            temp_dict_damping = self.preprocessor.nodes_with_elastic_link_dampings.copy()
             for key in temp_dict_damping.keys():
-                self.remove_selected_link_damping(key)
+                self.remove_selected_link_damping(key, reset=True)
 
-            self.reset_nodes_input_fields()
             self.close()
+            self.opv.updateRendererMesh()
 
     def get_information(self):
         try:
@@ -1103,6 +1111,10 @@ class ElasticNodalLinksInput(QDialog):
             self.add_elastic_link()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)           
 
     # def remove_table_files(self, values):          
     #     for value in values:

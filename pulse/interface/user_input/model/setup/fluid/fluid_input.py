@@ -13,7 +13,7 @@ from pulse.preprocessing.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.tools.utils import *
@@ -1420,13 +1420,15 @@ class FluidInput(QDialog):
 
     def reset_library_to_default(self):
 
-        title = "Resetting of fluids library"
-        message = "Do you really want to reset the fluid library to default values?\n\n\n"
-        message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        self.hide()
 
-        if read._doNotRun:
+        title = "Resetting of fluids library"
+        message = "Would you like to reset the fluid library to default values?"
+
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
             return
 
         if read._continue:
@@ -1475,14 +1477,9 @@ class FluidInput(QDialog):
             lineEdit.setText("")
         self.lineEdit_color_edit.setStyleSheet("")
 
-
     # def tab_event_update(self):
     #     self.reset_add_texts()
     #     self.reset_edit_texts()
-
-    def closeEvent(self, event):
-        super().closeEvent(event)
-        self.keep_window_open = False
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -1496,3 +1493,7 @@ class FluidInput(QDialog):
             self.confirm_fluid_removal()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False

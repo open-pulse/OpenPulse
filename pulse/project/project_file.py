@@ -1,4 +1,5 @@
 
+from pulse import app
 from pulse.preprocessing.cross_section import get_beam_section_properties
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.libraries.default_libraries import default_material_library, default_fluid_library
@@ -7,6 +8,7 @@ from pulse.tools.utils import *
 
 import os
 import configparser
+import json
 import numpy as np
 from math import pi
 from pathlib import Path
@@ -54,6 +56,8 @@ class ProjectFile:
         self._material_file_name = "material_list.dat"
         self._node_acoustic_file_name = "acoustic_nodal_info.dat"
         self._node_structural_file_name = "structural_nodal_info.dat"
+        # self._node_acoustic_file_name = "acoustic_nodal_info.json"
+        # self._node_structural_file_name = "structural_nodal_info.json"
         self._elements_file_name = "elements_info.dat"
         self._imported_data_folder_name = "imported_data"
         self._backup_geometry_foldername = "geometry_backup"
@@ -92,8 +96,8 @@ class ProjectFile:
         self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
         self._material_list_path = get_new_path(self._project_path, self._material_file_name)
 
-        self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
+        self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
@@ -1659,29 +1663,38 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config) 
 
-    def get_dict_of_structural_bc_from_file(self):
+    def get_structural_bc_data_from_dat_file(self):
 
-        node_structural_list = configparser.ConfigParser()
-        node_structural_list.read(self._node_structural_path)
+        config = configparser.ConfigParser()
+        config.read(self._node_structural_path)
 
-        self.dict_prescribed_dofs = {}
-        self.dict_nodal_loads = {}
-        self.dict_lumped_inertia = {}
-        self.dict_lumped_stiffness = {}
-        self.dict_lumped_damping = {}
-        self.dict_elastic_link_stiffness = {}
-        self.dict_elastic_link_dampings = {}
+        prescribed_dofs_data = dict()
+        nodal_loads_data = dict()
+        lumped_inertia_data = dict()
+        lumped_stiffness_data = dict()
+        lumped_damping_data = dict()
+        elastic_link_stiffness_data = dict()
+        elastic_link_damping_data = dict()
 
-        for node in node_structural_list.sections():
-            try:
-                node_id = int(node)
-            except:
-                node_id = node
-            keys = list(node_structural_list[node].keys())
+        for key in config.sections():
 
-            if "displacements" in keys and "rotations" in keys:
-                displacement_strings = node_structural_list[str(node)]['displacements']
-                rotation_strings = node_structural_list[str(node)]['rotations']
+            if "-" in key:
+                node_id = key
+            else:
+                node_id = int(key)
+
+            section = config[key]
+            bc_keys = list(section.keys())
+
+            # node_id = int(key.split(" - ")[0])
+            # try:
+            #     node_id = int(node)
+            # except:
+            #     node_id = node
+
+            if "displacements" in bc_keys and "rotations" in bc_keys:
+                displacement_strings = section['displacements']
+                rotation_strings = section['rotations']
                 labels = [["Ux","Uy","Uz"],["Rx","Ry","Rz"]]
                 folder_table_name = "prescribed_dofs_files"
                 prescribed_dofs, prescribed_dofs_table_names, prescribed_dofs_freq = self._get_structural_bc_from_string(   displacement_strings, 
@@ -1690,11 +1703,11 @@ class ProjectFile:
                                                                                                                             folder_table_name=folder_table_name   )    
                 if prescribed_dofs is not None:
                     if sum([1 if value is None else 0 for value in prescribed_dofs]) != 6:
-                        self.dict_prescribed_dofs[node_id] = [prescribed_dofs, prescribed_dofs_table_names, prescribed_dofs_freq]
+                        prescribed_dofs_data[node_id] = [prescribed_dofs, prescribed_dofs_table_names, prescribed_dofs_freq]
                                
-            if "forces" in keys and "moments" in keys:
-                forces_strings = node_structural_list[str(node)]['forces'] 
-                moments_strings = node_structural_list[str(node)]['moments']
+            if "forces" in bc_keys and "moments" in bc_keys:
+                forces_strings = section['forces'] 
+                moments_strings = section['moments']
                 labels = [["Fx","Fy","Fz"],["Mx","My","Mz"]]
                 folder_table_name = "nodal_loads_files"
                 nodal_loads, nodal_loads_table_names, nodal_loads_freq = self._get_structural_bc_from_string(   forces_strings, 
@@ -1703,11 +1716,11 @@ class ProjectFile:
                                                                                                                 folder_table_name=folder_table_name   )
                 if nodal_loads is not None:
                     if sum([1 if value is None else 0 for value in nodal_loads]) != 6:
-                        self.dict_nodal_loads[node_id] = [nodal_loads, nodal_loads_table_names, nodal_loads_freq]
+                        nodal_loads_data[node_id] = [nodal_loads, nodal_loads_table_names, nodal_loads_freq]
             
-            if "masses" in keys and "moments of inertia" in keys:
-                masses = node_structural_list[str(node)]['masses']
-                moments_of_inertia = node_structural_list[str(node)]['moments of inertia']
+            if "masses" in bc_keys and "moments of inertia" in bc_keys:
+                masses = section['masses']
+                moments_of_inertia = section['moments of inertia']
                 labels = [["m_x","m_y","m_z"],["Jx","Jy","Jz"]]
                 folder_table_name = "lumped_elements_files"
                 lumped_inertia, inertia_table_names, inertia_freq = self._get_structural_bc_from_string(masses, 
@@ -1717,11 +1730,11 @@ class ProjectFile:
                                                                                                         _complex=False)
                 if lumped_inertia is not None:
                     if sum([1 if value is None else 0 for value in lumped_inertia]) != 6:
-                        self.dict_lumped_inertia[node_id] = [lumped_inertia, inertia_table_names, inertia_freq]
+                        lumped_inertia_data[node_id] = [lumped_inertia, inertia_table_names, inertia_freq]
 
-            if "spring stiffness" in keys and "torsional spring stiffness" in keys:
-                spring_stiffness = node_structural_list[str(node)]['spring stiffness']
-                torsional_spring_stiffness = node_structural_list[str(node)]['torsional spring stiffness']
+            if "spring stiffness" in bc_keys and "torsional spring stiffness" in bc_keys:
+                spring_stiffness = section['spring stiffness']
+                torsional_spring_stiffness = section['torsional spring stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
                 folder_table_name = "lumped_elements_files"
                 lumped_stiffness, stiffness_table_names, stiffness_freq = self._get_structural_bc_from_string(  spring_stiffness, 
@@ -1731,11 +1744,11 @@ class ProjectFile:
                                                                                                                 _complex=False  )
                 if lumped_stiffness is not None:
                     if sum([1 if value is None else 0 for value in lumped_stiffness]) != 6:
-                        self.dict_lumped_stiffness[node_id] = [lumped_stiffness, stiffness_table_names, stiffness_freq]
+                        lumped_stiffness_data[node_id] = [lumped_stiffness, stiffness_table_names, stiffness_freq]
 
-            if "damping coefficients" in keys and "torsional damping coefficients":
-                damping_coefficients = node_structural_list[str(node)]['damping coefficients']
-                torsional_damping_coefficients = node_structural_list[str(node)]['torsional damping coefficients']
+            if "damping coefficients" in bc_keys and "torsional damping coefficients" in bc_keys:
+                damping_coefficients = section['damping coefficients']
+                torsional_damping_coefficients = section['torsional damping coefficients']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
                 folder_table_name = "lumped_elements_files"
                 lumped_damping, damping_table_names, damping_freq = self._get_structural_bc_from_string(damping_coefficients, 
@@ -1745,11 +1758,11 @@ class ProjectFile:
                                                                                                         _complex=False)
                 if lumped_damping is not None:
                     if sum([1 if value is None else 0 for value in lumped_damping]) != 6:
-                        self.dict_lumped_damping[node_id] = [lumped_damping, damping_table_names, damping_freq]
+                        lumped_damping_data[node_id] = [lumped_damping, damping_table_names, damping_freq]
 
-            if "connecting stiffness" and "connecting torsional stiffness" in keys:
-                connecting_stiffness = node_structural_list[str(node)]['connecting stiffness']
-                connecting_torsional_stiffness = node_structural_list[str(node)]['connecting torsional stiffness']
+            if "connecting stiffness" in bc_keys and "connecting torsional stiffness" in bc_keys:
+                connecting_stiffness = section['connecting stiffness']
+                connecting_torsional_stiffness = section['connecting torsional stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
                 folder_table_name = "elastic_links_files"
                 connecting_stiffness, connecting_stiffness_table_names, connecting_stiffness_freq = self._get_structural_bc_from_string(connecting_stiffness, 
@@ -1759,11 +1772,11 @@ class ProjectFile:
                                                                                                                                         _complex=False)
                 if connecting_stiffness is not None:
                     if sum([1 if value is None else 0 for value in connecting_stiffness]) != 6:
-                        self.dict_elastic_link_stiffness[node_id] = [connecting_stiffness, connecting_stiffness_table_names, connecting_stiffness_freq]
+                        elastic_link_stiffness_data[node_id] = [connecting_stiffness, connecting_stiffness_table_names, connecting_stiffness_freq]
         
-            if "connecting damping" and "connecting torsional damping" in keys:
-                connecting_damping = node_structural_list[str(node)]['connecting damping']
-                connecting_torsional_damping = node_structural_list[str(node)]['connecting torsional damping']
+            if "connecting damping" in bc_keys and "connecting torsional damping" in bc_keys:
+                connecting_damping = section['connecting damping']
+                connecting_torsional_damping = section['connecting torsional damping']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
                 folder_table_name = "elastic_links_files"
                 connecting_damping, connecting_damping_table_names, connecting_damping_freq = self._get_structural_bc_from_string(  connecting_damping, 
@@ -1773,85 +1786,161 @@ class ProjectFile:
                                                                                                                                     _complex=False  )
                 if connecting_damping is not None:
                     if sum([1 if value is None else 0 for value in connecting_damping]) != 6:
-                        self.dict_elastic_link_dampings[node_id] = [connecting_damping, connecting_damping_table_names, connecting_damping_freq]
+                        elastic_link_damping_data[node_id] = [connecting_damping, connecting_damping_table_names, connecting_damping_freq]
             
-        output = [  self.dict_prescribed_dofs, 
-                    self.dict_nodal_loads, 
-                    self.dict_lumped_inertia, 
-                    self.dict_lumped_stiffness, 
-                    self.dict_lumped_damping, 
-                    self.dict_elastic_link_stiffness, 
-                    self.dict_elastic_link_dampings  ]
+        bc_data = { "prescribed_dofs" : prescribed_dofs_data, 
+                    "nodal_loads" : nodal_loads_data, 
+                    "lumped_inertia" : lumped_inertia_data, 
+                    "lumped_stiffness" : lumped_stiffness_data, 
+                    "lumped_damping" : lumped_damping_data, 
+                    "elastic_link_stiffness" : elastic_link_stiffness_data, 
+                    "elastic_link_damping" : elastic_link_damping_data }
 
-        return output
+        return bc_data
 
-    def get_dict_of_acoustic_bc_from_file(self):
+    def get_acoustic_bc_data_from_dat_file(self):
 
-        node_acoustic_list = configparser.ConfigParser()
-        node_acoustic_list.read(self._node_acoustic_path)
+        config = configparser.ConfigParser()
+        config.read(self._node_acoustic_path)
 
-        dict_pressure = {}
-        dict_volume_velocity = {} 
-        dict_specific_impedance = {}
-        dict_radiation_impedance = {}
-        dict_compressor_excitation = defaultdict(list)
+        acoustic_pressure_data = dict()
+        volume_velocity_data = dict() 
+        specific_impedance_data = dict()
+        radiation_impedance_data = dict()
+        compressor_excitation_data = defaultdict(list)
 
-        for node in node_acoustic_list.sections():
-            node_id = int(node)
-            keys = list(node_acoustic_list[node].keys())
-            
-            if "acoustic pressure" in keys:
-                str_acoustic_pressure = node_acoustic_list[str(node)]['acoustic pressure']
+        for key in config.sections():
+
+            if "-" in key:
+                node_id = key
+            else:
+                node_id = int(key)
+
+            section = config[key]
+            bc_keys = list(section.keys())
+
+            if "acoustic pressure" in bc_keys:
+                str_acoustic_pressure = section['acoustic pressure']
                 acoustic_pressure, table_name, frequencies = self._get_acoustic_bc_from_string( str_acoustic_pressure, 
                                                                                                 "acoustic pressure", 
                                                                                                 "acoustic_pressure_files" )
                 if acoustic_pressure is not None:
-                    dict_pressure[node_id] = [acoustic_pressure, table_name, frequencies]
+                    acoustic_pressure_data[node_id] = [acoustic_pressure, table_name, frequencies]
            
-            if "volume velocity" in keys:
-                str_volume_velocity = node_acoustic_list[str(node)]["volume velocity"]
+            if "volume velocity" in bc_keys:
+                str_volume_velocity = section["volume velocity"]
                 volume_velocity, table_name, frequencies = self._get_acoustic_bc_from_string(   str_volume_velocity, 
                                                                                                 "volume velocity", 
                                                                                                 "volume_velocity_files"   )
                 if volume_velocity is not None:
-                    dict_volume_velocity[node_id] = [volume_velocity, table_name, frequencies]
+                    volume_velocity_data[node_id] = [volume_velocity, table_name, frequencies]
 
-            for key in keys:
-                if "compressor excitation -" in key:
-                    str_compressor_excitation = node_acoustic_list[str(node)][key]
+            for bc_key in bc_keys:
+                if "compressor excitation -" in bc_key:
+                    str_compressor_excitation = section[bc_key]
                     if 'suction' in str_compressor_excitation:
                         connection_info = 'suction'
                     elif 'discharge' in str_compressor_excitation:
                         connection_info = 'discharge'
                     compressor_excitation, table_name, frequencies = self._get_acoustic_bc_from_string( str_compressor_excitation, 
-                                                                                                        key, 
+                                                                                                        bc_key, 
                                                                                                         "compressor_excitation_files" )
                     if compressor_excitation is not None:
-                        dict_compressor_excitation[node_id].append([compressor_excitation, table_name, connection_info, frequencies])
+                        compressor_excitation_data[node_id].append([compressor_excitation, table_name, connection_info, frequencies])
 
-            if "specific impedance" in keys:
-                str_specific_impedance = node_acoustic_list[str(node)]['specific impedance']
+            if "specific impedance" in bc_keys:
+                str_specific_impedance = section['specific impedance']
                 specific_impedance, table_name, frequencies = self._get_acoustic_bc_from_string(str_specific_impedance, 
                                                                                                 "specific impedance", 
                                                                                                 "specific_impedance_files")
                 if specific_impedance is not None:
-                    dict_specific_impedance[node_id] = [specific_impedance, table_name, frequencies]
+                    specific_impedance_data[node_id] = [specific_impedance, table_name, frequencies]
 
-            if "radiation impedance" in keys:
-                str_radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
+            if "radiation impedance" in bc_keys:
+                str_radiation_impedance = section['radiation impedance']
                 radiation_impedance_type, _, _ = self._get_acoustic_bc_from_string( str_radiation_impedance, 
                                                                                     "radiation impedance", "" )
-                # radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
                 if radiation_impedance_type is not None:
-                    dict_radiation_impedance[node_id] = int(np.real(radiation_impedance_type))
+                    radiation_impedance_data[node_id] = int(np.real(radiation_impedance_type))
 
-        output_list = [ dict_pressure, 
-                        dict_volume_velocity, 
-                        dict_specific_impedance, 
-                        dict_radiation_impedance, 
-                        dict_compressor_excitation ]
+        bc_data = {"acoustic_pressure" : acoustic_pressure_data,
+                   "volume_velocity" : volume_velocity_data,
+                   "specific_impedance" : specific_impedance_data,
+                   "radiation_impedance" : radiation_impedance_data,
+                   "compressor_excitation" : compressor_excitation_data}
 
-        return output_list
+        return bc_data
+
+    # def get_acoustic_bc_data_from_file(self):
+    #     path = self._node_acoustic_path
+    #     if path.exists():
+    #         with open(path) as file:
+    #             read_data = json.load(file)
+    #     else:
+    #         read_data = dict()
+
+    #     acoustic_pressure_data = dict()
+    #     volume_velocity_data = dict() 
+    #     specific_impedance_data = dict()
+    #     radiation_impedance_data = dict()
+    #     compressor_excitation_data = defaultdict(list)
+
+    #     for key, data in read_data.items():
+
+    #         node_id = int(key.split(" - ")[0])
+    #         bc_keys = list(data.keys())
+            
+    #         if "acoustic pressure" in bc_keys:
+    #             str_acoustic_pressure = data['acoustic pressure']
+    #             acoustic_pressure, table_name, frequencies = self._get_acoustic_bc_from_string( str_acoustic_pressure, 
+    #                                                                                             "acoustic pressure", 
+    #                                                                                             "acoustic_pressure_files" )
+    #             if acoustic_pressure is not None:
+    #                 acoustic_pressure_data[node_id] = [acoustic_pressure, table_name, frequencies]
+           
+    #         if "volume velocity" in bc_keys:
+    #             str_volume_velocity = data["volume velocity"]
+    #             volume_velocity, table_name, frequencies = self._get_acoustic_bc_from_string(   str_volume_velocity, 
+    #                                                                                             "volume velocity", 
+    #                                                                                             "volume_velocity_files"   )
+    #             if volume_velocity is not None:
+    #                 volume_velocity_data[node_id] = [volume_velocity, table_name, frequencies]
+
+    #         for bc_key in bc_keys:
+    #             if "compressor excitation -" in bc_key:
+    #                 str_compressor_excitation = data[bc_key]
+    #                 if 'suction' in str_compressor_excitation:
+    #                     connection_info = 'suction'
+    #                 elif 'discharge' in str_compressor_excitation:
+    #                     connection_info = 'discharge'
+    #                 compressor_excitation, table_name, frequencies = self._get_acoustic_bc_from_string( str_compressor_excitation, 
+    #                                                                                                     bc_key, 
+    #                                                                                                     "compressor_excitation_files" )
+    #                 if compressor_excitation is not None:
+    #                     compressor_excitation_data[node_id].append([compressor_excitation, table_name, connection_info, frequencies])
+
+    #         if "specific impedance" in bc_keys:
+    #             str_specific_impedance = data['specific impedance']
+    #             specific_impedance, table_name, frequencies = self._get_acoustic_bc_from_string(str_specific_impedance, 
+    #                                                                                             "specific impedance", 
+    #                                                                                             "specific_impedance_files")
+    #             if specific_impedance is not None:
+    #                 specific_impedance_data[node_id] = [specific_impedance, table_name, frequencies]
+
+    #         if "radiation impedance" in bc_keys:
+    #             str_radiation_impedance = data['radiation impedance']
+    #             radiation_impedance_type, _, _ = self._get_acoustic_bc_from_string( str_radiation_impedance, 
+    #                                                                                 "radiation impedance", "" )
+    #             if radiation_impedance_type is not None:
+    #                 radiation_impedance_data[node_id] = int(np.real(radiation_impedance_type))
+
+    #     bc_data = {"acoustic_pressure" : acoustic_pressure_data,
+    #                "volume_velocity" : volume_velocity_data,
+    #                "specific_impedance" : specific_impedance_data,
+    #                "radiation_impedance" : radiation_impedance_data,
+    #                "compressor_excitation" : compressor_excitation_data}
+
+    #     return bc_data
 
     def _get_acoustic_bc_from_string(self, str_value, label, folder_table_name):
         
@@ -1976,88 +2065,431 @@ class ProjectFile:
             PrintMessageInput([window_title, title, message]) 
 
         return output, self.frequencies
-    
-    def _single_structural_excitation_bc(self, node_id, labels):
-        if labels[0] == 'displacements' and labels[1] == 'rotations':
-            key_strings = ['forces', 'moments']
-            remove_bc_from_file(node_id, self._node_structural_path, key_strings, None)
-        elif labels[0] == 'forces' and labels[1] == 'moments':
-            key_strings = ['displacements', 'rotations']
-            remove_bc_from_file(node_id, self._node_structural_path, key_strings, None)
 
-    def _single_acoustic_pressure_or_volume_velocity_excitation(self, node_id, label):
-        if 'acoustic pressure' in label[0]:
-            key_strings = ['volume velocity']
-            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
-        elif 'volume velocity' in  label[0]:
-            key_strings = ['acoustic pressure']
-            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
+    def get_acoustic_bc_keys_to_remove(self, current_label):
 
-    def _single_volume_velocity_or_compressor_excitation(self, node_id, label):
-        if 'volume velocity' in label[0]:
-            key_strings = ['compressor excitation -']
-            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
-        elif 'compressor excitation -' in  label[0]:
-            key_strings = ['volume velocity']
-            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
+        keys_to_remove = list()
 
-    def _single_impedance_at_node(self, node_id, label):
-        if label[0] == 'specific impedance':
-            key_strings = ['radiation impedance']
-            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
-        elif label[0] == 'radiation impedance':
-            key_strings = ['specific impedance']
-            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
+        if "acoustic pressure" == current_label:
+            keys_to_remove.append("volume velocity")
+            keys_to_remove.append("compressor excitation -")
 
-    def add_structural_bc_in_file(self, nodesID_list, values, labels):
-        for node_id in nodesID_list:
-            config = configparser.ConfigParser()
-            config.read(self._node_structural_path)
-            if str(node_id) in config.sections():
-                config[str(node_id)][labels[0]]  = f"[{values[0]},{values[1]},{values[2]}]"
-                config[str(node_id)][labels[1]] = f"[{values[3]},{values[4]},{values[5]}]"
-                if len(labels)==3:
-                    config[str(node_id)][labels[2]]  = "{}".format(values[6])
+        elif "volume velocity" == current_label:
+            keys_to_remove.append("acoustic pressure")
+            keys_to_remove.append("compressor excitation -")
 
-                self.write_data_in_file(self._node_structural_path, config)
-                self._single_structural_excitation_bc([node_id], labels)
-            else:
-                if len(labels)==3:
-                    config[str(node_id)] =  {   labels[0]: f"[{values[0]},{values[1]},{values[2]}]",
-                                                labels[1]: f"[{values[3]},{values[4]},{values[5]}]",
-                                                labels[2]: f"{values[6]}"   }
-                else:
-                    config[str(node_id)] =  {   labels[0]: f"[{values[0]},{values[1]},{values[2]}]",
-                                                labels[1]: f"[{values[3]},{values[4]},{values[5]}]"   }
+        elif "compressor excitation -" == current_label:
+            keys_to_remove.append("acoustic pressure")
+            keys_to_remove.append("volume velocity")
+
+        elif "radiation impedance" == current_label:
+            keys_to_remove.append("specific impedance")
+
+        elif "specific impedance" == current_label:
+            keys_to_remove.append("radiation impedance")
+
+        return keys_to_remove
+
+    def get_structural_bc_keys_to_remove(self, current_labels):
+
+        keys_to_remove = list()
+        if "displacements" in current_labels and "rotations" in current_labels:
+            keys_to_remove = ["forces", "moments"]
+        elif "forces" in current_labels and "moments" in current_labels:
+            keys_to_remove = ["displacements", "rotations"]
+
+        return keys_to_remove
+
+    def filter_bc_data_from_dat_file(self, selection_key, bc_keys_to_remove, path):
         
-                self.write_data_in_file(self._node_structural_path, config)
+        def internal_check(bc_label):
+            for bc_key_to_remove in bc_keys_to_remove:
+                if bc_label in bc_key_to_remove:
+                    return True
+            return False
 
+        if path.exists():
+            
+            config_input = configparser.ConfigParser()
+            config_output = configparser.ConfigParser()
+            config_input.read(path)
 
-    def add_acoustic_bc_in_file(self, list_nodesID, data, loaded_table, label):
-        [value, table_name] = data
-        for node_id in list_nodesID:
-            config = configparser.ConfigParser()
-            config.read(self._node_acoustic_path)
-            if str(node_id) in config.sections():
-                if loaded_table:
-                    config[str(node_id)][label[0]]  = f"[{table_name}]"
+            for key in config_input.sections():
+
+                if "-" in key:
+                    _key = key
                 else:
-                    config[str(node_id)][label[0]] = f"[{value}]"
-                self.write_data_in_file(self._node_acoustic_path, config)
-                self._single_acoustic_pressure_or_volume_velocity_excitation([node_id], label)
-                self._single_volume_velocity_or_compressor_excitation([node_id], label)
-                self._single_impedance_at_node([node_id], label)
-            else:
-                if loaded_table:
-                    config[str(node_id)] =  {label[0]: f"[{table_name}]"}
-                else:    
-                    config[str(node_id)] = {label[0]: f"[{value}]"}
-                self.write_data_in_file(self._node_acoustic_path, config)
+                    _key = int(key)
 
+                node_data = config_input[key]
+                if _key not in selection_key:
+                    config_output[key] = node_data
+
+                else:
+
+                    bc_data = dict()
+                    for bc_key, value in node_data.items():
+
+                        if internal_check(bc_key):
+                            continue
+                        else:
+                            bc_data[bc_key] = value
+
+                    if bc_data:
+                        # if only "coords" exists ignore the section
+                        if len(bc_data) > 1:
+                            config_output[key] = bc_data
+
+            if len(config_output.sections()):
+                self.write_data_in_file(path, config_output)
+            else:
+                os.remove(path)
+
+    def add_acoustic_bc_in_file(self, node_ids, data, label):
+
+        preprocessor = app().main_window.project.preprocessor
+        nodes = preprocessor.nodes
+
+        path = self._node_acoustic_path
+        bc_keys_to_remove = self.get_acoustic_bc_keys_to_remove(label[0])
+        self.filter_bc_data_from_dat_file(node_ids, bc_keys_to_remove, path)
+
+        config = configparser.ConfigParser()
+        config.read(path)
+
+        [value, table_name] = data
+
+        for node_id in node_ids:
+
+            if isinstance(node_id, str):
+
+                if "-" not in node_id:
+                    continue
+
+                _nodes = [int(_id) for _id in node_id.split("-")]
+                coords_1 = np.round(nodes[_nodes[0]].coordinates, 5)
+                coords_2 = np.round(nodes[_nodes[1]].coordinates, 5)
+                coords = np.concatenate((coords_1, coords_2)).flatten()
+                # key = f"{_nodes[0]} - {_nodes[1]} - {list(coords_1)} - {list(coords_2)}"
+                key = node_id
+
+            elif isinstance(node_id, int):
+
+                coords = np.round(nodes[node_id].coordinates, 5)
+                # key = f"{node_id} - {list(coords)}"
+                key = f"{node_id}"
+
+            else:
+                continue
+
+            bc_key = label[0]
+            if isinstance(table_name, str):
+                _value = table_name
+            else:
+                _value = value
+
+            if key in config.sections():
+                config[key]["coords"] = f"{list(coords)}"
+                config[key][bc_key] = f"[{_value}]"
+            else:
+                config[key] =  { "coords" : f"{list(coords)}",
+                                   bc_key : f"[{_value}]" }
+
+            self.write_data_in_file(path, config)
+
+    def add_structural_bc_in_file(self, node_ids, values, labels):
+
+        preprocessor = app().main_window.project.preprocessor
+        nodes = preprocessor.nodes
+
+        path = self._node_structural_path
+        bc_keys_to_remove = self.get_structural_bc_keys_to_remove(labels)
+        self.filter_bc_data_from_dat_file(node_ids, bc_keys_to_remove, path)
+
+        config = configparser.ConfigParser()
+        config.read(path)
+
+        for node_id in node_ids:
+
+            if isinstance(node_id, str):
+
+                if "-" not in node_id:
+                    continue
+
+                _nodes = [int(_id) for _id in node_id.split("-")]
+                coords_1 = np.round(nodes[_nodes[0]].coordinates, 5)
+                coords_2 = np.round(nodes[_nodes[1]].coordinates, 5)
+                coords = np.concatenate((coords_1, coords_2)).flatten()
+                # key = f"{_nodes[0]} - {_nodes[1]} - {list(coords_1)} - {list(coords_2)}"
+
+            elif isinstance(node_id, int):
+
+                coords = np.round(nodes[node_id].coordinates, 5)
+                # key = f"{node_id} - {list(coords)}"
+
+            else:
+                continue
+
+            key = f"{node_id}"
+
+            if key in config.sections():
+                config[key]["coords"] = f"{list(coords)}"
+                config[key][labels[0]]  = f"[{values[0]},{values[1]},{values[2]}]"
+                config[key][labels[1]] = f"[{values[3]},{values[4]},{values[5]}]"
+
+                if len(labels)==3:
+                    config[key][labels[2]]  = f"{values[6]}"
+
+            else:
+
+                if len(labels)==3:
+                    config[key] =  {     "coords" : f"{list(coords)}",
+                                        labels[0] : f"[{values[0]},{values[1]},{values[2]}]",
+                                        labels[1] : f"[{values[3]},{values[4]},{values[5]}]",
+                                        labels[2] : f"{values[6]}"   }
+
+                else:
+                    config[key] =  {     "coords" : f"{list(coords)}",
+                                        labels[0] : f"[{values[0]},{values[1]},{values[2]}]",
+                                        labels[1] : f"[{values[3]},{values[4]},{values[5]}]"   }
+
+            self.write_data_in_file(self._node_structural_path, config)
+
+    def update_node_ids_after_mesh_changed(self):
+
+        path_1 = self._node_acoustic_path
+        path_2 = self._node_structural_path
+
+        non_mapped_nodes = list()
+        preprocessor = app().main_window.project.preprocessor
+
+        for path in [path_1, path_2]:
+            if path.exists():
+
+                config_input = configparser.ConfigParser()
+                config_output = configparser.ConfigParser()
+                config_input.read(path)
+
+                for key in config_input.sections():
+
+                    str_coords = config_input[key]["coords"]
+                    _coords = get_list_of_values_from_string(str_coords, int_values=False)
+                    coords = np.array(_coords)
+
+                    if "-" in key:
+                        coords_1 = coords[:3]
+                        coords_2 = coords[3:]
+                        new_node_id1 = preprocessor.get_node_id_by_coordinates(coords_1)
+                        new_node_id2 = preprocessor.get_node_id_by_coordinates(coords_2)
+                        new_key = f"{new_node_id1}-{new_node_id2}"
+
+                        if new_node_id1 is None:
+                            if new_node_id1 not in non_mapped_nodes:
+                                non_mapped_nodes.append((key, coords))
+                            continue
+
+                        if new_node_id2 is None:
+                            if new_node_id2 not in non_mapped_nodes:
+                                non_mapped_nodes.append((key, coords))
+                            continue
+
+                    else:
+                        new_node_id = preprocessor.get_node_id_by_coordinates(coords)
+                        new_key = f"{new_node_id}"
+
+                        if new_node_id is None:
+                            if new_node_id not in non_mapped_nodes:
+                                non_mapped_nodes.append((key, coords))
+                            continue
+
+                    # print(key, new_node_id)
+                    config_output[new_key] = config_input[key]
+
+                if len(config_output.sections()):
+                    self.write_data_in_file(path, config_output)
+                else:
+                    os.remove(path)
+
+        if non_mapped_nodes:
+            print(f"List of non-mapped nodes: {non_mapped_nodes}")
+
+        return non_mapped_nodes
+
+    ## METHODS FOR *.json FILES
+
+    # def _remove_bcs_from_json_file(self, node_ids, bc_keys_to_remove, path):
+
+    #     def internal_check(bc_label):
+    #         for bc_key_to_remove in bc_keys_to_remove:
+    #             if bc_label in bc_key_to_remove:
+    #                 return True
+    #         return False
+
+    #     if path.exists():
+    #         with open(path) as file:
+    #             read_data = json.load(file)
+
+    #             output_data = dict()
+    #             for key, node_data in read_data.items():
+
+    #                 bc_node_id = int(key.split(" - ")[0])
+    #                 print(bc_node_id)
+
+    #                 if bc_node_id not in node_ids:
+    #                     print("normal")
+    #                     output_data[key] = node_data
+
+    #                 else:
+    #                     print("aqui")
+    #                     bc_data = dict()
+    #                     for bc_key, value in node_data.items():
+    #                         print(bc_key, value)
+    #                         if internal_check(bc_key):
+    #                             print("deveria ignorar")
+    #                             continue
+    #                         else:
+    #                             print("deveria considerar")
+    #                             bc_data[bc_key] = value
+
+    #                     if bc_data:
+    #                         output_data[key] = bc_data
+
+    #         if output_data:
+    #             with open(path, "w") as file:
+    #                 json.dump(output_data, file, indent=2)
+    #         else:
+    #             os.remove(path)
+
+    # def add_acoustic_bc_in_file(self, node_ids, data, label):
+
+    #     [value, table_name] = data
+
+    #     preprocessor = app().main_window.project.preprocessor
+    #     nodes = preprocessor.nodes
+
+    #     path = self._project_path / "acoustic_nodal_info.json"
+    #     bc_keys_to_remove = self.get_acoustic_bc_keys_to_remove(label[0])
+    #     self._remove_bcs_from_json_file(node_ids, bc_keys_to_remove, path)
+
+    #     if path.exists():
+    #         with open(path) as file:
+    #             output_data = json.load(file)
+    #     else:
+    #         output_data = dict()
+
+    #     for node_id in node_ids:
+
+    #         coords = np.round(nodes[node_id].coordinates, 5)
+
+    #         _key = label[0]
+    #         if isinstance(table_name, str):
+    #             _value = table_name
+    #         else:
+    #             _value = value
+
+    #         key = f"{node_id} - {list(coords)}"
+    #         if key in output_data.keys():
+    #             output_data[key][_key] =  f"[{_value}]"
+    #         else:
+    #             output_data[key] = {_key: f"[{_value}]"}
+
+    #     if output_data:
+    #         with open(path, "w") as file:
+    #             json.dump(output_data, file, indent=2)
+    #     else:
+    #         if path.exists():
+    #             os.remove(path)
+
+    # def add_structural_bc_in_file(self, node_ids, data, labels):
+
+    #     preprocessor = app().main_window.project.preprocessor
+    #     nodes = preprocessor.nodes
+
+    #     path = self._project_path / "structural_nodal_info.json"
+    #     bc_keys_to_remove = self.get_structural_bc_keys_to_remove(labels)
+    #     self._remove_bcs_from_json_file(node_ids, bc_keys_to_remove, path)
+
+    #     if path.exists():
+    #         with open(path) as file:
+    #             output_data = json.load(file)
+    #     else:
+    #         output_data = dict()
+
+    #     for node_id in node_ids:
+
+    #         coords = np.round(nodes[node_id].coordinates, 5)
+
+    #         key = f"{node_id} - {list(coords)}"
+    #         if key in output_data.keys():
+                
+    #             output_data[key][labels[0]] =  f"[{data[0]},{data[1]},{data[2]}]"
+    #             output_data[key][labels[1]] =  f"[{data[3]},{data[4]},{data[5]}]"
+
+    #             if len(labels)==3:
+    #                 output_data[key][labels[2]]  = "{}".format(data[6])
+
+    #         else:
+
+    #             if len(labels)==3:
+    #                 output_data[key] =  {   labels[0]: f"[{data[0]},{data[1]},{data[2]}]",
+    #                                         labels[1]: f"[{data[3]},{data[4]},{data[5]}]",
+    #                                         labels[2]: f"{data[6]}"   }
+    #             else:
+    #                 output_data[key] =  {   labels[0]: f"[{data[0]},{data[1]},{data[2]}]",
+    #                                         labels[1]: f"[{data[3]},{data[4]},{data[5]}]"   }
+    
+    #     if output_data:
+    #         with open(path, "w") as file:
+    #             json.dump(output_data, file, indent=2)
+    #     else:
+    #         if path.exists():
+    #             os.remove(path)
+
+    # def update_node_ids_after_mesh_changed(self):
+
+    #     path_1 = self._project_path / "acoustic_nodal_info.json"
+    #     path_2 = self._project_path / "structural_nodal_info.json"
+
+    #     non_mapped_nodes = list()
+    #     preprocessor = app().main_window.project.preprocessor
+
+    #     for path in [path_1, path_2]:
+    #         if path.exists():
+
+    #             with open(path) as file:
+    #                 bc_info = json.load(file)
+
+    #             if bc_info:
+    #                 new_bc_info = dict()
+    #                 for key, data in bc_info.items():
+
+    #                     str_node_id, str_coords = key.split(" - ")
+    #                     _coords = get_list_of_values_from_string(str_coords, int_values=False)
+    #                     coords = np.array(_coords)
+    #                     new_node_id = preprocessor.get_node_id_by_coordinates(coords)
+
+    #                     if new_node_id is None:
+    #                         non_mapped_nodes.append((int(str_node_id), coords))
+    #                         continue
+
+    #                     print(str_node_id, new_node_id)
+    #                     new_key = f"{new_node_id} - {list(coords)}"
+    #                     new_bc_info[new_key] = data
+
+    #                 with open(path, "w") as file:
+    #                     json.dump(new_bc_info, file, indent=2)
+
+    #                 with open(path) as file:
+    #                     read_data = json.load(file)
+
+    #                 if read_data == {}:
+    #                     os.remove(path)
+
+    #     return non_mapped_nodes
 
     def check_if_table_can_be_removed_in_acoustic_model(self, input_id, str_key, table_name, 
                                                         folder_table_name, node_info=True, label=""):
-        
+
         config = configparser.ConfigParser()
         if node_info:
             config.read(self._node_acoustic_path)
@@ -2166,53 +2598,52 @@ class ProjectFile:
     #     if len(list_table_multiple_joints)==0:
     #         self.confirm_table_file_removal(list_table_names)
 
+    # def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_indexes):
+    #     if os.path.exists(self._node_acoustic_path):
+    #         config = configparser.ConfigParser()
+    #         config.read(self._node_acoustic_path)
+    #         for node_id in list(config.sections()):
+    #             try:
+    #                 new_key = str(dict_old_to_new_indexes[node_id])
+    #                 if node_id != new_key:
+    #                     config[new_key] = config[node_id]
+    #                     config.remove_section(node_id)
+    #             except Exception as log_error:
+    #                 config.remove_section(node_id)
+    #         self.write_data_in_file(self._node_acoustic_path, config)
 
-    def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_indexes):
-        if os.path.exists(self._node_acoustic_path):
-            config = configparser.ConfigParser()
-            config.read(self._node_acoustic_path)
-            for node_id in list(config.sections()):
-                try:
-                    new_key = str(dict_old_to_new_indexes[node_id])
-                    if node_id != new_key:
-                        config[new_key] = config[node_id]
-                        config.remove_section(node_id)
-                except Exception as log_error:
-                    config.remove_section(node_id)
-            self.write_data_in_file(self._node_acoustic_path, config)
 
+    # def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
+    #     if os.path.exists(self._node_structural_path):
 
-    def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
-        if os.path.exists(self._node_structural_path):
-
-            config = configparser.ConfigParser()
-            config_new = configparser.ConfigParser()
-            config.read(self._node_structural_path)
-            sections = list(config.sections())
+    #         config = configparser.ConfigParser()
+    #         config_new = configparser.ConfigParser()
+    #         config.read(self._node_structural_path)
+    #         sections = list(config.sections())
             
-            for section in sections:
-                try:
-                    if section not in dict_non_mapped_nodes.values():     
-                        if "-" in section:
-                            [_node_id1, _node_id2]  = section.split("-")
-                            key_id1 = str(dict_old_to_new_indexes[_node_id1])
-                            key_id2 = str(dict_old_to_new_indexes[_node_id2])
-                            new_key = f"{key_id1}-{key_id2}"
-                        else:
-                            new_key = str(dict_old_to_new_indexes[section])
-                            # if section != new_key:
-                            #     config2[new_key] = config[section]
-                            #     config.remove_section(section)   
-                        if section != new_key:
-                            config_new[new_key] = config[section]
-                            # config.remove_section(section)
-                        else:
-                            config_new[section] = config[section]                     
+    #         for section in sections:
+    #             try:
+    #                 if section not in dict_non_mapped_nodes.values():     
+    #                     if "-" in section:
+    #                         [_node_id1, _node_id2]  = section.split("-")
+    #                         key_id1 = str(dict_old_to_new_indexes[_node_id1])
+    #                         key_id2 = str(dict_old_to_new_indexes[_node_id2])
+    #                         new_key = f"{key_id1}-{key_id2}"
+    #                     else:
+    #                         new_key = str(dict_old_to_new_indexes[section])
+    #                         # if section != new_key:
+    #                         #     config2[new_key] = config[section]
+    #                         #     config.remove_section(section)   
+    #                     if section != new_key:
+    #                         config_new[new_key] = config[section]
+    #                         # config.remove_section(section)
+    #                     else:
+    #                         config_new[section] = config[section]                     
                 
-                except Exception as log_error:
-                    config.remove_section(section)
+    #             except Exception as log_error:
+    #                 config.remove_section(section)
             
-            self.write_data_in_file(self._node_structural_path, config_new)
+    #         self.write_data_in_file(self._node_structural_path, config_new)
 
 
     def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
@@ -2377,3 +2808,22 @@ class ProjectFile:
     #                     if element_id not in ext_list_elements:
     #                         new_list_elements.append(element_id)
     #                 config[section]['list of elements'] = str(new_list_elements)
+
+
+def normalize(prop: dict):
+    """
+    Sadly json doesn't accepts tuple keys,
+    so we need to convert it to a string like:
+    "property id" = value
+    """
+    return {f"{p} {i}": v for (p, i), v in prop.items()}
+
+
+def denormalize(prop: dict):
+    new_prop = dict()
+    for key, val in prop.items():
+        p, i = key.split()
+        p = p.strip()
+        i = int(i)
+        new_prop[p, i] = val
+    return new_prop

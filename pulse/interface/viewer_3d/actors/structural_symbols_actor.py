@@ -22,44 +22,40 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def source(self):
         super().source()
-        self._createNodalLinks()
+        self._create_nodal_links()
         self._create_structural_links()
 
-    def _createNodalLinks(self):
-        linkedNodes = set()
-        linkedSymbols = vtk.vtkAppendPolyData()
+    def _create_nodal_links(self):
 
-        allnodes = self.project.get_nodes()
+        linked_nodes = set()
+        self.linked_symbols = vtk.vtkAppendPolyData()
 
-        # extract from string values that shoud be avaliable
-        # create a set without useless repetitions 
-        for node in allnodes.values():
-            stif = tuple(node.elastic_nodal_link_stiffness.keys())
-            damp = tuple(node.elastic_nodal_link_dampings.keys())
-            if stif:
-                nodes = sorted(int(i) for i in stif[0].split('-'))
-            elif damp:
-                nodes = sorted(int(i) for i in damp[0].split('-'))
-            else:
-                continue 
-            linkedNodes.add(tuple(nodes))
+        for key_s in self.project.preprocessor.nodes_with_elastic_link_stiffness.keys():
+            node_ids = [int(node) for node in key_s.split("-")]
+            linked_nodes.add(tuple(node_ids))
 
-        for a, b in linkedNodes:
+        for key_d in self.project.preprocessor.nodes_with_elastic_link_dampings.keys():
+            node_ids = [int(node) for node in key_d.split("-")]
+            linked_nodes.add(tuple(node_ids))
+
+        nodes = self.project.preprocessor.nodes
+
+        for a, b in linked_nodes:
             # divide the value of the coordinates by the scale factor
             source = vtk.vtkLineSource()
-            source.SetPoint1(allnodes[a].coordinates / self.scaleFactor) 
-            source.SetPoint2(allnodes[b].coordinates / self.scaleFactor)
+            source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
+            source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
             source.Update()
-            linkedSymbols.AddInputData(source.GetOutput())
+            self.linked_symbols.AddInputData(source.GetOutput())
         
         s = vtk.vtkSphereSource()
         s.SetRadius(0)
 
-        linkedSymbols.AddInputData(s.GetOutput())
-        linkedSymbols.Update()
+        self.linked_symbols.AddInputData(s.GetOutput())
+        self.linked_symbols.Update()
 
         index = len(self._connections)
-        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
         self._positions.InsertNextPoint(0,0,0)
         self._rotations.InsertNextTuple3(0,0,0)
@@ -69,7 +65,6 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _create_structural_links(self):
 
         nodes = self.preprocessor.nodes
-        linkedSymbols = vtk.vtkAppendPolyData()
 
         for (a, b) in self.preprocessor.nodes_with_structural_links.keys():
             # divide the value of the coordinates by the scale factor
@@ -77,16 +72,16 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
             source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
             source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
             source.Update()
-            linkedSymbols.AddInputData(source.GetOutput())
+            self.linked_symbols.AddInputData(source.GetOutput())
 
         s = vtk.vtkSphereSource()
         s.SetRadius(0)
 
-        linkedSymbols.AddInputData(s.GetOutput())
-        linkedSymbols.Update()
+        self.linked_symbols.AddInputData(s.GetOutput())
+        self.linked_symbols.Update()
 
         index = len(self._connections)
-        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
         self._positions.InsertNextPoint(0,0,0)
         self._rotations.InsertNextTuple3(0,0,0)

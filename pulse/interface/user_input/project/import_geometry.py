@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path
 
 import os
@@ -80,7 +80,7 @@ class ImportGeometry(QFileDialog):
         self.project.load_project_files()
         self.project.preprocessor.check_disconnected_lines(self.file._element_size)
         self.opv.updatePlots()
-        self.opv.plot_mesh()
+        self.main_window.update_plot_mesh()
         self.complete = True
 
     def print_user_message(self):

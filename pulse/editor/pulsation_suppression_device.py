@@ -136,8 +136,8 @@ class PulsationSuppressionDevice:
         with open(path) as file:
             read_data = json.load(file)
 
-        if read_data == {}:
-            os.remove(path)
+            if read_data == {}:
+                os.remove(path)
 
     def load_psd_data_from_file(self):
 

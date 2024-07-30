@@ -2272,7 +2272,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
           </spacer>
          </item>
          <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_nodeID">
+          <widget class="QLineEdit" name="lineEdit_selection_id">
            <property name="minimumSize">
             <size>
              <width>160</width>

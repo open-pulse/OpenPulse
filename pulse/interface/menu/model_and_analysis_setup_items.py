@@ -281,13 +281,12 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_run_analysis_callback(self):
         self.main_window.input_ui.run_analysis()
         self._update_items()
-        self.main_window.use_results_workspace()
 
     def enable_actions_according_to_import_type(self):
         import_type = self.project.file.get_import_type()
         if import_type == 0:
             pass
-            
+
     # Items access
     def modify_geometry_item_access(self, bool_key):
         self.item_child_create_geometry.setDisabled(bool_key)

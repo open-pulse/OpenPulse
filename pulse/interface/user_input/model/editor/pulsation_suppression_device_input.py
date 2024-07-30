@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.utils import check_inputs
 
@@ -35,7 +36,8 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.load_PSD_info()
         self.update_selection()
-        self.exec()
+        while self.keep_window_open:
+            self.exec()
 
     def _load_icons(self):
         self.icon = get_openpulse_icon()
@@ -47,6 +49,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+        self.keep_window_open = True
         self.preprocessor = self.project.preprocessor
         self.file = self.project.file
 
@@ -714,13 +717,15 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def reset_button_pressed(self):
 
+        self.hide()
+
         title = "Resetting of the Pulsation Suppression Devices"
         message = "Would you to remove the all Pulsation Suppression Devices from model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._doNotRun:
+        if read._cancel:
             return
 
         if read._continue:    
@@ -762,3 +767,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.close()
         elif event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.confirm_button_pressed()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)
