@@ -26,6 +26,7 @@ class PrescribedDofsInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
         uic.loadUi(ui_path, self)
 
+        self.main_window = app().main_window
         self.project = app().project
         self.opv = app().main_window.opv_widget
         app().main_window.input_ui.set_input_widget(self)
@@ -185,6 +186,14 @@ class PrescribedDofsInput(QDialog):
         #
         self.treeWidget_prescribed_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_double_click_item)
+        #
+        self.main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.selected_nodes
+        if selected_nodes:
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_selection_id.setText(text)
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
