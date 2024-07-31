@@ -22,11 +22,17 @@ class MeshPicker:
     
     def update_bounds(self):
         elements = app().project.get_structural_elements()
+        nodes = app().project.get_nodes()
+
+        self.nodes_bounds.clear()
         self.line_bounds.clear()
         self.tube_bounds.clear()
-        
-        for key, element in elements.items():
 
+        for key, node in nodes.items():
+            x,y,z = node.coordinates
+            self.nodes_bounds[key] = (x,x,y,y,z,z)
+
+        for key, element in elements.items():
             first_node = element.first_node.coordinates
             last_node = element.last_node.coordinates
 
@@ -63,15 +69,17 @@ class MeshPicker:
             self.tube_bounds[key] = tube_bounds
 
     def area_pick_nodes(self, x0, y0, x1, y1) -> set[int]:
-        selection_picker = CellAreaPicker()
-        selection_picker._cell_picker.SetTolerance(0.0015)
-        nodes_actor = self.mesh_render_widget.nodes_actor
+        picker = vtk.vtkAreaPicker()
+        extractor = vtk.vtkExtractSelectedFrustum()
+        picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
+        extractor.SetFrustum(picker.GetFrustum())
 
-        pickability = self._narrow_pickability_to_actor(nodes_actor)
-        selection_picker.area_pick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
-        self._restore_pickability(pickability)
+        picked_nodes = {
+            key for key, bound in self.nodes_bounds.items()
+            if extractor.OverallBoundsTest(bound)
+        }
 
-        return selection_picker.get_picked().get(nodes_actor, set())
+        return picked_nodes
 
     def area_pick_elements(self, x0, y0, x1, y1) -> set[int]:
         picker = vtk.vtkAreaPicker()
@@ -166,7 +174,7 @@ class MeshPicker:
 
     def _pick_cell_property(self, x: float, y: float, property_name: str, target_actor: vtk.vtkActor):
         cell_picker = vtk.vtkCellPicker()
-        cell_picker.SetTolerance(0.0005)
+        cell_picker.SetTolerance(0.0015)
 
         pickability = self._narrow_pickability_to_actor(target_actor)
         cell_picker.Pick(x, y, 0, self.mesh_render_widget.renderer)

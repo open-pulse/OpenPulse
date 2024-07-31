@@ -15,7 +15,7 @@ class NodesActor(GhostActor):
     
     def build(self):
         visible_nodes = {i:e for i,e in self.nodes.items() if (i not in self.hidden_nodes)}
-        self._key_index = {j:i for i,j in enumerate(visible_nodes)}
+        self._key_index = {j:i for i,j in enumerate(visible_nodes.keys())}
 
         if self.show_deformed:
             coords = [n.deformed_coordinates for n in visible_nodes.values()]
@@ -48,9 +48,9 @@ class NodesActor(GhostActor):
 
         colors: vtk.vtkCharArray = data.GetCellData().GetArray("colors")
         for i in nodes:
-            # the index of the nodes is the same index of
-            # the cells, so we don't need any conversion
-            colors.SetTuple3(i, *color)
+            index = self._key_index.get(i)
+            if index is not None:
+                colors.SetTuple(index, color)
 
         self.GetMapper().SetScalarModeToUseCellData()
         self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
