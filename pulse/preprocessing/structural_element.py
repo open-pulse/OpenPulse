@@ -1065,7 +1065,8 @@ class StructuralElement:
 
     def force_vector_acoustic_gcs(self, frequencies, pressures, pressure_external):
         """
-        This method returns the element load vector due to the internal acoustic pressure field in the global coordinate system. The loads are forces and moments according to the degree of freedom. 
+        This method returns the element load vector due to the internal acoustic pressure field in the global 
+        coordinate system. The loads are forces and moments according to the degree of freedom. 
 
         Parameters
         ----------

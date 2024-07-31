@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
@@ -23,17 +22,18 @@ class RunAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "messages/solution_log.ui"
-        uic.loadUi(ui_path, self)
+        # ui_path = UI_DIR / "messages/solution_log.ui"
+        # uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
 
-        self._load_icons()
-        self._config_window()
+        # self._load_icons()
+        # self._config_window()
         self._initialize()
         self._load_analysis_info()
-        self._define_qt_variables()
-        self._create_connections()
+        # self._define_qt_variables()
+        # self._create_connections()
+        # self._config_widgets()
 
         LoadingScreen(title = 'Solution in progress', 
                       message = 'Processing the cross-sections',  
@@ -66,8 +66,8 @@ class RunAnalysisInput(QDialog):
                           message = 'Post-processing the obtained results', 
                           target = self.post_process_results)
             
-            self.timer.start(200)
-            self.exec()
+            # self.timer.start(200)
+            # self.exec()
             self.check_warnings()
 
     def _load_icons(self):
@@ -89,26 +89,42 @@ class RunAnalysisInput(QDialog):
         self.solve = None
 
     def _define_qt_variables(self):
+
         # QFrame
         self.frame_message : QFrame
         self.frame_progress_bar : QFrame
+
         # QLabel
         self.label_title : QLabel
         self.label_message : QLabel
+
         # QProgressBar
         self.progress_bar_timer : QProgressBar
+
         # QTimer
         self.timer = QTimer()
 
     def _create_connections(self):
         self.timer.timeout.connect(self.update_progress_bar)
-        self.config_title_and_message()
+        pass
 
-    def config_title_and_message(self):
+    def _config_widgets(self):
         self.label_message.setWordWrap(True)
         self.label_message.setMargin(16)
         # self.label_title.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
         # self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
+
+    def update_progress_bar(self):
+        self.timer.stop()
+        t0 = time()
+        dt = 0
+        duration = 2
+        while dt <= duration:
+            sleep(0.1)
+            dt = time() - t0
+            value = int(100*(dt/duration))
+            self.progress_bar_timer.setValue(value)
+        self.close()
 
     def _load_analysis_info(self):
         self.analysis_ID = self.project.analysis_ID
@@ -277,7 +293,7 @@ class RunAnalysisInput(QDialog):
         self.project.time_to_postprocess = time() - t0
         _times =  [self.project.time_to_process_cross_sections, self.project.time_to_preprocess_model, self.project.time_to_solve_model, self.project.time_to_postprocess]
         self.project.total_time = sum(_times)
-        self.print_final_log()
+        # self.print_final_log()
         self.complete = True
 
     def reset_all_results(self):
@@ -316,18 +332,6 @@ class RunAnalysisInput(QDialog):
         # text += "Press ESC to continue..."
         self.label_message.setText(text)
         self.adjustSize()
-
-    def update_progress_bar(self):
-        self.timer.stop()
-        t0 = time()
-        dt = 0
-        duration = 2
-        while dt <= duration:
-            sleep(0.1)
-            dt = time() - t0
-            value = int(100*(dt/duration))
-            self.progress_bar_timer.setValue(value)
-        self.close()
 
     def check_warnings(self):
         # WARNINGS REACHED DURING SOLUTION
