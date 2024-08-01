@@ -72,6 +72,8 @@ class ResultsViewerWidget(QWidget):
         
         self.results_viewer_items.item_child_check_pulsation_criteria.clicked.connect(
             self.add_pulsation_criteria_widget)
+        
+        self.results_viewer_items.item_child_shaking_forces_criteria.clicked.connect(self.add_shaking_forces_criteria_widget)
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()
@@ -158,6 +160,11 @@ class ResultsViewerWidget(QWidget):
         widget = self.main_window.input_ui.check_api618_pulsation_criteria()
         self.add_widget(widget)
         self.main_window.update_plot_mesh()
+
+    def add_shaking_forces_criteria_widget(self):
+        widget = self.main_window.input_ui.shaking_forces_criteria()
+        self.add_widget(widget)
+        self.main_window.update_plot_entities()
 
     def add_widget(self, widget, animation_widget=False):
         self.remove_widget()

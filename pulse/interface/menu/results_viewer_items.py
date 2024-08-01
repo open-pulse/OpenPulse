@@ -45,6 +45,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_transmission_loss = self.add_item("Plot transmission loss")
         self.item_child_plot_perforated_plate_convergence_data = self.add_item("Plot perforated plate convergence data")
         self.item_child_check_pulsation_criteria = self.add_item("Check pulsation criteria")
+        self.item_child_shaking_forces_criteria = self.add_item("Shaking forces criteria")
 
         self.top_level_items = [self.item_top_results_viewer_acoustic,
                                 self.item_top_results_viewer_structural]
@@ -67,6 +68,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_pressure_field.setDisabled(True)
         self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
         self.item_child_check_pulsation_criteria.setDisabled(True)
+        self.item_child_shaking_forces_criteria.setDisabled(True)
         self.item_child_plot_transmission_loss.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
