@@ -189,15 +189,15 @@ class MeshRenderWidget(CommonRenderWidget):
         else:
             if selection_filter.nodes:
                 picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
-                picked_nodes.difference_update([-1])
+                picked_nodes.difference_update([-1])  # remove -1 index
 
             if selection_filter.elements:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
-                picked_elements.difference_update([-1])
+                picked_elements.difference_update([-1])  # remove -1 index
 
             if selection_filter.entities:
                 picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
-                picked_entities.difference_update([-1])
+                picked_entities.difference_update([-1])  # remove -1 index
 
         # give priority to node selection
         if picked_nodes and not mouse_moved:
