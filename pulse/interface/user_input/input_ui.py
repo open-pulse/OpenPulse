@@ -150,7 +150,6 @@ class InputUi:
 
     def initial_project_action(self, finalized):
         # t0 = time()
-        self.main_window.action_front_view_callback()
         self.main_window.update_export_geometry_file_access()
         self.menu_items.modify_model_setup_items_access(True)
         if finalized:

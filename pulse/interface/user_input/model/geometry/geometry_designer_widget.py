@@ -384,7 +384,6 @@ class GeometryDesignerWidget(QWidget):
     def cancel_callback(self):
         app().main_window.update_plots()
         app().main_window.use_structural_setup_workspace()
-        app().main_window.action_front_view_callback()
 
     def finalize_callback(self):
         self.pipeline.dismiss()
@@ -406,7 +405,6 @@ class GeometryDesignerWidget(QWidget):
         app().main_window.update_plots()
         app().main_window.use_structural_setup_workspace()
         app().main_window.plot_entities_with_cross_section()
-        app().main_window.action_front_view_callback()
         self.render_widget.set_info_text("")
 
     def showEvent(self, event):
