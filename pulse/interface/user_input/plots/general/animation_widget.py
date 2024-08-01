@@ -43,7 +43,7 @@ class AnimationWidget(QWidget):
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
 
     def frames_value_changed(self):
-        self.main_window.opv_widget.opvAnalysisRenderer._numberFramesHasChanged(True)
+        # self.main_window.opv_widget.opvAnalysisRenderer._numberFramesHasChanged(True)
         self.frames = self.spinBox_frames.value()
         
     def cycles_value_changed(self):
@@ -51,15 +51,15 @@ class AnimationWidget(QWidget):
 
     def slider_callback(self):
         value = self.phase_slider.value()
-        self.main_window.opv_widget.opvAnalysisRenderer.slider_callback(value)
+        # self.main_window.opv_widget.opvAnalysisRenderer.slider_callback(value)
         self.main_window.results_widget.slider_callback(value)
 
     def process_animation(self):
         self.update_animation_settings()
-        self.main_window.opv_widget.opvAnalysisRenderer._setNumberFrames(self.frames)
-        self.main_window.opv_widget.opvAnalysisRenderer._setNumberCycles(self.cycles)
+        # self.main_window.opv_widget.opvAnalysisRenderer._setNumberFrames(self.frames)
+        # self.main_window.opv_widget.opvAnalysisRenderer._setNumberCycles(self.cycles)
         # self.main_window.opv_widget.opvAnalysisRenderer.playAnimation()
-        self.main_window.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
+        # self.main_window.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
         self.main_window.results_widget.start_animation()
 
     def update_animation_settings(self):
@@ -79,7 +79,7 @@ class AnimationWidget(QWidget):
         try:
 
             self.update_animation_settings()
-            self.main_window.opv_widget.opvAnalysisRenderer.start_export_animation_to_file(path, self.frames)
+            # self.main_window.opv_widget.opvAnalysisRenderer.start_export_animation_to_file(path, self.frames)
             self.process_animation()
 
         except Exception as error_log:

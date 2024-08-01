@@ -101,8 +101,7 @@ class ResultsViewerWidget(QWidget):
     def add_structural_frequency_response_widget(self):
         widget = self.main_window.input_ui.plot_structural_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.main_window.update_plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_stress_field_widget(self):
         widget = self.main_window.input_ui.plot_stress_field()
@@ -111,14 +110,12 @@ class ResultsViewerWidget(QWidget):
     def add_stress_frequency_response_widget(self):
         widget = self.main_window.input_ui.plot_stress_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.main_window.update_plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_reaction_frequency_response_widget(self):
         widget = self.main_window.input_ui.plot_reaction_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.main_window.update_plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_acoustic_mode_shape_widget(self):
         widget = self.main_window.input_ui.plot_acoustic_mode_shapes()
@@ -131,26 +128,22 @@ class ResultsViewerWidget(QWidget):
     def add_acoustic_frequency_response_widget(self):
         widget = self.main_window.input_ui.plot_acoustic_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.main_window.update_plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_acoustic_frequency_response_function_widget(self):
         widget = self.main_window.input_ui.plot_acoustic_frequency_response_function()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.main_window.update_plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_acoustic_delta_pressures_widget(self):
         widget = self.main_window.input_ui.plot_acoustic_delta_pressures()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.main_window.update_plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_transmission_loss_widget(self):
         widget = self.main_window.input_ui.plot_transmission_loss()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.main_window.update_plot_mesh()
+        self.main_window.update_plot_mesh()
 
     def add_perforated_plate_convergence_widget(self):
         widget = self.main_window.input_ui.plot_perforated_plate_convergence_data()

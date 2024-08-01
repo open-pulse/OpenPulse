@@ -204,13 +204,13 @@ class MainWindow(QMainWindow):
         self.action_import_pcf.setDisabled(_bool)
 
     def _create_layout(self):
-        self.opv_widget = OPVUi(self.project, self)
-        self.opv_widget.opvAnalysisRenderer._createPlayer()
+
+        # self.opv_widget = OPVUi(self.project, self)
+        # self.opv_widget.opvAnalysisRenderer._createPlayer()
 
         self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_ui = InputUi(self)
-
         self.mesh_widget = MeshRenderWidget()
         self.results_widget = ResultsRenderWidget()
         self.geometry_widget = GeometryRenderWidget()
@@ -218,7 +218,6 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.results_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
-        self.render_widgets_stack.addWidget(self.opv_widget)
         self.render_widgets_stack.currentChanged.connect(self.render_changed_callback)
 
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
@@ -228,8 +227,6 @@ class MainWindow(QMainWindow):
 
         self.splitter.setSizes([100, 400])
         self.splitter.widget(0).setMinimumWidth(380)
-        # self.opv_widget.updatePlots()
-        # self.opv_widget.plot_entities_with_cross_section()
         self._update_visualization()
 
     def configure_window(self):
@@ -241,7 +238,7 @@ class MainWindow(QMainWindow):
         self._connect_actions()
         app().splash.update_progress(30)
         dt = time() - t0
-        print(f"Time to load interface A: {dt} [s]")
+        print(f"Time to process A: {dt} [s]")
 
         t1 = time()
         self._create_layout()
@@ -250,7 +247,7 @@ class MainWindow(QMainWindow):
         self._add_mesh_toolbar()
         app().splash.update_progress(70)
         dt = time() - t1
-        print(f"Time to load interface B: {dt} [s]")
+        print(f"Time to process B: {dt} [s]")
 
         t2 = time()
         self.plot_entities_with_cross_section()
@@ -258,13 +255,13 @@ class MainWindow(QMainWindow):
         self.load_user_preferences()
         app().splash.update_progress(98)
         dt = time() - t2
-        print(f"Time to load interface C: {dt} [s]")
+        print(f"Time to process C: {dt} [s]")
 
         app().splash.close()
         self.showMaximized()
 
         dt = time() - t0
-        print(f"Time to load interface D: {dt} [s]")
+        print(f"Time to process D: {dt} [s]")
         self.load_recent_project()
  
     # public
@@ -272,7 +269,6 @@ class MainWindow(QMainWindow):
         self.geometry_widget.update_plot(reset_camera=True)
         self.mesh_widget.update_plot(reset_camera=True)
         self.results_widget.update_plot(reset_camera=True)
-        self.opv_widget.updatePlots()
 
     def update_input_widget_callback(self):
         self.input_ui.update_input_widget()
@@ -350,7 +346,7 @@ class MainWindow(QMainWindow):
         pipeline = app().project.pipeline
         pcf_exporter = PCFExporter()
         pcf_exporter.save(path, pipeline)
-        self.update()
+        self.update_plots()
 
     def export_geometry(self):
         init_path = os.path.expanduser("~")
@@ -476,8 +472,6 @@ class MainWindow(QMainWindow):
         if self.config.open_last_project and self.config.haveRecentProjects():
             self.import_project_call(self.config.getMostRecentProjectDir())
         elif self.input_ui.get_started():
-            # self.update()  # update the renders before change the view
-            # self.opv_widget.updatePlots()
             self.action_front_view_callback()
             self._update_recent_projects()
             self.set_window_title(self.file.project_name)
@@ -649,51 +643,30 @@ class MainWindow(QMainWindow):
 
     def action_isometric_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
-        if render_widget == self.opv_widget:
-            render_widget.setCameraView(0)
-            return
         render_widget.set_isometric_view()
 
     def action_top_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
-        if render_widget == self.opv_widget:
-            render_widget.setCameraView(1)
-            return
         render_widget.set_top_view()
 
     def action_bottom_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
-        if render_widget == self.opv_widget:
-            render_widget.setCameraView(2)
-            return
         render_widget.set_bottom_view()
 
     def action_left_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
-        if render_widget == self.opv_widget:
-            render_widget.setCameraView(3)
-            return
         render_widget.set_left_view()
 
     def action_right_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
-        if render_widget == self.opv_widget:
-            render_widget.setCameraView(4)
-            return
         render_widget.set_right_view()
 
     def action_front_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
-        if render_widget == self.opv_widget:
-            render_widget.setCameraView(5)
-            return
         render_widget.set_front_view()
 
     def action_back_view_callback(self):
         render_widget = self.render_widgets_stack.currentWidget()
-        if render_widget == self.opv_widget:
-            render_widget.setCameraView(6)
-            return
         render_widget.set_back_view()
     
     def action_clip_plane_callback(self):
@@ -704,43 +677,33 @@ class MainWindow(QMainWindow):
         self.clip_plane.closed.connect(self.close_clip_plane)
 
     def action_zoom_callback(self):
-        if self.get_current_workspace() == Workspace.GEOMETRY:
-            self.update()
-
-        elif self.get_current_workspace() == Workspace.STRUCTURAL_SETUP:
-            self.opv_widget.opvRenderer.resetCamera()
-            self.opv_widget.opvRenderer.update()
-    
-        elif self.get_current_workspace() == Workspace.RESULTS:
-            self.opv_widget.opvAnalysisRenderer.resetCamera()
-            self.opv_widget.opvAnalysisRenderer.update()
-            self.opv_widget.opvRenderer.resetCamera()
-            self.opv_widget.opvRenderer.update()
-
-        else:
-            self.opv_widget.opvRenderer.resetCamera()
-            self.opv_widget.opvRenderer.update()
+        self.geometry_widget.renderer.ResetCamera()
+        self.mesh_widget.renderer.ResetCamera()
+        self.results_widget.renderer.ResetCamera()
+        self.geometry_widget.update()
+        self.mesh_widget.update()
+        self.results_widget.update()
 
     def set_clip_plane_configs(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
 
-        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
+        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+        #     self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
 
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.apply_cutting_plane()
         
-        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.opv_widget.opvRenderer.apply_clipping_plane()
+        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+        #     self.opv_widget.opvRenderer.apply_clipping_plane()
         
     def close_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.dismiss_cutting_plane()
         
-        elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.opv_widget.opvRenderer.dismiss_clipping_plane()
+        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
+        #     self.opv_widget.opvRenderer.dismiss_clipping_plane()
 
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()
@@ -846,9 +809,7 @@ class MainWindow(QMainWindow):
         if self.input_ui.load_project(path):
             self._update_recent_projects()
             self.change_window_title(self.file.project_name)
-            self.update()
-            self.opv_widget.updatePlots()
-            self.plot_mesh()
+            self.update_plots()
             self.action_front_view_callback()
 
     def _add_mesh_toolbar(self):
@@ -872,7 +833,7 @@ class MainWindow(QMainWindow):
                 self.action_set_light_theme_callback()
         else:
             self.action_set_light_theme_callback()
-        self.opv_widget.set_user_interface_preferences(self.user_preferences)
+        # self.opv_widget.set_user_interface_preferences(self.user_preferences)
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
@@ -922,27 +883,22 @@ class MainWindow(QMainWindow):
             else:
                 self.user_preferences["bottom font color"] = (0, 0, 0)
             self.config.write_user_preferences_in_file(self.user_preferences)
-            self.opv_widget.set_user_interface_preferences(self.user_preferences)
+            # self.opv_widget.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
         project_path = self.file._project_path
         if not os.path.exists(project_path):
             project_path = ""
-        path, _ = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
-        if path != "":
-            self.opv_widget().savePNG(path)
+        path, check = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
+        if not check:
+            return
+        
+        # self.opv_widget().savePNG(path)
 
     def positioning_cursor_on_widget(self, widget):
         width, height = widget.width(), widget.height()
         final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
         QCursor.setPos(final_pos)
-
-    # def eventFilter(self, obj, event):
-    #     if event.type() == QEvent.ShortcutOverride:
-    #         if event.key() == Qt.Key_Space:
-    #             return
-    #             self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
-    #     return super(MainWindow, self).eventFilter(obj, event)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.ShortcutOverride:
@@ -965,7 +921,6 @@ class MainWindow(QMainWindow):
         if close == QMessageBox.Yes:
             self.mesh_widget.render_interactor.Finalize()
             self.results_widget.render_interactor.Finalize()
-            self.opv_widget.Finalize()
             sys.exit()
         else:
             event.ignore()

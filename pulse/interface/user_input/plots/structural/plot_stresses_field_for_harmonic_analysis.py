@@ -134,18 +134,12 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.opv.opvAnalysisRenderer.set_colormap(colormap)
         app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
         app().main_window.results_widget.set_tube_actors_transparency(transparency)
-        
-        if self.opv.opvAnalysisRenderer.getInUse():
-            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
-        else:
-            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
 
     def update_plot(self):
         self.update_animation_widget_visibility()
@@ -202,7 +196,6 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
-        self.opv.plot_stress_field(self.selected_index)
         app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def on_click_item(self, item):
