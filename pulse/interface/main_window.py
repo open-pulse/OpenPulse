@@ -241,23 +241,32 @@ class MainWindow(QMainWindow):
         self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
+        # dt = time() - t0
+        # print(f"Time to load interface A: {dt} [s]")
 
+        # t1 = time()
         self._create_layout()
+        # dt = time() - t1
         self._create_workspaces_toolbar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
         app().splash.update_progress(70)
+        # print(f"Time to load interface B: {dt} [s]")
 
+        # t2 = time()
         self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
         app().splash.update_progress(98)
+        # dt = time() - t2
+        # print(f"Time to load interface C: {dt} [s]")
 
+        # t0 = time()
         app().splash.close()
         self.showMaximized()
 
         # dt = time() - t0
-        # print(f"Time to load interface: {dt} [s]")
+        # print(f"Time to load interface D: {dt} [s]")
         self.load_recent_project()
  
     # public
