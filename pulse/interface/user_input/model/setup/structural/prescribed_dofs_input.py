@@ -292,7 +292,7 @@ class PrescribedDofsInput(QDialog):
             self.remove_all_table_files_from_nodes(self.nodes_typed)
             self.project.set_prescribed_dofs_bc_by_node(self.nodes_typed, data, False)   
             print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")    
-            self.opv.updateRendererMesh()
+            # self.opv.updateRendererMesh()
             self.close()
         else:
             title = "Additional inputs required"
@@ -542,7 +542,7 @@ class PrescribedDofsInput(QDialog):
 
         self.process_table_file_removal(list_table_names)
         print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}") 
-        self.opv.updateRendererMesh()
+        # self.opv.updateRendererMesh()
         self.close()
 
     def text_label(self, mask):
@@ -647,7 +647,7 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove_bc_confirm.setDisabled(True)
             self.load_nodes_info()
-            self.opv.updateRendererMesh()
+            # self.opv.updateRendererMesh()
             # self.close()
 
     def get_list_tables_names_from_selected_nodes(self, list_node_ids):
@@ -707,6 +707,8 @@ class PrescribedDofsInput(QDialog):
             self.inputs_from_node = False
 
     def update(self):
+        return
+
         list_picked_nodes = self.opv.getListPickedPoints()
         if list_picked_nodes != []:
             picked_node = list_picked_nodes[0]

@@ -35,6 +35,9 @@ def main():
     # you may want to enable them while debugging something
     vtk.vtkObject.GlobalWarningDisplayOff() 
 
+    # Make the window scale evenly for every monitor
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+
     if platform.system() == "Windows":
         sys.argv.append("--platform")
         sys.argv.append("windows:dpiawareness=0")

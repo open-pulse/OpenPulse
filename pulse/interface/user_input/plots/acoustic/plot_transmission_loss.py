@@ -22,7 +22,6 @@ class PlotTransmissionLoss(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/plot_transmission_loss.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.opv_widget
         app().main_window.input_ui.set_input_widget(self)
         self.project = main_window.project
 

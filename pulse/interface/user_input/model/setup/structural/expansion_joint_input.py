@@ -1275,7 +1275,7 @@ class ExpansionJointInput(QDialog):
         self.load_treeWidgets_info()
         # self.opv.opvRenderer.plot()
         # self.opv.opvAnalysisRenderer.plot()
-        self.opv.plot_entities_with_cross_section() 
+        # self.opv.plot_entities_with_cross_section() 
     
     def remove_table_files_from_imported_data_folder_by_elements(self, list_elements):
 

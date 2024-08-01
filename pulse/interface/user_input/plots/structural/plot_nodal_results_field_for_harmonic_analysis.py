@@ -107,7 +107,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.opv.opvAnalysisRenderer.set_colormap(colormap)
         app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
@@ -120,11 +119,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
         app().main_window.results_widget.set_tube_actors_transparency(transparency)
-        
-        if self.opv.opvAnalysisRenderer.getInUse():
-            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
-        else:
-            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
 
     def update_plot(self):
         self.update_animation_widget_visibility()
@@ -136,7 +130,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
                 self.frequency = self.frequency_to_index[frequency_selected]
                 color_scale_setup = self.get_user_color_scale_setup()
                 self.project.set_color_scale_setup(color_scale_setup)
-                self.opv.plot_displacement_field(self.frequency)
                 app().main_window.results_widget.show_displacement_field(self.frequency)
 
 
@@ -224,7 +217,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.lineEdit_selected_frequency.setText(str(self.frequency[0]))
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
-        self.opv.plot_displacement_field(self.frequency[0])
         app().main_window.results_widget.show_displacement_field(self.frequency[0])
 
     def on_click_item(self, item):

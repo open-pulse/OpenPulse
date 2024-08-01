@@ -18,7 +18,7 @@ class PlotAcousticPressureField(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.opv_widget
+        # self.opv = main_window.opv_widget
         app().main_window.input_ui.set_input_widget(self)
         self.project = main_window.project
 
@@ -113,18 +113,12 @@ class PlotAcousticPressureField(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.opv.opvAnalysisRenderer.set_colormap(colormap)
         app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
         app().main_window.results_widget.set_tube_actors_transparency(transparency)
-        
-        if self.opv.opvAnalysisRenderer.getInUse():
-            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
-        else:
-            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
 
     def update_plot(self):
 
@@ -137,7 +131,6 @@ class PlotAcousticPressureField(QWidget):
 
         color_scale_setup = self.get_user_color_scale_setup()
         self.project.set_color_scale_setup(color_scale_setup)
-        self.opv.plot_pressure_field(self.frequency)
         app().main_window.results_widget.show_pressure_field(self.frequency)
 
     def get_user_color_scale_setup(self):

@@ -467,7 +467,7 @@
             <property name="spacing">
              <number>2</number>
             </property>
-            <item row="0" column="1">
+            <item row="0" column="0">
              <widget class="QPushButton" name="pushButton_plot_filtered_criteria">
               <property name="minimumSize">
                <size>
@@ -501,26 +501,6 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               </property>
               <property name="flat">
                <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QFrame" name="frame_22">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QFrame" name="frame_23">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
               </property>
              </widget>
             </item>
@@ -910,7 +890,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             <property name="spacing">
              <number>2</number>
             </property>
-            <item row="0" column="1">
+            <item row="0" column="0">
              <widget class="QPushButton" name="pushButton_plot_unfiltered_criteria">
               <property name="minimumSize">
                <size>
@@ -944,26 +924,6 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               </property>
               <property name="flat">
                <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QFrame" name="frame_9">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QFrame" name="frame_10">
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
               </property>
              </widget>
             </item>

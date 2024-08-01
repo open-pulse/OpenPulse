@@ -38,6 +38,7 @@ from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input impo
 from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 from pulse.interface.user_input.model.editor.pulsation_suppression_device_input import PulsationSuppressionDeviceInput
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
+from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
 from pulse.interface.user_input.analysis.general.analysis_type import AnalysisTypeInput
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
@@ -482,6 +483,9 @@ class InputUi:
     
     def check_api618_pulsation_criteria(self):
         return self.process_input(CheckAPI618PulsationCriteriaInput)
+
+    def shaking_forces_criteria(self):
+        return self.process_input(ShakingForcesCriteriaInput)
 
     def structural_model_info(self):
         self.process_input(StructuralModelInfo)
