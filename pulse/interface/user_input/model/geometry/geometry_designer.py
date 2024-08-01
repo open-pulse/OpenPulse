@@ -99,7 +99,7 @@ class OPPGeometryDesignerInput(QWidget):
         self.geometry_handler.export_entity_file()
         self.update_project_attributes()
         self.load_project()
-        app().update()
+        app().main_window.update_plots()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
         app().main_window.plot_entities_with_cross_section()
@@ -123,7 +123,7 @@ class OPPGeometryDesignerInput(QWidget):
         return get_new_path(self.file._project_path, filename)
 
     def close_callback(self):
-        app().update()
+        app().main_window.update_plots()
         app().main_window.opv_widget.updatePlots()
         app().main_window.use_structural_setup_workspace()
         app().main_window.action_front_view_callback()

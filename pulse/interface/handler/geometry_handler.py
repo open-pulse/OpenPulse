@@ -141,7 +141,7 @@ class GeometryHandler:
             self.pipeline.add_structures(structures)
             self.pipeline.commit()
             self.pipeline.merge_coincident_points()
-            app().update()
+            app().main_window.update_plots()
     
     def _process_pipe(self, key: str, data: dict):
         if "section_parameters" not in data.keys():

@@ -27,14 +27,8 @@ class Application(QApplication):
         self.config = Config()
         self.file = ProjectFile()
         self.project = Project()
-        # self.geometry_toolbox = GeometryToolbox()
 
         # gui
         self.main_window = MainWindow()
         self.main_window.configure_window()
-        # self.main_window.show()
-        self.update()
-
-    def update(self):
-        # self.geometry_toolbox.update()
-        self.main_window.update()
+        self.main_window.update_plots()

@@ -89,11 +89,10 @@ class MainWindow(QMainWindow):
         self.pulse_icon = icons.get_openpulse_icon()
 
     def _config_window(self):
-        # self.showMaximized()
         self.showMinimized()
         self.installEventFilter(self)
         self.setWindowIcon(self.pulse_icon)
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _define_qt_variables(self):
         '''
@@ -229,48 +228,47 @@ class MainWindow(QMainWindow):
 
         self.splitter.setSizes([100, 400])
         self.splitter.widget(0).setMinimumWidth(380)
-        self.opv_widget.updatePlots()
-        self.opv_widget.plot_entities_with_cross_section()
+        # self.opv_widget.updatePlots()
+        # self.opv_widget.plot_entities_with_cross_section()
         self._update_visualization()
 
     def configure_window(self):
-        # t0 = time()
+        t0 = time()
         self._load_icons()
         self._load_stylesheets()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
-        # dt = time() - t0
-        # print(f"Time to load interface A: {dt} [s]")
+        dt = time() - t0
+        print(f"Time to load interface A: {dt} [s]")
 
-        # t1 = time()
+        t1 = time()
         self._create_layout()
-        # dt = time() - t1
         self._create_workspaces_toolbar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
         app().splash.update_progress(70)
-        # print(f"Time to load interface B: {dt} [s]")
+        dt = time() - t1
+        print(f"Time to load interface B: {dt} [s]")
 
-        # t2 = time()
+        t2 = time()
         self.plot_entities_with_cross_section()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
         app().splash.update_progress(98)
-        # dt = time() - t2
-        # print(f"Time to load interface C: {dt} [s]")
+        dt = time() - t2
+        print(f"Time to load interface C: {dt} [s]")
 
-        # t0 = time()
         app().splash.close()
         self.showMaximized()
 
-        # dt = time() - t0
-        # print(f"Time to load interface D: {dt} [s]")
+        dt = time() - t0
+        print(f"Time to load interface D: {dt} [s]")
         self.load_recent_project()
  
     # public
-    def update(self):
+    def update_plots(self):
         self.geometry_widget.update_plot(reset_camera=True)
         self.mesh_widget.update_plot(reset_camera=True)
         self.results_widget.update_plot(reset_camera=True)
@@ -285,7 +283,7 @@ class MainWindow(QMainWindow):
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
         self.use_structural_setup_workspace()
-        app().update()
+        self.update_plots()
 
     def open_project(self, path=None):
         if not self.input_ui.load_project(path):
@@ -293,7 +291,7 @@ class MainWindow(QMainWindow):
 
         self._update_recent_projects()
         self.set_window_title(self.file._project_name)
-        app().update()
+        self.update_plots()
         self.action_front_view_callback()
     
     def open_pcf(self):
