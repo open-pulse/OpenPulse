@@ -312,7 +312,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) in self.project.PSD.psd_lines.keys():
             device_lines = self.project.PSD.psd_lines[item.text(0)]
-            self.opv.opvRenderer.highlight_lines(device_lines)
+            app().main_window.set_selection(entities = device_lines)
 
     def on_double_click_item(self, item):
         self.on_click_item(item)
@@ -700,8 +700,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.project.PSD.get_device_related_lines()
         self.project.PSD.load_psd_data_from_file()
 
-        self.opv.opvRenderer.resetCamera()
-        self.opv.opvRenderer.update()
+        app().main_window.update_plots()
         self.close()
 
     def remove_button_pressed(self):
@@ -711,8 +710,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.project.PSD.remove_selected_psd(device_label)
             self.load_PSD_info()
 
-            self.opv.opvRenderer.resetCamera()
-            self.opv.opvRenderer.update()
+            app().main_window.update_plots()
 
     def reset_button_pressed(self):
 
@@ -730,8 +728,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         if read._continue:    
             self.project.PSD.remove_all_psd()
             self.load_PSD_info()
-            self.opv.opvRenderer.resetCamera()
-            self.opv.opvRenderer.update()
+            app().main_window.update_plots()
 
     def load_PSD_info(self):
 

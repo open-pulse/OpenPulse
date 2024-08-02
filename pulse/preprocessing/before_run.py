@@ -771,7 +771,7 @@ class BeforeRun:
         
         return lines
 
-    def highlight_selection(self, nodes = list(), elements = list(), lines = list()):
+    def highlight_selection(self, nodes=None, elements=None, lines=None):
         app().main_window.set_selection(
                                         nodes = nodes,
                                         elements = elements,

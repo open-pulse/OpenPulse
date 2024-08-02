@@ -88,7 +88,7 @@ class InputUi:
         self.file = app().main_window.project.file
 
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
-        self.input_widget: (QWidget | None) = None
+        # self.input_widget: (QWidget | None) = None
 
         self._reset()
 
@@ -97,29 +97,29 @@ class InputUi:
         self.global_damping = [0,0,0,0]
         self.project.none_project_action = False
 
-    def update_input_widget(self):
-        if self.input_widget is None:
-            return
+    # def update_input_widget(self):
+    #     if self.input_widget is None:
+    #         return
 
-        try:
-            self.input_widget.update()
-        except Exception as err:
-            print("Update function error:", err)
+    #     try:
+    #         self.input_widget.update()
+    #     except Exception as err:
+    #         print("Update function error:", err)
 
-    def set_input_widget(self, widget):
-        if hasattr(self.input_widget, "close"):
-            self.input_widget.close()
-        self.input_widget = widget
+    # def set_input_widget(self, widget):
+    #     if hasattr(self.input_widget, "close"):
+    #         self.input_widget.close()
+    #     self.input_widget = widget
 
-    def before_initiate(self):
-        try:
-            self.set_input_widget(None)
-        except:
-            return
+    # def before_initiate(self):
+    #     try:
+    #         self.set_input_widget(None)
+    #     except:
+    #         return
 
     def process_input(self, workingClass, *args, **kwargs):
         try:
-            self.before_initiate()
+            app().main_window.close_dialogs()
             read = workingClass(*args, **kwargs)
             return read
         except Exception as log_error:

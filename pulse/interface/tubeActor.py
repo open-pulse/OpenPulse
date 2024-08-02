@@ -7,13 +7,12 @@ from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
 
 class TubeActor(ActorBase):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, project, *args, **kwargs):
         super().__init__()
 
         self.project = project
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
-        self.opv = opv
         
         self.hidden_elements = kwargs.get('hidden_elements', set())
         self.pressure_plot = kwargs.get('pressure_plot', False)
@@ -38,7 +37,8 @@ class TubeActor(ActorBase):
     @transparent.setter
     def transparent(self, value):
         if value:
-            opacity = 1 - self.opv.opvRenderer.elements_transparency
+            # opacity = 1 - self.opv.opvRenderer.elements_transparency
+            opacity = 1
             if self.preprocessor.number_structural_elements > 2e5:
                 self._actor.GetProperty().SetOpacity(0)
                 self._actor.GetProperty().SetLighting(True)

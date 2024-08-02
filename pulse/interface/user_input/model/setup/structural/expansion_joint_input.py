@@ -213,20 +213,18 @@ class ExpansionJointInput(QDialog):
             self.label_selected_id.setText("Node ID:")
             self.lineEdit_joint_length.setDisabled(False)
 
-            if not self.opv.change_plot_to_mesh:
-                self.main_window.plot_mesh()
-                if node_id:
-                    self.opv.opvRenderer.highlight_elements(node_id)
+            app().main_window.plot_mesh()
+            if node_id:
+                app().main_window.set_selection(nodes = node_id)
 
         elif self.comboBox_selection_type.currentIndex() == 2:
 
             self.label_selected_id.setText("Element ID:")
             self.lineEdit_joint_length.setDisabled(False)
 
-            if not self.opv.change_plot_to_mesh:
-                self.main_window.plot_mesh()
-                if element_id:
-                    self.opv.opvRenderer.highlight_elements(element_id)
+            app().main_window.plot_mesh()
+            if element_id:
+                app().main_window.set_selection(elements = element_id)
 
         if self.allow_to_update:
             self.update()
@@ -1261,10 +1259,8 @@ class ExpansionJointInput(QDialog):
 
     def update_plots(self):
         self.load_treeWidgets_info()
-        # self.opv.opvRenderer.plot()
-        # self.opv.opvAnalysisRenderer.plot()
-        # self.opv.plot_entities_with_cross_section() 
-    
+        app().main_window.update_plots()
+
     def remove_table_files_from_imported_data_folder_by_elements(self, list_elements):
 
         config = configparser.ConfigParser()

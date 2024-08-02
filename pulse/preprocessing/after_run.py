@@ -64,9 +64,9 @@ class AfterRun:
         self.check_the_acoustic_criterias_related_to_elements()
         self.check_the_acoustic_criterias_related_to_nodes()
 
-    def highlight_selection(self, nodes = list(), elements = list(), lines = list()):
+    def highlight_selection(self, nodes=None, elements=None, lines=None):
         app().main_window.set_selection(
                                         nodes = nodes,
                                         elements = elements,
-                                        entities = lines
+                                        entities = lines  
                                         )

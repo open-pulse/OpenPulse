@@ -1681,11 +1681,13 @@ class Preprocessor:
                 if node in self.nodes_with_prescribed_dofs:
                     self.nodes_with_prescribed_dofs.remove(node) 
 
-    def set_B2PX_rotation_decoupling(self, 
-                                     element_ID, 
-                                     node_ID, 
-                                     rotations_to_decouple = [False, False, False], 
-                                     remove = False):
+    def set_B2PX_rotation_decoupling(   
+                                        self, 
+                                        element_ID, 
+                                        node_ID, 
+                                        rotations_to_decouple = [False, False, False], 
+                                        remove = False
+                                    ):
         """
         This method .
 
