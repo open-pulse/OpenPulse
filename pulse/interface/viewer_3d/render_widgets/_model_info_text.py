@@ -1,3 +1,4 @@
+import numpy as np
 from molde.utils import TreeInfo, format_long_sequence
 
 from pulse import app
@@ -9,22 +10,75 @@ def nodes_info_text() -> str:
 
     info_text = ""
 
-    if len(nodes) == 1:
+    if len(nodes) > 1:
+        info_text += (
+            f"{len(nodes)} NODES IN SELECTION\n"
+            f"{format_long_sequence(nodes)}\n\n"
+        )
+    elif len(nodes) == 1:
         _id, *_ = nodes
         node = project.get_node(_id)
         tree = TreeInfo(f"Node {_id}")
         tree.add_item(
             f"Position",
-            "({:.3f}, {:.3f}, {:.3f})".format(*node.coordinates),
+            "[{:.3f}, {:.3f}, {:.3f}]".format(*node.coordinates),
             "m",
         )
         info_text += str(tree)
-
-    elif len(nodes) > 1:
-        info_text += (
-            f"{len(nodes)} NODES IN SELECTION\n"
-            f"{format_long_sequence(nodes)}\n\n"
+        info_text += _structural_format(
+            "Prescribed dofs",
+            node.prescribed_dofs,
+            ("u", "r"),
+            ("m", "rad"),
+            node.loaded_table_for_prescribed_dofs
         )
+        info_text += _structural_format(
+            "Nodal loads",
+            node.nodal_loads,
+            ("F", "M"),
+            ("N", "N.m"),
+            node.loaded_table_for_nodal_loads
+        )
+        info_text += _structural_format(
+            "Lumped stiffness",
+            node.lumped_stiffness,
+            ("k", "kr"),
+            ("N/m", "N.m/rad"),
+            node.loaded_table_for_lumped_stiffness
+        )
+        info_text += _structural_format(
+            "Lumped dampings",
+            node.lumped_dampings,
+            ("c", "cr"),
+            ("N.s/m", "N.m.s/rad"),
+            node.loaded_table_for_lumped_dampings
+        )
+        info_text += _structural_format(
+            "Lumped masses",
+            node.lumped_masses,
+            ("m", "J"),
+            ("kg", "N.m²"),
+            node.loaded_table_for_lumped_masses
+        )
+        if node.there_are_elastic_nodal_link_stiffness:
+            for key, [_, values] in node.elastic_nodal_link_stiffness.items():
+                info_text += _structural_format(
+                    f"Stiffness elastic link: {key}",
+                    values,
+                    ("k", "kr"),
+                    ("N/m", "N.m/rad"),
+                    node.loaded_table_for_elastic_link_stiffness
+                )
+        if node.there_are_elastic_nodal_link_dampings:
+            for key, [_, values] in node.elastic_nodal_link_dampings.items():
+                info_text += _structural_format(
+                    f"Stiffness elastic link: {key}",
+                    values,
+                    ("k", "kr"),
+                    ("N/m", "N.m/rad"),
+                    node.loaded_table_for_elastic_link_stiffness
+                )
+        
     return info_text
 
 def elements_info_text() -> str:
@@ -32,7 +86,12 @@ def elements_info_text() -> str:
     info_text = ""
     project = app().project
 
-    if len(elements) == 1:
+    if len(elements) > 1:
+        info_text += (
+            f"{len(elements)} ELEMENTS IN SELECTION\n"
+            f"{format_long_sequence(elements)}\n\n"
+        )
+    elif len(elements) == 1:
         _id, *_ = elements
         structural_element = project.get_structural_element(_id)
         acoustic_element = project.get_acoustic_element(_id)
@@ -43,12 +102,12 @@ def elements_info_text() -> str:
         tree = TreeInfo(f"ELEMENT {_id}")
         tree.add_item(
             f"First Node - {first_node.external_index:>5}",
-            "({:.3f}, {:.3f}, {:.3f})".format(*first_node.coordinates),
+            "[{:.3f}, {:.3f}, {:.3f}]".format(*first_node.coordinates),
             "m",
         )
         tree.add_item(
             f"Last Node  - {last_node.external_index:>5}",
-            "({:.3f}, {:.3f}, {:.3f})".format(*last_node.coordinates),
+            "[{:.3f}, {:.3f}, {:.3f}]".format(*last_node.coordinates),
             "m",
         )
         info_text += str(tree)
@@ -63,11 +122,6 @@ def elements_info_text() -> str:
             structural_element.cross_section, structural_element.element_type
         )
 
-    elif len(elements) > 1:
-        info_text += (
-            f"{len(elements)} ELEMENTS IN SELECTION\n"
-            f"{format_long_sequence(elements)}\n\n"
-        )
     return info_text
 
 def entity_info_text() -> str:
@@ -75,7 +129,12 @@ def entity_info_text() -> str:
     info_text = ""
     project = app().project
 
-    if len(entities) == 1:
+    if len(entities) > 1:
+        info_text += (
+            f"{len(entities)} LINES IN SELECTION\n"
+            f"{format_long_sequence(entities)}\n\n"
+        )
+    elif len(entities) == 1:
         _id, *_ = entities
         entity = project.get_entity(_id)
 
@@ -89,12 +148,6 @@ def entity_info_text() -> str:
 
         info_text += cross_section_info_text(
             entity.cross_section, entity.structural_element_type
-        )
-
-    elif len(entities) > 1:
-        info_text += (
-            f"{len(entities)} LINES IN SELECTION\n"
-            f"{format_long_sequence(entities)}\n\n"
         )
 
     return info_text
@@ -185,4 +238,39 @@ def analysis_info_text(frequency_index):
         frequency = frequencies[frequency_index]
         tree.add_item("Frequency", f"{frequency:.2f}", "Hz")
 
+    return str(tree)
+
+def _pretty_sequence(sequence) -> str:
+    str_sequence = [("Ø" if i is None else str(i)) for i in sequence]
+    return "[" + ", ".join(str_sequence) + "]"
+
+def _all_none(sequence) -> bool:
+    return all(i is None for i in sequence)
+
+def _structural_format(property_name, values, labels, units, has_table):
+    if _all_none(values):
+        return ""
+
+    u = values[:3]
+    r = values[3:]
+    u_labels = ", ".join([labels[0] + i for i in "xyz"])
+    r_labels = ", ".join([labels[1] + i for i in "xyz"])
+
+    tree = TreeInfo(property_name)
+    if has_table:
+        tree.add_item(u_labels, "Loaded from table")
+        tree.add_item(r_labels, "Loaded from table")
+    else:
+        if not _all_none(u):
+            tree.add_item(u_labels, _pretty_sequence(u), units[0])
+        if not _all_none(r):
+            tree.add_item(r_labels, _pretty_sequence(r), units[1])
+    return str(tree)
+
+def _acoustic_format(property_name, value, label, unit):
+    tree = TreeInfo(property_name)
+    if isinstance(value, np.ndarray):
+        tree.add_item(label, "Table of values")
+    else:
+        tree.add_item(label, value, unit)
     return str(tree)
