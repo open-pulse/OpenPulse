@@ -151,6 +151,8 @@ class TubeActorGPU(vtk.vtkActor):
 
         if elements is None:
             elements = set()
+        else:
+            elements = set(elements)
 
         # Get the elements inside every entity to paint them
         line_to_elements = self.project.preprocessor.line_to_elements
