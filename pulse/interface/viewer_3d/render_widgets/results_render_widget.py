@@ -96,6 +96,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         project = app().project
 
         try:
+            self.colorbar_actor.VisibilityOn()
+
             # update the data according to the current analysis
             deformed = False
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
@@ -111,6 +113,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             else:
                 # Empty color table
                 color_table = ColorTable(project, [], [0, 0], self.colormap)
+                self.colorbar_actor.VisibilityOff()
 
         except Exception as e:
             return 

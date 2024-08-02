@@ -88,10 +88,10 @@ class ColorTable(vtk.vtkLookupTable):
     
     def get_node_color(self, node):
         if self.is_empty():
-            return [0, 0, 0]
+            return [255, 255, 255]
         
         value = self.valueVector[node.global_index]
-        color_temp = [0, 0, 0]
+        color_temp = [255, 255, 255]
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]
         return
@@ -101,14 +101,14 @@ class ColorTable(vtk.vtkLookupTable):
         key2 = element.last_node.global_index
 
         if self.is_empty():
-            return [0, 0, 0]
+            return [255, 255, 255]
 
         color_temp = [0,0,0]
         
         if self.stress_field_plot and element.element_type in ['beam_1', 'expansion_joint', 'valve']:
             return [255,255,255]
         elif self.pressure_field_plot and element.element_type == 'beam_1':
-            return [0, 0, 0]
+            return [255, 255, 255]
         elif self.pressure_field_plot:
             value = (self.valueVector[key1] + self.valueVector[key2])/2
         elif self.stress_field_plot:
