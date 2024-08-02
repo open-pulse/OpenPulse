@@ -26,11 +26,10 @@ class PrescribedDofsInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.main_window = app().main_window
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
-
+        
         self._load_icons()
         self._config_window()
         self._initialize()
@@ -291,9 +290,11 @@ class PrescribedDofsInput(QDialog):
             data = [self.prescribed_dofs, table_names]
             self.remove_all_table_files_from_nodes(self.nodes_typed)
             self.project.set_prescribed_dofs_bc_by_node(self.nodes_typed, data, False)   
-            print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")    
-            # self.opv.updateRendererMesh()
+            print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")  
+  
+            app().main_window.plot_mesh()
             self.close()
+
         else:
             title = "Additional inputs required"
             message = "You must inform at least one prescribed dof\n"
@@ -542,7 +543,7 @@ class PrescribedDofsInput(QDialog):
 
         self.process_table_file_removal(list_table_names)
         print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}") 
-        # self.opv.updateRendererMesh()
+        app().main_window.plot_mesh()
         self.close()
 
     def text_label(self, mask):
@@ -647,7 +648,7 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove_bc_confirm.setDisabled(True)
             self.load_nodes_info()
-            # self.opv.updateRendererMesh()
+            app().main_window.plot_mesh()
             # self.close()
 
     def get_list_tables_names_from_selected_nodes(self, list_node_ids):
@@ -691,7 +692,7 @@ class PrescribedDofsInput(QDialog):
             self.preprocessor.set_prescribed_dofs_bc_by_node(nodes_typed, data)
 
             self.close()
-            self.opv.updateRendererMesh()
+            app().main_window.plot_mesh()
 
     def process_table_file_removal(self, list_table_names):
         for table_name in list_table_names:
@@ -709,9 +710,9 @@ class PrescribedDofsInput(QDialog):
     def update(self):
         return
 
-        list_picked_nodes = self.opv.getListPickedPoints()
-        if list_picked_nodes != []:
-            picked_node = list_picked_nodes[0]
+        node_ids = app().main_window.list_selected_nodes()
+        if node_ids != []:
+            picked_node = node_ids[0]
             node = self.preprocessor.nodes[picked_node]
             if node.there_are_prescribed_dofs:
                 self.reset_input_fields(force_reset=True)
@@ -732,7 +733,8 @@ class PrescribedDofsInput(QDialog):
                 self.inputs_from_node = True
             else:
                 self.reset_input_fields()
-            self.writeNodes(self.opv.getListPickedPoints())
+
+            self.writeNodes(node_ids)
 
     def writeNodes(self, list_node_ids):
         text = ""

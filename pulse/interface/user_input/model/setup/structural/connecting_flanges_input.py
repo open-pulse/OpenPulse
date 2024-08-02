@@ -23,10 +23,10 @@ class ConnectingFlangesInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/connecting_flanges_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -146,10 +146,6 @@ class ConnectingFlangesInput(QDialog):
 
     def selection_type_callback(self):
 
-        # line_id = self.opv.getListPickedLines()
-        # node_id = self.opv.getListPickedPoints()
-        # element_id = self.opv.getListPickedElements()
-
         node_id = app().main_window.list_selected_nodes()
         line_id = app().main_window.list_selected_entities()
         element_id = app().main_window.list_selected_elements()
@@ -167,10 +163,9 @@ class ConnectingFlangesInput(QDialog):
             self.tabWidget_inputs.setCurrentIndex(0)
             self.label_selected_id.setText("Lines ID:")
 
-            if not self.opv.change_plot_to_entities_with_cross_section:
-                self.opv.plot_entities_with_cross_section()
-                if len(line_id):
-                    self.opv.opvRenderer.highlight_lines(line_id)
+            app().main_window.plot_entities_with_cross_section()
+            if len(line_id):
+                app().main_window.set_selection(entities = line_id)
 
         elif selection_index == 1:
 
@@ -178,29 +173,23 @@ class ConnectingFlangesInput(QDialog):
             self.tabWidget_inputs.setCurrentIndex(1)
             self.label_selected_id.setText("Nodes ID:")
 
-            if not self.opv.change_plot_to_mesh:
-                self.main_window.update_plot_mesh()
-                if len(node_id):
-                    self.opv.opvRenderer.highlight_nodes(node_id)
+            self.main_window.plot_mesh()
+            if len(node_id):
+                app().main_window.set_selection(nodes = node_id)
 
         elif selection_index == 2:
             self.tabWidget_inputs.setTabVisible(2, True)
             self.tabWidget_inputs.setCurrentIndex(2)
             self.label_selected_id.setText("Elements ID:")
 
-            if not self.opv.change_plot_to_mesh:
-                self.main_window.update_plot_mesh()
-                if element_id:
-                    self.opv.opvRenderer.highlight_elements(element_id)
+            self.main_window.plot_mesh()
+            if element_id:
+                app().main_window.set_selection(elements = element_id)
 
         if self.allow_to_update:
             self.update()
 
     def update(self):
-
-        # line_id = self.opv.getListPickedLines()
-        # node_id = self.opv.getListPickedPoints()
-        # element_id = self.opv.getListPickedElements()
 
         node_id = app().main_window.list_selected_nodes()
         line_id = app().main_window.list_selected_entities()
@@ -299,13 +288,13 @@ class ConnectingFlangesInput(QDialog):
     def reset_selection(self):
         self.lineEdit_selected_id.setText("")
         self.treeWidget_flange_by_elements.clear()
-        self.main_window.update_plot_mesh()
+        self.main_window.plot_mesh()
 
     def get_elements_from_start_end_line(self):
         number_elements = self.spinBox_number_elements_line.value()
         _list_elements = []
 
-        for line_id in self.opv.getListPickedLines():  
+        for line_id in app().main_window.list_selected_entities():  
             elements_from_line = np.sort(self.preprocessor.line_to_elements[line_id])
             elements_from_start = elements_from_line[0:number_elements]
             elements_from_end = elements_from_line[-number_elements:]
@@ -330,7 +319,7 @@ class ConnectingFlangesInput(QDialog):
         self.update_flange_length_node()
         list_all_elements = []
         self.node_to_elements_inside_flange_length = defaultdict(list)
-        for node_id in self.opv.getListPickedPoints():
+        for node_id in app().main_window.list_selected_nodes():
             length = 2*self.flange_length
             _, list_elements = self.preprocessor.get_neighbor_nodes_and_elements_by_node(node_id, length)
             for element_id in list_elements:

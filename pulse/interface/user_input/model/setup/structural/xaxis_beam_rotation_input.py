@@ -19,9 +19,10 @@ class BeamXaxisRotationInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/xaxis_beam_rotation_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        self.preprocessor = app().project.preprocessor
 
         self._load_icon()
         self._config_window()
@@ -44,8 +45,6 @@ class BeamXaxisRotationInput(QDialog):
 
     def _initialize(self):
 
-        self.lines_id = self.opv.getListPickedLines()
-        self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
 
         self.index = 0
@@ -107,19 +106,19 @@ class BeamXaxisRotationInput(QDialog):
             self.lineEdit_selected_id.setEnabled(False)
 
         else:
-            self.lines_id  = self.opv.getListPickedLines()
-            if len(self.lines_id):
-                self.write_ids(self.lines_id)
+            lines = app().main_window.selected_entities
+            if lines:
+                self.write_ids(lines)
 
     def update(self):
 
-        self.lines_id  = self.opv.getListPickedLines()
+        line_ids = app().main_window.selected_entities
         self.tabWidget_xaxis_rotation_angle.setDisabled(False)
 
-        if self.lines_id != []:
+        if line_ids:
 
             self.comboBox_selection.setCurrentIndex(1)
-            for line_id in self.lines_id:
+            for line_id in line_ids:
                 entity = self.preprocessor.dict_tag_to_entity[line_id]
 
                 if entity.structural_element_type != "beam_1":
@@ -127,14 +126,14 @@ class BeamXaxisRotationInput(QDialog):
                     self.tabWidget_xaxis_rotation_angle.setDisabled(True)
                     return
 
-            if len(self.lines_id) == 1:
-                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+            if len(line_ids) == 1:
+                entity = self.preprocessor.dict_tag_to_entity[line_ids[0]]
                 angle = entity.xaxis_beam_rotation
                 self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
             else:
                 self.lineEdit_xaxis_rotation_actual_angle.setText("")
             
-            self.write_ids(self.lines_id)
+            self.write_ids(line_ids)
 
     def tab_event_update(self):
 

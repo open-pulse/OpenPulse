@@ -18,8 +18,7 @@ class GetAcousticDeltaPressure(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_delta_pressures.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
         self.project = main_window.project
 
         self._initialize()
@@ -89,9 +88,9 @@ class GetAcousticDeltaPressure(QWidget):
         self.current_lineEdit.setText(str(node_id))
 
     def update(self):
-        self.list_node_ids = self.opv.getListPickedPoints()
-        if self.list_node_ids != []:
-            self.writeNodes(self.list_node_ids)
+        node_ids = app().main_window.list_selected_nodes()
+        if node_ids != []:
+            self.writeNodes(node_ids)
         else:
             self.current_lineEdit.setFocus()
 

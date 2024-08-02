@@ -24,8 +24,7 @@ class SpecificImpedanceInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
 
         self._initialize()
         self._load_icons()
@@ -179,7 +178,7 @@ class SpecificImpedanceInput(QDialog):
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
             self.process_table_file_removal(list_table_names) 
             self.project.set_specific_impedance_bc_by_node(self.nodes_typed, data)
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
             print(f"[Set Specific Impedance] - defined at node(s) {self.nodes_typed}")
             self.close()
         else:    
@@ -297,7 +296,7 @@ class SpecificImpedanceInput(QDialog):
                     self.project.set_specific_impedance_bc_by_node([node_id], data)
 
             self.process_table_file_removal(list_table_names)
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
             print(f"[Set Specific Impedance] - defined at node(s) {self.nodes_typed}")   
             self.close()
         else:
@@ -351,7 +350,7 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.remove_button.setDisabled(True)
             self.load_nodes_info()
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
             # self.close()
 
     def process_table_file_removal(self, list_table_names):
@@ -401,7 +400,7 @@ class SpecificImpedanceInput(QDialog):
                 self.process_table_file_removal(_list_table_names)
 
                 self.close()
-                self.opv.updateRendererMesh()
+                app().main_window.update_plots()
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:

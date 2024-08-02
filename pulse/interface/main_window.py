@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QAction, QComboBox, QFileDialog, QLabel, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QAbstractButton
+from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
@@ -53,10 +53,10 @@ class MainWindow(QMainWindow):
         self.config = app().config
         self.project = app().project
         self.file = app().project.file
-        self.reset()
+        self._initialize()
 
-    def reset(self):
-        self.opv_widget = None
+    def _initialize(self):
+        self.dialog = None
         self.input_ui = None
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
@@ -85,12 +85,10 @@ class MainWindow(QMainWindow):
         combined_stylesheet = "\n\n".join(stylesheets)
         self.setStyleSheet(combined_stylesheet)
 
-    def _load_icons(self):
-        self.pulse_icon = icons.get_openpulse_icon()
-
     def _config_window(self):
         self.showMinimized()
         self.installEventFilter(self)
+        self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
         # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
@@ -208,7 +206,7 @@ class MainWindow(QMainWindow):
         # self.opv_widget = OPVUi(self.project, self)
         # self.opv_widget.opvAnalysisRenderer._createPlayer()
 
-        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget(self)
+        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget()
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_ui = InputUi(self)
         self.mesh_widget = MeshRenderWidget()
@@ -231,8 +229,7 @@ class MainWindow(QMainWindow):
 
     def configure_window(self):
         t0 = time()
-        self._load_icons()
-        self._load_stylesheets()
+        # self._load_stylesheets()
         self._config_window()
         self._define_qt_variables()
         self._connect_actions()
@@ -424,38 +421,6 @@ class MainWindow(QMainWindow):
             nodes=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
-
-    # TODO: These update_plot_X can now be removed, because the function
-    # is now extremelly fast and we dont need to bother
-    def update_plot_mesh(self):
-        key = list()
-        key.append(self.action_show_points.isChecked())
-        key.append(self.action_show_lines.isChecked())
-        key.append(self.action_show_tubes.isChecked())
-        key.append(self.action_show_symbols.isChecked())
-
-        if key != [True, True, False, True]:
-            self.plot_mesh()
-
-    def update_plot_entities(self):
-        key = list()
-        key.append(self.action_show_points.isChecked())
-        key.append(self.action_show_lines.isChecked())
-        key.append(self.action_show_tubes.isChecked())
-        key.append(self.action_show_symbols.isChecked())
-
-        if key != [False, True, False, False]:
-            self.plot_entities()
-
-    def update_plot_entities_with_cross_section(self):
-        key = list()
-        key.append(self.action_show_points.isChecked())
-        key.append(self.action_show_lines.isChecked())
-        key.append(self.action_show_tubes.isChecked())
-        key.append(self.action_show_symbols.isChecked())
-
-        if key != [False, False, True, False]:
-            self.plot_entities_with_cross_section()
     
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
@@ -892,13 +857,21 @@ class MainWindow(QMainWindow):
         path, check = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if not check:
             return
-        
+
+        # TODO: reimplement this
         # self.opv_widget().savePNG(path)
 
     def positioning_cursor_on_widget(self, widget):
         width, height = widget.width(), widget.height()
         final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
         QCursor.setPos(final_pos)
+
+    def set_input_widget(self, dialog):
+        self.dialog = dialog
+
+    def close_dialogs(self):
+        if isinstance(self.dialog, (QDialog, QWidget)):
+            self.dialog.close()
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.ShortcutOverride:
@@ -913,6 +886,8 @@ class MainWindow(QMainWindow):
         return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
+
+        self.close_dialogs()
         self.input_ui.set_input_widget(None)
 
         title = "OpenPulse"

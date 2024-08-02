@@ -29,9 +29,9 @@ class SetFluidInput(QDialog):
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
         self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
         self.project = app().project
         self.file = self.project.file
 
@@ -164,18 +164,7 @@ class SetFluidInput(QDialog):
         self.lineEdit_selected_id.setText(text)
 
     def _loading_info_at_start(self):
-        self.update_selection()
-        # line_ids = list()
-        # if self.cache_selected_lines:
-        #     line_ids = self.cache_selected_lines
-
-        # elif self.opv.getListPickedLines():
-        #     line_ids = self.opv.getListPickedLines()
-
-        # if line_ids:
-        #     self.write_ids(line_ids)
-        #     self.lineEdit_selected_id.setEnabled(True)
-        #     self.comboBox_attribution_type.setCurrentIndex(1)      
+        self.update_selection()    
 
     def update_selection(self):
         line_ids = self.main_window.selected_entities

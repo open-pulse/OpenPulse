@@ -18,13 +18,13 @@ from shutil import copyfile
 class ImportGeometry(QFileDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
         self.project = app().project
         self.config = app().config
-        self.opv = app().main_window.opv_widget
-        
-        app().main_window.input_ui.set_input_widget(self)
+
         self.preprocessor = self.project.preprocessor
 
         self._initialize()
@@ -79,8 +79,8 @@ class ImportGeometry(QFileDialog):
         self.project.process_geometry_and_mesh()
         self.project.load_project_files()
         self.project.preprocessor.check_disconnected_lines(self.file._element_size)
-        self.opv.updatePlots()
-        self.main_window.update_plot_mesh()
+        #
+        app().main_window.update_plots()
         self.complete = True
 
     def print_user_message(self):

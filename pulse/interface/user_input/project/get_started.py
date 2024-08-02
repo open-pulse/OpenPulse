@@ -18,9 +18,9 @@ class GetStartedInput(QDialog):
         ui_path = UI_DIR / "project/get_started_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.main_window = app().main_window
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        self.project = app().main_window.project
        
         self._initialize()
         self._load_icons()
@@ -31,8 +31,6 @@ class GetStartedInput(QDialog):
         self.exec()
 
     def _initialize(self):
-        self.project = self.main_window.project
-        self.opv = self.main_window.opv_widget
         self.config = self.main_window.config
         self.input_ui = self.main_window.input_ui
         self.complete = False

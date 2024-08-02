@@ -22,12 +22,12 @@ class NewProjectInput(QDialog):
         ui_path = UI_DIR / "project/new_project_input.ui"
         uic.loadUi(ui_path, self)
         
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
-        self.opv = self.main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
-        self.project = self.main_window.project
-        self.file = self.project.file
-        self.config = self.main_window.config
+        self.project = app().main_window.project
+        self.config = app().main_window.config
+        self.file = app().main_window.project.file
 
         self._load_icons()
         self._config_window()

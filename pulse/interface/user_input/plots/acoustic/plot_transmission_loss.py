@@ -22,7 +22,7 @@ class PlotTransmissionLoss(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/plot_transmission_loss.ui"
         uic.loadUi(ui_path, self)
 
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
         self.project = main_window.project
 
         self._load_icons()
@@ -104,9 +104,9 @@ class PlotTransmissionLoss(QWidget):
         self.current_lineEdit.setText(str(node_id))
 
     def update(self):
-        self.list_node_ids = self.opv.getListPickedPoints()
-        if self.list_node_ids != []:
-            self.writeNodes(self.list_node_ids)
+        node_ids = app().main_window.list_selected_nodes()
+        if node_ids != []:
+            self.writeNodes(node_ids)
         else:
             self.current_lineEdit.setFocus()
 
@@ -144,7 +144,7 @@ class PlotTransmissionLoss(QWidget):
     def check_nodes_information(self, picked_nodes=None):
         
         if picked_nodes is None:
-            selected_ids = []
+            selected_ids = list()
             if self.lineEdit_input_node_id.text() != "":
                 input_node_id = self.lineEdit_input_node_id.text()
                 selected_ids.append(int(input_node_id))
@@ -152,7 +152,7 @@ class PlotTransmissionLoss(QWidget):
                 output_node_id = self.lineEdit_output_node_id.text()
                 selected_ids.append(int(output_node_id))
         else:
-            selected_ids = self.opv.getListPickedPoints()
+            selected_ids = app().main_window.list_selected_nodes()
         
         self.input_node_ID = None
         self.output_node_ID = None

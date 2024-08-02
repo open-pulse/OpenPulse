@@ -86,7 +86,7 @@ class InputUi:
         self.main_window = app().main_window
         self.project = app().main_window.project
         self.file = app().main_window.project.file
-        self.opv = app().main_window.opv_widget
+
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
         self.input_widget: (QWidget | None) = None
 
@@ -179,6 +179,7 @@ class InputUi:
         return self.initial_project_action(obj.complete)
 
     def set_clipping_plane(self):
+        return
 
         if not self.opv.opvAnalysisRenderer.getInUse():
             return
@@ -195,9 +196,6 @@ class InputUi:
     def call_geometry_editor(self):
         main_window = self.main_window
         main_window.use_geometry_workspace()
-
-    def get_opv(self):
-        return self.opv
 
     def set_material(self):
         self.process_input(SetMaterialInput)   

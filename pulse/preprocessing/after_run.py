@@ -11,8 +11,7 @@ class AfterRun:
 
         self.main_window = app().main_window
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = app().project.preprocessor
 
         self.solution_acoustic = self.project.solution_acoustic
         self.frequencies = self.project.frequencies
@@ -50,8 +49,8 @@ class AfterRun:
                 self.list_nodes.sort()
         
                 if np.any(criteria):
-                    self.main_window.update_plot_mesh()
-                    self.opv.opvRenderer.highlight_nodes(self.list_nodes, reset_colors=False)
+                    self.main_window.plot_mesh()
+                    self.highlight_selection(nodes = self.list_nodes)
                     title = "Acoustic nonlinearity criteria not satisfied"
                     message_nl = f"The acoustic model is out of its linear validity range at "
                     message_nl += f"{len(self.list_nodes)} nodes and at {len(self.list_freq)} frequencies."
@@ -64,4 +63,10 @@ class AfterRun:
     def check_all_acoustic_criterias(self):
         self.check_the_acoustic_criterias_related_to_elements()
         self.check_the_acoustic_criterias_related_to_nodes()
-            
+
+    def highlight_selection(self, nodes = list(), elements = list(), lines = list()):
+        app().main_window.set_selection(
+                                        nodes = nodes,
+                                        elements = elements,
+                                        entities = lines
+                                        )

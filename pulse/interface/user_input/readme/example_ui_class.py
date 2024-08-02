@@ -20,7 +20,6 @@ class NomeDaClasse(QDialog):
         uic.loadUi(ui_path, self)
 
         self.project = app().project
-        self.opv = app().main_window.opv_widget
 
         self._load_icons()
         self._config_window()

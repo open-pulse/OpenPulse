@@ -23,8 +23,7 @@ class RadiationImpedanceInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.project = app().main_window.project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
 
         self._initialize()
         self._load_icons()
@@ -133,7 +132,7 @@ class RadiationImpedanceInput(QDialog):
             self.radiation_impedance = type_id
             self.project.set_radiation_impedance_bc_by_node(self.nodes_typed, type_id)
             
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
             self.close()
             print(f"[Set Radiation Impedance] - defined at node(s) {self.nodes_typed}")
         except:
@@ -171,7 +170,7 @@ class RadiationImpedanceInput(QDialog):
         self.lineEdit_selection_id.setText("")
         self.remove_button.setDisabled(True)
         self.load_nodes_info()
-        self.opv.updateRendererMesh()
+        app().main_window.update_plots()
         # self.close()
 
     def check_reset(self):
@@ -207,7 +206,7 @@ class RadiationImpedanceInput(QDialog):
                 self.preprocessor.set_radiation_impedance_bc_by_node(_node_ids, None)
 
                 self.close()
-                self.opv.updateRendererMesh()
+                app().main_window.update_plots()
 
     def load_nodes_info(self):
         self.treeWidget_radiation_impedance.clear()

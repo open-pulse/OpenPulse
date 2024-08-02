@@ -13,7 +13,6 @@ class BeforeRun:
 
         self.main_window = app().main_window
         self.project = app().project
-        self.opv = app().main_window.opv_widget
 
         self.preprocessor = self.project.preprocessor
         self.nodes = self.preprocessor.nodes
@@ -423,8 +422,8 @@ class BeforeRun:
 
         for index, flag in enumerate(list_flags):
             if flag:
-                self.main_window.update_plot_mesh()
-                self.opv.opvRenderer.highlight_elements(lists_elements[index])
+                self.main_window.plot_mesh()
+                self.highlight_selection(elements = lists_elements[index])
                 PrintMessageInput([window_title, title, list_messages[index]])
 
 
@@ -446,90 +445,110 @@ class BeforeRun:
         #
         structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis!"
         acoustic_message = "You should to insert a 'Volume velocity' or prescribe an 'Acoustic pressure' to a node before trying to solve the Harmonic Analysis!"
-    
+
         if analysis_ID == 2:
-            
+
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
-                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                self.highlight_selection(lines = lines_without_materials)
                 message = material_message.format(lines_without_materials)
                 PrintMessageInput([window_title_1, title, message])
                 return True
+
             elif self.check_set_crossSection:
+
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
                 if list_elements == []:  
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}\n"                 
-                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.highlight_selection(lines = list_lines)
+
                 elif list_lines == []:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n"
-                    self.opv.opvRenderer.highlight_elements(list_elements)
+                    self.highlight_selection(elements = list_elements)
+
                 else:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.opv.opvRenderer.highlight_lines(list_lines)
-                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
+                    self.highlight_selection(lines = list_lines)
+                    self.highlight_selection(elements = list_elements)
+
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
-        
+
         elif analysis_ID == 4:
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
+
             if self.check_set_material:
-                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                self.highlight_selection(lines = lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
+
             elif self.check_set_fluid:
-                self.opv.opvRenderer.highlight_lines(lines_without_fluids)
+                self.highlight_selection(lines = lines_without_fluids)
                 PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
+
             elif self.check_all_fluid_inputs:
-                self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
+                self.highlight_selection(lines = lines_without_all_fluids_inputs)
                 PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
+
             elif self.check_set_crossSection:
+
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
                 if list_elements == []:  
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.highlight_selection(lines = list_lines)
+
                 elif list_lines == []:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.opv.opvRenderer.highlight_elements(list_elements)
+                    self.highlight_selection(list_elements)
+
                 else:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.opv.opvRenderer.highlight_lines(list_lines)
-                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
+                    self.highlight_selection(list_lines)
+                    self.highlight_selection(list_elements)
+
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
         elif analysis_ID == 0 or analysis_ID == 1:
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             self.check_nodes_attributes(structural=True)
+
             if self.check_set_material:
-                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                self.highlight_selection(lines = lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
+
             elif self.check_set_crossSection:
+
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
                 if list_elements == []:  
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.highlight_selection(lines = list_lines)
+
                 elif list_lines == []:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.opv.opvRenderer.highlight_elements(list_elements)
+                    self.highlight_selection(elements = list_elements)
+
                 else:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.opv.opvRenderer.highlight_lines(list_lines)
-                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
+                    self.highlight_selection(lines = list_lines)
+                    self.highlight_selection(elements = list_elements)
+
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
+
             elif not self.is_there_loads:
                 if not self.is_there_prescribed_dofs:
                     PrintMessageInput([window_title_1, title, structural_message])
                     return True
-    
+
         elif analysis_ID == 3:
 
             lines_without_materials = self.check_material_all_elements()
@@ -537,30 +556,30 @@ class BeforeRun:
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             self.check_nodes_attributes(acoustic=True)
             if self.check_set_fluid:
-                self.opv.opvRenderer.highlight_lines(lines_without_fluids)
+                self.highlight_selection(lines_without_fluids)
                 PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
             elif self.check_all_fluid_inputs:
-                self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
+                self.highlight_selection(lines_without_all_fluids_inputs)
                 PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
             elif self.check_set_material:
-                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                self.highlight_selection(lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
             elif self.check_set_crossSection:
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
                 if list_elements == []:  
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.highlight_selection(list_lines)
                 elif list_lines == []:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.opv.opvRenderer.highlight_elements(list_elements)
+                    self.highlight_selection(list_elements)
                 else:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.opv.opvRenderer.highlight_lines(list_lines)
-                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
+                    self.highlight_selection(list_lines)
+                    self.highlight_selection(list_elements, reset_colors=False)
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
             elif not self.is_there_volume_velocity:
@@ -574,30 +593,30 @@ class BeforeRun:
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             self.check_nodes_attributes(coupled=True)
             if self.check_set_material:
-                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                self.highlight_selection(lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
             elif self.check_set_fluid:
-                self.opv.opvRenderer.highlight_lines(lines_without_fluids)
+                self.highlight_selection(lines_without_fluids)
                 PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
             elif self.check_all_fluid_inputs:
-                self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
+                self.highlight_selection(lines_without_all_fluids_inputs)
                 PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
             elif self.check_set_crossSection:  
                 list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
                 if list_elements == []:  
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.highlight_selection(list_lines)
                 elif list_lines == []:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.opv.opvRenderer.highlight_elements(list_elements)
+                    self.highlight_selection(list_elements)
                 else:
                     cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
                     cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.opv.opvRenderer.highlight_lines(list_lines)
-                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
+                    self.highlight_selection(list_lines)
+                    self.highlight_selection(list_elements, reset_colors=False)
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
             elif not self.is_there_volume_velocity:
@@ -751,3 +770,10 @@ class BeforeRun:
                 lines.append(line_2)
         
         return lines
+
+    def highlight_selection(self, nodes = list(), elements = list(), lines = list()):
+        app().main_window.set_selection(
+                                        nodes = nodes,
+                                        elements = elements,
+                                        entities = lines
+                                        )

@@ -17,11 +17,10 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_static_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
+        app().main_window.set_input_widget(self)
 
-        self.opv = main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
-        self.project = main_window.project
+        main_window = app().main_window
+        self.project = app().main_window.project
 
         self._load_icons()
         self._config_window()
@@ -78,11 +77,10 @@ class GetNodalResultsForStaticAnalysis(QWidget):
 
     def reset_selection(self):
         self._reset_lineEdits()
-        self.opv.opvRenderer.updateColors()
-        self.opv.opvRenderer.update()
 
-    def _update_lineEdit(self):    
-        node_id = self.list_node_IDs[0]
+    def _update_lineEdit(self):
+        node_ids = app().main_window.list_selected_nodes() 
+        node_id = node_ids[0]
         node = self.project.preprocessor.nodes[node_id]
         results = self.solution[node.global_dof, 0]
         self.lineEdit_response_ux.setText("{:.6e}".format(results[0]))
@@ -93,9 +91,10 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         self.lineEdit_response_rz.setText("{:.6e}".format(results[5]))
 
     def update(self):
-        self.list_node_IDs = self.opv.getListPickedPoints()
-        if len(self.list_node_IDs) == 1:
-            self.lineEdit_node_id.setText(str(self.list_node_IDs[0]))
+        
+        node_ids = app().main_window.list_selected_nodes()
+        if len(node_ids) == 1:
+            self.lineEdit_node_id.setText(str(node_ids[0]))
             self._update_lineEdit()
         else:
             self._reset_lineEdits()

@@ -23,9 +23,8 @@ class NodalLoadsInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/external_nodal_loads_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -243,7 +242,7 @@ class NodalLoadsInput(QDialog):
             self.remove_all_table_files_from_nodes(self.nodes_typed)
             self.project.set_nodal_loads_by_node(self.nodes_typed, data, False)
             print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}")    
-            self.opv.updateRendererMesh()
+            app().main_window.plot_mesh()
             self.close()
         else:    
     
@@ -442,7 +441,7 @@ class NodalLoadsInput(QDialog):
 
         self.process_table_file_removal(list_table_names)
         print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}") 
-        self.opv.updateRendererMesh()
+        app().main_window.plot_mesh()
         self.close()
 
     def text_label(self, mask):
@@ -548,7 +547,7 @@ class NodalLoadsInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove_bc_confirm.setDisabled(True)
             self.load_nodes_info()
-            self.opv.updateRendererMesh()
+            app().main_window.plot_mesh()
             # self.close()
 
     def get_table_names_from_selected_nodes(self, list_node_ids):
@@ -596,7 +595,7 @@ class NodalLoadsInput(QDialog):
             self.preprocessor.set_structural_load_bc_by_node(nodes_typed, data)
 
             self.close()
-            self.opv.updateRendererMesh()
+            app().main_window.plot_mesh()
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:
@@ -608,7 +607,7 @@ class NodalLoadsInput(QDialog):
             self.inputs_from_node = False
 
     def update(self):
-        list_picked_nodes = self.opv.getListPickedPoints()
+        list_picked_nodes = app().main_window.list_selected_nodes()
         if list_picked_nodes != []:
             picked_node = list_picked_nodes[0]
             node = self.preprocessor.nodes[picked_node]
@@ -631,8 +630,10 @@ class NodalLoadsInput(QDialog):
                 self.inputs_from_node = True
             else:
                 self.reset_input_fields()
-            self.writeNodes(self.opv.getListPickedPoints())
-    
+
+            node_ids = app().main_window.list_selected_nodes()
+            self.writeNodes(node_ids)
+
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:

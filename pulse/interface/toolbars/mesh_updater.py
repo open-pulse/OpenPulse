@@ -14,7 +14,6 @@ class MeshUpdater:
         self.main_window = app().main_window
         self.input_widget = app().main_window.input_ui
         self.project = app().main_window.project
-        self.opv = self.input_widget.opv
 
         self.file = self.project.file
         self.preprocessor = self.project.preprocessor
@@ -112,8 +111,7 @@ class MeshUpdater:
         self.main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
         self.project.initial_load_project_actions(self.file.project_ini_file_path )
         self.project.load_project_files()
-        self.opv.updatePlots()
-        self.main_window.update_plot_mesh()
+        app().main_window.update_plots()
 
     def process_final_actions(self):
 
@@ -138,7 +136,6 @@ class MeshUpdater:
                                                                                 self.dict_non_mapped_subgroups_info_file,
                                                                                 self.dict_list_elements_to_subgroups  )
 
-        self.project.load_project_files()     
-        self.opv.updatePlots()
-        self.main_window.update_plot_mesh()   
+        self.project.load_project_files()
+        app().main_window.update_plots()  
         self.complete = True

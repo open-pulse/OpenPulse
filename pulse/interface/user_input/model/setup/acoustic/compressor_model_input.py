@@ -30,8 +30,7 @@ class CompressorModelInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -866,7 +865,7 @@ class CompressorModelInput(QDialog):
                 if self.save_table_values(freq, out_flow_rate, table_name):
                     return
                     
-        self.opv.updateRendererMesh()
+        app().main_window.update_plots()
         self.close()
 
     # def save_compressor_parameters(self, connection_type):
@@ -1051,7 +1050,7 @@ class CompressorModelInput(QDialog):
                 message += f"the {self.selected_node} node has been removed."
                 PrintMessageInput([window_title_2, title, message])
             self.load_compressor_excitation_tables_info()
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
         
         except Exception as log_error:
             title = "Error while removing compressor excitation from node"
@@ -1123,7 +1122,7 @@ class CompressorModelInput(QDialog):
                                                                               self.selected_table, "compressor_excitation_files" ):
             self.project.remove_acoustic_table_files_from_folder( self.selected_table, "compressor_excitation_files" )
             self.load_compressor_excitation_tables_info()
-        self.opv.updateRendererMesh()
+        app().main_window.update_plots()
 
     def reset_all(self):
         if self.preprocessor.nodes_with_compressor_excitation:
@@ -1152,7 +1151,7 @@ class CompressorModelInput(QDialog):
                 PrintMessageInput([window_title_2, title, message], auto_close=True)
 
                 self.close()
-                self.opv.updateRendererMesh()
+                app().main_window.update_plots()
 
     def load_compressor_excitation_tables_info(self):
         self.treeWidget_compressor_excitation.clear()

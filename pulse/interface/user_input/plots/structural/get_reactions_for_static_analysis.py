@@ -15,10 +15,10 @@ class GetReactionsForStaticAnalysis(QWidget):
 
         ui_path = UI_DIR / "plots/results/structural/get_reactions_for_static_analysis.ui"
         uic.loadUi(ui_path, self)
-
+        
+        app().main_window.set_input_widget(self)
+        
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._initialize()
         self._load_icons()

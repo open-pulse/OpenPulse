@@ -22,12 +22,11 @@ class SaveProjectAsInput(QDialog):
         ui_path = UI_DIR / "project/save_project_as.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
         self.project = self.main_window.project
         self.file = self.project.file
-        self.opv = self.main_window.opv_widget
-
-        app().main_window.input_ui.set_input_widget(self)
 
         self._initialize()
         self._load_icons()
