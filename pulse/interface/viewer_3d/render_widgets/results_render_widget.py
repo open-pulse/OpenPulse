@@ -336,6 +336,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.lines_actor.set_color((200, 0, 0), elements, entities)
 
         self.update_info_text()
+        self.update()
 
     def update_info_text(self):
         info_text = ""

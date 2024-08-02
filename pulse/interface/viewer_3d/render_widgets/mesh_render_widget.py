@@ -234,6 +234,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.lines_actor.set_color((200, 0, 0), elements, entities)
         self.tubes_actor.set_color((255, 0, 50), elements, entities)
         self.update_info_text()
+        self.update()
 
     def update_info_text(self):
         info_text = ""
