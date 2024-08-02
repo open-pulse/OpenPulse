@@ -12,6 +12,8 @@ from molde.render_widgets import AnimatedRenderWidget
 from molde.utils import TreeInfo, format_long_sequence
 
 from ._mesh_picker import MeshPicker
+from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text, analysis_info_text
+
 from pulse.interface.viewer_3d.actors import TubeActorGPU, NodesActor, ElementLinesActor, CuttingPlaneActor
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.interface.utils import rotation_matrices
@@ -335,102 +337,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def update_info_text(self):
         info_text = ""
-        info_text += self._analysis_info_text()
-        info_text += self._nodes_info_text()
-        info_text += self._elements_info_text()
-        info_text += self._entity_info_text()
+        info_text += analysis_info_text(self.current_frequency_index)
+        info_text += nodes_info_text()
+        info_text += elements_info_text()
+        info_text += entity_info_text()
         self.set_info_text(info_text)
-
-    def _analysis_info_text(self):
-        project = app().project
-
-        tree = TreeInfo(project.analysis_type_label)
-        if project.analysis_ID in [2, 4]:
-            if project.analysis_type_label == "Structural Modal Analysis":
-                frequencies = project.get_structural_natural_frequencies()
-            
-            if project.analysis_type_label == "Acoustic Modal Analysis":
-                frequencies = project.get_acoustic_natural_frequencies()
-            
-            if frequencies is None:
-                return ""
-
-            mode = self.current_frequency_index + 1
-            frequency = frequencies[self.current_frequency_index]
-            tree.add_item("Mode", mode)
-            tree.add_item("Natural Frequency", f"{frequency:.2f}", "Hz")
-        else:
-            frequencies = project.get_frequencies()
-            if frequencies is None:
-                return ""
-
-            if project.analysis_method_label is not None:
-                tree.add_item("Method", project.analysis_method_label)
-
-            frequency = frequencies[self.current_frequency_index]
-            tree.add_item("Frequency", f"{frequency:.2f}", "Hz")
-
-        return str(tree)
-
-    def _nodes_info_text(self):
-        nodes = app().main_window.list_selected_nodes()
-        info_text = ""
-        if len(nodes) > 1:
-            info_text += (
-                f"{len(nodes)} NODES IN SELECTION\n"
-                f"{format_long_sequence(nodes)}\n\n"
-            )
-        return info_text
-
-    def _elements_info_text(self):
-        elements = app().main_window.list_selected_elements()
-        info_text = ""
-        project = app().project
-
-        if len(elements) == 1:
-            _id, *_ = elements
-            structural_element = project.get_structural_element(_id)
-
-            first_node = structural_element.first_node
-            last_node = structural_element.last_node
-
-            tree = TreeInfo(f"ELEMENT {_id}")
-            tree.add_item(
-                f"First Node - {first_node.external_index:>5}",
-                "({:.3f}, {:.3f}, {:.3f})".format(*first_node.coordinates),
-                "m",
-            )
-            tree.add_item(
-                f"Last Node  - {last_node.external_index:>5}",
-                "({:.3f}, {:.3f}, {:.3f})".format(*last_node.coordinates),
-                "m",
-            )
-            info_text += str(tree)
-
-        elif len(elements) > 1:
-            info_text += (
-                f"{len(elements)} ELEMENTS IN SELECTION\n"
-                f"{format_long_sequence(elements)}\n\n"
-            )
-        return info_text
-
-    def _entity_info_text(self):
-        entities = app().main_window.list_selected_entities()
-        info_text = ""
-        project = app().project
-
-        if len(entities) == 1:
-            _id, *_ = entities
-            entity = project.get_entity(_id)
-            info_text += f"LINE {_id}\n\n"
-
-        elif len(entities) > 1:
-            info_text += (
-                f"{len(entities)} LINES IN SELECTION\n"
-                f"{format_long_sequence(entities)}\n\n"
-            )
-
-        return info_text
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.nodes_actor)
