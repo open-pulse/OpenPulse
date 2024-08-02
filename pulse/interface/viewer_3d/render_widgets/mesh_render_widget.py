@@ -34,6 +34,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         app().main_window.theme_changed.connect(self.set_theme)
         app().main_window.visualization_changed.connect(self.visualization_changed_callback)
+        app().main_window.selection_changed.connect(self.update_selection)
         
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
@@ -219,8 +220,6 @@ class MeshRenderWidget(CommonRenderWidget):
             join=ctrl_pressed | shift_pressed,
             remove=alt_pressed,   
         )
-
-        self.update_selection()
 
     def update_selection(self):
         self.nodes_actor.clear_colors()
