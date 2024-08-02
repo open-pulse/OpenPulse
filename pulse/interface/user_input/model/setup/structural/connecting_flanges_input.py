@@ -584,8 +584,7 @@ class ConnectingFlangesInput(QDialog):
     def actions_to_finalize(self, list_elements):
         self.project.add_cross_sections_expansion_joints_valves_in_file(list_elements)
         self.preprocessor.add_lids_to_variable_cross_sections()
-        self.opv.update_section_radius()
-        self.opv.plot_entities_with_cross_section()   
+        app().main_window.plot_entities_with_cross_section()   
         self.close()
 
     def write_ids(self, list_selected_ids):

@@ -191,11 +191,9 @@ class CappedEndInput(QDialog):
     def update_renders(self):
         app().main_window.update_plots()
         if self.comboBox_selection.currentIndex() == 2:
-            if not self.opv.change_plot_to_mesh:  
-                self.main_window.plot_mesh()
+            app().main_window.plot_mesh()
         else:
-            if not self.opv.change_plot_to_entities:
-                self.opv.plot_entities()
+            app().main_window.plot_entities_with_cross_section()
 
     def load_elements_info(self):
         self.treeWidget_capped_end_elements.clear()

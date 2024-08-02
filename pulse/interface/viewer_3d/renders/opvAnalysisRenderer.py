@@ -123,8 +123,8 @@ class opvAnalysisRenderer(vtkRendererBase):
     def plot(self):
         self.reset()
     
-        self.opvDeformedTubes = TubeDeformedActor(self.project, self.opv, hidden_elements=self.hidden_elements)
-        self.opvPressureTubes = TubeActor(self.project, self.opv, pressure_plot=True, hidden_elements=self.hidden_elements)
+        self.opvDeformedTubes = TubeDeformedActor(self.project, hidden_elements=self.hidden_elements)
+        self.opvPressureTubes = TubeActor(self.project, pressure_plot=True, hidden_elements=self.hidden_elements)
 
         self.opvClippableDeformedTubes = TubeClippableDeformedActor(self.project, self.opv, hidden_elements=self.hidden_elements)
         self.opvClippablePressureTubes = TubeClippableActor(self.project, self.opv, pressure_plot=True, hidden_elements=self.hidden_elements)

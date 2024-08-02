@@ -166,8 +166,8 @@ class MainWindow(QMainWindow):
             function = getattr(self, function_name)
             if callable(function):
                 action.triggered.connect(function)
-        
-        self.selection_changed.connect(self.update_input_widget_callback)
+
+        self.selection_changed.connect(self.selection_changed_callback)
 
     def _create_workspaces_toolbar(self):
         actions = {
@@ -267,8 +267,9 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update_plot(reset_camera=True)
         self.results_widget.update_plot(reset_camera=True)
 
-    def update_input_widget_callback(self):
-        self.input_ui.update_input_widget()
+    def selection_changed_callback(self):
+        # TODO: implement something useful
+        pass
 
     def new_project(self):
         if not self.input_ui.new_project():
@@ -357,7 +358,8 @@ class MainWindow(QMainWindow):
         geometry_handler = GeometryHandler()
         geometry_handler.export_cad_file(path)
 
-    def set_selection(self, *, nodes=None, elements=None, entities=None, join=False, remove=True):
+    def set_selection(self, *, nodes=None, elements=None, entities=None, join=False, remove=False):
+
         if nodes is None:
             nodes = set()
         
@@ -512,7 +514,7 @@ class MainWindow(QMainWindow):
 
     def action_geometry_workspace_callback(self):
         self._configure_visualization(nodes=True, tubes=True)
-        self.close_opened_windows()
+        self.close_dialogs()
         self.mesh_toolbar.setDisabled(True)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
@@ -785,9 +787,6 @@ class MainWindow(QMainWindow):
     def _enable_menus_at_start(self):
         pass
 
-    def close_opened_windows(self):
-        self.input_ui.set_input_widget(None)
-
     def load_user_preferences(self):
         self.update_theme = False
         self.user_preferences = self.config.get_user_preferences()
@@ -872,6 +871,7 @@ class MainWindow(QMainWindow):
     def close_dialogs(self):
         if isinstance(self.dialog, (QDialog, QWidget)):
             self.dialog.close()
+            self.set_input_widget(None)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.ShortcutOverride:
@@ -888,7 +888,6 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
 
         self.close_dialogs()
-        self.input_ui.set_input_widget(None)
 
         title = "OpenPulse"
         message = "Would you like to exit from the OpenPulse application?"
