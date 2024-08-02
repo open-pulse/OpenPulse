@@ -7,7 +7,7 @@ from pulse import app
 def nodes_info_text() -> str:
     nodes = app().main_window.list_selected_nodes()
     project = app().project
-
+    preprocessor = app().project.preprocessor
     info_text = ""
 
     if len(nodes) > 1:
@@ -78,7 +78,43 @@ def nodes_info_text() -> str:
                     ("N/m", "N.m/rad"),
                     node.loaded_table_for_elastic_link_stiffness
                 )
-        
+        if node in preprocessor.nodes_with_acoustic_pressure:
+            info_text += _acoustic_format(
+                "Acoustic pressure",
+                node.acoustic_pressure,
+                "P",
+                "Pa"
+            )
+        if node in preprocessor.nodes_with_volume_velocity:
+            info_text += _acoustic_format(
+                "Volume velocity",
+                node.volume_velocity,
+                "Q",
+                "m³/s"
+            )
+        if node in preprocessor.nodes_with_specific_impedance:
+            info_text += _acoustic_format(
+                "Specific impedance",
+                node.specific_impedance,
+                "Zs",
+                "kg/m².s"
+            )
+        if node in preprocessor.nodes_with_radiation_impedance:
+            aux_dict = {
+                0:"anechoic termination", 
+                1:"unflanged pipe", 
+                2:"flanged pipe"
+            }
+
+            info_text += _acoustic_format(
+                "Radiation impedance",
+                aux_dict[node.radiation_impedance_type],
+                "Type",
+                ""
+            )
+        if node in preprocessor.nodes_with_compressor_excitation:
+            info_text += compressor_excitation_info_text(node)
+
     return info_text
 
 def elements_info_text() -> str:
@@ -237,6 +273,29 @@ def analysis_info_text(frequency_index):
 
         frequency = frequencies[frequency_index]
         tree.add_item("Frequency", f"{frequency:.2f}", "Hz")
+
+    return str(tree)
+
+def compressor_excitation_info_text(node) -> str:
+    tree = TreeInfo("Volume velocity - compressor excitation")
+    if isinstance(node.volume_velocity, np.ndarray):
+        tree.add_item("Q", "Table of values")
+    else:
+        tree.add_item("Q", node.volume_velocity, "m³/s")
+
+    values_connection_info = list(node.dict_index_to_compressor_connection_info.values())
+    if len(values_connection_info) == 1:
+        tree.add_item("Connection type", values_connection_info[0])
+    elif "discharge" in values_connection_info and "suction" in values_connection_info:
+        tree.add_item(
+            "Connection types", 
+            f"discharge ({values_connection_info[0]}x)"
+            + "& suction ({values_connection_info.count('suction')}x)"
+        )
+    elif "discharge" in values_connection_info:
+        tree.add_item("Connection types", f"discharge ({values_connection_info.count('discharge')}x)")
+    elif "suction" in values_connection_info:
+        tree.add_item("Connection types", f"suction ({values_connection_info.count('suction')}x)")
 
     return str(tree)
 
