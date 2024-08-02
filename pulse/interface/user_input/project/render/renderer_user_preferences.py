@@ -8,6 +8,8 @@ from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 
 
+# TODO - update this class for new renders
+
 class RendererUserPreferencesInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -15,11 +17,13 @@ class RendererUserPreferencesInput(QDialog):
         ui_path = UI_DIR / "project/render/renderer_user_preferences.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
         self.config = app().config
         self.project = app().project
+
         self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -275,7 +279,7 @@ class RendererUserPreferencesInput(QDialog):
 
         if final_setup != self.cache_setup:
             self.opv.updateRendererMesh()
-            self.main_window.update_plot_mesh()
+            self.main_window.plot_mesh()
 
     def reset_to_default(self):
         self.reset_logo_state()

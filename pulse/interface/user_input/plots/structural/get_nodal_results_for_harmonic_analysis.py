@@ -19,7 +19,7 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
 
         main_window = app().main_window
 
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
         self.project = main_window.project
 
         self._initialize()
@@ -76,9 +76,9 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self.lineEdit_node_id.setText(text)
 
     def update(self):
-        self.list_node_ids = self.opv.getListPickedPoints()
-        if self.list_node_ids != []:
-            self.writeNodes(self.list_node_ids)
+        node_ids = app().main_window.list_selected_nodes()
+        if node_ids != []:
+            self.writeNodes(node_ids)
 
     def call_plotter(self):
         if self.check_inputs():

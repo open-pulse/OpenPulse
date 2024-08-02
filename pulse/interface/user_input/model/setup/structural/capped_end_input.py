@@ -20,10 +20,10 @@ class CappedEndInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/capped_end_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)    
+
         self.main_window = app().main_window
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)    
 
         self._initialize()
         self._load_icons()
@@ -41,10 +41,9 @@ class CappedEndInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
 
-        # self.lines_id = self.opv.getListPickedLines()
-        # self.elements_id = self.opv.getListPickedElements()
         self.lines_id = app().main_window.list_selected_entities()
         self.elements_id = app().main_window.list_selected_elements()
+
         self.structural_elements = self.preprocessor.structural_elements
         self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
     
@@ -117,8 +116,6 @@ class CappedEndInput(QDialog):
 
     def update(self):
 
-        # self.lines_id = self.opv.getListPickedLines()
-        # self.elements_id = self.opv.getListPickedElements()
         self.lines_id = app().main_window.list_selected_entities()
         self.elements_id = app().main_window.list_selected_elements()
 
@@ -192,9 +189,10 @@ class CappedEndInput(QDialog):
         self.update_renders()
 
     def update_renders(self):
+        app().main_window.update_plots()
         if self.comboBox_selection.currentIndex() == 2:
             if not self.opv.change_plot_to_mesh:  
-                self.main_window.update_plot_mesh()
+                self.main_window.plot_mesh()
         else:
             if not self.opv.change_plot_to_entities:
                 self.opv.plot_entities()

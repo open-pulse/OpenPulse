@@ -14,9 +14,9 @@ class LoadProjectInput(QDialog):
         super().__init__()
 
         self.main_window = app().main_window
-        self.project = self.main_window.project
-        self.opv = self.main_window.opv_widget
-        self.config = self.main_window.config
+        self.project = app().main_window.project
+        self.config = app().main_window.config
+
         self.path = kwargs.get("path", None)
 
         self._reset()
@@ -51,8 +51,8 @@ class LoadProjectInput(QDialog):
             if self.project_ini_file_path != "":
                 t0 = time()
                 self.project.load_project(self.project_ini_file_path)
-                if self.project.preferences:
-                    self.opv.set_user_interface_preferences(self.project.preferences)
+                # if self.project.preferences:
+                #     self.opv.set_user_interface_preferences(self.project.preferences)
                 self.config.write_recent_project(self.project_ini_file_path)
                 self.complete = True
                 self.project.time_to_load_or_create_project = time() - t0

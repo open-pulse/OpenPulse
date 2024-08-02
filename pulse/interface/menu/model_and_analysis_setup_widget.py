@@ -4,17 +4,17 @@ from pulse.interface.menu.model_and_analysis_setup_items import ModelAndAnalysis
 
 
 class ModelAndAnalysisSetupWidget(QWidget):
-    def __init__(self, main_window):
+    def __init__(self):
         super().__init__()
 
-        self.main_window = main_window
+        # self.main_window = main_window
 
         self._define_qt_variables()
         self._config_widget()
 
     def _define_qt_variables(self):
         self.main_frame = QFrame()
-        self.model_and_analysis_setup_items = ModelAndAnalysisSetupItems(self.main_window)
+        self.model_and_analysis_setup_items = ModelAndAnalysisSetupItems()
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()

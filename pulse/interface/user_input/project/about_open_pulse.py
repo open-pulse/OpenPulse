@@ -17,9 +17,8 @@ class AboutOpenPulseInput(QDialog):
         ui_path = UI_DIR / "project/about_open_pulse.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.project = app().main_window.project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()

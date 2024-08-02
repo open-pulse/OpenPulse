@@ -18,9 +18,8 @@ class PlotAcousticPressureField(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        # self.opv = main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
-        self.project = main_window.project
+        app().main_window.set_input_widget(self)
+        self.project = app().main_window.project
 
         self._load_icons()
         self._config_window()

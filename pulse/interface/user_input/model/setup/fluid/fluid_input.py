@@ -38,8 +38,7 @@ class FluidInput(QDialog):
         self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
         
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -228,7 +227,7 @@ class FluidInput(QDialog):
 
     def _loading_info_at_start(self):
         self.loadList()
-        lines_ids = self.opv.getListPickedLines()
+        lines_ids = app().main_window.selected_entities
         if lines_ids:
             self.write_lines(lines_ids)
             self.radioButton_selected_lines.setChecked(True)
@@ -241,14 +240,14 @@ class FluidInput(QDialog):
         self.hide()
         self.REFPROP = SetFluidCompositionInput(selected_fluid_to_edit = self.selected_REFPROP_fluid, 
                                                 compressor_info = self.compressor_thermodynamic_state)
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
         self.after_getting_fluid_properties_from_REFPROP()
 
     def call_refprop_interface(self):
         self.hide()
         self.REFPROP = SetFluidCompositionInput(compressor_info = self.compressor_thermodynamic_state)
         # if not self.REFPROP.complete:
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
         # return
         self.after_getting_fluid_properties_from_REFPROP()
 
@@ -342,7 +341,7 @@ class FluidInput(QDialog):
 
 
     def update(self):
-        lines_ids = self.opv.getListPickedLines()
+        lines_ids = app().main_window.selected_entities
         if lines_ids:
             self.write_lines(lines_ids)
             self.radioButton_selected_lines.setChecked(True)
@@ -1059,19 +1058,18 @@ class FluidInput(QDialog):
                     print("[Set Fluid] - {} defined at lines: {}".format(self.fluid.name, self.lines_typed))
                 else:
                     print("[Set Fluid] - {} defined at {} lines".format(self.fluid.name, len(self.lines_typed)))
-                # self.opv.changeColorEntities(self.lines_ids, self.fluid.getNormalizedColorRGB())
 
             elif self.flagAll:
                 lines = self.project.preprocessor.all_lines
                 print("[Set Fluid] - {} defined at all lines.".format(self.fluid.name))
-                # self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
-            
+
             self.project.set_fluid_by_lines(lines, self.fluid)
             # self.update_compressor_info()
             self.project.set_compressor_info_by_lines(lines, compressor_info=self.compressor_thermodynamic_state)
 
             self.complete = True
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
+
             self.close()
 
         except Exception as log_error:
@@ -1288,15 +1286,19 @@ class FluidInput(QDialog):
 
 
     def radioButtonEvent(self):
+
         self.flagAll = self.radioButton_all.isChecked()
         self.flagSelection = self.radioButton_selected_lines.isChecked()
+
         if self.flagSelection:
+
             self.lineEdit_selected_ID.setEnabled(True)
-            lines_ids = self.opv.getListPickedLines()
+            lines_ids = app().main_window.selected_entities
             if lines_ids != []:
                 self.write_lines(lines_ids)
             else:
                 self.lineEdit_selected_ID.setText("")
+    
         elif self.flagAll:
             self.lineEdit_selected_ID.setEnabled(False)
             self.lineEdit_selected_ID.setText("All lines")
@@ -1456,7 +1458,7 @@ class FluidInput(QDialog):
             self.loadList()
             self.reset_add_texts()
             self.reset_edit_texts()
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
 
 
     def reset_add_texts(self):

@@ -21,7 +21,7 @@ class GetAcousticFrequencyResponse(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response.ui"
         uic.loadUi(ui_path, self)
 
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
         self.project = main_window.project
 
         self._initialize()
@@ -32,7 +32,6 @@ class GetAcousticFrequencyResponse(QWidget):
         self.update()
 
     def _initialize(self):
-        self.list_node_IDs = self.opv.getListPickedPoints()
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.preprocessor.nodes
@@ -72,9 +71,9 @@ class GetAcousticFrequencyResponse(QWidget):
         self.lineEdit_node_id.setText(text)
 
     def update(self):
-        self.list_node_IDs = self.opv.getListPickedPoints()
-        if self.list_node_IDs != []:
-            self.writeNodes(self.list_node_IDs)
+        node_ids = app().main_window.list_selected_nodes()
+        if node_ids != []:
+            self.writeNodes(node_ids)
         else:
             self.lineEdit_node_id.setFocus()
 

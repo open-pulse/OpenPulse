@@ -24,11 +24,11 @@ class ValvesInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/set_valve_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
-        
+
         self._load_icons()
         self._config_window()
         self._initialize()
@@ -179,12 +179,8 @@ class ValvesInput(QDialog):
 
     def selection_type_callback(self):
 
-        # line_id = self.opv.getListPickedLines()
-        # element_id = self.opv.getListPickedElements()
-
         line_id = app().main_window.list_selected_entities()
         element_id = app().main_window.list_selected_elements()
-
 
         self.lineEdit_selected_id.setText("")
 
@@ -192,28 +188,24 @@ class ValvesInput(QDialog):
 
             self.label_selected_id.setText("Line ID:")
             self.lineEdit_valve_length.setDisabled(True)
-            
-            if not self.opv.change_plot_to_entities_with_cross_section:
-                self.opv.plot_entities_with_cross_section()
-                if len(line_id):
-                    self.opv.opvRenderer.highlight_lines(line_id)
+
+            app().main_window.plot_entities_with_cross_section()
+            if len(line_id):
+                app().main_window.set_selection(line_id)
 
         else:
 
             self.label_selected_id.setText("Element ID:")
             self.lineEdit_valve_length.setDisabled(False)
 
-            if not self.opv.change_plot_to_mesh:
-                self.main_window.update_plot_mesh()
-                if element_id:
-                    self.opv.opvRenderer.highlight_elements(element_id)
+            app().main_window.plot_mesh()
+            if element_id:
+                app().main_window.set_selection(elements = element_id)
 
         if self.allow_to_update:
             self.update()
 
     def update(self):
-        # line_id = self.opv.getListPickedLines()
-        # element_id = self.opv.getListPickedElements()
 
         line_id = app().main_window.list_selected_entities()
         element_id = app().main_window.list_selected_elements()
@@ -316,8 +308,6 @@ class ValvesInput(QDialog):
             self.lineEdit_valve_length.setText(str(round(valve_length, 6)))
 
     def update_valve_info(self):
-        # line_id = self.opv.getListPickedLines()
-        # element_id = self.opv.getListPickedElements()
 
         line_id = app().main_window.list_selected_entities()
         element_id = app().main_window.list_selected_elements()
@@ -559,7 +549,7 @@ class ValvesInput(QDialog):
             perforated_plate = PerforatedPlateInput(valve_ids = valve_ids)
            
             if not perforated_plate.complete:
-                app().main_window.input_ui.set_input_widget(self)
+                app().main_window.set_input_widget(self)
                 return
 
         valve_parameters = dict()
@@ -664,9 +654,7 @@ class ValvesInput(QDialog):
         #     PrintMessageInput([window_title_2, title, message])
 
         self.complete = True
-        self.opv.update_section_radius()
-        self.main_window.update_plot_mesh()
-        # self.opv.plot_entities_with_cross_section()
+        self.main_window.plot_mesh()
 
         if self.isVisible():
             self.close()
@@ -904,7 +892,7 @@ class ValvesInput(QDialog):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) in self.preprocessor.group_elements_with_valves.keys():
             valve_elements, *args = self.preprocessor.group_elements_with_valves[item.text(0)]
-            self.opv.opvRenderer.highlight_elements(valve_elements)
+            app().main_window.set_selection(elements = valve_elements)
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)
@@ -968,7 +956,7 @@ class ValvesInput(QDialog):
                 self.remove_valve_function(key)
 
             self.lineEdit_selected_id.setText("")
-            self.opv.plot_entities_with_cross_section()
+            app().main_window.plot_entities_with_cross_section()
 
     def reset_valves(self):
 
@@ -987,7 +975,7 @@ class ValvesInput(QDialog):
         for key in aux.keys():
             self.remove_valve_function(key)
 
-        self.opv.plot_entities_with_cross_section()
+        app().main_window.plot_entities_with_cross_section()
 
     def remove_existing_perforated_plate(self, elements_from_valve):
         temp_dict = self.preprocessor.group_elements_with_perforated_plate.copy()

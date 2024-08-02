@@ -27,7 +27,6 @@ class GetInformationOfGroup(QDialog):
         self.values = kwargs.get("values", "")
 
         self.project = app().main_window.project
-        self.opv = app().main_window.opv_widget
 
         self._initialize()
         self._load_icons()
@@ -159,13 +158,13 @@ class GetInformationOfGroup(QDialog):
 
         if isinstance(selection, list):
             if "Line" in self.selection_label:
-                self.opv.opvRenderer.highlight_lines(selection)
+                app().main_window.set_selection(entities = selection)
 
             elif "Element" in self.selection_label:
-                self.opv.opvRenderer.highlight_elements(selection)
+                app().main_window.set_selection(elements = selection)
 
             elif "Node" in self.selection_label:
-                self.opv.opvRenderer.highlight_nodes(selection)
+                app().main_window.set_selection(nodes = selection)
 
             else:
                 return

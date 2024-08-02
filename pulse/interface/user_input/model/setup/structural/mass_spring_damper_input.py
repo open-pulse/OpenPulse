@@ -23,9 +23,8 @@ class MassSpringDamperInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/mass_spring_damper_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -353,7 +352,7 @@ class MassSpringDamperInput(QDialog):
         elif self.tabWidget_inputs.currentIndex() == 1:
             self.check_table_values_inputs()
 
-        self.opv.updateRendererMesh()
+        app().main_window.plot_mesh()
         self.close()
 
     def check_entries(self, lineEdit, label):
@@ -512,7 +511,7 @@ class MassSpringDamperInput(QDialog):
         if self.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(self.nodes_typed))
         
-        self.opv.updateRendererMesh()
+        app().main_window.plot_mesh()
         self.close()
 
     def load_table(self, lineEdit, _label, direct_load=False):
@@ -973,7 +972,7 @@ class MassSpringDamperInput(QDialog):
         if self.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(self.nodes_typed))
 
-        self.opv.updateRendererMesh()
+        app().main_window.plot_mesh()
         self.close()      
 
     def process_table_file_removal(self, list_table_names):
@@ -1048,7 +1047,7 @@ class MassSpringDamperInput(QDialog):
 
             self.load_treeWidgets_info()
 
-            self.opv.updateRendererMesh()
+            app().main_window.plot_mesh()
 
             if tab_remove_index == 0:
                 self.close()
@@ -1179,7 +1178,7 @@ class MassSpringDamperInput(QDialog):
     def update(self):
 
         try:
-            nodes_ids = self.opv.getListPickedPoints()
+            nodes_ids = app().main_window.list_selected_nodes()
             if nodes_ids:
 
                 self.wirte_ids(nodes_ids)

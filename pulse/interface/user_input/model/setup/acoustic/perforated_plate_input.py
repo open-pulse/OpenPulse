@@ -31,8 +31,7 @@ class PerforatedPlateInput(QDialog):
         self.valve_ids = kwargs.get("valve_ids", list())
 
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -635,7 +634,7 @@ class PerforatedPlateInput(QDialog):
                             self.replaced = True
 
             self.complete = True
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
             self.close()         
 
         except Exception as log_error:
@@ -710,7 +709,7 @@ class PerforatedPlateInput(QDialog):
         if key in self.group_elements_with_perforated_plates.keys():
             self.remove_function(key)
         self.lineEdit_element_id.setText("")
-        self.opv.updateRendererMesh()
+        app().main_window.update_plots()
     
     def remove_all_perforated_plate(self):
         temp_dict = self.group_elements_with_perforated_plates.copy()
@@ -723,7 +722,7 @@ class PerforatedPlateInput(QDialog):
         title = "Perforated plate resetting"
         message = "The perforated plate has been removed from all elements."
         PrintMessageInput([window_title_2, title, message])
-        self.opv.updateRendererMesh()
+        app().main_window.update_plots()
         self.close()
  
     def process_table_file_removal(self, table_name):
@@ -1035,11 +1034,10 @@ class PerforatedPlateInput(QDialog):
                                         _update_renderer = True
                                         
         if _update_renderer:
-            self.opv.opvRenderer.plot()
-            self.opv.plot_entities_with_cross_section()
+            app().main_window.update_plots()
     
     def actions_to_finalize(self):
-        self.opv.updateRendererMesh()
+        app().main_window.update_plots()
         self.close()
 
 class GetInformationOfGroup(QDialog):

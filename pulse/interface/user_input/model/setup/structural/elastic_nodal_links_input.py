@@ -23,9 +23,8 @@ class ElasticNodalLinksInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/elastic_nodal_links_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -430,7 +429,7 @@ class ElasticNodalLinksInput(QDialog):
         elif self.tabWidget_inputs.currentIndex() == 1:
             self.table_input_confirm()
 
-        self.opv.updateRendererMesh()
+        app().main_window.update_plots()
         self.close()
 
     def constant_input_confirm(self):
@@ -902,7 +901,7 @@ class ElasticNodalLinksInput(QDialog):
 
         if not reset:
             self.load_elastic_links_stiffness_info()
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
             self.lineEdit_selection.setText("")
 
     def remove_selected_link_damping(self, selection, reset=False):
@@ -920,7 +919,7 @@ class ElasticNodalLinksInput(QDialog):
 
         if not reset:
             self.load_elastic_links_damping_info()
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
             self.lineEdit_selection.setText("")
 
     def reset_elastic_links(self):
@@ -947,7 +946,7 @@ class ElasticNodalLinksInput(QDialog):
                 self.remove_selected_link_damping(key, reset=True)
 
             self.close()
-            self.opv.updateRendererMesh()
+            app().main_window.update_plots()
 
     def get_information(self):
         try:
@@ -1021,7 +1020,7 @@ class ElasticNodalLinksInput(QDialog):
         try:
         
             key = None
-            nodes_ids = self.opv.getListPickedPoints()
+            nodes_ids = app().main_window.list_selected_nodes()
 
             if nodes_ids:
 

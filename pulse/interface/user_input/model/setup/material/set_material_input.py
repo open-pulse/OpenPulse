@@ -28,9 +28,9 @@ class SetMaterialInput(QDialog):
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
         self.project = app().project
         self.file = self.project.file
         
@@ -164,7 +164,6 @@ class SetMaterialInput(QDialog):
         #     self.update()        
 
     def update(self):
-        # self.lines_ids = self.opv.getListPickedLines()
         self.update_selection()
 
     def confirm_material_attribution(self):
@@ -188,11 +187,11 @@ class SetMaterialInput(QDialog):
                                
                 self.project.set_material_by_lines(self.lines_typed, self.material)
                 print("[Set Material] - {} defined in the entities {}".format(self.material.name, self.lines_typed))
-                # self.opv.changeColorEntities(self.lines_typed, self.material.getNormalizedColorRGB())
+
             else:
                 self.project.set_material_to_all_lines(self.material)       
                 print("[Set Material] - {} defined in all entities".format(self.material.name))
-                # self.opv.changeColorEntities(entities, self.material.getNormalizedColorRGB())
+
             self.actions_to_finalize()
 
         except Exception as error_log:

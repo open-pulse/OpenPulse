@@ -20,9 +20,8 @@ class StressStiffeningInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/stress_stiffening_input.ui"
         uic.loadUi(ui_path, self)
         
+        app().main_window.set_input_widget(self)
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -44,8 +43,6 @@ class StressStiffeningInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-        # self.lines_id = self.opv.getListPickedLines()
-        # self.elements_id = self.opv.getListPickedElements()
 
         self.lines_id = app().main_window.list_selected_entities()
         self.elements_id = app().main_window.list_selected_elements()
@@ -489,8 +486,6 @@ class StressStiffeningInput(QDialog):
             self.tabWidget_groups.setTabVisible(0, True)
 
     def update(self):
-        # self.lines_id = self.opv.getListPickedLines()
-        # self.elements_id = self.opv.getListPickedElements()
 
         self.lines_id = app().main_window.list_selected_entities()
         self.elements_id = app().main_window.list_selected_elements()

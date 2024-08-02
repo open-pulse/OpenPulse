@@ -22,8 +22,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -202,7 +201,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.lineEdit_element_id.setText(item.text(0))
         key = self.prefix_label.format(item.text(0))
         list_elements = self.dict_group_elements[key][1]
-        self.opv.opvRenderer.highlight_elements(list_elements)
+        app().main_window.set_selection(elements = list_elements)
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)

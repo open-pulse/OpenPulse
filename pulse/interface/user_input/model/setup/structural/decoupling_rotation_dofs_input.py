@@ -23,9 +23,9 @@ class DecouplingRotationDOFsInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/decoupling_rotation_dofs_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -47,10 +47,6 @@ class DecouplingRotationDOFsInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
-        # self.line_id = self.opv.getListPickedLines()
-        # self.element_id = self.opv.getListPickedElements()
-        # self.node_id = self.opv.getListPickedPoints()
 
         self.node_id = app().main_window.list_selected_nodes()
         self.line_id = app().main_window.list_selected_entities()

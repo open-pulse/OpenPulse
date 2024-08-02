@@ -25,10 +25,10 @@ class ExpansionJointInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -193,10 +193,6 @@ class ExpansionJointInput(QDialog):
 
     def selection_type_callback(self):
 
-        # line_id = self.opv.getListPickedLines()
-        # node_id = self.opv.getListPickedPoints()
-        # element_id = self.opv.getListPickedElements()
-
         node_id = app().main_window.list_selected_nodes()
         line_id = app().main_window.list_selected_entities()
         element_id = app().main_window.list_selected_elements()
@@ -207,11 +203,10 @@ class ExpansionJointInput(QDialog):
 
             self.label_selected_id.setText("Line ID:")
             self.lineEdit_joint_length.setDisabled(True)
-            
-            if not self.opv.change_plot_to_entities_with_cross_section:
-                self.opv.plot_entities_with_cross_section()
-                if line_id:
-                    self.opv.opvRenderer.highlight_lines(line_id)
+
+            app().main_window.plot_entities_with_cross_section()
+            if line_id:
+                app().main_window.set_selection(entities = line_id)
 
         elif self.comboBox_selection_type.currentIndex() == 1:
 
@@ -219,7 +214,7 @@ class ExpansionJointInput(QDialog):
             self.lineEdit_joint_length.setDisabled(False)
 
             if not self.opv.change_plot_to_mesh:
-                self.main_window.update_plot_mesh()
+                self.main_window.plot_mesh()
                 if node_id:
                     self.opv.opvRenderer.highlight_elements(node_id)
 
@@ -229,7 +224,7 @@ class ExpansionJointInput(QDialog):
             self.lineEdit_joint_length.setDisabled(False)
 
             if not self.opv.change_plot_to_mesh:
-                self.main_window.update_plot_mesh()
+                self.main_window.plot_mesh()
                 if element_id:
                     self.opv.opvRenderer.highlight_elements(element_id)
 
@@ -237,10 +232,6 @@ class ExpansionJointInput(QDialog):
             self.update()
 
     def update(self):
-
-        # line_id = self.opv.getListPickedLines()
-        # node_id = self.opv.getListPickedPoints()
-        # element_id = self.opv.getListPickedElements()
 
         node_id = app().main_window.list_selected_nodes()
         line_id = app().main_window.list_selected_entities()
@@ -393,9 +384,6 @@ class ExpansionJointInput(QDialog):
             lineEdit.setText("")
 
     def load_input_fields(self):
-
-        # lines_id = self.opv.getListPickedLines()
-        # elements_id = self.opv.getListPickedElements()
 
         lines_id = app().main_window.list_selected_entities()
         elements_id = app().main_window.list_selected_elements()
@@ -659,7 +647,7 @@ class ExpansionJointInput(QDialog):
                     read = SetCrossSectionInput(beam_to_pipe = True, 
                                                 elements_to_update_cross_section = elements_to_change)
                     if not read.complete:
-                        app().main_window.input_ui.set_input_widget(self)
+                        app().main_window.set_input_widget(self)
                         self.setVisible(True)
                         return
                 else:

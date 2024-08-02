@@ -26,11 +26,8 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-
-        self.opv = main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
-        self.project = main_window.project
+        app().main_window.set_input_widget(self)
+        self.project = app().main_window.project
 
         self._initialize()        
         self._load_icons()

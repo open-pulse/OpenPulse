@@ -28,8 +28,7 @@ class SetCrossSectionInput(QDialog):
         self.elements_to_update_cross_section = kwargs.get("elements_to_update_cross_section", list())
 
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
+        app().main_window.set_input_widget(self)
 
         self.preprocessor = self.project.preprocessor
         self.file = self.project.file
@@ -394,25 +393,29 @@ class SetCrossSectionInput(QDialog):
                     self.tabWidget_beam_section.setCurrentIndex(5)
         
         if self.section_id_by_lines in self.section_id_data_lines.keys():
-            [tag_type, tags] = self.section_id_data_lines[self.section_id_by_lines]
-            str_tags = str(tags)
+
+            [tag_type, lines] = self.section_id_data_lines[self.section_id_by_lines]
+
+            str_lines = str(lines)
             if tag_type == "line ids":
-                self.comboBox_selection.setCurrentIndex(1)               
-                self.opv.opvRenderer.highlight_lines(tags)
+
+                self.comboBox_selection.setCurrentIndex(1)
+                app().main_window.set_selection(entities = lines)
+
                 if len(self._section_parameters) == 10:
-                    if len(tags) == 1:
-                        line_elements = self.project.preprocessor.line_to_elements[tags[0]]
+                    if len(lines) == 1:
+                        line_elements = self.project.preprocessor.line_to_elements[lines[0]]
                         self.input_widget.lineEdit_element_id_initial.setText(str(line_elements[0]))
                         self.input_widget.lineEdit_element_id_final.setText(str(line_elements[-1]))
-        
+
         if self.section_id_by_elements in self.section_id_data_elements.keys():
-            [tag_type, tags] = self.section_id_data_elements[self.section_id_by_elements]
-            str_tags = str(tags)
+            [tag_type, lines] = self.section_id_data_elements[self.section_id_by_elements]
+            str_lines = str(lines)
             if tag_type == "element ids":
                 self.comboBox_selection.setCurrentIndex(2)
-                self.opv.opvRenderer.highlight_elements(tags)
+                app().main_window.set_selection(entities = lines)
 
-        self.lineEdit_selected_id.setText(str_tags[1:-1])
+        self.lineEdit_selected_id.setText(str_lines[1:-1])
         
         self.section_id_by_lines = None
         self.section_id_by_elements = None
@@ -598,13 +601,13 @@ class SetCrossSectionInput(QDialog):
                 _stop, _lines_typed = self.before_run.check_input_LineID(lineEdit)
                 if _stop:
                     return
-                self.opv.opvRenderer.highlight_lines(_lines_typed)
+                app().main_window.set_selection(entities = _lines_typed)
 
             if selection_index == 2:
                 _stop, _elements_typed = self.before_run.check_input_ElementID(lineEdit)
                 if _stop:
                     return
-                self.opv.opvRenderer.highlight_elements(_elements_typed) 
+                app().main_window.set_selection(elements = _elements_typed) 
 
     def flip_element_ids(self):
         self.flip = not self.flip
@@ -661,8 +664,7 @@ class SetCrossSectionInput(QDialog):
 
         plt.close()
         self.complete = True
-        self.opv.update_section_radius()
-        self.opv.plot_entities_with_cross_section()
+        app().main_window.update_plots()
 
         build_data = self.file.get_segment_build_data_from_file()
         geometry_handler = GeometryHandler()

@@ -20,8 +20,6 @@ class ClipPlaneWidget(QDialog):
         ui_path = UI_DIR / "render/cutting_plane_inputs.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = app().main_window.opv_widget
-
         self._load_icons()
         self._config_window()
         self._define_qt_variables()

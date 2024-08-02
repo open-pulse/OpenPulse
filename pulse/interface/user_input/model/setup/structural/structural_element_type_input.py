@@ -18,9 +18,8 @@ class StructuralElementTypeInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/structural_element_type_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        app().main_window.input_ui.set_input_widget(self)
 
         self._load_icons()
         self._config_window()
@@ -113,9 +112,9 @@ class StructuralElementTypeInput(QDialog):
             self.lineEdit_selected_id.setText("All lines")
         elif index == 1:
             self.lineEdit_selected_id.setDisabled(False)
-            self.lines_id  = self.opv.getListPickedLines()
-            if self.lines_id != []:
-                self.write_ids(self.lines_id)
+            line_ids  = app().main_window.list_selected_entities()
+            if line_ids:
+                self.write_ids(line_ids)
             else:
                 self.lineEdit_selected_id.setText("")
 
@@ -145,27 +144,29 @@ class StructuralElementTypeInput(QDialog):
         self.pipe_to_beam = False
         self.beam_to_pipe = False
         self.update_cross_section = False
-        
+
         final_etype = self.element_type
-        if self.lines_id == []:
-            tags = self.preprocessor.all_lines
-        else:
-            tags = self.opv.getListPickedLines()
-            
-        for tag in tags:
-            initial_etype = self.dict_tag_to_entity[tag].structural_element_type
-            
+        line_ids = app().main_window.list_selected_entities()
+
+        if len(line_ids) == 0:
+            line_ids = self.preprocessor.all_lines
+
+        for line_id in line_ids:
+
+            entity = self.dict_tag_to_entity[line_id]
+            initial_etype = entity.structural_element_type
+
             if initial_etype in ['pipe_1', None] and final_etype in ['beam_1']:
-                
+
                 self.update_cross_section = True
                 self.pipe_to_beam = True
-                self.list_lines_to_update_cross_section.append(tag)
+                self.list_lines_to_update_cross_section.append(line_id)
 
             elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1']:
-                
+
                 self.update_cross_section = True
                 self.beam_to_pipe = True
-                self.list_lines_to_update_cross_section.append(tag)
+                self.list_lines_to_update_cross_section.append(line_id)
 
         if self.update_cross_section:
             self.update_modified_cross_sections()
@@ -312,16 +313,16 @@ class StructuralElementTypeInput(QDialog):
 
     def update(self):
 
-        self.lines_id  = self.opv.getListPickedLines()
-        if self.lines_id != []:
+        line_ids  = app().main_window.list_selected_entities()
+        if line_ids:
 
             self.comboBox_selection.setCurrentIndex(1)
-            self.write_ids(self.lines_id)
+            self.write_ids(line_ids)
             self.lineEdit_selected_id.setDisabled(False)
 
-            if len(self.lines_id) == 1:
+            if len(line_ids) == 1:
 
-                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+                entity = self.preprocessor.dict_tag_to_entity[line_ids[0]]
 
                 element_type = entity.structural_element_type
                 if element_type == 'pipe_1':
