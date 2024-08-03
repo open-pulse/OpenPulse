@@ -1085,7 +1085,7 @@ class StructuralElement:
         cols = len(frequencies)
         Do = self.cross_section.outer_diameter
         Di = self.cross_section.inner_diameter
-        
+
         nu = self.material.poisson_ratio
         A = self.cross_section.area
 
@@ -1096,6 +1096,7 @@ class StructuralElement:
             capped_end = 0
 
         if self.element_type == 'pipe_1':
+
             stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
             if self.wall_formulation == "thick_wall": 
                 force = A * (capped_end - 2*nu)* stress_axial
@@ -1103,26 +1104,28 @@ class StructuralElement:
                 force = A * (capped_end*stress_axial - nu*pressures*(Do/(Do-Di) - 1))
             else:
                 raise TypeError('Only thin and thick wall formulation types are allowable.')
-            
+
         elif self.element_type in ['expansion_joint','valve']:
             nu = 0
             force = (capped_end - 2*nu)* A *pressures
-            
+
         else:
             return np.zeros((rows, cols))
 
         aux = np.zeros((rows, cols), dtype=complex)
         aux[0,:] = -force[0,:]
         aux[6,:] =  force[1,:]
-        R = self.element_rotation_matrix
-        
+
+        # R = self.element_rotation_matrix
+        R = self._element_rotation_matrix()
+
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
         elif self.element_type in ['expansion_joint', 'valve']:
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
             raise TypeError(f'Invalid element type: {self.element_type}')
-        
+
         if self.force_offset:
             if self.variable_section:
                 return R.T @ self.transf_mat_OffsetShear_left @ aux

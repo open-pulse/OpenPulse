@@ -7,7 +7,7 @@ from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.preprocessor import  Preprocessor
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf, get_acoustic_response
 from examples.animation.plot_function import plot_results
 
@@ -51,7 +51,7 @@ f_max = 250
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution_acoustic = SolutionAcoustic(preprocessor, frequencies)
+solution_acoustic = AcousticSolver(preprocessor, frequencies)
 
 direct = solution_acoustic.direct_method()
 #%% Acoustic validation

@@ -8,8 +8,8 @@ from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.preprocessor import Preprocessor
-from pulse.processing.solution_acoustic import SolutionAcoustic
-from pulse.processing.solution_structural import SolutionStructural
+from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 from pulse.postprocessing.plot_structural_data import get_structural_response, get_stress_data
 from examples.animation.plot_function import plot_results
@@ -50,10 +50,10 @@ df = 2
 frequencies = np.arange(0.001, f_max+df, df)
 modes = 200
 
-# solution_acoustic = SolutionAcoustic(mesh, frequencies)
+# solution_acoustic = AcousticSolver(mesh, frequencies)
 # direct_acoustic = solution_acoustic.direct_method()
 
-solution_structural = SolutionStructural(preprocessor, frequencies) #, acoustic_solution = direct_acoustic)
+solution_structural = StructuralSolver(preprocessor, frequencies) #, acoustic_solution = direct_acoustic)
 global_damping = (0, 0, 0, 0)
 
 direct_structural = solution_structural.direct_method(global_damping = global_damping)

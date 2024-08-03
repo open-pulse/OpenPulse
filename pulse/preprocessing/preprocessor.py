@@ -33,7 +33,7 @@ class Preprocessor:
         This method reset the class default values.
         """
         self.geometry_handler = None
-        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
         self.number_structural_elements = 0
         self.number_acosutic_elements = 0
         self.nodes = dict()
@@ -443,7 +443,7 @@ class Preprocessor:
         This method maps entities to nodes.
         """
         # t0 = time()
-        self.dict_line_to_nodes = {}
+        self.dict_line_to_nodes = dict()
         for line_ID, list_elements in self.line_to_elements.items():
             list_nodes = np.zeros(len(list_elements)+1, dtype=int)
             for i, _id in enumerate(list_elements):
@@ -1707,7 +1707,7 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
         N = DOF_PER_NODE_STRUCTURAL
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 

@@ -333,6 +333,7 @@ class MainWindow(QMainWindow):
         self.geometry_input_wigdet.process_geometry_callback()
 
     def export_pcf(self):
+
         init_path = os.path.expanduser("~")
         path, ok = QFileDialog.getSaveFileName(self, 
                                                'Export PCF file', 
@@ -347,6 +348,7 @@ class MainWindow(QMainWindow):
         self.update_plots()
 
     def export_geometry(self):
+
         init_path = os.path.expanduser("~")
         path, ok = QFileDialog.getSaveFileName(self, 
                                                'Export geometry file', 
@@ -362,25 +364,28 @@ class MainWindow(QMainWindow):
 
         if nodes is None:
             nodes = set()
-        
+
         if elements is None:
             elements = set()
-        
+
         if entities is None:
             entities = set()
-        
+
         if join and remove:
             self.selected_nodes ^= set(nodes)
             self.selected_entities ^= set(entities)
             self.selected_elements ^= set(elements)
+
         elif join:
             self.selected_nodes |= set(nodes)
             self.selected_entities |= set(entities)
             self.selected_elements |= set(elements)
+
         elif remove:
             self.selected_nodes -= set(nodes)
             self.selected_entities -= set(entities)
             self.selected_elements -= set(elements)
+
         else:
             self.selected_nodes = set(nodes)
             self.selected_entities = set(entities)

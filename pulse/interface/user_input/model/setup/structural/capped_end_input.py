@@ -248,7 +248,7 @@ class CappedEndInput(QDialog):
         self.get_information(item)
 
     def set_capped_end(self):
-        selection_index = self.comboBox_selection.currentIndex() 
+        selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
             self.set_capped_end_to_all_lines()
             print("The capped end effect was defined to all lines.")
@@ -256,7 +256,7 @@ class CappedEndInput(QDialog):
         elif selection_index == 1:
 
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_selected_ids(lineEdit, "lines")
             if self.stop:
                 return True      
 

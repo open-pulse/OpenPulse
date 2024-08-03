@@ -297,7 +297,7 @@ class ValvesInput(QDialog):
         lineEdit_lineID = self.lineEdit_selected_id.text()
         if lineEdit_lineID != "":
 
-            self.stop, _line_id = self.before_run.check_input_LineID(lineEdit_lineID, single_ID=True)
+            self.stop, _line_id = self.before_run.check_selected_ids(lineEdit_lineID, "lines", single_id=True)
             if self.stop:
                 self.lineEdit_selected_id.setText("")
                 self.lineEdit_valve_length.setText("")
@@ -376,7 +376,7 @@ class ValvesInput(QDialog):
         lineEdit_selection = self.lineEdit_selected_id.text()
 
         if self.comboBox_selection.currentIndex() == 0:
-            _stop, self.selected_lines = self.before_run.check_input_LineID(lineEdit_selection)
+            _stop, self.selected_lines = self.before_run.check_selected_ids(lineEdit_selection, "lines")
             for line_id in self.selected_lines:
                 entity = self.preprocessor.dict_tag_to_entity[line_id]
                 if entity.structural_element_type in ["beam_1", "expansion_joint"]:

@@ -73,7 +73,7 @@ class BeforeRun:
 
         if message != "":
             PrintMessageInput([window_title_1, title, message])               
-            return True, [] 
+            return True, list() 
 
         if single_ID:
             return False, list_nodes_typed[0]
@@ -116,7 +116,7 @@ class BeforeRun:
 
         if message != "":
             PrintMessageInput([window_title_1, title, message])               
-            return True, [] 
+            return True, list() 
 
         if single_ID:
             return False, list_elements_typed[0]
@@ -124,47 +124,72 @@ class BeforeRun:
             return False, list_elements_typed
 
 
-    def check_input_LineID(self, lineEdit, single_ID=False):
+    def check_selected_ids(self, selected_ids : str, selection_type : str, single_id = False):
         try:
 
             title = "Invalid entry to the Line ID"
             message = ""
-            tokens = lineEdit.strip().split(',')
+            tokens = selected_ids.strip().split(',')
 
             try:
                 tokens.remove('')
             except:
                 pass
 
-            _size = len(self.dict_tag_to_entity)
+            if selection_type == "lines":
+                _size = len(self.dict_tag_to_entity)
 
-            list_lines_typed = list(map(int, tokens))
+            elif selection_type == "elements":
+                _size = len(self.structural_elements)
 
-            if len(list_lines_typed) == 0:
-                    message = "An empty input field for the Line ID has been detected. Please, enter a valid Line ID to proceed!"
+            elif selection_type == "nodes":
+                _size = len(self.nodes)
+    
+            typed_ids = list(map(int, tokens))
 
-            elif len(list_lines_typed) >= 1: 
-                if single_ID and len(list_lines_typed)>1:
-                    message = "Multiple Line IDs"
+            label = selection_type.replace("s", "")
+            
+            if len(typed_ids) == 0:
+                    message = f"An empty input field for the {label.capitalize()} ID has been detected." 
+                    message += f"You should to enter a valid  {label.capitalize()} ID to proceed!"
+
+            elif len(typed_ids) >= 1:
+
+                if single_id and len(typed_ids)>1:
+                    message = f"Multiple {label.capitalize()} IDs"
+
                 else:
                     try:
-                        for line_ID in list_lines_typed:
-                            self.dict_tag_to_entity[line_ID]
+                        for typed_id in typed_ids:
+
+                            if selection_type == "lines":
+                                self.dict_tag_to_entity[typed_id]
+
+                            elif selection_type == "elements":
+                                self.structural_elements[typed_id]
+
+                            elif selection_type == "nodes":
+                                self.nodes[typed_id]
+
+                            else:
+                                continue
+
                     except:
-                        message = "Dear user, you have typed an invalid entry at the Line ID input field. " 
+                        message = f"Dear user, you have typed an invalid entry at the {label.capitalize()} ID input field. " 
                         message += f"The input value(s) must be integer(s) number(s) greater than 1 and less than {_size}."
 
         except Exception as log_error:
-            message = f"Wrong input for the Line ID's! \n\n{str(log_error)}"
+            message = f"Wrong input for the {label.capitalize()} IDs! \n\n"
+            message += str(log_error)
 
         if message != "":
             PrintMessageInput([window_title_1, title, message])               
-            return True, [] 
+            return True, list() 
 
-        if single_ID:
-            return False, list_lines_typed[0]
+        if single_id:
+            return False, typed_ids[0]
         else:
-            return False, list_lines_typed
+            return False, typed_ids
 
 
     def check_material_all_elements(self):
@@ -173,7 +198,7 @@ class BeforeRun:
         """
         self.check_set_material = False
         self.check_poisson = False
-        lines_without_materials = []
+        lines_without_materials = list()
         for element in self.structural_elements.values():
             line_id = self.preprocessor.elements_to_line[element.index]
             if element.material is None:
@@ -188,7 +213,7 @@ class BeforeRun:
         This method checks if all structural elements have a Poisson ratio attributed.
         """
         self.check_poisson = False
-        lines_without_poisson = []
+        lines_without_poisson = list()
         for element in self.structural_elements.values():
             line_id = self.preprocessor.elements_to_line[element.index]
             if element.material.poisson_ratio == 0:
@@ -205,8 +230,8 @@ class BeforeRun:
         self.check_set_material = False
         self.check_set_crossSection = False
         self.check_poisson = False
-        lines_without_materials = []
-        lines_without_cross_sections = []
+        lines_without_materials = list()
+        lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)  
         for element in self.structural_elements.values():
             line_id = self.preprocessor.elements_to_line[element.index]
@@ -250,8 +275,8 @@ class BeforeRun:
         """
         self.check_set_fluid = False
         self.check_set_crossSection = False
-        lines_without_fluids = []
-        lines_without_cross_sections = []
+        lines_without_fluids = list()
+        lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)
         for element in self.acoustic_elements.values():
             line_id = self.preprocessor.elements_to_line[element.index]
@@ -291,7 +316,7 @@ class BeforeRun:
         This method checks if each acoustic element has the necessary fluid data to evaluate the analysis according to its element type.
         """
         self.check_all_fluid_inputs = False
-        lines_without_fluids = []
+        lines_without_fluids = list()
         for element in self.acoustic_elements.values():
             line_id = self.preprocessor.elements_to_line[element.index]
             if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
@@ -373,12 +398,12 @@ class BeforeRun:
         message_lrf_full = "The Low Reduced Frequency (LRF) acoustic damping model is out of its validity frequency range. It is recommended to check the results carefully."
         message_unflanged_radiation_impedance  = "The unflanged radiation impedance model is out of its validity frequency range. It is recommended to check the results carefully."
 
-        list_plane_wave = []
-        list_wide_duct = []
-        list_lrf_fluid_eq = []
-        list_lrf_full = []
-        list_max_valid_freq = []
-        list_min_valid_freq = []
+        list_plane_wave = list()
+        list_wide_duct = list()
+        list_lrf_fluid_eq = list()
+        list_lrf_full = list()
+        list_max_valid_freq = list()
+        list_min_valid_freq = list()
 
         for element in self.acoustic_elements.values():
             if element.flag_plane_wave:
@@ -418,12 +443,12 @@ class BeforeRun:
 
         list_flags = [flag_plane_wave, flag_wide_duct, flag_lrf_fluid_eq, flag_lrf_full, flag_unflanged_radiation_impedance]
         list_messages = [message_plane_wave, message_wide_duct, message_lrf_fluid_eq, message_lrf_full, message_unflanged_radiation_impedance]
-        lists_elements = [list_plane_wave, list_wide_duct, list_lrf_fluid_eq, list_lrf_full, []]
+        lists_elements = [list_plane_wave, list_wide_duct, list_lrf_fluid_eq, list_lrf_full, list()]
 
         for index, flag in enumerate(list_flags):
             if flag:
                 self.main_window.plot_mesh()
-                self.highlight_selection(elements = lists_elements[index])
+                app().main_window.set_selection(elements = lists_elements[index])
                 PrintMessageInput([window_title, title, list_messages[index]])
 
 
@@ -450,27 +475,27 @@ class BeforeRun:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
-                self.highlight_selection(lines = lines_without_materials)
+                app().main_window.set_selection(entities = lines_without_materials)
                 message = material_message.format(lines_without_materials)
                 PrintMessageInput([window_title_1, title, message])
                 return True
 
             elif self.check_set_crossSection:
 
-                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
-                if list_elements == []:  
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}\n"                 
-                    self.highlight_selection(lines = list_lines)
+                line_ids, element_ids = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if element_ids == list():  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}\n"                 
+                    app().main_window.set_selection(entities = line_ids)
 
-                elif list_lines == []:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n"
-                    self.highlight_selection(elements = list_elements)
+                elif line_ids == list():
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}\n"
+                    app().main_window.set_selection(elements = element_ids)
 
                 else:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.highlight_selection(lines = list_lines)
-                    self.highlight_selection(elements = list_elements)
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"
+                    app().main_window.set_selection(entities = line_ids)
+                    app().main_window.set_selection(elements = element_ids)
 
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
@@ -481,36 +506,36 @@ class BeforeRun:
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
 
             if self.check_set_material:
-                self.highlight_selection(lines = lines_without_materials)
+                app().main_window.set_selection(entities = lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
 
             elif self.check_set_fluid:
-                self.highlight_selection(lines = lines_without_fluids)
+                app().main_window.set_selection(entities = lines_without_fluids)
                 PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
 
             elif self.check_all_fluid_inputs:
-                self.highlight_selection(lines = lines_without_all_fluids_inputs)
+                app().main_window.set_selection(entities = lines_without_all_fluids_inputs)
                 PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
 
             elif self.check_set_crossSection:
 
-                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
-                if list_elements == []:  
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.highlight_selection(lines = list_lines)
+                line_ids, element_ids = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if element_ids == list():  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"                 
+                    app().main_window.set_selection(entities = line_ids)
 
-                elif list_lines == []:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.highlight_selection(list_elements)
+                elif line_ids == list():
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}"
+                    app().main_window.set_selection(entities = element_ids)
 
                 else:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.highlight_selection(list_lines)
-                    self.highlight_selection(list_elements)
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"
+                    app().main_window.set_selection(entities = line_ids)
+                    app().main_window.set_selection(elements = element_ids)
 
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
@@ -520,26 +545,26 @@ class BeforeRun:
             self.check_nodes_attributes(structural=True)
 
             if self.check_set_material:
-                self.highlight_selection(lines = lines_without_materials)
+                app().main_window.set_selection(entities = lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
 
             elif self.check_set_crossSection:
 
-                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
-                if list_elements == []:  
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.highlight_selection(lines = list_lines)
+                line_ids, element_ids = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if element_ids == list():  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"                 
+                    app().main_window.set_selection(entities = line_ids)
 
-                elif list_lines == []:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.highlight_selection(elements = list_elements)
+                elif line_ids == list():
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}"
+                    app().main_window.set_selection(elements = element_ids)
 
                 else:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.highlight_selection(lines = list_lines)
-                    self.highlight_selection(elements = list_elements)
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"
+                    app().main_window.set_selection(entities = line_ids)
+                    app().main_window.set_selection(elements = element_ids)
 
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
@@ -555,85 +580,110 @@ class BeforeRun:
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             self.check_nodes_attributes(acoustic=True)
+
             if self.check_set_fluid:
-                self.highlight_selection(lines_without_fluids)
+                app().main_window.set_selection(entities =lines_without_fluids)
                 PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
+
             elif self.check_all_fluid_inputs:
-                self.highlight_selection(lines_without_all_fluids_inputs)
+                app().main_window.set_selection(entities =lines_without_all_fluids_inputs)
                 PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
+
             elif self.check_set_material:
-                self.highlight_selection(lines_without_materials)
+                app().main_window.set_selection(entities =lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
+
             elif self.check_set_crossSection:
-                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
-                if list_elements == []:  
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.highlight_selection(list_lines)
-                elif list_lines == []:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.highlight_selection(list_elements)
+
+                line_ids, element_ids = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+
+                if element_ids == list():  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"                 
+                    app().main_window.set_selection(entities =line_ids)
+
+                elif line_ids == list():
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}"
+                    app().main_window.set_selection(elements = element_ids)
+
                 else:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.highlight_selection(list_lines)
-                    self.highlight_selection(list_elements, reset_colors=False)
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"
+                    app().main_window.set_selection(entities = line_ids)
+                    app().main_window.set_selection(elements = element_ids)
+
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
+
             elif not self.is_there_volume_velocity:
                 if not self.is_there_acoustic_pressure:
                     PrintMessageInput([window_title_1, title, acoustic_message])
                     return True
 
         elif analysis_ID == 5 or analysis_ID == 6:
+
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             self.check_nodes_attributes(coupled=True)
+
             if self.check_set_material:
-                self.highlight_selection(lines_without_materials)
+                app().main_window.set_selection(entities = lines_without_materials)
                 PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
                 return True
+
             elif self.check_set_fluid:
-                self.highlight_selection(lines_without_fluids)
+                app().main_window.set_selection(entities = lines_without_fluids)
                 PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
                 return True
+
             elif self.check_all_fluid_inputs:
-                self.highlight_selection(lines_without_all_fluids_inputs)
+                app().main_window.set_selection(entities = lines_without_all_fluids_inputs)
                 PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
-            elif self.check_set_crossSection:  
-                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
-                if list_elements == []:  
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
-                    self.highlight_selection(list_lines)
-                elif list_lines == []:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
-                    self.highlight_selection(list_elements)
+
+            elif self.check_set_crossSection:
+
+                line_ids, element_ids = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+
+                if element_ids == list():  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"                 
+                    app().main_window.set_selection(entities = line_ids)
+
+                elif line_ids == list():
+
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}"
+                    app().main_window.set_selection(elements = element_ids)
                 else:
-                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
-                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
-                    self.highlight_selection(list_lines)
-                    self.highlight_selection(list_elements, reset_colors=False)
+
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{element_ids}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{line_ids}"
+                    app().main_window.set_selection(entities = line_ids)
+                    app().main_window.set_selection(elements = element_ids)
+
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
+
             elif not self.is_there_volume_velocity:
                 if not self.is_there_acoustic_pressure:
                     PrintMessageInput([window_title_1, title, acoustic_message])
                     return True
     
     def check_cross_section_in_lines_and_elements(self, data):
-        list_lines = []
-        list_elements = []
-        for line_id, element_ids in data.items():
+
+        line_ids = list()
+        element_ids = list()
+
+        for line_id, _element_ids in data.items():
             if list(np.sort(element_ids)) == list(np.sort(self.preprocessor.line_to_elements[line_id])):
-                list_lines.append(line_id)
+                line_ids.append(line_id)
             else:
-                for element_id in element_ids:
-                    list_elements.append(element_id)
-        return list_lines, list_elements
+                for _element_id in _element_ids:
+                    element_ids.append(_element_id)
+
+        return line_ids, element_ids
     
     def check_beam_theory_criteria(self, criteria=10):
         """
@@ -699,10 +749,10 @@ class BeforeRun:
                 else:
 
                     data = {}
-                    neighboor_lines = []
+                    neighboor_lines = list()
 
                     for i, tag in enumerate(tags):
-                        filtered_lines = []                                
+                        filtered_lines = list()                                
                         length_0, edge_nodes_0 = self.preprocessor.get_line_length(tag)
                         lines = self.get_lines_from_nodes(edge_nodes_0)
                         for line in lines:
@@ -732,7 +782,7 @@ class BeforeRun:
                             elif "beam_1" in element_type:
                                 parameter = max(section_parameters)
 
-                            lengths = []
+                            lengths = list()
                             for n_line in neigh_lines:
                                 length, _ = self.preprocessor.get_line_length(n_line)
                                 lengths.append(length)
@@ -750,7 +800,7 @@ class BeforeRun:
     def get_lines_from_nodes(self, edge_nodes):
         """
         """
-        lines = []
+        lines = list()
         if len(edge_nodes) == 2:
             
             node_1 = edge_nodes[0]
@@ -770,10 +820,3 @@ class BeforeRun:
                 lines.append(line_2)
         
         return lines
-
-    def highlight_selection(self, nodes=None, elements=None, lines=None):
-        app().main_window.set_selection(
-                                        nodes = nodes,
-                                        elements = elements,
-                                        entities = lines
-                                        )

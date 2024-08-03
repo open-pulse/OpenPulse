@@ -7,7 +7,7 @@ from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.project.project import Project
-from pulse.processing.solution_structural import SolutionStructural
+from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.read_data import ReadData
 
 # Setting up model
@@ -42,7 +42,7 @@ def model():
 # start testing 
 def test_modal_analysis(model):
     project = model.project
-    solution = SolutionStructural(model, None)
+    solution = StructuralSolver(model, None)
     natural_frequencies, eigen_vectors = solution.modal_analysis(modes=40)
     folder_path = "tests/data/structural"
     file_name = "modal_analysis_results.hdf5"
@@ -55,7 +55,7 @@ def test_modal_analysis(model):
 def test_direct_method(model):
     project = model.project
     frequencies = np.linspace(0, 200, 201)
-    solve = SolutionStructural(model, frequencies)    
+    solve = StructuralSolver(model, frequencies)    
     solution = solve.direct_method()
     folder_path = "tests/data/structural"
     file_name = "harmonic_analysis_results_direct.hdf5"
@@ -66,7 +66,7 @@ def test_direct_method(model):
 def test_mode_superposition(model, modes=60):
     project = model.project
     frequencies = np.linspace(0, 200, 201)
-    solution = SolutionStructural(model, frequencies)
+    solution = StructuralSolver(model, frequencies)
     solution = solution.mode_superposition(modes, fastest=True)
     folder_path = "tests/data/structural"
     file_name = "harmonic_analysis_results_mode_superposition.hdf5"

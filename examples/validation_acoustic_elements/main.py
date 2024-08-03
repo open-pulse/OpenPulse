@@ -8,7 +8,7 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.preprocessor import  Preprocessor
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
@@ -52,7 +52,7 @@ f_max = 250
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution = SolutionAcoustic(mesh, frequencies)
+solution = AcousticSolver(mesh, frequencies)
 
 direct = solution.direct_method()
 #%% Validation

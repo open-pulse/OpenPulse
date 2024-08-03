@@ -23,35 +23,32 @@ class RendererUserPreferencesInput(QDialog):
         self.config = app().config
         self.project = app().project
 
-        self.opv = app().main_window.opv_widget
+        # self.opv = app().main_window.opv_widget
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._load_logo_state()
-        self._load_reference_scale_state()
-        self._load_color_state()
+        # self._load_logo_state()
+        # self._load_reference_scale_state()
+        # self._load_color_state()
         self.exec()
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
 
     def _initialize(self):
-        self.cache_setup = [self.opv.opvRenderer.background_color,
-                            self.opv.bottom_font_color,
-                            self.opv.opvRenderer.nodes_color,
-                            self.opv.opvRenderer.lines_color,
-                            self.opv.opvRenderer.surfaces_color,
-                            self.opv.opvRenderer.elements_transparency,
-                            self.opv.opvRenderer.add_OpenPulse_logo,
-                            self.opv.opvRenderer.show_reference_scale]
+        self.cache_setup = list()
+        # self.cache_setup = [self.opv.opvRenderer.background_color,
+        #                     self.opv.bottom_font_color,
+        #                     self.opv.opvRenderer.nodes_color,
+        #                     self.opv.opvRenderer.lines_color,
+        #                     self.opv.opvRenderer.surfaces_color,
+        #                     self.opv.opvRenderer.elements_transparency,
+        #                     self.opv.opvRenderer.add_OpenPulse_logo,
+        #                     self.opv.opvRenderer.show_reference_scale]
 
     def _define_qt_variables(self):
 
@@ -85,11 +82,10 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_reset_to_default : QPushButton
         self.pushButton_update_settings : QPushButton
 
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-
     def _create_connections(self):
+        #
         self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
+        #
         self.pushButton_background_color.clicked.connect(self.update_background_color)
         self.pushButton_font_color.clicked.connect(self.update_font_color)
         self.pushButton_nodes_color.clicked.connect(self.update_nodes_color)
@@ -97,8 +93,10 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_surfaces_color.clicked.connect(self.update_surfaces_color)
         self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
+        #
         self.slider_transparency.valueChanged.connect(self.update_transparency_value)
-        self.update_slider_transparency()
+        #
+        # self.update_slider_transparency()
 
     def update_background_color_controls_visibility(self):
         index = self.comboBox_background_theme.currentIndex()

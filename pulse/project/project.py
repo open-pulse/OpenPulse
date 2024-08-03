@@ -6,8 +6,8 @@ from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
-from pulse.processing.solution_structural import SolutionStructural
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.structural_solver import StructuralSolver
+from pulse.processing.acoustic_solver import AcousticSolver
 #
 from pulse import app
 from pulse.editor.pulsation_suppression_device import PulsationSuppressionDevice
@@ -362,16 +362,23 @@ class Project:
             if self.preprocessor.stop_processing:
                 return
 
-            if self.analysis_ID in [3, 4]:
-                self.preprocessor.set_cross_section_by_element(elements, 
-                                                               cross_section, 
-                                                               update_cross_section = False, 
-                                                               update_section_points = False)  
-            else:
-                self.preprocessor.set_cross_section_by_element(elements, 
-                                                               cross_section, 
-                                                               update_cross_section = True, 
-                                                               update_section_points = False)      
+            # if self.analysis_ID in [3, 4]:
+            #     self.preprocessor.set_cross_section_by_element(elements, 
+            #                                                    cross_section, 
+            #                                                    update_cross_section = False, 
+            #                                                    update_section_points = False)  
+            # else:
+            #     self.preprocessor.set_cross_section_by_element(elements, 
+            #                                                    cross_section, 
+            #                                                    update_cross_section = True, 
+            #                                                    update_section_points = False)
+
+            self.preprocessor.set_cross_section_by_element(
+                                                            elements, 
+                                                            cross_section, 
+                                                            update_cross_section = True, 
+                                                            update_section_points = False
+                                                            )  
 
     def get_dict_multiple_cross_sections_from_line(self, line_id):
         '''This methods returns a dictionary of multiples cross-sections associated to 
@@ -1698,13 +1705,17 @@ class Project:
         self.structural_solve = structural_solve
 
     def get_structural_solve(self):
-        if self.analysis_ID in [5,6]:
-            results = SolutionStructural(self.preprocessor, self.frequencies, acoustic_solution=self.solution_acoustic)
+
+        if self.analysis_ID in [5, 6]:
+            results = StructuralSolver(self.preprocessor, self.frequencies, acoustic_solution=self.solution_acoustic)
+
         else:
-            if self.analysis_ID in [2,4]:
-                results = SolutionStructural(self.preprocessor, None)
+
+            if self.analysis_ID in [2, 4]:
+                results = StructuralSolver(self.preprocessor, None)
             else:
-                results = SolutionStructural(self.preprocessor, self.frequencies)
+                results = StructuralSolver(self.preprocessor, self.frequencies)
+
         return results
 
     def set_structural_solution(self, value):
@@ -1714,7 +1725,7 @@ class Project:
         return self.solution_structural
 
     def get_acoustic_solve(self):
-        return SolutionAcoustic(self.preprocessor, self.frequencies)
+        return AcousticSolver(self.preprocessor, self.frequencies)
 
     def set_acoustic_solution(self, value):
         self.solution_acoustic = value

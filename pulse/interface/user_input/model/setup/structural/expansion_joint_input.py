@@ -292,8 +292,8 @@ class ExpansionJointInput(QDialog):
         _stop = False
         if isinstance(selected_id, int):
             if self.comboBox_selection_type.currentIndex() == 0:
-        
-                _stop, _line_id = self.before_run.check_input_LineID(str(selected_id), single_ID=True)
+
+                _stop, _line_id = self.before_run.check_selected_ids(str(selected_id), "lines", single_id=True)
 
                 if not _stop:
                     self.joint_elements = self.preprocessor.line_to_elements[_line_id]
@@ -343,7 +343,7 @@ class ExpansionJointInput(QDialog):
         lineEdit_selection = self.lineEdit_selected_id.text()
 
         if self.comboBox_selection_type.currentIndex() == 0:
-            _stop, self.selected_lines = self.before_run.check_input_LineID(lineEdit_selection)
+            _stop, self.selected_lines = self.before_run.check_selected_ids(lineEdit_selection, "lines")
 
             for line_id in self.selected_lines:
                 entity = self.preprocessor.dict_tag_to_entity[line_id]

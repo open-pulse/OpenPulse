@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.preprocessor import  Preprocessor
-from pulse.processing.solution_structural import SolutionStructural
+from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 
 
@@ -23,7 +23,7 @@ preprocessor.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
 frequencies = np.arange(0, 202, 2)
 modes = 200
-solution = SolutionStructural(preprocessor)
+solution = StructuralSolver(preprocessor)
 direct = solution.direct_method(frequencies)
 modal = solution.mode_superposition(frequencies, modes)
 

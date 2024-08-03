@@ -8,7 +8,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class SolutionStructural:
+class StructuralSolver:
     """ This class creates a Structural Solution object from input data.
 
     Parameters

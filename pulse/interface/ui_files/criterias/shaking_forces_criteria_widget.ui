@@ -238,7 +238,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="3" column="2">
-          <widget class="QCheckBox" name="checkBox_4">
+          <widget class="QCheckBox" name="checkBox_resultant_force">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -253,7 +253,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QCheckBox" name="checkBox">
+          <widget class="QCheckBox" name="checkBox_force_Fx">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -268,7 +268,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QCheckBox" name="checkBox_3">
+          <widget class="QCheckBox" name="checkBox_force_Fz">
            <property name="font">
             <font>
              <pointsize>10</pointsize>
@@ -283,7 +283,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QCheckBox" name="checkBox_2">
+          <widget class="QCheckBox" name="checkBox_force_Fy">
            <property name="font">
             <font>
              <pointsize>10</pointsize>

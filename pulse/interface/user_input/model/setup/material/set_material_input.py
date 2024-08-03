@@ -181,7 +181,7 @@ class SetMaterialInput(QDialog):
             if self.comboBox_attribution_type.currentIndex():
 
                 lineEdit = self.lineEdit_selected_id.text()
-                self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+                self.stop, self.lines_typed = self.before_run.check_selected_ids(lineEdit, "lines")
                 if self.stop:
                     return True 
                                

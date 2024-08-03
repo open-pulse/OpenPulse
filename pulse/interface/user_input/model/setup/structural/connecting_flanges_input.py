@@ -356,7 +356,7 @@ class ConnectingFlangesInput(QDialog):
 
         selection_index = self.comboBox_selection_type.currentIndex()
         if selection_index == 0:
-            _stop, self.lineID = self.before_run.check_input_LineID(lineEdit_selection)
+            _stop, self.lineID = self.before_run.check_selected_ids(lineEdit_selection, "lines")
             for line_id in self.lineID:
                 entity = self.preprocessor.dict_tag_to_entity[line_id]
                 if entity.structural_element_type in ["beam_1", "expansion_joint"]:

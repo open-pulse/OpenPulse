@@ -7,7 +7,7 @@ from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.processing.assembly_structural import AssemblyStructural 
-from pulse.processing.solution_structural import SolutionStructural
+from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.animation.plot_function import plot_results
 
@@ -60,7 +60,7 @@ f_max = 200
 df = 2
 frequencies = np.arange(0, f_max+df, df)
 
-solution = SolutionStructural(preprocessor, frequencies)
+solution = StructuralSolver(preprocessor, frequencies)
 
 modes = 200
 global_damping = [0, 0, 0, 0]

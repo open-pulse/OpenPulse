@@ -8,8 +8,8 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.preprocessor import  Preprocessor
 from pulse.processing.assembly_structural import AssemblyStructural 
-from pulse.processing.solution_structural import SolutionStructural
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.structural_solver import StructuralSolver
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf, get_acoustic_response
 from examples.animation.plot_function import plot_results
@@ -54,7 +54,7 @@ f_max = 250
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution_acoustic = SolutionAcoustic(preprocessor, frequencies)
+solution_acoustic = AcousticSolver(preprocessor, frequencies)
 
 direct = solution_acoustic.direct_method()
 #%% Acoustic validation
@@ -162,7 +162,7 @@ preprocessor.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
 preprocessor.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
 preprocessor.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
-solution_structural = SolutionStructural(mesh, acoustic_solution = direct)
+solution_structural = StructuralSolver(mesh, acoustic_solution = direct)
 modes = 200
 natural_frequencies, mode_shapes = solution_structural.modal_analysis(modes=modes, harmonic_analysis=True)
 

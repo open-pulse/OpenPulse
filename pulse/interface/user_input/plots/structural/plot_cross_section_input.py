@@ -125,7 +125,7 @@ class PlotCrossSectionInput(QDialog):
         if index == 0:
 
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.line_typed = self.before_run.check_input_LineID(lineEdit, single_ID=True)
+            self.stop, self.line_typed = self.before_run.check_selected_ids(lineEdit, "lines", single_id=True)
             if self.stop:
                 return True
 

@@ -8,7 +8,7 @@ from scipy.sparse.linalg import eigs, spsolve
 def relative_error(vect_1, vect_2):
     return norm((vect_2-vect_1))/norm(vect_1)
 
-class SolutionAcoustic:
+class AcousticSolver:
     """ This class creates a Acoustic Solution object from input data.
 
     Parameters

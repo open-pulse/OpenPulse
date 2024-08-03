@@ -598,7 +598,7 @@ class SetCrossSectionInput(QDialog):
         if lineEdit != "":
 
             if selection_index == 1:
-                _stop, _lines_typed = self.before_run.check_input_LineID(lineEdit)
+                _stop, _lines_typed = self.before_run.check_selected_ids(lineEdit, "lines")
                 if _stop:
                     return
                 app().main_window.set_selection(entities = _lines_typed)
@@ -712,7 +712,7 @@ class SetCrossSectionInput(QDialog):
         elif selection_index == 1:
 
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_selected_ids(lineEdit, "lines")
             if self.stop:
                 return True 
 
@@ -735,7 +735,7 @@ class SetCrossSectionInput(QDialog):
 
         elif selection_index == 1:
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_selected_ids(lineEdit, "lines")
             if self.stop:
                 return True        
 

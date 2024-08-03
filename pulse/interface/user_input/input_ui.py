@@ -338,7 +338,7 @@ class InputUi:
 
         # t0 = time()
         if self.analysis_ID is None or not self.project.setup_analysis_complete:
-            
+
             title = "INCOMPLETE SETUP ANALYSIS" 
             message = "Please, it is necessary to choose an analysis type and "
             message += "setup it before trying to solve the model."

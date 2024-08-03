@@ -217,7 +217,7 @@ class AcousticElementTypeInput(QDialog):
 
         elif index_selection == 1:
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.typed_lines = self.before_run.check_input_LineID(lineEdit)
+            self.stop, self.typed_lines = self.before_run.check_selected_ids(lineEdit, "lines")
             if self.stop:
                 return True
             lines = self.typed_lines

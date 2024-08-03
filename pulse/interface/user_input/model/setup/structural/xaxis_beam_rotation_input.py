@@ -196,7 +196,7 @@ class BeamXaxisRotationInput(QDialog):
 
         else:
             lineEdit_lineID = self.lineEdit_selected_id.text()
-            self.stop, lines = self.before_run.check_input_LineID(lineEdit_lineID)
+            self.stop, lines = self.before_run.check_selected_ids(lineEdit_lineID, "lines")
             if self.stop:
                 return
 
