@@ -1,5 +1,5 @@
 from pulse.preprocessing.cross_section import *
-from pulse.preprocessing.model_line import ModelLine
+from pulse.preprocessing.line import Line
 from pulse.preprocessing.geometry import Geometry
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -282,7 +282,7 @@ class Preprocessor:
 
             for dim, line_tag in gmsh.model.getEntities(1):
         
-                new_line = ModelLine(line_tag)
+                new_line = Line(line_tag)
 
                 # Element
                 _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
@@ -870,7 +870,7 @@ class Preprocessor:
         self.number_structural_elements = connectivity.shape[0]
         self.number_acoustic_elements = connectivity.shape[0]
 
-        new_line = ModelLine(1)
+        new_line = Line(1)
         map_indexes = dict(zip(coordinates[:,0], np.arange(1, len(coordinates[:,0])+1, 1)))
 
         for i, x, y, z in coordinates:

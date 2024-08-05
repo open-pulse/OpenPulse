@@ -100,7 +100,7 @@ class GeometryHandler:
         gmsh.model.occ.synchronize()
 
     def process_pipeline(self, build_data : dict):
-        """ This method builds structures based on entity file data.
+        """ This method builds structures based on model_data file data.
         
         Parameters:
         -----------
@@ -631,8 +631,8 @@ class GeometryHandler:
 
         if len(points_info):
 
-            if os.path.exists(self.file._entity_path):
-                os.remove(self.file._entity_path)
+            if os.path.exists(self.file._build_data_path):
+                os.remove(self.file._build_data_path)
 
             self.file.create_entity_file(points_info.keys())
 

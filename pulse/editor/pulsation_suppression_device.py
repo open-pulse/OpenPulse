@@ -49,7 +49,7 @@ class PulsationSuppressionDevice:
 
     def build_device(self, device_label, device):
 
-        entity_path = self.file._entity_path
+        entity_path = self.file._build_data_path
         config = configparser.ConfigParser()
         config.read(entity_path)
 
@@ -184,7 +184,7 @@ class PulsationSuppressionDevice:
     def get_device_related_lines(self):
 
         config = configparser.ConfigParser()
-        config.read(self.file._entity_path)
+        config.read(self.file._build_data_path)
 
         self.psd_lines= defaultdict(list)
 
@@ -197,7 +197,7 @@ class PulsationSuppressionDevice:
 
     def remove_psd_lines_from_entity_file(self, device_labels):
 
-        entity_path = self.file._entity_path
+        entity_path = self.file._build_data_path
         config = configparser.ConfigParser()
         config.read(entity_path)
 

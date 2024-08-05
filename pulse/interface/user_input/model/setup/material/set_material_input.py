@@ -39,7 +39,7 @@ class SetMaterialInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._loading_info_at_start()
+        self.selection_callback()
         self.exec()
 
     def _load_icons(self):

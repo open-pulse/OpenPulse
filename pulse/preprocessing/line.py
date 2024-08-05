@@ -1,13 +1,13 @@
 # from pulse.preprocessing.material import Material
 
-class ModelLine:
+class Line:
     """A entity class.
     This class creates a entity object from input data.
 
     Parameters
     ----------
     tag : int
-        ModelLine tag name, which is displayed to the user in the UI.
+        Line tag name, which is displayed to the user in the UI.
     """
     def __init__(self, tag, **kwargs):
         self.tag = tag

@@ -325,6 +325,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                     )
 
     def update_selection(self):
+
+        # self.current_frequency_index = 0
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
 

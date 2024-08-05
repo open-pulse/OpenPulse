@@ -817,7 +817,7 @@ class SetCrossSectionInput(QDialog):
     def process_expansion_joint_table_files_removal(self, list_line_ids):
 
         config = configparser.ConfigParser()
-        config.read(self.project.file._entity_path)
+        config.read(self.project.file._build_data_path)
         sections = config.sections()
 
         for section in sections:

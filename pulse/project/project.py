@@ -1,7 +1,7 @@
 from pulse.tools.utils import *
 #
 from pulse.project.load_project_data import LoadProjectData
-from pulse.preprocessing.model_line import ModelLine
+from pulse.preprocessing.line import Line
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.after_run import AfterRun
@@ -290,7 +290,7 @@ class Project:
                 rmtree(self.file._imported_data_folder_path)
 
     def set_entity(self, tag):
-        return ModelLine(tag)
+        return Line(tag)
 
     def load_entity_file(self):
         self.loader = LoadProjectData()
