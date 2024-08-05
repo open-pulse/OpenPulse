@@ -10,7 +10,7 @@ from molde.render_widgets import CommonRenderWidget
 from ._mesh_picker import MeshPicker
 from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text
 
-from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, TubeActorGPU
+from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, PointsActor, TubeActorGPU
 from pulse.interface.viewer_3d.actors.tube_actor import ColorMode
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
@@ -67,6 +67,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.nodes_actor = NodesActor(project)
         self.lines_actor = ElementLinesActor(project)
         self.tubes_actor = TubeActorGPU(project)
+        self.points_actor = PointsActor()
 
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update
@@ -85,6 +86,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.renderer.AddActor(self.lines_actor)
         self.renderer.AddActor(self.nodes_actor)
+        self.renderer.AddActor(self.points_actor)
         self.renderer.AddActor(self.tubes_actor)
         self.renderer.AddActor(self.acoustic_nodes_symbols_actor)
         self.renderer.AddActor(self.acoustic_elements_symbols_actor)

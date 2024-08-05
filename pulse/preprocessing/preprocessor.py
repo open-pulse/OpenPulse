@@ -84,6 +84,7 @@ class Preprocessor:
         self.element_with_capped_end = list()
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
+        self.geometry_points = list()
 
         self.dict_structural_element_type_to_lines = defaultdict(list)
         self.dict_acoustic_element_type_to_lines = defaultdict(list)
@@ -172,6 +173,7 @@ class Preprocessor:
         self._create_entities()
         self._map_lines_to_elements()
         self._map_lines_to_nodes()
+        self._save_geometry_points()
         self._finalize_gmsh()
 
         # t0 = time()
@@ -456,6 +458,14 @@ class Preprocessor:
             self.dict_line_to_nodes[line_ID] = np.sort(list_nodes)              
         # dt = time() - t0
         # print(f"Time to process : {dt}")
+
+    def _save_geometry_points(self):
+        self.geometry_points.clear()
+        for dim, point_tag in gmsh.model.getEntities(0):
+            index = self.map_nodes.get(point_tag)
+            if index is None:
+                continue
+            self.geometry_points.append(index)
 
     def _finalize_gmsh(self):
         """

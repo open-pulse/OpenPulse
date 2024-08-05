@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
         self.action_set_dark_theme : QAction
         self.action_set_light_theme : QAction
         self.action_save_project_as : QAction
-        self.action_show_mesh_points : QAction
+        self.action_show_mesh_nodes : QAction
         self.action_show_geometry_points : QAction
         self.action_show_lines : QAction
         self.action_show_tubes : QAction
@@ -478,7 +478,7 @@ class MainWindow(QMainWindow):
 
     def _configure_visualization(self, *args, **kwargs):
         self.visualization_filter = VisualizationFilter(*args, **kwargs)
-        self.action_show_mesh_points.setChecked(self.visualization_filter.nodes)
+        self.action_show_mesh_nodes.setChecked(self.visualization_filter.nodes)
         self.action_show_lines.setChecked(self.visualization_filter.lines)
         self.action_show_tubes.setChecked(self.visualization_filter.tubes)
         symbols = self.visualization_filter.acoustic_symbols | self.visualization_filter.structural_symbols
@@ -487,7 +487,8 @@ class MainWindow(QMainWindow):
 
     def _update_visualization(self):
         symbols = self.action_show_symbols.isChecked()
-        self.visualization_filter.nodes = self.action_show_mesh_points.isChecked()
+        self.visualization_filter.nodes = self.action_show_mesh_nodes.isChecked()
+        self.visualization_filter.points = self.action_show_geometry_points.isChecked()
         self.visualization_filter.tubes = self.action_show_tubes.isChecked()
         self.visualization_filter.lines = self.action_show_lines.isChecked()
         self.visualization_filter.transparent = self.action_show_transparent.isChecked()
@@ -581,7 +582,7 @@ class MainWindow(QMainWindow):
         self.input_ui.reset_project()
 
     def action_plot_geometry_editor_callback(self):
-        self.action_show_mesh_points.setChecked(True)
+        self.action_show_mesh_nodes.setChecked(True)
         self.action_show_lines.setChecked(True)
         self.action_show_tubes.setChecked(True)
         self.action_show_symbols.setChecked(True)
@@ -744,7 +745,10 @@ class MainWindow(QMainWindow):
     def action_about_openpulse_callback(self):
         self.input_ui.about_OpenPulse()
 
-    def action_show_mesh_points_callback(self, cond):
+    def action_show_mesh_nodes_callback(self, cond):
+        self._update_visualization()
+    
+    def action_show_geometry_points_callback(self, cond):
         self._update_visualization()
 
     def action_show_lines_callback(self, cond):

@@ -202,7 +202,7 @@
    <addaction name="action_zoom"/>
    <addaction name="separator"/>
    <addaction name="action_clip_plane"/>
-   <addaction name="action_show_mesh_points"/>
+   <addaction name="action_show_mesh_nodes"/>
    <addaction name="action_show_geometry_points"/>
    <addaction name="action_show_lines"/>
    <addaction name="action_show_tubes"/>
@@ -737,7 +737,7 @@
     <string>About OpenPulse</string>
    </property>
   </action>
-  <action name="action_show_mesh_points">
+  <action name="action_show_mesh_nodes">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -749,10 +749,10 @@
      <normaloff>../icons/common/show_mesh_points.png</normaloff>../icons/common/show_mesh_points.png</iconset>
    </property>
    <property name="text">
-    <string>Show Mesh Points</string>
+    <string>Show Mesh Nodes</string>
    </property>
    <property name="toolTip">
-    <string>Show Mesh Points</string>
+    <string>Show Mesh Nodes</string>
    </property>
   </action>
   <action name="action_show_lines">

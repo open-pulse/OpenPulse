@@ -1641,6 +1641,12 @@ class Project:
     def get_nodes(self):
         return self.preprocessor.nodes
 
+    def get_geometry_points(self):
+        points = dict()
+        for i in self.preprocessor.geometry_points:
+            points[i] = self.preprocessor.nodes[i]
+        return points
+
     # def get_entities(self):
     #     return self.preprocessor.entities
 
