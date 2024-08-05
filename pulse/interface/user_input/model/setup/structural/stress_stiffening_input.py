@@ -44,7 +44,7 @@ class StressStiffeningInput(QDialog):
 
     def _initialize(self):
 
-        self.lines_id = app().main_window.list_selected_entities()
+        self.lines_id = app().main_window.list_selected_lines()
         self.elements_id = app().main_window.list_selected_elements()
 
         self.preprocessor = self.project.preprocessor
@@ -487,7 +487,7 @@ class StressStiffeningInput(QDialog):
 
     def update(self):
 
-        self.lines_id = app().main_window.list_selected_entities()
+        self.lines_id = app().main_window.list_selected_lines()
         self.elements_id = app().main_window.list_selected_elements()
 
         selection_index = self.comboBox_selection.currentIndex()

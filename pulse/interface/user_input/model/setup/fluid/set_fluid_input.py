@@ -146,7 +146,7 @@ class SetFluidInput(QDialog):
         if index == 0:
             self.lineEdit_selected_id.setText("All lines")
         elif index == 1:
-            line_ids = self.main_window.selected_entities
+            line_ids = app().main_window.list_selected_lines()
             self.write_ids(line_ids)
 
         self.lineEdit_selected_id.setEnabled(bool(index))
@@ -167,7 +167,7 @@ class SetFluidInput(QDialog):
         self.update_selection()    
 
     def update_selection(self):
-        line_ids = self.main_window.selected_entities
+        line_ids = app().main_window.list_selected_lines()
         self.write_ids(line_ids)
         self.lineEdit_selected_id.setEnabled(True)
         self.comboBox_attribution_type.setCurrentIndex(1)

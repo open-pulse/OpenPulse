@@ -207,7 +207,7 @@ class GetReactionsForHarmonicAnalysis(QWidget):
             return
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter._set_data_to_plot(self.model_results)
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def call_data_exporter(self):
         if self.check_inputs():

@@ -27,8 +27,8 @@ class AcousticElementTypeInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self.update_selection()
-        self.attribution_type_callback()
+        self.selection_callback()
+        # self.attribution_type_callback()
         self.element_type_change_callback()
         self.load_element_type_info()
         self.exec()
@@ -46,7 +46,7 @@ class AcousticElementTypeInput(QDialog):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.lines_id = app().main_window.list_selected_entities()
+        self.lines_id = app().main_window.list_selected_lines()
 
         self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
         self.element_type = 'undamped'
@@ -56,25 +56,32 @@ class AcousticElementTypeInput(QDialog):
         self.beam_to_pipe = False
 
     def _define_qt_variables(self):
+
         # QCheckBox
         self.checkBox_flow_effects : QCheckBox
+
         # QComboBox
         self.comboBox_element_type : QComboBox
         self.comboBox_selection : QComboBox
+
         # QLabel
         self.label_proportional_damping : QLabel
         self.label_vol_flow : QLabel
         self.label_volume_rate_unit : QLabel
         self.label_selected_id : QLabel
+
         # QLineEdit
         self.lineEdit_vol_flow : QLineEdit
         self.lineEdit_selected_id : QLineEdit
         self.lineEdit_proportional_damping : QLineEdit
+
         # QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_reset : QPushButton
+
         # QTabWidget
         self.tabWidget_main : QTabWidget
+
         # QTreeWidget
         self.treeWidget_element_type : QTreeWidget
 
@@ -114,7 +121,7 @@ class AcousticElementTypeInput(QDialog):
             self.lineEdit_selected_id.setText("All lines")
         elif index == 1:
             self.lineEdit_selected_id.setDisabled(False)
-            self.lines_id  = app().main_window.list_selected_entities()
+            self.lines_id  = app().main_window.list_selected_lines()
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
             else:
@@ -336,7 +343,7 @@ class AcousticElementTypeInput(QDialog):
             self.show()
 
     def update_selection(self):
-        self.lines_id  = app().main_window.list_selected_entities()
+        self.lines_id  = app().main_window.list_selected_lines()
         if self.lines_id != []:
 
             self.comboBox_selection.setCurrentIndex(1)

@@ -24,23 +24,19 @@ class BeamXaxisRotationInput(QDialog):
         self.project = app().project
         self.preprocessor = app().project.preprocessor
 
-        self._load_icon()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._config_widgets()
         self._create_connections()
-        self.update()
+        self.selection_callback()
         self.load_beam_xaxis_rotation_info()
         self.exec()
-
-    def _load_icon(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
@@ -57,21 +53,27 @@ class BeamXaxisRotationInput(QDialog):
         self.beam_lines = list()
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_selection : QComboBox
+
         # QLabel
         self.label_attribute_to : QLabel
         self.label_selected_id : QLabel
+
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
         self.lineEdit_xaxis_rotation_increment_angle : QLineEdit
         self.lineEdit_xaxis_rotation_actual_angle : QLineEdit
+
         # QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset_all : QPushButton
+
         # QTreeWidget
         self.treeWidget_xaxis_rotation_angle : QTreeWidget
+
         # QTabWidget
         self.tabWidget_xaxis_rotation_angle : QTabWidget
 
@@ -95,6 +97,37 @@ class BeamXaxisRotationInput(QDialog):
         self.tabWidget_xaxis_rotation_angle.currentChanged.connect(self.tab_event_update)
         self.treeWidget_xaxis_rotation_angle.itemClicked.connect(self.on_click_item)
         self.treeWidget_xaxis_rotation_angle.itemDoubleClicked.connect(self.on_double_click_item)    
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.list_selected_nodes()
+        if selected_nodes:
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_selected_id.setText(text)
+            self.process_selection(selected_nodes)
+
+    def process_selection(self, selected_lines : list):
+
+        self.tabWidget_xaxis_rotation_angle.setDisabled(False)
+
+        if selected_lines:
+
+            self.comboBox_selection.setCurrentIndex(1)
+            for line_id in selected_lines:
+                entity = self.preprocessor.dict_tag_to_entity[line_id]
+
+                if entity.structural_element_type != "beam_1":
+                    self.lineEdit_selected_id.setText("")
+                    self.tabWidget_xaxis_rotation_angle.setDisabled(True)
+                    return
+
+            if len(selected_lines) == 1:
+                entity = self.preprocessor.dict_tag_to_entity[selected_lines[0]]
+                angle = entity.xaxis_beam_rotation
+                self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
+            else:
+                self.lineEdit_xaxis_rotation_actual_angle.setText("")
 
     def change_selection_callback(self):
         self.lineEdit_selected_id.setText("")
@@ -106,34 +139,8 @@ class BeamXaxisRotationInput(QDialog):
             self.lineEdit_selected_id.setEnabled(False)
 
         else:
-            lines = app().main_window.selected_entities
-            if lines:
-                self.write_ids(lines)
-
-    def update(self):
-
-        line_ids = app().main_window.selected_entities
-        self.tabWidget_xaxis_rotation_angle.setDisabled(False)
-
-        if line_ids:
-
-            self.comboBox_selection.setCurrentIndex(1)
-            for line_id in line_ids:
-                entity = self.preprocessor.dict_tag_to_entity[line_id]
-
-                if entity.structural_element_type != "beam_1":
-                    self.lineEdit_selected_id.setText("")
-                    self.tabWidget_xaxis_rotation_angle.setDisabled(True)
-                    return
-
-            if len(line_ids) == 1:
-                entity = self.preprocessor.dict_tag_to_entity[line_ids[0]]
-                angle = entity.xaxis_beam_rotation
-                self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
-            else:
-                self.lineEdit_xaxis_rotation_actual_angle.setText("")
-            
-            self.write_ids(line_ids)
+            if app().main_window.list_selected_lines():
+                self.selection_callback()
 
     def tab_event_update(self):
 
@@ -330,12 +337,6 @@ class BeamXaxisRotationInput(QDialog):
             message = str(e)
             PrintMessageInput([window_title_1, title, message])
         self.show()
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

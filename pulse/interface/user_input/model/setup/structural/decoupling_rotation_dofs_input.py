@@ -49,7 +49,7 @@ class DecouplingRotationDOFsInput(QDialog):
     def _initialize(self):
 
         self.node_id = app().main_window.list_selected_nodes()
-        self.line_id = app().main_window.list_selected_entities()
+        self.line_id = app().main_window.list_selected_lines()
         self.element_id = app().main_window.list_selected_elements()
 
         self.preprocessor = self.project.preprocessor

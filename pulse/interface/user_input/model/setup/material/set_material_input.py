@@ -132,7 +132,7 @@ class SetMaterialInput(QDialog):
             self.lineEdit_selected_id.setEnabled(False)
             self.comboBox_attribution_type.setCurrentIndex(0)
         elif index == 1:
-            lines_ids = self.main_window.selected_entities
+            lines_ids = app().main_window.list_selected_lines()
             self.write_ids(lines_ids)
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
@@ -144,7 +144,7 @@ class SetMaterialInput(QDialog):
         self.lineEdit_selected_id.setText(text)
 
     def update_selection(self):
-        lines_ids = self.main_window.selected_entities
+        lines_ids = app().main_window.list_selected_lines()
 
         if lines_ids:
             self.write_ids(lines_ids)

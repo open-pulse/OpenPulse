@@ -26,25 +26,21 @@ class MassSpringDamperInput(QDialog):
         app().main_window.set_input_widget(self)
         self.project = app().project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self.update()
+        self.selection_callback()
         self.load_treeWidgets_info()
                
         while self.keep_window_open:
             self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
@@ -147,7 +143,7 @@ class MassSpringDamperInput(QDialog):
         self.checkBox_remove_spring : QCheckBox
         self.checkBox_remove_damper : QCheckBox
 
-        self.lineEdit_nodes_ids : QLineEdit
+        self.lineEdit_selected_ids : QLineEdit
         self.lineEdit_selection : QLineEdit
 
         # QFrame
@@ -268,12 +264,94 @@ class MassSpringDamperInput(QDialog):
         #
         self.treeWidget_masses.itemClicked.connect(self.on_click_item_masses)
         self.treeWidget_masses.itemDoubleClicked.connect(self.on_doubleclick_item_masses)
-
+        #
         self.treeWidget_springs.itemClicked.connect(self.on_click_item_springs)
         self.treeWidget_springs.itemDoubleClicked.connect(self.on_doubleclick_item_springs)
-
+        #
         self.treeWidget_dampers.itemClicked.connect(self.on_click_item_dampings)
         self.treeWidget_dampers.itemDoubleClicked.connect(self.on_doubleclick_item_dampings)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.list_selected_nodes()
+        if selected_nodes:
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_selected_ids.setText(text)
+            self.process_selection(selected_nodes)
+
+    def process_selection(self, selected_nodes : list):
+        # try:
+        if selected_nodes:
+
+            self.reset_input_fields_masses()
+            self.reset_input_fields_stiffness()
+            self.reset_input_fields_dampings()
+
+            if len(selected_nodes) == 1:
+                node = self.preprocessor.nodes[selected_nodes[0]]
+
+                # Lumped masses/inertias
+                if node.there_are_lumped_masses:
+                    if node.loaded_table_for_lumped_masses:
+                        table_names = node.lumped_masses_table_names
+                        self.tabWidget_inputs.setCurrentIndex(1)
+                        self.tabWidget_table_values.setCurrentIndex(0)
+                        for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_masses):
+                            if table_names[index] is not None:
+                                table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
+                                lineEdit_table.setText(table_name)
+                    else:
+                        lumped_masses = node.lumped_masses
+                        self.tabWidget_inputs.setCurrentIndex(0)
+                        self.tabWidget_constant_values.setCurrentIndex(1)
+                        for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_masses):
+                            if lumped_masses[index] is not None:
+                                lineEdit_constant.setText(str(lumped_masses[index]))
+                    self.lumped_masses_inputs_from_node = True
+
+                # Lumped stiffness
+                if node.there_are_lumped_stiffness:
+                    if node.loaded_table_for_lumped_stiffness:
+                        table_names = node.lumped_stiffness_table_namess
+                        self.tabWidget_inputs.setCurrentIndex(1)
+                        self.tabWidget_table_values.setCurrentIndex(1)
+                        for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_stiffness):
+                            if table_names[index] is not None:
+                                table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
+                                lineEdit_table.setText(table_name)
+                    else:
+                        lumped_stiffness = node.lumped_stiffness
+                        self.tabWidget_inputs.setCurrentIndex(0)
+                        self.tabWidget_constant_values.setCurrentIndex(1)
+                        for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_stiffness):
+                            if lumped_stiffness[index] is not None:
+                                lineEdit_constant.setText(str(lumped_stiffness[index]))
+                    self.lumped_stiffness_inputs_from_node = True
+
+                # Lumped dampings
+                if node.there_are_lumped_dampings:
+                    if node.loaded_table_for_lumped_dampings:
+                        table_names = node.lumped_dampings_table_names
+                        self.tabWidget_inputs.setCurrentIndex(1)
+                        self.tabWidget_table_values.setCurrentIndex(2)
+                        for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_dampings):
+                            if table_names[index] is not None:
+                                table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
+                                lineEdit_table.setText(table_name)
+                    else:
+                        lumped_dampings = node.lumped_dampings
+                        self.tabWidget_inputs.setCurrentIndex(0)
+                        self.tabWidget_constant_values.setCurrentIndex(2)
+                        for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_dampings):
+                            if lumped_dampings[index] is not None:
+                                lineEdit_constant.setText(str(lumped_dampings[index]))
+                    self.lumped_dampings_inputs_from_node = True
+
+        # except Exception as error_log:
+        #     title = "Error in 'update' function"
+        #     message = str(error_log)
+        #     PrintMessageInput([window_title_1, title, message])
 
     def _config_widgets(self):
         #
@@ -377,8 +455,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_constant_values_lumped_masses(self):
         
-        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-        self.stopstop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
+        self.stopstop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
         if self.stopstop:
             return
 
@@ -413,8 +491,8 @@ class MassSpringDamperInput(QDialog):
         
     def check_constant_values_lumped_stiffness(self):
 
-        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
         if self.stopstop:
             return
 
@@ -449,8 +527,8 @@ class MassSpringDamperInput(QDialog):
  
     def check_constant_values_lumped_dampings(self):
 
-        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
         if self.stopstop:
             return
 
@@ -723,8 +801,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_masses(self):
 
-        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
         if self.stop:
             return
        
@@ -798,8 +876,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_stiffness(self):
 
-        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
         if self.stop:
             return
 
@@ -872,8 +950,8 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_dampings(self):
 
-        lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
         if self.stop:
             return
 
@@ -1013,8 +1091,8 @@ class MassSpringDamperInput(QDialog):
                     nodes_typed.append(index)
         else:
 
-            lineEdit_nodes_ids = self.lineEdit_nodes_ids.text()
-            _stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodes_ids)
+            lineEdit_selected_ids = self.lineEdit_selected_ids.text()
+            _stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
             if _stop:
                 return
 
@@ -1136,7 +1214,7 @@ class MassSpringDamperInput(QDialog):
     def on_click_item_masses(self, item):
         self.current_selection = "lumped masses"
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_nodes_ids.setText(item.text(0))
+        self.lineEdit_selected_ids.setText(item.text(0))
 
     def on_doubleclick_item_masses(self, item):
         self.on_click_item_masses(item)
@@ -1144,7 +1222,7 @@ class MassSpringDamperInput(QDialog):
     def on_click_item_springs(self, item):
         self.current_selection = "lumped stiffness"
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_nodes_ids.setText(item.text(0))
+        self.lineEdit_selected_ids.setText(item.text(0))
 
     def on_doubleclick_item_springs(self, item):
         self.on_click_item_springs(item)
@@ -1152,7 +1230,7 @@ class MassSpringDamperInput(QDialog):
     def on_click_item_dampings(self, item):
         self.current_selection = "lumped dampings"
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_nodes_ids.setText(item.text(0))
+        self.lineEdit_selected_ids.setText(item.text(0))
 
     def on_doubleclick_item_dampings(self, item):
         self.on_click_item_dampings(item)
@@ -1174,90 +1252,6 @@ class MassSpringDamperInput(QDialog):
             lineEdit_constant_dampings.setText("")
         for lineEdit_table_dampings in self.list_lineEdit_table_values_lumped_dampings:
             lineEdit_table_dampings.setText("")
-
-    def update(self):
-
-        try:
-            nodes_ids = app().main_window.list_selected_nodes()
-            if nodes_ids:
-
-                self.wirte_ids(nodes_ids)
-
-                self.reset_input_fields_masses()
-                self.reset_input_fields_stiffness()
-                self.reset_input_fields_dampings()
-
-                if len(nodes_ids) == 1:
-                    node = self.preprocessor.nodes[nodes_ids[0]]
-
-                    # Lumped masses/inertias
-                    if node.there_are_lumped_masses:
-                        if node.loaded_table_for_lumped_masses:
-                            table_names = node.lumped_masses_table_names
-                            self.tabWidget_inputs.setCurrentIndex(1)
-                            self.tabWidget_table_values.setCurrentIndex(0)
-                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_masses):
-                                if table_names[index] is not None:
-                                    table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
-                                    lineEdit_table.setText(table_name)
-                        else:
-                            lumped_masses = node.lumped_masses
-                            self.tabWidget_inputs.setCurrentIndex(0)
-                            self.tabWidget_constant_values.setCurrentIndex(1)
-                            for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_masses):
-                                if lumped_masses[index] is not None:
-                                    lineEdit_constant.setText(str(lumped_masses[index]))
-                        self.lumped_masses_inputs_from_node = True
-
-                    # Lumped stiffness
-                    if node.there_are_lumped_stiffness:
-                        if node.loaded_table_for_lumped_stiffness:
-                            table_names = node.lumped_stiffness_table_namess
-                            self.tabWidget_inputs.setCurrentIndex(1)
-                            self.tabWidget_table_values.setCurrentIndex(1)
-                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_stiffness):
-                                if table_names[index] is not None:
-                                    table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
-                                    lineEdit_table.setText(table_name)
-                        else:
-                            lumped_stiffness = node.lumped_stiffness
-                            self.tabWidget_inputs.setCurrentIndex(0)
-                            self.tabWidget_constant_values.setCurrentIndex(1)
-                            for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_stiffness):
-                                if lumped_stiffness[index] is not None:
-                                    lineEdit_constant.setText(str(lumped_stiffness[index]))
-                        self.lumped_stiffness_inputs_from_node = True
-
-                    # Lumped dampings
-                    if node.there_are_lumped_dampings:
-                        if node.loaded_table_for_lumped_dampings:
-                            table_names = node.lumped_dampings_table_names
-                            self.tabWidget_inputs.setCurrentIndex(1)
-                            self.tabWidget_table_values.setCurrentIndex(2)
-                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_dampings):
-                                if table_names[index] is not None:
-                                    table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
-                                    lineEdit_table.setText(table_name)
-                        else:
-                            lumped_dampings = node.lumped_dampings
-                            self.tabWidget_inputs.setCurrentIndex(0)
-                            self.tabWidget_constant_values.setCurrentIndex(2)
-                            for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_lumped_dampings):
-                                if lumped_dampings[index] is not None:
-                                    lineEdit_constant.setText(str(lumped_dampings[index]))
-                        self.lumped_dampings_inputs_from_node = True
-
-        except Exception as error_log:
-            title = "Error in 'update' function"
-            message = str(error_log)
-            # TODO: disable the 'messages' until solve the 'update' function recursive callback problem in opvRenderer
-            # PrintMessageInput([window_title_1, title, message])
-
-    def wirte_ids(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        self.lineEdit_nodes_ids.setText(text[:-2])
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

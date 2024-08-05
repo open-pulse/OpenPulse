@@ -194,7 +194,7 @@ class ExpansionJointInput(QDialog):
     def selection_type_callback(self):
 
         node_id = app().main_window.list_selected_nodes()
-        line_id = app().main_window.list_selected_entities()
+        line_id = app().main_window.list_selected_lines()
         element_id = app().main_window.list_selected_elements()
 
         self.lineEdit_selected_id.setText("")
@@ -232,7 +232,7 @@ class ExpansionJointInput(QDialog):
     def update(self):
 
         node_id = app().main_window.list_selected_nodes()
-        line_id = app().main_window.list_selected_entities()
+        line_id = app().main_window.list_selected_lines()
         element_id = app().main_window.list_selected_elements()
 
         if line_id:
@@ -383,7 +383,7 @@ class ExpansionJointInput(QDialog):
 
     def load_input_fields(self):
 
-        lines_id = app().main_window.list_selected_entities()
+        lines_id = app().main_window.list_selected_lines()
         elements_id = app().main_window.list_selected_elements()
 
         if len(lines_id) == 1:

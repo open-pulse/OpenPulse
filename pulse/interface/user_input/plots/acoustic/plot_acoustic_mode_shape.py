@@ -14,13 +14,11 @@ class PlotAcousticModeShape(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
         ui_path = UI_DIR / "plots/results/acoustic/acoustic_mode_shape.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
+        self.project = app().main_window.project
 
         self._initialize()
         self._define_qt_variables()

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+# from pulse.interface.formatters.icons import *
 
 import numpy as np
 
@@ -12,8 +12,6 @@ import numpy as np
 class PlotAcousticPressureField(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        main_window = app().main_window
         
         ui_path = UI_DIR / "plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
@@ -21,7 +19,6 @@ class PlotAcousticPressureField(QWidget):
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -40,11 +37,8 @@ class PlotAcousticPressureField(QWidget):
                           "plasma",
                           "grayscale"]
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 

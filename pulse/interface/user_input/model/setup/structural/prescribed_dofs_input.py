@@ -39,7 +39,7 @@ class PrescribedDofsInput(QDialog):
         ConfigWidgetAppearance(self, tool_tip=True)
 
         self._config_widgets()
-        self.update()
+        self.selection_callback()
         self.load_nodes_info()
 
         while self.keep_window_open:
@@ -103,9 +103,11 @@ class PrescribedDofsInput(QDialog):
         self.rz_basename = None
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_linear_data_type : QComboBox
         self.comboBox_angular_data_type : QComboBox
+
         # QLineEdit
         self.lineEdit_selection_id : QLineEdit
         self.lineEdit_real_ux : QLineEdit
@@ -131,6 +133,7 @@ class PrescribedDofsInput(QDialog):
         self.lineEdit_path_table_ry : QLineEdit
         self.lineEdit_path_table_rz : QLineEdit
         self._create_list_lineEdits()
+
         # QPushButton
         self.pushButton_load_ux_table : QPushButton
         self.pushButton_load_uy_table : QPushButton
@@ -142,11 +145,13 @@ class PrescribedDofsInput(QDialog):
         self.pushButton_remove_bc_confirm : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_table_values_confirm : QPushButton
+
         # QTabWidget
         self.tabWidget_prescribed_dofs : QTabWidget
+
         # QTreeWidget
         self.treeWidget_prescribed_dofs : QTreeWidget
-        
+
     def _create_list_lineEdits(self):
         self.list_lineEdit_constant_values = [  [self.lineEdit_real_ux, self.lineEdit_imag_ux],
                                                 [self.lineEdit_real_uy, self.lineEdit_imag_uy],
@@ -186,13 +191,38 @@ class PrescribedDofsInput(QDialog):
         self.treeWidget_prescribed_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_double_click_item)
         #
-        self.main_window.selection_changed.connect(self.selection_callback)
+        app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-        selected_nodes = app().main_window.selected_nodes
+        selected_nodes = app().main_window.list_selected_nodes()
         if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
+            self.process_selection(selected_nodes)
+
+    def process_selection(self, selected_nodes : list):
+        if selected_nodes:
+            picked_node = selected_nodes[0]
+            node = self.preprocessor.nodes[picked_node]
+            if node.there_are_prescribed_dofs:
+                self.reset_input_fields(force_reset=True)
+                if node.loaded_table_for_prescribed_dofs:
+                    table_names = node.prescribed_dofs_table_names
+                    self.tabWidget_prescribed_dofs.setCurrentIndex(1)
+                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
+                        if table_names[index] is not None:
+                            table_name = get_new_path(self.prescribed_dofs_files_folder_path, table_names[index])
+                            lineEdit_table.setText(table_name)
+                else:
+                    prescribed_dofs = node.prescribed_dofs
+                    self.tabWidget_prescribed_dofs.setCurrentIndex(0)
+                    for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
+                        if prescribed_dofs[index] is not None:
+                            lineEdit_real.setText(str(np.real(prescribed_dofs[index])))
+                            lineEdit_imag.setText(str(np.imag(prescribed_dofs[index])))
+                self.inputs_from_node = True
+            else:
+                self.reset_input_fields()
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
@@ -290,10 +320,11 @@ class PrescribedDofsInput(QDialog):
             data = [self.prescribed_dofs, table_names]
             self.remove_all_table_files_from_nodes(self.nodes_typed)
             self.project.set_prescribed_dofs_bc_by_node(self.nodes_typed, data, False)   
-            print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")  
-  
-            app().main_window.plot_mesh()
+
+            app().main_window.update_plots()
             self.close()
+
+            print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")  
 
         else:
             title = "Additional inputs required"
@@ -542,9 +573,11 @@ class PrescribedDofsInput(QDialog):
             self.project.set_prescribed_dofs_bc_by_node([node_id], data, True)
 
         self.process_table_file_removal(list_table_names)
-        print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}") 
-        app().main_window.plot_mesh()
+
+        app().main_window.update_plots()
         self.close()
+
+        print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")
 
     def text_label(self, mask):
         
@@ -589,7 +622,7 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setDisabled(True)
         else:
             self.lineEdit_selection_id.setDisabled(False)
-            self.update()
+            self.selection_callback()
 
     def on_click_item(self, item):
         self.pushButton_remove_bc_confirm.setDisabled(False)
@@ -648,7 +681,8 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove_bc_confirm.setDisabled(True)
             self.load_nodes_info()
-            app().main_window.plot_mesh()
+
+            app().main_window.update_plots()
             # self.close()
 
     def get_list_tables_names_from_selected_nodes(self, list_node_ids):
@@ -691,8 +725,8 @@ class PrescribedDofsInput(QDialog):
             data = [self.list_Nones, self.list_Nones]
             self.preprocessor.set_prescribed_dofs_bc_by_node(nodes_typed, data)
 
+            app().main_window.update_plots()
             self.close()
-            app().main_window.plot_mesh()
 
     def process_table_file_removal(self, list_table_names):
         for table_name in list_table_names:
@@ -706,41 +740,6 @@ class PrescribedDofsInput(QDialog):
             for lineEdit_table in self.list_lineEdit_table_values:
                 lineEdit_table.setText("")
             self.inputs_from_node = False
-
-    def update(self):
-        return
-
-        node_ids = app().main_window.list_selected_nodes()
-        if node_ids != []:
-            picked_node = node_ids[0]
-            node = self.preprocessor.nodes[picked_node]
-            if node.there_are_prescribed_dofs:
-                self.reset_input_fields(force_reset=True)
-                if node.loaded_table_for_prescribed_dofs:
-                    table_names = node.prescribed_dofs_table_names
-                    self.tabWidget_prescribed_dofs.setCurrentIndex(1)
-                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
-                        if table_names[index] is not None:
-                            table_name = get_new_path(self.prescribed_dofs_files_folder_path, table_names[index])
-                            lineEdit_table.setText(table_name)
-                else:
-                    prescribed_dofs = node.prescribed_dofs
-                    self.tabWidget_prescribed_dofs.setCurrentIndex(0)
-                    for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
-                        if prescribed_dofs[index] is not None:
-                            lineEdit_real.setText(str(np.real(prescribed_dofs[index])))
-                            lineEdit_imag.setText(str(np.imag(prescribed_dofs[index])))
-                self.inputs_from_node = True
-            else:
-                self.reset_input_fields()
-
-            self.writeNodes(node_ids)
-
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += f"{node}, "
-        self.lineEdit_selection_id.setText(text[:-2])
 
     # def tables_frequency_setup_message(self, lineEdit, label):
     #     title = f"Invalid frequency setup of the '{label}' imported table"

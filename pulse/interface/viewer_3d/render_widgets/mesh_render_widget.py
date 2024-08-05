@@ -50,7 +50,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_elements_symbols_actor = None
 
         self.selected_nodes = set()
-        self.selected_entities = set()
+        self.selected_lines = set()
         self.selected_elements = set()
 
         self.create_axes()
@@ -227,7 +227,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.clear_colors()
 
         nodes = app().main_window.selected_nodes
-        entities = app().main_window.selected_entities
+        entities = app().main_window.selected_lines
         elements = app().main_window.selected_elements
 
         self.nodes_actor.set_color((255, 50, 50), nodes)

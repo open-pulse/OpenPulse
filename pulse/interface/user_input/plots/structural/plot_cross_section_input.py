@@ -89,7 +89,7 @@ class PlotCrossSectionInput(QDialog):
 
     def update(self):
 
-        self.line_id = app().main_window.list_selected_entities()
+        self.line_id = app().main_window.list_selected_lines()
         self.element_id = app().main_window.list_selected_elements()
 
         if self.line_id != []:

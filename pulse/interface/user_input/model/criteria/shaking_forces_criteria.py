@@ -67,9 +67,9 @@ class ShakingForcesCriteriaInput(QWidget):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-        selected_entities = app().main_window.selected_entities
-        if selected_entities:
-            text = ", ".join([str(i) for i in selected_entities])
+        selected_lines = app().main_window.list_selected_lines()
+        if selected_lines:
+            text = ", ".join([str(i) for i in selected_lines])
             self.lineEdit_selection_id.setText(text)
 
     def process_shaking_forces_for_selected_lines(self):
@@ -122,26 +122,28 @@ class ShakingForcesCriteriaInput(QWidget):
     def plot_force_spectrum(self):
 
         shaking_forces = self.process_shaking_forces_for_selected_lines()
-        
+
         x_data = self.project.frequencies
 
         self.results_to_plot = dict()
         if self.checkBox_force_Fx.isChecked():
             self.results_to_plot["F_x"] = {"x_data" : x_data,
                                            "y_data" : shaking_forces["F_x"]}
-        
+
         if self.checkBox_force_Fy.isChecked():
             self.results_to_plot["F_y"] = {"x_data" : x_data,
                                            "y_data" : shaking_forces["F_y"]}
-        
+
         if self.checkBox_force_Fz.isChecked():
             self.results_to_plot["F_z"] = {"x_data" : x_data,
                                            "y_data" : shaking_forces["F_z"]}
-        
+
         if self.checkBox_resultant_force.isChecked():
             self.results_to_plot["F_res"] = {"x_data" : x_data,
                                              "y_data" : shaking_forces["F_res"]}
-        
+
+        self.call_plotter()
+
     def call_plotter(self):
 
         # if self.check_inputs():
@@ -156,12 +158,12 @@ class ShakingForcesCriteriaInput(QWidget):
         self.hide()
 
         self.model_results = dict()
-        title = f"Shaking forces"
+        title = f"Shaking forces from lines {self.lines_typed}"
 
-        for label, data in self.results_to_plot.items():
+        for k, (label, data) in enumerate(self.results_to_plot.items()):
 
             key = ("lines", (label))
-            legend_label = f"Shaking forces {label} from lines {self.lines_typed}"
+            legend_label = f"Shaking forces {label}"
 
             self.model_results[key] = { 
                                         "x_data" : data["x_data"],
@@ -172,16 +174,19 @@ class ShakingForcesCriteriaInput(QWidget):
                                         "data_type" : "acoustic pressures ratio",
                                         "legend" : legend_label,
                                         "unit" : self.unit_label,
-                                        "color" : [0,0,1],
+                                        "color" : self.get_color(k),
                                         "linestyle" : "-"
                                     }
 
     def get_color(self, index):
-        colors = [  (0,0,1), (0,0,0), (1,0,0),
-                    (1,1,0), (1,0,1), (0,1,1),
-                    (0.25,0.25,0.25)  ]
-        
-        if index <= 6:
+        colors = [  
+                    (0,0,1), 
+                    (1,0,0),
+                    (1,0,1),
+                    (0,0,0)
+                 ]
+
+        if index <= 3:
             return colors[index]
         else:
             return tuple(np.random.randint(0, 255, size=3))

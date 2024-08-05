@@ -225,10 +225,20 @@ class FluidInput(QDialog):
         self.treeWidget_fluids.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.create_lists_of_lineEdits()
 
+
+
+    def process_selection(self, selected_lines : list):
+        if selected_lines:
+            self.radioButton_selected_lines.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(True)
+        else:
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(False)
+
     def _loading_info_at_start(self):
         self.loadList()
-        lines_ids = app().main_window.selected_entities
-        if lines_ids:
+        if app().main_window.list_selected_lines():
             self.write_lines(lines_ids)
             self.radioButton_selected_lines.setChecked(True)
         else:
@@ -280,7 +290,6 @@ class FluidInput(QDialog):
         else:
             self.REFPROP = None
 
-
     def disable_lineEdits(self):
         lineEdits = [   self.lineEdit_fluid_density_rp,
                         self.lineEdit_speed_of_sound_rp,
@@ -292,7 +301,6 @@ class FluidInput(QDialog):
                         
         for lineEdit in lineEdits:
             lineEdit.setDisabled(True)
-
 
     def pick_color_add_user_defined(self):
         read = PickColorInput()
@@ -325,7 +333,6 @@ class FluidInput(QDialog):
             self.refprop_fluid = False
         return read.complete
 
-
     def pick_color_edit(self):
         read = PickColorInput()
         if read.complete:
@@ -339,25 +346,11 @@ class FluidInput(QDialog):
             if self.check_edit_input_fluid_color():
                 self.lineEdit_color_edit.setText("")
 
-
-    def update(self):
-        lines_ids = app().main_window.selected_entities
-        if lines_ids:
-            self.write_lines(lines_ids)
-            self.radioButton_selected_lines.setChecked(True)
-            self.lineEdit_selected_ID.setEnabled(True)
-        else:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all.setChecked(True)
-            self.lineEdit_selected_ID.setEnabled(False)
-
-
     def write_lines(self, list_ids):
         text = ""
         for _id in list_ids:
             text += "{}, ".format(_id)
         self.lineEdit_selected_ID.setText(text)
-
 
     def create_lists_of_lineEdits(self):
         self.list_add_lineEdit = [  self.lineEdit_name,
@@ -1293,7 +1286,7 @@ class FluidInput(QDialog):
         if self.flagSelection:
 
             self.lineEdit_selected_ID.setEnabled(True)
-            lines_ids = app().main_window.selected_entities
+            lines_ids = app().main_window.list_selected_lines()
             if lines_ids != []:
                 self.write_lines(lines_ids)
             else:

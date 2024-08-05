@@ -147,7 +147,7 @@ class ConnectingFlangesInput(QDialog):
     def selection_type_callback(self):
 
         node_id = app().main_window.list_selected_nodes()
-        line_id = app().main_window.list_selected_entities()
+        line_id = app().main_window.list_selected_lines()
         element_id = app().main_window.list_selected_elements()
 
         self.lineEdit_selected_id.setText("")
@@ -192,7 +192,7 @@ class ConnectingFlangesInput(QDialog):
     def update(self):
 
         node_id = app().main_window.list_selected_nodes()
-        line_id = app().main_window.list_selected_entities()
+        line_id = app().main_window.list_selected_lines()
         element_id = app().main_window.list_selected_elements()
 
         if node_id and element_id:
@@ -294,7 +294,7 @@ class ConnectingFlangesInput(QDialog):
         number_elements = self.spinBox_number_elements_line.value()
         _list_elements = []
 
-        for line_id in app().main_window.list_selected_entities():  
+        for line_id in app().main_window.list_selected_lines():  
             elements_from_line = np.sort(self.preprocessor.line_to_elements[line_id])
             elements_from_start = elements_from_line[0:number_elements]
             elements_from_end = elements_from_line[-number_elements:]

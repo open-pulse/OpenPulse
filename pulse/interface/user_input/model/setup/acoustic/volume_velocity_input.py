@@ -27,14 +27,13 @@ class VolumeVelocityInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
 
         ConfigWidgetAppearance(self, tool_tip=True)
 
-        self.update()
+        self.selection_callback()
         self.load_nodes_info()
         
         while self.keep_window_open:
@@ -57,39 +56,40 @@ class VolumeVelocityInput(QDialog):
         self.remove_volume_velocity = False
         self.volume_velocity = None
         self.list_Nones = [None, None, None, None, None, None]
-        
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QLineEdit
         self.lineEdit_imag_value : QLineEdit
         self.lineEdit_real_value : QLineEdit
         self.lineEdit_selection_id : QLineEdit
         self.lineEdit_table_path : QLineEdit
+
         # QPushButton
         self.constant_value_confirm_button : QPushButton
         self.remove_button : QPushButton
         self.reset_button : QPushButton
         self.search_button : QPushButton
         self.table_values_confirm_button : QPushButton
+
         # QSpinBox
         self.spinBox_skip_wors : QSpinBox
+
         # QTabWidget
         self.tabWidget_volume_velocity : QTabWidget
+
         # QTreeWidget
         self.treeWidget_volume_velocity : QTreeWidget
         self.treeWidget_volume_velocity.setColumnWidth(1, 20)
         self.treeWidget_volume_velocity.setColumnWidth(2, 80)
 
     def _create_connections(self):
-        app().main_window.selection_changed.connect(self.update)
         #
         self.constant_value_confirm_button.clicked.connect(self.check_constant_values)
         self.remove_button.clicked.connect(self.remove_bc_from_node)
@@ -101,6 +101,36 @@ class VolumeVelocityInput(QDialog):
         #
         self.treeWidget_volume_velocity.itemClicked.connect(self.on_click_item)
         self.treeWidget_volume_velocity.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.list_selected_nodes()
+        if selected_nodes:
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_selection_id.setText(text)
+            self.process_selection(selected_nodes)
+
+    def process_selection(self, selected_nodes : list):
+        if selected_nodes:
+            picked_node = selected_nodes[0]
+            node = self.preprocessor.nodes[picked_node]
+            if node.volume_velocity is not None:
+                self.reset_input_fields(force_reset=True)
+                if node.compressor_excitation_table_names == []:
+                    if node.volume_velocity_table_name is not None:
+                        table_name = node.volume_velocity_table_name
+                        self.tabWidget_volume_velocity.setCurrentIndex(1)
+                        table_name = get_new_path(self.volume_velocity_tables_folder_path, table_name)
+                        self.lineEdit_table_path.setText(table_name)
+                    else:
+                        volume_velocity = node.volume_velocity
+                        self.tabWidget_volume_velocity.setCurrentIndex(0)
+                        self.lineEdit_real_value.setText(str(np.real(volume_velocity)))
+                        self.lineEdit_imag_value.setText(str(np.imag(volume_velocity)))
+                    self.inputs_from_node = True
+            else:
+                self.reset_input_fields()
 
     def tabEvent_volume_velocity(self):
         self.remove_button.setDisabled(True)
@@ -108,7 +138,7 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
         else:
-            self.update()
+            self.selection_callback()
             self.lineEdit_selection_id.setDisabled(False)
 
     def load_nodes_info(self):
@@ -176,10 +206,14 @@ class VolumeVelocityInput(QDialog):
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
             self.process_table_file_removal(list_table_names) 
             self.project.set_volume_velocity_bc_by_node(self.nodes_typed, data)
+
             app().main_window.update_plots()
-            print(f"[Set Volume Velocity] - defined at node(s) {self.nodes_typed}")
             self.close()
-        else:    
+
+            print(f"[Set Volume Velocity] - defined at node(s) {self.nodes_typed}")
+
+        else:
+   
             title = "Additional inputs required"
             message = "You must inform at least one volume velocity " 
             message += "before confirming the input!"
@@ -270,6 +304,7 @@ class VolumeVelocityInput(QDialog):
         self.imported_values, self.filename_volume_velocity = self.load_table(self.lineEdit_table_path)
     
     def check_table_values(self):
+
         lineEdit_nodeID = self.lineEdit_selection_id.text()
         self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
@@ -298,9 +333,12 @@ class VolumeVelocityInput(QDialog):
 
             self.process_table_file_removal(list_table_names)
             app().main_window.update_plots()
-            print(f"[Set Volume Velocity] - defined at node(s) {self.nodes_typed}")   
             self.close()
-        else:    
+
+            print(f"[Set Volume Velocity] - defined at node(s) {self.nodes_typed}")   
+
+        else:
+
             title = "Additional inputs required"
             message = "You must inform at least one volume velocity " 
             message += "table path before confirming the input!"
@@ -409,36 +447,6 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_imag_value.setText("")
             self.lineEdit_table_path.setText("")
             self.inputs_from_node = False
-
-    def update(self):
-        list_picked_nodes = app().main_window.list_selected_nodes()
-        if list_picked_nodes != []:
-            picked_node = list_picked_nodes[0]
-            node = self.preprocessor.nodes[picked_node]
-            if node.volume_velocity is not None:
-                self.reset_input_fields(force_reset=True)
-                if node.compressor_excitation_table_names == []:
-                    if node.volume_velocity_table_name is not None:
-                        table_name = node.volume_velocity_table_name
-                        self.tabWidget_volume_velocity.setCurrentIndex(1)
-                        table_name = get_new_path(self.volume_velocity_tables_folder_path, table_name)
-                        self.lineEdit_table_path.setText(table_name)
-                    else:
-                        volume_velocity = node.volume_velocity
-                        self.tabWidget_volume_velocity.setCurrentIndex(0)
-                        self.lineEdit_real_value.setText(str(np.real(volume_velocity)))
-                        self.lineEdit_imag_value.setText(str(np.imag(volume_velocity)))
-                    self.inputs_from_node = True
-            else:
-                self.reset_input_fields()
-            self.writeNodes(app().main_window.list_selected_nodes())
-        
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        if self.tabWidget_volume_velocity.currentIndex() != 2:
-            self.lineEdit_selection_id.setText(text[:-2])
 
     def update_tabs_visibility(self):
         if len(self.preprocessor.nodes_with_volume_velocity) == 0:

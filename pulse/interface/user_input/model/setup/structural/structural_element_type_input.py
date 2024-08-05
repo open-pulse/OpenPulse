@@ -26,8 +26,7 @@ class StructuralElementTypeInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
-        self.attribution_type_callback()
+        self.selection_callback()
         self.element_type_change_callback()
         self.load_element_type_info()
         self.exec()
@@ -55,35 +54,98 @@ class StructuralElementTypeInput(QDialog):
         self.list_lines_to_update_cross_section = []
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_selection : QComboBox
         self.comboBox_element_type : QComboBox
         self.comboBox_capped_end : QComboBox
         self.comboBox_force_offset : QComboBox
         self.comboBox_wall_formulation : QComboBox
+
         # QLabel
         self.label_selected_id : QLabel
         self.label_capped_end : QLabel
         self.label_force_offset : QLabel
         self.label_wall_formulation : QLabel
+
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
+
         # QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_reset : QPushButton
+
         # QTabWidget
         self.tabWidget_main : QTabWidget
+
         # QTreeWidget
         self.treeWidget_element_type : QTreeWidget
 
     def _create_connections(self):
+        #
         self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
+        #
         self.pushButton_confirm.clicked.connect(self.confirm_button_clicked)
         self.pushButton_reset.clicked.connect(self.reset_element_type)
+        #
         self.tabWidget_main.currentChanged.connect(self.tab_selection_callback)
+        #
         self.treeWidget_element_type.itemClicked.connect(self.on_click_item_line)
         self.treeWidget_element_type.itemDoubleClicked.connect(self.on_double_click_item)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_lines = app().main_window.list_selected_lines()
+        if selected_lines:
+            self.lineEdit_selected_id.setText(str(selected_lines))
+            self.process_selection(selected_lines)
+
+    def process_selection(self, selected_lines : list):
+
+        self.comboBox_selection.blockSignals(True)
+
+        if selected_lines:
+
+            self.comboBox_selection.setCurrentIndex(1)
+            self.lineEdit_selected_id.setDisabled(False)
+
+            if len(selected_lines) == 1:
+
+                entity = self.preprocessor.dict_tag_to_entity[selected_lines[0]]
+
+                element_type = entity.structural_element_type
+                if element_type == 'pipe_1':
+                    self.comboBox_element_type.setCurrentIndex(0)
+                else:
+                    self.comboBox_element_type.setCurrentIndex(1)
+
+                wall_formulation = entity.structural_element_wall_formulation
+                if wall_formulation == 'thin_wall': 
+                    self.comboBox_wall_formulation.setCurrentIndex(0)
+                elif wall_formulation == 'thick_wall':
+                    self.comboBox_wall_formulation.setCurrentIndex(1)
+                elif wall_formulation is None:
+                    if element_type == "pipe_1":
+                        self.comboBox_wall_formulation.setCurrentIndex(1)
+
+                if entity.capped_end:
+                    self.comboBox_capped_end.setCurrentIndex(0)
+                else:
+                    self.comboBox_capped_end.setCurrentIndex(1)
+
+                if entity.force_offset == 1:
+                    self.comboBox_force_offset.setCurrentIndex(0)
+                else:
+                    self.comboBox_force_offset.setCurrentIndex(1)
+
+        else:
+            self.comboBox_selection.setCurrentIndex(0)
+            self.lineEdit_selected_id.setText("All lines")
+            self.lineEdit_selected_id.setDisabled(True)
+
+        self.comboBox_selection.blockSignals(False)
 
     def _config_widgets(self):
         self.treeWidget_element_type.setColumnWidth(0, 120)
@@ -112,9 +174,8 @@ class StructuralElementTypeInput(QDialog):
             self.lineEdit_selected_id.setText("All lines")
         elif index == 1:
             self.lineEdit_selected_id.setDisabled(False)
-            line_ids  = app().main_window.list_selected_entities()
-            if line_ids:
-                self.write_ids(line_ids)
+            if app().main_window.list_selected_lines():
+                self.selection_callback()
             else:
                 self.lineEdit_selected_id.setText("")
 
@@ -146,7 +207,7 @@ class StructuralElementTypeInput(QDialog):
         self.update_cross_section = False
 
         final_etype = self.element_type
-        line_ids = app().main_window.list_selected_entities()
+        line_ids = app().main_window.list_selected_lines()
 
         if len(line_ids) == 0:
             line_ids = self.preprocessor.all_lines
@@ -310,55 +371,6 @@ class StructuralElementTypeInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
 
         self.show()
-
-    def update(self):
-
-        line_ids  = app().main_window.list_selected_entities()
-        if line_ids:
-
-            self.comboBox_selection.setCurrentIndex(1)
-            self.write_ids(line_ids)
-            self.lineEdit_selected_id.setDisabled(False)
-
-            if len(line_ids) == 1:
-
-                entity = self.preprocessor.dict_tag_to_entity[line_ids[0]]
-
-                element_type = entity.structural_element_type
-                if element_type == 'pipe_1':
-                    self.comboBox_element_type.setCurrentIndex(0)
-                else:
-                    self.comboBox_element_type.setCurrentIndex(1)
-
-                wall_formulation = entity.structural_element_wall_formulation
-                if wall_formulation == 'thin_wall': 
-                    self.comboBox_wall_formulation.setCurrentIndex(0)
-                elif wall_formulation == 'thick_wall':
-                    self.comboBox_wall_formulation.setCurrentIndex(1)
-                elif wall_formulation is None:
-                    if element_type == "pipe_1":
-                        self.comboBox_wall_formulation.setCurrentIndex(1)
-
-                if entity.capped_end:
-                    self.comboBox_capped_end.setCurrentIndex(0)
-                else:
-                    self.comboBox_capped_end.setCurrentIndex(1)
-
-                if entity.force_offset == 1:
-                    self.comboBox_force_offset.setCurrentIndex(0)
-                else:
-                    self.comboBox_force_offset.setCurrentIndex(1)
-
-        else:
-            self.comboBox_selection.setCurrentIndex(0)
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setDisabled(True)
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

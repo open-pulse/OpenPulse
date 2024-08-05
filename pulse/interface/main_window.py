@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
         uic.loadUi(ui_path, self)
 
         self.selected_nodes = set()
-        self.selected_entities = set()
+        self.selected_lines = set()
         self.selected_elements = set()
         
         self.visualization_filter = VisualizationFilter.all_true()
@@ -373,22 +373,22 @@ class MainWindow(QMainWindow):
 
         if join and remove:
             self.selected_nodes ^= set(nodes)
-            self.selected_entities ^= set(entities)
+            self.selected_lines ^= set(entities)
             self.selected_elements ^= set(elements)
 
         elif join:
             self.selected_nodes |= set(nodes)
-            self.selected_entities |= set(entities)
+            self.selected_lines |= set(entities)
             self.selected_elements |= set(elements)
 
         elif remove:
             self.selected_nodes -= set(nodes)
-            self.selected_entities -= set(entities)
+            self.selected_lines -= set(entities)
             self.selected_elements -= set(elements)
 
         else:
             self.selected_nodes = set(nodes)
-            self.selected_entities = set(entities)
+            self.selected_lines = set(entities)
             self.selected_elements = set(elements)
 
         self.selection_changed.emit()
@@ -396,8 +396,8 @@ class MainWindow(QMainWindow):
     def list_selected_nodes(self) -> list[int]:
         return list(self.selected_nodes)
 
-    def list_selected_entities(self) -> list[int]:
-        return list(self.selected_entities)
+    def list_selected_lines(self) -> list[int]:
+        return list(self.selected_lines)
 
     def list_selected_elements(self) -> list[int]:
         return list(self.selected_elements)

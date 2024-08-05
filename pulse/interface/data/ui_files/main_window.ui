@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1047</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -213,7 +213,7 @@
   <action name="action_new_project">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/new_file.png</normaloff>../data/icons/common/new_file.png</iconset>
+     <normaloff>../icons/common/new_file.png</normaloff>../icons/common/new_file.png</iconset>
    </property>
    <property name="text">
     <string>New Project</string>
@@ -225,7 +225,7 @@
   <action name="action_open_project">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/import.png</normaloff>../data/icons/common/import.png</iconset>
+     <normaloff>../icons/common/import.png</normaloff>../icons/common/import.png</iconset>
    </property>
    <property name="text">
     <string>Open Project</string>
@@ -249,7 +249,7 @@
   <action name="action_reset">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/reset-image (2).png</normaloff>../data/icons/common/reset-image (2).png</iconset>
+     <normaloff>../icons/common/reset-image.png</normaloff>../icons/common/reset-image.png</iconset>
    </property>
    <property name="text">
     <string>Reset Project</string>
@@ -279,7 +279,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/save_as.png</normaloff>../data/icons/common/save_as.png</iconset>
+     <normaloff>../icons/common/save_as.png</normaloff>../icons/common/save_as.png</iconset>
    </property>
    <property name="text">
     <string>Save Project As</string>
@@ -294,7 +294,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/geometry_icon.png</normaloff>../data/icons/geometry_icon.png</iconset>
+     <normaloff>../icons/common/geometry_icon.png</normaloff>../icons/common/geometry_icon.png</iconset>
    </property>
    <property name="text">
     <string>Import Geometry</string>
@@ -314,7 +314,7 @@
   <action name="action_top_view">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/views/top.png</normaloff>../data/icons/views/top.png</iconset>
+     <normaloff>../icons/common/top.png</normaloff>../icons/common/top.png</iconset>
    </property>
    <property name="text">
     <string>Top View</string>
@@ -326,7 +326,7 @@
   <action name="action_bottom_view">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/views/bottom.png</normaloff>../data/icons/views/bottom.png</iconset>
+     <normaloff>../icons/common/bottom.png</normaloff>../icons/common/bottom.png</iconset>
    </property>
    <property name="text">
     <string>Bottom View</string>
@@ -338,7 +338,7 @@
   <action name="action_front_view">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/views/front.png</normaloff>../data/icons/views/front.png</iconset>
+     <normaloff>../icons/common/front.png</normaloff>../icons/common/front.png</iconset>
    </property>
    <property name="text">
     <string>Front View</string>
@@ -350,7 +350,7 @@
   <action name="action_back_view">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/views/back.png</normaloff>../data/icons/views/back.png</iconset>
+     <normaloff>../icons/common/back.png</normaloff>../icons/common/back.png</iconset>
    </property>
    <property name="text">
     <string>Back View</string>
@@ -362,7 +362,7 @@
   <action name="action_left_view">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/views/left.png</normaloff>../data/icons/views/left.png</iconset>
+     <normaloff>../icons/common/left.png</normaloff>../icons/common/left.png</iconset>
    </property>
    <property name="text">
     <string>Left View</string>
@@ -374,7 +374,7 @@
   <action name="action_right_view">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/views/right.png</normaloff>../data/icons/views/right.png</iconset>
+     <normaloff>../icons/common/right.png</normaloff>../icons/common/right.png</iconset>
    </property>
    <property name="text">
     <string>Right View</string>
@@ -386,7 +386,7 @@
   <action name="action_isometric_view">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/views/isometric.png</normaloff>../data/icons/views/isometric.png</iconset>
+     <normaloff>../icons/common/isometric.png</normaloff>../icons/common/isometric.png</iconset>
    </property>
    <property name="text">
     <string>Isometric View</string>
@@ -443,7 +443,7 @@
   <action name="action_exit">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/exit.png</normaloff>../data/icons/common/exit.png</iconset>
+     <normaloff>../icons/common/exit.png</normaloff>../icons/common/exit.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -745,7 +745,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/plot_mesh.png</normaloff>../data/icons/plot_mesh.png</iconset>
+     <normaloff>../icons/common/plot_mesh.png</normaloff>../icons/common/plot_mesh.png</iconset>
    </property>
    <property name="text">
     <string>Show Points</string>
@@ -760,7 +760,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/lines_blue.png</normaloff>../data/icons/lines_blue.png</iconset>
+     <normaloff>../icons/common/plot_lines.png</normaloff>../icons/common/plot_lines.png</iconset>
    </property>
    <property name="text">
     <string>Show Lines</string>
@@ -775,7 +775,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/plot_cross_sections.png</normaloff>../data/icons/plot_cross_sections.png</iconset>
+     <normaloff>../icons/common/plot_cross_sections.png</normaloff>../icons/common/plot_cross_sections.png</iconset>
    </property>
    <property name="text">
     <string>Show Tubes</string>
@@ -790,7 +790,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/show_symbols.png</normaloff>../data/icons/show_symbols.png</iconset>
+     <normaloff>../icons/common/show_symbols.png</normaloff>../icons/common/show_symbols.png</iconset>
    </property>
    <property name="text">
     <string>Show Symbols</string>
@@ -821,7 +821,7 @@
   <action name="action_set_dark_theme">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/moon_icon.png</normaloff>../data/icons/common/moon_icon.png</iconset>
+     <normaloff>../icons/common/moon_icon.png</normaloff>../icons/common/moon_icon.png</iconset>
    </property>
    <property name="text">
     <string>Use dark theme</string>
@@ -830,7 +830,7 @@
   <action name="action_set_light_theme">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/sun_icon.png</normaloff>../data/icons/common/sun_icon.png</iconset>
+     <normaloff>../icons/common/sun_icon.png</normaloff>../icons/common/sun_icon.png</iconset>
    </property>
    <property name="text">
     <string>Use light theme</string>
@@ -850,7 +850,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/mesh.png</normaloff>../data/icons/mesh.png</iconset>
+     <normaloff>../icons/common/mesh.png</normaloff>../icons/common/mesh.png</iconset>
    </property>
    <property name="text">
     <string>Show Transparent</string>
@@ -880,7 +880,7 @@
   <action name="action_clip_plane">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/clipping_plane_icon.png</normaloff>../data/icons/clipping_plane_icon.png</iconset>
+     <normaloff>../icons/common/section_plane_icon.png</normaloff>../icons/common/section_plane_icon.png</iconset>
    </property>
    <property name="text">
     <string>Section Plane</string>
@@ -889,7 +889,7 @@
   <action name="action_zoom">
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/zoom_icon.png</normaloff>../data/icons/zoom_icon.png</iconset>
+     <normaloff>../icons/common/zoom_icon.png</normaloff>../icons/common/zoom_icon.png</iconset>
    </property>
    <property name="text">
     <string>Zoom</string>

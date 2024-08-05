@@ -18,11 +18,8 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-
-        main_window = app().main_window
         self.project = app().main_window.project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -35,17 +32,15 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         solution = self.project.get_structural_solution()
         self.solution = np.real(solution)
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-        #
+
+        # QLineEdit
         self.lineEdit_node_id : QLineEdit
         self.lineEdit_response_ux : QLineEdit
         self.lineEdit_response_uy : QLineEdit
@@ -53,11 +48,29 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         self.lineEdit_response_rx : QLineEdit
         self.lineEdit_response_ry : QLineEdit
         self.lineEdit_response_rz : QLineEdit
-        #
+
+        # QPushButton
         self.pushButton_reset : QPushButton
 
     def _create_connections(self):
+        #
         self.pushButton_reset.clicked.connect(self.reset_selection)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.list_selected_nodes()
+        if selected_nodes:
+            node_id = selected_nodes[0]
+            self.lineEdit_node_id.setText(str(node_id))
+            self.process_selection(selected_nodes)
+
+    def process_selection(self, selected_nodes : list):
+        if len(selected_nodes) == 1:
+            self.lineEdit_node_id.setText(str(selected_nodes[0]))
+            self._update_lineEdit(selected_nodes)
+        else:
+            self._reset_lineEdits()
 
     def _create_list_lineEdits(self):
         self.lineEdits = [  self.lineEdit_node_id,
@@ -78,9 +91,8 @@ class GetNodalResultsForStaticAnalysis(QWidget):
     def reset_selection(self):
         self._reset_lineEdits()
 
-    def _update_lineEdit(self):
-        node_ids = app().main_window.list_selected_nodes() 
-        node_id = node_ids[0]
+    def _update_lineEdit(self, selected_nodes : list):
+        node_id = selected_nodes[0]
         node = self.project.preprocessor.nodes[node_id]
         results = self.solution[node.global_dof, 0]
         self.lineEdit_response_ux.setText("{:.6e}".format(results[0]))
@@ -89,12 +101,3 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         self.lineEdit_response_rx.setText("{:.6e}".format(results[3]))
         self.lineEdit_response_ry.setText("{:.6e}".format(results[4]))
         self.lineEdit_response_rz.setText("{:.6e}".format(results[5]))
-
-    def update(self):
-        
-        node_ids = app().main_window.list_selected_nodes()
-        if len(node_ids) == 1:
-            self.lineEdit_node_id.setText(str(node_ids[0]))
-            self._update_lineEdit()
-        else:
-            self._reset_lineEdits()

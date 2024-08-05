@@ -25,11 +25,10 @@ class GetAcousticFrequencyResponse(QWidget):
         self.project = main_window.project
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.selection_callback()
 
     def _initialize(self):
         self.preprocessor = self.project.preprocessor
@@ -39,13 +38,10 @@ class GetAcousticFrequencyResponse(QWidget):
         self.frequencies = self.project.frequencies
         self.solution = self.project.get_acoustic_solution()
 
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
-
     def _config_window(self):        
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
 
@@ -61,28 +57,24 @@ class GetAcousticFrequencyResponse(QWidget):
         self.pushButton_export_data : QPushButton
 
     def _create_connections(self):
+        #
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
 
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        self.lineEdit_node_id.setText(text)
-
-    def update(self):
-        node_ids = app().main_window.list_selected_nodes()
-        if node_ids != []:
-            self.writeNodes(node_ids)
-        else:
-            self.lineEdit_node_id.setFocus()
+    def selection_callback(self):
+        selected_nodes = app().main_window.selected_nodes
+        if selected_nodes:
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_node_id.setText(text)
 
     def call_plotter(self):
         if self.check_inputs():
             return
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter._set_data_to_plot(self.model_results)
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def call_data_exporter(self):
         if self.check_inputs():
@@ -93,38 +85,51 @@ class GetAcousticFrequencyResponse(QWidget):
 
     def check_inputs(self):
         lineEdit_node_id = self.lineEdit_node_id.text()
-        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_node_id, single_ID=True)
+        stop, self.selected_node_ids = self.before_run.check_selected_ids(lineEdit_node_id, "nodes")
         if stop:
             self.lineEdit_node_id.setFocus()
             return True
-        
-    def get_response(self):
-        
-        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID)
 
+    def get_response(self, node_id):
+        response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
         if complex(0) in response:
             response += 1e-12
-
         return response
 
     def join_model_data(self):
 
-        self.title = "Acoustic frequency response - {}".format(self.analysis_method)
-        legend_label = "Acoustic pressure at node {}".format(self.node_ID)
-        unit_label = "Pa"
+        self.title = f"Acoustic frequency response - {self.analysis_method}"
+        legend_label = f"Acoustic pressure at node {self.selected_node_ids}"
         y_label = "Acoustic pressure"
+        unit_label = "Pa"
 
         self.model_results = dict()
-        self.model_results = {  "x_data" : self.frequencies,
-                                "y_data" : self.get_response(),
-                                "x_label" : "Frequency [Hz]",
-                                "y_label" : y_label,
-                                "title" : self.title,
-                                "data_information" : legend_label,
-                                "legend" : legend_label,
-                                "unit" : unit_label,
-                                "color" : [0,0,1],
-                                "linestyle" : "-"  }
+        for index, node_id in enumerate(self.selected_node_ids):
+        
+            key = ("line", (node_id))
+            self.model_results[key] = {
+                                        "x_data" : self.frequencies,
+                                        "y_data" : self.get_response(node_id),
+                                        "x_label" : "Frequency [Hz]",
+                                        "y_label" : y_label,
+                                        "title" : self.title,
+                                        "data_information" : legend_label,
+                                        "legend" : legend_label,
+                                        "unit" : unit_label,
+                                        "color" : self.get_color(index),
+                                        "linestyle" : "-"
+                                      }
+
+    def get_color(self, index):
+
+        colors = [  (0,0,1), (0,0,0), (1,0,0),
+                    (0,1,1), (1,0,1), (1,1,0),
+                    (0.25,0.25,0.25)  ]
+        
+        if index <= 6:
+            return colors[index]
+        else:
+            return tuple(np.random.randint(0, 255, size=3) / 255)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

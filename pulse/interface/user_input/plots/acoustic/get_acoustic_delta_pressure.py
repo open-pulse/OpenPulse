@@ -22,11 +22,10 @@ class GetAcousticDeltaPressure(QWidget):
         self.project = main_window.project
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.selection_callback()
 
     def _initialize(self):
         self.unit_label = "Pa"
@@ -36,19 +35,18 @@ class GetAcousticDeltaPressure(QWidget):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
+
         # QLineEdit
         self.lineEdit_input_node_id : QLineEdit 
         self.lineEdit_output_node_id : QLineEdit
         self.current_lineEdit = self.lineEdit_input_node_id
+
         # QPushButton
         self.pushButton_flip_nodes : QPushButton
         self.pushButton_export_data : QPushButton
@@ -61,6 +59,14 @@ class GetAcousticDeltaPressure(QWidget):
         #
         self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
         self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.selected_nodes
+        if selected_nodes:
+            node_id = selected_nodes[0]
+            self.current_lineEdit.setText(str(node_id))
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -83,17 +89,6 @@ class GetAcousticDeltaPressure(QWidget):
     def lineEdit_2_clicked(self):
         self.current_lineEdit = self.lineEdit_output_node_id
 
-    def writeNodes(self, list_node_ids):
-        node_id = list_node_ids[0]
-        self.current_lineEdit.setText(str(node_id))
-
-    def update(self):
-        node_ids = app().main_window.list_selected_nodes()
-        if node_ids != []:
-            self.writeNodes(node_ids)
-        else:
-            self.current_lineEdit.setFocus()
-
     def flip_nodes(self):
         temp_text_input = self.lineEdit_input_node_id.text()
         temp_text_output = self.lineEdit_output_node_id.text()
@@ -105,7 +100,7 @@ class GetAcousticDeltaPressure(QWidget):
             return
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter._set_data_to_plot(self.model_results)
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def call_data_exporter(self):
         if self.check_inputs():
@@ -116,19 +111,19 @@ class GetAcousticDeltaPressure(QWidget):
 
     def check_inputs(self):
 
-        lineEdit_input_node_id = self.lineEdit_input_node_id.text()
-        stop, self.input_node_id = self.before_run.check_input_NodeID(lineEdit_input_node_id, single_ID=True)
+        input_node_id = self.lineEdit_input_node_id.text()
+        stop, self.input_node_id = self.before_run.check_selected_ids(input_node_id, "nodes", single_id=True)
         if stop:
             self.lineEdit_input_node_id.setFocus()
             return True
 
-        lineEdit_output_node_id = self.lineEdit_output_node_id.text()
-        stop, self.output_node_id = self.before_run.check_input_NodeID(lineEdit_output_node_id, single_ID=True)
+        output_node_id = self.lineEdit_output_node_id.text()
+        stop, self.output_node_id = self.before_run.check_selected_ids(output_node_id, "nodes", single_id=True)
         if stop:
             self.lineEdit_output_node_id.setFocus()
             return True
 
-    def get_delta_pressures(self):
+    def get_response(self):
 
         P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
         P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
@@ -142,19 +137,28 @@ class GetAcousticDeltaPressure(QWidget):
         return delta_pressure
 
     def join_model_data(self):
+
+        self.title = f"Acoustic frequency response - {self.analysis_method}"        
+        legend_label = f"Delta pressure between nodes {self.input_node_id} and {self.output_node_id}"
+        unit_label = "--"
+        y_label = "Acoustic pressure ratio"
+
         self.model_results = dict()
-        self.title = "Acoustic frequency response - {}".format(self.analysis_method)
-        legend_label = "Delta pressure between nodes {} and {}".format(self.input_node_id, self.output_node_id)
-        self.model_results = {  "x_data" : self.frequencies,
-                                "y_data" : self.get_delta_pressures(),
-                                "x_label" : "Frequency [Hz]",
-                                "y_label" : "Delta pressure",
-                                "title" : self.title,
-                                "data_information" : legend_label,
-                                "legend" : legend_label,
-                                "unit" : self.unit_label,
-                                "color" : [0,0,1],
-                                "linestyle" : "-"  }
+
+        key = ("nodes", (self.input_node_id, self.output_node_id))
+
+        self.model_results[key] = {  
+                                    "x_data" : self.frequencies,
+                                    "y_data" : self.get_response(),
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : y_label,
+                                    "title" : self.title,
+                                    "data_information" : legend_label,
+                                    "legend" : legend_label,
+                                    "unit" : unit_label,
+                                    "color" : [0,0,1],
+                                    "linestyle" : "-"  
+                                    }
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

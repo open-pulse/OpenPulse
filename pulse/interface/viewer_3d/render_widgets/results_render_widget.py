@@ -329,11 +329,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.lines_actor.clear_colors()
 
         nodes = app().main_window.selected_nodes
-        entities = app().main_window.selected_entities
+        lines = app().main_window.selected_lines
         elements = app().main_window.selected_elements
 
         self.nodes_actor.set_color((255, 50, 50), nodes)
-        self.lines_actor.set_color((200, 0, 0), elements, entities)
+        self.lines_actor.set_color((200, 0, 0), elements, lines)
 
         self.update_info_text()
         self.update()

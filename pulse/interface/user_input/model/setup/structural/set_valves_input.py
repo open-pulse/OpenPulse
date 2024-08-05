@@ -179,7 +179,7 @@ class ValvesInput(QDialog):
 
     def selection_type_callback(self):
 
-        line_id = app().main_window.list_selected_entities()
+        line_id = app().main_window.list_selected_lines()
         element_id = app().main_window.list_selected_elements()
 
         self.lineEdit_selected_id.setText("")
@@ -207,7 +207,7 @@ class ValvesInput(QDialog):
 
     def update(self):
 
-        line_id = app().main_window.list_selected_entities()
+        line_id = app().main_window.list_selected_lines()
         element_id = app().main_window.list_selected_elements()
 
         if line_id:
@@ -309,7 +309,7 @@ class ValvesInput(QDialog):
 
     def update_valve_info(self):
 
-        line_id = app().main_window.list_selected_entities()
+        line_id = app().main_window.list_selected_lines()
         element_id = app().main_window.list_selected_elements()
 
         valve_parameters = None

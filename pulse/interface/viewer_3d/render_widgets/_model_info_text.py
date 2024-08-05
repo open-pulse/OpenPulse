@@ -161,7 +161,7 @@ def elements_info_text() -> str:
     return info_text
 
 def entity_info_text() -> str:
-    entities = app().main_window.list_selected_entities()
+    entities = app().main_window.list_selected_lines()
     info_text = ""
     project = app().project
 
