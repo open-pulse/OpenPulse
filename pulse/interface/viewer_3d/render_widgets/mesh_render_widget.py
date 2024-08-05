@@ -177,7 +177,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         picked_nodes = set()
         picked_elements = set()
-        picked_entities = set()
+        picked_lines = set()
 
 
         if mouse_moved:
@@ -187,8 +187,8 @@ class MeshRenderWidget(CommonRenderWidget):
             if selection_filter.elements:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
 
-            if selection_filter.entities:
-                picked_entities = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
+            if selection_filter.lines:
+                picked_lines = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
 
         else:
             if selection_filter.nodes:
@@ -199,13 +199,13 @@ class MeshRenderWidget(CommonRenderWidget):
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])  # remove -1 index
 
-            if selection_filter.entities:
-                picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
-                picked_entities.difference_update([-1])  # remove -1 index
+            if selection_filter.lines:
+                picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
+                picked_lines.difference_update([-1])  # remove -1 index
 
         # give priority to node selection
         if picked_nodes and not mouse_moved:
-            picked_entities.clear()
+            picked_lines.clear()
             picked_elements.clear()
 
         modifiers = QApplication.keyboardModifiers()
@@ -215,7 +215,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         app().main_window.set_selection(
             nodes=picked_nodes,
-            entities=picked_entities,
+            lines=picked_lines,
             elements=picked_elements,
             join=ctrl_pressed | shift_pressed,
             remove=alt_pressed,   
@@ -227,12 +227,12 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.clear_colors()
 
         nodes = app().main_window.selected_nodes
-        entities = app().main_window.selected_lines
+        lines = app().main_window.selected_lines
         elements = app().main_window.selected_elements
 
         self.nodes_actor.set_color((255, 50, 50), nodes)
-        self.lines_actor.set_color((200, 0, 0), elements, entities)
-        self.tubes_actor.set_color((255, 0, 50), elements, entities)
+        self.lines_actor.set_color((200, 0, 0), elements, lines)
+        self.tubes_actor.set_color((255, 0, 50), elements, lines)
         self.update_info_text()
         self.update()
 

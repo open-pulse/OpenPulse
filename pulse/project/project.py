@@ -1,7 +1,7 @@
 from pulse.tools.utils import *
 #
 from pulse.project.load_project_data import LoadProjectData
-from pulse.preprocessing.entity import Entity
+from pulse.preprocessing.model_line import ModelLine
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.after_run import AfterRun
@@ -290,7 +290,7 @@ class Project:
                 rmtree(self.file._imported_data_folder_path)
 
     def set_entity(self, tag):
-        return Entity(tag)
+        return ModelLine(tag)
 
     def load_entity_file(self):
         self.loader = LoadProjectData()
@@ -1298,18 +1298,18 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             entity.material = material
 
     def _set_material_to_all_lines(self, material):
-        for entity in self.preprocessor.dict_tag_to_entity.values():
+        for entity in self.preprocessor.lines_from_model.values():
             entity.material = material
 
     def _set_fluid_to_selected_lines(self, lines, fluid):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             if entity.structural_element_type in ['beam_1']:
                 entity.fluid = None
             else:
@@ -1319,7 +1319,7 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             if compressor_info:
                 if entity.structural_element_type in ['beam_1']:
                     entity.compressor_info =  {}
@@ -1333,7 +1333,7 @@ class Project:
                     entity.compressor_info = dict()
 
     def _set_fluid_to_all_lines(self, fluid):
-        for entity in self.preprocessor.dict_tag_to_entity.values():
+        for entity in self.preprocessor.lines_from_model.values():
             if entity.structural_element_type in ['beam_1']:
                 entity.fluid = None
             else:
@@ -1345,14 +1345,14 @@ class Project:
             lines = [lines]
 
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             entity.cross_section = cross
             entity.valve_parameters = None
             entity.expansion_joint_parameters = None
             entity.variable_cross_section_data = None
 
     def _set_variable_cross_section_to_selected_line(self, line_id, section_info):
-        entity = self.preprocessor.dict_tag_to_entity[line_id]
+        entity = self.preprocessor.lines_from_model[line_id]
         entity.cross_section = None
         entity.variable_cross_section_data = section_info
 
@@ -1360,40 +1360,40 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             entity.structural_element_type = element_type
 
     def _set_structural_element_type_to_all_lines(self, element_type):
-        for entity in self.preprocessor.dict_tag_to_entity.values():
+        for entity in self.preprocessor.lines_from_model.values():
             entity.structural_element_type = element_type
 
     def _set_acoustic_element_type_to_selected_lines(self, lines, element_type, proportional_damping=None, vol_flow=None):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             entity.acoustic_element_type = element_type
             entity.proportional_damping = proportional_damping
             entity.vol_flow = vol_flow
 
     def _set_acoustic_element_type_to_all_lines(self, element_type, proportional_damping=None):
-        for entity in self.preprocessor.dict_tag_to_entity.values(): 
+        for entity in self.preprocessor.lines_from_model.values(): 
             entity.acoustic_element_type = element_type
             entity.proportional_damping = proportional_damping
 
     def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
-        entity = self.preprocessor.dict_tag_to_entity[line_id]
+        entity = self.preprocessor.lines_from_model[line_id]
         entity.xaxis_beam_rotation = angle
 
     def _set_stress_stiffening_to_selected_lines(self, lines, pressures):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             entity.stress_stiffening_parameters = pressures
             
     # def _set_stress_stiffening_to_all_entities(self, pressures):
-    #     for entity in self.preprocessor.dict_tag_to_entity.values():
+    #     for entity in self.preprocessor.lines_from_model.values():
     #         entity.external_pressure = pressures[0]
     #         entity.internal_pressure = pressures[1]
 
@@ -1401,14 +1401,14 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             entity.expansion_joint_parameters = parameters
 
     def _set_valve_to_selected_lines(self, lines, parameters):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             entity.valve_parameters = parameters
 
     def get_nodes_with_prescribed_dofs_bc(self):
@@ -1577,21 +1577,21 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line] 
+            entity = self.preprocessor.lines_from_model[line] 
             entity.structural_element_wall_formulation = formulation
 
     def _set_structural_element_force_offset_to_lines(self, lines, force_offset):
         if isinstance(lines, int):
             lines = [lines]
         for line in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line] 
+            entity = self.preprocessor.lines_from_model[line] 
             entity.force_offset = force_offset
 
     def _set_capped_end_to_lines(self, lines, value):
         if isinstance(lines, int):
             lines = [lines]
         for line in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line] 
+            entity = self.preprocessor.lines_from_model[line] 
             entity.capped_end = value
 
     def get_nodes_with_acoustic_pressure_bc(self):
@@ -1641,15 +1641,15 @@ class Project:
     def get_nodes(self):
         return self.preprocessor.nodes
 
-    # def get_entities(self):
-    #     return self.preprocessor.entities
+    # def get_model_lines(self):
+    #     return self.preprocessor.lines
 
     def get_node(self, node_id):
         return self.preprocessor.nodes[node_id]
 
     def get_entity(self, line_id):
-        self.preprocessor.dict_tag_to_entity[line_id]
-        return self.preprocessor.dict_tag_to_entity[line_id]
+        self.preprocessor.lines_from_model[line_id]
+        return self.preprocessor.lines_from_model[line_id]
 
     def get_element_size(self):
         return self.file.element_size

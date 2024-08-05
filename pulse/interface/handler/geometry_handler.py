@@ -47,7 +47,7 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Verbosity", 0)
 
         for structure in self.pipeline.structures: 
-            if isinstance(structure, (Pipe, Beam, Reducer)):
+            if isinstance(structure, (Pipe, Beam, Reducer, Valve)):
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -284,6 +284,7 @@ class GeometryHandler:
         return structure
 
     def _process_valve(self, key: str, data: dict):
+
         if "structural_element_type" not in data.keys():
             return
         
@@ -350,7 +351,7 @@ class GeometryHandler:
 
         self.pipeline.structures.extend(structures)
         self.pipeline.merge_coincident_points()
-        self.export_entity_file()
+        self.export_model_data_file()
 
         if self.length_unit == "millimeter":
             element_size = mm_to_m(self.file._element_size)
@@ -592,7 +593,7 @@ class GeometryHandler:
 
         PrintMessageInput([window_title_2, title, message])
 
-    def export_entity_file(self):
+    def export_model_data_file(self):
 
         tag = 1
         points_info = dict()

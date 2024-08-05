@@ -48,7 +48,7 @@ class AcousticElementTypeInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.lines_id = app().main_window.list_selected_lines()
 
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
         self.element_type = 'undamped'
         self.complete = False
         self.update_cross_section = False
@@ -273,7 +273,7 @@ class AcousticElementTypeInput(QDialog):
 
         for key, lines in self.preprocessor.dict_acoustic_element_type_to_lines.items():
 
-            vol_flow = [self.dict_tag_to_entity[line].vol_flow for line in lines]
+            vol_flow = [self.lines_from_model[line].vol_flow for line in lines]
             if None in vol_flow:
                 item = QTreeWidgetItem([str(key), str('---'), str(lines)[1:-1]])
             else:
@@ -314,11 +314,11 @@ class AcousticElementTypeInput(QDialog):
 
                     element_data = [key]
                     if key == "proportional":
-                        damping = self.dict_tag_to_entity[line_id].proportional_damping
+                        damping = self.lines_from_model[line_id].proportional_damping
                         element_data.append(damping)
     
                     elif key in ["undamped mean flow", "peters", "howe"]:
-                        vol_flow = self.dict_tag_to_entity[line_id].vol_flow
+                        vol_flow = self.lines_from_model[line_id].vol_flow
                         element_data.append(vol_flow)
 
                     data[line_id] = element_data
@@ -354,7 +354,7 @@ class AcousticElementTypeInput(QDialog):
 
                 self.checkBox_flow_effects.setChecked(False)
                 self.lineEdit_proportional_damping.setDisabled(True)
-                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+                entity = self.preprocessor.lines_from_model[self.lines_id[0]]
                 element_type = entity.acoustic_element_type
 
                 if element_type == "proportional":

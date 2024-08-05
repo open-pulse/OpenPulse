@@ -281,7 +281,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         picked_nodes = set()
         picked_elements = set()
-        picked_entities = set()
+        picked_lines = set()
 
         if mouse_moved:
             if selection_filter.nodes:
@@ -290,8 +290,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             if selection_filter.elements and visualization_filter.lines:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
     
-            if selection_filter.entities and visualization_filter.lines:
-                picked_entities = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
+            if selection_filter.lines and visualization_filter.lines:
+                picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
         else:
             if selection_filter.nodes:
@@ -302,13 +302,13 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])
     
-            if selection_filter.entities and visualization_filter.lines:
-                picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
-                picked_entities.difference_update([-1])
+            if selection_filter.lines and visualization_filter.lines:
+                picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
+                picked_lines.difference_update([-1])
 
         # give priority to node selection
         if picked_nodes and not mouse_moved:
-            picked_entities.clear()
+            picked_lines.clear()
             picked_elements.clear()
 
         modifiers = QApplication.keyboardModifiers()
@@ -317,12 +317,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         alt_pressed = bool(modifiers & Qt.AltModifier)
 
         app().main_window.set_selection(
-            nodes=picked_nodes,
-            entities=picked_entities,
-            elements=picked_elements,
-            join=ctrl_pressed | shift_pressed,
-            remove=alt_pressed,   
-        )
+                                        nodes = picked_nodes,
+                                        lines = picked_lines,
+                                        elements = picked_elements,
+                                        join = ctrl_pressed | shift_pressed,
+                                        remove = alt_pressed,   
+                                    )
 
     def update_selection(self):
         self.nodes_actor.clear_colors()

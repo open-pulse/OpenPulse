@@ -163,9 +163,9 @@ class ConnectingFlangesInput(QDialog):
             self.tabWidget_inputs.setCurrentIndex(0)
             self.label_selected_id.setText("Lines ID:")
 
-            app().main_window.plot_entities_with_cross_section()
+            app().main_window.plot_lines_with_cross_sections()
             if len(line_id):
-                app().main_window.set_selection(entities = line_id)
+                app().main_window.set_selection(lines = line_id)
 
         elif selection_index == 1:
 
@@ -358,7 +358,7 @@ class ConnectingFlangesInput(QDialog):
         if selection_index == 0:
             _stop, self.lineID = self.before_run.check_selected_ids(lineEdit_selection, "lines")
             for line_id in self.lineID:
-                entity = self.preprocessor.dict_tag_to_entity[line_id]
+                entity = self.preprocessor.lines_from_model[line_id]
                 if entity.structural_element_type in ["beam_1", "expansion_joint"]:
                     _stop = True
                     break
@@ -584,7 +584,7 @@ class ConnectingFlangesInput(QDialog):
     def actions_to_finalize(self, list_elements):
         self.project.add_cross_sections_expansion_joints_valves_in_file(list_elements)
         self.preprocessor.add_lids_to_variable_cross_sections()
-        app().main_window.plot_entities_with_cross_section()   
+        app().main_window.plot_lines_with_cross_sections()   
         self.close()
 
     def write_ids(self, list_selected_ids):

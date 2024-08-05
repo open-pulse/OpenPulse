@@ -391,7 +391,7 @@ class GeometryDesignerWidget(QWidget):
         geometry_handler = GeometryHandler()
         geometry_handler.set_pipeline(self.pipeline)
         geometry_handler.set_length_unit(self.length_unit)
-        geometry_handler.export_entity_file()
+        geometry_handler.export_model_data_file()
 
         self.file.modify_project_attributes(
             length_unit = self.length_unit,
@@ -404,7 +404,7 @@ class GeometryDesignerWidget(QWidget):
 
         app().main_window.update_plots()
         app().main_window.use_structural_setup_workspace()
-        app().main_window.plot_entities_with_cross_section()
+        app().main_window.plot_lines_with_cross_sections()
         self.render_widget.set_info_text("")
 
     def showEvent(self, event):

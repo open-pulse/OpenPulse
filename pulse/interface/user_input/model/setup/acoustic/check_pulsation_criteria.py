@@ -256,7 +256,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_line_properties(self):
         line_id = int(self.comboBox_line_ids.currentText().replace(" ", ""))
-        entity = self.preprocessor.dict_tag_to_entity[line_id]
+        entity = self.preprocessor.lines_from_model[line_id]
         fluid = entity.fluid
         speed_of_sound = fluid.speed_of_sound
         line_pressure = fluid.pressure
@@ -265,7 +265,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
     
     def get_line_pressure(self):
         if len(self.line_ids) == 1:
-            entity = self.preprocessor.dict_tag_to_entity[self.line_ids[0]]
+            entity = self.preprocessor.lines_from_model[self.line_ids[0]]
             fluid = entity.fluid
             return fluid.pressure
         else:

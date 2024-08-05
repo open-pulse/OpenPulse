@@ -312,7 +312,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) in self.project.PSD.psd_lines.keys():
             device_lines = self.project.PSD.psd_lines[item.text(0)]
-            app().main_window.set_selection(entities = device_lines)
+            app().main_window.set_selection(lines = device_lines)
 
     def on_double_click_item(self, item):
         self.on_click_item(item)

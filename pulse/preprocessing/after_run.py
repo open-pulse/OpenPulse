@@ -19,7 +19,7 @@ class AfterRun:
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements
         self.acoustic_elements = self.preprocessor.acoustic_elements
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
         # self.acoustic_criteria = defaultdict(list)
 
     def check_the_acoustic_criterias_related_to_elements(self, nl_criteria=0.08):
@@ -68,5 +68,5 @@ class AfterRun:
         app().main_window.set_selection(
                                         nodes = nodes,
                                         elements = elements,
-                                        entities = lines  
+                                        lines = lines  
                                         )

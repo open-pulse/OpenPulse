@@ -1,5 +1,5 @@
 from pulse.preprocessing.cross_section import *
-from pulse.preprocessing.entity import Entity
+from pulse.preprocessing.model_line import ModelLine
 from pulse.preprocessing.geometry import Geometry
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -42,7 +42,7 @@ class Preprocessor:
         self.transformation_matrices = None
         self.section_rotations_xyz = None
         self.elements_connected_to_node = None
-        self.dict_tag_to_entity = dict()
+        self.lines_from_model = dict()
         self.line_to_elements = dict()
         self.dict_line_to_nodes = dict()
         self.elements_to_line = dict()
@@ -62,7 +62,7 @@ class Preprocessor:
         self.dict_lines_with_valves = dict()
         self.expansion_joint_table_indexes = defaultdict(list)
         self.dict_B2PX_rotation_decoupling = dict()
-        self.entities = list()
+
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
         self.nodes_with_nodal_loads = list()
@@ -282,7 +282,7 @@ class Preprocessor:
 
             for dim, line_tag in gmsh.model.getEntities(1):
         
-                newEntity = Entity(line_tag)
+                new_line = ModelLine(line_tag)
 
                 # Element
                 _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
@@ -290,12 +290,12 @@ class Preprocessor:
                     line_connect_data = np.zeros((len(line_element_indexes[0]),3))
                     line_connect_data[:,0] = line_element_indexes[0]
                     line_connect_data[:,1:] = line_connectivity[0].reshape(-1,2)
-                    newEntity.insertEdge(list(line_connect_data))
+                    new_line.insertEdge(list(line_connect_data))
 
                 # line_connectivity = split_sequence(line_connectivity[0], 2)
                 # for index, (start, end) in zip(line_element_indexes[0], line_connectivity):
                 #     edges = index, start, end
-                #     newEntity.insertEdge(edges)
+                #     new_line.insertEdge(edges)
 
                 # Nodes
                 line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
@@ -303,16 +303,15 @@ class Preprocessor:
                 line_node_data = np.zeros((len(line_node_indexes), 4))
                 line_node_data[:,0] = line_node_indexes
                 line_node_data[:,1:] = line_node_coordinates
-                newEntity.insertNode(list(line_node_data))
+                new_line.insertNode(list(line_node_data))
 
                 # line_node_coordinates = split_sequence(line_node_coordinates, 3)
                 # for index, (x, y, z) in zip(line_node_indexes, line_node_coordinates):
                 #     node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
-                #     newEntity.insertNode(node)
+                #     new_line.insertNode(node)
 
                 self.all_lines.append(line_tag)
-                self.entities.append(newEntity)
-                self.dict_tag_to_entity[line_tag] = newEntity
+                self.lines_from_model[line_tag] = new_line
 
             gmsh.model.mesh.removeDuplicateNodes()
 
@@ -500,7 +499,7 @@ class Preprocessor:
         """
         dict_line_to_vertex_coords = defaultdict(list)
         if len(self.dict_line_to_nodes) != 0:
-            for line_id in self.dict_tag_to_entity.keys():
+            for line_id in self.lines_from_model.keys():
                 _, vertex_nodes = self.get_line_length(line_id)
                 for vertex_node in vertex_nodes:
                     if _array:
@@ -871,13 +870,13 @@ class Preprocessor:
         self.number_structural_elements = connectivity.shape[0]
         self.number_acoustic_elements = connectivity.shape[0]
 
-        newEntity = Entity(1)
+        new_line = ModelLine(1)
         map_indexes = dict(zip(coordinates[:,0], np.arange(1, len(coordinates[:,0])+1, 1)))
 
         for i, x, y, z in coordinates:
             self.nodes[int(map_indexes[i])] = Node(x, y, z, external_index = int(map_indexes[i]))
             node = int(map_indexes[i]), x, y, z
-            newEntity.insertNode(node)
+            new_line.insertNode(node)
         self.number_nodes = len(self.nodes)
 
         for i, nodes in enumerate(connectivity[:,1:]):
@@ -886,10 +885,9 @@ class Preprocessor:
             self.structural_elements[i+1] = StructuralElement(first_node, last_node, i+1)
             self.acoustic_elements[i+1] = AcousticElement(first_node, last_node, i+1)
             edges = i+1, map_indexes[nodes[0]], map_indexes[nodes[1]]
-            newEntity.insertEdge(edges)
-            
-        self.entities.append(newEntity)
-        self.dict_tag_to_entity[1] = newEntity
+            new_line.insertEdge(edges)
+
+        self.lines_from_model[1] = new_line
         #Ordering global indexes
         for index, node in enumerate(self.nodes.values()):
             node.global_index = index

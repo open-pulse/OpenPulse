@@ -339,13 +339,13 @@ class vtkMeshClicker(vtkInteractorStyleArcballCamera):
         # ===========================
 
     def pickEntities(self, pickedElements):
-        entities = set()
+        lines = set()
 
         for index, line in self.__rendererMesh.lineToElements.items():
             if pickedElements.intersection(line):
-                entities.add(index)
+                lines.add(index)
 
-        return entities
+        return lines
 
     def clear(self):
         self.__selectedPoints.clear()

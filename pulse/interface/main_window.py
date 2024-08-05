@@ -247,7 +247,7 @@ class MainWindow(QMainWindow):
         print(f"Time to process B: {dt} [s]")
 
         t2 = time()
-        self.plot_entities_with_cross_section()
+        self.plot_lines_with_cross_sections()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
         app().splash.update_progress(98)
@@ -360,7 +360,7 @@ class MainWindow(QMainWindow):
         geometry_handler = GeometryHandler()
         geometry_handler.export_cad_file(path)
 
-    def set_selection(self, *, nodes=None, elements=None, entities=None, join=False, remove=False):
+    def set_selection(self, *, nodes=None, elements=None, lines=None, join=False, remove=False):
 
         if nodes is None:
             nodes = set()
@@ -368,27 +368,27 @@ class MainWindow(QMainWindow):
         if elements is None:
             elements = set()
 
-        if entities is None:
-            entities = set()
+        if lines is None:
+            lines = set()
 
         if join and remove:
             self.selected_nodes ^= set(nodes)
-            self.selected_lines ^= set(entities)
+            self.selected_lines ^= set(lines)
             self.selected_elements ^= set(elements)
 
         elif join:
             self.selected_nodes |= set(nodes)
-            self.selected_lines |= set(entities)
+            self.selected_lines |= set(lines)
             self.selected_elements |= set(elements)
 
         elif remove:
             self.selected_nodes -= set(nodes)
-            self.selected_lines -= set(entities)
+            self.selected_lines -= set(lines)
             self.selected_elements -= set(elements)
 
         else:
             self.selected_nodes = set(nodes)
-            self.selected_lines = set(entities)
+            self.selected_lines = set(lines)
             self.selected_elements = set(elements)
 
         self.selection_changed.emit()
@@ -417,10 +417,10 @@ class MainWindow(QMainWindow):
     def use_results_workspace(self):
         self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
 
-    def plot_entities(self):
+    def plot_lines(self):
         self._configure_visualization(lines=True)
 
-    def plot_entities_with_cross_section(self):
+    def plot_lines_with_cross_sections(self):
         self._configure_visualization(lines=True, tubes=True)
 
     def plot_mesh(self):
@@ -495,7 +495,7 @@ class MainWindow(QMainWindow):
         select_elements = self.action_select_elements.isChecked()
         self.selection_filter.nodes = self.visualization_filter.nodes
         self.selection_filter.elements = select_elements
-        self.selection_filter.entities = not select_elements
+        self.selection_filter.lines = not select_elements
         self.visualization_changed.emit()
 
     # callbacks
@@ -598,12 +598,12 @@ class MainWindow(QMainWindow):
     def action_plot_lines_callback(self):
         if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.use_structural_setup_workspace()
-        self.plot_entities()
+        self.plot_lines()
 
     def action_plot_lines_with_cross_section_callback(self):
         if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
             self.use_structural_setup_workspace()
-        self.plot_entities_with_cross_section()
+        self.plot_lines_with_cross_sections()
 
     def action_plot_mesh_callback(self):
         if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:

@@ -51,7 +51,7 @@ class StressStiffeningInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
 
         self.structural_elements = self.preprocessor.structural_elements
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
 
         # self.dict_group_elements = self.preprocessor.group_elements_with_stress_stiffening
         self.lines_with_stress_stiffening = self.preprocessor.lines_with_stress_stiffening
@@ -241,7 +241,7 @@ class StressStiffeningInput(QDialog):
 
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
-            for line_id in self.dict_tag_to_entity.keys():
+            for line_id in self.lines_from_model.keys():
                 self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
 
         elif selection_index == 1:
@@ -502,7 +502,7 @@ class StressStiffeningInput(QDialog):
             self.write_ids(self.lines_id)
             
             if len(self.lines_id) == 1:
-                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]] 
+                entity = self.preprocessor.lines_from_model[self.lines_id[0]] 
                 if entity.stress_stiffening_parameters is not None:
                     pressures = entity.stress_stiffening_parameters
                     self.lineEdit_external_pressure.setText(str(pressures[0]))

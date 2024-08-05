@@ -41,7 +41,7 @@ class VisualizationFilter:
 @dataclass
 class SelectionFilter:
     nodes: bool = False
-    entities: bool = False
+    lines: bool = False
     elements: bool = False
 
     @classmethod

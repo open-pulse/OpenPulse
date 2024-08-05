@@ -136,13 +136,13 @@ class TubeActorGPU(vtk.vtkActor):
         elif self.color_mode == ColorMode.fluid:
             self.color_by_fluid()
 
-    def set_color(self, color, elements=None, entities=None):
+    def set_color(self, color, elements=None, lines=None):
         # This copy is needed, otherwise the mapper is not updated
         data: vtk.vtkPolyData = self.GetMapper().GetInput()
         colors = vtk.vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        if (elements is None) and (entities is None):
+        if (elements is None) and (lines is None):
             for component, value in enumerate(color):
                 colors.FillComponent(component, value)
             data.GetPointData().SetScalars(colors)
@@ -156,9 +156,9 @@ class TubeActorGPU(vtk.vtkActor):
 
         # Get the elements inside every entity to paint them
         line_to_elements = self.project.preprocessor.line_to_elements
-        for entity in entities:
-            entity_elements = line_to_elements[entity]
-            elements |= set(entity_elements)
+        for line in lines:
+            line_elements = line_to_elements[line]
+            elements |= set(line_elements)
 
         for element in elements:
             index = self._key_index.get(element)

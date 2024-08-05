@@ -45,7 +45,7 @@ class CappedEndInput(QDialog):
         self.elements_id = app().main_window.list_selected_elements()
 
         self.structural_elements = self.preprocessor.structural_elements
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
     
         self.dictkey_to_remove = None
         self.elements_info_path = self.project.file._element_info_path
@@ -144,7 +144,7 @@ class CappedEndInput(QDialog):
 
     def update_capped_end_effect_by_lines_selection(self):
         if len(self.lines_id) == 1:
-            entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+            entity = self.preprocessor.lines_from_model[self.lines_id[0]]
             if entity.capped_end:
                 self.comboBox_capped_end.setCurrentIndex(0)
             else:
@@ -193,7 +193,7 @@ class CappedEndInput(QDialog):
         if self.comboBox_selection.currentIndex() == 2:
             app().main_window.plot_mesh()
         else:
-            app().main_window.plot_entities_with_cross_section()
+            app().main_window.plot_lines_with_cross_sections()
 
     def load_elements_info(self):
         self.treeWidget_capped_end_elements.clear()

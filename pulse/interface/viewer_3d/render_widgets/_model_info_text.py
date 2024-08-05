@@ -161,17 +161,18 @@ def elements_info_text() -> str:
     return info_text
 
 def entity_info_text() -> str:
-    entities = app().main_window.list_selected_lines()
+    lines = app().main_window.list_selected_lines()
     info_text = ""
     project = app().project
 
-    if len(entities) > 1:
+    if len(lines) > 1:
         info_text += (
-            f"{len(entities)} LINES IN SELECTION\n"
-            f"{format_long_sequence(entities)}\n\n"
+            f"{len(lines)} LINES IN SELECTION\n"
+            f"{format_long_sequence(lines)}\n\n"
         )
-    elif len(entities) == 1:
-        _id, *_ = entities
+    elif len(lines) == 1:
+
+        _id, *_ = lines
         entity = project.get_entity(_id)
 
         info_text += f"LINE {_id}\n\n"

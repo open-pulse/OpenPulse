@@ -119,22 +119,22 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         obj = self.main_window.input_ui.edit_an_imported_geometry()
 
     def item_child_set_material_callback(self):
-        self.main_window.plot_entities()
+        self.main_window.plot_lines()
         self.main_window.input_ui.set_material()
         app().main_window.set_input_widget(None)
 
     def item_child_set_fluid_callback(self):
-        self.main_window.plot_entities()
+        self.main_window.plot_lines()
         self.main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
     
     def item_child_set_cross_section_callback(self):
         if self.main_window.input_ui.set_cross_section():
-            self.main_window.plot_entities_with_cross_section()
+            self.main_window.plot_lines_with_cross_sections()
         app().main_window.set_input_widget(None)
 
     def item_child_set_structural_element_type_callback(self):
-        self.main_window.plot_entities()
+        self.main_window.plot_lines()
         self.main_window.input_ui.set_structural_element_type()
         app().main_window.set_input_widget(None)
 
@@ -187,7 +187,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         app().main_window.set_input_widget(None)
 
     def item_child_set_beam_x_axis_rotation_callback(self):
-        self.main_window.plot_entities_with_cross_section()
+        self.main_window.plot_lines_with_cross_sections()
         self.main_window.input_ui.set_beam_xaxis_rotation()
         app().main_window.set_input_widget(None)
 
@@ -197,7 +197,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         app().main_window.set_input_widget(None)
 
     def item_child_set_acoustic_element_type_callback(self):
-        self.main_window.plot_entities()
+        self.main_window.plot_lines()
         self.main_window.input_ui.set_acoustic_element_type()
         app().main_window.set_input_widget(None)
 

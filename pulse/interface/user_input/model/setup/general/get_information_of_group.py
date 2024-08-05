@@ -158,7 +158,7 @@ class GetInformationOfGroup(QDialog):
 
         if isinstance(selection, list):
             if "Line" in self.selection_label:
-                app().main_window.set_selection(entities = selection)
+                app().main_window.set_selection(lines = selection)
 
             elif "Element" in self.selection_label:
                 app().main_window.set_selection(elements = selection)

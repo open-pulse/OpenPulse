@@ -75,7 +75,7 @@ class SetCrossSectionInput(QDialog):
         self.remove_expansion_joint_tables_files = True
 
         self.structural_elements = self.project.preprocessor.structural_elements
-        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.project.preprocessor.lines_from_model
 
         self.before_run = self.project.get_pre_solution_model_checks()
 
@@ -227,7 +227,7 @@ class SetCrossSectionInput(QDialog):
         self.update_line_and_element_ids(lines_id, elements_id)
 
         if len(lines_id) == 1:   
-            self.selection = self.dict_tag_to_entity[lines_id[0]]
+            self.selection = self.lines_from_model[lines_id[0]]
             element_type = self.selection.structural_element_type
             if element_type is None:
                 for element_id in self.preprocessor.line_to_elements[lines_id[0]]:
@@ -400,7 +400,7 @@ class SetCrossSectionInput(QDialog):
             if tag_type == "line ids":
 
                 self.comboBox_selection.setCurrentIndex(1)
-                app().main_window.set_selection(entities = lines)
+                app().main_window.set_selection(lines = lines)
 
                 if len(self._section_parameters) == 10:
                     if len(lines) == 1:
@@ -413,7 +413,7 @@ class SetCrossSectionInput(QDialog):
             str_lines = str(lines)
             if tag_type == "element ids":
                 self.comboBox_selection.setCurrentIndex(2)
-                app().main_window.set_selection(entities = lines)
+                app().main_window.set_selection(lines = lines)
 
         self.lineEdit_selected_id.setText(str_lines[1:-1])
         
@@ -531,7 +531,7 @@ class SetCrossSectionInput(QDialog):
         lines_id = app().main_window.list_selected_lines()
         if len(lines_id) > 0:
             line_id = lines_id[0]
-            # entity = self.dict_tag_to_entity[line_id]
+            # entity = self.lines_from_model[line_id]
             self.tabWidget_general.setCurrentIndex(0)
             self.tabWidget_pipe_section.setCurrentIndex(1)
             if len(lines_id) == 1:
@@ -601,7 +601,7 @@ class SetCrossSectionInput(QDialog):
                 _stop, _lines_typed = self.before_run.check_selected_ids(lineEdit, "lines")
                 if _stop:
                     return
-                app().main_window.set_selection(entities = _lines_typed)
+                app().main_window.set_selection(lines = _lines_typed)
 
             if selection_index == 2:
                 _stop, _elements_typed = self.before_run.check_input_ElementID(lineEdit)

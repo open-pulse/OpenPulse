@@ -51,7 +51,7 @@ class ProjectFile:
 
     def default_filenames(self):
         self._project_ini_name = "project.ini"
-        self._entity_file_name = "entity.dat"
+        self._model_data_filename = "model_data.dat"
         self._fluid_file_name = "fluid_list.dat"
         self._material_file_name = "material_list.dat"
         self._node_acoustic_file_name = "acoustic_nodal_info.dat"
@@ -92,7 +92,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._entity_path = get_new_path(self._project_path, self._model_data_filename)
         self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
         self._material_list_path = get_new_path(self._project_path, self._material_file_name)
 
@@ -114,7 +114,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._entity_path = get_new_path(self._project_path, self._model_data_filename)
         self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
         self._material_list_path = get_new_path(self._project_path, self._material_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
@@ -139,7 +139,7 @@ class ProjectFile:
 
         files_to_maintain_after_reset = list()
         files_to_maintain_after_reset.append(self._project_ini_name)
-        files_to_maintain_after_reset.append(self._entity_file_name)
+        files_to_maintain_after_reset.append(self._model_data_filename)
 
         if not reset_fluids:
             files_to_maintain_after_reset.append(self._fluid_file_name)
@@ -307,7 +307,7 @@ class ProjectFile:
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._fluid_list_path =  get_new_path(self._project_path, self._fluid_file_name)
         self._material_list_path = get_new_path(self._project_path, self._material_file_name)
-        self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
+        self._entity_path =  get_new_path(self._project_path, self._model_data_filename)
         self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
         self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -586,21 +586,21 @@ class ProjectFile:
 
         return np.array(gravity, dtype=float), bool(key_stiffening)
 
-    def create_entity_file(self, entities):
+    def create_entity_file(self, lines):
 
-        if isinstance(entities, (int, float)):
-            entities = [entities]
+        if isinstance(lines, (int, float)):
+            lines = [lines]
 
         config = configparser.ConfigParser()
-        
+
         if os.path.exists(self._entity_path):
             sections = config.sections()
-            for entity_id in entities:
-                if str(entity_id) not in sections:
-                    config[str(entity_id)] = {}
+            for line_id in lines:
+                if str(line_id) not in sections:
+                    config[str(line_id)] = dict()
         else:
-            for entity_id in entities:
-                config[str(entity_id)] = {}
+            for line_id in lines:
+                config[str(line_id)] = dict()
         
         self.write_data_in_file(self._entity_path, config)
 

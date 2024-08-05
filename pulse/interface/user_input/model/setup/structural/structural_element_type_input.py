@@ -44,7 +44,7 @@ class StructuralElementTypeInput(QDialog):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
 
         self.element_type = 'pipe_1'
         self.complete = False
@@ -113,7 +113,7 @@ class StructuralElementTypeInput(QDialog):
 
             if len(selected_lines) == 1:
 
-                entity = self.preprocessor.dict_tag_to_entity[selected_lines[0]]
+                entity = self.preprocessor.lines_from_model[selected_lines[0]]
 
                 element_type = entity.structural_element_type
                 if element_type == 'pipe_1':
@@ -214,7 +214,7 @@ class StructuralElementTypeInput(QDialog):
 
         for line_id in line_ids:
 
-            entity = self.dict_tag_to_entity[line_id]
+            entity = self.lines_from_model[line_id]
             initial_etype = entity.structural_element_type
 
             if initial_etype in ['pipe_1', None] and final_etype in ['beam_1']:
@@ -248,7 +248,7 @@ class StructuralElementTypeInput(QDialog):
         
         # final_etype = self.element_type
         # for tag in tags:
-        #     initial_etype = self.dict_tag_to_entity[tag].structural_element_type
+        #     initial_etype = self.lines_from_model[tag].structural_element_type
         #     if initial_etype in ['pipe_1'] and final_etype in ['beam_1']:
         #         self.project.set_cross_section_by_lines(tag, None)
         #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1']:

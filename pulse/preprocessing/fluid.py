@@ -39,7 +39,7 @@ class Fluid:
         Default is None.
 
     color : tuple, optional
-        The color associated with the fluid. Entity objects with this fluid object attributed will be shown with this color in the UI.
+        The color associated with the fluid. Line objects with this fluid object attributed will be shown with this color in the UI.
         Default is None.
 
     identifier : int, optional

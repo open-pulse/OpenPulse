@@ -69,7 +69,7 @@ class FluidInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.fluid_path = self.project.get_fluid_list_path()
-        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.project.preprocessor.lines_from_model
 
         self.keep_window_open = True
 
@@ -452,14 +452,14 @@ class FluidInput(QDialog):
                 return True
 
             for line in self.lines_typed:
-                _line = self.dict_tag_to_entity[line]
+                _line = self.lines_from_model[line]
                 if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True
                     break
           
         elif self.flagAll:
             for line in self.project.preprocessor.all_lines:
-                _line = self.dict_tag_to_entity[line]
+                _line = self.lines_from_model[line]
                 if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True
                     break
@@ -1396,7 +1396,7 @@ class FluidInput(QDialog):
                 with open(self.fluid_path, 'w') as config_file:
                     config.write(config_file)
 
-            for line_id, entity in self.dict_tag_to_entity.items():
+            for line_id, entity in self.lines_from_model.items():
                 if entity.fluid is not None:
                     if entity.fluid.name == selected_name:
                         self.project.set_fluid_by_lines(line_id, None)
@@ -1441,7 +1441,7 @@ class FluidInput(QDialog):
                 if section_cache not in config.sections():
                     fluid_names.append(config_cache[section_cache]["name"])
 
-            for line_id, entity in self.dict_tag_to_entity.items():
+            for line_id, entity in self.lines_from_model.items():
                 if entity.fluid is not None:
                     if entity.fluid.name in fluid_names:
                         self.project.set_fluid_by_lines(line_id, None)

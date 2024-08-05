@@ -106,18 +106,18 @@ class MeshPicker:
         extractor.SetFrustum(picker.GetFrustum())
 
         elements_to_line = app().project.preprocessor.elements_to_line
-        picked_entities = set()
+        picked_lines = set()
 
         for element, bound in self.line_bounds.items():
             entity = elements_to_line[element]
 
-            if entity in picked_entities:
+            if entity in picked_lines:
                 continue
             
             if extractor.OverallBoundsTest(bound):
-                picked_entities.add(entity)
+                picked_lines.add(entity)
 
-        return picked_entities
+        return picked_lines
 
     def pick_node(self, x, y) -> int:
         nodes = self.area_pick_nodes(x - 5, y - 5, x + 5, y + 5)

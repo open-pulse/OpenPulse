@@ -25,7 +25,7 @@ class Material:
         Default is None.
 
     color : tuple, optional
-        The color associated with the material. Entity objects with this material object attributed will be shown with this color in the UI.
+        The color associated with the material. Line objects with this material object attributed will be shown with this color in the UI.
         Default is None.
 
     identifier : int, optional

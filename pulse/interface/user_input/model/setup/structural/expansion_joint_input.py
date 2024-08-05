@@ -204,9 +204,9 @@ class ExpansionJointInput(QDialog):
             self.label_selected_id.setText("Line ID:")
             self.lineEdit_joint_length.setDisabled(True)
 
-            app().main_window.plot_entities_with_cross_section()
+            app().main_window.plot_lines_with_cross_sections()
             if line_id:
-                app().main_window.set_selection(entities = line_id)
+                app().main_window.set_selection(lines = line_id)
 
         elif self.comboBox_selection_type.currentIndex() == 1:
 
@@ -346,7 +346,7 @@ class ExpansionJointInput(QDialog):
             _stop, self.selected_lines = self.before_run.check_selected_ids(lineEdit_selection, "lines")
 
             for line_id in self.selected_lines:
-                entity = self.preprocessor.dict_tag_to_entity[line_id]
+                entity = self.preprocessor.lines_from_model[line_id]
                 if entity.structural_element_type in ["beam_1"]:
                     _stop = True
                     break
@@ -388,7 +388,7 @@ class ExpansionJointInput(QDialog):
 
         if len(lines_id) == 1:
 
-            entity = self.preprocessor.dict_tag_to_entity[lines_id[0]]
+            entity = self.preprocessor.lines_from_model[lines_id[0]]
             if entity.expansion_joint_parameters is None:
                 return
             else:
@@ -659,7 +659,7 @@ class ExpansionJointInput(QDialog):
         list_lines = []
         for element_id in self.joint_elements:
             line_id = self.preprocessor.elements_to_line[element_id]
-            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity = self.preprocessor.lines_from_model[line_id]
             if entity.structural_element_type in ["expansion_joint"]:
                 if line_id not in list_lines:
                     list_lines.append(line_id)
