@@ -19,6 +19,7 @@ class Workspace(IntEnum):
 
 @dataclass
 class VisualizationFilter:
+    points: bool = False
     nodes: bool = False
     lines: bool = False
     tubes: bool = False
@@ -29,13 +30,13 @@ class VisualizationFilter:
     @classmethod
     def all_false(cls):
         # It is dumb, but it works
-        args = [False] * 6
+        args = [False] * 7
         return cls(*args)
     
     @classmethod
     def all_true(cls):
         # It is dumb, but it works
-        args = [True] * 6
+        args = [True] * 7
         return cls(*args)
 
 @dataclass
