@@ -119,12 +119,12 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         obj = self.main_window.input_ui.edit_an_imported_geometry()
 
     def item_child_set_material_callback(self):
-        self.main_window.plot_lines()
+        self.main_window.plot_lines_with_cross_sections()
         self.main_window.input_ui.set_material()
         app().main_window.set_input_widget(None)
 
     def item_child_set_fluid_callback(self):
-        self.main_window.plot_lines()
+        self.main_window.plot_lines_with_cross_sections()
         self.main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
     
