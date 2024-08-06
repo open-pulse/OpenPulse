@@ -647,7 +647,7 @@ class Project:
     def set_material_to_all_lines(self, material):
         self.preprocessor.set_material_by_element('all', material)
         self._set_material_to_all_lines(material)
-        self.file.add_material_in_file(self.preprocessor.all_lines, material)
+        self.file.add_material_in_file(list(self.preprocessor.lines_from_model.keys()), material)
 
     def set_material_by_lines(self, lines, material):
         self.preprocessor.set_material_by_lines(lines, material)
@@ -783,7 +783,7 @@ class Project:
     def set_structural_element_type_to_all(self, element_type):
         self.preprocessor.set_structural_element_type_by_element('all', element_type)
         self._set_structural_element_type_to_all_lines(element_type)
-        self.file.modify_structural_element_type_in_file(self.preprocessor.all_lines, element_type)
+        self.file.modify_structural_element_type_in_file(list(self.preprocessor.lines_from_model.keys()), element_type)
 
     def set_structural_element_type_by_lines(self, lines, element_type):
         self.preprocessor.set_structural_element_type_by_lines(lines, element_type)
@@ -1430,7 +1430,7 @@ class Project:
     def set_fluid_to_all_lines(self, fluid):
         self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_all_lines(fluid)
-        for line in self.preprocessor.all_lines:
+        for line in self.preprocessor.lines_from_model.keys():
             self.file.add_fluid_in_file(line, fluid)
 
     def set_acoustic_pressure_bc_by_node(self, node_ids, data):

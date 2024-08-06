@@ -731,7 +731,7 @@ class SetCrossSectionInput(QDialog):
         selection_index = self.comboBox_selection.currentIndex()
         
         if selection_index == 0:
-            self.lines_typed = self.preprocessor.all_lines
+            self.lines_typed = list(self.preprocessor.lines_from_model.keys())
 
         elif selection_index == 1:
             lineEdit = self.lineEdit_selected_id.text()
@@ -797,7 +797,7 @@ class SetCrossSectionInput(QDialog):
 
         else:
 
-            line_ids = self.preprocessor.all_lines
+            line_ids = list(self.preprocessor.lines_from_model.keys())
             if self.check_if_lines_belongs_to_psd(line_ids):
                 return
 

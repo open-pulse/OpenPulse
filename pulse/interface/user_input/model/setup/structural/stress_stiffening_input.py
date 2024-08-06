@@ -310,7 +310,7 @@ class StressStiffeningInput(QDialog):
 
     def check_reset_all(self):
 
-        for line_id in self.preprocessor.all_lines:
+        for line_id in self.preprocessor.lines_from_model.keys():
             self.project.set_stress_stiffening_by_line(line_id, [0,0,0,0], remove=True)
 
         temp_dict = self.preprocessor.group_elements_with_stress_stiffening.copy()

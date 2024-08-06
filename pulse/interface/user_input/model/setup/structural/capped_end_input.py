@@ -53,7 +53,7 @@ class CappedEndInput(QDialog):
         self.dictKey_label = "CAPPED END || {}"
    
         self.project_lines = {}
-        for line in self.preprocessor.all_lines:
+        for line in self.preprocessor.lines_from_model.keys():
             self.project_lines[line] = True
         
         self.complete = False
@@ -378,7 +378,7 @@ class CappedEndInput(QDialog):
         self.load_lines_info()
 
     def set_capped_end_to_all_lines(self):
-        lines = self.preprocessor.all_lines
+        lines = list(self.preprocessor.lines_from_model.keys())
         capped_end = self.get_capped_end()
         self.project.set_capped_end_by_lines(lines, capped_end)
         self.load_lines_info()
@@ -390,7 +390,7 @@ class CappedEndInput(QDialog):
         for key, elements in aux_dict.items():
             self.project.set_capped_end_by_elements(elements, False, key)
 
-        lines = self.preprocessor.all_lines
+        lines = list(self.preprocessor.lines_from_model.keys())
         self.project.set_capped_end_by_lines(lines, False)
 
         self.load_treeWidgets_info()

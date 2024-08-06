@@ -210,7 +210,7 @@ class StructuralElementTypeInput(QDialog):
         line_ids = app().main_window.list_selected_lines()
 
         if len(line_ids) == 0:
-            line_ids = self.preprocessor.all_lines
+            line_ids = list(self.preprocessor.lines_from_model.keys())
 
         for line_id in line_ids:
 
@@ -260,7 +260,7 @@ class StructuralElementTypeInput(QDialog):
 
         if index == 0:
             self.check_element_type_changes()
-            lines = self.preprocessor.all_lines
+            lines = list(self.preprocessor.lines_from_model.keys())
             print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
 
         elif index == 1:
@@ -314,7 +314,7 @@ class StructuralElementTypeInput(QDialog):
 
     def reset_element_type(self):
         self.element_type = "pipe_1"
-        lines = self.preprocessor.all_lines
+        lines = list(self.preprocessor.lines_from_model.keys())
         self.project.set_structural_element_type_by_lines(lines, self.element_type)
         self.complete = True
         self.close()

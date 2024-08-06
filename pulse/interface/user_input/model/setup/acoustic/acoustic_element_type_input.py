@@ -219,7 +219,7 @@ class AcousticElementTypeInput(QDialog):
 
         index_selection = self.comboBox_selection.currentIndex()
         if index_selection == 0:
-            lines = self.preprocessor.all_lines
+            lines = list(self.preprocessor.lines_from_model.keys())
             print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
 
         elif index_selection == 1:
@@ -242,7 +242,7 @@ class AcousticElementTypeInput(QDialog):
 
     def reset_element_type(self):
         self.element_type = "undamped"
-        lines = self.preprocessor.all_lines
+        lines = list(self.preprocessor.lines_from_model.keys())
         self.project.set_acoustic_element_type_by_lines(lines, self.element_type)
         self.complete = True
         self.close()

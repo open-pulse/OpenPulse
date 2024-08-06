@@ -199,7 +199,7 @@ class BeamXaxisRotationInput(QDialog):
 
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
-            lines = self.preprocessor.all_lines
+            lines = list(self.preprocessor.lines_from_model.keys())
 
         else:
             lineEdit_lineID = self.lineEdit_selected_id.text()

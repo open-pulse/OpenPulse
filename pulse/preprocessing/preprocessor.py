@@ -103,11 +103,12 @@ class Preprocessor:
         self.lines_with_stress_stiffening = list()
         self.elements_with_adding_mass_effect = list()
         self.radius = dict()
+
         self.element_type = "pipe_1" # defined as default
-        self.all_lines = list()
         self.flag_fluid_mass_effect = False
         self.stress_stiffening_enabled = False
         self.group_index = 0
+
         # self.compressor_excitation_table_indexes = list()
         self.structure_principal_diagonal = None
         self.nodal_coordinates_matrix_external = None
@@ -170,6 +171,7 @@ class Preprocessor:
         self._set_gmsh_options()
 
         self._create_entities()
+        
         self._map_lines_to_elements()
         self._map_lines_to_nodes()
         self._finalize_gmsh()
@@ -287,9 +289,9 @@ class Preprocessor:
                 # Element
                 _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
                 if line_element_indexes:
-                    line_connect_data = np.zeros((len(line_element_indexes[0]),3))
+                    line_connect_data = np.zeros((len(line_element_indexes[0]), 3))
                     line_connect_data[:,0] = line_element_indexes[0]
-                    line_connect_data[:,1:] = line_connectivity[0].reshape(-1,2)
+                    line_connect_data[:,1:] = line_connectivity[0].reshape(-1, 2)
                     new_line.insertEdge(list(line_connect_data))
 
                 # line_connectivity = split_sequence(line_connectivity[0], 2)
@@ -299,9 +301,9 @@ class Preprocessor:
 
                 # Nodes
                 line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
-                line_node_coordinates = mm_to_m(line_node_coordinates).reshape(-1,3)
+                line_node_coordinates = mm_to_m(line_node_coordinates).reshape(-1, 3)
                 line_node_data = np.zeros((len(line_node_indexes), 4))
-                line_node_data[:,0] = line_node_indexes
+                line_node_data[:, 0] = line_node_indexes
                 line_node_data[:,1:] = line_node_coordinates
                 new_line.insertNode(list(line_node_data))
 
@@ -310,7 +312,6 @@ class Preprocessor:
                 #     node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
                 #     new_line.insertNode(node)
 
-                self.all_lines.append(line_tag)
                 self.lines_from_model[line_tag] = new_line
 
             gmsh.model.mesh.removeDuplicateNodes()
@@ -320,7 +321,7 @@ class Preprocessor:
 
             self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
             self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
-            
+
             self._create_nodes(node_indexes, coords, self.map_nodes)
             self._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
             self._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)                       
@@ -896,7 +897,6 @@ class Preprocessor:
         self.get_connectivity_matrix()
         self.get_dict_nodes_to_element_indexes()
         self.get_principal_diagonal_structure_parallelepiped()
-        self.all_lines.append(1)
         self._map_lines_to_elements(mesh_loaded=True)
         self.process_all_rotation_matrices()
         self.create_dict_lines_to_rotation_angles()
@@ -1896,7 +1896,7 @@ class Preprocessor:
             self.group_elements_with_capped_end = {}
             self.lines_with_capped_end = []
             if value:
-                for line in self.all_lines:
+                for line in self.lines_from_model.keys():
                     self.lines_with_capped_end.append(line)
         else:
             for tag in lines:
@@ -1942,7 +1942,7 @@ class Preprocessor:
     #     self.group_elements_with_capped_end = {}
     #     self.lines_with_capped_end = []
     #     if value:
-    #         for line in self.all_lines:
+    #         for line in self.lines_from_model.keys():
     #             self.lines_with_capped_end.append(line)
 
     def set_structural_element_force_offset_by_lines(self, lines, force_offset):
@@ -2002,7 +2002,7 @@ class Preprocessor:
             self.group_elements_with_stress_stiffening = {}
             self.lines_with_stress_stiffening = []
             if not remove:
-                for line in self.all_lines:
+                for line in self.lines_from_model.keys():
                     self.lines_with_stress_stiffening.append(line)
                     self.dict_lines_with_stress_stiffening[line] = pressures
         else:
@@ -3120,7 +3120,7 @@ class Preprocessor:
     def create_dict_lines_to_rotation_angles(self):
         self.dict_lines_to_rotation_angles = dict()
         self.dict_beam_xaxis_rotating_angle_to_lines.clear()
-        for line in self.all_lines:
+        for line in self.lines_from_model.keys():
             self.dict_lines_to_rotation_angles[line] = 0
 
     def process_nodes_to_update_indexes_after_remesh(self, node):
