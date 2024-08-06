@@ -495,7 +495,7 @@ class MainWindow(QMainWindow):
         self.visualization_filter.acoustic_symbols = symbols
         self.visualization_filter.structural_symbols = symbols
         select_elements = self.action_select_elements.isChecked()
-        self.selection_filter.nodes = self.visualization_filter.nodes
+        self.selection_filter.nodes = self.visualization_filter.nodes | self.visualization_filter.points
         self.selection_filter.elements = self.visualization_filter.nodes
         self.selection_filter.entities = not self.selection_filter.elements
         self.visualization_changed.emit()

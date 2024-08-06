@@ -177,11 +177,11 @@ class MeshRenderWidget(CommonRenderWidget):
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
         selection_filter = app().main_window.selection_filter
+        visualization_filter = app().main_window.visualization_filter
 
         picked_nodes = set()
         picked_elements = set()
         picked_entities = set()
-
 
         if mouse_moved:
             if selection_filter.nodes:
@@ -206,6 +206,10 @@ class MeshRenderWidget(CommonRenderWidget):
                 picked_entities = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_entities.difference_update([-1])  # remove -1 index
 
+        if visualization_filter.points:
+            points_indexes = set(app().project.get_geometry_points().keys())
+            picked_nodes.intersection_update(points_indexes)
+
         # give priority to node selection
         if picked_nodes and not mouse_moved:
             picked_entities.clear()
@@ -225,6 +229,7 @@ class MeshRenderWidget(CommonRenderWidget):
         )
 
     def update_selection(self):
+        self.points_actor.clear_colors()
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
         self.tubes_actor.clear_colors()
@@ -234,6 +239,7 @@ class MeshRenderWidget(CommonRenderWidget):
         elements = app().main_window.selected_elements
 
         self.nodes_actor.set_color((255, 50, 50), nodes)
+        self.points_actor.set_color((255, 50, 50), nodes)
         self.lines_actor.set_color((200, 0, 0), elements, entities)
         self.tubes_actor.set_color((255, 0, 50), elements, entities)
         self.update_info_text()
