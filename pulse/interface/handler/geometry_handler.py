@@ -50,6 +50,7 @@ class GeometryHandler:
 
         for structure in self.pipeline.structures: 
             if isinstance(structure, (Pipe, Beam, Reducer, Valve)):
+
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -65,10 +66,10 @@ class GeometryHandler:
                     start_coords = _start_coords
                     end_coords = _end_coords
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
 
-                gmsh.model.occ.add_line(start_point, end_point)
+                gmsh.model.occ.add_line(start_coords, end_coords)
 
             elif isinstance(structure, Bend):
                 if structure.is_colapsed():
@@ -93,11 +94,11 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
                 center_point = gmsh.model.occ.add_point(*center_coords)
 
-                gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+                gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
 
         gmsh.model.occ.synchronize()
 
@@ -168,9 +169,9 @@ class GeometryHandler:
         if len(section_parameters) == 6:
 
             if key[1] == "Bend":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                corner = Point(*data['corner_point'])
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
+                corner = Point(*data['corner_coords'])
                 curvature_radius = data['curvature_radius']
                 structure = Bend(
                                     start, 
@@ -182,8 +183,8 @@ class GeometryHandler:
                                 )
 
             else:
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
                 structure = Pipe(
                                     start, 
                                     end, 
@@ -192,8 +193,8 @@ class GeometryHandler:
                                 )
 
         elif len(section_parameters) == 10:
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = Reducer(
                                     start, 
                                     end, 
@@ -234,8 +235,8 @@ class GeometryHandler:
         section_parameters = data["section_parameters"]
 
         if section_type_label == "Rectangular section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = RectangularBeam(
                                             start, 
                                             end,
@@ -245,8 +246,8 @@ class GeometryHandler:
                                         )
         
         elif section_type_label == "Circular section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = CircularBeam(
                                         start, 
                                         end, 
@@ -255,8 +256,8 @@ class GeometryHandler:
                                     )
 
         elif section_type_label == "C-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = CBeam(
                                 start, 
                                 end, 
@@ -269,8 +270,8 @@ class GeometryHandler:
                             )
     
         elif section_type_label == "I-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = IBeam(
                                 start, 
                                 end, 
@@ -283,8 +284,8 @@ class GeometryHandler:
                             )
                         
         elif section_type_label == "T-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = TBeam(
                                 start, 
                                 end, 
@@ -314,8 +315,8 @@ class GeometryHandler:
 
     def _process_valve(self, key: str, data: dict):
 
-        start = Point(*data['start_point'])
-        end = Point(*data['end_point'])
+        start = Point(*data['start_coords'])
+        end = Point(*data['end_coords'])
         structure = Valve(
                             start, 
                             end,
@@ -402,12 +403,12 @@ class GeometryHandler:
 
             try:
 
-                start_point = gmsh.model.get_adjacencies(*line)[1][0]
-                end_point = gmsh.model.get_adjacencies(*line)[1][1]
+                start_coords = gmsh.model.get_adjacencies(*line)[1][0]
+                end_coords = gmsh.model.get_adjacencies(*line)[1][1]
                 line_type = gmsh.model.get_type(*line)
 
-                start_coords = self.get_point_coords(start_point)
-                end_coords = self.get_point_coords(end_point)
+                start_coords = self.get_point_coords(start_coords)
+                end_coords = self.get_point_coords(end_coords)
 
                 start = Point(*start_coords)
                 end = Point(*end_coords)
@@ -421,13 +422,13 @@ class GeometryHandler:
 
                     if len(self.get_point_by_coords(start_coords)) < 2:
                         self.merge_near_points(start_coords)
-                        start_coords = self.get_point_coords(start_point)
+                        start_coords = self.get_point_coords(start_coords)
 
                     if len(self.get_point_by_coords(end_coords)) < 2:
                         self.merge_near_points(end_coords)
-                        end_coords = self.get_point_coords(end_point)               
+                        end_coords = self.get_point_coords(end_coords)               
 
-                    corner_coords = self.get_corner_point_coords(start_point, end_point)
+                    corner_coords = self.get_corner_point_coords(start_coords, end_coords)
 
                     if corner_coords is None:
                         message = f"The connecting lines from 'Circle curve' {line} are parallel "
@@ -435,7 +436,7 @@ class GeometryHandler:
                         print(message)
                         continue
 
-                    radius = self.get_radius(corner_coords, start_point, end_point)
+                    radius = self.get_radius(corner_coords, start_coords, end_coords)
                     
                     corner = Point(*corner_coords)
 
@@ -461,12 +462,12 @@ class GeometryHandler:
 
             try:
 
-                start_point = gmsh.model.get_adjacencies(*line)[1][0]
-                end_point = gmsh.model.get_adjacencies(*line)[1][1]
+                start_coords = gmsh.model.get_adjacencies(*line)[1][0]
+                end_coords = gmsh.model.get_adjacencies(*line)[1][1]
                 line_type = gmsh.model.get_type(*line)
 
-                start_coords = self.get_point_coords(start_point)
-                end_coords = self.get_point_coords(end_point)
+                start_coords = self.get_point_coords(start_coords)
+                end_coords = self.get_point_coords(end_coords)
 
                 line_length = math.dist(start_coords, end_coords)
                 
@@ -526,16 +527,16 @@ class GeometryHandler:
                 points = list(gmsh.model.get_adjacencies(1, line)[1])
         return line, points
     
-    def get_corner_point_coords(self, start_point, end_point):
+    def get_corner_point_coords(self, start_coords, end_coords):
         """
             Reference: https://mathworld.wolfram.com/Line-LineIntersection.html
         """
 
-        coords_start = self.conv_unit(gmsh.model.getValue(0, start_point, []))
-        coords_end = self.conv_unit(gmsh.model.getValue(0, end_point, []))
+        coords_start = self.conv_unit(gmsh.model.getValue(0, start_coords, []))
+        coords_end = self.conv_unit(gmsh.model.getValue(0, end_coords, []))
 
-        _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
-        _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
+        _, points_Lstart = self.get_connecting_line_data(coords_start, start_coords)
+        _, points_Lend = self.get_connecting_line_data(coords_end, end_coords)
 
         X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
         X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
@@ -557,11 +558,11 @@ class GeometryHandler:
         else:
             return None
 
-    def get_radius(self, corner_coords, start_point, end_point):
+    def get_radius(self, corner_coords, start_coords, end_coords):
         """
         """
-        start_coords = self.conv_unit(gmsh.model.getValue(0, start_point, []))
-        end_coords = self.conv_unit(gmsh.model.getValue(0, end_point, []))
+        start_coords = self.conv_unit(gmsh.model.getValue(0, start_coords, []))
+        end_coords = self.conv_unit(gmsh.model.getValue(0, end_coords, []))
 
         a_vector = start_coords - corner_coords
         b_vector = end_coords - corner_coords

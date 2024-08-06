@@ -16,19 +16,19 @@ class StepHandler:
         for structure in editor.pipeline.structures: 
 
             if isinstance(structure, Pipe):
-                start_point = gmsh.model.occ.add_point(*structure.start.coords())
-                end_point = gmsh.model.occ.add_point(*structure.end.coords())
+                start_coords = gmsh.model.occ.add_point(*structure.start.coords())
+                end_coords = gmsh.model.occ.add_point(*structure.end.coords())
 
-                gmsh.model.occ.add_line(start_point, end_point)
+                gmsh.model.occ.add_line(start_coords, end_coords)
 
             elif isinstance(structure, Bend):
                 if (structure.start.coords() == structure.end.coords()).all():
                     continue
-                start_point = gmsh.model.occ.add_point(*structure.start.coords())
-                end_point = gmsh.model.occ.add_point(*structure.end.coords())
+                start_coords = gmsh.model.occ.add_point(*structure.start.coords())
+                end_coords = gmsh.model.occ.add_point(*structure.end.coords())
                 center_point = gmsh.model.occ.add_point(*structure.center.coords())
 
-                gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+                gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
 
         gmsh.model.occ.synchronize()
         gmsh.write(str(path))
@@ -62,12 +62,12 @@ class StepHandler:
                 center_points.append(point[1])
 
         for line in lines: 
-            start_point = gmsh.model.get_adjacencies(*line)[1][0]
-            end_point = gmsh.model.get_adjacencies(*line)[1][1]
+            start_coords = gmsh.model.get_adjacencies(*line)[1][0]
+            end_coords = gmsh.model.get_adjacencies(*line)[1][1]
             line_type = gmsh.model.get_type(*line)
 
-            start_coords = (points_coords[start_point -1][1])
-            end_coords = (points_coords[end_point -1][1])
+            start_coords = (points_coords[start_coords -1][1])
+            end_coords = (points_coords[end_coords -1][1])
 
             start = Point(*start_coords)
             end = Point(*end_coords)
