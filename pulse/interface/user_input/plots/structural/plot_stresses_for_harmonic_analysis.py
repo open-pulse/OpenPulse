@@ -11,7 +11,7 @@ from pulse.interface.user_input.plots.general.frequency_response_plotter import 
 
 import numpy as np
 
-class GetStressesForHarmonicAnalysis(QWidget):
+class PlotStressesForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

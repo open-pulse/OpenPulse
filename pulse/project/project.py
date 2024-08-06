@@ -92,7 +92,7 @@ class Project:
         self.stress_label = ""
 
     def initial_load_project_actions(self, project_file_path):
-        print("initial_load_project_actions")
+
         try:
 
             self.reset(reset_all=True)
@@ -100,10 +100,8 @@ class Project:
 
             if self.file.check_if_entity_file_is_active():
                 self.process_geometry_and_mesh()
-                print("passei 1")
                 return True
             else:
-                print("passei 2")
                 return False
 
         except Exception as log_error:
@@ -163,7 +161,6 @@ class Project:
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
     def load_project_files(self):
-        print("load_project_files")
         self.load_structural_bc_file()
         self.load_acoustic_bc_file()
         self.load_entity_file()

@@ -14,7 +14,7 @@ from pulse.interface.user_input.plots.general.frequency_response_plotter import 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class GetAcousticFrequencyResponseFunction(QWidget):
+class PlotAcousticFrequencyResponseFunction(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

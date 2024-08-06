@@ -8,7 +8,7 @@ from pulse.interface.formatters.icons import *
 
 import numpy as np
 
-class GetStressesForStaticAnalysis(QWidget):
+class PlotStressesForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
