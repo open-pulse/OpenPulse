@@ -422,7 +422,10 @@ class MainWindow(QMainWindow):
         self._configure_visualization(lines=True)
 
     def plot_lines_with_cross_sections(self):
-        self._configure_visualization(lines=True, tubes=True)
+        self._configure_visualization(
+            points=True, lines=True, tubes=True,
+            acoustic_symbols=True, structural_symbols=True,
+        )
 
     def plot_mesh(self):
         self._configure_visualization(
@@ -478,12 +481,14 @@ class MainWindow(QMainWindow):
 
     def _configure_visualization(self, *args, **kwargs):
         self.visualization_filter = VisualizationFilter(*args, **kwargs)
+        self.action_show_geometry_points.setChecked(self.visualization_filter.points)
         self.action_show_mesh_nodes.setChecked(self.visualization_filter.nodes)
         self.action_show_lines.setChecked(self.visualization_filter.lines)
         self.action_show_tubes.setChecked(self.visualization_filter.tubes)
         symbols = self.visualization_filter.acoustic_symbols | self.visualization_filter.structural_symbols
         self.action_show_symbols.setChecked(symbols)
         self.visualization_changed.emit()
+        self._update_visualization()
 
     def _update_visualization(self):
         symbols = self.action_show_symbols.isChecked()

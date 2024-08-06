@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1047</width>
-    <height>681</height>
+    <width>1045</width>
+    <height>674</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -96,7 +96,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1047</width>
+     <width>1045</width>
      <height>18</height>
     </rect>
    </property>
@@ -201,15 +201,14 @@
    <addaction name="action_isometric_view"/>
    <addaction name="action_zoom"/>
    <addaction name="separator"/>
-   <addaction name="action_clip_plane"/>
    <addaction name="action_show_mesh_nodes"/>
    <addaction name="action_show_geometry_points"/>
    <addaction name="action_show_lines"/>
    <addaction name="action_show_tubes"/>
-   <addaction name="action_show_transparent"/>
    <addaction name="action_show_symbols"/>
    <addaction name="separator"/>
-   <addaction name="action_select_elements"/>
+   <addaction name="action_clip_plane"/>
+   <addaction name="action_show_transparent"/>
   </widget>
   <action name="action_new_project">
    <property name="icon">
