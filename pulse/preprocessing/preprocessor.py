@@ -461,8 +461,9 @@ class Preprocessor:
 
     def _save_geometry_points(self):
         self.geometry_points.clear()
-        for dim, point_tag in gmsh.model.getEntities(0):
-            index = self.map_nodes.get(point_tag)
+        node_ids, *_ = gmsh.model.mesh.getNodes(0, -1)
+        for tag in node_ids:
+            index = self.map_nodes.get(tag)
             if index is None:
                 continue
             self.geometry_points.append(index)

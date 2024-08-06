@@ -30,7 +30,8 @@ class PointsActor(GhostActor):
         set_polydata_colors(data, (255, 180, 50))
 
         self.SetMapper(mapper)
-        self.GetProperty().SetPointSize(20)
+        self.GetProperty().SetPointSize(15)
+        self.GetProperty().RenderPointsAsSpheresOn()
         self.make_ghost()
 
     def clear_colors(self):

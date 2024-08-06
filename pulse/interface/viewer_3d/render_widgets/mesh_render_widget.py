@@ -85,8 +85,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
 
         self.renderer.AddActor(self.lines_actor)
-        self.renderer.AddActor(self.nodes_actor)
         self.renderer.AddActor(self.points_actor)
+        self.renderer.AddActor(self.nodes_actor)
         self.renderer.AddActor(self.tubes_actor)
         self.renderer.AddActor(self.acoustic_nodes_symbols_actor)
         self.renderer.AddActor(self.acoustic_elements_symbols_actor)
@@ -120,6 +120,7 @@ class MeshRenderWidget(CommonRenderWidget):
             return
 
         visualization = app().main_window.visualization_filter
+        self.points_actor.SetVisibility(visualization.points)
         self.nodes_actor.SetVisibility(visualization.nodes)
         self.lines_actor.SetVisibility(visualization.lines)
         self.tubes_actor.SetVisibility(visualization.tubes)

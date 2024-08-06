@@ -496,8 +496,8 @@ class MainWindow(QMainWindow):
         self.visualization_filter.structural_symbols = symbols
         select_elements = self.action_select_elements.isChecked()
         self.selection_filter.nodes = self.visualization_filter.nodes
-        self.selection_filter.elements = select_elements
-        self.selection_filter.entities = not select_elements
+        self.selection_filter.elements = self.visualization_filter.nodes
+        self.selection_filter.entities = not self.selection_filter.elements
         self.visualization_changed.emit()
 
     # callbacks
@@ -746,9 +746,17 @@ class MainWindow(QMainWindow):
         self.input_ui.about_OpenPulse()
 
     def action_show_mesh_nodes_callback(self, cond):
+        self.action_show_geometry_points.blockSignals(True)
+        status = self.action_show_geometry_points.isChecked()
+        self.action_show_geometry_points.setChecked(status and not cond)
+        self.action_show_geometry_points.blockSignals(False)
         self._update_visualization()
     
     def action_show_geometry_points_callback(self, cond):
+        self.action_show_mesh_nodes.blockSignals(True)
+        status = self.action_show_mesh_nodes.isChecked()
+        self.action_show_mesh_nodes.setChecked(status and not cond)
+        self.action_show_mesh_nodes.blockSignals(False)
         self._update_visualization()
 
     def action_show_lines_callback(self, cond):
