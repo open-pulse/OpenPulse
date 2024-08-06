@@ -185,7 +185,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update_plot()
 
     def show_empty(self, *args, **kwargs):
-        pass
+        self.analysis_mode = AnalysisMode.EMPTY
+        self.current_frequency_index = 0
+        self.current_phase_step = 0
+        self.update_plot()
 
     def show_displacement_field(self, frequency_index):
         solution = app().project.get_structural_solution()
@@ -325,8 +328,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                     )
 
     def update_selection(self):
+        if not self._actor_exists():
+            return
 
-        # self.current_frequency_index = 0
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
 
@@ -341,6 +345,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update()
 
     def update_info_text(self):
+        if self.analysis_mode == AnalysisMode.EMPTY:
+            self.set_info_text("")
+            return
+
         info_text = ""
         info_text += analysis_info_text(self.current_frequency_index)
         info_text += nodes_info_text()

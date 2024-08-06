@@ -235,6 +235,9 @@ class MeshRenderWidget(CommonRenderWidget):
         )
 
     def update_selection(self):
+        if not self._actor_exists():
+            return
+
         self.points_actor.clear_colors()
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()

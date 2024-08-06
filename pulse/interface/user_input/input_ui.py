@@ -360,6 +360,7 @@ class InputUi:
             self.after_run = self.project.get_post_solution_model_checks()
             self.after_run.check_all_acoustic_criterias()
             self.main_window.use_results_workspace()
+            app().main_window.results_widget.show_empty()
         
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
