@@ -26,7 +26,6 @@ class ElasticNodalLinksInput(QDialog):
         app().main_window.set_input_widget(self)
         self.project = app().project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -38,13 +37,10 @@ class ElasticNodalLinksInput(QDialog):
         while self.keep_window_open:
             self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):

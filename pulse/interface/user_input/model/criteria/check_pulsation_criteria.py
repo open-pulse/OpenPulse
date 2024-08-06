@@ -32,7 +32,6 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.project = main_window.project
         self.preprocessor = main_window.project.preprocessor
 
-        self._load_icons()
         self._config_window()
         self._initialize()        
         self._define_qt_variables()
@@ -61,13 +60,11 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
         self.solution = self.project.get_acoustic_solution()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 

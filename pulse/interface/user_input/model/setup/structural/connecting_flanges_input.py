@@ -24,11 +24,8 @@ class ConnectingFlangesInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-
-        self.main_window = app().main_window
         self.project = app().project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -36,14 +33,11 @@ class ConnectingFlangesInput(QDialog):
         self._config_widgets()
         self.update()
         self.exec()
-        
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
     
     def _initialize(self):
@@ -173,7 +167,7 @@ class ConnectingFlangesInput(QDialog):
             self.tabWidget_inputs.setCurrentIndex(1)
             self.label_selected_id.setText("Nodes ID:")
 
-            self.main_window.plot_mesh()
+            app().main_window.plot_mesh()
             if len(node_id):
                 app().main_window.set_selection(nodes = node_id)
 
@@ -182,7 +176,7 @@ class ConnectingFlangesInput(QDialog):
             self.tabWidget_inputs.setCurrentIndex(2)
             self.label_selected_id.setText("Elements ID:")
 
-            self.main_window.plot_mesh()
+            app().main_window.plot_mesh()
             if element_id:
                 app().main_window.set_selection(elements = element_id)
 
@@ -288,7 +282,7 @@ class ConnectingFlangesInput(QDialog):
     def reset_selection(self):
         self.lineEdit_selected_id.setText("")
         self.treeWidget_flange_by_elements.clear()
-        self.main_window.plot_mesh()
+        app().main_window.plot_mesh()
 
     def get_elements_from_start_end_line(self):
         number_elements = self.spinBox_number_elements_line.value()

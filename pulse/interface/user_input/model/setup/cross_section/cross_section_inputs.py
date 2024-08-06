@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.preprocessing.cross_section import get_beam_section_properties, get_points_to_plot_section
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
@@ -27,18 +27,14 @@ class CrossSectionWidget(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self.create_lists_of_entries()
-        
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _add_icon_and_title(self):
-        self._load_icons()
         self._config_window()
 
     def _initialize(self):

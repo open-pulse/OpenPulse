@@ -26,7 +26,6 @@ class RadiationImpedanceInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -50,17 +49,14 @@ class RadiationImpedanceInput(QDialog):
 
         self.nodes = self.preprocessor.nodes
         self.radiation_impedance = None
-        self.nodes_typed = []
+        self.nodes_typed = list()
   
         self.remove_acoustic_pressure = False
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

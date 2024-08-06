@@ -53,7 +53,6 @@ class AnalysisSetupInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -65,7 +64,7 @@ class AnalysisSetupInput(QDialog):
     def _initialize(self):
         self.complete = False
         self.flag_run = False
-        self.frequencies = []
+        self.frequencies = list()
         self.modes = 0
         #
         self.title = self.project.analysis_type_label
@@ -75,13 +74,10 @@ class AnalysisSetupInput(QDialog):
         self.f_step = self.project.f_step
         self.global_damping = self.project.global_damping
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Analysis setup")
 
     def _define_qt_variables(self):

@@ -30,7 +30,6 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.project = app().main_window.project
 
         self._initialize()        
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -56,17 +55,17 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.node_id = app().main_window.list_selected_nodes()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_line_ids : QComboBox
+
         # QLineEdit
         self.lineEdit_compressor_node_id : QLineEdit
         self.lineEdit_pressure_ratio : QLineEdit
@@ -75,6 +74,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_line_pressure : QLineEdit
         self.lineEdit_speed_of_sound : QLineEdit
         self.lineEdit_internal_diameter : QLineEdit
+
         # QPushButton
         self.pushButton_plot_unfiltered_criteria : QPushButton
         self.pushButton_plot_filtered_criteria : QPushButton

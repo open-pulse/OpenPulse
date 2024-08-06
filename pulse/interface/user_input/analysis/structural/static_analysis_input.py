@@ -21,7 +21,6 @@ class StaticAnalysisInput(QDialog):
         self.main_window = app().main_window
         self.project = self.main_window.project
         
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -29,13 +28,10 @@ class StaticAnalysisInput(QDialog):
         self._load_current_state()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Static Analysis Setup")
 
     def _initialize(self):

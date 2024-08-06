@@ -35,7 +35,6 @@ class SetFluidInput(QDialog):
         self.project = app().project
         self.file = self.project.file
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -47,19 +46,17 @@ class SetFluidInput(QDialog):
         if self.compressor_thermodynamic_state:
             if self.fluid_widget.call_refprop_interface():
                 return
+
             self.load_compressor_info()
 
         while self.keep_window_open:
             self.exec()
 
-    def _load_icons(self):
-        self.icon = app().main_window.pulse_icon
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
-        self.setWindowTitle("Set fluid")
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 

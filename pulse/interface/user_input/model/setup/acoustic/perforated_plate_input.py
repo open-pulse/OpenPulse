@@ -33,7 +33,6 @@ class PerforatedPlateInput(QDialog):
         self.project = app().project
         app().main_window.set_input_widget(self)
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -43,13 +42,10 @@ class PerforatedPlateInput(QDialog):
         self.load_elements_info()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
@@ -1051,7 +1047,6 @@ class GetInformationOfGroup(QDialog):
         self.perforated_plate = value[0]
         self.elements = value[1]
 
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -1059,13 +1054,10 @@ class GetInformationOfGroup(QDialog):
         self.load_group_info()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon) 
+        self.setWindowIcon(app().main_window.pulse_icon) 
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

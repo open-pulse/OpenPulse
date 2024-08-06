@@ -17,22 +17,17 @@ class ResetProjectInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.main_window = app().main_window
         self.project = app().main_window.project
 
-        self._load_icons()
         self._config_windows()
         self._create_connections()
         self._define_qt_variables()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_windows(self):    
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

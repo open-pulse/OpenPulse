@@ -25,7 +25,6 @@ class PlotTransmissionLoss(QWidget):
         app().main_window.set_input_widget(self)
         self.project = main_window.project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -43,13 +42,11 @@ class PlotTransmissionLoss(QWidget):
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
         self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
 
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 

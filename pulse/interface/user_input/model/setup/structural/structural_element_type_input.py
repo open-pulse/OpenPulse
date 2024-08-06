@@ -21,23 +21,20 @@ class StructuralElementTypeInput(QDialog):
         app().main_window.set_input_widget(self)
         self.project = app().project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
+
         self.element_type_change_callback()
         self.load_element_type_info()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
@@ -113,29 +110,32 @@ class StructuralElementTypeInput(QDialog):
 
             if len(selected_lines) == 1:
 
-                entity = self.preprocessor.lines_from_model[selected_lines[0]]
+                line = self.preprocessor.lines_from_model[selected_lines[0]]
 
-                element_type = entity.structural_element_type
+                element_type = line.structural_element_type
                 if element_type == 'pipe_1':
                     self.comboBox_element_type.setCurrentIndex(0)
                 else:
                     self.comboBox_element_type.setCurrentIndex(1)
 
-                wall_formulation = entity.structural_element_wall_formulation
+                wall_formulation = line.structural_element_wall_formulation
+
                 if wall_formulation == 'thin_wall': 
                     self.comboBox_wall_formulation.setCurrentIndex(0)
+
                 elif wall_formulation == 'thick_wall':
                     self.comboBox_wall_formulation.setCurrentIndex(1)
+
                 elif wall_formulation is None:
                     if element_type == "pipe_1":
                         self.comboBox_wall_formulation.setCurrentIndex(1)
 
-                if entity.capped_end:
+                if line.capped_end:
                     self.comboBox_capped_end.setCurrentIndex(0)
                 else:
                     self.comboBox_capped_end.setCurrentIndex(1)
 
-                if entity.force_offset == 1:
+                if line.force_offset == 1:
                     self.comboBox_force_offset.setCurrentIndex(0)
                 else:
                     self.comboBox_force_offset.setCurrentIndex(1)
@@ -212,22 +212,22 @@ class StructuralElementTypeInput(QDialog):
         if len(line_ids) == 0:
             line_ids = list(self.preprocessor.lines_from_model.keys())
 
-        for line_id in line_ids:
+        for tag in line_ids:
 
-            entity = self.lines_from_model[line_id]
-            initial_etype = entity.structural_element_type
+            line = self.lines_from_model[tag]
+            initial_etype = line.structural_element_type
 
             if initial_etype in ['pipe_1', None] and final_etype in ['beam_1']:
 
                 self.update_cross_section = True
                 self.pipe_to_beam = True
-                self.list_lines_to_update_cross_section.append(line_id)
+                self.list_lines_to_update_cross_section.append(tag)
 
             elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1']:
 
                 self.update_cross_section = True
                 self.beam_to_pipe = True
-                self.list_lines_to_update_cross_section.append(line_id)
+                self.list_lines_to_update_cross_section.append(tag)
 
         if self.update_cross_section:
             self.update_modified_cross_sections()

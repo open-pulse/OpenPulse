@@ -27,7 +27,6 @@ class AcousticPressureInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -58,14 +57,11 @@ class AcousticPressureInput(QDialog):
         self.remove_acoustic_pressure = False
         self.acoustic_pressure = None
         self.list_Nones = [None, None, None, None, None, None]
-        
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

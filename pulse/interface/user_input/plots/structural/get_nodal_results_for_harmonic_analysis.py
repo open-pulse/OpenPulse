@@ -23,7 +23,6 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self.project = main_window.project
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -38,15 +37,12 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self.analysisMethod = self.project.analysis_method_label
         self.frequencies = self.project.frequencies
         self.solution = self.project.get_structural_solution()
-    
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
-        self.export_icon = QIcon(get_icons_path('send_to_disk.png'))
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 

@@ -29,12 +29,9 @@ class SetMaterialInput(QDialog):
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
         app().main_window.set_input_widget(self)
-
-        self.main_window = app().main_window
         self.project = app().project
-        self.file = self.project.file
+        self.file = app().project.file
         
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -42,14 +39,11 @@ class SetMaterialInput(QDialog):
         self.selection_callback()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = app().main_window.pulse_icon
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Set material")
-        self.setWindowIcon(self.icon)
 
     def _initialize(self):
         self.selected_row = None

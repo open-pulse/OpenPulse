@@ -29,7 +29,6 @@ class GetInformationOfGroup(QDialog):
         self.project = app().main_window.project
 
         self._initialize()
-        self._load_icons()
         self._config_windows()
         self._define_qt_variables()
         self._create_connections()
@@ -40,13 +39,10 @@ class GetInformationOfGroup(QDialog):
     def _initialize(self):
         self.lines_removed = False
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_windows(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

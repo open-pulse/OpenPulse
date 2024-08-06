@@ -2,9 +2,8 @@ from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
 from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtCore import Qt, pyqtSignal, QObject, QSize, QThread
 from PyQt5 import uic
-from pathlib import Path
 
-from pulse import UI_DIR, ICON_DIR
+from pulse import app, UI_DIR, ICON_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import __version__, __release_date__
@@ -42,7 +41,6 @@ class LoadingScreen(QDialog):
         self.message = kwargs.get("message", "")
         self.project = kwargs.get("project", None)
 
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -52,15 +50,11 @@ class LoadingScreen(QDialog):
         self.exec()
         self.movie.stop()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-        self.gif_path = str(ICON_DIR / 'gifs/loading_blue.gif')
-
     def _config_window(self):
-        self.setWindowTitle(f"OpenPulse v{__version__}")
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle(f"OpenPulse v{__version__}")
 
     def _define_qt_variables(self):
         self.label_animation : QLabel
@@ -72,7 +66,8 @@ class LoadingScreen(QDialog):
         self.pushButton_stop_processing.clicked.connect(self.pushButton_pressed)
 
     def _config_widgets(self):
-        self.movie = QMovie(self.gif_path)
+        gif_path = str(ICON_DIR / 'gifs/loading_blue.gif')
+        self.movie = QMovie(gif_path)
         self.movie.setScaledSize(QSize(100,100))
         if self.project is None:
             self.pushButton_stop_processing.setDisabled(True)
