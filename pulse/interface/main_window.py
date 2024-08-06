@@ -419,7 +419,7 @@ class MainWindow(QMainWindow):
         self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
 
     def plot_lines(self):
-        self._configure_visualization(lines=True)
+        self._configure_visualization(points=True, lines=True)
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
