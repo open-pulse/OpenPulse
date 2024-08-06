@@ -74,7 +74,7 @@ class LoadProjectFile:
     def load_material_data_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
 
         material_list = configparser.ConfigParser()
         material_list.read(self.file._material_list_path)
@@ -128,7 +128,7 @@ class LoadProjectFile:
     def load_fluid_data_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
 
         fluid_list = configparser.ConfigParser()
         fluid_list.read(self.file._fluid_list_path)
@@ -202,7 +202,7 @@ class LoadProjectFile:
     def load_cross_section_data_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
 
         try:
             
@@ -325,7 +325,7 @@ class LoadProjectFile:
     def load_element_type_data_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
 
         try:
 
@@ -412,7 +412,7 @@ class LoadProjectFile:
     def load_valve_data_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
 
         try:
             
@@ -532,7 +532,7 @@ class LoadProjectFile:
     def load_compressor_info_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
 
         try:
             for tag in entity_file.sections():
@@ -561,7 +561,7 @@ class LoadProjectFile:
     def load_capped_end_data_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
         
         try:
 
@@ -586,7 +586,7 @@ class LoadProjectFile:
     def load_stress_stiffening_data_from_file(self):
 
         entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._entity_path)
+        entity_file.read(self.file._build_data_path)
         
         try:
 

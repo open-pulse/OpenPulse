@@ -153,10 +153,7 @@
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Plot cross-section</string>
@@ -187,10 +184,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Confirm</string>
@@ -309,9 +303,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+                 <string notr="true"/>
                 </property>
                 <property name="text">
                  <string>Get a standardized section</string>
@@ -342,9 +334,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+                 <string notr="true"/>
                 </property>
                 <property name="text">
                  <string>Check if section is normalized</string>
@@ -1077,7 +1067,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../data/figures/Pipe.PNG</pixmap>
+                 <pixmap>../../../../figures/Pipe.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -1204,10 +1194,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                     </font>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+                    <string notr="true"/>
                    </property>
                    <property name="text">
                     <string>Get section</string>
@@ -1265,10 +1252,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                     </font>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+                    <string notr="true"/>
                    </property>
                    <property name="text">
                     <string>Get section</string>
@@ -1472,10 +1456,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+                 <string notr="true"/>
                 </property>
                 <property name="text">
                  <string>Flip</string>
@@ -1506,10 +1487,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+                 <string notr="true"/>
                 </property>
                 <property name="text">
                  <string>Flip</string>
@@ -2639,10 +2617,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Plot cross-section</string>
@@ -2669,10 +2644,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Confirm</string>
@@ -3210,7 +3182,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../data/figures/Rectangular.PNG</pixmap>
+                 <pixmap>../../../../figures/Rectangular.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -3673,7 +3645,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../data/figures/Circular.PNG</pixmap>
+                 <pixmap>../../../../figures/Circular.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -4544,7 +4516,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../data/figures/C_profile.PNG</pixmap>
+                 <pixmap>../../../../figures/C_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -5363,7 +5335,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../data/figures/I_profile.PNG</pixmap>
+                 <pixmap>../../../../figures/I_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -6018,7 +5990,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../data/figures/T_profile.PNG</pixmap>
+                 <pixmap>../../../../figures/T_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -6521,6 +6493,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                   <height>350</height>
                  </size>
                 </property>
+                <property name="font">
+                 <font>
+                  <family>MS Shell Dlg 2</family>
+                 </font>
+                </property>
                 <property name="indentation">
                  <number>1</number>
                 </property>
@@ -6698,10 +6675,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Load</string>

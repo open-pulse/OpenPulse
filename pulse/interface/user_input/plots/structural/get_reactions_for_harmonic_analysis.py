@@ -41,13 +41,11 @@ class GetReactionsForHarmonicAnalysis(QWidget):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.project.frequencies
 
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
-        
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -218,8 +216,8 @@ class GetReactionsForHarmonicAnalysis(QWidget):
 
     def check_inputs(self):
         
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        str_nodes = self.lineEdit_nodeID.text()
+        stop, self.node_ID = self.before_run.check_selected_ids(str_nodes, "nodes", single_id=True)
         if stop:
             return True
 

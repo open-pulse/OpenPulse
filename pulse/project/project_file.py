@@ -33,7 +33,7 @@ class ProjectFile:
         self._geometry_path = ""
         self._geometry_filename = ""
         self._geometry_tolerance = 1e-6 # default value to gmsh geometry tolerance (in millimeters)
-        self._entity_path = ""
+        self._build_data_path = ""
         self._backup_geometry_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
@@ -51,7 +51,7 @@ class ProjectFile:
 
     def default_filenames(self):
         self._project_ini_name = "project.ini"
-        self._entity_file_name = "entity.dat"
+        self._model_data_filename = "build_data.dat"
         self._fluid_file_name = "fluid_list.dat"
         self._material_file_name = "material_list.dat"
         self._node_acoustic_file_name = "acoustic_nodal_info.dat"
@@ -92,7 +92,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._build_data_path = get_new_path(self._project_path, self._model_data_filename)
         self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
         self._material_list_path = get_new_path(self._project_path, self._material_file_name)
 
@@ -114,7 +114,7 @@ class ProjectFile:
         self._geometry_path = geometry_path
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._build_data_path = get_new_path(self._project_path, self._model_data_filename)
         self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
         self._material_list_path = get_new_path(self._project_path, self._material_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
@@ -139,7 +139,7 @@ class ProjectFile:
 
         files_to_maintain_after_reset = list()
         files_to_maintain_after_reset.append(self._project_ini_name)
-        files_to_maintain_after_reset.append(self._entity_file_name)
+        files_to_maintain_after_reset.append(self._model_data_filename)
 
         if not reset_fluids:
             files_to_maintain_after_reset.append(self._fluid_file_name)
@@ -307,7 +307,7 @@ class ProjectFile:
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
         self._fluid_list_path =  get_new_path(self._project_path, self._fluid_file_name)
         self._material_list_path = get_new_path(self._project_path, self._material_file_name)
-        self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
+        self._build_data_path =  get_new_path(self._project_path, self._model_data_filename)
         self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
         self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
@@ -361,9 +361,9 @@ class ProjectFile:
     def check_if_entity_file_is_active(self):
         
         import_type = self.get_import_type()
-        if os.path.exists(self._entity_path):
+        if os.path.exists(self._build_data_path):
             config = configparser.ConfigParser()
-            config.read(self._entity_path)
+            config.read(self._build_data_path)
             if len(config.sections()):
                 for tag in config.sections():
                     if import_type == 0:
@@ -540,9 +540,9 @@ class ProjectFile:
             keys_to_ignore.append("material id")
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
-        if os.path.exists(self._entity_path):
+        if os.path.exists(self._build_data_path):
 
             for tag in config.sections():
                 keys = list(config[tag].keys())
@@ -552,7 +552,7 @@ class ProjectFile:
                     else:
                         config.remove_option(tag, key)
 
-            self.write_data_in_file(self._entity_path, config)
+            self.write_data_in_file(self._build_data_path, config)
         
     def add_inertia_load_setup_to_file(self, gravity, stiffening_effect):
         
@@ -586,33 +586,33 @@ class ProjectFile:
 
         return np.array(gravity, dtype=float), bool(key_stiffening)
 
-    def create_entity_file(self, entities):
+    def create_entity_file(self, lines):
 
-        if isinstance(entities, (int, float)):
-            entities = [entities]
+        if isinstance(lines, (int, float)):
+            lines = [lines]
 
         config = configparser.ConfigParser()
-        
-        if os.path.exists(self._entity_path):
+
+        if os.path.exists(self._build_data_path):
             sections = config.sections()
-            for entity_id in entities:
-                if str(entity_id) not in sections:
-                    config[str(entity_id)] = {}
+            for line_id in lines:
+                if str(line_id) not in sections:
+                    config[str(line_id)] = dict()
         else:
-            for entity_id in entities:
-                config[str(entity_id)] = {}
+            for line_id in lines:
+                config[str(line_id)] = dict()
         
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def update_entity_file(self, entities, dict_map_lines={}):
 
         try:
             
-            if os.path.exists(self._entity_path):
+            if os.path.exists(self._build_data_path):
 
                 config = configparser.ConfigParser()
                 config2 = configparser.ConfigParser()
-                config2.read(self._entity_path)
+                config2.read(self._build_data_path)
                 sections = config2.sections()
 
                 mapped_entities = list()
@@ -636,7 +636,7 @@ class ProjectFile:
                                     config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
                                     mapped_entities.append(entity_id)
             
-                self.write_data_in_file(self._entity_path, config)
+                self.write_data_in_file(self._build_data_path, config)
 
         except Exception as _error:
             print(str(_error))
@@ -645,7 +645,7 @@ class ProjectFile:
 
         entity_data = {}
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for entity in config.sections():
             keys = config[entity].keys()
@@ -671,7 +671,7 @@ class ProjectFile:
         try:
 
             entityFile = configparser.ConfigParser()
-            entityFile.read(self._entity_path)
+            entityFile.read(self._build_data_path)
             sections = entityFile.sections()
 
             _id = 1
@@ -788,7 +788,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             line_id = str(line_id)
@@ -828,7 +828,7 @@ class ProjectFile:
                         section_parameters = cross_section.section_parameters
                         config[line_id]['section parameters'] = str(section_parameters)
         
-        self.write_data_in_file(self._entity_path, config)      
+        self.write_data_in_file(self._build_data_path, config)      
 
     def add_cross_section_segment_in_file(self, segments, data):
         
@@ -838,7 +838,7 @@ class ProjectFile:
                 segments = [segments]
 
             config = configparser.ConfigParser()
-            config.read(self._entity_path)
+            config.read(self._build_data_path)
 
             for segment_id in segments:
                 segment_id = str(segment_id)
@@ -885,7 +885,7 @@ class ProjectFile:
             PrintMessageInput([window_title_1, title, message])
             return
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
@@ -893,7 +893,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         str_keys = [    'structural element type',
                         'section type',
@@ -927,7 +927,7 @@ class ProjectFile:
                                 'section parameters' : str(section_parameters),
                                 'list of elements' : str(elements) }
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
 
     def modify_variable_cross_section_in_file(self, lines, section_info):
@@ -938,7 +938,7 @@ class ProjectFile:
         parameters = section_info["section_parameters"]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         sections = list(config.sections())
 
         for line_id in lines:
@@ -951,7 +951,7 @@ class ProjectFile:
                 if prefix in section:
                     config.remove_section(section=section)
             
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
 
     def modify_valve_in_file(self, lines, parameters):
@@ -960,7 +960,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         sections = config.sections()
 
         list_keys = [   'section type',
@@ -1006,7 +1006,7 @@ class ProjectFile:
                     config[str_line]['flange section parameters'] = str(flange_parameters)
                     config[str_line]['number of flange elements'] = str(number_flange_elements)
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
 
     def modify_expansion_joint_in_file(self, lines, parameters):
@@ -1015,7 +1015,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         sections = config.sections()
 
         list_keys = [   'section type',
@@ -1049,7 +1049,7 @@ class ProjectFile:
                     str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
                     config[str_line]['expansion joint stiffness'] = str_table_names
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def add_multiple_cross_sections_expansion_joints_valves_in_file(self, 
                                                                     lines, 
@@ -1062,9 +1062,9 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         config_base = configparser.ConfigParser()
-        config_base.read(self._entity_path)
+        config_base.read(self._build_data_path)
 
         sections = config_base.sections()
         
@@ -1185,7 +1185,7 @@ class ProjectFile:
                                                 'expansion joint stiffness' : str_table_names,
                                                 'list of elements' : f'{list_elements}' }
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def add_length_correction_in_file(self, elements, _type, section, psd_label=""): 
         
@@ -1281,7 +1281,7 @@ class ProjectFile:
             lines = [lines] 
         
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             str_entity_id = str(line_id)
@@ -1291,7 +1291,7 @@ class ProjectFile:
             else:
                 config[str_entity_id]['stress stiffening parameters'] = str(pressures)
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def modify_stress_stiffnening_element_in_file(self, elements, parameters, section, remove=False):
 
@@ -1338,7 +1338,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         
         for line_id in lines:
             str_entity_id = str(line_id)
@@ -1347,7 +1347,7 @@ class ProjectFile:
             else:
                 config.remove_option(section=str_entity_id, option='capped end')
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def modify_structural_element_type_in_file(self, lines, element_type):
         
@@ -1355,7 +1355,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             str_line = str(line_id)
@@ -1368,7 +1368,7 @@ class ProjectFile:
             
             config[str_line]['structural element type'] = element_type
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def modify_structural_element_wall_formulation_in_file(self, lines, formulation):
         
@@ -1376,7 +1376,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             str_line = str(line_id)     
@@ -1386,7 +1386,7 @@ class ProjectFile:
             else:
                 config[str_line]['structural element wall formulation'] = formulation
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def modify_structural_element_force_offset_in_file(self, lines, force_offset):
         
@@ -1394,7 +1394,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             str_line = str(line_id)     
@@ -1404,7 +1404,7 @@ class ProjectFile:
             else:
                 config[str_line]['force offset'] = str(force_offset)
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, vol_flow=None):
         
@@ -1412,7 +1412,7 @@ class ProjectFile:
             lines = [lines]
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         
         for line_id in lines:
             _section = str(line_id)
@@ -1430,7 +1430,7 @@ class ProjectFile:
             if element_type not in ["undamped mean flow", "peters", "howe"] and 'volume flow rate' in config[_section].keys():
                 config.remove_option(section=_section, option='volume flow rate')  
     
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def add_segment_build_data_in_file(self, lines, data):
 
@@ -1438,7 +1438,7 @@ class ProjectFile:
             lines = [lines]
         
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             if len(data) == 2:
@@ -1450,7 +1450,7 @@ class ProjectFile:
                 config[str(line_id)]['end point'] = str(data[2])
                 config[str(line_id)]['curvature'] = str(data[3])
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def get_segment_build_data_from_file(self):
         '''
@@ -1458,7 +1458,7 @@ class ProjectFile:
         '''
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         segment_build_data = dict()
 
         for section in config.sections():
@@ -1531,7 +1531,7 @@ class ProjectFile:
     def remove_entity_gaps_from_file(self):
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         config_no_gap = configparser.ConfigParser()
 
@@ -1552,7 +1552,7 @@ class ProjectFile:
             else:
                 config_no_gap[str(tag)] = config[section]
 
-        self.write_data_in_file(self._entity_path, config_no_gap)
+        self.write_data_in_file(self._build_data_path, config_no_gap)
 
     def add_material_in_file(self, lines, material):
 
@@ -1565,12 +1565,12 @@ class ProjectFile:
             material_id = material.identifier
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             config[str(line_id)]['material id'] = str(material_id)
             
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def add_material_segment_in_file(self, lines, material_id):
 
@@ -1581,12 +1581,12 @@ class ProjectFile:
             material_id = ""
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             config[str(line_id)]['material id'] = str(material_id)
             
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def add_psd_label_in_file(self, lines, psd_label):
 
@@ -1594,12 +1594,12 @@ class ProjectFile:
             lines = [lines]
         
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             config[str(line_id)]['psd label'] = psd_label
             
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def get_material_properties(self, material_id):
         config = configparser.ConfigParser()
@@ -1638,12 +1638,12 @@ class ProjectFile:
             fluid_id = fluid.identifier
 
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             config[str(line_id)]['fluid id'] = str(fluid_id)
 
-        self.write_data_in_file(self._entity_path, config)
+        self.write_data_in_file(self._build_data_path, config)
 
     def modify_compressor_info_in_file(self, lines, compressor_info={}):
         
@@ -1651,7 +1651,7 @@ class ProjectFile:
             lines = [lines]
         
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
 
         for line_id in lines:
             if compressor_info:
@@ -1661,7 +1661,7 @@ class ProjectFile:
                 if 'compressor info' in config[str(line_id)].keys():
                     config.remove_option(section=_section, option='compressor info')  
 
-        self.write_data_in_file(self._entity_path, config) 
+        self.write_data_in_file(self._build_data_path, config) 
 
     def get_structural_bc_data_from_dat_file(self):
 
@@ -2561,7 +2561,7 @@ class ProjectFile:
 
     #     str_line_id = str(line_id)
     #     config = configparser.ConfigParser()
-    #     config.read(self._entity_path)
+    #     config.read(self._build_data_path)
     #     sections = config.sections()
 
     #     list_table_names = list()
@@ -2652,9 +2652,9 @@ class ProjectFile:
             so the all attribuiton from line related to the group of elements will be removed.
         
         """
-        if os.path.exists(self._entity_path):
+        if os.path.exists(self._build_data_path):
             config = configparser.ConfigParser()
-            config.read(self._entity_path)
+            config.read(self._build_data_path)
             sections = config.sections()
             
             for section in sections:
@@ -2700,7 +2700,7 @@ class ProjectFile:
                                     if subkey in _section:
                                         config.remove_section(_section)       
 
-            self.write_data_in_file(self._entity_path, config)
+            self.write_data_in_file(self._build_data_path, config)
 
 
     def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
@@ -2737,14 +2737,14 @@ class ProjectFile:
     def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
         _line_id = str(line_id)
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
+        config.read(self._build_data_path)
         if _line_id in list(config.sections()):
             if value == 0:
                 if "beam x-axis rotation" in list(config[_line_id].keys()):
                     config.remove_option(section=str(_line_id), option="beam x-axis rotation")
             else:                    
                 config[_line_id]["beam x-axis rotation"] = str(value)               
-            self.write_data_in_file(self._entity_path, config)
+            self.write_data_in_file(self._build_data_path, config)
 
     def write_data_in_file(self, path, config):
         with open(path, 'w') as config_file:

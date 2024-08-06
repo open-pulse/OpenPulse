@@ -185,9 +185,9 @@ class VolumeVelocityInput(QDialog):
 
     def check_constant_values(self):
 
-        lineEdit_nodeID = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
+        lineEdit = self.lineEdit_selection_id.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(lineEdit, "nodes")
+        if stop:
             self.lineEdit_selection_id.setFocus()
             return
 
@@ -305,8 +305,8 @@ class VolumeVelocityInput(QDialog):
     
     def check_table_values(self):
 
-        lineEdit_nodeID = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        lineEdit = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_selected_ids(lineEdit, "nodes")
         if self.stop:
             self.lineEdit_selection_id.setFocus()
             return
@@ -375,8 +375,8 @@ class VolumeVelocityInput(QDialog):
     def remove_bc_from_node(self):
         if self.lineEdit_selection_id.text() != "":
 
-            lineEdit_selection_id = self.lineEdit_selection_id.text()
-            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            lineEdit = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_selected_ids(lineEdit, "nodes")
             if stop:
                 return
 

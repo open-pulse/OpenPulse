@@ -57,11 +57,11 @@ class ElementLinesActor(GhostActor):
         data = self.GetMapper().GetInput()
         set_polydata_colors(data, (80, 80, 80))
 
-    def set_color(self, color, elements=None, entities=None):
+    def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()
         data = mapper.GetInput()
         
-        if (elements is None) and (entities is None):
+        if (elements is None) and (lines is None):
             set_polydata_colors(data, color)
             mapper.SetScalarModeToUseCellData()
             mapper.ScalarVisibilityOff()  # Just to force color updates
@@ -69,7 +69,7 @@ class ElementLinesActor(GhostActor):
             return
         
         elements = set(elements) if elements else set()
-        entities = set(entities) if entities else set()
+        lines = set(lines) if lines else set()
 
         n_cells = data.GetNumberOfCells()
         element_indexes: vtk.vtkIntArray = data.GetCellData().GetArray("element_index")
@@ -79,7 +79,7 @@ class ElementLinesActor(GhostActor):
         for i in range(n_cells):
             element = element_indexes.GetValue(i)
             entity = entity_indexes.GetValue(i)
-            if (entity in entities) or (element in elements):
+            if (entity in lines) or (element in elements):
                 colors.SetTuple3(i, *color)
         
         mapper.SetScalarModeToUseCellData()

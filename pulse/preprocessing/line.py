@@ -1,13 +1,13 @@
 # from pulse.preprocessing.material import Material
 
-class Entity:
+class Line:
     """A entity class.
     This class creates a entity object from input data.
 
     Parameters
     ----------
     tag : int
-        Entity tag name, which is displayed to the user in the UI.
+        Line tag name, which is displayed to the user in the UI.
     """
     def __init__(self, tag, **kwargs):
         self.tag = tag
@@ -98,7 +98,7 @@ class Entity:
         Returns
         ----------
         int
-            Entity tag.
+            Line tag.
         """
         return self.tag
 
@@ -109,7 +109,7 @@ class Entity:
         Returns
         ----------
         tuple
-            Entity color.
+            Line color.
 
         See also
         --------
@@ -130,7 +130,7 @@ class Entity:
 
         See also
         --------
-        getColor : Entity color.
+        getColor : Line color.
         """
         if self.material is None:
             return [1,1,1]
@@ -143,7 +143,7 @@ class Entity:
         Returns
         ----------
         CrossSection object
-            Entity cross section.
+            Line cross section.
         """
         return self.cross_section
     
@@ -165,7 +165,7 @@ class Entity:
         Returns
         ----------
         Material object
-            Entity material.
+            Line material.
         """
         return self.material
         
@@ -176,7 +176,7 @@ class Entity:
         Returns
         ----------
         Fluid object
-            Entity fluid.
+            Line fluid.
         """
         return self.fluid
     

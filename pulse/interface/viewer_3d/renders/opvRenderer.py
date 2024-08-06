@@ -35,7 +35,7 @@ class PlotFilter:
 @dataclass
 class SelectionFilter:
     nodes: bool    = False
-    entities: bool = False
+    lines: bool = False
     elements: bool = False
 
 
@@ -215,7 +215,7 @@ class opvRenderer(vtkRendererBase):
                         _lines.append(line_id)
                 self.hide_lines(_lines, _update_Renderer=True)
             else:
-                _lines = list(self.preprocessor.dict_tag_to_entity.keys())
+                _lines = list(self.preprocessor.lines_from_model.keys())
                 self.hide_lines(_lines, _update_Renderer=True)
             
     def hide_show_elements_and_nodes(self, _show):
@@ -323,7 +323,7 @@ class opvRenderer(vtkRendererBase):
         if (plot_filter.lines):
             self.unhide_lines(_update_Renderer=True)
         else:
-            _lines = list(self.preprocessor.dict_tag_to_entity.keys())
+            _lines = list(self.preprocessor.lines_from_model.keys())
             self.hide_lines(_lines, _update_Renderer=True)
 
         if (plot_filter.tubes):
@@ -354,7 +354,7 @@ class opvRenderer(vtkRendererBase):
         return self._selectionFilter.elements 
 
     def selectionToLines(self):
-        return self._selectionFilter.entities
+        return self._selectionFilter.lines
 
     def clearSelection(self):
         self._style.clear()

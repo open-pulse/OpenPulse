@@ -5,11 +5,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
-from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 
@@ -30,26 +29,23 @@ class PerforatedPlateInput(QDialog):
 
         self.valve_ids = kwargs.get("valve_ids", list())
 
-        self.project = app().project
         app().main_window.set_input_widget(self)
+        self.project = app().project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self.update()
+
+        self.selection_callback()
         self.load_elements_info()
         self.exec()
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
@@ -81,26 +77,28 @@ class PerforatedPlateInput(QDialog):
         self.acoustic_elements = self.project.preprocessor.acoustic_elements
         self.structural_elements = self.project.preprocessor.structural_elements
         self.group_elements_with_perforated_plates = self.project.preprocessor.group_elements_with_perforated_plate
-        self.elements_id = app().main_window.list_selected_elements()
-
         self.elements_info_path = self.project.file._element_info_path
 
     def _define_qt_variables(self):
+
         # QCheckBox
         self.checkBox_remove_valve_structural_effects : QCheckBox
         self.checkBox_single_hole : QCheckBox
         self.checkBox_bias_flow_coefficient : QCheckBox
         self.checkBox_dimensionless_impedance : QCheckBox
         self.checkBox_nonlinear_discharge_coefficient : QCheckBox
+
         # QComboBox
         self.comboBox_data_type : QComboBox
         self.comboBox_parameter_to_plot : QComboBox
         self.comboBox_perforated_plate_model : QComboBox
+
         # QLabel
         self.label_selection : QLabel
         self.label_non_linear_discharge_coefficient : QLabel
         self.label_correction_factor : QLabel
         self.label_bias_flow_coefficient : QLabel
+
         # QLineEdit
         self.lineEdit_element_id : QLineEdit
         self.lineEdit_element_id_plot : QLineEdit
@@ -115,27 +113,31 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_plate_thickness : QLineEdit
         self.lineEdit_area_porosity : QLineEdit
         self.lineEdit_discharge_coefficient : QLineEdit
+
         # QPushButton
         self.pushButton_plot_parameter : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_load_table : QPushButton
+
         # QRadioButton
         self.radioButton_impedance : QRadioButton
         self.radioButton_absortion : QRadioButton
         self.radioButton_plotReal : QRadioButton
         self.radioButton_plotImag : QRadioButton
+
         # QSpinBox
         self.spinBox_skiprows : QSpinBox
+
         # QTabWidget
         self.tabWidget_dimensionless : QTabWidget
         self.tabWidget_perforated_plate : QTabWidget
         self.tabWidget_setup : QTabWidget
+
         # QTreeWidget
         self.treeWidget_perforated_plate_preview : QTreeWidget
         self.treeWidget_perforated_plate_remove : QTreeWidget
-
 
     def _create_connections(self):
         #
@@ -159,13 +161,80 @@ class PerforatedPlateInput(QDialog):
         self.treeWidget_perforated_plate_remove.itemClicked.connect(self.on_click_item_tab_remove)
         self.treeWidget_perforated_plate_remove.itemDoubleClicked.connect(self.on_doubleclick_item_tab_remove)
         #
-        self.update_checkboxes()
-        self.update_valve_ids()
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        if self.valve_ids:
+            selected_elements = self.valve_ids
+            self.lineEdit_element_id.setDisabled(True)
+        else:
+            selected_elements = app().main_window.list_selected_elements()
+
+        if selected_elements:
+
+            selected_elements.sort()
+            self.write_ids(selected_elements)
+            
+            element_id = selected_elements[0]
+            element = self.preprocessor.acoustic_elements[element_id]
+            perforated_plate = element.perforated_plate
+
+            if perforated_plate is not None:
+                
+                self.reset_input_fields(force_reset=True)
+                
+                self.lineEdit_hole_diameter.setText(str(perforated_plate.hole_diameter))
+                self.lineEdit_plate_thickness.setText(str(perforated_plate.thickness))
+                self.lineEdit_area_porosity.setText(str(perforated_plate.porosity))
+
+                if perforated_plate.type == 0:
+                    self.comboBox_perforated_plate_model.setCurrentIndex(0)
+
+                elif perforated_plate.type == 1:
+                    self.comboBox_perforated_plate_model.setCurrentIndex(1)
+
+                elif perforated_plate.type == 2:
+                    self.comboBox_perforated_plate_model.setCurrentIndex(2)
+                    # self.perforated_plate_model_update()
+
+                if perforated_plate.nonlinear_effect:
+                    self.lineEdit_nonlin_discharge.setText(str(perforated_plate.nonlinear_discharge_coefficient))
+
+                else:
+                    if perforated_plate.linear_discharge_coefficient:
+                        self.lineEdit_discharge_coefficient.setText(str(perforated_plate.linear_discharge_coefficient))
+                
+                if perforated_plate.bias_effect:
+                    self.lineEdit_bias_flow_coefficient.setText(str(perforated_plate.bias_coefficient))
+
+                _table_name = perforated_plate.dimensionless_impedance_table_name
+                if _table_name is not None:
+                    self.lineEdit_impedance_real.setText("")
+                    self.lineEdit_impedance_imag.setText("")
+                    self.tabWidget_dimensionless.setCurrentIndex(1)
+                    _path = get_new_path(self.perforated_plate_tables_folder_path, _table_name)
+                    self.lineEdit_load_table_path.setText(_path)
+
+                elif perforated_plate.dimensionless_impedance is not None:
+                    self.lineEdit_load_table_path.setText("")
+                    self.tabWidget_dimensionless.setCurrentIndex(0)
+                    self.lineEdit_impedance_real.setText(str(np.real(perforated_plate.dimensionless_impedance)))
+                    self.lineEdit_impedance_imag.setText(str(np.imag(perforated_plate.dimensionless_impedance)))
+                
+                self.inputs_from_node = True
+            else:
+                self.reset_input_fields()
+
+    def write_ids(self, selected_ids):
+        text = ", ".join([str(i) for i in selected_ids])
+        self.lineEdit_element_id.setText(text)
 
     def _config_widgets(self):
         self.treeWidget_perforated_plate_preview.setColumnWidth(0, 80)
         self.treeWidget_perforated_plate_remove.setColumnWidth(0, 80)
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        self.update_checkboxes()
 
     def update_valve_ids(self):
         if self.valve_ids:
@@ -173,12 +242,15 @@ class PerforatedPlateInput(QDialog):
             self.lineEdit_element_id.setDisabled(True)
 
     def tabEvent_callback(self):
-        self.currentTab_ = self.tabWidget_perforated_plate.currentIndex()
-        if self.currentTab_ == 0:
-            self.write_ids(self.elements_id)
-            self.label_selection.setText("Elements IDs")
 
-        elif self.currentTab_ == 1: 
+        tab_index = self.tabWidget_perforated_plate.currentIndex()
+
+        if tab_index == 0:
+            selected_elements = app().main_window.list_selected_elements()
+            self.write_ids(selected_elements)
+            self.label_selection.setText("Selected IDs:")
+
+        elif tab_index == 1: 
             self.label_selection.setText("Group")
             items = self.treeWidget_perforated_plate_preview.selectedItems()
             if items == []:
@@ -186,7 +258,7 @@ class PerforatedPlateInput(QDialog):
             else:
                 self.on_click_item_tab_remove(items[0])
 
-        elif self.currentTab_ == 2: 
+        elif tab_index == 2: 
             self.label_selection.setText("Group")
             items = self.treeWidget_perforated_plate_remove.selectedItems()
             if items == []:
@@ -428,7 +500,7 @@ class PerforatedPlateInput(QDialog):
     def check_perforated_plate(self):
 
         lineEdit = self.lineEdit_element_id.text()
-        self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
+        self.stop, self.elements_typed = self.before_run.check_selected_ids(lineEdit, "elements")
         self.elements_typed.sort()
         
         if self.stop:
@@ -926,71 +998,6 @@ class PerforatedPlateInput(QDialog):
             self.checkBox_nonlinear_discharge_coefficient.setChecked(False)            
             self.checkBox_bias_flow_coefficient.setChecked(False)            
             self.inputs_from_node = False
-
-    def update(self):
-        
-        if len(self.valve_ids) == 0:
-            self.elements_id = app().main_window.list_selected_elements()
-        
-        if self.elements_id != []:
-            self.elements_id.sort()
-            self.write_ids(self.elements_id)
-            
-            element_id = self.elements_id[0]
-            element = self.preprocessor.acoustic_elements[element_id]
-            perforated_plate = element.perforated_plate
-
-            if perforated_plate is not None:
-                
-                self.reset_input_fields(force_reset=True)
-                
-                self.lineEdit_hole_diameter.setText(str(perforated_plate.hole_diameter))
-                self.lineEdit_plate_thickness.setText(str(perforated_plate.thickness))
-                self.lineEdit_area_porosity.setText(str(perforated_plate.porosity))
-
-                if perforated_plate.type == 0:
-                    self.comboBox_perforated_plate_model.setCurrentIndex(0)
-
-                elif perforated_plate.type == 1:
-                    self.comboBox_perforated_plate_model.setCurrentIndex(1)
-
-                elif perforated_plate.type == 2:
-                    self.comboBox_perforated_plate_model.setCurrentIndex(2)
-                    # self.perforated_plate_model_update()
-
-                if perforated_plate.nonlinear_effect:
-                    self.lineEdit_nonlin_discharge.setText(str(perforated_plate.nonlinear_discharge_coefficient))
-
-                else:
-                    if perforated_plate.linear_discharge_coefficient:
-                        self.lineEdit_discharge_coefficient.setText(str(perforated_plate.linear_discharge_coefficient))
-                
-                if perforated_plate.bias_effect:
-                    self.lineEdit_bias_flow_coefficient.setText(str(perforated_plate.bias_coefficient))
-
-                _table_name = perforated_plate.dimensionless_impedance_table_name
-                if _table_name is not None:
-                    self.lineEdit_impedance_real.setText("")
-                    self.lineEdit_impedance_imag.setText("")
-                    self.tabWidget_dimensionless.setCurrentIndex(1)
-                    _path = get_new_path(self.perforated_plate_tables_folder_path, _table_name)
-                    self.lineEdit_load_table_path.setText(_path)
-
-                elif perforated_plate.dimensionless_impedance is not None:
-                    self.lineEdit_load_table_path.setText("")
-                    self.tabWidget_dimensionless.setCurrentIndex(0)
-                    self.lineEdit_impedance_real.setText(str(np.real(perforated_plate.dimensionless_impedance)))
-                    self.lineEdit_impedance_imag.setText(str(np.imag(perforated_plate.dimensionless_impedance)))
-                
-                self.inputs_from_node = True
-            else:
-                self.reset_input_fields()
-
-    def write_ids(self, list_elements_ids):
-        text = ""
-        for _id in list_elements_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_element_id.setText(text[:-2])
     
     def update_tabs_visibility(self):
         if len(self.preprocessor.group_elements_with_perforated_plate) == 0:
@@ -1051,7 +1058,6 @@ class GetInformationOfGroup(QDialog):
         self.perforated_plate = value[0]
         self.elements = value[1]
 
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -1059,13 +1065,10 @@ class GetInformationOfGroup(QDialog):
         self.load_group_info()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon) 
+        self.setWindowIcon(app().main_window.pulse_icon) 
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):

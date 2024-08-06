@@ -41,17 +41,13 @@ class MaterialInputs(QWidget):
         self.create_connections()
         self.load_data_from_materials_library()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _add_icon_and_title(self):
-        self._load_icons()
         self._config_window()
 
     def _initialize(self):
@@ -346,7 +342,7 @@ class MaterialInputs(QWidget):
         with open(self.material_path, 'w') as config_file:
             config.write(config_file)
 
-        for line_id, entity in self.preprocessor.dict_tag_to_entity.items():
+        for line_id, entity in self.preprocessor.lines_from_model.items():
             if entity.material is None:
                 continue
 
@@ -419,7 +415,7 @@ class MaterialInputs(QWidget):
                 if section_cache not in config.sections():
                     material_names.append(config_cache[section_cache]["name"])
 
-            for line_id, entity in self.preprocessor.dict_tag_to_entity.items():
+            for line_id, entity in self.preprocessor.lines_from_model.items():
                 if entity.material is not None:
                     if entity.material.name in material_names:
                         self.project.set_material_by_lines(line_id, None)

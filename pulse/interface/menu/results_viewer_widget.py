@@ -156,7 +156,7 @@ class ResultsViewerWidget(QWidget):
     def add_shaking_forces_criteria_widget(self):
         widget = self.main_window.input_ui.shaking_forces_criteria()
         self.add_widget(widget)
-        self.main_window.plot_entities()
+        self.main_window.plot_lines()
 
     def add_widget(self, widget, animation_widget=False):
         self.remove_widget()

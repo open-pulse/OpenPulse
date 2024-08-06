@@ -28,7 +28,7 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.selection_callback()
 
     def _initialize(self):
         self.element_id = None
@@ -56,7 +56,8 @@ class GetStressesForHarmonicAnalysis(QWidget):
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -79,28 +80,26 @@ class GetStressesForHarmonicAnalysis(QWidget):
         #
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_elements = app().main_window.list_selected_elements()
+        if selected_elements:
+            text = ", ".join([str(i) for i in selected_elements])
+            self.lineEdit_element_id.setText(text)
 
     def _update_damping_effect(self):
         self.update_damping = True
 
-    def update(self):
-        self.write_ids(app().main_window.list_selected_elements())
-
-    def write_ids(self, list_elements_ids):
-        text = ""
-        for node in list_elements_ids:
-            text += "{}, ".format(node)
-        self.lineEdit_element_id.setText(text)
-
     def check_inputs(self, export=False):
 
-        lineEdit = self.lineEdit_element_id.text()
-        stop, self.element_id = self.before_run.check_input_ElementID(lineEdit, 
-                                                                      single_ID=True)
-        
+        str_elements = self.lineEdit_element_id.text()
+        stop, self.element_id = self.before_run.check_selected_ids(str_elements, "elements", single_id=True)
+
         if stop:
             return True
-        
+
         index = self.comboBox_stress_type.currentIndex()
         self.stress_label = self.labels[index]
         self.stress_key = self.keys[index]

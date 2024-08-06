@@ -27,14 +27,13 @@ class SpecificImpedanceInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
 
         ConfigWidgetAppearance(self, tool_tip=True)
 
-        self.update()
+        self.selection_callback()
         self.load_nodes_info()
 
         while self.keep_window_open:
@@ -58,14 +57,11 @@ class SpecificImpedanceInput(QDialog):
         self.remove_specific_impedance = False
         self.specific_impedance = None
         self.list_Nones = [None, None, None, None, None, None]
-        
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
@@ -95,7 +91,6 @@ class SpecificImpedanceInput(QDialog):
         self.treeWidget_specific_impedance.setColumnWidth(2, 80)
 
     def _create_connections(self):
-        app().main_window.selection_changed.connect(self.update)
         #
         self.constant_value_confirm_button.clicked.connect(self.check_constant_values)
         self.remove_button.clicked.connect(self.remove_bc_from_node)
@@ -107,6 +102,39 @@ class SpecificImpedanceInput(QDialog):
         #
         self.treeWidget_specific_impedance.itemClicked.connect(self.on_click_item)
         self.treeWidget_specific_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_nodes = app().main_window.list_selected_nodes()
+
+        if selected_nodes:
+
+            if self.tabWidget_specific_impedance.currentIndex() != 2:
+                text = ", ".join([str(i) for i in selected_nodes])
+                self.lineEdit_selection_id.setText(text)
+
+            picked_node = selected_nodes[0]
+            node = self.preprocessor.nodes[picked_node]
+
+            if node.specific_impedance is not None:
+                self.reset_input_fields(force_reset=True)
+                if node.specific_impedance_table_name is not None:
+                    table_name = node.specific_impedance_table_name
+                    self.tabWidget_specific_impedance.setCurrentIndex(1)
+                    table_name = get_new_path(self.specific_impedance_tables_folder_path, table_name)
+                    self.lineEdit_table_path.setText(table_name)
+
+                else:
+                    specific_impedance = node.specific_impedance
+                    self.tabWidget_specific_impedance.setCurrentIndex(0)
+                    self.lineEdit_real_value.setText(str(np.real(specific_impedance)))
+                    self.lineEdit_imag_value.setText(str(np.imag(specific_impedance)))
+                self.inputs_from_node = True
+
+            else:
+                self.reset_input_fields()
 
     def tabEvent_specific_impedance(self):
         self.remove_button.setDisabled(True)
@@ -114,7 +142,7 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
         else:
-            self.update()
+            self.selection_callback()
             self.lineEdit_selection_id.setDisabled(False)
 
     def load_nodes_info(self):
@@ -161,8 +189,8 @@ class SpecificImpedanceInput(QDialog):
 
     def check_constant_values(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+        lineEdit = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_selected_ids(lineEdit, "nodes")
         if self.stop:
             self.lineEdit_selection_id.setFocus()
             return
@@ -272,8 +300,9 @@ class SpecificImpedanceInput(QDialog):
         self.imported_values, self.filename_specific_impedance = self.load_table(self.lineEdit_table_path)
     
     def check_table_values(self):
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+
+        str_nodes = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
         if self.stop:
             self.lineEdit_selection_id.setFocus()
             return
@@ -336,8 +365,8 @@ class SpecificImpedanceInput(QDialog):
     def remove_bc_from_node(self):
         if self.lineEdit_selection_id.text() != "":            
 
-            lineEdit_selection_id = self.lineEdit_selection_id.text()
-            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            str_nodes = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
                 return
             
@@ -408,35 +437,6 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_imag_value.setText("")
             self.lineEdit_table_path.setText("")
             self.inputs_from_node = False
-
-    def update(self):
-        list_picked_nodes = app().main_window.list_selected_nodes()
-        if list_picked_nodes != []:
-            picked_node = list_picked_nodes[0]
-            node = self.preprocessor.nodes[picked_node]
-            if node.specific_impedance is not None:
-                self.reset_input_fields(force_reset=True)
-                if node.specific_impedance_table_name is not None:
-                    table_name = node.specific_impedance_table_name
-                    self.tabWidget_specific_impedance.setCurrentIndex(1)
-                    table_name = get_new_path(self.specific_impedance_tables_folder_path, table_name)
-                    self.lineEdit_table_path.setText(table_name)
-                else:
-                    specific_impedance = node.specific_impedance
-                    self.tabWidget_specific_impedance.setCurrentIndex(0)
-                    self.lineEdit_real_value.setText(str(np.real(specific_impedance)))
-                    self.lineEdit_imag_value.setText(str(np.imag(specific_impedance)))
-                self.inputs_from_node = True
-            else:
-                self.reset_input_fields()
-            self.writeNodes(app().main_window.list_selected_nodes())
-
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        if self.tabWidget_specific_impedance.currentIndex() != 2:
-            self.lineEdit_selection_id.setText(text[:-2])
 
     def update_tabs_visibility(self):
         if len(self.preprocessor.nodes_with_specific_impedance) == 0:

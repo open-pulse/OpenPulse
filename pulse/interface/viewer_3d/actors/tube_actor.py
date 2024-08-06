@@ -160,12 +160,12 @@ class TubeActor(vtk.vtkActor):
         for color, elements in grouped_by_color.items():
             self.set_color(color, elements)
 
-    def set_color(self, color, elements=None, entities=None):
+    def set_color(self, color, elements=None, lines=None):
         if len(color) != 3:
             return
 
         data = self.GetMapper().GetInput()
-        if (elements is None) and (entities is None):
+        if (elements is None) and (lines is None):
             set_polydata_colors(data, color)
             self.GetMapper().SetScalarModeToUseCellData()
             self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
@@ -173,7 +173,7 @@ class TubeActor(vtk.vtkActor):
             return
         
         elements = set(elements) if elements else set()
-        entities = set(entities) if entities else set()
+        lines = set(lines) if lines else set()
 
         n_cells = data.GetNumberOfCells()
         element_indexes: vtk.vtkIntArray = data.GetCellData().GetArray("element_index")
@@ -183,7 +183,7 @@ class TubeActor(vtk.vtkActor):
         for i in range(n_cells):
             element = element_indexes.GetValue(i)
             entity = entity_indexes.GetValue(i)
-            if (entity in entities) or (element in elements):
+            if (entity in lines) or (element in elements):
                 colors.SetTuple(i, color)
         
         self.GetMapper().SetScalarModeToUseCellData()

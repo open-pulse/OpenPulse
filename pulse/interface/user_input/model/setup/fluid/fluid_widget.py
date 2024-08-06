@@ -509,7 +509,7 @@ class FluidWidget(QWidget):
         with open(self.fluid_path, 'w') as config_file:
             config.write(config_file)
 
-        for line_id, entity in self.preprocessor.dict_tag_to_entity.items():
+        for line_id, entity in self.preprocessor.lines_from_model.items():
             if entity.fluid is None:
                 continue
 
@@ -602,7 +602,7 @@ class FluidWidget(QWidget):
                 if section_cache not in config.sections():
                     fluid_names.append(config_cache[section_cache]["name"])
 
-            for line_id, entity in self.preprocessor.dict_tag_to_entity.items():
+            for line_id, entity in self.preprocessor.lines_from_model.items():
                 if entity.fluid is not None:
                     if entity.fluid.name in fluid_names:
                         self.project.set_fluid_by_lines(line_id, None)

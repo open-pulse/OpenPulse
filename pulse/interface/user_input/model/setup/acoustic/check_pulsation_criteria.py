@@ -30,11 +30,10 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.project = app().main_window.project
 
         self._initialize()        
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.update_selection()
+        self.selection_callback()
 
     def _initialize(self):
         self.table_name = ""
@@ -56,17 +55,17 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.node_id = app().main_window.list_selected_nodes()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_line_ids : QComboBox
+
         # QLineEdit
         self.lineEdit_compressor_node_id : QLineEdit
         self.lineEdit_pressure_ratio : QLineEdit
@@ -75,16 +74,19 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_line_pressure : QLineEdit
         self.lineEdit_speed_of_sound : QLineEdit
         self.lineEdit_internal_diameter : QLineEdit
+
         # QPushButton
         self.pushButton_plot_unfiltered_criteria : QPushButton
         self.pushButton_plot_filtered_criteria : QPushButton
 
     def _create_connections(self):
-        app().main_window.selection_changed.connect(self.update_selection)
+        #
         self.pushButton_plot_unfiltered_criteria.clicked.connect(self.plot_unfiltered_criteria)
         self.pushButton_plot_filtered_criteria.clicked.connect(self.plot_filtered_criteria)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
 
-    def update_selection(self):
+    def selection_callback(self):
 
         self.reset_unfiltered_fields()
         self.reset_filtered_fields()
@@ -256,7 +258,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_line_properties(self):
         line_id = int(self.comboBox_line_ids.currentText().replace(" ", ""))
-        entity = self.preprocessor.dict_tag_to_entity[line_id]
+        entity = self.preprocessor.lines_from_model[line_id]
         fluid = entity.fluid
         speed_of_sound = fluid.speed_of_sound
         line_pressure = fluid.pressure
@@ -265,7 +267,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
     
     def get_line_pressure(self):
         if len(self.line_ids) == 1:
-            entity = self.preprocessor.dict_tag_to_entity[self.line_ids[0]]
+            entity = self.preprocessor.lines_from_model[self.line_ids[0]]
             fluid = entity.fluid
             return fluid.pressure
         else:

@@ -36,13 +36,10 @@ class AnalysisTypeInput(QDialog):
         ui_path = UI_DIR / "analysis/general/analysis_type.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
+        self.project = app().main_window.project
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -56,14 +53,11 @@ class AnalysisTypeInput(QDialog):
         self.modes = 0
         self.sigma_factor = 1e-4
         self.complete = False
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
         
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Analysis type")
 
     def _define_qt_variables(self):

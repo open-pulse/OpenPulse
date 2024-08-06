@@ -67,8 +67,6 @@ class MassSpringDamperInput(QDialog):
         self.lumped_dampings = None
         self.list_Nones = [None, None, None, None, None, None]
 
-        self.stop = False
-
         self.Mx_table = None
         self.My_table = None
         self.Mz_table = None
@@ -430,12 +428,12 @@ class MassSpringDamperInput(QDialog):
         elif self.tabWidget_inputs.currentIndex() == 1:
             self.check_table_values_inputs()
 
-        app().main_window.plot_mesh()
+        app().main_window.update_plots()
         self.close()
 
     def check_entries(self, lineEdit, label):
 
-        self.stop = False
+        stop = False
         if lineEdit.text() != "":
             try:
                 value = float(lineEdit.text())
@@ -443,40 +441,45 @@ class MassSpringDamperInput(QDialog):
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
                 PrintMessageInput([window_title_1, title, message])
-                self.stop = True
+                stop = True
                 return
         else:
             value = 0
 
         if value == 0:
-            return None
+            return stop, None
         else:
-            return value
+            return stop, value
 
     def check_constant_values_lumped_masses(self):
         
-        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
-        self.stopstop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
-        if self.stopstop:
+        str_nodes = self.lineEdit_selected_ids.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return True
+
+        stop, Mx = self.check_entries(self.lineEdit_Mx, "Mx")
+        if stop:
             return
 
-        Mx = self.check_entries(self.lineEdit_Mx, "Mx")
-        if self.stop:
+        stop, My = self.check_entries(self.lineEdit_My, "My")
+        if stop:
             return
-        My = self.check_entries(self.lineEdit_My, "My")
-        if self.stop:
-            return        
-        Mz = self.check_entries(self.lineEdit_Mz, "Mz")
-        if self.stop:
-            return        
-        Jx = self.check_entries(self.lineEdit_Jx, "Jx")
-        if self.stop:
-            return        
-        Jy = self.check_entries(self.lineEdit_Jy, "Jy")
-        if self.stop:
-            return        
-        Jz = self.check_entries(self.lineEdit_Jz, "Jz")
-        if self.stop:
+      
+        stop, Mz = self.check_entries(self.lineEdit_Mz, "Mz")
+        if stop:
+            return
+     
+        stop, Jx = self.check_entries(self.lineEdit_Jx, "Jx")
+        if stop:
+            return
+     
+        stop, Jy = self.check_entries(self.lineEdit_Jy, "Jy")
+        if stop:
+            return
+     
+        stop, Jz = self.check_entries(self.lineEdit_Jz, "Jz")
+        if stop:
             return
 
         lumped_masses = [Mx, My, Mz, Jx, Jy, Jz]
@@ -491,28 +494,33 @@ class MassSpringDamperInput(QDialog):
         
     def check_constant_values_lumped_stiffness(self):
 
-        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
-        if self.stopstop:
+        str_nodes = self.lineEdit_selected_ids.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
             return
 
-        Kx = self.check_entries(self.lineEdit_Kx, "Kx")
-        if self.stop:
+        stop, Kx = self.check_entries(self.lineEdit_Kx, "Kx")
+        if stop:
             return
-        Ky = self.check_entries(self.lineEdit_Ky, "Ky")
-        if self.stop:
-            return        
-        Kz = self.check_entries(self.lineEdit_Kz, "Kz")
-        if self.stop:
-            return        
-        Krx = self.check_entries(self.lineEdit_Krx, "Krx")
-        if self.stop:
-            return        
-        Kry = self.check_entries(self.lineEdit_Kry, "Kry")
-        if self.stop:
-            return        
-        Krz = self.check_entries(self.lineEdit_Krz, "Krz")
-        if self.stop:
+
+        stop, Ky = self.check_entries(self.lineEdit_Ky, "Ky")
+        if stop:
+            return
+   
+        stop, Kz = self.check_entries(self.lineEdit_Kz, "Kz")
+        if stop:
+            return
+ 
+        stop, Krx = self.check_entries(self.lineEdit_Krx, "Krx")
+        if stop:
+            return
+
+        stop, Kry = self.check_entries(self.lineEdit_Kry, "Kry")
+        if stop:
+            return
+ 
+        stop, Krz = self.check_entries(self.lineEdit_Krz, "Krz")
+        if stop:
             return
 
         lumped_stiffness = [Kx, Ky, Kz, Krx, Kry, Krz]
@@ -527,32 +535,32 @@ class MassSpringDamperInput(QDialog):
  
     def check_constant_values_lumped_dampings(self):
 
-        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
-        if self.stopstop:
+        str_nodes = self.lineEdit_selected_ids.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
             return
 
-        Cx = self.check_entries(self.lineEdit_Cx, "Cx")
-        if self.stop:
+        stop, Cx = self.check_entries(self.lineEdit_Cx, "Cx")
+        if stop:
             return
-        Cy = self.check_entries(self.lineEdit_Cy, "Cy")
-        if self.stop:
+        stop, Cy = self.check_entries(self.lineEdit_Cy, "Cy")
+        if stop:
             return        
-        Cz = self.check_entries(self.lineEdit_Cz, "Cz")
-        if self.stop:
+        stop, Cz = self.check_entries(self.lineEdit_Cz, "Cz")
+        if stop:
             return        
-        Crx = self.check_entries(self.lineEdit_Crx, "Crx")
-        if self.stop:
+        stop, Crx = self.check_entries(self.lineEdit_Crx, "Crx")
+        if stop:
             return        
-        Cry = self.check_entries(self.lineEdit_Cry, "Cry")
-        if self.stop:
+        stop, Cry = self.check_entries(self.lineEdit_Cry, "Cry")
+        if stop:
             return        
-        Crz = self.check_entries(self.lineEdit_Crz, "Crz")
-        if self.stop:
+        stop, Crz = self.check_entries(self.lineEdit_Crz, "Crz")
+        if stop:
             return
 
         lumped_dampings = [Cx, Cy, Cz, Crx, Cry, Crz]
-         
+
         if lumped_dampings.count(None) != 6:
             self.flag_lumped_dampings = True
             self.lumped_dampings = lumped_dampings
@@ -563,16 +571,13 @@ class MassSpringDamperInput(QDialog):
 
     def check_constant_values_inputs(self):
 
-        self.check_constant_values_lumped_masses()
-        if self.stop:
+        if self.check_constant_values_lumped_masses():
             return
 
-        self.check_constant_values_lumped_stiffness()
-        if self.stop:
+        if self.check_constant_values_lumped_stiffness():
             return
 
-        self.check_constant_values_lumped_dampings()
-        if self.stop:
+        if self.check_constant_values_lumped_dampings():
             return
             
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
@@ -584,12 +589,14 @@ class MassSpringDamperInput(QDialog):
 
         if self.lumped_masses is not None:
             print("[Set Mass] - defined at node(s) {}".format(self.nodes_typed))
+
         if self.lumped_stiffness is not None:
             print("[Set Spring] - defined at node(s) {}".format(self.nodes_typed))
+
         if self.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(self.nodes_typed))
-        
-        app().main_window.plot_mesh()
+
+        app().main_window.update_plots()
         self.close()
 
     def load_table(self, lineEdit, _label, direct_load=False):
@@ -623,11 +630,9 @@ class MassSpringDamperInput(QDialog):
                 self.f_step = self.frequencies[1] - self.frequencies[0]
 
                 if self.project.change_project_frequency_setup(self.imported_filename, list(self.frequencies)):
-                    self.stop = True
                     return None, None
                 else:
                     self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-                    self.stop = False
             
                 return self.imported_values, self.imported_filename
 
@@ -639,130 +644,94 @@ class MassSpringDamperInput(QDialog):
 
     def load_Mx_table(self):
         self.Mx_table, self.Mx_filename = self.load_table(self.lineEdit_path_table_Mx, "Mx")
-        if self.stop:
-            self.stop = False
-            self.Mx_table, self.Mx_filename = None, None
+        if (self.Mx_table, self.Mx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Mx)
 
     def load_My_table(self):
         self.My_table, self.My_filename = self.load_table(self.lineEdit_path_table_My, "My")
-        if self.stop:
-            self.stop = False
-            self.My_table, self.My_filename = None, None
+        if (self.My_table, self.My_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_My)
 
     def load_Mz_table(self):
         self.Mz_table, self.Mz_filename = self.load_table(self.lineEdit_path_table_Mz, "Mz")
-        if self.stop:
-            self.stop = False
-            self.Mz_table, self.Mz_filename = None, None
+        if (self.Mz_table, self.Mz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Mz)
     
     def load_Jx_table(self):
         self.Jx_table, self.Jx_filename = self.load_table(self.lineEdit_path_table_Jx, "Jx")
-        if self.stop:
-            self.stop = False
-            self.Jx_table, self.Jx_filename = None, None
+        if (self.Jx_table, self.Jx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Jx)
 
     def load_Jy_table(self):
         self.Jy_table, self.Jy_filename = self.load_table(self.lineEdit_path_table_Jy, "Jy")
-        if self.stop:
-            self.stop = False
-            self.Jy_table, self.Jy_filename = None, None
+        if (self.Jy_table, self.Jy_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Jy)
 
     def load_Jz_table(self):
         self.Jz_table, self.Jz_filename = self.load_table(self.lineEdit_path_table_Jz, "Jz")
-        if self.stop:
-            self.stop = False
-            self.Jz_table, self.Jz_filename = None, None
+        if (self.Jz_table, self.Jz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Jz)
 
     def load_Kx_table(self):
         self.Kx_table, self.Kx_filename = self.load_table(self.lineEdit_path_table_Kx, "Kx")
-        if self.stop:
-            self.stop = False
-            self.Kx_table, self.Kx_filename = None, None
+        if (self.Kx_table, self.Kx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
         self.Ky_table, self.Ky_filename = self.load_table(self.lineEdit_path_table_Ky, "Ky")
-        if self.stop:
-            self.stop = False
-            self.Ky_table, self.Ky_filename = None, None
+        if (self.Ky_table, self.Ky_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
         self.Kz_table, self.Kz_filename = self.load_table(self.lineEdit_path_table_Kz, "Kz")
-        if self.stop:
-            self.stop = False
-            self.Kz_table, self.Kz_filename = None, None
+        if (self.Kz_table, self.Kz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
         self.Krx_table, self.Krx_filename = self.load_table(self.lineEdit_path_table_Krx, "Krx")
-        if self.stop:
-            self.stop = False
-            self.Krx_table, self.Krx_filename = None, None
+        if (self.Krx_table, self.Krx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
         self.Kry_table, self.Kry_filename = self.load_table(self.lineEdit_path_table_Kry, "Kry")
-        if self.stop:
-            self.stop = False
-            self.Kry_table, self.Kry_filename = None, None
+        if (self.Kry_table, self.Kry_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
         self.Krz_table, self.Krz_filename = self.load_table(self.lineEdit_path_table_Krz, "Krz")
-        if self.stop:
-            self.stop = False
-            self.Krz_table, self.Krz_filename = None, None
+        if (self.Krz_table, self.Krz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
         self.Cx_table, self.Cx_filename = self.load_table(self.lineEdit_path_table_Cx, "Cx")
-        if self.stop:
-            self.stop = False
-            self.Cx_table, self.Cx_filename = None, None
+        if (self.Cx_table, self.Cx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
         self.Cy_table, self.Cy_filename = self.load_table(self.lineEdit_path_table_Cy, "Cy")
-        if self.stop:
-            self.stop = False
-            self.Cy_table, self.Cy_filename = None, None
+        if (self.Cy_table, self.Cy_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
         self.Cz_table, self.Cz_filename = self.load_table(self.lineEdit_path_table_Cz, "Cz")
-        if self.stop:
-            self.stop = False
-            self.Cz_table, self.Cz_filename = None, None
+        if (self.Cz_table, self.Cz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
         self.Crx_table, self.Crx_filename = self.load_table(self.lineEdit_path_table_Crx, "Crx")
-        if self.stop:
-            self.stop = False
-            self.Crx_table, self.Crx_filename = None, None
+        if (self.Crx_table, self.Crx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
         self.Cry_table, self.Cry_filename = self.load_table(self.lineEdit_path_table_Cry, "Cry")
-        if self.stop:
-            self.stop = False
-            self.Cry_table, self.Cry_filename = None, None
+        if (self.Cry_table, self.Cry_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
         self.Crz_table, self.Crz_filename = self.load_table(self.lineEdit_path_table_Crz, "Crz")
-        if self.stop:
-            self.stop = False
-            self.Crz_table, self.Crz_filename = None, None
+        if (self.Crz_table, self.Crz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
-      
+
     def lineEdit_reset(self, lineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
@@ -801,10 +770,10 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_masses(self):
 
-        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
-        if self.stop:
-            return
+        str_nodes = self.lineEdit_selected_ids.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return True
        
         for node_id in self.nodes_typed:
             Mx = My = Mz = None
@@ -876,10 +845,10 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_stiffness(self):
 
-        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
-        if self.stop:
-            return
+        str_nodes = self.lineEdit_selected_ids.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return True
 
         for node_id in self.nodes_typed:
             Kx = Ky = Kz = None
@@ -950,10 +919,10 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_dampings(self):
 
-        lineEdit_selected_ids = self.lineEdit_selected_ids.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
-        if self.stop:
-            return
+        str_nodes = self.lineEdit_selected_ids.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return True
 
         for node_id in self.nodes_typed:
             Cx = Cy = Cz = None
@@ -1024,16 +993,13 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_inputs(self):
 
-        self.check_table_values_lumped_masses()
-        if self.stop:
+        if self.check_table_values_lumped_masses():
             return
 
-        self.check_table_values_lumped_stiffness()
-        if self.stop:
+        if self.check_table_values_lumped_stiffness():
             return
 
-        self.check_table_values_lumped_dampings()
-        if self.stop:
+        if self.check_table_values_lumped_dampings():
             return
 
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
@@ -1045,12 +1011,14 @@ class MassSpringDamperInput(QDialog):
 
         if self.lumped_masses is not None:
             print("[Set Mass] - defined at node(s) {}".format(self.nodes_typed))
+
         if self.lumped_stiffness is not None:
             print("[Set Spring] - defined at node(s) {}".format(self.nodes_typed))
+
         if self.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(self.nodes_typed))
 
-        app().main_window.plot_mesh()
+        app().main_window.update_plots()
         self.close()      
 
     def process_table_file_removal(self, list_table_names):
@@ -1091,9 +1059,9 @@ class MassSpringDamperInput(QDialog):
                     nodes_typed.append(index)
         else:
 
-            lineEdit_selected_ids = self.lineEdit_selected_ids.text()
-            _stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selected_ids)
-            if _stop:
+            str_nodes = self.lineEdit_selected_ids.text()
+            stop, nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+            if stop:
                 return
 
         list_reset = [None, None, None, None, None, None]
@@ -1125,7 +1093,7 @@ class MassSpringDamperInput(QDialog):
 
             self.load_treeWidgets_info()
 
-            app().main_window.plot_mesh()
+            app().main_window.update_plots()
 
             if tab_remove_index == 0:
                 self.close()

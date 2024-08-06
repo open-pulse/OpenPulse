@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from pathlib import Path
 
+from pulse import app
 from pulse.interface.formatters.icons import *
 
 class PickColorInput(QColorDialog):
@@ -11,19 +12,15 @@ class PickColorInput(QColorDialog):
 
         self.title = kwargs.get("title", "")
 
-        self._load_icon()
         self._config_window()
         self._initialize()
         self.exec()
 
-    def _load_icon(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setFixedSize(QSize(540, 410))
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowIcon(self.icon) 
-        self.setWindowTitle(self.title)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
     
     def _initialize(self):
         self.color = [] 

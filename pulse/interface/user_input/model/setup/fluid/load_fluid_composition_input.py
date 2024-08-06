@@ -27,7 +27,6 @@ class LoadFluidCompositionInput(QDialog):
         self.file_path = kwargs.get("file_path", "")
        
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -43,15 +42,12 @@ class LoadFluidCompositionInput(QDialog):
         user_path = os.path.expanduser('~')
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
         
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
-        self.setWindowTitle(f"OpenPulse")
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 

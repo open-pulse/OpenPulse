@@ -26,7 +26,7 @@ class Mesher:
         self.points = dict()
         self.lines = dict()
         self.planes = dict()
-        self.entities = dict()
+        self.lines = dict()
 
     @property
     def nodal_coordinates(self):
@@ -61,7 +61,7 @@ class Mesher:
         self.points = self._get_points()
         self.lines = self._get_lines()
         self.planes = self._get_planes()
-        self.entities = self._get_entities()
+        self.lines = self._get_lines()
         
         gmsh.fltk.run() # remove this to stop popping preview on screen
         gmsh.finalize()
@@ -77,7 +77,7 @@ class Mesher:
         self.points = self._get_points()
         self.lines = self._get_lines()
         self.planes = self._get_planes()
-        self.entities = self._get_entities()
+        self.lines = self._get_lines()
         
         gmsh.fltk.run() # remove this to stop popping preview on screen
         gmsh.finalize()
@@ -126,14 +126,14 @@ class Mesher:
             planes[i] = p 
         return planes
         
-    def _get_entities(self):
-        entities = dict()
+    def _get_lines(self):
+        lines = dict()
         for dim, tag in gmsh.model.getEntities(1):
             _, indexes, _ = gmsh.model.mesh.getElements(dim,tag)
             if indexes:
                 indexes = list(indexes[0])
-                entities[tag] = indexes
-        return entities
+                lines[tag] = indexes
+        return lines
 
 
 def test_1():

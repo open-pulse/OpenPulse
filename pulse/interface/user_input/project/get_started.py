@@ -19,9 +19,11 @@ class GetStartedInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.main_window = app().main_window
         self.project = app().main_window.project
-       
+
+        self.config = app().main_window.config
+        self.input_ui = app().main_window.input_ui
+        
         self._initialize()
         self._load_icons()
         self._config_window()
@@ -31,19 +33,16 @@ class GetStartedInput(QDialog):
         self.exec()
 
     def _initialize(self):
-        self.config = self.main_window.config
-        self.input_ui = self.main_window.input_ui
         self.complete = False
 
     def _load_icons(self):
         widgets = self.findChildren((QAbstractButton, QAction))
         icons.change_icon_color_for_widgets(widgets, QColor("#1a73e8"))
-        self.icon = icons.get_openpulse_icon()
 
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Get started")
         
     def _define_qt_variables(self):

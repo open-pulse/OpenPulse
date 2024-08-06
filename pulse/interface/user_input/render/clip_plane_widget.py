@@ -20,14 +20,10 @@ class ClipPlaneWidget(QDialog):
         ui_path = UI_DIR / "render/cutting_plane_inputs.ui"
         uic.loadUi(ui_path, self)
 
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self.show()
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
 
@@ -43,7 +39,7 @@ class ClipPlaneWidget(QDialog):
 
         self.setGeometry(200, 200, 400, 350)        
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Section Plane")
 
     def _define_qt_variables(self):

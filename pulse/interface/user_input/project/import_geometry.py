@@ -28,7 +28,6 @@ class ImportGeometry(QFileDialog):
         self.preprocessor = self.project.preprocessor
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self.import_geometry()
 
@@ -42,13 +41,10 @@ class ImportGeometry(QFileDialog):
 
         self.file = self.project.file
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Import geometry")
 
     def import_geometry(self):

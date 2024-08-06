@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QBrush, QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
-from pulse import UI_DIR
+from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.libraries.standard_cross_sections import StandardCrossSections
 
@@ -20,7 +20,6 @@ class GetStandardCrossSection(QDialog):
         section_data = kwargs.get("section_data", None)
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -42,13 +41,11 @@ class GetStandardCrossSection(QDialog):
         self.wall_thickness = 0.
         self.highlight_section = defaultdict(list)
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 

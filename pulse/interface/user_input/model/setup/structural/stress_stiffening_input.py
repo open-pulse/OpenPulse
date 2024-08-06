@@ -23,23 +23,19 @@ class StressStiffeningInput(QDialog):
         app().main_window.set_input_widget(self)
         self.project = app().project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
+        self.selection_callback()
         self.load_treeWidgets_info()
-        self.update()
         self.exec()
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
@@ -51,7 +47,7 @@ class StressStiffeningInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
 
         self.structural_elements = self.preprocessor.structural_elements
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
 
         # self.dict_group_elements = self.preprocessor.group_elements_with_stress_stiffening
         self.lines_with_stress_stiffening = self.preprocessor.lines_with_stress_stiffening
@@ -63,22 +59,28 @@ class StressStiffeningInput(QDialog):
         self.dictkey_to_remove = None
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_selection : QComboBox
+
         # QLabel
         self.label_attribute_to : QLabel
         self.label_selected_id : QLabel
+
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
         self.lineEdit_external_pressure : QLineEdit
         self.lineEdit_internal_pressure : QLineEdit
+
         # QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_remove : QPushButton
+
         # QTabWidget
         self.tabWidget_groups : QTabWidget
         self.tabWidget_main : QTabWidget
+
         # QTreeWidget
         self.treeWidget_stress_stiffening_elements : QTreeWidget
         self.treeWidget_stress_stiffening_lines : QTreeWidget
@@ -97,6 +99,90 @@ class StressStiffeningInput(QDialog):
         self.treeWidget_stress_stiffening_elements.itemDoubleClicked.connect(self.on_doubleclick_item_elem)
         self.treeWidget_stress_stiffening_lines.itemClicked.connect(self.on_click_item_line)
         self.treeWidget_stress_stiffening_lines.itemDoubleClicked.connect(self.on_doubleclick_item_line)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_lines = app().main_window.list_selected_lines()
+        selected_elements = app().main_window.list_selected_elements()
+
+        self.comboBox_selection.blockSignals(True)
+
+        if selected_lines:
+
+            if self.comboBox_selection.currentIndex() == 1:
+                self.selection_type_callback()
+            else:
+                self.comboBox_selection.setCurrentIndex(1)
+            
+            selected_ids = selected_lines
+            self.label_selected_id.setText("Lines IDs:")
+            
+            if len(selected_lines) == 1:
+                entity = self.preprocessor.lines_from_model[selected_lines[0]] 
+                if entity.stress_stiffening_parameters is not None:
+                    pressures = entity.stress_stiffening_parameters
+                    self.lineEdit_external_pressure.setText(str(pressures[0]))
+                    self.lineEdit_internal_pressure.setText(str(pressures[1]))
+
+        elif selected_elements:
+
+            if self.comboBox_selection.currentIndex() == 2:
+                self.selection_type_callback()
+            else:
+                self.comboBox_selection.setCurrentIndex(2)
+
+            selected_ids = selected_elements
+            self.label_selected_id.setText("Elements IDs:")
+
+            if len(selected_elements) == 1:
+                element = self.preprocessor.structural_elements[selected_elements[0]] 
+                self.lineEdit_external_pressure.setText(str(element.external_pressure))       
+                self.lineEdit_internal_pressure.setText(str(element.internal_pressure))
+
+        self.comboBox_selection.blockSignals(False)
+
+        if selected_ids:
+            text = ", ".join([str(i) for i in selected_ids])
+            self.lineEdit_selected_id.setText(text)
+
+    def selection_type_callback(self):
+
+        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.setEnabled(True)
+        selection_index = self.comboBox_selection.currentIndex()
+
+        if selection_index == 0:
+            self.lineEdit_selected_id.setText("All lines")
+            self.lineEdit_selected_id.setEnabled(False)
+
+        self.selection_callback()
+
+    def tab_event_callback(self):
+
+        self.pushButton_remove.setDisabled(True)
+        tab_index = self.tabWidget_main.currentIndex()
+
+        if tab_index == 0:
+
+            selection_index  = self.comboBox_selection.currentIndex()
+            if selection_index == 0:
+                text = "Lines IDs:"
+                self.lineEdit_selected_id.setText("All lines")
+
+            elif selection_index == 1:
+                text = "Lines IDs:"
+
+            elif selection_index == 2:
+                text = "Elements IDs:"
+
+        elif tab_index == 1:
+            text = "Group:"
+            self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.setDisabled(True)
+
+        self.label_selected_id.setText(text)
 
     def _config_widgets(self):
         #
@@ -111,49 +197,6 @@ class StressStiffeningInput(QDialog):
         self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
         #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
-
-    def selection_type_callback(self):
-
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_selected_id.setEnabled(True)
-        selection_index = self.comboBox_selection.currentIndex()
-
-        if selection_index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setEnabled(False)
-
-        elif selection_index == 1:
-            if len(self.lines_id):
-                self.write_ids(self.lines_id)
-
-        elif selection_index == 2:
-            if len(self.elements_id):
-                self.write_ids(self.elements_id)
-
-    def tab_event_callback(self):
-        self.pushButton_remove.setDisabled(True)
-        tab_index = self.tabWidget_main.currentIndex()
-        if tab_index == 0:
-            selection_index  = self.comboBox_selection.currentIndex()
-            
-            if selection_index == 0:
-                text = "Lines IDs:"
-                self.lineEdit_selected_id.setText("All lines")
-
-            elif selection_index == 1:
-                text = "Lines IDs:"
-                self.write_ids(self.lines_id)
-
-            elif selection_index == 2:
-                text = "Elements IDs:"
-                self.write_ids(self.elements_id)
-
-        elif tab_index == 1:
-            text = "Group:"
-            self.lineEdit_selected_id.setText("")
-            self.lineEdit_selected_id.setDisabled(True)
- 
-        self.label_selected_id.setText(text)
 
     def on_click_item_elem(self, item):
         self.lineEdit_selected_id.setText(item.text(0))
@@ -241,7 +284,7 @@ class StressStiffeningInput(QDialog):
 
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
-            for line_id in self.dict_tag_to_entity.keys():
+            for line_id in self.lines_from_model.keys():
                 self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
 
         elif selection_index == 1:
@@ -257,7 +300,7 @@ class StressStiffeningInput(QDialog):
         if selection_index == 2:
 
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
+            self.stop, self.elements_typed = self.before_run.check_selected_ids(lineEdit, "elements")
             if self.stop:
                 return
 
@@ -310,7 +353,7 @@ class StressStiffeningInput(QDialog):
 
     def check_reset_all(self):
 
-        for line_id in self.preprocessor.all_lines:
+        for line_id in self.preprocessor.lines_from_model.keys():
             self.project.set_stress_stiffening_by_line(line_id, [0,0,0,0], remove=True)
 
         temp_dict = self.preprocessor.group_elements_with_stress_stiffening.copy()
@@ -484,50 +527,6 @@ class StressStiffeningInput(QDialog):
         if len(self.preprocessor.group_elements_with_stress_stiffening):
             self.tabWidget_main.setTabVisible(1, True)
             self.tabWidget_groups.setTabVisible(0, True)
-
-    def update(self):
-
-        self.lines_id = app().main_window.list_selected_lines()
-        self.elements_id = app().main_window.list_selected_elements()
-
-        selection_index = self.comboBox_selection.currentIndex()
-        if self.lines_id != []:
-
-            if selection_index == 1:
-                self.selection_type_callback()
-            else:
-                self.comboBox_selection.setCurrentIndex(1)
-
-            self.label_selected_id.setText("Lines IDs:")
-            self.write_ids(self.lines_id)
-            
-            if len(self.lines_id) == 1:
-                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]] 
-                if entity.stress_stiffening_parameters is not None:
-                    pressures = entity.stress_stiffening_parameters
-                    self.lineEdit_external_pressure.setText(str(pressures[0]))
-                    self.lineEdit_internal_pressure.setText(str(pressures[1]))
-
-        elif self.elements_id != []:
-
-            if selection_index == 2:
-                self.selection_type_callback()
-            else:
-                self.comboBox_selection.setCurrentIndex(2)
-
-            self.label_selected_id.setText("Elements IDs:")
-            self.write_ids(self.elements_id)
-
-            if len(self.elements_id) == 1:
-                element = self.preprocessor.structural_elements[self.elements_id[0]] 
-                self.lineEdit_external_pressure.setText(str(element.external_pressure))       
-                self.lineEdit_internal_pressure.setText(str(element.internal_pressure))
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

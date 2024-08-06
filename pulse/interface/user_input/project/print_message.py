@@ -18,7 +18,6 @@ class PrintMessageInput(QDialog):
         self.auto_close = kwargs.get("auto_close", False)
         self.window_title, self.title, self.message = text_info
 
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -26,13 +25,10 @@ class PrintMessageInput(QDialog):
         self._set_texts()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
 
@@ -93,6 +89,7 @@ class PrintMessageInput(QDialog):
         if self.window_title in ["Error", "ERROR"]:
             icon = get_error_icon(QColor(255,0,0,200))
             self.setWindowIcon(icon)
+
         elif self.window_title in ["Warning", "WARNING"]:
             icon = get_warning_icon()
             self.setWindowIcon(icon)

@@ -35,37 +35,35 @@ class SetFluidInput(QDialog):
         self.project = app().project
         self.file = self.project.file
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self._loading_info_at_start()
+        self.selection_callback()
+        self.update_attribution_type()
 
         if self.compressor_thermodynamic_state:
             if self.fluid_widget.call_refprop_interface():
                 return
+
             self.load_compressor_info()
 
         while self.keep_window_open:
             self.exec()
 
-    def _load_icons(self):
-        self.icon = app().main_window.pulse_icon
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
-        self.setWindowTitle("Set fluid")
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.fluid_path = self.project.get_fluid_list_path()
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
 
         self.keep_window_open = True
 
@@ -114,13 +112,40 @@ class SetFluidInput(QDialog):
         ConfigWidgetAppearance(self, tool_tip=True)
 
     def _create_connections(self):
-        self.main_window.selection_changed.connect(self.update_selection)
+        #
         self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
+        #
         self.pushButton_attribute_fluid.clicked.connect(self.confirm_fluid_attribution)
+        #
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
+        #
         # self.tableWidget_fluid_data.cellDoubleClicked.connect(self.on_cell_double_clicked)
-        self.update_attribution_type()
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        self.comboBox_attribution_type.blockSignals(True)
+        selected_lines = app().main_window.list_selected_lines()
+
+        if selected_lines:
+            text = ", ".join([str(i) for i in selected_lines])
+            self.lineEdit_selected_id.setText(text)
+            self.lineEdit_selected_id.setEnabled(True)
+            self.comboBox_attribution_type.setCurrentIndex(1)
+
+        self.comboBox_attribution_type.blockSignals(False)
+
+    def update_attribution_type(self):
+
+        index = self.comboBox_attribution_type.currentIndex()
+        if index == 0:
+            self.lineEdit_selected_id.setText("All lines")
+        elif index == 1:
+            self.selection_callback()
+
+        self.lineEdit_selected_id.setEnabled(bool(index))
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
         self.selected_column = current_col
@@ -139,38 +164,6 @@ class SetFluidInput(QDialog):
         self.lineEdit_selected_fluid_name.setText("")
         if fluid_name != "":
             self.lineEdit_selected_fluid_name.setText(fluid_name)
-
-    def update_attribution_type(self):
-
-        index = self.comboBox_attribution_type.currentIndex()
-        if index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-        elif index == 1:
-            line_ids = app().main_window.list_selected_lines()
-            self.write_ids(line_ids)
-
-        self.lineEdit_selected_id.setEnabled(bool(index))
-        self.comboBox_attribution_type.setCurrentIndex(index)
-
-    def write_ids(self, list_ids):
-
-        if isinstance(list_ids, int):
-            list_ids = [list_ids]
-
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-
-        self.lineEdit_selected_id.setText(text)
-
-    def _loading_info_at_start(self):
-        self.update_selection()    
-
-    def update_selection(self):
-        line_ids = app().main_window.list_selected_lines()
-        self.write_ids(line_ids)
-        self.lineEdit_selected_id.setEnabled(True)
-        self.comboBox_attribution_type.setCurrentIndex(1)
 
     def confirm_fluid_attribution(self):
 

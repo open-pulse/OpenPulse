@@ -26,14 +26,13 @@ class RadiationImpedanceInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
 
         ConfigWidgetAppearance(self, tool_tip=True)
 
-        self.update()
+        self.selection_callback()
         self.load_nodes_info()
 
         while self.keep_window_open:
@@ -50,17 +49,14 @@ class RadiationImpedanceInput(QDialog):
 
         self.nodes = self.preprocessor.nodes
         self.radiation_impedance = None
-        self.nodes_typed = []
+        self.nodes_typed = list()
   
         self.remove_acoustic_pressure = False
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
@@ -90,7 +86,6 @@ class RadiationImpedanceInput(QDialog):
         self.treeWidget_radiation_impedance.setColumnWidth(2, 80)
 
     def _create_connections(self):
-        app().main_window.selection_changed.connect(self.update)
         #
         self.confirm_radiation_impedance_button.clicked.connect(self.check_radiation_impedance_type)
         self.remove_button.clicked.connect(self.remove_bc_from_node)
@@ -100,6 +95,26 @@ class RadiationImpedanceInput(QDialog):
         #
         self.treeWidget_radiation_impedance.itemClicked.connect(self.on_click_item)
         self.treeWidget_radiation_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_nodes = app().main_window.list_selected_nodes()
+        if selected_nodes:
+
+            if self.tabWidget_radiation_impedance.currentIndex() != 2:
+                text = ", ".join([str(i) for i in selected_nodes])
+                self.lineEdit_selection_id.setText(text)
+
+            if len(selected_nodes) == 1:
+
+                picked_node = selected_nodes[0]
+                node = self.preprocessor.nodes[picked_node]
+                impedance_type = node.radiation_impedance_type
+
+                if isinstance(impedance_type, int):
+                    self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
 
     def tabEvent_radiation_impedance(self):
         self.remove_button.setDisabled(True)
@@ -108,13 +123,13 @@ class RadiationImpedanceInput(QDialog):
             self.lineEdit_selection_id.setDisabled(True)
         else:
             self.lineEdit_selection_id.setDisabled(False)
-            self.update()
+            self.selection_callback()
 
     def check_radiation_impedance_type(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
-        if self.stop:
+        lineEdit = self.lineEdit_selection_id.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(lineEdit, "nodes")
+        if stop:
             return
 
         try:
@@ -157,9 +172,9 @@ class RadiationImpedanceInput(QDialog):
 
     def remove_bc_from_node(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
-        if self.stop:
+        str_nodes = self.lineEdit_selection_id.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
             return
 
         key_strings = ["radiation impedance"]
@@ -225,26 +240,6 @@ class RadiationImpedanceInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_radiation_impedance.addTopLevelItem(new)
         self.update_tabs_visibility()
-
-    def update(self):
-        list_picked_nodes = app().main_window.list_selected_nodes()
-        if list_picked_nodes != []:
-            picked_node = list_picked_nodes[0]
-            node = self.preprocessor.nodes[picked_node]
-            if node.radiation_impedance_type == 0:
-                self.comboBox_radiation_impedance_type.setCurrentIndex(0)
-            if node.radiation_impedance_type == 1:
-                self.comboBox_radiation_impedance_type.setCurrentIndex(1)
-            if node.radiation_impedance_type == 2:
-                self.comboBox_radiation_impedance_type.setCurrentIndex(2) 
-        self.writeNodes(list_picked_nodes)
-
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += f"{node}, "
-        if self.tabWidget_radiation_impedance.currentIndex() != 2:
-            self.lineEdit_selection_id.setText(text[:-2])
 
     def update_tabs_visibility(self):
         if len(self.preprocessor.nodes_with_radiation_impedance) == 0:

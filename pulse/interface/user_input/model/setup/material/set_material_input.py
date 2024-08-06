@@ -29,27 +29,21 @@ class SetMaterialInput(QDialog):
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
         app().main_window.set_input_widget(self)
-
-        self.main_window = app().main_window
         self.project = app().project
-        self.file = self.project.file
+        self.file = app().project.file
         
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._loading_info_at_start()
+        self.selection_callback()
         self.exec()
-
-    def _load_icons(self):
-        self.icon = app().main_window.pulse_icon
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Set material")
-        self.setWindowIcon(self.icon)
 
     def _initialize(self):
         self.selected_row = None
@@ -57,7 +51,7 @@ class SetMaterialInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.material_path = self.project.get_material_list_path()
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+        self.lines_from_model = self.preprocessor.lines_from_model
 
     def _define_qt_variables(self):
 
@@ -95,12 +89,39 @@ class SetMaterialInput(QDialog):
         ConfigWidgetAppearance(self, tool_tip=True)
 
     def _create_connections(self):
-        self.main_window.selection_changed.connect(self.update_selection)
+        #
         self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
+        #
         self.pushButton_attribute_material.clicked.connect(self.confirm_material_attribution)
+        #
         # self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
         # self.tableWidget_material_data.cellDoubleClicked.connect(self.on_cell_double_clicked)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def update_attribution_type(self):
+
+        index = self.comboBox_attribution_type.currentIndex()
+        if index == 0:
+            self.lineEdit_selected_id.setText("All lines")
+        elif index == 1:
+            self.selection_callback()
+
+        self.lineEdit_selected_id.setEnabled(bool(index))
+
+    def selection_callback(self):
+
+        self.comboBox_attribution_type.blockSignals(True)
+        selected_lines = app().main_window.list_selected_lines()
+
+        if selected_lines:
+            text = ", ".join([str(i) for i in selected_lines])
+            self.lineEdit_selected_id.setText(text)
+            self.lineEdit_selected_id.setEnabled(True)
+            self.comboBox_attribution_type.setCurrentIndex(1)
+
+        self.comboBox_attribution_type.blockSignals(False)
 
     def on_cell_clicked(self, row, col):
         self.selected_row = row
@@ -124,47 +145,6 @@ class SetMaterialInput(QDialog):
         self.lineEdit_selected_material_name.setText("")
         if material_name != "":
             self.lineEdit_selected_material_name.setText(material_name)
-
-    def update_attribution_type(self):
-        index = self.comboBox_attribution_type.currentIndex()
-        if index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setEnabled(False)
-            self.comboBox_attribution_type.setCurrentIndex(0)
-        elif index == 1:
-            lines_ids = app().main_window.list_selected_lines()
-            self.write_ids(lines_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text)
-
-    def update_selection(self):
-        lines_ids = app().main_window.list_selected_lines()
-
-        if lines_ids:
-            self.write_ids(lines_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
-        else:
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setEnabled(False)
-            self.comboBox_attribution_type.setCurrentIndex(0)
-
-    def _loading_info_at_start(self):
-        self.update_selection()
-        # if self.cache_selected_lines != []:
-        #     # self.lines_ids = self.cache_selected_lines
-        #     self.update_selection()
-        # else:
-        #     self.update()        
-
-    def update(self):
-        self.update_selection()
 
     def confirm_material_attribution(self):
 

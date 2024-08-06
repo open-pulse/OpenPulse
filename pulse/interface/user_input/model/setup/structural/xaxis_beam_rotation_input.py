@@ -115,7 +115,7 @@ class BeamXaxisRotationInput(QDialog):
 
             self.comboBox_selection.setCurrentIndex(1)
             for line_id in selected_lines:
-                entity = self.preprocessor.dict_tag_to_entity[line_id]
+                entity = self.preprocessor.lines_from_model[line_id]
 
                 if entity.structural_element_type != "beam_1":
                     self.lineEdit_selected_id.setText("")
@@ -123,7 +123,7 @@ class BeamXaxisRotationInput(QDialog):
                     return
 
             if len(selected_lines) == 1:
-                entity = self.preprocessor.dict_tag_to_entity[selected_lines[0]]
+                entity = self.preprocessor.lines_from_model[selected_lines[0]]
                 angle = entity.xaxis_beam_rotation
                 self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
             else:
@@ -178,7 +178,7 @@ class BeamXaxisRotationInput(QDialog):
             self.beam_lines = list()
             non_beam_lines = list()
             for line in lines:
-                entity = self.preprocessor.dict_tag_to_entity[line]
+                entity = self.preprocessor.lines_from_model[line]
                 if entity.structural_element_type != "beam_1":
                     non_beam_lines.append(line)
                 else:
@@ -199,11 +199,11 @@ class BeamXaxisRotationInput(QDialog):
 
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
-            lines = self.preprocessor.all_lines
+            lines = list(self.preprocessor.lines_from_model.keys())
 
         else:
-            lineEdit_lineID = self.lineEdit_selected_id.text()
-            self.stop, lines = self.before_run.check_selected_ids(lineEdit_lineID, "lines")
+            str_lines = self.lineEdit_selected_id.text()
+            self.stop, lines = self.before_run.check_selected_ids(str_lines, "lines")
             if self.stop:
                 return
 

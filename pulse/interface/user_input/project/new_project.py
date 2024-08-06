@@ -24,12 +24,10 @@ class NewProjectInput(QDialog):
         
         app().main_window.set_input_widget(self)
 
-        self.main_window = app().main_window
         self.project = app().main_window.project
         self.config = app().main_window.config
         self.file = app().main_window.project.file
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -50,14 +48,11 @@ class NewProjectInput(QDialog):
         user_path = os.path.expanduser('~')
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
         
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle(f"OpenPulse v{__version__}")
 
     def _define_qt_variables(self):
@@ -262,7 +257,7 @@ class NewProjectInput(QDialog):
                                                 self.geometry_tolerance,
                                                 self.import_type )
                 
-                self.main_window.action_plot_geometry_editor_callback()
+                app().main_window.action_plot_geometry_editor_callback()
 
             elif index == 1:
 

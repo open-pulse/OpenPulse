@@ -43,6 +43,9 @@ class MeshPicker:
             y1 = max(first_node[1], last_node[1])
             z1 = max(first_node[2], last_node[2])
 
+            if element.cross_section is None:
+                return
+
             # not sure if it works every time, but is a good approximation
             radius = max(element.cross_section.section_parameters)
             center = element.element_center_coordinates
@@ -99,25 +102,25 @@ class MeshPicker:
 
         return picked_elements
 
-    def area_pick_entities(self, x0, y0, x1, y1) -> set[int]:
+    def area_pick_lines(self, x0, y0, x1, y1) -> set[int]:
         picker = vtk.vtkAreaPicker()
         extractor = vtk.vtkExtractSelectedFrustum()
         picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
         elements_to_line = app().project.preprocessor.elements_to_line
-        picked_entities = set()
+        picked_lines = set()
 
         for element, bound in self.line_bounds.items():
             entity = elements_to_line[element]
 
-            if entity in picked_entities:
+            if entity in picked_lines:
                 continue
             
             if extractor.OverallBoundsTest(bound):
-                picked_entities.add(entity)
+                picked_lines.add(entity)
 
-        return picked_entities
+        return picked_lines
 
     def pick_node(self, x, y) -> int:
         nodes = self.area_pick_nodes(x - 5, y - 5, x + 5, y + 5)
