@@ -524,7 +524,11 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
-        self._configure_visualization(nodes=True, tubes=True)
+        self._configure_visualization(
+            points=True, tubes=True,
+            acoustic_symbols=self.visualization_filter.acoustic_symbols,
+            structural_symbols=self.visualization_filter.structural_symbols,
+        )
         self.close_dialogs()
         self.mesh_toolbar.setDisabled(True)
 
