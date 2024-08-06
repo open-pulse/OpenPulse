@@ -126,6 +126,12 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.SetVisibility(visualization.tubes)
         opacity = 0.9 if visualization.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
+
+        self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
+        self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)
+        self.structural_nodes_symbols_actor.SetVisibility(visualization.structural_symbols)
+        self.structural_elements_symbols_actor.SetVisibility(visualization.structural_symbols)
+
         self.update()
 
     def set_color_mode_to_empty(self):
