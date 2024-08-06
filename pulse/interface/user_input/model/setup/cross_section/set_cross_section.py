@@ -675,7 +675,7 @@ class SetCrossSectionInput(QDialog):
         self.complete = True
         app().main_window.update_plots()
 
-        build_data = self.file.get_segment_build_data_from_file()
+        build_data = self.file.get_pipeline_data_from_file()
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.file.length_unit)
         geometry_handler.process_pipeline(build_data)
@@ -826,7 +826,7 @@ class SetCrossSectionInput(QDialog):
     def process_expansion_joint_table_files_removal(self, list_line_ids):
 
         config = configparser.ConfigParser()
-        config.read(self.project.file._build_data_path)
+        config.read(self.project.file._pipeline_path)
         sections = config.sections()
 
         for section in sections:

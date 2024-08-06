@@ -106,12 +106,12 @@ class GeometryHandler:
         #     gmsh.option.setNumber('General.FltkColorScheme', 1)
         #     gmsh.fltk.run()
 
-    def process_pipeline(self, build_data : dict):
+    def process_pipeline(self, structures_data : dict):
         """ This method builds structures based on model_data file data.
         
         Parameters:
         -----------
-        build_data: dictionary
+        structures_data: dictionary
             
             a dictionary containing all required data to build the pipeline structures.
 
@@ -125,7 +125,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         structures = list()
-        for key, data in build_data.items():
+        for key, data in structures_data.items():
             data: dict
 
             if "link type" in data.keys():
@@ -171,12 +171,12 @@ class GeometryHandler:
                 start = Point(*data['start_point'])
                 end = Point(*data['end_point'])
                 corner = Point(*data['corner_point'])
-                curvature = data['curvature']
+                curvature_radius = data['curvature_radius']
                 structure = Bend(
                                     start, 
                                     end, 
                                     corner, 
-                                    curvature, 
+                                    curvature_radius, 
                                     diameter=section_parameters[0],
                                     thickness=section_parameters[1]
                                 )
@@ -621,7 +621,7 @@ class GeometryHandler:
     def export_model_data_file(self):
 
         tag = 1
-        points_info = dict()
+        structures_data = dict()
         section_info = dict()
         element_type_info = dict()
         material_info = dict()
@@ -632,12 +632,12 @@ class GeometryHandler:
             if isinstance(structure, Bend) and structure.is_colapsed():               
                 continue
 
-            build_data = self.get_segment_build_info(structure)
+            pipeline_data = self.get_pipeline_data(structure)
 
-            if build_data is None:
+            if not pipeline_data:
                 continue
 
-            points_info[tag] = build_data
+            structures_data[tag] = pipeline_data
 
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
@@ -654,15 +654,13 @@ class GeometryHandler:
 
             tag += 1
 
-        if len(points_info):
+        if structures_data:
 
-            if os.path.exists(self.file._build_data_path):
-                os.remove(self.file._build_data_path)
+            if os.path.exists(self.file._pipeline_path):
+                os.remove(self.file._pipeline_path)
 
-            self.file.create_entity_file(points_info.keys())
-
-            for tag, coords in points_info.items():
-                self.file.add_segment_build_data_in_file(tag, coords)
+            self.file.create_pipeline_file(structures_data.keys())
+            self.file.add_pipeline_data_in_file(structures_data)
 
             if len(section_info):
                 for tag, section in section_info.items():
@@ -683,20 +681,23 @@ class GeometryHandler:
             self.file.modify_project_attributes(import_type = 1)
             # self.load_project()
 
-    def get_segment_build_info(self, structure):
+    def get_pipeline_data(self, structure):
+
+        data = dict()
+        # data["structure name"] = structure.name
+
         if isinstance(structure, Bend):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            corner_coords = get_data(structure.corner.coords())
-            curvature = np.round(structure.curvature, 8)
-            return [start_coords, corner_coords, end_coords, curvature]
+            data["structure name"] = "bend"
+            data["start coords"] = get_data(structure.start.coords())
+            data["end coords"] = get_data(structure.end.coords())
+            data["corner coords"] = get_data(structure.corner.coords())
+            data["curvature radius"] = np.round(structure.curvature, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            return [start_coords, end_coords]
+        elif isinstance(structure, Pipe | Beam | Reducer | Valve):
+            data["structure name"] = "not bend"
+            data["start coords"] = get_data(structure.start.coords())
+            data["end coords"] = get_data(structure.end.coords())
 
-        else:
-            return None
+        return data
 
 # fmt: on

@@ -62,7 +62,7 @@ class ExpansionJointInput(QDialog):
         self.structural_folder_path = self.project.file._structural_imported_data_folder_path
         self.expansion_joints_folder_path = get_new_path(self.structural_folder_path, "expansion_joints_files")
 
-        self._build_data_path = self.project.file._build_data_path
+        self._pipeline_path = self.project.file._pipeline_path
         self._project_path = self.project.file._project_path
         self.stop = False
         self.complete = False
@@ -1260,7 +1260,7 @@ class ExpansionJointInput(QDialog):
     def remove_table_files_from_imported_data_folder_by_elements(self, list_elements):
 
         config = configparser.ConfigParser()
-        config.read(self._build_data_path)
+        config.read(self._pipeline_path)
         sections = config.sections()
 
         list_table_names = []
@@ -1306,7 +1306,7 @@ class ExpansionJointInput(QDialog):
 
         str_line_id = str(line_id)
         config = configparser.ConfigParser()
-        config.read(self._build_data_path)
+        config.read(self._pipeline_path)
         sections = config.sections()
 
         list_table_names = []

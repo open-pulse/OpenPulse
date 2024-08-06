@@ -48,7 +48,7 @@ class CappedEndInput(QDialog):
     
         self.dictkey_to_remove = None
         self.elements_info_path = self.project.file._element_info_path
-        self.entity_path = self.project.file._build_data_path
+        self.entity_path = self.project.file._pipeline_path
         self.dictKey_label = "CAPPED END || {}"
    
         self.project_lines = {}
