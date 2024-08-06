@@ -50,6 +50,7 @@ class GeometryHandler:
 
         for structure in self.pipeline.structures: 
             if isinstance(structure, (Pipe, Beam, Reducer, Valve)):
+
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -65,10 +66,10 @@ class GeometryHandler:
                     start_coords = _start_coords
                     end_coords = _end_coords
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
 
-                gmsh.model.occ.add_line(start_point, end_point)
+                gmsh.model.occ.add_line(start_coords, end_coords)
 
             elif isinstance(structure, Bend):
                 if structure.is_colapsed():
@@ -93,11 +94,11 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
                 center_point = gmsh.model.occ.add_point(*center_coords)
 
-                gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+                gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
 
         gmsh.model.occ.synchronize()
 
@@ -106,12 +107,12 @@ class GeometryHandler:
         #     gmsh.option.setNumber('General.FltkColorScheme', 1)
         #     gmsh.fltk.run()
 
-    def process_pipeline(self, build_data : dict):
+    def process_pipeline(self, structures_data : dict):
         """ This method builds structures based on model_data file data.
         
         Parameters:
         -----------
-        build_data: dictionary
+        structures_data: dictionary
             
             a dictionary containing all required data to build the pipeline structures.
 
@@ -125,7 +126,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         structures = list()
-        for key, data in build_data.items():
+        for key, data in structures_data.items():
             data: dict
 
             if "link type" in data.keys():
@@ -168,22 +169,22 @@ class GeometryHandler:
         if len(section_parameters) == 6:
 
             if key[1] == "Bend":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                corner = Point(*data['corner_point'])
-                curvature = data['curvature']
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
+                corner = Point(*data['corner_coords'])
+                curvature_radius = data['curvature_radius']
                 structure = Bend(
                                     start, 
                                     end, 
                                     corner, 
-                                    curvature, 
+                                    curvature_radius, 
                                     diameter=section_parameters[0],
                                     thickness=section_parameters[1]
                                 )
 
             else:
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
                 structure = Pipe(
                                     start, 
                                     end, 
@@ -192,8 +193,8 @@ class GeometryHandler:
                                 )
 
         elif len(section_parameters) == 10:
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = Reducer(
                                     start, 
                                     end, 
@@ -234,8 +235,8 @@ class GeometryHandler:
         section_parameters = data["section_parameters"]
 
         if section_type_label == "Rectangular section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = RectangularBeam(
                                             start, 
                                             end,
@@ -245,8 +246,8 @@ class GeometryHandler:
                                         )
         
         elif section_type_label == "Circular section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = CircularBeam(
                                         start, 
                                         end, 
@@ -255,8 +256,8 @@ class GeometryHandler:
                                     )
 
         elif section_type_label == "C-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = CBeam(
                                 start, 
                                 end, 
@@ -269,8 +270,8 @@ class GeometryHandler:
                             )
     
         elif section_type_label == "I-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = IBeam(
                                 start, 
                                 end, 
@@ -283,8 +284,8 @@ class GeometryHandler:
                             )
                         
         elif section_type_label == "T-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = TBeam(
                                 start, 
                                 end, 
@@ -314,8 +315,8 @@ class GeometryHandler:
 
     def _process_valve(self, key: str, data: dict):
 
-        start = Point(*data['start_point'])
-        end = Point(*data['end_point'])
+        start = Point(*data['start_coords'])
+        end = Point(*data['end_coords'])
         structure = Valve(
                             start, 
                             end,
@@ -402,12 +403,12 @@ class GeometryHandler:
 
             try:
 
-                start_point = gmsh.model.get_adjacencies(*line)[1][0]
-                end_point = gmsh.model.get_adjacencies(*line)[1][1]
+                start_coords = gmsh.model.get_adjacencies(*line)[1][0]
+                end_coords = gmsh.model.get_adjacencies(*line)[1][1]
                 line_type = gmsh.model.get_type(*line)
 
-                start_coords = self.get_point_coords(start_point)
-                end_coords = self.get_point_coords(end_point)
+                start_coords = self.get_point_coords(start_coords)
+                end_coords = self.get_point_coords(end_coords)
 
                 start = Point(*start_coords)
                 end = Point(*end_coords)
@@ -421,13 +422,13 @@ class GeometryHandler:
 
                     if len(self.get_point_by_coords(start_coords)) < 2:
                         self.merge_near_points(start_coords)
-                        start_coords = self.get_point_coords(start_point)
+                        start_coords = self.get_point_coords(start_coords)
 
                     if len(self.get_point_by_coords(end_coords)) < 2:
                         self.merge_near_points(end_coords)
-                        end_coords = self.get_point_coords(end_point)               
+                        end_coords = self.get_point_coords(end_coords)               
 
-                    corner_coords = self.get_corner_point_coords(start_point, end_point)
+                    corner_coords = self.get_corner_point_coords(start_coords, end_coords)
 
                     if corner_coords is None:
                         message = f"The connecting lines from 'Circle curve' {line} are parallel "
@@ -435,7 +436,7 @@ class GeometryHandler:
                         print(message)
                         continue
 
-                    radius = self.get_radius(corner_coords, start_point, end_point)
+                    radius = self.get_radius(corner_coords, start_coords, end_coords)
                     
                     corner = Point(*corner_coords)
 
@@ -461,12 +462,12 @@ class GeometryHandler:
 
             try:
 
-                start_point = gmsh.model.get_adjacencies(*line)[1][0]
-                end_point = gmsh.model.get_adjacencies(*line)[1][1]
+                start_coords = gmsh.model.get_adjacencies(*line)[1][0]
+                end_coords = gmsh.model.get_adjacencies(*line)[1][1]
                 line_type = gmsh.model.get_type(*line)
 
-                start_coords = self.get_point_coords(start_point)
-                end_coords = self.get_point_coords(end_point)
+                start_coords = self.get_point_coords(start_coords)
+                end_coords = self.get_point_coords(end_coords)
 
                 line_length = math.dist(start_coords, end_coords)
                 
@@ -526,16 +527,16 @@ class GeometryHandler:
                 points = list(gmsh.model.get_adjacencies(1, line)[1])
         return line, points
     
-    def get_corner_point_coords(self, start_point, end_point):
+    def get_corner_point_coords(self, start_coords, end_coords):
         """
             Reference: https://mathworld.wolfram.com/Line-LineIntersection.html
         """
 
-        coords_start = self.conv_unit(gmsh.model.getValue(0, start_point, []))
-        coords_end = self.conv_unit(gmsh.model.getValue(0, end_point, []))
+        coords_start = self.conv_unit(gmsh.model.getValue(0, start_coords, []))
+        coords_end = self.conv_unit(gmsh.model.getValue(0, end_coords, []))
 
-        _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
-        _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
+        _, points_Lstart = self.get_connecting_line_data(coords_start, start_coords)
+        _, points_Lend = self.get_connecting_line_data(coords_end, end_coords)
 
         X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
         X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
@@ -557,11 +558,11 @@ class GeometryHandler:
         else:
             return None
 
-    def get_radius(self, corner_coords, start_point, end_point):
+    def get_radius(self, corner_coords, start_coords, end_coords):
         """
         """
-        start_coords = self.conv_unit(gmsh.model.getValue(0, start_point, []))
-        end_coords = self.conv_unit(gmsh.model.getValue(0, end_point, []))
+        start_coords = self.conv_unit(gmsh.model.getValue(0, start_coords, []))
+        end_coords = self.conv_unit(gmsh.model.getValue(0, end_coords, []))
 
         a_vector = start_coords - corner_coords
         b_vector = end_coords - corner_coords
@@ -621,7 +622,7 @@ class GeometryHandler:
     def export_model_data_file(self):
 
         tag = 1
-        points_info = dict()
+        structures_data = dict()
         section_info = dict()
         element_type_info = dict()
         material_info = dict()
@@ -632,12 +633,12 @@ class GeometryHandler:
             if isinstance(structure, Bend) and structure.is_colapsed():               
                 continue
 
-            build_data = self.get_segment_build_info(structure)
+            pipeline_data = self.get_pipeline_data(structure)
 
-            if build_data is None:
+            if not pipeline_data:
                 continue
 
-            points_info[tag] = build_data
+            structures_data[tag] = pipeline_data
 
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
@@ -654,15 +655,13 @@ class GeometryHandler:
 
             tag += 1
 
-        if len(points_info):
+        if structures_data:
 
-            if os.path.exists(self.file._build_data_path):
-                os.remove(self.file._build_data_path)
+            if os.path.exists(self.file._pipeline_path):
+                os.remove(self.file._pipeline_path)
 
-            self.file.create_entity_file(points_info.keys())
-
-            for tag, coords in points_info.items():
-                self.file.add_segment_build_data_in_file(tag, coords)
+            self.file.create_pipeline_file(structures_data.keys())
+            self.file.add_pipeline_data_in_file(structures_data)
 
             if len(section_info):
                 for tag, section in section_info.items():
@@ -683,20 +682,23 @@ class GeometryHandler:
             self.file.modify_project_attributes(import_type = 1)
             # self.load_project()
 
-    def get_segment_build_info(self, structure):
+    def get_pipeline_data(self, structure):
+
+        data = dict()
+        # data["structure name"] = structure.name
+
         if isinstance(structure, Bend):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            corner_coords = get_data(structure.corner.coords())
-            curvature = np.round(structure.curvature, 8)
-            return [start_coords, corner_coords, end_coords, curvature]
+            data["structure name"] = "bend"
+            data["start coords"] = get_data(structure.start.coords())
+            data["end coords"] = get_data(structure.end.coords())
+            data["corner coords"] = get_data(structure.corner.coords())
+            data["curvature radius"] = np.round(structure.curvature, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer):
-            start_coords = get_data(structure.start.coords())
-            end_coords = get_data(structure.end.coords())
-            return [start_coords, end_coords]
+        elif isinstance(structure, Pipe | Beam | Reducer | Valve):
+            data["structure name"] = "not bend"
+            data["start coords"] = get_data(structure.start.coords())
+            data["end coords"] = get_data(structure.end.coords())
 
-        else:
-            return None
+        return data
 
 # fmt: on

@@ -49,7 +49,7 @@ class PulsationSuppressionDevice:
 
     def build_device(self, device_label, device):
 
-        entity_path = self.file._build_data_path
+        entity_path = self.file._pipeline_path
         config = configparser.ConfigParser()
         config.read(entity_path)
 
@@ -74,13 +74,13 @@ class PulsationSuppressionDevice:
         counter = 0
         for i in range(len(device.segment_data)):
 
-            start_point, end_point, section_data, segment_label = device.segment_data[i]
+            start_coords, end_coords, section_data, segment_label = device.segment_data[i]
 
             if isinstance(section_data, list):
 
                 aux = { 
-                        "start point" : list(np.round(start_point, 6)),
-                        "end point" : list(np.round(end_point, 6)),
+                        "start coords" : list(np.round(start_coords, 6)),
+                        "end coords" : list(np.round(end_coords, 6)),
                         "section type" : "Pipe section",
                         "section parameters" : section_data,
                         "structural element type" : "pipe_1",
@@ -94,8 +94,8 @@ class PulsationSuppressionDevice:
             else:
 
                 link = { 
-                        "start point" : list(np.round(start_point, 6)),
-                        "end point" : list(np.round(end_point, 6)),
+                        "start coords" : list(np.round(start_coords, 6)),
+                        "end coords" : list(np.round(end_coords, 6)),
                         "link type" : section_data
                         }
                 
@@ -160,9 +160,9 @@ class PulsationSuppressionDevice:
 
                 if "Link-" in key:
                     link_type = value["link type"]
-                    start_point = value["start point"]
-                    end_point = value["end point"]
-                    self.link_data[(psd_label, link_type)].append((start_point, end_point))
+                    start_coords = value["start coords"]
+                    end_coords = value["end coords"]
+                    self.link_data[(psd_label, link_type)].append((start_coords, end_coords))
 
         if self.link_data:
             self.add_psd_link_data_to_nodes(self.link_data)
@@ -184,7 +184,7 @@ class PulsationSuppressionDevice:
     def get_device_related_lines(self):
 
         config = configparser.ConfigParser()
-        config.read(self.file._build_data_path)
+        config.read(self.file._pipeline_path)
 
         self.psd_lines= defaultdict(list)
 
@@ -197,7 +197,7 @@ class PulsationSuppressionDevice:
 
     def remove_psd_lines_from_entity_file(self, device_labels):
 
-        entity_path = self.file._build_data_path
+        entity_path = self.file._pipeline_path
         config = configparser.ConfigParser()
         config.read(entity_path)
 
