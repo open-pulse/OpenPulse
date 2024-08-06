@@ -188,7 +188,7 @@ class MeshRenderWidget(CommonRenderWidget):
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
 
             if selection_filter.lines:
-                picked_lines = self.mesh_picker.area_pick_entities(x0, y0, x1, y1)
+                picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
         else:
             if selection_filter.nodes:
@@ -222,6 +222,7 @@ class MeshRenderWidget(CommonRenderWidget):
         )
 
     def update_selection(self):
+
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
         self.tubes_actor.clear_colors()

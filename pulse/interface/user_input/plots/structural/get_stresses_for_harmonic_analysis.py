@@ -94,13 +94,12 @@ class GetStressesForHarmonicAnalysis(QWidget):
 
     def check_inputs(self, export=False):
 
-        lineEdit = self.lineEdit_element_id.text()
-        stop, self.element_id = self.before_run.check_input_ElementID(lineEdit, 
-                                                                      single_ID=True)
-        
+        str_elements = self.lineEdit_element_id.text()
+        stop, self.element_id = self.before_run.check_selected_ids(str_elements, "elements", single_id=True)
+
         if stop:
             return True
-        
+
         index = self.comboBox_stress_type.currentIndex()
         self.stress_label = self.labels[index]
         self.stress_key = self.keys[index]

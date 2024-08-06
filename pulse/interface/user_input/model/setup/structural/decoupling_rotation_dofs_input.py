@@ -33,7 +33,7 @@ class DecouplingRotationDOFsInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self.load_decoupling_info()
-        self.update()
+        self.selection_callback()
         self.exec()
 
     def _config_window(self):
@@ -55,16 +55,18 @@ class DecouplingRotationDOFsInput(QDialog):
         self.structural_elements = self.preprocessor.structural_elements
         self.lines_from_model = self.preprocessor.lines_from_model
 
-        self.stop = False
         self.complete = False
 
     def _define_qt_variables(self):
+
         # QCheckBox
         self.checkBox_rotation_x : QCheckBox
         self.checkBox_rotation_y : QCheckBox
         self.checkBox_rotation_z : QCheckBox
+
         # QComboBox
         self.comboBox_node_to_uncouple_dofs : QComboBox
+
         # QLineEdit
         self.lineEdit_decoupled_DOFs : QLineEdit
         self.lineEdit_element_IDs : QLineEdit
@@ -72,14 +74,17 @@ class DecouplingRotationDOFsInput(QDialog):
         self.lineEdit_last_node : QLineEdit
         self.lineEdit_node_IDs : QLineEdit
         self.lineEdit_selected_element : QLineEdit
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-        # QTreeWidget
-        self.treeWidget_B2PX_rotation_decoupling : QTreeWidget
+
         # QPushButton       
         self.pushButton_confirm : QPushButton
         self.pushButton_remove_group : QPushButton
         self.pushButton_reset : QPushButton
+
+        # QTabWidget
+        self.tabWidget_main : QTabWidget
+
+        # QTreeWidget
+        self.treeWidget_B2PX_rotation_decoupling : QTreeWidget
 
     def _create_connections(self):
         #
@@ -91,6 +96,29 @@ class DecouplingRotationDOFsInput(QDialog):
         #
         self.treeWidget_B2PX_rotation_decoupling.itemClicked.connect(self.on_click_item)
         self.treeWidget_B2PX_rotation_decoupling.itemDoubleClicked.connect(self.on_double_click_item)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_elements = app().main_window.list_selected_elements()
+
+        if selected_elements:
+            self.element_id, *_ = app().main_window.list_selected_elements()
+            for key, elements in self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.items():
+                if self.element_id in elements:
+                    decoupling_dofs_mask = get_list_bool_from_string(key)
+                    self.checkBox_rotation_x.setChecked(decoupling_dofs_mask[0])
+                    self.checkBox_rotation_y.setChecked(decoupling_dofs_mask[1])
+                    self.checkBox_rotation_z.setChecked(decoupling_dofs_mask[2])
+
+            self.update_texts(self.element_id)
+
+    def write_ids(self, list_ids):
+        text = ""
+        for _id in list_ids:
+            text += "{}, ".format(_id)
+        self.lineEdit_selected_element.setText(text)
 
     def _config_widgets(self):
         self.lineEdit_decoupled_DOFs.setDisabled(True)
@@ -174,9 +202,8 @@ class DecouplingRotationDOFsInput(QDialog):
     def check_get_nodes(self):
 
         lineEdit = self.lineEdit_selected_element.text()
-        self.stop, self.element_typed = self.before_run.check_input_ElementID(lineEdit, 
-                                                                              single_ID = True)
-        if self.stop:
+        stop, self.element_typed = self.before_run.check_selected_ids(lineEdit, "elements", single_id = True)
+        if stop:
             return True
 
         self.element_id = self.element_typed
@@ -302,24 +329,6 @@ class DecouplingRotationDOFsInput(QDialog):
             message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
         self.show()
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_element.setText(text)
-
-    def update(self):
-        if len(app().main_window.list_selected_elements()):
-            self.element_id, *_ = app().main_window.list_selected_elements()
-            for key, elements in self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.items():
-                if self.element_id in elements:
-                    decoupling_dofs_mask = get_list_bool_from_string(key)
-                    self.checkBox_rotation_x.setChecked(decoupling_dofs_mask[0])
-                    self.checkBox_rotation_y.setChecked(decoupling_dofs_mask[1])
-                    self.checkBox_rotation_z.setChecked(decoupling_dofs_mask[2])
-
-            self.update_texts(self.element_id)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.preprocessing.cross_section import get_points_to_plot_section
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -46,8 +45,6 @@ class PlotCrossSectionInput(QDialog):
         self.structural_elements = self.project.preprocessor.structural_elements
         self.lines_from_model = self.project.preprocessor.lines_from_model
 
-        self.stop = False
-
     def _define_qt_variables(self):
 
         # QComboBox
@@ -63,7 +60,9 @@ class PlotCrossSectionInput(QDialog):
         self.pushButton_plot_cross_section : QPushButton 
 
     def _create_connections(self):
+        #
         self.comboBox_selection.currentIndexChanged.connect(self.selection_type_update)
+        #
         self.pushButton_plot_cross_section.clicked.connect(self.plot_section)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
@@ -71,21 +70,21 @@ class PlotCrossSectionInput(QDialog):
     def selection_callback(self):
 
         selected_id = list()
-        line_id = app().main_window.list_selected_lines()
-        element_id = app().main_window.list_selected_elements()
+        selected_lines = app().main_window.list_selected_lines()
+        selected_elments = app().main_window.list_selected_elements()
 
         self.comboBox_selection.blockSignals(True)
 
-        if line_id:
+        if selected_lines:
             self.label_selected_id.setText("Line ID:")
-            selected_id = line_id
+            selected_id = selected_lines
             self.comboBox_selection.setCurrentIndex(0)
         
-        elif element_id:
+        elif selected_elments:
             self.label_selected_id.setText("Element ID:")
-            selected_id = element_id
+            selected_id = selected_elments
             self.comboBox_selection.setCurrentIndex(1)
-        
+
         if len(selected_id) == 1:
             text = ", ".join([str(i) for i in selected_id])
             self.lineEdit_selected_id.setText(text)
@@ -121,16 +120,14 @@ class PlotCrossSectionInput(QDialog):
 
     def preprocess_selection(self):
 
-        self.stop = False
         self.message = ""
-
         index = self.comboBox_selection.currentIndex()
 
         if index == 0:
 
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.line_typed = self.before_run.check_selected_ids(lineEdit, "lines", single_id=True)
-            if self.stop:
+            stop, self.line_typed = self.before_run.check_selected_ids(lineEdit, "lines", single_id=True)
+            if stop:
                 return True
 
             if self.line_typed in list(self.project.number_sections_by_line.keys()):
@@ -155,8 +152,8 @@ class PlotCrossSectionInput(QDialog):
         elif index == 1:
 
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.element_typed = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
-            if self.stop:
+            stop, self.element_typed = self.before_run.check_selected_ids(lineEdit, "elements", single_id=True)
+            if stop:
                 return True
 
             element = self.structural_elements[self.element_typed]
@@ -190,7 +187,7 @@ class PlotCrossSectionInput(QDialog):
         plt.close()
 
         if self.preprocess_selection():
-            if not self.stop:
+            if self.message != "":
                 PrintMessageInput([self.window_title, self.title, self.message])
             return
         

@@ -64,7 +64,7 @@ class NodalLoadsInput(QDialog):
         self.nodal_loads = None
         self.inputs_from_node = False
         self.copy_path = False
-        self.stop = False
+
         self.list_Nones = [None, None, None, None, None, None]
         self.load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
 
@@ -209,7 +209,7 @@ class NodalLoadsInput(QDialog):
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
-        self.stop = False
+        stop = False
         if lineEdit_real.text() != "":
             try:
                 _real = float(lineEdit_real.text())
@@ -217,7 +217,7 @@ class NodalLoadsInput(QDialog):
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
                 PrintMessageInput([window_title, title, message])
-                self.stop = True
+                stop = True
                 return
         else:
             _real = 0
@@ -229,41 +229,46 @@ class NodalLoadsInput(QDialog):
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for imaginary part of {label}."
                 PrintMessageInput([window_title, title, message])
-                self.stop = True
+                stop = True
                 return
         else:
             _imag = 0
         
         if _real == 0 and _imag == 0:
-            return None
+            return stop, None
         else:
-            return _real + 1j*_imag
+            return stop, _real + 1j*_imag
 
     def check_constant_values(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
-        if self.stop:
+        str_nodes = self.lineEdit_selection_id.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
             self.lineEdit_selection_id.setFocus()
             return
 
-        Fx = self.check_complex_entries(self.lineEdit_real_Fx, self.lineEdit_imag_Fx, "Fx")
-        if self.stop:
+        stop, Fx = self.check_complex_entries(self.lineEdit_real_Fx, self.lineEdit_imag_Fx, "Fx")
+        if stop:
             return
-        Fy = self.check_complex_entries(self.lineEdit_real_Fy, self.lineEdit_imag_Fy, "Fy")
-        if self.stop:
-            return        
-        Fz = self.check_complex_entries(self.lineEdit_real_Fz, self.lineEdit_imag_Fz, "Fz")
-        if self.stop:
-            return        
-        Mx = self.check_complex_entries(self.lineEdit_real_Mx, self.lineEdit_imag_Mx, "Mx")
-        if self.stop:
-            return        
-        My = self.check_complex_entries(self.lineEdit_real_My, self.lineEdit_imag_My, "My")
-        if self.stop:
-            return        
-        Mz = self.check_complex_entries(self.lineEdit_real_Mz, self.lineEdit_imag_Mz, "Mz")
-        if self.stop:
+
+        stop, Fy = self.check_complex_entries(self.lineEdit_real_Fy, self.lineEdit_imag_Fy, "Fy")
+        if stop:
+            return
+ 
+        stop, Fz = self.check_complex_entries(self.lineEdit_real_Fz, self.lineEdit_imag_Fz, "Fz")
+        if stop:
+            return
+
+        stop, Mx = self.check_complex_entries(self.lineEdit_real_Mx, self.lineEdit_imag_Mx, "Mx")
+        if stop:
+            return
+
+        stop, My = self.check_complex_entries(self.lineEdit_real_My, self.lineEdit_imag_My, "My")
+        if stop:
+            return
+
+        stop, Mz = self.check_complex_entries(self.lineEdit_real_Mz, self.lineEdit_imag_Mz, "Mz")
+        if stop:
             return
 
         nodal_loads = [Fx, Fy, Fz, Mx, My, Mz]
@@ -319,11 +324,9 @@ class NodalLoadsInput(QDialog):
                 self.f_step = self.frequencies[1] - self.frequencies[0]
 
                 if self.project.change_project_frequency_setup(self.imported_filename, list(self.frequencies)):
-                    self.stop = True
                     return None, None
                 else:
                     self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-                    self.stop = False
             
             return self.imported_values, self.imported_filename
 
@@ -335,44 +338,32 @@ class NodalLoadsInput(QDialog):
 
     def load_Fx_table(self):
         self.Fx_table, self.Fx_filename = self.load_table(self.lineEdit_path_table_Fx, "Fx")
-        if self.stop:
-            self.stop = False
-            self.ux_table, self.ux_filename = None, None
+        if (self.Fx_table, self.Fx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Fx)
 
     def load_Fy_table(self):
         self.Fy_table, self.Fy_filename = self.load_table(self.lineEdit_path_table_Fy, "Fy")
-        if self.stop:
-            self.stop = False
-            self.Fy_table, self.Fy_filename = None, None
+        if (self.Fy_table, self.Fy_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Fy)
 
     def load_Fz_table(self):
         self.Fz_table, self.Fz_filename = self.load_table(self.lineEdit_path_table_Fz, "Fz")
-        if self.stop:
-            self.stop = False
-            self.Fz_table, self.Fz_filename = None, None
+        if (self.Fz_table, self.Fz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Fz)
 
     def load_Mx_table(self):
         self.Mx_table, self.Mx_filename = self.load_table(self.lineEdit_path_table_Mx, "Mx")
-        if self.stop:
-            self.stop = False
-            self.Mx_table, self.Mx_filename = None, None
+        if (self.Mx_table, self.Mx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Mx)
 
     def load_My_table(self):
         self.My_table, self.My_filename = self.load_table(self.lineEdit_path_table_My, "My")
-        if self.stop:
-            self.stop = False
-            self.My_table, self.My_filename = None, None
+        if (self.My_table, self.My_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_My)
 
     def load_Mz_table(self):
         self.Mz_table, self.Mz_filename = self.load_table(self.lineEdit_path_table_Mz, "Mz")
-        if self.stop:
-            self.stop = False
-            self.Mz_table, self.Mz_filename = None, None
+        if (self.Mz_table, self.Mz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Mz)
 
     def lineEdit_reset(self, lineEdit):
@@ -405,10 +396,11 @@ class NodalLoadsInput(QDialog):
 
     def check_table_values(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
-        if self.stop:
+        str_nodes = self.lineEdit_selection_id.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
             return
+
         list_table_names = self.get_table_names_from_selected_nodes(self.nodes_typed)
 
         for node_id in self.nodes_typed:
@@ -571,8 +563,8 @@ class NodalLoadsInput(QDialog):
 
         if  self.lineEdit_selection_id.text() != "":
 
-            lineEdit_selection_id = self.lineEdit_selection_id.text()
-            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            str_nodes = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
                 return
 

@@ -74,7 +74,6 @@ class ShakingForcesCriteriaInput(QWidget):
 
     def process_shaking_forces_for_selected_lines(self):
 
-        print("pushButton pressed")
         self.before_run = self.project.get_pre_solution_model_checks()
 
         lineEdit = self.lineEdit_selection_id

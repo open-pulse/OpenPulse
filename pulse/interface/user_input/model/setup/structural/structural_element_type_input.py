@@ -265,8 +265,8 @@ class StructuralElementTypeInput(QDialog):
 
         elif index == 1:
 
-            lineEdit_lineID = self.lineEdit_selected_id.text()
-            self.stop, self.typed_lines = self.before_run.check_selected_ids(lineEdit_lineID, "lines")
+            str_lines = self.lineEdit_selected_id.text()
+            self.stop, self.typed_lines = self.before_run.check_selected_ids(str_lines, "lines")
 
             if self.stop:
                 return

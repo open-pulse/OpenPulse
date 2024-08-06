@@ -36,7 +36,7 @@ class ExpansionJointInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self.load_treeWidgets_info()
-        self.update()
+        self.selection_callback()
 
         while self.keep_window_open:
             self.exec()
@@ -155,11 +155,70 @@ class ExpansionJointInput(QDialog):
         self.treeWidget_expansion_joint_by_elements.itemClicked.connect(self.on_click_item_elements)
         self.treeWidget_expansion_joint_by_lines.itemDoubleClicked.connect(self.on_doubleclick_item_lines)
         self.treeWidget_expansion_joint_by_elements.itemDoubleClicked.connect(self.on_doubleclick_item_elements)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_nodes = app().main_window.list_selected_nodes()
+        selected_lines = app().main_window.list_selected_lines()
+        selected_elements = app().main_window.list_selected_elements()
+
+        self.comboBox_selection_type.blockSignals(True)
+
+        if selected_lines:
+            selected_elements = list()
+            selected_nodes = list()
+            self.comboBox_selection_type.setCurrentIndex(0)
+
+        elif selected_nodes:
+            selected_elements = list()
+            selected_lines = list()
+            self.comboBox_selection_type.setCurrentIndex(1)
+
+        elif selected_elements:
+            selected_lines = list()
+            selected_nodes = list()
+            self.comboBox_selection_type.setCurrentIndex(2)
+
+        else:
+            selected_ids = list()
+
+        self.comboBox_selection_type.blockSignals(False)
+
+        if selected_ids:
+            text = ", ".join([str(i) for i in selected_ids])
+            self.lineEdit_selected_id.setText(text)
+        else:
+            return
+
+        if self.check_selection_type():
+            return
+
+        try:
+
+            if selected_lines:
+
+                if len(selected_lines) == 1:
+                    length, _ = self.preprocessor.get_line_length(selected_lines[0])
+                    self.lineEdit_joint_length.setText(str(round(length, 8)))
+
+                else:
+                    self.lineEdit_joint_length.setText("multiple")
+
+            self.load_input_fields()
+
+        except Exception as log_error:
+            title = "Error in 'update' function"
+            message = str(log_error) 
+            PrintMessageInput([window_title_1, title, message])
 
     def _config_widgets(self):
+        #
         self.treeWidget_expansion_joint_by_lines.setColumnWidth(0, 70)
         self.treeWidget_expansion_joint_by_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_expansion_joint_by_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        #
         self.treeWidget_expansion_joint_by_elements.setColumnWidth(0, 70)
         self.treeWidget_expansion_joint_by_elements.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_expansion_joint_by_elements.headerItem().setTextAlignment(1, Qt.AlignCenter)
@@ -222,66 +281,7 @@ class ExpansionJointInput(QDialog):
             if element_id:
                 app().main_window.set_selection(elements = element_id)
 
-        if self.allow_to_update:
-            self.update()
-
-    def update(self):
-
-        node_id = app().main_window.list_selected_nodes()
-        line_id = app().main_window.list_selected_lines()
-        element_id = app().main_window.list_selected_elements()
-
-        if line_id:
-            element_id = list()
-            self.allow_to_update = False
-            self.comboBox_selection_type.setCurrentIndex(0)
-
-        elif node_id:
-            node_id = list()
-            self.allow_to_update = False
-            self.comboBox_selection_type.setCurrentIndex(1)
-
-        elif element_id:
-            line_id = list()
-            self.allow_to_update = False
-            self.comboBox_selection_type.setCurrentIndex(2)
-
-        else:
-            return
-
-        self.allow_to_update = True
-
-        try:
-
-            if line_id:
-
-                if self.write_ids(line_id):
-                    self.lineEdit_selected_id.setText("")
-                    return
-
-                if len(line_id) == 1:
-                    length, _ = self.preprocessor.get_line_length(line_id[0])
-                    self.lineEdit_joint_length.setText(str(round(length, 8)))
-                else:
-                    self.lineEdit_joint_length.setText("multiple")
-
-            elif node_id:
-                if self.write_ids(node_id):
-                    self.lineEdit_selected_id.setText("")
-                    return
-
-            elif element_id:
-
-                if self.write_ids(element_id):
-                    self.lineEdit_selected_id.setText("")
-                    return
-
-            self.load_input_fields()
-
-        except Exception as log_error:
-            title = "Error in 'update' function"
-            message = str(log_error) 
-            PrintMessageInput([window_title_1, title, message])
+        self.selection_callback()
 
     def get_expansion_joint_length(self, selected_id):
         
@@ -354,10 +354,10 @@ class ExpansionJointInput(QDialog):
             self.joint_elements = self.preprocessor.line_to_elements[line_id]
 
         elif self.comboBox_selection_type.currentIndex() == 1:  
-            _stop, self.selected_nodes = self.before_run.check_input_NodeID(lineEdit_selection)
+            _stop, self.selected_nodes = self.before_run.check_selected_ids(lineEdit_selection, "nodes")
 
         elif self.comboBox_selection_type.currentIndex() == 2:
-            _stop, self.selected_elements = self.before_run.check_input_ElementID(lineEdit_selection)
+            _stop, self.selected_elements = self.before_run.check_selected_ids(lineEdit_selection, "elements")
 
             for element_id in self.selected_elements:
                 element = self.structural_elements[element_id]
@@ -1365,15 +1365,6 @@ class ExpansionJointInput(QDialog):
             for table_name in list_tables:
                 self.project.remove_structural_table_files_from_folder(table_name, folder_name="expansion_joints_files")
             # self.project.remove_structural_empty_folders(folder_name="expansion_joints_tables")             
-
-    def write_ids(self, list_selected_ids):
-        text = ""
-        for _id in list_selected_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text[:-2])  
-        if self.check_selection_type():
-            return True
-        return False
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

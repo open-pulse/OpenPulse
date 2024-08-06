@@ -38,92 +38,6 @@ class BeforeRun:
         if message != "":
             PrintMessageInput([window_title_2, title, message])
 
-    def check_input_NodeID(self, lineEdit, single_ID=False):
-        try:
-
-            title = "Invalid entry to the Node ID"
-            message = ""
-            tokens = lineEdit.strip().split(',')
-
-            try:
-                tokens.remove('')
-            except:
-                pass
-
-            _size = len(self.nodes)
-
-            list_nodes_typed = list(map(int, tokens))
-
-            if len(list_nodes_typed) == 0:
-                    message = "An empty input field for the Node ID has been detected. Please, enter a valid Node ID to proceed!"
-            
-            elif len(list_nodes_typed) >= 1: 
-                if single_ID and len(list_nodes_typed) > 1:
-                    message = "Multiple Node IDs"
-                else:
-                    try:
-                        for node_ID in list_nodes_typed:
-                            self.nodes[node_ID]
-                    except:
-                        message = "Dear user, you have typed an invalid entry at the Node ID input field. " 
-                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and less than {_size}."
-
-        except Exception as log_error:
-            message = f"Wrong input for the Node ID's! \n\n{str(log_error)}"
-
-        if message != "":
-            PrintMessageInput([window_title_1, title, message])               
-            return True, list() 
-
-        if single_ID:
-            return False, list_nodes_typed[0]
-        else:
-            return False, list_nodes_typed
-
-
-    def check_input_ElementID(self, lineEdit, single_ID=False):
-        try:
-
-            title = "Invalid entry to the Element ID"
-            message = ""
-            tokens = lineEdit.strip().split(',')
-
-            try:
-                tokens.remove('')
-            except:
-                pass
-
-            _size = len(self.structural_elements)
-
-            list_elements_typed = list(map(int, tokens))
-
-            if len(list_elements_typed) == 0:
-                    message = "An empty input field for the Element ID has been detected. Please, enter a valid Element ID to proceed!"
-
-            elif len(list_elements_typed) >= 1: 
-                if single_ID and len(list_elements_typed)>1:
-                    message = "Multiple Element IDs"
-                else:
-                    try:
-                        for element_ID in list_elements_typed:
-                            self.structural_elements[element_ID]
-                    except:
-                        message = "Dear user, you have typed an invalid entry at the Element ID input field. " 
-                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
-
-        except Exception as log_error:
-            message = f"Wrong input for the Element ID's! \n\n{str(log_error)}"
-
-        if message != "":
-            PrintMessageInput([window_title_1, title, message])               
-            return True, list() 
-
-        if single_ID:
-            return False, list_elements_typed[0]
-        else:
-            return False, list_elements_typed
-
-
     def check_selected_ids(self, selected_ids : str, selection_type : str, single_id = False):
         try:
 
@@ -190,7 +104,6 @@ class BeforeRun:
             return False, typed_ids[0]
         else:
             return False, typed_ids
-
 
     def check_material_all_elements(self):
         """
@@ -795,8 +708,7 @@ class BeforeRun:
                                         "ratio" : ratio}
                     
                     self.one_section_multiple_lines[section_id] = aux
-        
-                
+
     def get_lines_from_nodes(self, edge_nodes):
         """
         """

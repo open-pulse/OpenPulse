@@ -26,7 +26,7 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.selection_callback()
 
     def _initialize(self):
         self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
@@ -62,19 +62,17 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
         self.radioButton_rz : QRadioButton
 
     def _create_connections(self):
+        #
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
 
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        self.lineEdit_node_id.setText(text)
-
-    def update(self):
-        node_ids = app().main_window.list_selected_nodes()
-        if node_ids != []:
-            self.writeNodes(node_ids)
+    def selection_callback(self):
+        selected_nodes = app().main_window.list_selected_nodes()
+        if selected_nodes:
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_node_id.setText(text)
 
     def call_plotter(self):
         if self.check_inputs():
@@ -92,22 +90,27 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
 
     def check_inputs(self):
 
-        lineEdit_node_id = self.lineEdit_node_id.text()
-        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_node_id, single_ID=True)
+        str_nodes = self.lineEdit_node_id.text()
+        stop, self.node_ids = self.before_run.check_selected_ids(str_nodes, "nodes", single_id=True)
         if stop:
             self.lineEdit_node_id.setFocus()
             return True
 
         if self.radioButton_ux.isChecked():
             self.local_dof = 0
+
         elif self.radioButton_uy.isChecked():
             self.local_dof = 1
+
         elif self.radioButton_uz.isChecked():
             self.local_dof = 2
+
         elif self.radioButton_rx.isChecked():
             self.local_dof = 3
+
         elif self.radioButton_ry.isChecked():
             self.local_dof = 4
+
         else:
             self.local_dof = 5
 
@@ -120,28 +123,35 @@ class GetNodalResultsForHarmonicAnalysis(QWidget):
 
         return False
 
-    def get_response(self):
+    def get_response(self, node_id):
         response = get_structural_frf(  self.preprocessor,
                                         self.solution,
-                                        self.node_ID, 
+                                        node_id, 
                                         self.local_dof  )
         return response
 
     def join_model_data(self):
+
         self.model_results = dict()
-        self.title = "Structural frequency response - {}".format(self.analysisMethod)
-        legend_label = "Response {} at node {}".format(self.local_dof_label, self.node_ID)
-        data_information = "Structural nodal response {} at node {}".format(self.local_dof_label, self.node_ID)
-        self.model_results = {  "x_data" : self.frequencies,
-                                "y_data" : self.get_response(),
-                                "x_label" : "Frequency [Hz]",
-                                "y_label" : "Nodal response",
-                                "title" : self.title,
-                                "data_information" : data_information,
-                                "legend" : legend_label,
-                                "unit" : self.unit_label,
-                                "color" : [0,0,1],
-                                "linestyle" : "-"  }
+        self.title = f"Structural frequency response - {self.analysisMethod}"
+        legend_label = f"Response {self.local_dof_label} at node {self.node_ids}"
+        data_information = f"Structural nodal response {self.local_dof_label} at node {self.node_ids}"
+
+        for node_id in self.node_ids:
+
+            key = ("node", node_id)
+            self.model_results[key] = {  
+                                        "x_data" : self.frequencies,
+                                        "y_data" : self.get_response(node_id),
+                                        "x_label" : "Frequency [Hz]",
+                                        "y_label" : "Nodal response",
+                                        "title" : self.title,
+                                        "data_information" : data_information,
+                                        "legend" : legend_label,
+                                        "unit" : self.unit_label,
+                                        "color" : [0,0,1],
+                                        "linestyle" : "-"  
+                                        }
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

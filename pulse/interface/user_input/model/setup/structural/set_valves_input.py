@@ -131,7 +131,6 @@ class ValvesInput(QDialog):
 
     def selection_callback(self):
 
-        selected_ids = list()
         line_ids = app().main_window.list_selected_lines()
 
         if line_ids:
@@ -139,6 +138,8 @@ class ValvesInput(QDialog):
             self.label_selected_id.setText("Line ID:")
             self.lineEdit_valve_length.setDisabled(True)
             app().main_window.plot_lines_with_cross_sections()
+        else:
+            selected_ids = list()
 
         if selected_ids:
             text = ", ".join([str(i) for i in selected_ids])
@@ -148,7 +149,7 @@ class ValvesInput(QDialog):
 
         if self.check_selection_type():
             return
-        
+
         if line_ids:
             if len(line_ids) == 1:
                 self.get_line_length()
@@ -227,10 +228,12 @@ class ValvesInput(QDialog):
             self.tabWidget_main.setTabVisible(1, True)
 
     def get_line_length(self):
-        lineEdit_lineID = self.lineEdit_selected_id.text()
-        if lineEdit_lineID != "":
+        
+        str_lines = self.lineEdit_selected_id.text()
 
-            self.stop, _line_id = self.before_run.check_selected_ids(lineEdit_lineID, "lines", single_id=True)
+        if str_lines != "":
+
+            self.stop, _line_id = self.before_run.check_selected_ids(str_lines, "lines", single_id=True)
             if self.stop:
                 self.lineEdit_selected_id.setText("")
                 self.lineEdit_valve_length.setText("")

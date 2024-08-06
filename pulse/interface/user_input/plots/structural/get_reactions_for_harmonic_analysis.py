@@ -216,8 +216,8 @@ class GetReactionsForHarmonicAnalysis(QWidget):
 
     def check_inputs(self):
         
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        str_nodes = self.lineEdit_nodeID.text()
+        stop, self.node_ID = self.before_run.check_selected_ids(str_nodes, "nodes", single_id=True)
         if stop:
             return True
 

@@ -25,13 +25,14 @@ class ConnectingFlangesInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.preprocessor = app().project.preprocessor
 
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self.update()
+        self.selection_callback()
         self.exec()
 
     def _config_window(self):
@@ -42,13 +43,12 @@ class ConnectingFlangesInput(QDialog):
     
     def _initialize(self):
 
-        self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.preprocessor._map_lines_to_nodes()
 
         self.element_size = self.project.file._element_size
+
         self.complete = False
-        self.allow_to_update = True
         self.multiple_selection = False
 
     def _define_qt_variables(self):
@@ -101,11 +101,100 @@ class ConnectingFlangesInput(QDialog):
         self.treeWidget_flange_by_elements : QTreeWidget
 
     def _create_connections(self):
+        #
         self.checkBox_get_cross_section.clicked.connect(self.checkBox_event_update)
+        #
         self.comboBox_selection_type.currentIndexChanged.connect(self.selection_type_callback)
+        #
         self.pushButton_confirm.clicked.connect(self.add_flange_to_selected_elements)
+        #
         self.spinBox_number_elements_line.valueChanged.connect(self.update_flange_length_line)
         self.spinBox_number_elements_node.valueChanged.connect(self.update_flange_length_node)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_nodes = app().main_window.list_selected_nodes()
+        selected_lines = app().main_window.list_selected_lines()
+        selected_elements = app().main_window.list_selected_elements()
+
+        self.comboBox_selection_type.blockSignals(True)
+
+        if selected_nodes and selected_elements:
+            title = "Multiples node(s) and element(s) in selection"
+            message = "The current selection includes multiples node(s) and element(s). "
+            message += "You should to select node(s) or element(s) separately to proceed. "
+            self.multiple_selection = True
+            self.reset_selection()
+            PrintMessageInput([window_title_1, title, message])
+            return
+
+        elif selected_lines:
+            selected_nodes = list()
+            selected_elements = list()
+            selected_ids = selected_lines
+            self.comboBox_selection_type.setCurrentIndex(0)
+
+        elif selected_nodes:
+            selected_lines = list()
+            selected_elements = list()
+            selected_ids = selected_nodes
+            self.comboBox_selection_type.setCurrentIndex(1)
+
+        elif selected_elements:
+            selected_lines = list()
+            selected_nodes = list()
+            selected_ids = selected_elements
+            self.comboBox_selection_type.setCurrentIndex(2)
+
+        else:
+            selected_ids = list()
+
+        self.comboBox_selection_type.blockSignals(False)
+
+        if selected_ids:
+            text = ", ".join([str(i) for i in selected_ids])
+            self.lineEdit_selected_id.setText(text)
+        else:
+            return
+
+        if self.check_selection_type():
+            return
+
+        try:
+
+            if selected_lines:
+
+                self.update_flange_length_line()
+                self.get_elements_from_start_end_line()
+                
+                if len(selected_lines) == 1:
+                    first_node = self.preprocessor.dict_line_to_nodes[selected_lines[0]][0]
+                    last_node = self.preprocessor.dict_line_to_nodes[selected_lines[0]][1]
+                    self.lineEdit_first_node.setText(str(first_node))
+                    self.lineEdit_last_node.setText(str(last_node))
+
+                else:
+                    self.lineEdit_first_node.setText("multiples")
+                    self.lineEdit_last_node.setText("multiples")
+
+                if self.comboBox_ending_setup.currentIndex() == 1:
+                    self.lineEdit_last_node.setText("---")
+
+                if self.comboBox_ending_setup.currentIndex() == 2:
+                    self.lineEdit_first_node.setText("---")
+
+            elif selected_nodes:
+                self.update_flange_length_node()
+
+            elif selected_elements :
+                self.load_elements_treeWidget_info()
+
+        except Exception as log_error:
+            title = "Error in 'update' function"
+            message = str(log_error) 
+            PrintMessageInput([window_title_1, title, message])
 
     def _config_widgets(self):
         self.lineEdit_element_size_line.setText(str(self.element_size))
@@ -180,96 +269,7 @@ class ConnectingFlangesInput(QDialog):
             if element_id:
                 app().main_window.set_selection(elements = element_id)
 
-        if self.allow_to_update:
-            self.update()
-
-    def update(self):
-
-        node_id = app().main_window.list_selected_nodes()
-        line_id = app().main_window.list_selected_lines()
-        element_id = app().main_window.list_selected_elements()
-
-        if node_id and element_id:
-            title = "Multiples node(s) and element(s) in selection"
-            message = "The current selection includes multiples node(s) and element(s). "
-            message += "You should to select node(s) or element(s) separately to proceed. "
-            self.multiple_selection = True
-            self.reset_selection()
-            PrintMessageInput([window_title_1, title, message])
-            return
-
-        elif line_id:
-            node_id = []
-            element_id = []
-            self.allow_to_update = False
-            self.comboBox_selection_type.setCurrentIndex(0)
-
-        elif node_id:
-            line_id = []
-            element_id = []
-            self.allow_to_update = False
-            self.comboBox_selection_type.setCurrentIndex(1)
-
-        elif element_id:
-            line_id = []
-            node_id = []
-            self.allow_to_update = False
-            self.comboBox_selection_type.setCurrentIndex(2)
-
-        else:
-            return
-
-        self.allow_to_update = True
-
-        try:
-
-            if line_id:
-
-                if self.write_ids(line_id):
-                    self.lineEdit_selected_id.setText("")
-                    self.lineEdit_first_node.setText("")
-                    self.lineEdit_last_node.setText("")
-                    return
-
-                self.update_flange_length_line()
-                self.get_elements_from_start_end_line()
-                
-                if len(line_id) == 1:
-                    first_node = self.preprocessor.dict_line_to_nodes[line_id[0]][0]
-                    last_node = self.preprocessor.dict_line_to_nodes[line_id[0]][1]
-                    self.lineEdit_first_node.setText(str(first_node))
-                    self.lineEdit_last_node.setText(str(last_node))
-
-                else:
-                    self.lineEdit_first_node.setText("multiples")
-                    self.lineEdit_last_node.setText("multiples")
-
-                if self.comboBox_ending_setup.currentIndex() == 1:
-                    self.lineEdit_last_node.setText("---")
-
-                if self.comboBox_ending_setup.currentIndex() == 2:
-                    self.lineEdit_first_node.setText("---")
-
-            elif node_id:
-
-                if self.write_ids(node_id):
-                    self.lineEdit_selected_id.setText("")
-                    return
-
-                self.update_flange_length_node()
-
-            elif element_id :
-
-                if self.write_ids(element_id):
-                    self.lineEdit_selected_id.setText("")
-                    return
-
-                self.load_elements_treeWidget_info()
-
-        except Exception as log_error:
-            title = "Error in 'update' function"
-            message = str(log_error) 
-            PrintMessageInput([window_title_1, title, message])
+        self.selection_callback()
 
     def update_flange_length_line(self):
         self.flange_length = self.spinBox_number_elements_line.value()*self.element_size
@@ -347,8 +347,8 @@ class ConnectingFlangesInput(QDialog):
 
         _stop = False
         lineEdit_selection = self.lineEdit_selected_id.text()
-
         selection_index = self.comboBox_selection_type.currentIndex()
+
         if selection_index == 0:
             _stop, self.lineID = self.before_run.check_selected_ids(lineEdit_selection, "lines")
             for line_id in self.lineID:
@@ -358,7 +358,7 @@ class ConnectingFlangesInput(QDialog):
                     break
                    
         elif selection_index == 1:
-            _stop, self.nodeID = self.before_run.check_input_NodeID(lineEdit_selection)
+            _stop, self.nodeID = self.before_run.check_selected_ids(lineEdit_selection, "nodes")
             for node_id in self.nodeID:
                 node = self.preprocessor.nodes[node_id]
                 elements_connected_to_node = self.preprocessor.elements_connected_to_node[node]
@@ -372,7 +372,7 @@ class ConnectingFlangesInput(QDialog):
                     break
 
         elif selection_index == 2:
-            _stop, self.elementID = self.before_run.check_input_ElementID(lineEdit_selection)
+            _stop, self.elementID = self.before_run.check_selected_ids(lineEdit_selection, "elements")
             for element_id in self.elementID:
                 element = self.preprocessor.structural_elements[element_id]
                 if element.element_type in ["beam_1", "expansion_joint"]:
@@ -580,15 +580,6 @@ class ConnectingFlangesInput(QDialog):
         self.preprocessor.add_lids_to_variable_cross_sections()
         app().main_window.plot_lines_with_cross_sections()   
         self.close()
-
-    def write_ids(self, list_selected_ids):
-        text = ""
-        for _id in list_selected_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text[:-2])  
-        if self.check_selection_type():
-            return True
-        return False
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

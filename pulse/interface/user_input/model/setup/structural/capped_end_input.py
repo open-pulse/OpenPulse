@@ -30,8 +30,8 @@ class CappedEndInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
+        self.selection_callback()
         self.load_treeWidgets_info()
-        self.update()
         self.exec()
 
     def _initialize(self):
@@ -64,35 +64,120 @@ class CappedEndInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_capped_end : QComboBox
         self.comboBox_selection : QComboBox
+
         # QLabel
         self.label_attribute_to : QLabel
         self.label_selected_id : QLabel     
+
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
-        #QTabWidget
-        self.tabWidget_main : QTabWidget
-        self.tabWidget_groups : QTabWidget
-        # QTreeWidget
-        self.treeWidget_capped_end_elements : QTreeWidget
-        self.treeWidget_capped_end_lines : QTreeWidget
+
         # QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_remove : QPushButton
 
+        #QTabWidget
+        self.tabWidget_main : QTabWidget
+        self.tabWidget_groups : QTabWidget
+
+        # QTreeWidget
+        self.treeWidget_capped_end_elements : QTreeWidget
+        self.treeWidget_capped_end_lines : QTreeWidget
+
     def _create_connections(self):
+        #
         self.comboBox_selection.currentIndexChanged.connect(self.selection_type_callback)
+        #
         self.pushButton_confirm.clicked.connect(self.set_capped_end)
         self.pushButton_reset.clicked.connect(self.check_reset)
         self.pushButton_remove.clicked.connect(self.remove_group)
+        #
         self.tabWidget_main.currentChanged.connect(self.tab_event_update)
+        #
         self.treeWidget_capped_end_elements.itemClicked.connect(self.on_click_item_elem)
         self.treeWidget_capped_end_elements.itemDoubleClicked.connect(self.on_doubleclick_item_elem)
         self.treeWidget_capped_end_lines.itemClicked.connect(self.on_click_item_line)
         self.treeWidget_capped_end_lines.itemDoubleClicked.connect(self.on_doubleclick_item_line)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        line_ids = app().main_window.list_selected_lines()
+        element_ids = app().main_window.list_selected_elements()
+
+        selection_index = self.comboBox_selection.currentIndex()
+
+        if line_ids:
+            selected_ids = line_ids
+            if selection_index == 1:
+                self.selection_type_callback()
+            else:
+                self.comboBox_selection.setCurrentIndex(1)
+            self.update_capped_end_effect_by_lines_selection()
+
+        elif element_ids:
+            selected_ids = element_ids
+            if selection_index == 2:
+                self.selection_type_callback()
+            else:
+                self.comboBox_selection.setCurrentIndex(2)
+            self.update_capped_end_effect_by_elements_selection()
+        
+        else:
+            return
+
+        self.write_ids(selected_ids)
+
+    def selection_type_callback(self):
+
+        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.setEnabled(True)
+
+        selection_index = self.comboBox_selection.currentIndex()
+
+        if selection_index == 0:
+            self.lineEdit_selected_id.setText("All lines")
+            self.lineEdit_selected_id.setEnabled(False)
+
+        elif selection_index == 1:
+            selected_lines = app().main_window.list_selected_lines()
+            if selected_lines:
+                self.write_ids(selected_lines)
+
+        elif selection_index == 2:
+            selected_elements = app().main_window.list_selected_elements()
+            if selected_elements:
+                self.write_ids(selected_elements)
+
+    def write_ids(self, selected_ids):
+        text = ", ".join([str(i) for i in selected_ids])
+        self.lineEdit_selected_id.setText(text)   
+
+    def tab_event_update(self):
+
+        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.setEnabled(True)
+
+        if self.tabWidget_main.currentIndex() == 0:
+            self.label_attribute_to.setDisabled(False)
+            self.label_selected_id.setText("Selected IDs:")
+            self.comboBox_selection.setDisabled(False)
+            self.selection_callback()
+
+        else:
+            self.label_attribute_to.setDisabled(True)
+            self.label_selected_id.setText("Group:")
+            self.lineEdit_selected_id.setDisabled(True)
+            self.comboBox_selection.setDisabled(True)
+            self.comboBox_selection.setCurrentIndex(0)
+
+        self.update_renders()
 
     def _config_widgets(self):
         #
@@ -110,26 +195,6 @@ class CappedEndInput(QDialog):
         #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")   
 
-    def update(self):
-
-        self.lines_id = app().main_window.list_selected_lines()
-        self.elements_id = app().main_window.list_selected_elements()
-
-        selection_index = self.comboBox_selection.currentIndex()
-        if self.lines_id != []:
-            if selection_index == 1:
-                self.selection_type_callback()
-            else:
-                self.comboBox_selection.setCurrentIndex(1)
-            self.update_capped_end_effect_by_lines_selection()
-
-        elif self.elements_id != []:
-            if selection_index == 2:
-                self.selection_type_callback()
-            else:
-                self.comboBox_selection.setCurrentIndex(2)
-            self.update_capped_end_effect_by_elements_selection()
-
     def update_capped_end_effect_by_elements_selection(self):
         if len(self.elements_id) == 1:
             element = self.preprocessor.structural_elements[self.elements_id[0]]
@@ -145,44 +210,6 @@ class CappedEndInput(QDialog):
                 self.comboBox_capped_end.setCurrentIndex(0)
             else:
                 self.comboBox_capped_end.setCurrentIndex(1)
-
-    def selection_type_callback(self):
-
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_selected_id.setEnabled(True)
-        selection_index = self.comboBox_selection.currentIndex()
-
-        if selection_index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setEnabled(False)
-
-        elif selection_index == 1:
-            if len(self.lines_id):
-                self.write_ids(self.lines_id)
-
-        elif selection_index == 2:
-            if len(self.elements_id):
-                self.write_ids(self.elements_id)
-
-    def tab_event_update(self):
-
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_selected_id.setEnabled(True)
-
-        if self.tabWidget_main.currentIndex() == 0:
-            self.label_attribute_to.setDisabled(False)
-            self.label_selected_id.setText("Selected IDs:")
-            self.comboBox_selection.setDisabled(False)
-            self.update()
-
-        else:
-            self.label_attribute_to.setDisabled(True)
-            self.label_selected_id.setText("Group:")
-            self.lineEdit_selected_id.setDisabled(True)
-            self.comboBox_selection.setDisabled(True)
-            self.comboBox_selection.setCurrentIndex(0)
-
-        self.update_renders()
 
     def update_renders(self):
         app().main_window.update_plots()
@@ -267,7 +294,7 @@ class CappedEndInput(QDialog):
         elif selection_index == 2:
 
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
+            self.stop, self.elements_typed = self.before_run.check_selected_ids(lineEdit, "elements")
             if self.stop:
                 return
 
@@ -479,12 +506,6 @@ class CappedEndInput(QDialog):
             pass
         output = list(map(int, tokens))
         return output
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_selected_id.setText(text)    
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

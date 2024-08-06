@@ -106,14 +106,17 @@ class AcousticPressureInput(QDialog):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-        selected_nodes = app().main_window.list_selected_nodes()
-        if selected_nodes:
-            self.process_selection()
 
-    def process_selection(self, selected_nodes : list):
+        selected_nodes = app().main_window.list_selected_nodes()
+
         if selected_nodes:
+
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_selection_id.setText(text)
+
             picked_node = selected_nodes[0]
             node = self.preprocessor.nodes[picked_node]
+
             if node.acoustic_pressure is not None:
                 self.reset_input_fields(force_reset=True)
                 if node.compressor_excitation_table_names == []:
@@ -137,7 +140,7 @@ class AcousticPressureInput(QDialog):
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
         else:
-            self.update()
+            self.selection_callback()
             self.lineEdit_selection_id.setDisabled(False)
 
     def load_nodes_info(self):
@@ -184,8 +187,8 @@ class AcousticPressureInput(QDialog):
 
     def check_constant_values(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+        lineEdit = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_selected_ids(lineEdit, "nodes")
         if self.stop:
             self.lineEdit_selection_id.setFocus()
             return
@@ -299,15 +302,16 @@ class AcousticPressureInput(QDialog):
         self.imported_values, self.filename_acoustic_pressure = self.load_table(self.lineEdit_table_path)
     
     def check_table_values(self):
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+
+        str_nodes = self.lineEdit_selection_id.text()
+        self.stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
         if self.stop:
             self.lineEdit_selection_id.setFocus()
             return
-        
+
         self.project.remove_volume_velocity_table_files(self.nodes_typed)
         self.project.reset_compressor_info_by_node(self.nodes_typed)
-        
+
         list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
         if self.lineEdit_table_path != "":
             for node_id in self.nodes_typed:
@@ -366,8 +370,8 @@ class AcousticPressureInput(QDialog):
     def remove_bc_from_node(self):
         if self.lineEdit_selection_id.text() != "":
 
-            lineEdit_selection_id = self.lineEdit_selection_id.text()
-            stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
+            str_nodes = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
                 return
 

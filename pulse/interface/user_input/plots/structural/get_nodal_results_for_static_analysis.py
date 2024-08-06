@@ -26,7 +26,7 @@ class GetNodalResultsForStaticAnalysis(QWidget):
         self._create_list_lineEdits()
         self._create_connections()
         self._config_widgets()
-        self.update()
+        self.selection_callback()
 
     def _initialize(self):
         solution = self.project.get_structural_solution()
@@ -60,14 +60,9 @@ class GetNodalResultsForStaticAnalysis(QWidget):
 
     def selection_callback(self):
         selected_nodes = app().main_window.list_selected_nodes()
-        if selected_nodes:
+        if len(selected_nodes) == 1:
             node_id = selected_nodes[0]
             self.lineEdit_node_id.setText(str(node_id))
-            self.process_selection(selected_nodes)
-
-    def process_selection(self, selected_nodes : list):
-        if len(selected_nodes) == 1:
-            self.lineEdit_node_id.setText(str(selected_nodes[0]))
             self._update_lineEdit(selected_nodes)
         else:
             self._reset_lineEdits()

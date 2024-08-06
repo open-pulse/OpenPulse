@@ -69,7 +69,7 @@ class PrescribedDofsInput(QDialog):
         self.prescribed_dofs = None
         self.inputs_from_node = False
         self.copy_path = False
-        self.stop = False
+
         self.list_Nones = [None, None, None, None, None, None]
         self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
 
@@ -190,14 +190,13 @@ class PrescribedDofsInput(QDialog):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
+
         selected_nodes = app().main_window.list_selected_nodes()
         if selected_nodes:
+
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
-            self.process_selection(selected_nodes)
 
-    def process_selection(self, selected_nodes : list):
-        if selected_nodes:
             picked_node = selected_nodes[0]
             node = self.preprocessor.nodes[picked_node]
             if node.there_are_prescribed_dofs:
@@ -209,6 +208,7 @@ class PrescribedDofsInput(QDialog):
                         if table_names[index] is not None:
                             table_name = get_new_path(self.prescribed_dofs_files_folder_path, table_names[index])
                             lineEdit_table.setText(table_name)
+
                 else:
                     prescribed_dofs = node.prescribed_dofs
                     self.tabWidget_prescribed_dofs.setCurrentIndex(0)
@@ -222,7 +222,7 @@ class PrescribedDofsInput(QDialog):
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
-        self.stop = False
+        stop = False
         if lineEdit_real.text() != "":
             try:
                 _real = float(lineEdit_real.text())
@@ -231,8 +231,8 @@ class PrescribedDofsInput(QDialog):
                 message = f"Wrong input for real part of {label}."
                 PrintMessageInput([window_title, title, message])
                 lineEdit_real.setFocus()
-                self.stop = True
-                return
+                stop = True
+                return stop, None
         else:
             _real = None
 
@@ -244,8 +244,8 @@ class PrescribedDofsInput(QDialog):
                 message = f"Wrong input for imaginary part of {label}."
                 PrintMessageInput([window_title, title, message])
                 lineEdit_imag.setFocus()
-                self.stop = True
-                return
+                stop = True
+                return stop, None
         else:
             _imag = None
         
@@ -272,40 +272,40 @@ class PrescribedDofsInput(QDialog):
             else:             
                 output = _real + 1j*_imag
 
-        return output
+        return stop, output
 
     def check_constant_values(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
-        if self.stop:
+        str_nodes = self.lineEdit_selection_id.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
             self.lineEdit_selection_id.setFocus()
             return
 
         if self.lineEdit_real_alldofs.text() != "" or self.lineEdit_imag_alldofs.text() != "":
-            prescribed_dofs = self.check_complex_entries(self.lineEdit_real_alldofs, self.lineEdit_imag_alldofs, "all dofs")
-            if self.stop:
+            stop, prescribed_dofs = self.check_complex_entries(self.lineEdit_real_alldofs, self.lineEdit_imag_alldofs, "all dofs")
+            if stop:
                 return 
         else:    
 
-            ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "ux")
-            if self.stop:
+            stop, ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "ux")
+            if stop:
                 return
-            uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "uy")
-            if self.stop:
+            stop, uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "uy")
+            if stop:
                 return        
-            uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "uz")
-            if self.stop:
+            stop, uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "uz")
+            if stop:
                 return        
                 
-            rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "rx")
-            if self.stop:
+            stop, rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "rx")
+            if stop:
                 return        
-            ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "ry")
-            if self.stop:
+            stop, ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "ry")
+            if stop:
                 return        
-            rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "rz")
-            if self.stop:
+            stop, rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "rz")
+            if stop:
                 return
 
             prescribed_dofs = [ux, uy, uz, rx, ry, rz]
@@ -360,11 +360,9 @@ class PrescribedDofsInput(QDialog):
                 self.f_step = self.frequencies[1] - self.frequencies[0]
 
                 if self.project.change_project_frequency_setup(self.imported_filename, list(self.frequencies)):
-                    self.stop = True
                     return None, None
                 else:
                     self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-                    self.stop = False
             
             return self.imported_values, self.imported_filename
 
@@ -433,44 +431,32 @@ class PrescribedDofsInput(QDialog):
 
     def load_ux_table(self):
         self.ux_table, self.ux_filename = self.load_table(self.lineEdit_path_table_ux, "ux")
-        if self.stop:
-            self.stop = False
-            self.ux_table, self.ux_filename = None, None
+        if (self.ux_table, self.ux_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_ux)
 
     def load_uy_table(self):
         self.uy_table, self.uy_filename = self.load_table(self.lineEdit_path_table_uy, "uy")
-        if self.stop:
-            self.stop = False
-            self.uy_table, self.uy_filename = None, None
+        if (self.uy_table, self.uy_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_uy)
             
     def load_uz_table(self):
         self.uz_table, self.uz_filename = self.load_table(self.lineEdit_path_table_uz, "uz")
-        if self.stop:
-            self.stop = False
-            self.uz_table, self.uz_filename = None, None
+        if (self.uz_table, self.uz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_uz)
             
     def load_rx_table(self):
         self.rx_table, self.rx_filename = self.load_table(self.lineEdit_path_table_rx, "rx")
-        if self.stop:
-            self.stop = False
-            self.rx_table, self.rx_filename = None, None
+        if (self.rx_table, self.rx_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_rx)
             
     def load_ry_table(self):
         self.ry_table, self.ry_filename = self.load_table(self.lineEdit_path_table_ry, "ry")
-        if self.stop:
-            self.stop = False
-            self.ry_table, self.ry_filename = None, None
+        if (self.ry_table, self.ry_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_ry)
             
     def load_rz_table(self):
         self.rz_table, self.rz_filename = self.load_table(self.lineEdit_path_table_rz, "rz")
-        if self.stop:
-            self.stop = False
-            self.rz_table, self.rz_filename = None, None
+        if (self.rz_table, self.rz_filename).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_rz)
 
     def lineEdit_reset(self, lineEdit):
@@ -479,11 +465,12 @@ class PrescribedDofsInput(QDialog):
 
     def check_table_values(self):
 
-        lineEdit_selection_id = self.lineEdit_selection_id.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
-        if self.stop:
+        str_nodes = self.lineEdit_selection_id.text()
+        stop, self.nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
             self.lineEdit_selection_id.setFocus()
             return
+
         list_table_names = self.get_list_tables_names_from_selected_nodes(self.nodes_typed)
 
         for node_id in self.nodes_typed:
@@ -663,9 +650,9 @@ class PrescribedDofsInput(QDialog):
         if  self.lineEdit_selection_id.text() != "":
 
             self.basenames = []
-            lineEdit_selection_id = self.lineEdit_selection_id.text()
-            self.stop, nodes_typed = self.before_run.check_input_NodeID(lineEdit_selection_id)
-            if self.stop:
+            str_nodes = self.lineEdit_selection_id.text()
+            stop, nodes_typed = self.before_run.check_selected_ids(str_nodes, "nodes")
+            if stop:
                 return
 
             key_strings = ["displacements", "rotations"]

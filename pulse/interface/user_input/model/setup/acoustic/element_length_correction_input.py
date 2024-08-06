@@ -30,7 +30,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self.load_elements_info()
-        self.update()
+        self.selection_callback()
         self.exec()
 
     def _config_window(self):
@@ -78,6 +78,14 @@ class AcousticElementLengthCorrectionInput(QDialog):
         #
         self.treeWidget_length_correction_groups.itemClicked.connect(self.on_click_item)
         self.treeWidget_length_correction_groups.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_elements = app().main_window.list_selected_elements()
+        if selected_elements:
+            text = ", ".join([str(i) for i in selected_elements])
+            self.lineEdit_element_id.setText(text)
 
     def _config_widgets(self):
         self.treeWidget_length_correction_groups.setColumnWidth(0, 100)
@@ -86,24 +94,26 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _tab_event_update(self):
+
         index = self.tabWidget_element_length_correction.currentIndex()
+
         if index == 0:
             text = "Element IDs:"
-            selected_elements = app().main_window.list_selected_elements()
-            self.write_ids(selected_elements)
-            self.lineEdit_element_id.setDisabled(False)
+            self.selection_callback()
+
         elif index == 1: 
             text = "Group ID:"
             self.lineEdit_element_id.setText("")
-            self.lineEdit_element_id.setDisabled(True)
+
+        self.lineEdit_element_id.setDisabled(bool(index))
         self.label_selection.setText(text)
 
     def check_element_correction_type(self):
 
         lineEdit = self.lineEdit_element_id.text()
-        self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
+        stop, self.element_ids = self.before_run.check_selected_ids(lineEdit, "elements")
         
-        if self.stop:
+        if stop:
             return
         
         index = self.comboBox_element_length_correction_type.currentIndex()
@@ -135,7 +145,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         temp_dict = self.dict_group_elements.copy()
         
         for key, values in temp_dict.items():
-            if list(np.sort(self.elements_typed)) == list(np.sort(values[1])):
+            if list(np.sort(self.element_ids)) == list(np.sort(values[1])):
                 if self.replaced:
                     self.dkey = key
                     self.log_removal = False
@@ -146,13 +156,13 @@ class AcousticElementLengthCorrectionInput(QDialog):
             else:
 
                 count1, count2 = 0, 0
-                for element in self.elements_typed:
+                for element in self.element_ids:
                     if element in values[1]:
                         count1 += 1
-                fill_rate1 = count1/len(self.elements_typed)
+                fill_rate1 = count1/len(self.element_ids)
 
                 for element in values[1]:
-                    if element in self.elements_typed:
+                    if element in self.element_ids:
                         count2 += 1
                 fill_rate2 = count2/len(values[1])
                 
@@ -170,7 +180,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         # self.close()
 
     def set_elements_to_correct(self, type_id, section, _print=False): 
-        self.project.set_element_length_correction_by_elements(list(np.sort(self.elements_typed)), type_id, section)
+        self.project.set_element_length_correction_by_elements(list(np.sort(self.element_ids)), type_id, section)
         if _print:
             if len(self.elements_id) > 20:
                 print("Set acoustic element length correction due the {} at {} selected elements".format(self.type_label, len(self.elements_id)))
@@ -274,21 +284,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
             self.info_text = [window_title_1, title, message]
             PrintMessageInput(self.info_text)
         self.show()
-
-    def update(self):
-        index = self.tabWidget_element_length_correction.currentIndex()
-        if index == 0:
-            selected_elements = app().main_window.list_selected_elements()
-            self.write_ids(selected_elements)
-        else:
-            self.lineEdit_element_id.setText("")
-
-    def write_ids(self, list_ids):
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-        self.lineEdit_element_id.setText(text)
-        self.elements_id = app().main_window.list_selected_elements()
 
     def update_tabs_visibility(self):
         if len(self.dict_group_elements) == 0:

@@ -102,7 +102,7 @@ class MeshPicker:
 
         return picked_elements
 
-    def area_pick_entities(self, x0, y0, x1, y1) -> set[int]:
+    def area_pick_lines(self, x0, y0, x1, y1) -> set[int]:
         picker = vtk.vtkAreaPicker()
         extractor = vtk.vtkExtractSelectedFrustum()
         picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)

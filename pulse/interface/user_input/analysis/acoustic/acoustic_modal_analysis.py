@@ -37,9 +37,11 @@ class AcousticModalAnalysisInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QLineEdit
         self.lineEdit_number_modes : QLineEdit
         self.lineEdit_input_sigma_factor : QLineEdit
+
         # QPushButton
         self.pushButton_run_analysis : QPushButton
 

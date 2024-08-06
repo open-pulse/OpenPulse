@@ -32,11 +32,14 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.index = -1
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_method : QComboBox
+
         # QLabel
         self.label_method : QLabel
         self.label_method.setText("Harmonic Analysis - Structural")
+
         # QPushButton
         self.pushButton_go_to_analysis_setup : QPushButton
     

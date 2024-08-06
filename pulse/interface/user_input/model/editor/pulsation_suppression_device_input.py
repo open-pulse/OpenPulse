@@ -33,7 +33,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self._config_widgets()
 
         self.load_PSD_info()
-        self.update_selection()
+        self.selection_callback()
 
         while self.keep_window_open:
             self.exec()
@@ -120,31 +120,40 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.treeWidget_psd_info : QTreeWidget
 
     def _create_connections(self):
-        app().main_window.selection_changed.connect(self.update_selection)
-
+        #
         self.comboBox_main_axis.currentIndexChanged.connect(self.update_the_rotation_angle)
         self.comboBox_number_volumes.currentIndexChanged.connect(self.number_volumes_callback)
         self.comboBox_pipe1_connection.currentIndexChanged.connect(self.pipe_connection_callback)
         self.comboBox_pipe2_connection.currentIndexChanged.connect(self.pipe_connection_callback)
         self.comboBox_volumes_connection.currentIndexChanged.connect(self.volumes_connection_callback)
         self.comboBox_tuned_filter.currentIndexChanged.connect(self.tuned_filter_callback)
-
+        #
         self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
         self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
-
+        #
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.confirm_button_pressed)
         self.pushButton_remove.clicked.connect(self.remove_button_pressed)
         self.pushButton_reset.clicked.connect(self.reset_button_pressed)
-
+        #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
-
+        #
         self.treeWidget_psd_info.itemClicked.connect(self.on_click_item)
         self.treeWidget_psd_info.itemDoubleClicked.connect(self.on_double_click_item)
-
+        #
         self.update_the_rotation_angle()
         self.number_volumes_callback()
         self.update_tuned_filter_callback()
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.list_selected_nodes()
+        if len(selected_nodes) == 1:
+            node = self.preprocessor.nodes[selected_nodes[0]]
+            self.lineEdit_connecting_coord_x.setText(str(round(node.x, 6)))
+            self.lineEdit_connecting_coord_y.setText(str(round(node.y, 6)))
+            self.lineEdit_connecting_coord_z.setText(str(round(node.z, 6)))
 
     def _config_widgets(self):
         #
@@ -288,14 +297,6 @@ class PulsationSuppressionDeviceInput(QDialog):
         else:
             self.pushButton_cancel.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)       
-    
-    def update_selection(self):
-        list_nodes = app().main_window.list_selected_nodes()
-        if len(list_nodes) == 1:
-            node = self.preprocessor.nodes[list_nodes[0]]
-            self.lineEdit_connecting_coord_x.setText(str(round(node.x, 6)))
-            self.lineEdit_connecting_coord_y.setText(str(round(node.y, 6)))
-            self.lineEdit_connecting_coord_z.setText(str(round(node.z, 6)))
 
     def update_tabs_visibility(self):
         if self.project.PSD.pulsation_suppression_device:

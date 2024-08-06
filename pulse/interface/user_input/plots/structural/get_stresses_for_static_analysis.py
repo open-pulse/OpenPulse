@@ -23,7 +23,7 @@ class GetStressesForStaticAnalysis(QWidget):
         self._define_qt_variables()
         self._create_list_lineEdits()
         self._create_connections()
-        self.update()
+        self.selection_callback()
 
     def _initialize(self):
         self.stress_labels = [  "Normal axial", 
@@ -68,18 +68,28 @@ class GetStressesForStaticAnalysis(QWidget):
                             self.lineEdit_shear_stress_yz  ]
 
     def _create_connections(self):
+        #
         self.pushButton_reset.clicked.connect(self.reset_selection)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_elements = app().main_window.list_selected_elements()
+        if len(selected_elements) == 1:
+            self.lineEdit_element_id.setText(str(selected_elements[0]))
+            self._update_lineEdit(selected_elements[0])
+        else:
+            self._reset_lineEdits()
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
             lineEdit.setText("")
 
-    def _update_lineEdit(self):
+    def _update_lineEdit(self, selected_element : int):
 
-        element_id = self.list_elements_IDs[0]
         self.stress_data = self.solve.stress_calculate(pressure_external = 0, damping_flag = False)
-        stresses = np.real(np.array(self.stress_data[element_id][:,0]))
-        #
+        stresses = np.real(np.array(self.stress_data[selected_element][:,0]))
+
         self.lineEdit_axial_stress.setText("{:.6e}".format(stresses[0]))
         self.lineEdit_bending_stress_y.setText("{:.6e}".format(stresses[1]))
         self.lineEdit_bending_stress_z.setText("{:.6e}".format(stresses[2]))
@@ -90,11 +100,3 @@ class GetStressesForStaticAnalysis(QWidget):
 
     def reset_selection(self):
         self._reset_lineEdits()
-
-    def update(self):
-        self.list_elements_IDs = app().main_window.list_selected_elements()
-        if len(self.list_elements_IDs) == 1:
-            self.lineEdit_element_id.setText(str(self.list_elements_IDs[0]))
-            self._update_lineEdit()
-        else:
-            self._reset_lineEdits()

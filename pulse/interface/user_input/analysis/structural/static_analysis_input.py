@@ -41,11 +41,13 @@ class StaticAnalysisInput(QDialog):
         self.gravity_vector = self.project.preprocessor.gravity_vector
 
     def _define_qt_variables(self):
+
         # QCheckBox
         self.checkBox_self_weight_load : QCheckBox
         self.checkBox_internal_pressure_load : QCheckBox
         self.checkBox_external_nodal_loads : QCheckBox
         self.checkBox_distributed_element : QCheckBox
+
         # QPushButton
         self.pushButton_run_analysis : QPushButton
     

@@ -36,7 +36,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self._initialize()        
         self._define_qt_variables()
         self._create_connections()
-        self.update_selection()
+        self.selection_callback()
 
     def _initialize(self):
         self.table_name = ""
@@ -86,34 +86,37 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.pushButton_plot_filtered_criteria : QPushButton
 
     def _create_connections(self):
-        app().main_window.selection_changed.connect(self.update_selection)
-
+        #
         self.pushButton_plot_unfiltered_criteria.clicked.connect(self.plot_unfiltered_criteria)
         self.pushButton_plot_filtered_criteria.clicked.connect(self.plot_filtered_criteria)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
 
-    def update_selection(self):
+    def selection_callback(self):
 
         self.reset_unfiltered_fields()
         self.reset_filtered_fields()
 
-        self.node_id = app().main_window.list_selected_nodes()
-        self.line_ids = self.preprocessor.get_line_from_node_id(self.node_id)
+        selected_nodes = app().main_window.list_selected_nodes()
+        self.line_ids = self.preprocessor.get_line_from_node_id(selected_nodes)
+
         self.pushButton_plot_unfiltered_criteria.setDisabled(True)
         self.pushButton_plot_filtered_criteria.setDisabled(True)
 
-        if len(self.node_id) == 1:
-            node = self.nodes[self.node_id[0]]
+        if len(selected_nodes) == 1:
+            node = self.nodes[selected_nodes[0]]
             if node.compressor_excitation_table_names != []:
                 self.pushButton_plot_unfiltered_criteria.setDisabled(False)
-                self.lineEdit_compressor_node_id.setText(str(self.node_id[0]))
+                self.lineEdit_compressor_node_id.setText(str(selected_nodes[0]))
                 self.get_existing_compressor_info()
                 return
 
-        if len(self.node_id) == 1:
+        if len(selected_nodes) == 1:
             self.pushButton_plot_filtered_criteria.setDisabled(False)
-            self.lineEdit_nozzle_id.setText(str(self.node_id[0]))        
+            self.lineEdit_nozzle_id.setText(str(selected_nodes[0]))        
         
         if len(self.line_ids) > 0:
+
             self.comboBox_line_ids.clear()
             for line_id in self.line_ids:
                 self.comboBox_line_ids.addItem(f"      {line_id}")

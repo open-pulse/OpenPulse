@@ -37,7 +37,7 @@ class CompressorModelInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widget()
-        self.update_selection()
+        self.selection_callback()
         self.load_compressor_excitation_tables_info()
 
         while self.keep_window_open:
@@ -51,7 +51,6 @@ class CompressorModelInput(QDialog):
 
     def _initialize(self):
 
-        self.stop = False
         self.complete = False
         self.keep_window_open = True
 
@@ -160,7 +159,7 @@ class CompressorModelInput(QDialog):
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
     def _create_connections(self):
-        app().main_window.selection_changed.connect(self.update_selection)
+        #
         self.comboBox_connection_setup.currentIndexChanged.connect(self.update_compressor_to_pipeline_connections)
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
@@ -203,6 +202,35 @@ class CompressorModelInput(QDialog):
         #
         self.clickable(self.lineEdit_suction_node_ID).connect(self.lineEdit_1_clicked)
         self.clickable(self.lineEdit_discharge_node_ID).connect(self.lineEdit_2_clicked)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_nodes = app().main_window.list_selected_nodes()
+
+        if len(selected_nodes) == 1:
+
+            index = self.comboBox_connection_setup.currentIndex()
+
+            if index == 1:
+                self.lineEdit_discharge_node_ID.setText("")
+                self.lineEdit_discharge_node_ID.setDisabled(True)
+
+            elif index == 2:
+                self.lineEdit_suction_node_ID.setText("")
+                self.lineEdit_suction_node_ID.setDisabled(True)
+
+            self.current_lineEdit.setText(str(selected_nodes[0]))
+            self.table_name = None
+            self.comboBox_compressors_tables.clear()
+            self.comboBox_compressors_tables.setVisible(False)
+
+            self.get_existing_compressor_info(selected_nodes, update_tables=True)
+
+        else:
+
+            self.current_lineEdit.setFocus()
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -224,12 +252,6 @@ class CompressorModelInput(QDialog):
 
     def lineEdit_2_clicked(self):
         self.current_lineEdit = self.lineEdit_discharge_node_ID
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter:
-            self.process_all_inputs()
-        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_Return:
-            self.close()
 
     def tabEvent(self):
         self.current_tab_index = self.tabWidget_compressor.currentIndex()
@@ -286,26 +308,8 @@ class CompressorModelInput(QDialog):
                 self.lineEdit_discharge_node_ID.setText(str(list_node_ids[-1]))
         else:
             self.current_lineEdit = self.lineEdit_suction_node_ID
-            self.update()
+            self.selection_callback()
             
-    def writeNodes(self, list_node_ids):
-
-        index = self.comboBox_connection_setup.currentIndex()
-
-        if index == 1:
-            self.lineEdit_discharge_node_ID.setText("")
-            self.lineEdit_discharge_node_ID.setDisabled(True)
-
-        elif index == 2:
-            self.lineEdit_suction_node_ID.setText("")
-            self.lineEdit_suction_node_ID.setDisabled(True)
-
-        self.current_lineEdit.setText(str(list_node_ids[-1]))
-        self.table_name = None
-        self.comboBox_compressors_tables.clear()
-        self.comboBox_compressors_tables.setVisible(False)
-        self.get_existing_compressor_info(list_node_ids, update_tables=True)
-
     def comboBox_event_update(self):
         if self.not_update_event:
             return
@@ -371,13 +375,6 @@ class CompressorModelInput(QDialog):
         N_rev = int((1/df)/(60/rotational_speed))
         self.N_rev = N_rev
         return f_min, f_max, df, N_rev
-
-    def update_selection(self):
-        list_nodes = app().main_window.list_selected_nodes()
-        if len(list_nodes) == 1:
-            self.writeNodes(list_nodes)
-        else:
-            self.current_lineEdit.setFocus()
 
     def update_compressor_inputs(self, compressor_info):
 
@@ -495,9 +492,9 @@ class CompressorModelInput(QDialog):
     def check_node_id(self, lineEdit):
         
         lineEdit_nodeID = lineEdit.text()
-        self.stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        stop, self.node_ID = self.before_run.check_selected_ids(lineEdit_nodeID, "nodes", single_id=True)
         
-        if self.stop:
+        if stop:
             return True
               
     def check_all_nodes(self, check_nodes=True):
@@ -1189,6 +1186,12 @@ class CompressorModelInput(QDialog):
 
     def remove_compressor_excitation_table_files(self, list_node_ids):
         self.project.remove_compressor_excitation_table_files(list_node_ids)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter:
+            self.process_all_inputs()
+        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_Return:
+            self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
