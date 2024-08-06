@@ -57,7 +57,6 @@ class LoadProjectData:
             self.number_sections_by_line = dict()
             for key, section_data in self.loader.cross_section_data.items():
 
-                print(key, section_data)
                 # key[0] -> tag : str
                 # key[1] -> label ("pipe", "beam")
 
