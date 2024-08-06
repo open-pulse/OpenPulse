@@ -100,11 +100,11 @@ class GeometryHandler:
                 gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
 
         gmsh.model.occ.synchronize()
-        
-        import sys
-        if '-nopopup' not in sys.argv:
-            gmsh.option.setNumber('General.FltkColorScheme', 1)
-            gmsh.fltk.run()
+
+        # import sys
+        # if '-nopopup' not in sys.argv:
+        #     gmsh.option.setNumber('General.FltkColorScheme', 1)
+        #     gmsh.fltk.run()
 
     def process_pipeline(self, build_data : dict):
         """ This method builds structures based on model_data file data.
@@ -327,9 +327,6 @@ class GeometryHandler:
 
     def export_cad_file(self, path):
         self.create_geometry()
-        # if '-nopopup' not in sys.argv:
-        #     gmsh.option.setNumber('General.FltkColorScheme', 1)
-        #     gmsh.fltk.run()
         gmsh.write(str(path))
         gmsh.finalize()
 

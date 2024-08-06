@@ -791,7 +791,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../data/icons/common/new_file.png</normaloff>../../data/icons/common/new_file.png</iconset>
+             <normaloff>../../icons/common/new_file.png</normaloff>../../icons/common/new_file.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -837,7 +837,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../data/icons/common/import.png</normaloff>../../data/icons/common/import.png</iconset>
+             <normaloff>../../icons/common/import.png</normaloff>../../icons/common/import.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -883,7 +883,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../data/icons/common/reset-image (2).png</normaloff>../../data/icons/common/reset-image (2).png</iconset>
+             <normaloff>../../icons/common/reset-image.png</normaloff>../../icons/common/reset-image.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -926,7 +926,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../data/icons/pulse/pulse_icon.png</normaloff>../../data/icons/pulse/pulse_icon.png</iconset>
+             <normaloff>../../icons/pulse/pulse_icon.png</normaloff>../../icons/pulse/pulse_icon.png</iconset>
            </property>
            <property name="iconSize">
             <size>
