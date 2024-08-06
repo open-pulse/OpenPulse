@@ -133,18 +133,18 @@ class EditPipeWidget(QWidget):
             bend.curvature = self.get_bending_radius(bend.diameter)
         self.pipeline.recalculate_curvatures()
 
-    def _get_selected_curvature(self):
-        last_curvature = None
+    def _get_selected_curvature_radius(self):
+        last_curvature_radius = None
 
         for bend in self.pipeline.selected_structures:
             if not isinstance(bend, Bend):
                 continue
 
-            if last_curvature is None:
-                last_curvature = bend.curvature
+            if last_curvature_radius is None:
+                last_curvature_radius = bend.curvature
 
-            elif bend.curvature != last_curvature:
+            elif bend.curvature != last_curvature_radius:
                 return None
 
-        return last_curvature
+        return last_curvature_radius
             

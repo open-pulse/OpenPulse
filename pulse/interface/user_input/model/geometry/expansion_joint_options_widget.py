@@ -62,7 +62,7 @@ class ExpansionJointOptionsWidget(QWidget):
         kwargs = dict()
         kwargs["diameter"] = parameters[0]
         kwargs["thickness"] = parameters[1]
-        kwargs["curvature_radius"] = 0.3
+        kwargs["bend_radius"] = 0.3
         kwargs["extra_info"] = dict(
             structural_element_type = "pipe_1",
             cross_section_info = deepcopy(self.cross_section_info),
