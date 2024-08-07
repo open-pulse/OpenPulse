@@ -27,9 +27,9 @@ class GeometryRenderWidget(EditorRenderWidget):
             return
 
         visualization = app().main_window.visualization_filter
-        self.control_points_actor.SetVisibility(visualization.nodes)
-        self.staged_points_actor.SetVisibility(visualization.nodes)
-        self.selected_points_actor.SetVisibility(visualization.nodes)
+        self.control_points_actor.SetVisibility(visualization.points)
+        self.staged_points_actor.SetVisibility(visualization.points)
+        self.selected_points_actor.SetVisibility(visualization.points)
         self.pipeline_actor.SetVisibility(visualization.tubes)
         opacity = 0.9 if visualization.transparent else 1
         self.pipeline_actor.GetProperty().SetOpacity(opacity)
