@@ -340,7 +340,7 @@ class LoadProjectData:
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
-    def load_entity_file(self):
+    def load_pipeline_file(self):
         try:
 
             self.loader.load_project_data_from_files()

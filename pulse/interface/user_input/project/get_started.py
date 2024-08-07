@@ -30,10 +30,13 @@ class GetStartedInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self.initial_actions()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _initialize(self):
         self.complete = False
+        self.keep_window_open = True
 
     def _load_icons(self):
         widgets = self.findChildren((QAbstractButton, QAction))
@@ -171,3 +174,7 @@ class GetStartedInput(QDialog):
         if read._continue:
             self.config.resetRecentProjectList()
             self.initial_actions()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

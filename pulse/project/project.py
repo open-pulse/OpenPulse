@@ -163,7 +163,7 @@ class Project:
     def load_project_files(self):
         self.load_structural_bc_file()
         self.load_acoustic_bc_file()
-        self.load_entity_file()
+        self.load_pipeline_file()
         self.load_analysis_file()
         self.load_inertia_load_setup()
         self.PSD.load_psd_data_from_file()
@@ -295,9 +295,9 @@ class Project:
     def set_entity(self, tag):
         return Line(tag)
 
-    def load_entity_file(self):
+    def load_pipeline_file(self):
         self.loader = LoadProjectData()
-        self.loader.load_entity_file()
+        self.loader.load_pipeline_file()
 
     def process_cross_sections_mapping(self):  
 

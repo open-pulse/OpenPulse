@@ -7,7 +7,7 @@ from pulse.tools.utils import *
 from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam
 
 import gmsh
-import math
+from math import dist
 import os
 import numpy as np
 from collections import defaultdict
@@ -102,10 +102,10 @@ class GeometryHandler:
 
         gmsh.model.occ.synchronize()
 
-        # import sys
-        # if '-nopopup' not in sys.argv:
-        #     gmsh.option.setNumber('General.FltkColorScheme', 1)
-        #     gmsh.fltk.run()
+        import sys
+        if '-nopopup' not in sys.argv:
+            gmsh.option.setNumber('General.FltkColorScheme', 1)
+            gmsh.fltk.run()
 
     def process_pipeline(self, structures_data : dict):
         """ This method builds structures based on model_data file data.
@@ -403,17 +403,17 @@ class GeometryHandler:
 
             try:
 
-                start_coords = gmsh.model.get_adjacencies(*line)[1][0]
-                end_coords = gmsh.model.get_adjacencies(*line)[1][1]
+                start_point = gmsh.model.get_adjacencies(*line)[1][0]
+                end_point = gmsh.model.get_adjacencies(*line)[1][1]
                 line_type = gmsh.model.get_type(*line)
 
-                start_coords = self.get_point_coords(start_coords)
-                end_coords = self.get_point_coords(end_coords)
+                start_coords = self.get_point_coords(start_point)
+                end_coords = self.get_point_coords(end_point)
 
                 start = Point(*start_coords)
                 end = Point(*end_coords)
 
-                line_length = math.dist(start_coords, end_coords)
+                line_length = dist(start_coords, end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -422,13 +422,13 @@ class GeometryHandler:
 
                     if len(self.get_point_by_coords(start_coords)) < 2:
                         self.merge_near_points(start_coords)
-                        start_coords = self.get_point_coords(start_coords)
+                        start_coords = self.get_point_coords(start_point)
 
                     if len(self.get_point_by_coords(end_coords)) < 2:
                         self.merge_near_points(end_coords)
-                        end_coords = self.get_point_coords(end_coords)               
+                        end_coords = self.get_point_coords(end_point)
 
-                    corner_coords = self.get_corner_point_coords(start_coords, end_coords)
+                    corner_coords = self.get_corner_point_coords(start_point, end_point)
 
                     if corner_coords is None:
                         message = f"The connecting lines from 'Circle curve' {line} are parallel "
@@ -436,11 +436,11 @@ class GeometryHandler:
                         print(message)
                         continue
 
-                    radius = self.get_radius(corner_coords, start_coords, end_coords)
-                    
-                    corner = Point(*corner_coords)
+                    radius = self.get_radius(corner_coords, start_point, end_point)
 
+                    corner = Point(*corner_coords)
                     pipe = Bend(start, end, corner, radius)
+
                     curved_structures.append(pipe)
 
             except Exception as error_log:
@@ -469,7 +469,7 @@ class GeometryHandler:
                 start_coords = self.get_point_coords(start_coords)
                 end_coords = self.get_point_coords(end_coords)
 
-                line_length = math.dist(start_coords, end_coords)
+                line_length = dist(start_coords, end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -527,16 +527,16 @@ class GeometryHandler:
                 points = list(gmsh.model.get_adjacencies(1, line)[1])
         return line, points
     
-    def get_corner_point_coords(self, start_coords, end_coords):
+    def get_corner_point_coords(self, start_point, end_point):
         """
             Reference: https://mathworld.wolfram.com/Line-LineIntersection.html
         """
 
-        coords_start = self.conv_unit(gmsh.model.getValue(0, start_coords, []))
-        coords_end = self.conv_unit(gmsh.model.getValue(0, end_coords, []))
+        coords_start = self.conv_unit(gmsh.model.getValue(0, start_point, []))
+        coords_end = self.conv_unit(gmsh.model.getValue(0, end_point, []))
 
-        _, points_Lstart = self.get_connecting_line_data(coords_start, start_coords)
-        _, points_Lend = self.get_connecting_line_data(coords_end, end_coords)
+        _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
+        _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
 
         X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
         X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
@@ -558,11 +558,11 @@ class GeometryHandler:
         else:
             return None
 
-    def get_radius(self, corner_coords, start_coords, end_coords):
+    def get_radius(self, corner_coords, start_point, end_point):
         """
         """
-        start_coords = self.conv_unit(gmsh.model.getValue(0, start_coords, []))
-        end_coords = self.conv_unit(gmsh.model.getValue(0, end_coords, []))
+        start_coords = self.conv_unit(gmsh.model.getValue(0, start_point, []))
+        end_coords = self.conv_unit(gmsh.model.getValue(0, end_point, []))
 
         a_vector = start_coords - corner_coords
         b_vector = end_coords - corner_coords
@@ -576,8 +576,8 @@ class GeometryHandler:
 
         center_coords = corner_coords + c_vector_normalized * corner_distance
 
-        start_curve_radius = math.dist(center_coords, start_coords)
-        end_curve_radius = math.dist(center_coords, end_coords)
+        start_curve_radius = dist(center_coords, start_coords)
+        end_curve_radius = dist(center_coords, end_coords)
         radius = (start_curve_radius + end_curve_radius) / 2
 
         return np.round(radius, 8)

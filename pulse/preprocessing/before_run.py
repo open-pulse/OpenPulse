@@ -382,7 +382,7 @@ class BeforeRun:
         all_fluid_inputs_message += "Lines with incomplete fluid properties: \n{}"
         #
         structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis!"
-        acoustic_message = "You should to insert a 'Volume velocity' or prescribe an 'Acoustic pressure' to a node before trying to solve the Harmonic Analysis!"
+        acoustic_message = "Enter a nodal 'Volume velocity' or 'Acoustic pressure' to proceed with the Harmonic Analysis processing."
 
         if analysis_ID == 2:
 
