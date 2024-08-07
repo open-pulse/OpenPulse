@@ -10,7 +10,7 @@ from molde.render_widgets import CommonRenderWidget
 from ._mesh_picker import MeshPicker
 from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text
 
-from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, PointsActor, TubeActorGPU
+from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, PointsActor, TubeActorGPU, ElementAxesActor
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
     AcousticNodesSymbolsActor,
@@ -42,6 +42,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.nodes_actor = None
         self.lines_actor = None
         self.tubes_actor = None
+        self.element_axes_actor = None
         self.acoustic_nodes_symbols_actor = None
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
@@ -66,6 +67,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.lines_actor = ElementLinesActor(project)
         self.tubes_actor = TubeActorGPU(project)
         self.points_actor = PointsActor()
+        self.element_axes_actor = ElementAxesActor()
+        self.element_axes_actor.VisibilityOff()
 
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update
@@ -87,6 +90,7 @@ class MeshRenderWidget(CommonRenderWidget):
             self.points_actor,
             self.nodes_actor,
             self.tubes_actor,
+            self.element_axes_actor,
             self.acoustic_nodes_symbols_actor,
             self.acoustic_elements_symbols_actor,
             self.structural_nodes_symbols_actor,
@@ -102,6 +106,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.RemoveActor(self.lines_actor)
         self.renderer.RemoveActor(self.nodes_actor)
         self.renderer.RemoveActor(self.tubes_actor)
+        self.renderer.RemoveActor(self.element_axes_actor)
         self.renderer.RemoveActor(self.acoustic_nodes_symbols_actor)
         self.renderer.RemoveActor(self.acoustic_elements_symbols_actor)
         self.renderer.RemoveActor(self.structural_nodes_symbols_actor)
@@ -110,6 +115,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.nodes_actor = None
         self.lines_actor = None
         self.tubes_actor = None
+        self.element_axes_actor = None
         self.acoustic_nodes_symbols_actor = None
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
@@ -236,6 +242,15 @@ class MeshRenderWidget(CommonRenderWidget):
         self.points_actor.set_color((255, 50, 50), nodes)
         self.lines_actor.set_color((200, 0, 0), elements, lines)
         self.tubes_actor.set_color((255, 0, 50), elements, lines)
+
+        # show element actor
+        self.element_axes_actor.VisibilityOff()
+        if len(elements) == 1:
+            self.element_axes_actor.VisibilityOn()
+            element_id, *_ = elements
+            element = app().project.get_structural_element(element_id)
+            self.element_axes_actor.position_from_element(element)       
+
         self.update_info_text()
         self.update()
 
