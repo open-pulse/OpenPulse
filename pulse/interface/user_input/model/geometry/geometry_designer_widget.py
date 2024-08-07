@@ -660,7 +660,7 @@ class GeometryDesignerWidget(QWidget):
         self.z_line_edit.setDisabled(disable_xyz)
 
     def _load_project(self):
-        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.initial_load_project_actions()
         self.project.load_project_files()
         app().main_window.input_ui.initial_project_action(True)
         self.complete = True

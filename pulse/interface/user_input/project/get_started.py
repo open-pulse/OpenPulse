@@ -18,11 +18,10 @@ class GetStartedInput(QDialog):
         ui_path = UI_DIR / "project/get_started_input.ui"
         uic.loadUi(ui_path, self)
 
-        app().main_window.set_input_widget(self)
+        # app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 
         self.config = app().main_window.config
-        self.input_ui = app().main_window.input_ui
         
         self._initialize()
         self._load_icons()
@@ -32,6 +31,7 @@ class GetStartedInput(QDialog):
         self.initial_actions()
 
         while self.keep_window_open:
+            app().main_window.set_input_widget(self)
             self.exec()
 
     def _initialize(self):
@@ -71,7 +71,7 @@ class GetStartedInput(QDialog):
 
     def _create_connections(self):
         self.create_button.clicked.connect(self.new_project)
-        self.load_button.clicked.connect(self.load_project)
+        self.load_button.clicked.connect(self.open_project)
         self.about_button.clicked.connect(self.about_project)
         self.reset_list_projects_button.clicked.connect(self.reset_list_projects)
         self.create_lists_of_buttons_and_labels()
@@ -112,36 +112,32 @@ class GetStartedInput(QDialog):
 
     def initial_actions(self):
         self.update_buttons_visibility()
-        self.project_buttons[0].clicked.connect(lambda: self.load_recent_project(self.project_dir[0]))
-        self.project_buttons[1].clicked.connect(lambda: self.load_recent_project(self.project_dir[1]))
-        self.project_buttons[2].clicked.connect(lambda: self.load_recent_project(self.project_dir[2]))
-        self.project_buttons[3].clicked.connect(lambda: self.load_recent_project(self.project_dir[3]))
-        self.project_buttons[4].clicked.connect(lambda: self.load_recent_project(self.project_dir[4]))
+        self.project_buttons[0].clicked.connect(lambda: self.open_recent_project(self.project_dir[0]))
+        self.project_buttons[1].clicked.connect(lambda: self.open_recent_project(self.project_dir[1]))
+        self.project_buttons[2].clicked.connect(lambda: self.open_recent_project(self.project_dir[2]))
+        self.project_buttons[3].clicked.connect(lambda: self.open_recent_project(self.project_dir[3]))
+        self.project_buttons[4].clicked.connect(lambda: self.open_recent_project(self.project_dir[4]))
 
     def continueButtonEvent(self):
         self.close()
 
     def new_project(self):
-        self.close()
-        if not self.input_ui.new_project():
-            self.show()
-        else:
+        self.hide()
+        if app().main_window.new_project():
             self.complete = True
 
-    def load_project(self):
-        self.close()
-        if not self.input_ui.load_project():
-            self.show()
-        else:
+    def open_project(self):
+        self.hide()
+        if app().main_window.open_project():
             self.complete = True
 
     def about_project(self):
-        self.input_ui.about_OpenPulse()
+        app().main_window.action_about_openpulse_callback()
 
-    def load_recent_project(self, dir):
+    def open_recent_project(self, dir):
 
         if os.path.exists(dir):
-            if self.input_ui.load_project(path=dir):
+            if app().main_window.open_project(path=dir):
                 self.complete = True
                 self.close()
 

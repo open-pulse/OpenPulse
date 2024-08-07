@@ -128,7 +128,7 @@ class Preprocessor:
     # def set_geometry_handler(self, geometry_handler):
     #     self.geometry_handler = geometry_handler
 
-    def generate(self, **kwargs):
+    def generate(self, setup_data : dict):
         """
         This method loads geometry file or data and process the mesh.
 
@@ -154,24 +154,28 @@ class Preprocessor:
             The length unit in use.
             
         """
-        self.import_type = kwargs.get("import_type", 1)
-        self.geometry_path = kwargs.get('geometry_path', "")
-        self.element_size = kwargs.get('element_size', 0.01)
-        self.tolerance = kwargs.get('tolerance', 1e-6)
-        self.length_unit = kwargs.get('length_unit', 'meter')
+
+        self.import_type = setup_data.get("import_type", 1)
+        self.geometry_path = setup_data.get('geometry_path', "")
+        self.element_size = setup_data.get('element_size', 0.01)
+        self.tolerance = setup_data.get('tolerance', 1e-6)
+        self.length_unit = setup_data.get('length_unit', 'meter')
 
         self.reset_variables()
 
         if self.import_type == 0:
+
             if os.path.exists(self.geometry_path):
                 self._load_cad_geometry_on_gmsh()
             else:
                 return
 
+        print("passei 4")
         self._create_gmsh_geometry()
         self._set_gmsh_options()
+        print("passei 5")
 
-        self._create_entities()
+        self._process_mesh()
         
         self._map_lines_to_elements()
         self._map_lines_to_nodes()
@@ -209,7 +213,7 @@ class Preprocessor:
 
         """
         geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(self.file.length_unit)
+        geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.open_cad_file(str(self.geometry_path))
 
     def _create_gmsh_geometry(self):
@@ -220,10 +224,9 @@ class Preprocessor:
         ----------
 
         """
-        pipeline_data = self.file.get_pipeline_data_from_file()
         geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(self.file.length_unit)     
-        geometry_handler.process_pipeline(pipeline_data)
+        geometry_handler.set_length_unit(self.length_unit)     
+        geometry_handler.process_pipeline()
         geometry_handler.create_geometry()
 
     def _set_gmsh_options(self):
@@ -275,7 +278,7 @@ class Preprocessor:
         # gmsh.model.mesh.field.setNumbers(minimum_field, "FieldsList", fields_list)
         # gmsh.model.mesh.field.setAsBackgroundMesh(minimum_field)
 
-    def _create_entities(self):
+    def _process_mesh(self):
         """
         This method generate the mesh entities, nodes, structural elements, acoustic elements 
         and their connectivity.

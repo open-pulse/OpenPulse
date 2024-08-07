@@ -66,9 +66,9 @@ class ImportGeometry(QFileDialog):
 
     def process_initial_actions(self):
         #
-        new_geometry_path = get_new_path(self.file._project_path, self.geometry_filename)
-        copyfile(self.geometry_path, new_geometry_path)
-        self.file.create_backup_geometry_folder()
+        # new_geometry_path = get_new_path(self.file._project_path, self.geometry_filename)
+        # copyfile(self.geometry_path, new_geometry_path)
+        # self.file.create_backup_geometry_folder()
         #
         self.project.reset(reset_all=True)
         self.file.load(self.file.project_ini_file_path)

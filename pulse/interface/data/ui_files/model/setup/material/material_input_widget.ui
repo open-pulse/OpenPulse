@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>350</height>
+    <width>720</width>
+    <height>370</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,13 +63,13 @@
        <widget class="QPushButton" name="pushButton_attribute_material">
         <property name="minimumSize">
          <size>
-          <width>180</width>
+          <width>220</width>
           <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>252</width>
+          <width>220</width>
           <height>32</height>
          </size>
         </property>
@@ -86,9 +86,7 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Confirm material attribution&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Attribute material</string>
@@ -127,44 +125,71 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
       </property>
       <item row="1" column="0">
        <widget class="QTableWidget" name="tableWidget_material_data">
-        <attribute name="verticalHeaderVisible">
+        <attribute name="horizontalHeaderVisible">
          <bool>false</bool>
         </attribute>
-        <column>
+        <attribute name="verticalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderCascadingSectionResizes">
+         <bool>true</bool>
+        </attribute>
+        <row>
          <property name="text">
           <string>Name</string>
          </property>
-        </column>
-        <column>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </row>
+        <row>
          <property name="text">
           <string>ID</string>
          </property>
-        </column>
-        <column>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </row>
+        <row>
          <property name="text">
           <string>Density [kg/m³]</string>
          </property>
-        </column>
-        <column>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </row>
+        <row>
          <property name="text">
           <string>Elasticity modulus [GPa]</string>
          </property>
-        </column>
-        <column>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </row>
+        <row>
          <property name="text">
           <string>Poisson</string>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Thermal expansion coefficient [J/mK]</string>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
          </property>
-        </column>
-        <column>
+        </row>
+        <row>
+         <property name="text">
+          <string>Thermal expansion coefficient [1/K]</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </row>
+        <row>
          <property name="text">
           <string>Color</string>
          </property>
-        </column>
+         <property name="textAlignment">
+          <set>AlignCenter</set>
+         </property>
+        </row>
        </widget>
       </item>
       <item row="0" column="0">
@@ -201,7 +226,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           <number>0</number>
          </property>
          <item row="0" column="3">
-          <widget class="QPushButton" name="pushButton_remove_row">
+          <widget class="QPushButton" name="pushButton_remove_column">
            <property name="minimumSize">
             <size>
              <width>26</width>
@@ -218,7 +243,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>9</pointsize>
-             <weight>9</weight>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -227,9 +252,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Remove selected row&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>-</string>
@@ -237,7 +260,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QPushButton" name="pushButton_add_row">
+          <widget class="QPushButton" name="pushButton_add_column">
            <property name="minimumSize">
             <size>
              <width>26</width>
@@ -263,9 +286,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Add row&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>+</string>
@@ -323,9 +344,7 @@ QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-s
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Reset to default material library&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>Reset</string>

@@ -41,6 +41,7 @@ class GeometryHandler:
     def set_length_unit(self, unit):
         if unit in ["meter", "millimeter", "inch"]:
             self.length_unit = unit
+            print("set unit", unit)
 
     def create_geometry(self):
 
@@ -102,12 +103,12 @@ class GeometryHandler:
 
         gmsh.model.occ.synchronize()
 
-        # import sys
-        # if '-nopopup' not in sys.argv:
-        #     gmsh.option.setNumber('General.FltkColorScheme', 1)
-        #     gmsh.fltk.run()
+        import sys
+        if '-nopopup' not in sys.argv:
+            gmsh.option.setNumber('General.FltkColorScheme', 1)
+            gmsh.fltk.run()
 
-    def process_pipeline(self, structures_data : dict):
+    def process_pipeline(self):
         """ This method builds structures based on model_data file data.
         
         Parameters:
@@ -124,6 +125,7 @@ class GeometryHandler:
         """
 
         self.pipeline.reset()
+        structures_data = app().main_window.pulse_file.get_pipeline_data_from_file()
 
         structures = list()
         for key, data in structures_data.items():
@@ -386,15 +388,17 @@ class GeometryHandler:
             element_size = in_to_m(self.file._element_size)
 
         if self.length_unit !=  "meter":
-            self.file.modify_project_attributes(length_unit = "meter",
-                                                element_size = element_size)
+            app().main_window.pulse_file.modify_project_attributes( 
+                                                                    length_unit = "meter",
+                                                                    element_size = element_size
+                                                                   )
             app().main_window.mesh_toolbar.update_mesh_attributes()
 
         if len(self.merged_points):
             self.print_merged_nodes_message()
 
         gmsh.finalize()
-    
+
     def process_curved_lines(self, lines):
 
         curved_structures = []
@@ -657,11 +661,7 @@ class GeometryHandler:
 
         if structures_data:
 
-            if os.path.exists(self.file._pipeline_path):
-                os.remove(self.file._pipeline_path)
-
-            self.file.create_pipeline_file(structures_data.keys())
-            self.file.add_pipeline_data_in_file(structures_data)
+            self.create_pipeline_file(structures_data)
 
             if len(section_info):
                 for tag, section in section_info.items():
@@ -679,7 +679,7 @@ class GeometryHandler:
                 for tag, label in psd_info.items():
                     self.file.add_psd_label_in_file(tag, label)
 
-            self.file.modify_project_attributes(import_type = 1)
+            app().main_window.pulse_file.modify_project_attributes(import_type = 1)
             # self.load_project()
 
     def get_pipeline_data(self, structure):
@@ -700,5 +700,20 @@ class GeometryHandler:
             data["end coords"] = get_data(structure.end.coords())
 
         return data
+
+    def create_pipeline_file(self, structures_data):
+
+        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+
+        if config is None:
+            from configparser import ConfigParser
+            config = ConfigParser()
+
+        for line_id, structure_data in structures_data.items():
+            config[str(line_id)] = dict()
+            for key, data in structure_data.items():
+                config[str(line_id)][key] = str(data)
+
+        app().main_window.pulse_file. write_pipeline_data_in_file(config)
 
 # fmt: on

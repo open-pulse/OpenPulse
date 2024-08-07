@@ -32,6 +32,7 @@ opps = {git = "https://github.com/open-pulse/opps", branch = "add_new_structures
 compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
 molde = {git = "https://github.com/andrefpf/molde"}
 pypardiso = {git = "https://github.com/MOPT-UFSC/PyPardiso"}
+fileboxes = "^0.1.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"

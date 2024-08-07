@@ -4,7 +4,6 @@ from PyQt5.QtGui import QCloseEvent, QFont
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import get_V_linear_distribution, remove_bc_from_file
@@ -39,9 +38,6 @@ class ValvesInput(QDialog):
         self.update_flange_length()
 
         self.start_execution()
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

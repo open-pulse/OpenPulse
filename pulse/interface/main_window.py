@@ -17,19 +17,28 @@ from pulse.interface.user_input.model.geometry.geometry_designer_widget import G
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
-from pulse.interface.user_input.project.loading_screen import LoadingScreen
-from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter
 
-from time import time
+from pulse.interface.user_input.project.get_started import GetStartedInput
+from pulse.interface.user_input.project.new_project import NewProjectInput
+from pulse.interface.user_input.project.load_project import LoadProjectInput
+from pulse.interface.user_input.project.reset_project import ResetProjectInput
+from pulse.interface.user_input.project.import_geometry import ImportGeometry
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
+
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
+from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter
+from pulse.interface.file.project_file_io import ProjectFileIO
 
 from molde.render_widgets import CommonRenderWidget
+
 import os
 import sys
 import qdarktheme
 from functools import partial
 from pathlib import Path
-
+from shutil import copy, rmtree
+from time import time
 
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal(str)
@@ -56,6 +65,11 @@ class MainWindow(QMainWindow):
         self._initialize()
 
     def _initialize(self):
+
+        self.user_path = Path().home()
+        self.temp_project_folder_path = self.user_path / "temp_pulse"
+        self.temp_project_file_path = str(self.temp_project_folder_path / "tmp.pulse") 
+
         self.dialog = None
         self.input_ui = None
         self.model_and_analysis_setup_widget = None
@@ -63,6 +77,9 @@ class MainWindow(QMainWindow):
         self.interface_theme = None
         self.last_index = None
         self.last_render_index = None
+
+        self.project_data_modified = False
+
         self.cache_indexes = list()
 
     def _load_stylesheets(self):
@@ -228,6 +245,8 @@ class MainWindow(QMainWindow):
         self.splitter.widget(0).setMinimumWidth(380)
         self._update_visualization()
 
+        self.model_and_analysis_items = self.model_and_analysis_setup_widget.model_and_analysis_setup_items
+
     def configure_window(self):
         t0 = time()
         # self._load_stylesheets()
@@ -251,6 +270,7 @@ class MainWindow(QMainWindow):
         self.plot_lines_with_cross_sections()
         self.use_structural_setup_workspace()
         self.load_user_preferences()
+        self.create_temporary_folder()
         app().splash.update_progress(98)
         dt = time() - t2
         print(f"Time to process C: {dt} [s]")
@@ -262,6 +282,42 @@ class MainWindow(QMainWindow):
         print(f"Time to process D: {dt} [s]")
         self.load_recent_project()
  
+    def create_temporary_folder(self):
+        create_new_folder(self.user_path, "temp_pulse")
+
+    def reset_temporary_folder(self):
+        if self.temp_project_folder_path.exists():
+            for filename in os.listdir(self.temp_project_folder_path).copy():
+                file_path = self.temp_project_folder_path / filename
+                if os.path.exists(file_path):
+                    if "." in filename:
+                        os.remove(file_path)
+                    else:
+                        rmtree(file_path)
+
+    def is_temporary_folder_empty(self):
+        if self.temp_project_folder_path.exists():
+            if os.listdir(self.temp_project_folder_path):
+                return False
+        return True
+    
+    def recovery_dialog(self):
+
+        caption = "The recovery project data has been detected in the application backup files. "
+        caption += "Would you like to try to recover the last project files?"
+
+        obj = QMessageBox.question(   
+            self, 
+            "Project recovery", 
+            caption, 
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if obj == QMessageBox.Yes:
+            self.open_project()
+        else:
+            self.reset_temporary_folder()
+
     # public
     def update_plots(self):
         self.geometry_widget.update_plot(reset_camera=True)
@@ -273,22 +329,33 @@ class MainWindow(QMainWindow):
         pass
 
     def new_project(self):
-        if not self.input_ui.new_project():
-            return 
-        self._update_recent_projects()
-        self.set_window_title(self.file._project_name)
-        self.use_structural_setup_workspace()
-        self.update_plots()
+
+        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
+        self.reset_geometry_render()
+        obj = NewProjectInput()
+        self.initial_project_action(obj.complete)
+
+        if obj.complete:
+            self._update_recent_projects()
+            self.set_window_title("New project (*)")
+            self.use_structural_setup_workspace()
+            self.update_plots()
 
     def open_project(self, path=None):
-        if not self.input_ui.load_project(path):
-            return
+        # t0 = time()
+        self.reset_geometry_render()
+        obj = LoadProjectInput(path=path)
+        self.mesh_toolbar.update_mesh_attributes()
+        # dt = time() - t0
+        # print(f"load_project: {dt} [s]")
+        self.initial_project_action(obj.complete)
 
-        self._update_recent_projects()
-        self.set_window_title(self.file._project_name)
-        self.update_plots()
-        self.action_front_view_callback()
-    
+        if obj.complete:
+            self._update_recent_projects()
+            self.change_window_title(self.file.project_name)
+            self.update_plots()
+            self.action_front_view_callback()
+
     def open_pcf(self):
         '''
         This function is absolutelly disgusting. I will refactor this next week, 
@@ -440,17 +507,54 @@ class MainWindow(QMainWindow):
         title = "OpenPulse"
         if (msg != ""):
             title += " - " + msg
-        self.setWindowTitle(title)
+        self.setWindowTitle(title) 
+
+    def get_started(self):
+
+        self.close_dialogs()
+        self.model_and_analysis_items.modify_model_setup_items_access(True)
+        get_started = GetStartedInput()
+
+        return get_started.complete
+
+    def initial_project_action(self, finalized):
+        # t0 = time()
+        self.update_export_geometry_file_access()
+        self.model_and_analysis_items.modify_model_setup_items_access(True)
+        if finalized:
+            self.disable_workspace_selector_and_geometry_editor(False)
+            if self.pulse_file.check_pipeline_data():
+                self.project.none_project_action = False
+                self.model_and_analysis_items.modify_model_setup_items_access(False)
+                # dt = time() - t0
+                # print(f"initial_project_action: {dt} s")
+                return True
+            else:
+                self.model_and_analysis_items.modify_geometry_item_access(False)
+                return True
+        else:
+            self.project.none_project_action = True
+            return False
+
+    def reset_geometry_render(self):
+        self.project.pipeline.reset()
+
+    def reset_project(self):
+        if not self.project.none_project_action:
+            ResetProjectInput()
 
     def load_recent_project(self):
         # t0 = time()
         self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
+
         if self.config.open_last_project and self.config.haveRecentProjects():
-            self.import_project_call(self.config.getMostRecentProjectDir())
-        elif self.input_ui.get_started():
+            self.open_project(self.config.getMostRecentProjectDir())
+
+        elif self.get_started():
             self.action_front_view_callback()
             self._update_recent_projects()
             self.set_window_title(self.file.project_name)
+
         else:
             self.disable_workspace_selector_and_geometry_editor(True)
         # dt = time() - t0
@@ -751,7 +855,7 @@ class MainWindow(QMainWindow):
         self.input_ui.run_analysis()
 
     def action_about_openpulse_callback(self):
-        self.input_ui.about_OpenPulse()
+        AboutOpenPulseInput()
 
     def action_show_mesh_nodes_callback(self, cond):
         self.action_show_geometry_points.blockSignals(True)
@@ -796,14 +900,8 @@ class MainWindow(QMainWindow):
             self.action_export_geometry.setDisabled(False)
 
     def action_import_geometry_callback(self):
-        self.input_ui.import_geometry()
-
-    def import_project_call(self, path=None):
-        if self.input_ui.load_project(path):
-            self._update_recent_projects()
-            self.change_window_title(self.file.project_name)
-            self.update_plots()
-            self.action_front_view_callback()
+        obj = ImportGeometry()
+        self.initial_project_action(obj.complete)
 
     def _add_mesh_toolbar(self):
         self.mesh_toolbar = MeshToolbar()
@@ -911,19 +1009,68 @@ class MainWindow(QMainWindow):
                 self.combo_box_workspaces.setCurrentIndex(3)
         return super(MainWindow, self).eventFilter(obj, event)
 
+    def save_project_as(self, path):
+        path = Path(path)
+        # self.project.name = path.stem
+        # self.project.save_path = path
+        # self.pulse_file.write_thumbnail()
+        app().config.add_recent_file(path)
+        app().config.write_last_folder_path_in_file("project folder", path)
+        # self.project_menu.update_recents_menu()
+        copy(self.temp_project_file_path, path)
+        self.update_window_title(path)
+        self.project_data_modified = False
+
+    def update_window_title(self, project_path : str | Path):
+        if isinstance(project_path, str):
+            project_path = Path(project_path)
+        project_name = project_path.stem
+        self.setWindowTitle(f"{project_name}")
+
     def closeEvent(self, event):
+        self.close_app()
+        event.ignore()
+
+    def close_app(self):
 
         self.close_dialogs()
 
-        title = "OpenPulse"
-        message = "Would you like to exit from the OpenPulse application?"
-        close = QMessageBox.question(self, title, message, QMessageBox.No | QMessageBox.Yes)
-        if close == QMessageBox.Yes:
-            self.mesh_widget.render_interactor.Finalize()
-            self.results_widget.render_interactor.Finalize()
-            sys.exit()
+        condition_1 = self.project.save_path is None
+        condition_2 = os.path.exists(self.temp_project_file_path)
+        condition_3 = self.project_data_modified
+        condition = (condition_1 and condition_2) or condition_3
+
+        if condition:
+            close = QMessageBox.question(   
+                                            self, 
+                                            "QUIT", 
+                                            "Would you like to save the project data before exit?", 
+                                            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+                                        )
+
+            if close == QMessageBox.Cancel:
+                return
+
+            elif close == QMessageBox.Save:
+                if not self.save_project_dialog():
+                    return
+
         else:
-            event.ignore()
+            close = QMessageBox.question(
+                                            self, 
+                                            "QUIT", 
+                                            "Would you like to close the application?", 
+                                            QMessageBox.Yes | QMessageBox.No
+                                        )
+
+            if close == QMessageBox.No:
+                return
+
+        # self.user_config.save()
+        self.reset_temporary_folder()
+        self.mesh_widget.render_interactor.Finalize()
+        self.results_widget.render_interactor.Finalize()
+        sys.exit()
 
     # def _createStatusBar(self):
     #     self.status_bar = QStatusBar()
@@ -937,3 +1084,9 @@ class MainWindow(QMainWindow):
     #     self.label_mesh_state = QLabel("", self)
     #     self.label_mesh_state.setFont(label_font)
     #     self.status_bar.addPermanentWidget(self.label_mesh_state)
+
+def create_new_folder(path : Path, folder_name : str) -> Path:
+    folder_path = path / folder_name
+    if not os.path.exists(folder_path):
+        os.mkdir(folder_path)
+    return folder_path

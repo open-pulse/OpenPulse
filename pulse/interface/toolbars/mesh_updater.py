@@ -45,7 +45,7 @@ class MeshUpdater:
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
         self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()        
 
-        if self.file.check_if_entity_file_is_active():
+        if app().main_window.pulse_file.check_pipeline_data():
 
             self.process_intermediate_actions() 
 
@@ -92,7 +92,7 @@ class MeshUpdater:
         self.current_element_size, self.current_geometry_tolerance = self.file.get_mesh_attributes_from_project_file()
         self.t0 = time()
         self.project.file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
-        self.project.initial_load_project_actions(self.file.project_ini_file_path)
+        self.project.initial_load_project_actions()
         if self.preprocessor.structural_elements:
             #
             data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
@@ -109,7 +109,7 @@ class MeshUpdater:
                                             geometry_tolerance = geometry_tolerance)
         self.main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
         self.main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
-        self.project.initial_load_project_actions(self.file.project_ini_file_path )
+        self.project.initial_load_project_actions()
         self.project.load_project_files()
         app().main_window.update_plots()
 

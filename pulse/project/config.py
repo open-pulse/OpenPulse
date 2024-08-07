@@ -27,6 +27,25 @@ class Config:
             if self.config_path.exists():
                 os.remove(self.config_path)
 
+    def add_recent_file(self, recent_file: str | Path):
+        # try:
+        recents = self.get_recent_files()
+        recents.append(str(recent_file))
+
+        # only keep the last N files
+        recents = recents[-10:]
+
+        config = configparser.ConfigParser()
+        config.read(self.config_path)
+
+        if not config.has_section("Recents"):
+            config["Recents"] = dict()
+
+        for i, file in enumerate(recents):
+            config["Recents"][str(i)] = str(file)
+
+        self.write_data_in_file(self.config_path, config)
+
     def remove_path_from_config_file(self, dir_identifier):
         config = configparser.ConfigParser()
         config.read(self.config_path)
@@ -62,28 +81,6 @@ class Config:
 
     def recentProjectsSize(self):
         return len(self.recent_projects)
-    
-    def get_last_project_folder(self):
-
-        config = configparser.ConfigParser()
-        config.read(self.config_path)
-
-        if config.has_section("User preferences"):
-            section = config["User preferences"]
-            if "last project folder" in section.keys():
-                return section["last project folder"]
-        return None
-
-    def get_last_geometry_folder(self):
-
-        config = configparser.ConfigParser()
-        config.read(self.config_path)
-
-        if config.has_section("User preferences"):
-            section = config["User preferences"]
-            if "last geometry folder" in section.keys():
-                return section["last geometry folder"]
-        return None
 
     def write_recent_project(self, project_path):
 
@@ -128,23 +125,6 @@ class Config:
             else:
                 config["User preferences"] = {"interface theme" : theme,
                                               "background color" : theme}
-
-        except:
-            return
-
-        self.write_data_in_file(self.config_path, config) 
-
-    def write_last_geometry_folder_path_in_file(self, geometry_path : str):
-        try:
-
-            _path = os.path.dirname(geometry_path)
-            config = configparser.ConfigParser()
-            config.read(self.config_path)
-
-            if config.has_section('User preferences'):
-                config["User preferences"]["last geometry folder"] = _path
-            else:
-                config["User preferences"] = {"last geometry folder" : _path}
 
         except:
             return
@@ -262,19 +242,13 @@ class Config:
 
         return refprop_path
 
-        self.write_data_in_file(self.config_path, config)
-
-    def write_data_in_file(self, path, config):
-        with open(path, 'w') as config_file:
-            config.write(config_file)
-
     def get_last_folder_for(self, label : str):
 
         config = configparser.ConfigParser()
         config.read(self.config_path)
 
-        if config.has_section("Recent paths"):
-            section = config["Recent paths"]
+        if config.has_section("Last paths"):
+            section = config["Last paths"]
             key = f"last {label}"
             if key in section.keys():
                 return section[key]
@@ -289,12 +263,16 @@ class Config:
             config.read(self.config_path)
             
             key = f"last {label}"
-            if config.has_section('Recent paths'):
-                config["Recent paths"][key] = _path
+            if config.has_section('Last paths'):
+                config["Last paths"][key] = _path
             else:
-                config["Recent paths"] = {key : _path}
+                config["Last paths"] = {key : _path}
 
         except:
             return
 
         self.write_data_in_file(self.config_path, config)
+
+    def write_data_in_file(self, path, config):
+        with open(path, 'w') as config_file:
+            config.write(config_file)

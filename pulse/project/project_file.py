@@ -22,23 +22,21 @@ class ProjectFile:
         self.reset()
 
     def reset(self):
-        self._project_name = ""
+
         self._import_type = 0
         self._section = 0
         self._length_unit = "meter"
         self._element_size = 0.01 # default value to the element size (in meters)
-        self._project_path = ""
-        self._material_list_path = ""
-        self._fluid_list_path = ""
+
         self._geometry_path = ""
         self._geometry_filename = ""
         self._geometry_tolerance = 1e-6 # default value to gmsh geometry tolerance (in millimeters)
         self._pipeline_path = ""
-        self._backup_geometry_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
         self._element_info_path = ""
         self._analysis_path = ""
+
         self.default_filenames()
         self.reset_frequency_setup()
 
@@ -51,79 +49,51 @@ class ProjectFile:
 
     def default_filenames(self):
         self._project_ini_name = "project.ini"
-        self._pipeline_filename = "pipeline.dat"
         self._fluid_file_name = "fluid_list.dat"
         self._material_file_name = "material_list.dat"
         self._node_acoustic_file_name = "acoustic_nodal_info.dat"
         self._node_structural_file_name = "structural_nodal_info.dat"
-        # self._node_acoustic_file_name = "acoustic_nodal_info.json"
-        # self._node_structural_file_name = "structural_nodal_info.json"
         self._elements_file_name = "elements_info.dat"
         self._imported_data_folder_name = "imported_data"
         self._backup_geometry_foldername = "geometry_backup"
 
-    def reset_fluid_and_material_files(self, **kwargs):
+    # def new(self,
+    #         length_unit, 
+    #         element_size, 
+    #         geometry_tolerance, 
+    #         import_type,
+    #         geometry_path = ""):
 
-        reset_fluids = kwargs.get('reset_fluids', True)
-        if reset_fluids:
-            fluid_list_path = get_new_path(self._project_path, self._fluid_file_name)
-            default_fluid_library(fluid_list_path)
-
-        reset_materials = kwargs.get('reset_materials', True)
-        if reset_materials:
-            material_list_path = get_new_path(self._project_path, self._material_file_name)
-            default_material_library(material_list_path)
-
-    def new(self, 
-            project_path, 
-            project_name,
-            length_unit, 
-            element_size, 
-            geometry_tolerance, 
-            import_type,
-            geometry_path = ""):
-
-        self._project_path = project_path
-        self._project_name = project_name
-        self._length_unit = length_unit
-        self._element_size = float(element_size)
-        self._geometry_tolerance = float(geometry_tolerance)
-        self._import_type = int(import_type)
-        self._geometry_path = geometry_path
-        #
-        self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._pipeline_path = get_new_path(self._project_path, self._pipeline_filename)
-        self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
-        self._material_list_path = get_new_path(self._project_path, self._material_file_name)
-
-        self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
-        self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
-        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
-        self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
-        self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
-        self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
-        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
+    #     self._length_unit = length_unit
+    #     self._element_size = float(element_size)
+    #     self._geometry_tolerance = float(geometry_tolerance)
+    #     self._import_type = int(import_type)
+    #     self._geometry_path = geometry_path
+    #     #
+    #     self._project_path = app().main_window.temp_project_file_path
+    #     self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
+    #     #
+    #     self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
+    #     self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
+    #     self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
+    #     self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
+    #     self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
+    #     self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
     
     def copy(self,
              project_path,
-             project_name,
              geometry_path = ""):
         
         self._project_path = project_path
-        self._project_name = project_name
         self._geometry_path = geometry_path
         #
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._pipeline_path = get_new_path(self._project_path, self._pipeline_filename)
-        self._fluid_list_path= get_new_path(self._project_path, self._fluid_file_name)
-        self._material_list_path = get_new_path(self._project_path, self._material_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
-        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
     def get_list_filenames_to_maintain_after_reset(self, **kwargs):
 
@@ -139,7 +109,6 @@ class ProjectFile:
 
         files_to_maintain_after_reset = list()
         files_to_maintain_after_reset.append(self._project_ini_name)
-        files_to_maintain_after_reset.append(self._pipeline_filename)
 
         if not reset_fluids:
             files_to_maintain_after_reset.append(self._fluid_file_name)
@@ -202,71 +171,6 @@ class ProjectFile:
         else:
             return None, None
 
-    def get_geometry_entities_path(self):
-        return get_new_path(self._project_path, self._geometry_entities_file_name)
-
-    def create_project_file(self, **kwargs):
-        """ This method creates the project.ini beyond default material and fluid library files. 
-
-        Parameters
-        ----------
-        """
-
-        project_folder_path = kwargs.get("project_folder_path", "")
-        project_filename = kwargs.get("project_filename", "")
-        length_unit = kwargs.get("length_unit", "")
-        element_size = kwargs.get("element_size", "")
-        geometry_tolerance = kwargs.get("geometry_tolerance", "")
-        element_size = kwargs.get("element_size", "")
-        import_type = kwargs.get("import_type", "")
-        geometry_filename = kwargs.get("geometry_filename", "")
-
-        config = configparser.ConfigParser()
-        config['PROJECT'] = {}
-        
-        if project_filename != "":
-            config['PROJECT']['name'] = project_filename
-        
-        if length_unit != "":
-            config['PROJECT']['length unit'] =  length_unit
-
-        if element_size != "":
-            config['PROJECT']['element size'] = str(element_size)
-        
-        if geometry_tolerance != "":
-            config['PROJECT']['geometry tolerance'] = str(geometry_tolerance)
-        
-        if import_type != "":
-            config['PROJECT']['import type'] = str(import_type)
-
-        if geometry_filename != "":
-            config['PROJECT']['geometry file'] = os.path.basename(geometry_filename)
-        
-        config['PROJECT']['material list file'] = self._material_file_name
-        config['PROJECT']['fluid list file'] = self._fluid_file_name
-
-        path = get_new_path(project_folder_path, self._project_ini_name)
-
-        with open(path, 'w') as config_file:
-            config.write(config_file)
-
-    def create_backup_geometry_folder(self):
-        """ This method creates a backup geometry folder if it was not create yet. Additionally, a geometry file copy
-            is pasted inside geometry backup folder just after its creation. This geometry file will be used in resetting
-            geometry process.
-        """
-        if not os.path.exists(self._backup_geometry_path):
-            os.mkdir(self._backup_geometry_path)
-
-        if os.path.exists(self._geometry_path):
-            basename = os.path.basename(self._geometry_path)
-            if basename != "":
-                new_geometry_path = get_new_path(self._backup_geometry_path, basename)
-                copyfile(self._geometry_path, new_geometry_path)
-
-    def update_geometry_path(self, geometry_path):
-        self._geometry_path = geometry_path
-
     def load(self, project_file_path):
 
         self.project_file_path = Path(project_file_path)
@@ -276,7 +180,7 @@ class ProjectFile:
         config.read(project_file_path)
 
         section = config['PROJECT']
-        project_name = section['name']
+        # project_name = section['name']
         import_type = int(section['import type'])
 
         keys = list(section.keys())
@@ -302,19 +206,15 @@ class ProjectFile:
         if 'fluid list file' in keys:
             self._fluid_file_name = section['fluid list file']
 
-        self._project_name = project_name
+        # self._project_name = project_name
         self._import_type = import_type
         self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._fluid_list_path =  get_new_path(self._project_path, self._fluid_file_name)
-        self._material_list_path = get_new_path(self._project_path, self._material_file_name)
-        self._pipeline_path =  get_new_path(self._project_path, self._pipeline_filename)
         self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
         self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
-        self._backup_geometry_path = get_new_path(self._project_path, "geometry_backup")
 
     def modify_project_attributes(self, **kwargs):
 
@@ -527,23 +427,23 @@ class ProjectFile:
 
         return np.array(gravity, dtype=float), bool(key_stiffening)
 
-    def create_pipeline_file(self, lines):
+    # def create_pipeline_file(self, lines):
 
-        if isinstance(lines, (int, float)):
-            lines = [lines]
+    #     if isinstance(lines, (int, float)):
+    #         lines = [lines]
 
-        config = configparser.ConfigParser()
+    #     config = configparser.ConfigParser()
 
-        if os.path.exists(self._pipeline_path):
-            sections = config.sections()
-            for line_id in lines:
-                if str(line_id) not in sections:
-                    config[str(line_id)] = dict()
-        else:
-            for line_id in lines:
-                config[str(line_id)] = dict()
+    #     if os.path.exists(self._pipeline_path):
+    #         sections = config.sections()
+    #         for line_id in lines:
+    #             if str(line_id) not in sections:
+    #                 config[str(line_id)] = dict()
+    #     else:
+    #         for line_id in lines:
+    #             config[str(line_id)] = dict()
         
-        self.write_data_in_file(self._pipeline_path, config)
+    #     self.write_data_in_file(self._pipeline_path, config)
 
     def update_entity_file(self, entities, dict_map_lines={}):
 
@@ -1384,81 +1284,81 @@ class ProjectFile:
 
         self.write_data_in_file(self._pipeline_path, config)
 
-    def get_pipeline_data_from_file(self):
-        '''
-        This method returns the all required data to build pipeline segments.
-        '''
+    # def get_pipeline_data_from_file(self):
+    #     '''
+    #     This method returns the all required data to build pipeline segments.
+    #     '''
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-        segment_build_data = dict()
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
+    #     segment_build_data = dict()
 
-        for section in config.sections():
+    #     for section in config.sections():
 
-            if "-" in section:
-                continue
+    #         if "-" in section:
+    #             continue
 
-            tag = int(section)
-            keys = config[section].keys()
-            aux = dict()
+    #         tag = int(section)
+    #         keys = config[section].keys()
+    #         aux = dict()
 
-            if "start coords" in keys:
-                start_coords = config[section]["start coords"]
-                aux["start_coords"] = get_list_of_values_from_string(start_coords, int_values=False)
+    #         if "start coords" in keys:
+    #             start_coords = config[section]["start coords"]
+    #             aux["start_coords"] = get_list_of_values_from_string(start_coords, int_values=False)
 
-            if "end coords" in keys:
-                end_coords = config[section]["end coords"]
-                aux["end_coords"] = get_list_of_values_from_string(end_coords, int_values=False)
+    #         if "end coords" in keys:
+    #             end_coords = config[section]["end coords"]
+    #             aux["end_coords"] = get_list_of_values_from_string(end_coords, int_values=False)
 
-            if "corner coords" in keys:
-                corner_coords = config[section]["corner coords"]
-                aux["corner_coords"] = get_list_of_values_from_string(corner_coords, int_values=False)
+    #         if "corner coords" in keys:
+    #             corner_coords = config[section]["corner coords"]
+    #             aux["corner_coords"] = get_list_of_values_from_string(corner_coords, int_values=False)
 
-            if "curvature radius" in keys:
-                curvature_radius = config[section]["curvature radius"]
-                aux["curvature_radius"] = float(curvature_radius)
+    #         if "curvature radius" in keys:
+    #             curvature_radius = config[section]["curvature radius"]
+    #             aux["curvature_radius"] = float(curvature_radius)
 
-            if 'structural element type' in keys:
-                structural_element_type = config[section]["structural element type"]
-                aux["structural_element_type"] = structural_element_type
-            else:
-                structural_element_type = "pipe_1"
+    #         if 'structural element type' in keys:
+    #             structural_element_type = config[section]["structural element type"]
+    #             aux["structural_element_type"] = structural_element_type
+    #         else:
+    #             structural_element_type = "pipe_1"
 
-            if 'section type' in keys:
-                section_type_label = config[section]["section type"]
-                aux["section_type_label"] = section_type_label
+    #         if 'section type' in keys:
+    #             section_type_label = config[section]["section type"]
+    #             aux["section_type_label"] = section_type_label
 
-            if 'section parameters' in keys:
-                section_parameters = config[section]["section parameters"]
-                aux["section_parameters"] = get_list_of_values_from_string(section_parameters, int_values=False)
+    #         if 'section parameters' in keys:
+    #             section_parameters = config[section]["section parameters"]
+    #             aux["section_parameters"] = get_list_of_values_from_string(section_parameters, int_values=False)
 
-            if structural_element_type == "beam_1":
-                if 'section properties' in keys:
-                    section_properties = config[section]["section properties"]
-                    aux["section_properties"] = get_list_of_values_from_string(section_properties, int_values=False)
-                else:
-                    aux["section_properties"] = get_beam_section_properties(section_type_label, aux["section_parameters"])
+    #         if structural_element_type == "beam_1":
+    #             if 'section properties' in keys:
+    #                 section_properties = config[section]["section properties"]
+    #                 aux["section_properties"] = get_list_of_values_from_string(section_properties, int_values=False)
+    #             else:
+    #                 aux["section_properties"] = get_beam_section_properties(section_type_label, aux["section_parameters"])
 
-            if 'material id' in keys:
-                try:
-                    aux["material_id"] = int(config[section]["material id"])
-                except:
-                    pass
+    #         if 'material id' in keys:
+    #             try:
+    #                 aux["material_id"] = int(config[section]["material id"])
+    #             except:
+    #                 pass
 
-            if 'psd label' in keys:
-                aux["psd_label"] = config[section]["psd label"]
+    #         if 'psd label' in keys:
+    #             aux["psd_label"] = config[section]["psd label"]
 
-            if 'link type' in keys:
-                aux["link type"] = config[section]["link type"]
+    #         if 'link type' in keys:
+    #             aux["link type"] = config[section]["link type"]
 
-            is_bend = ('corner coords' in keys) and ('curvature radius' in keys)
-            if is_bend:
-                segment_build_data[tag, "Bend"] = aux
+    #         is_bend = ('corner coords' in keys) and ('curvature radius' in keys)
+    #         if is_bend:
+    #             segment_build_data[tag, "Bend"] = aux
 
-            else:
-                segment_build_data[tag, "Pipe"] = aux
+    #         else:
+    #             segment_build_data[tag, "Pipe"] = aux
 
-        return segment_build_data
+    #     return segment_build_data
 
     def remove_entity_gaps_from_file(self):
 
@@ -1533,31 +1433,31 @@ class ProjectFile:
             
         self.write_data_in_file(self._pipeline_path, config)
 
-    def get_material_properties(self, material_id):
-        config = configparser.ConfigParser()
-        config.read(self._material_list_path)
-        sections = config.sections()
+    # def get_material_properties(self, material_id):
+    #     config = configparser.ConfigParser()
+    #     config.read(self._material_list_path)
+    #     sections = config.sections()
 
-        if isinstance(material_id, int):
-            material_id = str(material_id)
-            for section in sections:
-                if material_id == config[section]["identifier"]:
+    #     if isinstance(material_id, int):
+    #         material_id = str(material_id)
+    #         for section in sections:
+    #             if material_id == config[section]["identifier"]:
 
-                    name = str(config[section]['name'])
-                    identifier = int(config[section]['identifier'])
-                    density =  float(config[section]['density'])
-                    elasticity_modulus =  float(config[section]['young modulus'])
-                    poisson =  float(config[section]['poisson'])
-                    thermal_expansion_coefficient = config[section]['thermal expansion coefficient']
-                    # color =  str(config[section]['color'])
-                    # elasticity_modulus *= (10**(9))
-                    if thermal_expansion_coefficient == "":
-                        thermal_expansion_coefficient = float(0)
-                    else:
-                        thermal_expansion_coefficient = float(thermal_expansion_coefficient)
+    #                 name = str(config[section]['name'])
+    #                 identifier = int(config[section]['identifier'])
+    #                 density =  float(config[section]['density'])
+    #                 elasticity_modulus =  float(config[section]['young modulus'])
+    #                 poisson =  float(config[section]['poisson'])
+    #                 thermal_expansion_coefficient = config[section]['thermal expansion coefficient']
+    #                 # color =  str(config[section]['color'])
+    #                 # elasticity_modulus *= (10**(9))
+    #                 if thermal_expansion_coefficient == "":
+    #                     thermal_expansion_coefficient = float(0)
+    #                 else:
+    #                     thermal_expansion_coefficient = float(thermal_expansion_coefficient)
 
-                    return [name, identifier, density, elasticity_modulus, poisson, thermal_expansion_coefficient]
-            return None
+    #                 return [name, identifier, density, elasticity_modulus, poisson, thermal_expansion_coefficient]
+    #         return None
 
     def add_fluid_in_file(self, lines, fluid):
         
@@ -2195,6 +2095,9 @@ class ProjectFile:
         non_mapped_nodes = list()
         preprocessor = app().main_window.project.preprocessor
 
+        print(path_1, path_2)
+        return
+
         for path in [path_1, path_2]:
             if path.exists():
 
@@ -2704,14 +2607,6 @@ class ProjectFile:
     @property
     def geometry_path(self):
         return self._geometry_path
-
-    @property
-    def material_list_path(self):
-        return self._material_list_path
-
-    @property
-    def fluid_list_path(self):
-        return self._fluid_list_path
     
     @property
     def length_unit(self):

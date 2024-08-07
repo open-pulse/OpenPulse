@@ -40,7 +40,10 @@ class Project:
 
         if reset_all:
             self.preprocessor.reset_variables()
-            self.file.reset() 
+            self.file.reset()
+
+        self.name = None
+        self.save_path = None
 
         self.analysis_ID = None
         self.analysis_type_label = ""
@@ -91,14 +94,21 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
-    def initial_load_project_actions(self, project_file_path):
+    def set_project_setup(self, project_setup : dict):
+        self.import_type = project_setup.get("import_type", 1)
+        self.geometry_path = project_setup.get('geometry_path', "")
+        self.element_size = project_setup.get('element_size', 0.01)
+        self.tolerance = project_setup.get('tolerance', 1e-6)
+        self.length_unit = project_setup.get('length_unit', 'meter')
+
+    def initial_load_project_actions(self):
 
         try:
 
             self.reset(reset_all=True)
-            self.file.load(project_file_path)
+            self.file.load(app().main_window.temp_project_file_path)
 
-            if self.file.check_if_entity_file_is_active():
+            if app().main_window.pulse_file.check_pipeline_data():
                 self.process_geometry_and_mesh()
                 return True
             else:
@@ -113,25 +123,24 @@ class Project:
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
-    def new_project(self, *args, **kwargs):
-        self.reset(reset_all=True)
-        self.file.new(*args, **kwargs)
-        self.file.create_backup_geometry_folder()
-        self.process_geometry_and_mesh()
+    # def new_project(self, *args, **kwargs):
+    #     self.reset(reset_all=True)
+    #     # self.file.new(*args, **kwargs)
+    #     self.process_geometry_and_mesh()
 
-    def new_empty_project(self, *args, **kwargs):
-        self.reset(reset_all=True)
-        self.file.new(*args, **kwargs)
-        self.preprocessor._create_gmsh_geometry()
+    # def new_empty_project(self, *args, **kwargs):
+    #     self.reset(reset_all=True)
+    #     self.file.new(*args, **kwargs)
+    #     self.preprocessor._create_gmsh_geometry()
 
     def copy_project(self, *args, **kwargs):
         self.file.copy(*args, **kwargs)
          
-    def load_project(self, project_file_path):
+    def load_project(self):
         def callback():
             self.load_project_files()
 
-        if self.initial_load_project_actions(project_file_path): 
+        if self.initial_load_project_actions():
             LoadingScreen(  
                             title = 'Loading Project', 
                             message = "Loading project files",
@@ -142,23 +151,18 @@ class Project:
     def reset_project(self, **kwargs):
         self.reset()
         self.file.remove_all_unnecessary_files(**kwargs)
-        self.file.reset_fluid_and_material_files(**kwargs)
         self.file.reset_project_setup(**kwargs)
         self.file.reset_entity_file(**kwargs)
-        if self.file.check_if_entity_file_is_active():
+        if app().main_window.pulse_file.check_pipeline_data():
             self.process_geometry_and_mesh()
             self.load_project_files()
 
-    def process_geometry_and_mesh(self):
-        # t0 = time()
-        self.preprocessor.generate( import_type = self.file.get_import_type(),
-                                    length_unit = self.file._length_unit,
-                                    geometry_path = self.file.geometry_path, 
-                                    element_size = self.file.element_size, 
-                                    tolerance = self.file.geometry_tolerance )
+    def process_geometry_and_mesh(self, setup_data : dict):
+        t0 = time()
+        self.preprocessor.generate(setup_data)
         self.file.update_node_ids_after_mesh_changed()
-        # dt = time()-t0
-        # print(f"Time to process_geometry_and_mesh: {dt} [s]")
+        dt = time()-t0
+        print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
     def load_project_files(self):
         self.load_structural_bc_file()

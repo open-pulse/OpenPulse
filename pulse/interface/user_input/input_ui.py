@@ -1,10 +1,4 @@
 #
-from pulse.interface.user_input.project.get_started import GetStartedInput
-from pulse.interface.user_input.project.new_project import NewProjectInput
-from pulse.interface.user_input.project.load_project import LoadProjectInput
-from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.import_geometry import ImportGeometry
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 #
 from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
@@ -105,56 +99,6 @@ class InputUi:
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
             return None
-
-    def new_project(self):
-        self.reset_geometry_render()
-        new_project = self.process_input(NewProjectInput)
-        if new_project.complete:
-            return self.initial_project_action(new_project.complete)
-
-    def load_project(self, path=None):
-        # t0 = time()
-        self.reset_geometry_render()
-        load_project = self.process_input(LoadProjectInput, path=path)
-        self.main_window.mesh_toolbar.update_mesh_attributes()
-        # dt = time() - t0
-        # print(f"load_project: {dt} [s]")
-        return self.initial_project_action(load_project.complete)
-
-    def get_started(self):
-        self.menu_items.modify_model_setup_items_access(True)
-        get_started = self.process_input(GetStartedInput)
-        return get_started.complete
-
-    def initial_project_action(self, finalized):
-        # t0 = time()
-        self.main_window.update_export_geometry_file_access()
-        self.menu_items.modify_model_setup_items_access(True)
-        if finalized:
-            self.main_window.disable_workspace_selector_and_geometry_editor(False)
-            if self.project.file.check_if_entity_file_is_active():
-                self.project.none_project_action = False
-                self.menu_items.modify_model_setup_items_access(False)
-                # dt = time() - t0
-                # print(f"initial_project_action: {dt} s")
-                return True
-            else:
-                self.menu_items.modify_geometry_item_access(False)
-                return True
-        else:
-            self.project.none_project_action = True
-            return False
-
-    def reset_geometry_render(self):
-        self.project.pipeline.reset()
-
-    def reset_project(self):
-        if not self.project.none_project_action:
-            self.process_input(ResetProjectInput)
-
-    def import_geometry(self):
-        obj = self.process_input(ImportGeometry)
-        return self.initial_project_action(obj.complete)
 
     def set_clipping_plane(self):
         return
@@ -471,9 +415,6 @@ class InputUi:
 
     def check_beam_criteria(self):
         self.process_input(CheckBeamCriteriaInput)
-
-    def about_OpenPulse(self):
-        self.process_input(AboutOpenPulseInput)
 
     def geometry_editor_help(self):
         self.process_input(GeometryEditorHelp)

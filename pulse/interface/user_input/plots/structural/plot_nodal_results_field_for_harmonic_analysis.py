@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 import numpy as np
 
@@ -21,7 +20,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.project = app().main_window.project
 
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -38,9 +36,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
                           "magma",
                           "plasma",
                           "grayscale"]
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

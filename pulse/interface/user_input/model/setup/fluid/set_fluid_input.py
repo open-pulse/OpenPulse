@@ -200,15 +200,14 @@ class SetFluidInput(QDialog):
             return
 
     def actions_to_finalize(self):
-        # build_data = self.file.get_pipeline_data_from_file()
         # geometry_handler = GeometryHandler()
-        # geometry_handler.set_length_unit(self.file.length_unit)
-        # geometry_handler.process_pipeline(build_data)
+        # geometry_handler.set_length_unit(self.preprocessor.length_unit)
+        # geometry_handler.process_pipeline()
         self.complete = True
         self.close()
 
     # def load_project(self):
-    #     self.project.initial_load_project_actions(self.file.project_ini_file_path)
+    #     self.project.initial_load_project_actions()
     #     self.project.load_project_files()
     #     app().main_window.input_ui.initial_project_action(True)
     #     self.complete = True

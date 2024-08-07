@@ -226,6 +226,22 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "fileboxes"
+version = "0.1.2"
+description = "Simplifies the creation of custom formats."
+optional = false
+python-versions = "<3.12,>=3.10"
+files = [
+    {file = "fileboxes-0.1.2-py3-none-any.whl", hash = "sha256:bb4c59d11408038739d3dd0c718402094354e9fed8bf9062f337a7785eb9038c"},
+    {file = "fileboxes-0.1.2.tar.gz", hash = "sha256:1c76366f2d7b03ad4a2e8e685cff38a6f53bdf98797aadb9e315639f77a296f5"},
+]
+
+[package.dependencies]
+numpy = ">=1.24.2,<2.0.0"
+pillow = ">=10.3.0,<11.0.0"
+treelib = ">=1.7.0,<2.0.0"
+
+[[package]]
 name = "fonttools"
 version = "4.53.1"
 description = "Tools to manipulate font files"
@@ -1303,6 +1319,20 @@ files = [
 ]
 
 [[package]]
+name = "treelib"
+version = "1.7.0"
+description = "A Python implementation of tree structure."
+optional = false
+python-versions = "*"
+files = [
+    {file = "treelib-1.7.0-py3-none-any.whl", hash = "sha256:c37795eaba19f73f3e1a905ef3f4f0cab660dc7617126e8ae99391e25c755416"},
+    {file = "treelib-1.7.0.tar.gz", hash = "sha256:9bff1af416b9e642a6cd0e0431d15edf26a24b8d0c8ae68afbd3801b5e30fb61"},
+]
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "tuna"
 version = "0.5.11"
 description = "Visualize Python performance profiles"
@@ -1379,4 +1409,4 @@ web = ["wslink (>=1.0.4)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "f2eecd9312f4ff403a8320dbb993227131c097c3956d88b1d0ab97a676dc131f"
+content-hash = "25cc77016f9cb13dab3b33a8ed0edeaa89153ea616dd6de483e0e01bf0eb458d"
