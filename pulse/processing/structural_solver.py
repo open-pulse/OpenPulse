@@ -547,7 +547,7 @@ class StructuralSolver:
             return dict_reactions_at_springs, dict_reactions_at_dampers
 
 
-    def stress_calculate(self, pressure_external = 0, damping_flag = False, _real_values=False):
+    def stress_calculate(self, pressure_external = 0, damping = False, _real_values=False):
         """
         This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
 
@@ -560,7 +560,7 @@ class StructuralSolver:
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
             
-        damping_flag : boll, optional.
+        damping : boll, optional.
             True if the damping must be considered when evaluating the stresses. False otherwise.
             Default is False
 
@@ -576,11 +576,14 @@ class StructuralSolver:
                 Transversal-xy shear
                 Transversal-xz shear
         """
-        self.stress_field_dict = {}
-        if damping_flag:
+
+        self.stress_field_dict = dict()
+
+        if damping:
             _, betaH, _, betaV = self.preprocessor.global_damping
         else:
             betaH = betaV = 0
+
         elements = self.preprocessor.structural_elements.values()
         omega = 2 * pi * self.frequencies.reshape(1,-1)
         damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))

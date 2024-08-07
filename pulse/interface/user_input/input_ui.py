@@ -1,4 +1,3 @@
-from PyQt5.QtWidgets import QWidget
 #
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
@@ -46,21 +45,21 @@ from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysis
 #
 from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
 from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
-from pulse.interface.user_input.plots.structural.get_nodal_results_for_harmonic_analysis import GetNodalResultsForHarmonicAnalysis
-from pulse.interface.user_input.plots.structural.get_nodal_results_for_static_analysis import GetNodalResultsForStaticAnalysis
-from pulse.interface.user_input.plots.structural.get_reactions_for_harmonic_analysis import GetReactionsForHarmonicAnalysis
-from pulse.interface.user_input.plots.structural.get_reactions_for_static_analysis import GetReactionsForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_nodal_results_for_harmonic_analysis import PlotNodalResultsForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_nodal_results_for_static_analysis import PlotNodalResultsForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_reactions_for_harmonic_analysis import PlotReactionsForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_reactions_for_static_analysis import PlotReactionsForStaticAnalysis
 from pulse.interface.user_input.plots.structural.plot_stresses_field_for_harmonic_analysis import PlotStressesFieldForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_stress_field_for_static_analysis import PlotStressesFieldForStaticAnalysis
-from pulse.interface.user_input.plots.structural.get_stresses_for_harmonic_analysis import GetStressesForHarmonicAnalysis
-from pulse.interface.user_input.plots.structural.get_stresses_for_static_analysis import GetStressesForStaticAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_for_harmonic_analysis import PlotStressesForHarmonicAnalysis
+from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analysis import PlotStressesForStaticAnalysis
 #
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
-from pulse.interface.user_input.plots.acoustic.get_acoustic_frequency_response import GetAcousticFrequencyResponse
-from pulse.interface.user_input.plots.acoustic.get_acoustic_frequency_response_function import GetAcousticFrequencyResponseFunction
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response import PlotAcousticFrequencyResponse
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunction
 from pulse.interface.user_input.plots.acoustic.plot_transmission_loss import PlotTransmissionLoss
-from pulse.interface.user_input.plots.acoustic.get_acoustic_delta_pressure import GetAcousticDeltaPressure
+from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure import PlotAcousticDeltaPressure
 from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
@@ -88,7 +87,6 @@ class InputUi:
         self.file = app().main_window.project.file
 
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
-        # self.input_widget: (QWidget | None) = None
 
         self._reset()
 
@@ -96,26 +94,6 @@ class InputUi:
         self.analysis_ID = None
         self.global_damping = [0,0,0,0]
         self.project.none_project_action = False
-
-    # def update_input_widget(self):
-    #     if self.input_widget is None:
-    #         return
-
-    #     try:
-    #         self.input_widget.update()
-    #     except Exception as err:
-    #         print("Update function error:", err)
-
-    # def set_input_widget(self, widget):
-    #     if hasattr(self.input_widget, "close"):
-    #         self.input_widget.close()
-    #     self.input_widget = widget
-
-    # def before_initiate(self):
-    #     try:
-    #         self.set_input_widget(None)
-    #     except:
-    #         return
 
     def process_input(self, workingClass, *args, **kwargs):
         try:
@@ -390,15 +368,15 @@ class InputUi:
             if solution is None:
                 return None
             elif self.analysis_ID == 7:
-                return self.process_input(GetNodalResultsForStaticAnalysis)
+                return self.process_input(PlotNodalResultsForStaticAnalysis)
             else:
-                return self.process_input(GetNodalResultsForHarmonicAnalysis)
+                return self.process_input(PlotNodalResultsForHarmonicAnalysis)
 
     def plot_reaction_frequency_response(self):
         if self.analysis_ID in [0, 1, 5, 6]:
-            return self.process_input(GetReactionsForHarmonicAnalysis)
+            return self.process_input(PlotReactionsForHarmonicAnalysis)
         elif self.analysis_ID == 7:
-            return self.process_input(GetReactionsForStaticAnalysis)  
+            return self.process_input(PlotReactionsForStaticAnalysis)  
 
     def plot_stress_field(self):
         self.project.plot_pressure_field = False
@@ -418,9 +396,9 @@ class InputUi:
             if solution is None:
                 return
             elif self.analysis_ID == 7:
-                return self.process_input(GetStressesForStaticAnalysis)
+                return self.process_input(PlotStressesForStaticAnalysis)
             else:
-                return self.process_input(GetStressesForHarmonicAnalysis)     
+                return self.process_input(PlotStressesForHarmonicAnalysis)     
 
     def plot_acoustic_mode_shapes(self):
         self.project.plot_pressure_field = True
@@ -449,7 +427,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.process_input(GetAcousticFrequencyResponse)
+                return self.process_input(PlotAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -457,7 +435,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.process_input(GetAcousticFrequencyResponseFunction)
+                return self.process_input(PlotAcousticFrequencyResponseFunction)
 
     def plot_acoustic_delta_pressures(self):
         if self.analysis_ID in [3, 5, 6]:
@@ -465,7 +443,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
-                return self.process_input(GetAcousticDeltaPressure)
+                return self.process_input(PlotAcousticDeltaPressure)
 
     def plot_transmission_loss(self):
         if self.analysis_ID in [3, 5, 6]:

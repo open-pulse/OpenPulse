@@ -4,14 +4,13 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
 import numpy as np
 
-class GetStressesForHarmonicAnalysis(QWidget):
+class PlotStressesForHarmonicAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -23,7 +22,6 @@ class GetStressesForHarmonicAnalysis(QWidget):
         app().main_window.set_input_widget(self)
         self.project = main_window.project
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -31,7 +29,7 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self.selection_callback()
 
     def _initialize(self):
-        self.element_id = None
+        
         self.keys = np.arange(7)
         self.labels = np.array(["Normal axial", 
                                 "Normal bending y", 
@@ -40,18 +38,14 @@ class GetStressesForHarmonicAnalysis(QWidget):
                                 "Torsional shear", 
                                 "Transversal shear xy", 
                                 "Transversal shear xz"])
-        self.stress_data = []
-        self.unit_label = "Pa"
-        self.y_label = "Stress"
+        
+        self.stress_data = list()
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.project.frequencies
         self.solve = self.project.structural_solve 
         self.analysis_method = self.project.analysis_method_label
-
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -92,10 +86,10 @@ class GetStressesForHarmonicAnalysis(QWidget):
     def _update_damping_effect(self):
         self.update_damping = True
 
-    def check_inputs(self, export=False):
+    def check_inputs(self):
 
         str_elements = self.lineEdit_element_id.text()
-        stop, self.element_id = self.before_run.check_selected_ids(str_elements, "elements", single_id=True)
+        stop, self.element_ids = self.before_run.check_selected_ids(str_elements, "elements")
 
         if stop:
             return True
@@ -104,35 +98,62 @@ class GetStressesForHarmonicAnalysis(QWidget):
         self.stress_label = self.labels[index]
         self.stress_key = self.keys[index]
 
-    def get_stress_data(self):
+    def get_stress_data(self, element_id):
 
         if self.stress_data == [] or self.update_damping:
             _damping = self.checkBox_damping_effect.isChecked()
-            self.stress_data = self.solve.stress_calculate(pressure_external = 0, 
-                                                           damping_flag = _damping)
+            self.stress_data = self.solve.stress_calculate(
+                                                            pressure_external = 0, 
+                                                            damping = _damping
+                                                            )
+
             self.update_damping = False
 
-        response = get_stress_spectrum_data(self.stress_data, 
-                                            self.element_id, 
-                                            self.stress_key)
-        
+        response = get_stress_spectrum_data(
+                                            self.stress_data, 
+                                            element_id, 
+                                            self.stress_key
+                                            )
+
         return response
         
     def join_model_data(self):
+
         self.model_results = dict()
-        self.title = "Structural frequency response - {}".format(self.analysis_method)
-        legend_label = "{} stress at element {}".format(self.stress_label,
-                                                        self.element_id)
-        self.model_results = {  "x_data" : self.frequencies,
-                                "y_data" : self.get_stress_data(),
-                                "x_label" : "Frequency [Hz]",
-                                "y_label" : self.y_label,
-                                "title" : self.title,
-                                "data_information" : legend_label,
-                                "legend" : legend_label,
-                                "unit" : self.unit_label,
-                                "color" : [0,0,1],
-                                "linestyle" : "-"  }
+        title = f"Structural frequency response - {self.analysis_method}"
+
+        for k, element_id in enumerate(self.element_ids):
+                
+            key = ("element", element_id)
+            legend_label = f"{self.stress_label} stress at element [{element_id}]"
+
+            self.model_results[key] = {  
+                                        "x_data" : self.frequencies,
+                                        "y_data" : self.get_stress_data(element_id),
+                                        "x_label" : "Frequency [Hz]",
+                                        "y_label" : "Stress",
+                                        "title" : title,
+                                        "data_information" : legend_label,
+                                        "legend" : legend_label,
+                                        "unit" : "Pa",
+                                        "color" : self.get_color(k),
+                                        "linestyle" : "-"  
+                                       }
+
+    def get_color(self, index):
+
+        colors = [  (0,0,1), 
+                    (0,0,0), 
+                    (1,0,0),
+                    (0,1,1), 
+                    (1,0,1), 
+                    (1,1,0),
+                    (0.25,0.25,0.25)  ]
+        
+        if index <= 6:
+            return colors[index]
+        else:
+            return tuple(np.random.randint(0, 255, size=3) / 255)
 
     def call_plotter(self):
         if self.check_inputs():

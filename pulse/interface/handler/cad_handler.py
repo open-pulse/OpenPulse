@@ -28,10 +28,10 @@ class CADHandler:
                     start_coords = in_to_mm(_start_coords)
                     end_coords = in_to_mm(_end_coords)
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
 
-                gmsh.model.occ.add_line(start_point, end_point)
+                gmsh.model.occ.add_line(start_coords, end_coords)
 
             elif isinstance(structure, Bend):
                 if structure.is_colapsed():
@@ -51,11 +51,11 @@ class CADHandler:
                     end_coords = in_to_mm(_end_coords)
                     center_coords = in_to_mm(_center_coords)
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
                 center_point = gmsh.model.occ.add_point(*center_coords)
 
-                gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+                gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
 
         gmsh.model.occ.synchronize()
         gmsh.write(str(path))

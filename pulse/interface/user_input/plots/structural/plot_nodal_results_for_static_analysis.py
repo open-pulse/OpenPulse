@@ -10,7 +10,7 @@ import numpy as np
 from pathlib import Path
 
 
-class GetNodalResultsForStaticAnalysis(QWidget):
+class PlotNodalResultsForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

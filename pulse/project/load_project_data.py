@@ -56,8 +56,10 @@ class LoadProjectData:
             # Constant cross-section to the entities
             self.number_sections_by_line = dict()
             for key, section_data in self.loader.cross_section_data.items():
+
                 # key[0] -> tag : str
                 # key[1] -> label ("pipe", "beam")
+
                 if "-" in key[0]:
 
                     cross = CrossSection(pipe_section_info = section_data[1])
@@ -338,7 +340,7 @@ class LoadProjectData:
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
-    def load_entity_file(self):
+    def load_pipeline_file(self):
         try:
 
             self.loader.load_project_data_from_files()

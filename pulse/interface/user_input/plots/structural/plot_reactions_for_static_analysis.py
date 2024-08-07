@@ -9,7 +9,7 @@ from pulse.interface.formatters.icons import *
 import numpy as np
 from pathlib import Path
 
-class GetReactionsForStaticAnalysis(QWidget):
+class PlotReactionsForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

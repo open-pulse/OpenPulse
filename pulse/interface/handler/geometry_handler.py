@@ -7,7 +7,7 @@ from pulse.tools.utils import *
 from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam
 
 import gmsh
-import math
+from math import dist
 import os
 import numpy as np
 from collections import defaultdict
@@ -50,6 +50,7 @@ class GeometryHandler:
 
         for structure in self.pipeline.structures: 
             if isinstance(structure, (Pipe, Beam, Reducer, Valve)):
+
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -65,10 +66,10 @@ class GeometryHandler:
                     start_coords = _start_coords
                     end_coords = _end_coords
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
 
-                gmsh.model.occ.add_line(start_point, end_point)
+                gmsh.model.occ.add_line(start_coords, end_coords)
 
             elif isinstance(structure, Bend):
                 if structure.is_colapsed():
@@ -93,11 +94,11 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
-                start_point = gmsh.model.occ.add_point(*start_coords)
-                end_point = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.add_point(*start_coords)
+                end_coords = gmsh.model.occ.add_point(*end_coords)
                 center_point = gmsh.model.occ.add_point(*center_coords)
 
-                gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+                gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
 
         gmsh.model.occ.synchronize()
 
@@ -168,9 +169,9 @@ class GeometryHandler:
         if len(section_parameters) == 6:
 
             if key[1] == "Bend":
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
-                corner = Point(*data['corner_point'])
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
+                corner = Point(*data['corner_coords'])
                 curvature_radius = data['curvature_radius']
                 structure = Bend(
                                     start, 
@@ -182,8 +183,8 @@ class GeometryHandler:
                                 )
 
             else:
-                start = Point(*data['start_point'])
-                end = Point(*data['end_point'])
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
                 structure = Pipe(
                                     start, 
                                     end, 
@@ -192,8 +193,8 @@ class GeometryHandler:
                                 )
 
         elif len(section_parameters) == 10:
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = Reducer(
                                     start, 
                                     end, 
@@ -234,8 +235,8 @@ class GeometryHandler:
         section_parameters = data["section_parameters"]
 
         if section_type_label == "Rectangular section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = RectangularBeam(
                                             start, 
                                             end,
@@ -245,8 +246,8 @@ class GeometryHandler:
                                         )
         
         elif section_type_label == "Circular section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = CircularBeam(
                                         start, 
                                         end, 
@@ -255,8 +256,8 @@ class GeometryHandler:
                                     )
 
         elif section_type_label == "C-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = CBeam(
                                 start, 
                                 end, 
@@ -269,8 +270,8 @@ class GeometryHandler:
                             )
     
         elif section_type_label == "I-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = IBeam(
                                 start, 
                                 end, 
@@ -283,8 +284,8 @@ class GeometryHandler:
                             )
                         
         elif section_type_label == "T-section":
-            start = Point(*data['start_point'])
-            end = Point(*data['end_point'])
+            start = Point(*data['start_coords'])
+            end = Point(*data['end_coords'])
             structure = TBeam(
                                 start, 
                                 end, 
@@ -314,8 +315,8 @@ class GeometryHandler:
 
     def _process_valve(self, key: str, data: dict):
 
-        start = Point(*data['start_point'])
-        end = Point(*data['end_point'])
+        start = Point(*data['start_coords'])
+        end = Point(*data['end_coords'])
         structure = Valve(
                             start, 
                             end,
@@ -412,7 +413,7 @@ class GeometryHandler:
                 start = Point(*start_coords)
                 end = Point(*end_coords)
 
-                line_length = math.dist(start_coords, end_coords)
+                line_length = dist(start_coords, end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -425,7 +426,7 @@ class GeometryHandler:
 
                     if len(self.get_point_by_coords(end_coords)) < 2:
                         self.merge_near_points(end_coords)
-                        end_coords = self.get_point_coords(end_point)               
+                        end_coords = self.get_point_coords(end_point)
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
 
@@ -436,10 +437,10 @@ class GeometryHandler:
                         continue
 
                     radius = self.get_radius(corner_coords, start_point, end_point)
-                    
-                    corner = Point(*corner_coords)
 
+                    corner = Point(*corner_coords)
                     pipe = Bend(start, end, corner, radius)
+
                     curved_structures.append(pipe)
 
             except Exception as error_log:
@@ -468,7 +469,7 @@ class GeometryHandler:
                 start_coords = self.get_point_coords(start_point)
                 end_coords = self.get_point_coords(end_point)
 
-                line_length = math.dist(start_coords, end_coords)
+                line_length = dist(start_coords, end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -575,8 +576,8 @@ class GeometryHandler:
 
         center_coords = corner_coords + c_vector_normalized * corner_distance
 
-        start_curve_radius = math.dist(center_coords, start_coords)
-        end_curve_radius = math.dist(center_coords, end_coords)
+        start_curve_radius = dist(center_coords, start_coords)
+        end_curve_radius = dist(center_coords, end_coords)
         radius = (start_curve_radius + end_curve_radius) / 2
 
         return np.round(radius, 8)

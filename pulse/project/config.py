@@ -267,3 +267,34 @@ class Config:
     def write_data_in_file(self, path, config):
         with open(path, 'w') as config_file:
             config.write(config_file)
+
+    def get_last_folder_for(self, label : str):
+
+        config = configparser.ConfigParser()
+        config.read(self.config_path)
+
+        if config.has_section("Recent paths"):
+            section = config["Recent paths"]
+            key = f"last {label}"
+            if key in section.keys():
+                return section[key]
+
+        return None
+
+    def write_last_folder_path_in_file(self, label : str, project_path : str):
+        try:
+
+            _path = os.path.dirname(project_path)
+            config = configparser.ConfigParser()
+            config.read(self.config_path)
+            
+            key = f"last {label}"
+            if config.has_section('Recent paths'):
+                config["Recent paths"][key] = _path
+            else:
+                config["Recent paths"] = {key : _path}
+
+        except:
+            return
+
+        self.write_data_in_file(self.config_path, config)

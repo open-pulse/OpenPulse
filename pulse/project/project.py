@@ -92,6 +92,7 @@ class Project:
         self.stress_label = ""
 
     def initial_load_project_actions(self, project_file_path):
+
         try:
 
             self.reset(reset_all=True)
@@ -129,11 +130,13 @@ class Project:
     def load_project(self, project_file_path):
         def callback():
             self.load_project_files()
-        
+
         if self.initial_load_project_actions(project_file_path): 
-            LoadingScreen(title = 'Loading Project', 
-                        message = "Loading project files",
-                        target=callback)
+            LoadingScreen(  
+                            title = 'Loading Project', 
+                            message = "Loading project files",
+                            target=callback
+                        )
         self.preprocessor.check_disconnected_lines(self.file._element_size)
 
     def reset_project(self, **kwargs):
@@ -160,7 +163,7 @@ class Project:
     def load_project_files(self):
         self.load_structural_bc_file()
         self.load_acoustic_bc_file()
-        self.load_entity_file()
+        self.load_pipeline_file()
         self.load_analysis_file()
         self.load_inertia_load_setup()
         self.PSD.load_psd_data_from_file()
@@ -292,9 +295,9 @@ class Project:
     def set_entity(self, tag):
         return Line(tag)
 
-    def load_entity_file(self):
+    def load_pipeline_file(self):
         self.loader = LoadProjectData()
-        self.loader.load_entity_file()
+        self.loader.load_pipeline_file()
 
     def process_cross_sections_mapping(self):  
 

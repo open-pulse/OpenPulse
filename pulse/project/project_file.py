@@ -371,7 +371,7 @@ class ProjectFile:
                     else:
                         if "-" in tag:
                             continue
-                        keys_to_check = ["start point", "end point"]
+                        keys_to_check = ["start coords", "end coords"]
                         for key in keys_to_check:
                             if key not in config[tag].keys():
                                 return False
@@ -380,66 +380,6 @@ class ProjectFile:
                 return False
         else:
             return False
-
-    def add_geometry_entities_to_file(self, entities_data):
-        
-        geometry_file_path = self.get_geometry_entities_path()
-        config = configparser.ConfigParser()
-        config.read(geometry_file_path)
-
-        if len(entities_data["points_data"]) > 0:
-            config['Points'] = entities_data["points_data"]
-        else:
-            if 'Points' in config.sections():
-                config.remove_section('Points')
-        
-        if len(entities_data["lines_data"]) > 0:
-            config['Lines'] = entities_data["lines_data"]
-        else:
-            if 'Lines' in config.sections():
-                config.remove_section('Lines')
-
-        if len(entities_data["fillets_data"]) > 0:
-            config['Fillets'] = entities_data["fillets_data"]
-        else:
-            if 'Fillets' in config.sections():
-                config.remove_section('Fillets')
-
-        self.write_data_in_file(geometry_file_path, config)
-        
-    def load_geometry_entities_file(self):
-
-        geometry_file_path = self.get_geometry_entities_path()
-        if os.path.exists(geometry_file_path):
-            config = configparser.ConfigParser()
-            config.read(geometry_file_path)
-            sections = config.sections()
-            entities_data = {}
-
-            if 'Points' in sections:
-                points_data = {}
-                keys = list(config['Points'].keys())
-                for key in keys:
-                    points_data[int(key)] = get_list_of_values_from_string(config['Points'][key], int_values=False)
-                entities_data['points_data'] = points_data   
-
-            if 'Lines' in sections:
-                lines_data = {}
-                keys = list(config['Lines'].keys())
-                for key in keys:
-                    lines_data[int(key)] = get_list_of_values_from_string(config['Lines'][key])
-                entities_data['lines_data'] = lines_data 
-
-            if 'Fillets' in sections:
-                fillets_data = {}
-                keys = list(config['Fillets'].keys())
-                for key in keys:
-                    fillets_data[int(key)] = get_list_of_values_from_string(config['Fillets'][key], int_values=False)
-                entities_data['fillets_data'] = fillets_data 
-            
-            return entities_data
-        else:
-            return None
 
     #Frequency Setup Analysis
     def load_analysis_file(self):
@@ -529,9 +469,9 @@ class ProjectFile:
         keys_to_ignore.append("structure name")
         keys_to_ignore.append("structural element type")
         keys_to_ignore.append("section parameters")
-        keys_to_ignore.append("start point")
-        keys_to_ignore.append("corner point")
-        keys_to_ignore.append("end point")
+        keys_to_ignore.append("start coords")
+        keys_to_ignore.append("corner coords")
+        keys_to_ignore.append("end coords")
         keys_to_ignore.append("curvature radius")
 
         if not reset_fluids:
@@ -1462,17 +1402,17 @@ class ProjectFile:
             keys = config[section].keys()
             aux = dict()
 
-            if "start point" in keys:
-                start_point = config[section]["start point"]
-                aux["start_point"] = get_list_of_values_from_string(start_point, int_values=False)
+            if "start coords" in keys:
+                start_coords = config[section]["start coords"]
+                aux["start_coords"] = get_list_of_values_from_string(start_coords, int_values=False)
 
-            if "end point" in keys:
-                end_point = config[section]["end point"]
-                aux["end_point"] = get_list_of_values_from_string(end_point, int_values=False)
+            if "end coords" in keys:
+                end_coords = config[section]["end coords"]
+                aux["end_coords"] = get_list_of_values_from_string(end_coords, int_values=False)
 
-            if "corner point" in keys:
-                corner_point = config[section]["corner point"]
-                aux["corner_point"] = get_list_of_values_from_string(corner_point, int_values=False)
+            if "corner coords" in keys:
+                corner_coords = config[section]["corner coords"]
+                aux["corner_coords"] = get_list_of_values_from_string(corner_coords, int_values=False)
 
             if "curvature radius" in keys:
                 curvature_radius = config[section]["curvature radius"]
@@ -1511,7 +1451,7 @@ class ProjectFile:
             if 'link type' in keys:
                 aux["link type"] = config[section]["link type"]
 
-            is_bend = ('corner point' in keys) and ('curvature radius' in keys)
+            is_bend = ('corner coords' in keys) and ('curvature radius' in keys)
             if is_bend:
                 segment_build_data[tag, "Bend"] = aux
 
