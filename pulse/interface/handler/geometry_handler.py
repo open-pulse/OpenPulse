@@ -102,10 +102,10 @@ class GeometryHandler:
 
         gmsh.model.occ.synchronize()
 
-        import sys
-        if '-nopopup' not in sys.argv:
-            gmsh.option.setNumber('General.FltkColorScheme', 1)
-            gmsh.fltk.run()
+        # import sys
+        # if '-nopopup' not in sys.argv:
+        #     gmsh.option.setNumber('General.FltkColorScheme', 1)
+        #     gmsh.fltk.run()
 
     def process_pipeline(self, structures_data : dict):
         """ This method builds structures based on model_data file data.
@@ -462,12 +462,12 @@ class GeometryHandler:
 
             try:
 
-                start_coords = gmsh.model.get_adjacencies(*line)[1][0]
-                end_coords = gmsh.model.get_adjacencies(*line)[1][1]
+                start_point = gmsh.model.get_adjacencies(*line)[1][0]
+                end_point = gmsh.model.get_adjacencies(*line)[1][1]
                 line_type = gmsh.model.get_type(*line)
 
-                start_coords = self.get_point_coords(start_coords)
-                end_coords = self.get_point_coords(end_coords)
+                start_coords = self.get_point_coords(start_point)
+                end_coords = self.get_point_coords(end_point)
 
                 line_length = dist(start_coords, end_coords)
                 
