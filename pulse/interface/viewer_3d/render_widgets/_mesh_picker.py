@@ -168,12 +168,12 @@ class MeshPicker:
         point = picker.GetPickPosition()
         closest_id = -1
         closest_dist = None
+        # TODO: we dont need bounds here
         for i, bounds in self.tube_bounds.items():
-            if self._point_inside_bounds(point, bounds):
-                dist = np.linalg.norm(elements[i].element_center_coordinates - point)
-                if (closest_dist is None) or (dist < closest_dist):
-                    closest_id = i
-                    closest_dist = dist
+            dist = np.linalg.norm(elements[i].element_center_coordinates - point)
+            if (closest_dist is None) or (dist < closest_dist):
+                closest_id = i
+                closest_dist = dist
 
         return closest_id
 
