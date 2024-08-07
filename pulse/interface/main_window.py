@@ -419,23 +419,18 @@ class MainWindow(QMainWindow):
         self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
 
     def plot_lines(self):
-        self._configure_visualization(
-            points=True, lines=True,
-            color_mode=self.visualization_filter.color_mode,
-        )
+        self._configure_visualization(points=True, lines=True)
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
             points=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
-            color_mode=self.visualization_filter.color_mode,
         )
 
     def plot_mesh(self):
         self._configure_visualization(
             nodes=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
-            color_mode=self.visualization_filter.color_mode,
         )
     
     def plot_geometry_editor(self):
@@ -485,6 +480,8 @@ class MainWindow(QMainWindow):
         pass
 
     def _configure_visualization(self, *args, **kwargs):
+        kwargs.setdefault("color_mode", self.visualization_filter.color_mode)
+
         self.visualization_filter = VisualizationFilter(*args, **kwargs)
         self.action_show_geometry_points.setChecked(self.visualization_filter.points)
         self.action_show_mesh_nodes.setChecked(self.visualization_filter.nodes)
@@ -788,15 +785,19 @@ class MainWindow(QMainWindow):
         self._update_visualization()
 
     def action_plot_default_callback(self):
-        self.visualization_filter.color_mode = ColorMode.EMPTY
-        self.visualization_changed.emit()
+        self.set_color_mode(ColorMode.EMPTY)
 
     def action_plot_material_callback(self):
-        self.visualization_filter.color_mode = ColorMode.MATERIAL
-        self.visualization_changed.emit()
+        self.set_color_mode(ColorMode.MATERIAL)
 
     def action_plot_fluid_callback(self):
-        self.visualization_filter.color_mode = ColorMode.FLUID
+        self.set_color_mode(ColorMode.FLUID)
+
+    def get_color_mode(self):
+        return self.visualization_filter.color_mode
+    
+    def set_color_mode(self, color_mode):
+        self.visualization_filter.color_mode = color_mode
         self.visualization_changed.emit()
 
     def update_export_geometry_file_access(self):
