@@ -14,7 +14,7 @@ from molde.utils import TreeInfo, format_long_sequence
 from ._mesh_picker import MeshPicker
 from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text, analysis_info_text
 
-from pulse.interface.viewer_3d.actors import TubeActorGPU, NodesActor, ElementLinesActor, CuttingPlaneActor
+from pulse.interface.viewer_3d.actors import TubeActorGPU, NodesActor, PointsActor, ElementLinesActor, CuttingPlaneActor
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.interface.utils import rotation_matrices
 from pulse.postprocessing.plot_structural_data import (
@@ -57,6 +57,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.open_pulse_logo = None
         self.nodes_actor = None
+        self.points_actor = None
         self.lines_actor = None
         self.tubes_actor = None
         self.plane_actor = None
@@ -97,10 +98,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         project = app().project
 
         try:
+            # Default behaviour
             self.colorbar_actor.VisibilityOn()
+            deformed = False
 
             # update the data according to the current analysis
-            deformed = False
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
                 deformed = True
                 color_table = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
@@ -121,14 +123,18 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.lines_actor = ElementLinesActor(project, show_deformed=deformed)
         self.nodes_actor = NodesActor(project, show_deformed=deformed)
+        self.points_actor = PointsActor(show_deformed=deformed)
         self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
         self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()
 
-        self.renderer.AddActor(self.lines_actor)
-        self.renderer.AddActor(self.nodes_actor)
-        self.renderer.AddActor(self.tubes_actor)
-        self.renderer.AddActor(self.plane_actor)
+        self.add_actors(
+            self.lines_actor,
+            self.nodes_actor,
+            self.points_actor,
+            self.tubes_actor,
+            self.plane_actor,
+        )
 
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
@@ -172,6 +178,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             return
 
         visualization = app().main_window.visualization_filter
+        self.points_actor.SetVisibility(visualization.points)
         self.nodes_actor.SetVisibility(visualization.nodes)
         self.lines_actor.SetVisibility(visualization.lines)
         self.tubes_actor.SetVisibility(visualization.tubes)
@@ -309,6 +316,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_lines.difference_update([-1])
 
+        if visualization_filter.points:
+            points_indexes = set(app().project.get_geometry_points().keys())
+            picked_nodes.intersection_update(points_indexes)
+
         # give priority to node selection
         if picked_nodes and not mouse_moved:
             picked_lines.clear()
@@ -331,6 +342,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not self._actor_exists():
             return
 
+        self.points_actor.clear_colors()
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
 
@@ -338,6 +350,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         lines = app().main_window.selected_lines
         elements = app().main_window.selected_elements
 
+        self.points_actor.set_color((255, 50, 50), nodes)
         self.nodes_actor.set_color((255, 50, 50), nodes)
         self.lines_actor.set_color((200, 0, 0), elements, lines)
 
@@ -358,10 +371,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.nodes_actor)
+        self.renderer.RemoveActor(self.points_actor)
         self.renderer.RemoveActor(self.lines_actor)
         self.renderer.RemoveActor(self.tubes_actor)
         self.renderer.RemoveActor(self.plane_actor)
         self.nodes_actor = None
+        self.points_actor = None
         self.lines_actor = None
         self.tubes_actor = None
         self.plane_actor = None
@@ -369,6 +384,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def _actor_exists(self):
         actors = [
             self.nodes_actor,
+            self.points_actor,
             self.lines_actor,
             self.tubes_actor,
             self.plane_actor,

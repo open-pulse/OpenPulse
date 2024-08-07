@@ -82,14 +82,16 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
         self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
 
-        self.renderer.AddActor(self.lines_actor)
-        self.renderer.AddActor(self.points_actor)
-        self.renderer.AddActor(self.nodes_actor)
-        self.renderer.AddActor(self.tubes_actor)
-        self.renderer.AddActor(self.acoustic_nodes_symbols_actor)
-        self.renderer.AddActor(self.acoustic_elements_symbols_actor)
-        self.renderer.AddActor(self.structural_nodes_symbols_actor)
-        self.renderer.AddActor(self.structural_elements_symbols_actor)
+        self.add_actors(
+            self.lines_actor,
+            self.points_actor,
+            self.nodes_actor,
+            self.tubes_actor,
+            self.acoustic_nodes_symbols_actor,
+            self.acoustic_elements_symbols_actor,
+            self.structural_nodes_symbols_actor,
+            self.structural_elements_symbols_actor,
+        )
 
         self.visualization_changed_callback()
         if reset_camera:
