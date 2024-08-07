@@ -1,5 +1,7 @@
 import vtk
-from molde.poly_data import VerticesData
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
+
 from molde.utils import set_polydata_property, set_polydata_colors
 from molde.actors import GhostActor
 
@@ -18,12 +20,21 @@ class PointsActor(GhostActor):
         visible_nodes = {i:e for i,e in self.points.items() if (i not in self.hidden_nodes)}
         self._key_index = {j:i for i,j in enumerate(visible_nodes.keys())}
 
-        if self.show_deformed:
-            coords = [n.deformed_coordinates for n in visible_nodes.values()]
-        else:
-            coords = [n.coordinates for n in visible_nodes.values()]
+        points = vtkPoints()
+        data = vtkPolyData()
+        node_index = vtk.vtkUnsignedIntArray()
+        node_index.SetName("node_index")
+        data.Allocate(len(visible_nodes))
 
-        data = VerticesData(coords)
+        for i, node in enumerate(visible_nodes.values()):
+            xyz = node.deformed_coordinates if self.show_deformed else node.coordinates
+            points.InsertNextPoint(xyz)
+            data.InsertNextCell(VTK_VERTEX, 1, [i])
+            node_index.InsertNextTuple1(node.external_index)
+
+        data.SetPoints(points)
+        data.GetCellData().AddArray(node_index)
+
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()

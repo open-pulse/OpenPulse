@@ -123,10 +123,13 @@ class MeshPicker:
         return picked_lines
 
     def pick_node(self, x, y) -> int:
-        nodes = self.area_pick_nodes(x - 5, y - 5, x + 5, y + 5)
-        if not nodes:
-            return -1
-        node, *_ = nodes 
+        points_actor = self.mesh_render_widget.points_actor
+        node = self._pick_cell_property(x, y, "node_index", points_actor)
+        if node >= 0:
+            return node
+
+        nodes_actor = self.mesh_render_widget.nodes_actor
+        node = self._pick_cell_property(x, y, "node_index", nodes_actor)
         return node
 
     def pick_element(self, x, y) -> int:
@@ -152,7 +155,6 @@ class MeshPicker:
         return -1
     
     def _pick_tube_element(self, x: float, y: float, target_actor: vtk.vtkActor):
-        actor: vtk.vtkActor
         picker = vtk.vtkPropPicker()
         elements = app().project.get_structural_elements()
 
@@ -177,7 +179,7 @@ class MeshPicker:
 
     def _pick_cell_property(self, x: float, y: float, property_name: str, target_actor: vtk.vtkActor):
         cell_picker = vtk.vtkCellPicker()
-        cell_picker.SetTolerance(0.0015)
+        cell_picker.SetTolerance(0.0018)
 
         pickability = self._narrow_pickability_to_actor(target_actor)
         cell_picker.Pick(x, y, 0, self.mesh_render_widget.renderer)
