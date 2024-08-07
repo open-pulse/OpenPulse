@@ -8,12 +8,6 @@ from opps.interface.viewer_3d.utils import cross_section_sources
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
 
-class ColorMode(Enum):
-    empty = 0
-    material = 1
-    fluid = 2
-
-
 class TubeActor(vtk.vtkActor):
     def __init__(self, project, **kwargs) -> None:
         super().__init__()
@@ -22,7 +16,6 @@ class TubeActor(vtk.vtkActor):
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
         self.hidden_elements = kwargs.get('hidden_elements', set())
-        self.color_mode = ColorMode.empty
 
         self.build()
 
@@ -121,12 +114,6 @@ class TubeActor(vtk.vtkActor):
     def clear_colors(self):
         data = self.GetMapper().GetInput()
         set_polydata_colors(data, (255,255,255))
-
-        if self.color_mode == ColorMode.material:
-            self.color_by_material()
-
-        elif self.color_mode == ColorMode.fluid:
-            self.color_by_fluid()
     
     def color_by_material(self):
         grouped_by_color = defaultdict(list)

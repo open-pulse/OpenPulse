@@ -19,7 +19,7 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
-from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter
+from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
 from time import time
 
@@ -419,18 +419,23 @@ class MainWindow(QMainWindow):
         self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
 
     def plot_lines(self):
-        self._configure_visualization(points=True, lines=True)
+        self._configure_visualization(
+            points=True, lines=True,
+            color_mode=self.visualization_filter.color_mode,
+        )
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
             points=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
+            color_mode=self.visualization_filter.color_mode,
         )
 
     def plot_mesh(self):
         self._configure_visualization(
             nodes=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
+            color_mode=self.visualization_filter.color_mode,
         )
     
     def plot_geometry_editor(self):
@@ -782,11 +787,17 @@ class MainWindow(QMainWindow):
     def action_select_elements_callback(self, cond):
         self._update_visualization()
 
+    def action_plot_default_callback(self):
+        self.visualization_filter.color_mode = ColorMode.EMPTY
+        self.visualization_changed.emit()
+
     def action_plot_material_callback(self):
-        self.mesh_widget.set_color_mode_to_material()
+        self.visualization_filter.color_mode = ColorMode.MATERIAL
+        self.visualization_changed.emit()
 
     def action_plot_fluid_callback(self):
-        self.mesh_widget.set_color_mode_to_fluid()
+        self.visualization_filter.color_mode = ColorMode.FLUID
+        self.visualization_changed.emit()
 
     def update_export_geometry_file_access(self):
         import_type = self.file.get_import_type()

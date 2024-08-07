@@ -1,14 +1,11 @@
 import vtk
 import numpy as np
-from enum import Enum
 
 from opps.interface.viewer_3d.utils import cross_section_sources 
-from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
-class ColorMode(Enum):
-    empty = 0
-    material = 1
-    fluid = 2
+from pulse.interface.viewer_3d.coloring.color_table import ColorTable
+from pulse.interface.utils import ColorMode
+from pulse import app
 
 
 class TubeActorGPU(vtk.vtkActor):
@@ -24,12 +21,11 @@ class TubeActorGPU(vtk.vtkActor):
     def __init__(self, project, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
-        self.project = project
+        self.project = app().project
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
         self.hidden_elements = kwargs.get('hidden_elements', set())
         self.show_deformed = show_deformed
-        self.color_mode = ColorMode.empty
 
         self.build()
 
@@ -127,14 +123,16 @@ class TubeActorGPU(vtk.vtkActor):
         return None
 
     def clear_colors(self):
-        if self.color_mode == ColorMode.empty:
-            self.set_color((255, 255, 255))
+        color_mode = app().main_window.visualization_filter.color_mode
 
-        elif self.color_mode == ColorMode.material:
+        if color_mode == ColorMode.MATERIAL:
             self.color_by_material()
 
-        elif self.color_mode == ColorMode.fluid:
+        elif color_mode == ColorMode.FLUID:
             self.color_by_fluid()
+
+        else:
+            self.set_color((255, 255, 255))
 
     def set_color(self, color, elements=None, lines=None):
         # This copy is needed, otherwise the mapper is not updated
@@ -189,9 +187,13 @@ class TubeActorGPU(vtk.vtkActor):
         colors = vtk.vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for element in self.elements.values():
-            index = self._key_index.get(element)
+        for i, element in self.elements.items():
+            index = self._key_index.get(i)
             if index is None:
+                continue
+            
+            if element.material is None:
+                colors.SetTuple(index, (255, 255, 255))
                 continue
 
             # get the element color and make it a bit brighter
@@ -208,9 +210,13 @@ class TubeActorGPU(vtk.vtkActor):
         colors = vtk.vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
-        for element in self.elements.values():
-            index = self._key_index.get(element)
+        for i, element in self.elements.items():
+            index = self._key_index.get(i)
             if index is None:
+                continue
+            
+            if element.fluid is None:
+                colors.SetTuple(index, (255, 255, 255))
                 continue
 
             # get the element color and make it a bit brighter

@@ -17,6 +17,11 @@ class Workspace(IntEnum):
     RESULTS = 3
 
 
+class ColorMode(IntEnum):
+    EMPTY = 0
+    MATERIAL = 1
+    FLUID = 2
+
 @dataclass
 class VisualizationFilter:
     points: bool = False
@@ -26,6 +31,7 @@ class VisualizationFilter:
     transparent: bool = False
     acoustic_symbols: bool = False
     structural_symbols: bool = False
+    color_mode: int = ColorMode.EMPTY
 
     @classmethod
     def all_false(cls):
@@ -68,7 +74,6 @@ class PlotFilter:
     acoustic_symbols: bool = False
     structural_symbols: bool = False
     raw_lines: bool = False
-
 
 
 def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title=None):

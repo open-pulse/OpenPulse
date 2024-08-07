@@ -11,7 +11,6 @@ from ._mesh_picker import MeshPicker
 from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text
 
 from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, PointsActor, TubeActorGPU
-from pulse.interface.viewer_3d.actors.tube_actor import ColorMode
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
     AcousticNodesSymbolsActor,
@@ -20,9 +19,8 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
     StructuralElementsSymbolsActor,
     StructuralNodesSymbolsActor,
 )
-from molde.utils import TreeInfo, format_long_sequence
 from pulse import app, ICON_DIR
-from pulse.interface.utils import PlotFilter, SelectionFilter
+
 
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
@@ -132,25 +130,10 @@ class MeshRenderWidget(CommonRenderWidget):
         self.structural_nodes_symbols_actor.SetVisibility(visualization.structural_symbols)
         self.structural_elements_symbols_actor.SetVisibility(visualization.structural_symbols)
 
+        # To update default, material or fluid visualization
+        self.tubes_actor.clear_colors()
+
         self.update()
-
-    def set_color_mode_to_empty(self):
-        if not self._actor_exists():
-            return
-        self.tubes_actor.color_mode = ColorMode.empty
-        self.tubes_actor.clear_colors()
-
-    def set_color_mode_to_material(self):
-        if not self._actor_exists():
-            return
-        self.tubes_actor.color_mode = ColorMode.material
-        self.tubes_actor.clear_colors()
-
-    def set_color_mode_to_fluid(self):
-        if not self._actor_exists():
-            return
-        self.tubes_actor.color_mode = ColorMode.fluid
-        self.tubes_actor.clear_colors()
 
     def _actor_exists(self):
         actors = [
