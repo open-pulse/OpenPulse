@@ -97,7 +97,7 @@ class TubeActorGPU(vtk.vtkActor):
     def create_element_data(self, element):
         cross_section = element.cross_section
         if cross_section is None:
-            return None
+            return vtk.vtkPolyData()
 
         if "Pipe section" in cross_section.section_label:
             d_out, t, *_ = cross_section.section_parameters
@@ -231,10 +231,17 @@ class TubeActorGPU(vtk.vtkActor):
         self.GetMapper().RemoveAllClippingPlanes()
 
     def _hash_element_section(self, element):
+        if element.cross_section is not None:
+            section_label = element.cross_section.section_label
+            section_parameters = tuple(element.cross_section.section_parameters)
+        else:
+            section_label = None
+            section_parameters = None
+
         return hash((
             round(element.length, 5),
-            element.cross_section.section_label,
-            tuple(element.cross_section.section_parameters),
+            section_label,
+            section_parameters,
         ))
 
     def _fixed_section(self, source):
