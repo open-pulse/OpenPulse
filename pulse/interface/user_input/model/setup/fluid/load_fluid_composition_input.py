@@ -11,8 +11,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 
 import os
-import openpyxl
-import pandas as pd
 
 class LoadFluidCompositionInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -99,6 +97,8 @@ class LoadFluidCompositionInput(QDialog):
             return True
 
     def load_composition_data_from_file(self):
+        import openpyxl
+        import pandas as pd
 
         self.imported_data = dict()
 
