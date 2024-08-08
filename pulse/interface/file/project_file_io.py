@@ -83,9 +83,9 @@ class ProjectFileIO:
         if "mesher setup" in data.keys():
             project_setup = data["mesher setup"]
 
-            if "geometry_filename" in project_setup.keys():
+            if "geometry filename" in project_setup.keys():
 
-                geometry_filename = project_setup["geometry_filename"]
+                geometry_filename = project_setup["geometry filename"]
                 dirname = self.project_folder_path / "geometry" 
                 temp_path = dirname / geometry_filename
                 internal_path = f"geometry_file/{geometry_filename}"
@@ -99,7 +99,7 @@ class ProjectFileIO:
 
                 self.filebox.read_to_path(internal_path, temp_path)
 
-            return str(temp_path)
+                return str(temp_path)
     
     def read_project_setup_from_file(self):
         return self.filebox.read(self.project_setup_filename)

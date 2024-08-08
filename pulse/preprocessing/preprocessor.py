@@ -27,6 +27,7 @@ class Preprocessor:
         self.project = project
         self.file = project.file
         self.reset_variables()
+        self.set_mesher_setup(dict())
 
     def reset_variables(self):
         """
