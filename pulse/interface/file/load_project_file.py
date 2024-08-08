@@ -780,6 +780,11 @@ class LoadProjectFile:
         global_damping = analysis_setup["global damping"]
 
         return f_min, f_max, f_step, global_damping
+    
+    def load_thumbnail(self):
+        thumbnail = app().main_window.pulse_file.read_thumbnail()
+        if thumbnail is not None:
+            app().main_window.project.thumbnail = thumbnail
 
     def add_frequency_in_file(self, f_min, f_max, f_step):
 

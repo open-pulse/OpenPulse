@@ -129,11 +129,11 @@ class Preprocessor:
     #     self.geometry_handler = geometry_handler
 
     def set_mesher_setup(self, mesh_setup : dict):
-        self.element_size = mesh_setup.get('element_size', 0.01)
+        self.element_size = mesh_setup.get('element size', 0.01)
         self.tolerance = mesh_setup.get('tolerance', 1e-6)
-        self.length_unit = mesh_setup.get('length_unit', 'meter')
-        self.import_type = mesh_setup.get("import_type", 1)
-        self.geometry_path = mesh_setup.get('geometry_path', "")
+        self.length_unit = mesh_setup.get('length unit', 'meter')
+        self.import_type = mesh_setup.get("import type", 1)
+        self.geometry_path = mesh_setup.get('geometry path', "")
 
     def generate(self):
         """

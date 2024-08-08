@@ -129,8 +129,10 @@ class GetStartedInput(QDialog):
 
     def open_project(self):
         self.hide()
-        if app().main_window.open_project():
-            self.complete = True
+        if app().main_window.open_project_dialog():
+            return       
+        self.complete = True
+        self.close()
 
     def about_project(self):
         app().main_window.action_about_openpulse_callback()

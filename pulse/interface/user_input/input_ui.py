@@ -1,7 +1,6 @@
 #
 from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
 #
-from pulse.interface.user_input.project.save_project_as_input import SaveProjectAsInput
 from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
@@ -111,9 +110,6 @@ class InputUi:
         clipping_plane.slider_released.connect(self.opv.apply_clipping_plane)
         clipping_plane.exec()
         self.opv.dismiss_clipping_plane()
-
-    def save_project_as(self):
-        self.process_input(SaveProjectAsInput)
 
     def call_geometry_editor(self):
         main_window = self.main_window

@@ -122,9 +122,6 @@ class ModelProperties:
     def get_volume_velocity(self, node):
         return self._get_property("volume_velocity", node=node)
 
-    def get_node_velocity(self, node):
-        return self._get_property("node_velocity", node=node)
-
     def get_specific_impedance(self, node):
         return self._get_property("specific_impedance", node=node)
 

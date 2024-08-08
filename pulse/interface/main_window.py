@@ -20,10 +20,10 @@ from pulse.interface.handler.geometry_handler import GeometryHandler
 
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
-from pulse.interface.user_input.project.load_project import LoadProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
+from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
 
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
@@ -342,20 +342,50 @@ class MainWindow(QMainWindow):
         self.initial_project_action(obj.complete)
         return obj.complete
 
-    def open_project(self, path=None):
+    def open_project(self, project_path: str | Path | None = None):
+
         # t0 = time()
         self.reset_geometry_render()
-        obj = LoadProjectInput(path=path)
+
+        if project_path is not None:
+            app().config.add_recent_file(project_path)
+            app().config.write_last_folder_path_in_file("project folder", project_path)
+            # self.project_menu.update_recents_menu()
+            copy(project_path, self.temp_project_file_path)
+            self.update_window_title(project_path)
+
+        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
+
+        self.project.load_project()
         self.mesh_toolbar.update_mesh_attributes()
+
         # dt = time() - t0
         # print(f"load_project: {dt} [s]")
-        self.initial_project_action(obj.complete)
 
-        if obj.complete:
-            self._update_recent_projects()
-            self.change_window_title(self.file.project_name)
-            self.update_plots()
-            self.action_front_view_callback()
+        self.initial_project_action(True)
+        self._update_recent_projects()
+        self.update_plots()
+        self.action_front_view_callback()
+
+    def open_project_dialog(self):
+
+        last_path = app().config.get_last_folder_for("project folder")
+        if last_path is None:
+            path = str(Path().home())
+        else:
+            path = last_path
+
+        project_path, check = QFileDialog.getOpenFileName( 
+                                                            self, 
+                                                            "Open Project", 
+                                                            path, 
+                                                            filter = "Pulse File (*.pulse)"
+                                                         )
+
+        if not check:
+            return True
+
+        self.open_project(project_path)
 
     def open_pcf(self):
         '''
@@ -575,9 +605,6 @@ class MainWindow(QMainWindow):
             import_action.triggered.connect(partial(self.open_project, path))
             self.menu_recent.addAction(import_action)
             self.menu_actions.append(import_action)
-
-    def change_window_title(self, msg = ""):
-        self.set_window_title(msg)
 
     def _update_permissions(self):
         pass
@@ -1007,12 +1034,52 @@ class MainWindow(QMainWindow):
             elif event.key() == Qt.Key_R:
                 self.combo_box_workspaces.setCurrentIndex(3)
         return super(MainWindow, self).eventFilter(obj, event)
+    
+    def save_project_dialog(self):
+        if self.project.save_path is None:
+            return self.save_project_as_dialog()
+        else:
+            self.save_project_as(self.project.save_path)
+            return True
+
+    def save_project_as_dialog(self):
+
+        obj = SaveProjectDataSelector()
+        if obj.complete:
+
+            last_path = app().config.get_last_folder_for("project folder")
+            if last_path is None:
+                path = os.path.expanduser("~")
+            else:
+                path = last_path
+
+            file_path, check = QFileDialog.getSaveFileName(
+                                                            self,
+                                                            "Save As",
+                                                            path,
+                                                            filter = "Pulse File (*.pulse)",
+                                                        )
+
+            if not check:
+                return
+
+            if obj.ignore_results_data:
+                pass
+                # self.file.remove_results_data_from_project_file()
+            
+            if obj.ignore_mesh_data:
+                pass
+                # self.file.remove_mesh_data_from_project_file()
+
+            self.save_project_as(file_path)
+
+        return obj.complete
 
     def save_project_as(self, path):
         path = Path(path)
-        # self.project.name = path.stem
-        # self.project.save_path = path
-        # self.pulse_file.write_thumbnail()
+        self.project.name = path.stem
+        self.project.save_path = path
+        self.pulse_file.write_thumbnail()
         app().config.add_recent_file(path)
         app().config.write_last_folder_path_in_file("project folder", path)
         # self.project_menu.update_recents_menu()

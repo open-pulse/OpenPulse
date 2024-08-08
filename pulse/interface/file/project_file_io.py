@@ -90,8 +90,6 @@ class ProjectFileIO:
                 temp_path = dirname / geometry_filename
                 internal_path = f"geometry_file/{geometry_filename}"
 
-                print(temp_path, internal_path)
-
                 if os.path.exists(dirname):
                     for filename in os.listdir(dirname).copy():
                         file_path = dirname / filename
@@ -348,7 +346,7 @@ class ProjectFileIO:
             return False
 
         project_setup = project_data["project"]
-        import_type = project_setup["import_type"]
+        import_type = project_setup["import type"]
 
         pipeline_data = self.read_pipeline_data_from_file()
         if pipeline_data is None:

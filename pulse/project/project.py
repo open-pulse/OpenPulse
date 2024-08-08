@@ -47,6 +47,7 @@ class Project:
 
         self.name = None
         self.save_path = None
+        self.thumbnail = None
 
         self.analysis_id = None
         self.analysis_type_label = ""
@@ -97,12 +98,12 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
-    def set_project_setup(self, project_setup : dict):
-        self.import_type = project_setup.get("import_type", 1)
-        self.geometry_path = project_setup.get('geometry_path', "")
-        self.element_size = project_setup.get('element_size', 0.01)
-        self.tolerance = project_setup.get('tolerance', 1e-6)
-        self.length_unit = project_setup.get('length_unit', 'meter')
+    # def set_project_setup(self, project_setup : dict):
+    #     self.import_type = project_setup.get("import_type", 1)
+    #     self.geometry_path = project_setup.get('geometry_path', "")
+    #     self.element_size = project_setup.get('element_size', 0.01)
+    #     self.tolerance = project_setup.get('tolerance', 1e-6)
+    #     self.length_unit = project_setup.get('length_unit', 'meter')
 
     def initial_load_project_actions(self):
 
@@ -140,14 +141,17 @@ class Project:
         self.file.copy(*args, **kwargs)
          
     def load_project(self):
-        def callback():
+
+        def load_callback():
             self.load_project_files()
+
+        self.load_mesh_setup_from_file()
 
         if self.initial_load_project_actions():
             LoadingScreen(  
                             title = 'Loading Project', 
                             message = "Loading project files",
-                            target=callback
+                            target = load_callback
                         )
         self.preprocessor.check_disconnected_lines(self.file._element_size)
 
@@ -298,9 +302,6 @@ class Project:
             base_folders = os.listdir(self.file._imported_data_folder_path).copy()
             if len(base_folders) == 0:
                 rmtree(self.file._imported_data_folder_path)
-
-    def set_entity(self, tag):
-        return Line(tag)
 
     def load_pipeline_file(self):
         self.loader = LoadProjectData()
@@ -617,6 +618,12 @@ class Project:
 
     def load_analysis_file(self):
         self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
+
+    def load_mesh_setup_from_file(self):
+        mesh_setup = app().main_window.pulse_file.read_project_setup_from_file()
+        if mesh_setup is None:
+            return
+        self.preprocessor.set_mesher_setup(mesh_setup)
 
     def load_inertia_load_setup(self):
 

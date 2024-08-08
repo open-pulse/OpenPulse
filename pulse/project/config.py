@@ -16,6 +16,20 @@ class Config:
         self.load_config_file()
         self.load_args()
 
+    def get_recent_files(self) -> list:
+        config = configparser.ConfigParser()
+        config.read(self.config_path)
+
+        if not config.has_section("Recents"):
+            return list()
+
+        # only keep existing files
+        recents = [Path(file) for i, file in sorted(config["Recents"].items()) 
+                   if Path(file).exists()]
+        # avoid repetitions
+        recents = list(set(recents))
+        return recents
+
     def load_config_file(self):
         try:
             config = configparser.ConfigParser()
