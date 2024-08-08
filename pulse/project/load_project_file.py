@@ -1,6 +1,6 @@
 
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.material import Material
+from pulse.properties.material import Material
+from pulse.properties.fluid import Fluid
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 

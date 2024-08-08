@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.fluid import Fluid
+from pulse.properties.material import Material
+from pulse.properties.fluid import Fluid
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.processing.assembly_acoustic import AssemblyAcoustic

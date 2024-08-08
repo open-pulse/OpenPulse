@@ -41,9 +41,8 @@ class GeometryHandler:
     def set_length_unit(self, unit):
         if unit in ["meter", "millimeter", "inch"]:
             self.length_unit = unit
-            print("set unit", unit)
 
-    def create_geometry(self):
+    def create_geometry(self, gmsh_GUI=False):
 
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
@@ -103,10 +102,11 @@ class GeometryHandler:
 
         gmsh.model.occ.synchronize()
 
-        import sys
-        if '-nopopup' not in sys.argv:
-            gmsh.option.setNumber('General.FltkColorScheme', 1)
-            gmsh.fltk.run()
+        if gmsh_GUI:
+            import sys
+            if '-nopopup' not in sys.argv:
+                gmsh.option.setNumber('General.FltkColorScheme', 1)
+                gmsh.fltk.run()
 
     def process_pipeline(self):
         """ This method builds structures based on model_data file data.
@@ -124,12 +124,13 @@ class GeometryHandler:
             pipeline data to...
         """
 
+        structures = list()
         self.pipeline.reset()
+        
         structures_data = app().main_window.pulse_file.get_pipeline_data_from_file()
 
-        structures = list()
         for key, data in structures_data.items():
-            data: dict
+            data : dict
 
             if "link type" in data.keys():
                 continue

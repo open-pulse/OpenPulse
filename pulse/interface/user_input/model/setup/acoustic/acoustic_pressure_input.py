@@ -203,14 +203,38 @@ class AcousticPressureInput(QDialog):
             return
 
         if acoustic_pressure is not None:
+
             self.acoustic_pressure = acoustic_pressure
             data = [self.acoustic_pressure, None]
+
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
-            self.process_table_file_removal(list_table_names) 
-            self.project.set_acoustic_pressure_bc_by_node(self.nodes_typed, data)
+            self.process_table_file_removal(list_table_names)
+
+            if self.preprocessor.set_acoustic_pressure_bc_by_node(self.nodes_typed, data):
+                return
+
+            real_values = [np.real(acoustic_pressure)]
+            imag_values = [np.imag(acoustic_pressure)]
+
+            for node_id in self.nodes_typed:
+
+                node = self.preprocessor.nodes[node_id]
+                coords = list(node.coordinates)
+
+                prop_data = {   
+                                "coords" : coords,
+                                "real_values": real_values,
+                                "imag_values": imag_values,
+                            }
+
+                self.project.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
+
+            app().main_window.pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
+
             print(f"[Set Acoustic Pressure] - defined at node(s) {self.nodes_typed}")
             self.close()
+        
         else:    
             title = "Additional inputs required"
             message = "You must inform at least one acoustic pressure " 
@@ -314,25 +338,50 @@ class AcousticPressureInput(QDialog):
 
         list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
         if self.lineEdit_table_path != "":
-            for node_id in self.nodes_typed:
-                if self.filename_acoustic_pressure is None:
-                    self.imported_values, self.filename_acoustic_pressure = self.load_table(self.lineEdit_table_path, 
-                                                                                            direct_load=True)
-                if self.imported_values is None:
+
+            if self.filename_acoustic_pressure is None:
+                self.imported_values, self.filename_acoustic_pressure = self.load_table(self.lineEdit_table_path, 
+                                                                                        direct_load=True)
+
+            if self.imported_values is None:
+                return
+
+            else:
+                self.acoustic_pressure, self.basename_acoustic_pressure = self.save_table_file( node_id, 
+                                                                                                self.imported_values, 
+                                                                                                self.filename_acoustic_pressure )
+                if self.basename_acoustic_pressure in list_table_names:
+                    list_table_names.remove(self.basename_acoustic_pressure)
+
+                data = [self.acoustic_pressure, self.basename_acoustic_pressure]
+
+                if self.preprocessor.set_acoustic_pressure_bc_by_node(self.nodes_typed, data):
                     return
-                else:
-                    self.acoustic_pressure, self.basename_acoustic_pressure = self.save_table_file( node_id, 
-                                                                                                    self.imported_values, 
-                                                                                                    self.filename_acoustic_pressure )
-                    if self.basename_acoustic_pressure in list_table_names:
-                        list_table_names.remove(self.basename_acoustic_pressure)
-                    data = [self.acoustic_pressure, self.basename_acoustic_pressure]
-                    self.project.set_acoustic_pressure_bc_by_node([node_id], data)
+
+            for node_id in self.nodes_typed:
+
+                node = self.preprocessor.nodes[node_id]
+                coords = list(node.coordinates)
+
+                real_values = list(self.imported_values[:, 0])
+                imag_values = list(self.imported_values[:, 1])
+
+                prop_data = {
+                                "coords" : coords,
+                                "real_values": real_values,
+                                "imag_values": imag_values,
+                                "table_path": self.path_imported_table,
+                            }
                 
+                self.project.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
+
             self.process_table_file_removal(list_table_names)
+            app().main_window.pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
+
             print(f"[Set Acoustic Pressure] - defined at node(s) {self.nodes_typed}")   
             self.close()
+
         else:
             title = "Additional inputs required"
             message = "You must inform at least one acoustic pressure " 

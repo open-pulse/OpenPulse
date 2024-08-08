@@ -5,7 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
-from pulse.preprocessing.fluid import Fluid
+from pulse.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput

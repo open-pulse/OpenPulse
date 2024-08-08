@@ -22,6 +22,7 @@ class NewProjectInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
+        self.preprocessor = app().main_window.project.preprocessor
 
         self._config_window()
         self._initialize()
@@ -117,7 +118,7 @@ class NewProjectInput(QDialog):
 
     def check_project_inputs(self):
         
-        if self.comboBox_start_project.currentIndex() == 1:
+        if self.comboBox_start_project.currentIndex() == 0:
             if self.lineEdit_geometry_path.text() == "":
                 title = 'Empty geometry at selection'
                 message = "Please, select a valid *.iges or *.step format geometry to continue."
@@ -152,23 +153,6 @@ class NewProjectInput(QDialog):
                 PrintMessageInput([window_title, title, message], auto_close=True)
                 return True
 
-    def start_project(self):
-        t0 = time()
-
-        if self.check_project_inputs():
-            return
-
-        if self.stop:
-            self.project.time_to_load_or_create_project = 0
-            return
-   
-        if self.create_project():
-            return
-
-        self.project.time_to_load_or_create_project = time() - t0
-        self.complete = True
-        self.close()
-
     def create_project(self):
 
         try:
@@ -176,19 +160,13 @@ class NewProjectInput(QDialog):
             import_type = self.comboBox_start_project.currentIndex()
             self.create_project_file(import_type)
 
-            app().main_window.project.reset(reset_all=True)
+            self.project.reset(reset_all=True)
+            self.preprocessor.set_mesher_setup(self.setup_data)
 
             if import_type == 1:
-
-                app().main_window.project.preprocessor._create_gmsh_geometry()
-                app().main_window.action_plot_geometry_editor_callback()
-
+                self.preprocessor._create_gmsh_geometry()
             else:
-
-                geometry_path = app().main_window.pulse_file.read_geometry_from_file()
-                self.setup_data["geometry_path"] = geometry_path
-
-                app().main_window.project.process_geometry_and_mesh(self.setup_data)
+                self.project.process_geometry_and_mesh(self.setup_data)
 
         except Exception as error_log:
             
@@ -222,9 +200,41 @@ class NewProjectInput(QDialog):
                                                                     self.setup_data,
                                                                     geometry_path = geometry_path
                                                                 )
+        
+        self.project.set_project_setup(self.setup_data)
+        
+        if import_type == 0:
+            print(app().main_window.pulse_file.read_geometry_from_file())
+            self.setup_data["geometry_path"] = app().main_window.pulse_file.read_geometry_from_file()
 
-        app().main_window.project.set_project_setup(self.setup_data)
+    def start_project(self):
+        t0 = time()
 
+        if self.check_project_inputs():
+            return
+
+        if self.stop:
+            self.project.time_to_load_or_create_project = 0
+            return
+   
+        if self.create_project():
+            return
+        
+        app().main_window._update_recent_projects()
+        app().main_window.set_window_title("New project (*)")
+        
+        if self.comboBox_start_project.currentIndex() == 1:
+            app().main_window.action_plot_geometry_editor_callback()
+        
+        else:
+            app().main_window.use_structural_setup_workspace()
+        
+        app().main_window.update_plots()
+
+        self.project.time_to_load_or_create_project = time() - t0
+        self.complete = True
+        
+        self.close()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -329,17 +329,11 @@ class MainWindow(QMainWindow):
         pass
 
     def new_project(self):
-
         self.pulse_file = ProjectFileIO(self.temp_project_file_path)
         self.reset_geometry_render()
         obj = NewProjectInput()
         self.initial_project_action(obj.complete)
-
-        if obj.complete:
-            self._update_recent_projects()
-            self.set_window_title("New project (*)")
-            self.use_structural_setup_workspace()
-            self.update_plots()
+        return obj.complete
 
     def open_project(self, path=None):
         # t0 = time()
@@ -510,12 +504,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title) 
 
     def get_started(self):
-
         self.close_dialogs()
         self.model_and_analysis_items.modify_model_setup_items_access(True)
-        get_started = GetStartedInput()
-
-        return get_started.complete
+        obj = GetStartedInput()
+        return obj.complete
 
     def initial_project_action(self, finalized):
         # t0 = time()
@@ -552,8 +544,8 @@ class MainWindow(QMainWindow):
 
         elif self.get_started():
             self.action_front_view_callback()
-            self._update_recent_projects()
-            self.set_window_title(self.file.project_name)
+            # self._update_recent_projects()
+            # self.set_window_title(self.file.project_name)
 
         else:
             self.disable_workspace_selector_and_geometry_editor(True)

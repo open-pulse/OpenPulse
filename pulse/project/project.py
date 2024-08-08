@@ -16,6 +16,8 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
 # from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
 # from pulse.interface.user_input.project.loading_screen import LoadingScreen
+
+from pulse.properties.model_properties import ModelProperties
 #
 from opps.model import Pipeline
 #
@@ -33,6 +35,7 @@ class Project:
         self.pipeline = Pipeline()
         self.preprocessor = Preprocessor(self)        
         self.PSD = PulsationSuppressionDevice(self)
+        self.properties = ModelProperties()
 
         self.reset()
 
@@ -1440,11 +1443,11 @@ class Project:
         for line in self.preprocessor.lines_from_model.keys():
             self.file.add_fluid_in_file(line, fluid)
 
-    def set_acoustic_pressure_bc_by_node(self, node_ids, data):
-        label = ["acoustic pressure"]
-        if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
-            return
-        self.file.add_acoustic_bc_in_file(node_ids, data, label) 
+    # def set_acoustic_pressure_bc_by_node(self, node_ids, data):
+    #     label = ["acoustic pressure"]
+    #     if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
+    #         return
+    #     self.file.add_acoustic_bc_in_file(node_ids, data, label) 
 
     def set_volume_velocity_bc_by_node(self, node_ids, data):
         label = ["volume velocity"]

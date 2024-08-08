@@ -1,6 +1,6 @@
 from pulse import app
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.material import Material
+from pulse.properties.material import Material
+from pulse.properties.fluid import Fluid
 from pulse.preprocessing.cross_section import get_beam_section_properties
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
@@ -23,7 +23,7 @@ class ProjectFileIO:
         super().__init__()
 
         self.path = path
-        self.vibra_file = Filebox(Path(path), override=override)
+        self.filebox = Filebox(Path(path), override=override)
 
         # self.model = app().main_window.project.model
         # self.properties = self.model.properties
@@ -55,21 +55,21 @@ class ProjectFileIO:
             internal_path = f"geometry_file/{basename}"
 
             try:
-                self.vibra_file.remove("geometry_file")
+                self.filebox.remove("geometry_file")
             except:
                 pass
 
-            self.vibra_file.write_from_path(internal_path, geometry_path, encoding="iso-8859-1")
+            self.filebox.write_from_path(internal_path, geometry_path, encoding="iso-8859-1")
 
         try:
 
-            project_setup = self.vibra_file.read(self.project_setup_filename)
+            project_setup = self.filebox.read(self.project_setup_filename)
             if project_setup is None:
                 project_setup = dict()
 
             project_setup["project"] = data
 
-            self.vibra_file.write(self.project_setup_filename, project_setup)
+            self.filebox.write(self.project_setup_filename, project_setup)
             app().main_window.project_data_modified = True
 
         except Exception as error_log:
@@ -77,7 +77,7 @@ class ProjectFileIO:
 
     def read_geometry_from_file(self):
 
-        data = self.vibra_file.read(self.project_setup_filename)
+        data = self.filebox.read(self.project_setup_filename)
 
         if "project" in data.keys():
             project_setup = data["project"]
@@ -98,16 +98,16 @@ class ProjectFileIO:
                 else:
                     os.mkdir(dirname)
 
-                self.vibra_file.read_to_path(internal_path, temp_path)
+                self.filebox.read_to_path(internal_path, temp_path)
 
             return str(temp_path)
     
     def read_project_setup_from_file(self):
-        return self.vibra_file.read(self.project_setup_filename)
+        return self.filebox.read(self.project_setup_filename)
     
     def write_analysis_setup_in_file(self, analysis_setup):
 
-        project_setup = self.vibra_file.read(self.project_setup_filename)
+        project_setup = self.filebox.read(self.project_setup_filename)
         if project_setup is None:
             return   
 
@@ -120,13 +120,13 @@ class ProjectFileIO:
             aux[key] = data
 
         project_setup["analysis_setup"] = aux         
-        self.vibra_file.write(self.project_setup_filename, project_setup)
+        self.filebox.write(self.project_setup_filename, project_setup)
         app().main_window.project_data_modified = True
 
     def read_analysis_setup_from_file(self):
 
         analysis_setup = None
-        project_setup = self.vibra_file.read(self.project_setup_filename)
+        project_setup = self.filebox.read(self.project_setup_filename)
 
         if project_setup is None:
             return
@@ -137,32 +137,32 @@ class ProjectFileIO:
         return analysis_setup
 
     def write_model_setup_in_file(self, project_setup : dict):
-        self.vibra_file.write(self.project_setup_filename, project_setup)
+        self.filebox.write(self.project_setup_filename, project_setup)
         app().main_window.project_data_modified = True
 
     def read_model_setup_from_file(self):
-        return self.vibra_file.read(self.project_setup_filename)
+        return self.filebox.read(self.project_setup_filename)
 
     def write_pipeline_data_in_file(self, pipeline_data):
-        self.vibra_file.write(self.pipeline_filename, pipeline_data)
+        self.filebox.write(self.pipeline_filename, pipeline_data)
         app().main_window.project_data_modified = True
 
     def read_pipeline_data_from_file(self):
-        return self.vibra_file.read(self.pipeline_filename)
+        return self.filebox.read(self.pipeline_filename)
 
     def write_material_library_in_file(self, config):
-        self.vibra_file.write(self.material_library_filename, config)
+        self.filebox.write(self.material_library_filename, config)
         app().main_window.project_data_modified = True
 
     def read_material_library_from_file(self):
-        return self.vibra_file.read(self.material_library_filename)
+        return self.filebox.read(self.material_library_filename)
 
     def write_fluid_library_in_file(self, config):
-        self.vibra_file.write(self.fluid_library_filename, config)
+        self.filebox.write(self.fluid_library_filename, config)
         app().main_window.project_data_modified = True
 
     def read_fluid_library_from_file(self):
-        return self.vibra_file.read(self.fluid_library_filename)
+        return self.filebox.read(self.fluid_library_filename)
 
     def write_model_properties_in_file(self):
 
@@ -187,16 +187,16 @@ class ProjectFileIO:
 
                 return output
 
+            properties = app().main_window.project.properties
+
             data = dict(
-                        # global_properties = normalize(self.properties.global_properties),
-                        volume_properties = normalize(self.properties.volume_properties),
-                        surface_properties = normalize(self.properties.surface_properties),
-                        line_properties = normalize(self.properties.line_properties),
-                        element_properties = normalize(self.properties.element_properties),
-                        nodal_properties = normalize(self.properties.nodal_properties),
+                        # global_properties = normalize(properties.global_properties),
+                        line_properties = normalize(properties.line_properties),
+                        element_properties = normalize(properties.element_properties),
+                        nodal_properties = normalize(properties.nodal_properties),
                         )
 
-            self.vibra_file.write(self.model_properties, data)
+            self.filebox.write(self.model_properties, data)
             app().main_window.project_data_modified = True
 
         except Exception as error_log:
@@ -217,7 +217,7 @@ class ProjectFileIO:
                 new_prop[p, i] = val
             return new_prop
 
-        data = self.vibra_file.read(self.model_properties)
+        data = self.filebox.read(self.model_properties)
 
         if data is None:
             return dict()
@@ -237,14 +237,14 @@ class ProjectFileIO:
         thumbnail = app().main_window.project.thumbnail
         if thumbnail is None:
             return
-        self.vibra_file.write(self.thumbnail_filename, thumbnail)
+        self.filebox.write(self.thumbnail_filename, thumbnail)
         app().main_window.project_data_modified = True
 
     def read_thumbnail(self):
-        return self.vibra_file.read(self.thumbnail_filename)
+        return self.filebox.read(self.thumbnail_filename)
     
     def write_results_data_in_file(self):
-        with self.vibra_file.open(self.results_data_filename, "w") as internal_file:
+        with self.filebox.open(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:
 
                 acoustic_modal_solver = app().main_window.project.acoustic_modal_solver
@@ -287,7 +287,7 @@ class ProjectFileIO:
 
         try:
 
-            with self.vibra_file.open(self.results_data_filename) as internal_file:
+            with self.filebox.open(self.results_data_filename) as internal_file:
                 with h5py.File(internal_file, "r") as f:
 
                     for group in list(f.keys()):
@@ -308,13 +308,13 @@ class ProjectFileIO:
         return results_data
     
     def remove_model_properties_from_project_file(self):
-        self.vibra_file.remove(self.model_properties)
+        self.filebox.remove(self.model_properties)
 
     def remove_mesh_data_from_project_file(self):
-        self.vibra_file.remove(self.mesh_data_filename)
+        self.filebox.remove(self.mesh_data_filename)
 
     def remove_results_data_from_project_file(self):
-        self.vibra_file.remove(self.results_data_filename)
+        self.filebox.remove(self.results_data_filename)
 
     def check_pipeline_data(self):
         
@@ -351,6 +351,9 @@ class ProjectFileIO:
 
         pipeline_data = dict()
         config = self.read_pipeline_data_from_file()
+
+        if config is None:
+            return pipeline_data
 
         for section in config.sections():
 

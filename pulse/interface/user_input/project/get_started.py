@@ -125,6 +125,7 @@ class GetStartedInput(QDialog):
         self.hide()
         if app().main_window.new_project():
             self.complete = True
+            self.close()
 
     def open_project(self):
         self.hide()

@@ -11,7 +11,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from pulse.libraries.default_libraries import default_material_library
-from pulse.preprocessing.material import Material
+from pulse.properties.material import Material
 
 import configparser
 from itertools import count

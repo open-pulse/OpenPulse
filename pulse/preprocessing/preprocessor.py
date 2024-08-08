@@ -128,7 +128,14 @@ class Preprocessor:
     # def set_geometry_handler(self, geometry_handler):
     #     self.geometry_handler = geometry_handler
 
-    def generate(self, setup_data : dict):
+    def set_mesher_setup(self, mesh_setup : dict):
+        self.element_size = mesh_setup.get('element_size', 0.01)
+        self.tolerance = mesh_setup.get('tolerance', 1e-6)
+        self.length_unit = mesh_setup.get('length_unit', 'meter')
+        self.import_type = mesh_setup.get("import_type", 1)
+        self.geometry_path = mesh_setup.get('geometry_path', "")
+
+    def generate(self):
         """
         This method loads geometry file or data and process the mesh.
 
@@ -155,12 +162,6 @@ class Preprocessor:
             
         """
 
-        self.import_type = setup_data.get("import_type", 1)
-        self.geometry_path = setup_data.get('geometry_path', "")
-        self.element_size = setup_data.get('element_size', 0.01)
-        self.tolerance = setup_data.get('tolerance', 1e-6)
-        self.length_unit = setup_data.get('length_unit', 'meter')
-
         self.reset_variables()
 
         if self.import_type == 0:
@@ -170,13 +171,10 @@ class Preprocessor:
             else:
                 return
 
-        print("passei 4")
         self._create_gmsh_geometry()
         self._set_gmsh_options()
-        print("passei 5")
-
         self._process_mesh()
-        
+
         self._map_lines_to_elements()
         self._map_lines_to_nodes()
         self._save_geometry_points()
@@ -225,7 +223,7 @@ class Preprocessor:
 
         """
         geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(self.length_unit)     
+        geometry_handler.set_length_unit(self.length_unit) 
         geometry_handler.process_pipeline()
         geometry_handler.create_geometry()
 
