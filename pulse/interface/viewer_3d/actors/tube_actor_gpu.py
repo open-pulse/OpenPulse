@@ -10,13 +10,17 @@ from pulse import app
 
 class TubeActorGPU(vtk.vtkActor):
     '''
-    This is an implementation of the tube actor that shows every element separatedly.
-    Because we usually hava a lot of elements, this actor need to be incredbly fast.
+    This actor show the tubes as a set of element sections that compose it.
 
-    To match this requirement the vtkGlyph3DMapper is used, so we don't need to create
-    an actual mesh (that would need a lot of time).
-    With vtkGlyph3DMapper we just need to create some arrays and very few meshes, and
-    send it to the GPU, and the hard work is handled there (very fastly btw).
+    They should appear "sectioned", it is not a bug, it is a feature, because
+    the "sections" are correspondent to what is happening in the FEM. 
+
+    Usually a model have a lot of elements, and to make this actor render fast,
+    this implementations uses vtkGlyph3DMapper, wich is not a traditional approach,
+    but is a very fast approach.
+
+    With vtkGlyph3DMapper we just need to create some arrays and very few meshes,
+    send them to the GPU, and the hard work is handled there (very fastly btw).
     '''
     def __init__(self, project, show_deformed=False, **kwargs) -> None:
         super().__init__()
@@ -95,6 +99,7 @@ class TubeActorGPU(vtk.vtkActor):
         if cross_section is None:
             return None
 
+        # Simplify tube meshes when the model is too big
         if "Pipe section" in cross_section.section_label:
             d_out, t, *_ = cross_section.section_parameters
             return cross_section_sources.pipe_data(element.length, d_out, t, sides=30)

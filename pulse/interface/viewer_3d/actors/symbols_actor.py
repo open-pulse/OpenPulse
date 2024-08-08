@@ -15,6 +15,7 @@ def loadSymbol(path):
 
 SymbolTransform = namedtuple('SymbolTransform', ['source', 'position', 'rotation', 'scale', 'color'])
 
+
 class SymbolsActorBase(ActorBase):
     '''
     Abstract class that defines how to create a new set of Symbols.

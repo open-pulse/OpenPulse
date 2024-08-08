@@ -2,10 +2,11 @@ import vtk
 from vtkmodules.vtkCommonCore import vtkPoints
 from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
 
-from molde.utils import set_polydata_property, set_polydata_colors
+from molde.utils import set_polydata_colors
 from molde.actors import GhostActor
 
 from pulse import app
+
 
 class PointsActor(GhostActor):
     def __init__(self, show_deformed=False, **kwargs) -> None:
