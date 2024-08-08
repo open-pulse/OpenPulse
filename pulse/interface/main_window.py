@@ -784,7 +784,7 @@ class MainWindow(QMainWindow):
     def action_select_elements_callback(self, cond):
         self._update_visualization()
 
-    def action_plot_default_callback(self):
+    def action_plot_default_color_callback(self):
         self.set_color_mode(ColorMode.EMPTY)
 
     def action_plot_material_callback(self):

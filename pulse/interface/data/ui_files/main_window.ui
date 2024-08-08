@@ -140,6 +140,7 @@
     <addaction name="action_plot_cross_section"/>
     <addaction name="action_plot_material"/>
     <addaction name="action_plot_fluid"/>
+    <addaction name="action_plot_default_color"/>
    </widget>
    <widget class="QMenu" name="menu_model_info">
     <property name="title">
@@ -916,6 +917,11 @@
    </property>
    <property name="text">
     <string>Show Geometry Points</string>
+   </property>
+  </action>
+  <action name="action_plot_default_color">
+   <property name="text">
+    <string>Plot Default Color</string>
    </property>
   </action>
  </widget>
