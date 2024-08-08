@@ -12,7 +12,6 @@ from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
 
 from time import time, sleep
-import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 window_title_1 = "Error"
@@ -130,6 +129,8 @@ class RunAnalysisInput(QDialog):
         self.modes = self.project.modes
 
     def pre_non_linear_convergence_plot(self):
+        import matplotlib.pyplot as plt
+
         if isinstance(self.solve, AcousticSolver):
             if self.analysis_id in [3,5,6]:
                 if self.solve.non_linear:

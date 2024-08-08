@@ -259,7 +259,7 @@ class MainWindow(QMainWindow):
 
         dt = time() - t0
         print(f"Time to process D: {dt} [s]")
-        self.load_recent_project()
+        # self.load_recent_project()
  
     # public
     def update_plots(self):
