@@ -166,10 +166,10 @@ class NewProjectInput(QDialog):
             if import_type == 1:
                 self.preprocessor._create_gmsh_geometry()
             else:
-                self.project.process_geometry_and_mesh(self.setup_data)
+                self.project.process_geometry_and_mesh()
 
         except Exception as error_log:
-            
+
             window_title = "Error"
             title = "Error while creating new project"
             message = str(error_log)
@@ -182,10 +182,10 @@ class NewProjectInput(QDialog):
         self.length_unit = self.comboBox_length_unit.currentText().replace(" ", "")
 
         self.setup_data = { 
-                            "length_unit" : self.length_unit,
-                            "element_size" : self.element_size,
-                            "geometry_tolerance" : self.geometry_tolerance,
-                            "import_type" : import_type,
+                            "length unit" : self.length_unit,
+                            "element size" : self.element_size,
+                            "geometry tolerance" : self.geometry_tolerance,
+                            "import type" : import_type,
                            }
 
         geometry_path = ""
@@ -204,7 +204,6 @@ class NewProjectInput(QDialog):
         self.project.set_project_setup(self.setup_data)
         
         if import_type == 0:
-            print(app().main_window.pulse_file.read_geometry_from_file())
             self.setup_data["geometry_path"] = app().main_window.pulse_file.read_geometry_from_file()
 
     def start_project(self):

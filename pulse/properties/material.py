@@ -12,7 +12,7 @@ class Material:
     density : float
         Material density.
 
-    young_modulus : float, optional
+    elasticity_modulus : float, optional
         Material Young's modulus.
         Default is None.
 
@@ -36,7 +36,7 @@ class Material:
         self.name = name
         self.identifier = kwargs.get("identifier", -1)
         self.density = density
-        self.young_modulus = kwargs.get("young_modulus", None)
+        self.elasticity_modulus = kwargs.get("elasticity_modulus", None)
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
         self.shear_modulus = kwargs.get("shear_modulus", None)
         self.color = kwargs.get("color", None)
@@ -58,7 +58,7 @@ class Material:
         --------
         lambda_parameter : Evaluate Lamé constant `lambda`.
         """
-        return self.young_modulus / (2 * (1 + self.poisson_ratio))
+        return self.elasticity_modulus / (2 * (1 + self.poisson_ratio))
 
     @property
     def lambda_parameter(self):
@@ -74,7 +74,7 @@ class Material:
         --------
         mu_parameter : Evaluate Lamé constant `mu`.
         """
-        return (self.poisson_ratio * self.young_modulus) / ((1 + self.poisson_ratio) * (1 - 2 * self.poisson_ratio))
+        return (self.poisson_ratio * self.elasticity_modulus) / ((1 + self.poisson_ratio) * (1 - 2 * self.poisson_ratio))
 
     def _calculate_remaining_properties(self):
         """
@@ -86,14 +86,14 @@ class Material:
             At least two arguments among Young's modulus, Poisson's ratio
             and shear modulus have to be attributed to the material.
         """
-        if (self.young_modulus and self.poisson_ratio) is not None:
-            self.shear_modulus = self.young_modulus / (2 * (1 + self.poisson_ratio))
+        if (self.elasticity_modulus and self.poisson_ratio) is not None:
+            self.shear_modulus = self.elasticity_modulus / (2 * (1 + self.poisson_ratio))
 
         elif (self.poisson_ratio and self.shear_modulus) is not None:
-            self.young_modulus = self.shear_modulus * (2 * (1 + self.poisson_ratio))
+            self.elasticity_modulus = self.shear_modulus * (2 * (1 + self.poisson_ratio))
 
-        elif (self.shear_modulus and self.young_modulus) is not None:
-            self.poisson_ratio = (self.young_modulus / (2 * self.shear_modulus)) - 1
+        elif (self.shear_modulus and self.elasticity_modulus) is not None:
+            self.poisson_ratio = (self.elasticity_modulus / (2 * self.shear_modulus)) - 1
 
         else:
             message = "At least two arguments among Young's modulus, Poisson's ratio"

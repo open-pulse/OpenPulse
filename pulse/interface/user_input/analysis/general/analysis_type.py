@@ -46,7 +46,7 @@ class AnalysisTypeInput(QDialog):
         self.exec()
 
     def _initialize(self):
-        self.analysis_ID = None
+        self.analysis_id = None
         self.analysis_type_label = None
         self.method_ID = None
         self.analysis_method_label = None
@@ -87,12 +87,12 @@ class AnalysisTypeInput(QDialog):
         self.method_ID = select.index
         self.analysis_type_label = "Structural Harmonic Analysis"
         if self.method_ID == 0:
-            self.analysis_ID = 0
+            self.analysis_id = 0
             self.analysis_method_label = "Direct Method"
         else:
-            self.analysis_ID = 1
+            self.analysis_id = 1
             self.analysis_method_label = "Mode Superposition Method"
-        self.project.set_analysis_type( self.analysis_ID, 
+        self.project.set_analysis_type( self.analysis_id, 
                                         self.analysis_type_label, 
                                         self.analysis_method_label )
         self.complete = True
@@ -104,12 +104,12 @@ class AnalysisTypeInput(QDialog):
         self.analysis_type_label = "Acoustic Harmonic Analysis"
 
         if self.method_ID == 0:
-            self.analysis_ID = 3
+            self.analysis_id = 3
             self.analysis_method_label = "Direct Method"
         else:
             return
     
-        self.project.set_analysis_type(self.analysis_ID, 
+        self.project.set_analysis_type(self.analysis_id, 
                                        self.analysis_type_label, 
                                        self.analysis_method_label)
         self.complete = True
@@ -125,12 +125,12 @@ class AnalysisTypeInput(QDialog):
         self.method_ID = coupled.index
         self.analysis_type_label = "Coupled Harmonic Analysis"
         if self.method_ID == 0:
-            self.analysis_ID = 5
+            self.analysis_id = 5
             self.analysis_method_label = "Direct Method"
         else:
-            self.analysis_ID = 6
+            self.analysis_id = 6
             self.analysis_method_label = "Mode Superposition Method"
-        self.project.set_analysis_type(self.analysis_ID, 
+        self.project.set_analysis_type(self.analysis_id, 
                                        self.analysis_type_label, 
                                        self.analysis_method_label)
         self.complete = True
@@ -143,9 +143,9 @@ class AnalysisTypeInput(QDialog):
             self.show()
             return
 
-        self.analysis_ID = 2
+        self.analysis_id = 2
         self.analysis_type_label = "Structural Modal Analysis"
-        self.project.set_analysis_type(self.analysis_ID, 
+        self.project.set_analysis_type(self.analysis_id, 
                                        self.analysis_type_label, 
                                        self.analysis_method_label)
         self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
@@ -159,9 +159,9 @@ class AnalysisTypeInput(QDialog):
             self.show()
             return
 
-        self.analysis_ID = 4
+        self.analysis_id = 4
         self.analysis_type_label = "Acoustic Modal Analysis"
-        self.project.set_analysis_type(self.analysis_ID, 
+        self.project.set_analysis_type(self.analysis_id, 
                                        self.analysis_type_label, 
                                        self.analysis_method_label)
         self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
@@ -175,10 +175,10 @@ class AnalysisTypeInput(QDialog):
             self.show()
             return
 
-        self.analysis_ID = 7
+        self.analysis_id = 7
         self.analysis_type_label = "Static Analysis"
         self.complete = static.complete
-        self.project.set_analysis_type(self.analysis_ID, 
+        self.project.set_analysis_type(self.analysis_id, 
                                        self.analysis_type_label, 
                                        self.analysis_method_label)
         self.complete = static.complete

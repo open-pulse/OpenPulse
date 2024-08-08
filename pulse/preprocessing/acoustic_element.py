@@ -225,7 +225,7 @@ class AcousticElement:
         if self.cross_section.section_label == 'Expansion joint section':
             return self.fluid.speed_of_sound
         else:
-            factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
+            factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.elasticity_modulus * self.cross_section.thickness)
             return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
         
     def matrix(self, frequencies, length_correction=0):

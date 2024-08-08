@@ -219,7 +219,7 @@ class AcousticPressureInput(QDialog):
             for node_id in self.nodes_typed:
 
                 node = self.preprocessor.nodes[node_id]
-                coords = list(node.coordinates)
+                coords = list(np.round(node.coordinates, 5))
 
                 prop_data = {   
                                 "coords" : coords,
@@ -372,7 +372,7 @@ class AcousticPressureInput(QDialog):
                                 "imag_values": imag_values,
                                 "table_path": self.path_imported_table,
                             }
-                
+
                 self.project.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
 
             self.process_table_file_removal(list_table_names)

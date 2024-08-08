@@ -54,7 +54,7 @@ class ReadData:
                 self.project.set_structural_solution(self.data['solution_structural'])
             
             if 'analysis_ID' in self.data.keys():
-                self.project.analysis_ID = self.data['analysis_ID']     
+                self.project.analysis_id = self.data['analysis_ID']     
             
             if 'frequencies' in self.data.keys():
                 self.project.frequencies = self.data['frequencies']

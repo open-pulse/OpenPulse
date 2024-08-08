@@ -124,7 +124,7 @@ class RunAnalysisInput(QDialog):
         self.close()
 
     def _load_analysis_info(self):
-        self.analysis_id = self.project.analysis_ID
+        self.analysis_id = self.project.analysis_id
         self.analysis_type_label = self.project.analysis_type_label
         self.frequencies = self.project.frequencies
         self.modes = self.project.modes

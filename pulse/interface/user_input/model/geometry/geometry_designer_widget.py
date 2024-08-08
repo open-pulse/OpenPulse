@@ -393,12 +393,12 @@ class GeometryDesignerWidget(QWidget):
         geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.export_model_data_file()
 
-        self.file.modify_project_attributes(
-            length_unit = self.length_unit,
-            element_size = 0.01, 
-            geometry_tolerance = 1e-6,
-            import_type = 1,
-        )
+        app().main_window.pulse_file.modify_project_attributes(
+                                                                length_unit = self.length_unit,
+                                                                element_size = 0.01, 
+                                                                geometry_tolerance = 1e-6,
+                                                                import_type = 1,
+                                                              )
 
         self._load_project()
 
@@ -594,10 +594,10 @@ class GeometryDesignerWidget(QWidget):
             section_parameters = cross_section_info["section_parameters"]
 
         material_id = ""
-        material_data = None
+        material = None
         if self.current_material_info is not None:
             material_id = self.current_material_info
-            material_data = self.file.get_material_properties(material_id)
+            material = self.material_widget.library_materials[material_id]
 
         message = "Active configuration\n\n"
 
@@ -611,9 +611,12 @@ class GeometryDesignerWidget(QWidget):
                 message += f"Section type: {section_label}\n"
             message += f"Section data: {section_parameters}\n\n"
 
-        if material_data is not None:
-            message += f"Material name: {material_data[0]}\n"
-            message += f"Material data: {material_data[1:]}\n\n"
+        if material is not None:
+            message += f"Material name: {material.name}\n"
+            message += f"Material id: {material.identifier}\n"
+            message += f"Elasticity modulus: {material.elasticity_modulus}\n"
+            message += f"Poisson ratio: {material.poisson_ratio}\n"
+            message += f"Density: {material.density}\n\n"
 
         if len(self.pipeline.selected_points) == 2:
             a = self.pipeline.selected_points[0].coords()
@@ -662,5 +665,5 @@ class GeometryDesignerWidget(QWidget):
     def _load_project(self):
         self.project.initial_load_project_actions()
         self.project.load_project_files()
-        app().main_window.input_ui.initial_project_action(True)
+        app().main_window.initial_project_action(True)
         self.complete = True

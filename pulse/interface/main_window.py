@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
         self.config = app().config
         self.project = app().project
         self.file = app().project.file
+
         self._initialize()
 
     def _initialize(self):
@@ -278,9 +279,14 @@ class MainWindow(QMainWindow):
         app().splash.close()
         self.showMaximized()
 
+        app().processEvents()
         dt = time() - t0
         print(f"Time to process D: {dt} [s]")
-        self.load_recent_project()
+
+        if not self.is_temporary_folder_empty():
+            self.recovery_dialog()
+        else:
+            self.load_recent_project()
  
     def create_temporary_folder(self):
         create_new_folder(self.user_path, "temp_pulse")
@@ -317,6 +323,7 @@ class MainWindow(QMainWindow):
             self.open_project()
         else:
             self.reset_temporary_folder()
+            self.load_recent_project()
 
     # public
     def update_plots(self):

@@ -20,7 +20,7 @@ from examples.animation.plot_function import plot_results
 speed_of_sound = 350.337
 density = 24.85
 hydrogen = Fluid('hydrogen', density, speed_of_sound)
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008, offset_y = 0.005, offset_z = 0.005)
 #  Preprocessor init

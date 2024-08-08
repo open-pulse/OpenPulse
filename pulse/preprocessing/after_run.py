@@ -27,7 +27,7 @@ class AfterRun:
         if self.solution_acoustic is None:
             pass
         else:
-            if self.project.analysis_ID in [3,5,6]:
+            if self.project.analysis_id in [3,5,6]:
                 static_pressure = [[] for _ in range(len(self.nodes))]
                 for element in self.acoustic_elements.values():
                     if element.fluid is None:

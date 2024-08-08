@@ -44,6 +44,7 @@ class ProjectFileIO:
         self.mesh_data_filename = "mesh_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
         self.thumbnail_filename = "thumbnail.png"
+        self.psd_info_filename = "psd_info.json"
 
     def _default_foldernames(self):
         pass
@@ -104,37 +105,6 @@ class ProjectFileIO:
     
     def read_project_setup_from_file(self):
         return self.filebox.read(self.project_setup_filename)
-    
-    def write_analysis_setup_in_file(self, analysis_setup):
-
-        project_setup = self.filebox.read(self.project_setup_filename)
-        if project_setup is None:
-            return   
-
-        aux = dict()
-        for key, data in analysis_setup.items():
-            if key == "frequencies":
-                continue
-            # if isinstance(data, np.ndarray):
-            #     data = list(data)
-            aux[key] = data
-
-        project_setup["analysis_setup"] = aux         
-        self.filebox.write(self.project_setup_filename, project_setup)
-        app().main_window.project_data_modified = True
-
-    def read_analysis_setup_from_file(self):
-
-        analysis_setup = None
-        project_setup = self.filebox.read(self.project_setup_filename)
-
-        if project_setup is None:
-            return
-
-        if "analysis_setup" in project_setup.keys():
-            analysis_setup = project_setup["analysis_setup"]
-
-        return analysis_setup
 
     def write_model_setup_in_file(self, project_setup : dict):
         self.filebox.write(self.project_setup_filename, project_setup)
@@ -163,6 +133,61 @@ class ProjectFileIO:
 
     def read_fluid_library_from_file(self):
         return self.filebox.read(self.fluid_library_filename)
+
+    def write_psd_data_in_file(self, psd_data):
+        self.filebox.write(self.psd_info_filename, psd_data)
+        app().main_window.project_data_modified = True
+
+    def read_psd_data_from_file(self):
+        return self.filebox.read(self.psd_info_filename)
+
+    def write_analysis_setup_in_file(self, analysis_setup : dict):
+
+        project_setup = self.filebox.read(self.project_setup_filename)
+        if project_setup is None:
+            return   
+
+        project_setup["analysis setup"] = analysis_setup         
+        self.filebox.write(self.project_setup_filename, project_setup)
+
+        app().main_window.project_data_modified = True
+
+    def read_analysis_setup_from_file(self):
+
+        analysis_setup = None
+        project_setup = self.filebox.read(self.project_setup_filename)
+
+        if project_setup is None:
+            return
+
+        if "analysis setup" in project_setup.keys():
+            analysis_setup = project_setup["analysis setup"]
+
+        return analysis_setup
+
+    def write_inertia_load_in_file(self, inertia_load : dict):
+
+        project_setup = self.filebox.read(self.project_setup_filename)
+        if project_setup is None:
+            return   
+
+        project_setup["inertia load"] = inertia_load         
+        self.filebox.write(self.project_setup_filename, project_setup)
+
+        app().main_window.project_data_modified = True
+
+    def read_inertia_load_from_file(self):
+
+        project_setup = self.filebox.read(self.project_setup_filename)
+
+        if project_setup is None:
+            return
+
+        inertia_load = None
+        if "inertia load" in project_setup.keys():
+            inertia_load = project_setup["inertia load"]
+
+        return inertia_load
 
     def write_model_properties_in_file(self):
 
@@ -434,31 +459,25 @@ class ProjectFileIO:
         project_setup = self.read_project_setup_from_file()
         if project_setup is None:
             return
-        
+
         if "project" in project_setup.keys():
 
             data = project_setup["project"]
-            
+
             if project_name is not None:
                 data['name'] = project_name
 
             if import_type is not None:
-                data['import type'] = str(import_type)
+                data['import type'] = import_type
 
             if length_unit is not None:
                 data['length unit'] = length_unit
 
             if element_size is not None:
-                data['element size'] = str(element_size)
-                # if 'element size' in data.keys(): 
-                #     read_element_size = data['element size']
-                #     if read_element_size != str(element_size):
-                #         data['element size'] = str(element_size)
-                # else:
-                #     data['element size'] = str(element_size)
-            
+                data['element size'] = element_size
+
             if geometry_tolerance is not None:
-                data['geometry tolerance'] = str(geometry_tolerance)
+                data['geometry tolerance'] = geometry_tolerance
 
             if geometry_filename is not None:
                 data['geometry file'] = geometry_filename

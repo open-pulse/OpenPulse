@@ -194,7 +194,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
 
     def load_frequencies_vector(self):
 
-        if self.project.analysis_ID == 7:
+        if self.project.analysis_id == 7:
             self.plot_displacement_for_static_analysis()
             
         self.treeWidget_frequencies.clear()

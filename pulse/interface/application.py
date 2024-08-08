@@ -7,7 +7,7 @@ from pulse.interface.splash_screen import SplashScreen
 
 from pulse.project.config import Config
 from pulse.project.project import Project
-from pulse.project.project_file import ProjectFile
+from pulse.interface.file.project_file import ProjectFile
 
 from opps.interface.toolboxes import GeometryToolbox
 

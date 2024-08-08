@@ -21,7 +21,7 @@ air.thermal_conductivity = 0.0263
 air.specific_heat_Cp = 1007
 air.dynamic_viscosity = 1.846e-05
 
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.273, 0.00927, offset_y=0, offset_z=0)
 cross_section.update_properties()

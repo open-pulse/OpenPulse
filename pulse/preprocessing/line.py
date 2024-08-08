@@ -1,4 +1,4 @@
-# from pulse.preprocessing.material import Material
+# from pulse.properties.material import Material
 
 class Line:
     """A entity class.

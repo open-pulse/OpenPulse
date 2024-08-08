@@ -58,14 +58,14 @@ class MaterialInputs(QWidget):
 
         self.row = None
         self.col = None
-        self.list_of_materials = list()
+        self.library_materials = dict()
 
         self.material_data_keys = [
                                     "name",
                                     "identifier",
                                     "density",
-                                    "young modulus",
-                                    "poisson",
+                                    "elasticity modulus",
+                                    "poisson ratio",
                                     "thermal expansion coefficient",
                                     "color"
                                     ]
@@ -125,24 +125,25 @@ class MaterialInputs(QWidget):
             self.reset_library_to_default()
             return
 
-        self.list_of_materials.clear()
+        self.library_materials.clear()
 
         if not list(config.sections()):
             self.update_table()
             return
 
         for tag in config.sections():
+            section = config[tag]
             material = Material(
-                                name = config[tag]['name'],
-                                identifier = int(config[tag]['identifier']), 
-                                density = float(config[tag]['density']),
-                                poisson_ratio = float(config[tag]['poisson']),
-                                young_modulus = float(config[tag]['young modulus']) * 1e9,
-                                thermal_expansion_coefficient = float(config[tag]['thermal expansion coefficient']), 
-                                color = getColorRGB(config[tag]['color'])
+                                name = section['name'],
+                                identifier = int(section['identifier']),
+                                density = float(section['density']),
+                                poisson_ratio = float(section['poisson ratio']),
+                                elasticity_modulus = float(section['elasticity modulus']) * 1e9,
+                                thermal_expansion_coefficient = float(section['thermal expansion coefficient']), 
+                                color = getColorRGB(section['color'])
                                 )
 
-            self.list_of_materials.append(material)
+            self.library_materials[int(tag)] = material
 
         self.update_table()
 
@@ -152,15 +153,15 @@ class MaterialInputs(QWidget):
         self.tableWidget_material_data.clearContents()
         self.tableWidget_material_data.blockSignals(True)
         self.tableWidget_material_data.setRowCount(COLOR_ROW + 1)
-        self.tableWidget_material_data.setColumnCount(len(self.list_of_materials))
+        self.tableWidget_material_data.setColumnCount(len(self.library_materials))
 
-        for j, material in enumerate(self.list_of_materials):
+        for j, material in enumerate(self.library_materials.values()):
             if isinstance(material, Material):
 
                 self.tableWidget_material_data.setItem(0, j, QTableWidgetItem(str(material.name)))
                 self.tableWidget_material_data.setItem(1, j, QTableWidgetItem(str(material.identifier)))
                 self.tableWidget_material_data.setItem(2, j, QTableWidgetItem(str(material.density)))
-                self.tableWidget_material_data.setItem(3, j, QTableWidgetItem(f"{material.young_modulus/1e9 :.2f}"))
+                self.tableWidget_material_data.setItem(3, j, QTableWidgetItem(f"{material.elasticity_modulus/1e9 :.2f}"))
                 self.tableWidget_material_data.setItem(4, j, QTableWidgetItem(str(material.poisson_ratio)))
                 self.tableWidget_material_data.setItem(5, j, QTableWidgetItem(str(material.thermal_expansion_coefficient)))
 
@@ -186,17 +187,20 @@ class MaterialInputs(QWidget):
         if selected_column < 0:
             return
 
-        if selected_column >= len(self.list_of_materials):
+        if selected_column >= len(self.library_materials):
             return
+        
+        item = self.tableWidget_material_data.item(1, selected_column)
+        material_id  = int(item.text())
 
-        return self.list_of_materials[selected_column]
+        return self.library_materials[material_id]
 
     def add_column(self):
     
         self.tableWidget_material_data.blockSignals(True)
 
         table_size = self.tableWidget_material_data.columnCount()
-        if table_size > len(self.list_of_materials):
+        if table_size > len(self.library_materials):
             # it means that if you already have a new row
             # to insert data you don't need another one
             self.tableWidget_material_data.blockSignals(False)
@@ -220,14 +224,14 @@ class MaterialInputs(QWidget):
         if selected_column < 0:
             return
 
-        if selected_column >= len(self.list_of_materials):
+        if selected_column >= len(self.library_materials):
             # if it is the last item and a not an already configured
             # material, just remove the last line
             current_size = self.tableWidget_material_data.columnCount()
             self.tableWidget_material_data.setColumnCount(current_size - 1)
             return
 
-        material = self.list_of_materials[selected_column]
+        material = self.library_materials[selected_column]
         self.remove_material_from_file(material)
     
     def item_changed_callback(self, item : QTableWidgetItem):
@@ -284,7 +288,7 @@ class MaterialInputs(QWidget):
         if not column_name:
             return True
 
-        for material in self.list_of_materials:
+        for material in self.library_materials:
             if material.name == column_name:
                 return True
 
@@ -295,7 +299,7 @@ class MaterialInputs(QWidget):
         item = self.tableWidget_material_data.item(1, column)
 
         already_used_ids = set()
-        for material in self.list_of_materials:
+        for material in self.library_materials:
             already_used_ids.add(material.identifier)
         
         if item.text() == "":
@@ -337,8 +341,8 @@ class MaterialInputs(QWidget):
     
         prop_labels = {
                         2 : "density", 
-                        3 : "young modulus",
-                        4 : "poisson",
+                        3 : "elasticity modulus",
+                        4 : "poisson ratio",
                         5 : "thermal expansion coefficient"
                     }
         
@@ -395,11 +399,11 @@ class MaterialInputs(QWidget):
             if not material_name:
                 return
 
-            config = app().main_window.file.read_material_library_from_file()
+            config = app().main_window.pulse_file.read_material_library_from_file()
             config[material_name] = material_data
 
-            app().main_window.file.write_material_library_in_file(config)
-                    
+            app().main_window.pulse_file.write_material_library_in_file(config)
+ 
         except Exception as error_log:
             title = "Error while writing material data in file"
             message = str(error_log)
@@ -408,20 +412,20 @@ class MaterialInputs(QWidget):
 
     def remove_material_from_file(self, material : Material):
 
-        config = app().main_window.file.read_material_library_from_file()
+        config = app().main_window.pulse_file.read_material_library_from_file()
 
         if not material.name in config.sections():
             return
 
         config.remove_section(material.name)
-        app().main_window.file.write_material_library_in_file(config)
+        app().main_window.pulse_file.write_material_library_in_file(config)
 
         self.reset_materials_from_bodies_and_surfaces([material.name])
         self.load_data_from_materials_library()
 
     def new_identifier(self):
         already_used_ids = set()
-        for material in self.list_of_materials:
+        for material in self.library_materials:
             already_used_ids.add(material.identifier)
 
         for i in count(1):
@@ -473,7 +477,7 @@ class MaterialInputs(QWidget):
 
     def reset_library_to_default(self):
 
-        config_cache = app().main_window.file.read_material_library_from_file()
+        config_cache = app().main_window.pulse_file.read_material_library_from_file()
 
         sections_cache = list()
         if config_cache is not None:
@@ -481,7 +485,7 @@ class MaterialInputs(QWidget):
 
         default_material_library()
 
-        config = app().main_window.file.read_material_library_from_file()
+        config = app().main_window.pulse_file.read_material_library_from_file()
 
         material_names = list()
         for section_cache in sections_cache:

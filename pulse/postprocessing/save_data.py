@@ -19,7 +19,7 @@ class SaveData:
 
         self.solution_structural = project.solution_structural
         self.solution_acoustic = project.solution_acoustic
-        self.analysis_ID = project.analysis_ID
+        self.analysis_id = project.analysis_id
         self.frequencies = project.frequencies
         self.natural_frequencies_acoustic = project.natural_frequencies_acoustic
         self.natural_frequencies_structural = project.natural_frequencies_structural
@@ -49,8 +49,8 @@ class SaveData:
         if self.solution_acoustic is not None:
             f.create_dataset('/results/solution_acoustic', data=self.solution_acoustic, dtype=complex)
         
-        if self.analysis_ID is not None:
-            f.create_dataset('/analysis_info/analysis_ID', data=self.analysis_ID, dtype=int)
+        if self.analysis_id is not None:
+            f.create_dataset('/analysis_info/analysis_ID', data=self.analysis_id, dtype=int)
         
         if self.analysis_type_label is not None:
             f.create_dataset('/analysis_info/analysis_type_label', data=self.analysis_type_label)
@@ -58,7 +58,7 @@ class SaveData:
         if self.analysis_method_label is not None:
             f.create_dataset('/analysis_info/analysis_method_label', data=self.analysis_method_label)
         
-        if self.analysis_ID in [2, 4]:
+        if self.analysis_id in [2, 4]:
             if self.natural_frequencies_structural is not None:
                 f.create_dataset('/analysis_info/natural_frequencies_structural', data=self.natural_frequencies_structural, dtype=float)
             if self.natural_frequencies_acoustic is not None:

@@ -5,7 +5,7 @@ from pulse.preprocessing.perforated_plate import PerforatedPlate
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.project.project_file import ProjectFile
+from pulse.interface.file.project_file import ProjectFile
 from pulse.tools.utils import *
 
 from pulse import app
@@ -31,6 +31,9 @@ class LoadProjectFile:
 
     def load_project_data_from_files(self):
         t0 = time()
+
+        self.pipeline_data = app().main_window.pulse_file.read_pipeline_data_from_file()
+
         self.initialize_dictionaries_for_load_data()
         self.load_material_data_from_file()
         self.load_fluid_data_from_file()
@@ -41,13 +44,6 @@ class LoadProjectFile:
         self.load_stress_stiffening_data_from_file()
         self.load_compressor_info_from_file()
         self.load_elements_data_from_file()
-        # print(self.cross_section_data)
-        # print(self.acoustic_element_type_data)
-        # print(self.structural_element_type_data)
-        # print(self.variable_sections_data)
-        # print(self.material_data)
-        # print(self.fluid_data)
-        # print(self.valve_data)
         # dt = time() - t0
         # print(f"Elapsed time to load project data: {dt} [s]")
 
@@ -71,52 +67,129 @@ class LoadProjectFile:
         self.B2XP_rotation_decoupling_data = dict()
         self.element_length_correction_data = dict()
 
-    def load_material_data_from_file(self):
+    def load_material_library(self):
 
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
+        materials_library = dict()
+        config = app().main_window.pulse_file.read_material_library_from_file()
 
-        material_list = configparser.ConfigParser()
-        material_list.read(self.file._material_list_path)
+        if config is None:
+            return
+
+        for tag in config.sections():
+
+            section = config[tag]
+
+            name = section['name']
+            identifier = int(section['identifier'])
+            density = float(section['density'])
+            poisson_ratio = float(section['poisson ratio'])
+            elasticity_modulus = float(section['elasticity modulus']) * 1e9
+            _thermal_expansion_coefficient = section['thermal expansion coefficient']
+            color = get_color_rgb(section['color'])
+
+            if _thermal_expansion_coefficient == "":
+                thermal_expansion_coefficient = float(0)
+            else:
+                thermal_expansion_coefficient = float(_thermal_expansion_coefficient)
+
+            material = Material(
+                                name = name,
+                                identifier = identifier, 
+                                density = density,
+                                poisson_ratio = poisson_ratio,
+                                elasticity_modulus = elasticity_modulus,
+                                thermal_expansion_coefficient = thermal_expansion_coefficient, 
+                                color = color
+                                )
+
+            materials_library[identifier] = material
+
+        return materials_library
+
+    def load_fluid_library(self):
+
+        fluids_library = dict()
+        config = app().main_window.pulse_file.read_fluid_library_from_file()
+
+        if config is None:
+            return
+
+        for tag in config.sections():
+
+            section = config[tag]
+            keys = section.keys()
+
+            name = section['name']
+            identifier = int(section['identifier'])
+            fluid_density = float(section['fluid density'])
+            speed_of_sound = float(section['speed of sound'])
+            color = get_color_rgb(section['color'])
+
+            temperature = None
+            if 'temperature' in keys:
+                temperature = float(section['temperature'])
+
+            pressure = None
+            if 'pressure' in keys:
+                pressure = float(section['pressure'])
+
+            isentropic_exponent = None
+            if 'isentropic exponent' in keys:
+                isentropic_exponent =  float(section['isentropic exponent'])
+            
+            thermal_conductivity = None
+            if 'thermal conductivity' in keys:
+                thermal_conductivity =  float(section['thermal conductivity'])
+
+            specific_heat_Cp = None
+            if 'specific heat cp' in keys:
+                specific_heat_Cp =  float(section['specific heat cp'])
+            
+            dynamic_viscosity = None
+            if 'dynamic viscosity' in keys:
+                dynamic_viscosity =  float(section['dynamic viscosity'])
+
+            molar_mass = None
+            if 'molar mass' in keys:
+                molar_mass =  float(section['molar mass'])
+           
+            fluid = Fluid( 
+                            name,
+                            fluid_density,
+                            speed_of_sound,
+                            identifier = identifier,
+                            isentropic_exponent = isentropic_exponent,
+                            thermal_conductivity = thermal_conductivity,
+                            specific_heat_Cp = specific_heat_Cp,
+                            dynamic_viscosity = dynamic_viscosity,
+                            temperature = temperature,
+                            pressure = pressure,
+                            molar_mass = molar_mass,
+                            color=color
+                          )
+
+            fluids_library[identifier] = fluid
+
+        return fluids_library
+
+    def load_material_data_from_file(self) -> dict:
+
+        library_materials = self.load_material_library()
         
         try:
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
 
                 if 'material id' in keys:
 
                     material_id = section['material id']
-
                     if material_id.isnumeric():
+
                         material_id = int(material_id)
-                        for material in material_list.sections():
-                            if int(material_list[material]['identifier']) == material_id:
-                                
-                                name = str(material_list[material]['name'])
-                                identifier = str(material_list[material]['identifier'])
-                                density =  str(material_list[material]['density'])
-                                youngmodulus =  str(material_list[material]['young modulus'])
-                                poisson =  str(material_list[material]['poisson'])
-                                thermal_expansion_coefficient = str(material_list[material]['thermal expansion coefficient'])
-                                color =  str(material_list[material]['color'])
-                                youngmodulus = float(youngmodulus)*(10**(9))
-                                
-                                if thermal_expansion_coefficient == "":
-                                    thermal_expansion_coefficient = float(0)
-                                else:
-                                    thermal_expansion_coefficient = float(thermal_expansion_coefficient)
-                                
-                                temp_material = Material(   name, 
-                                                            float(density), 
-                                                            young_modulus = youngmodulus, 
-                                                            poisson_ratio = float(poisson), 
-                                                            thermal_expansion_coefficient = thermal_expansion_coefficient,
-                                                            color = color,
-                                                            identifier = int(identifier)   )
-                                
-                                self.material_data[int(tag)] = temp_material
+                        if material_id in library_materials.keys():
+                            self.material_data[int(tag)] = library_materials[material_id]
 
         except Exception as error_log:
 
@@ -127,69 +200,22 @@ class LoadProjectFile:
 
     def load_fluid_data_from_file(self):
 
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
-
-        fluid_list = configparser.ConfigParser()
-        fluid_list.read(self.file._fluid_list_path)
+        fluids_library = self.load_material_library()
 
         try:
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
 
-                if 'fluid id' in keys:    
+                if 'fluid id' in keys:
+
                     fluid_id = section['fluid id']
-
                     if fluid_id.isnumeric():
+
                         fluid_id = int(fluid_id)
-                        for fluid in fluid_list.sections():
-                            keys = list(fluid_list[fluid].keys())
-                            if int(fluid_list[fluid]['identifier']) == fluid_id:
-                                name = fluid_list[fluid]['name']
-                                identifier = fluid_list[fluid]['identifier']
-                                fluid_density =  float(fluid_list[fluid]['fluid density'])
-                                speed_of_sound =  float(fluid_list[fluid]['speed of sound'])
-
-                                temperature = None
-                                if 'temperature' in keys:
-                                    temperature = float(fluid_list[fluid]['temperature'])
-
-                                pressure = None
-                                if 'pressure' in keys:
-                                    pressure = float(fluid_list[fluid]['pressure'])
-
-                                isentropic_exponent = None
-                                if 'isentropic exponent' in keys:
-                                    isentropic_exponent =  float(fluid_list[fluid]['isentropic exponent'])
-                                
-                                thermal_conductivity = None
-                                if 'thermal conductivity' in keys:
-                                    thermal_conductivity =  float(fluid_list[fluid]['thermal conductivity'])
-
-                                specific_heat_Cp = None
-                                if 'specific heat cp' in keys:
-                                    specific_heat_Cp =  float(fluid_list[fluid]['specific heat cp'])
-                                
-                                dynamic_viscosity = None
-                                if 'dynamic viscosity' in keys:
-                                    dynamic_viscosity =  float(fluid_list[fluid]['dynamic viscosity'])
-                                
-                                # acoustic_impedance =  fluid_list[fluid]['impedance']
-                                color =  fluid_list[fluid]['color']
-                                temp_fluid = Fluid( name,
-                                                    fluid_density,
-                                                    speed_of_sound,
-                                                    isentropic_exponent = isentropic_exponent,
-                                                    thermal_conductivity = thermal_conductivity,
-                                                    specific_heat_Cp = specific_heat_Cp,
-                                                    dynamic_viscosity = dynamic_viscosity,
-                                                    color=color, identifier = int(identifier),
-                                                    temperature = temperature,
-                                                    pressure = pressure )
-
-                                self.fluid_data[int(tag)] = temp_fluid
+                        if fluid_id in fluids_library.keys():
+                            self.fluid_data[int(tag)] = fluids_library[fluid_id]
 
         except Exception as error_log:
             
@@ -201,14 +227,11 @@ class LoadProjectFile:
 
     def load_cross_section_data_from_file(self):
 
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
-
         try:
             
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
 
                 list_elements = ""
@@ -324,14 +347,11 @@ class LoadProjectFile:
 
     def load_element_type_data_from_file(self):
 
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
-
         try:
 
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
 
                 list_elements = ""
@@ -411,14 +431,11 @@ class LoadProjectFile:
 
     def load_valve_data_from_file(self):
 
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
-
         try:
             
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
 
                 structural_element_type = ""
@@ -531,13 +548,10 @@ class LoadProjectFile:
 
     def load_compressor_info_from_file(self):
 
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
-
         try:
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
 
                 if 'compressor info' in keys:
@@ -559,15 +573,12 @@ class LoadProjectFile:
 
 
     def load_capped_end_data_from_file(self):
-
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
         
         try:
 
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
         
                 if 'capped end' in keys:
@@ -584,15 +595,12 @@ class LoadProjectFile:
 
 
     def load_stress_stiffening_data_from_file(self):
-
-        entity_file = configparser.ConfigParser()
-        entity_file.read(self.file._pipeline_path)
         
         try:
 
-            for tag in entity_file.sections():
+            for tag in self.pipeline_data.sections():
 
-                section = entity_file[tag]
+                section = self.pipeline_data[tag]
                 keys = section.keys()
 
                 if 'stress stiffening parameters' in keys:
@@ -755,3 +763,49 @@ class LoadProjectFile:
                         return None, None, None
 
         return output, list_table_names, list_frequencies
+
+    def load_analysis_file(self):
+
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+
+        if analysis_setup is None:
+            f_min = 0.
+            f_max = 0.
+            f_step = 0.
+            global_damping = [0., 0., 0., 0.]
+        
+        f_min = analysis_setup["f_min"]
+        f_max = analysis_setup["f_max"]
+        f_step = analysis_setup["f_step"]
+        global_damping = analysis_setup["global damping"]
+
+        return f_min, f_max, f_step, global_damping
+
+    def add_frequency_in_file(self, f_min, f_max, f_step):
+
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
+
+        analysis_setup["f_min"] = f_min
+        analysis_setup["f_max"] = f_max
+        analysis_setup["f_step"] = f_step
+
+        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+
+    def add_damping_in_file(self, global_damping):
+
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
+
+        analysis_setup["global damping"] = global_damping
+
+        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+
+def get_color_rgb(color : str):
+    color = color.replace(" ", "")
+    if ("[" or "(") in color:
+        color = color[1:-1]
+    tokens = color.split(',')
+    return list(map(int, tokens))

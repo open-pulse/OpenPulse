@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pulse.tools.utils import sparse_is_equal
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
+from pulse.properties.material import Material
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.project.project import Project
 from pulse.processing.structural_solver import StructuralSolver
@@ -21,7 +21,7 @@ def model():
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()
 
-    steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+    steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
     
     project = Project()
     preprocessor = Preprocessor(project)

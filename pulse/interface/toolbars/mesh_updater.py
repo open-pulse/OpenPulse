@@ -105,8 +105,10 @@ class MeshUpdater:
         self.t0 = time()
         element_size = self.current_element_size
         geometry_tolerance = self.current_geometry_tolerance
-        self.file.modify_project_attributes(element_size = element_size, 
-                                            geometry_tolerance = geometry_tolerance)
+        app().main_window.pulse_file.modify_project_attributes( 
+                                                                element_size = element_size, 
+                                                                geometry_tolerance = geometry_tolerance
+                                                               )
         self.main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
         self.main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
         self.project.initial_load_project_actions()

@@ -147,7 +147,7 @@ class SaveProjectAsInput(QDialog):
         else:
             self.copy_project_files()
             self.update_all_file_paths()
-            self.file.modify_project_attributes(project_name = project_name)
+            app().main_window.pulse_file.modify_project_attributes(project_name = project_name)
             if self.remove_current_project_files.isChecked():
                 rmtree(self.current_project_path)
             self.main_window.change_window_title(self.file.project_name)

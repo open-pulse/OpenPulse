@@ -33,17 +33,17 @@ class AnalysisSetupInput(QDialog):
 
         self.main_window = app().main_window
         self.project = self.main_window.project
-        self.analysis_ID = self.project.analysis_ID
+        self.analysis_id = self.project.analysis_id
 
         app().main_window.set_input_widget(self)
 
-        if self.analysis_ID in [1, 6]:
+        if self.analysis_id in [1, 6]:
             ui_path = UI_DIR / "analysis/structural/harmonic_analysis_mode_superposition_method.ui"
-        elif self.analysis_ID in [0, 5]:
+        elif self.analysis_id in [0, 5]:
             ui_path = UI_DIR / "analysis/structural/harmonic_analysis_direct_method.ui"
-        elif self.analysis_ID in [3]:
+        elif self.analysis_id in [3]:
             ui_path = UI_DIR / "analysis/acoustic/harmonic_analysis_direct_method.ui"
-        elif self.analysis_ID == 7:
+        elif self.analysis_id == 7:
             read = StaticAnalysisInput()
             self.complete = self.flag_run = read.complete
             return
@@ -89,7 +89,7 @@ class AnalysisSetupInput(QDialog):
         
         # QLineEdit
 
-        if self.analysis_ID == 1:
+        if self.analysis_id == 1:
             self.lineEdit_modes : QLineEdit
     
         self.lineEdit_av : QLineEdit
@@ -109,7 +109,7 @@ class AnalysisSetupInput(QDialog):
         self.currentTab = self.tabWidget.currentIndex()
 
     def _create_connections(self):
-        self.enter_setup_button.clicked.connect(self.check_exit)
+        self.enter_setup_button.clicked.connect(self.enter_setup_callback)
         self.run_analysis_button.clicked.connect(self.check_run)
         self.tabWidget.currentChanged.connect(self.tabEvent)
 
@@ -117,7 +117,7 @@ class AnalysisSetupInput(QDialog):
         self.currentTab = self.tabWidget.currentIndex()
 
     def update_damping_input_texts(self):
-        if self.analysis_ID not in [2,3,4]:
+        if self.analysis_id not in [2,3,4]:
             if self.global_damping != [0,0,0,0]:
                 self.lineEdit_av.setText(str(self.global_damping[0]))
                 self.lineEdit_bv.setText(str(self.global_damping[1]))
@@ -134,42 +134,54 @@ class AnalysisSetupInput(QDialog):
                 self.lineEdit_fmax.setDisabled(True)
                 self.lineEdit_fstep.setDisabled(True)
 
-    def check_exit(self):
-        input_fmin = input_fmax = input_fstep = 0
-        if self.analysis_ID not in [2, 4]:
+    def enter_setup_callback(self):
 
-            if self.analysis_ID in [1, 6]:
-                self.modes = self.check_inputs(self.lineEdit_modes, "'number of modes'")
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
+        
+        analysis_setup["analysis id"] = self.analysis_id
+
+        f_min = f_max = f_step = 0
+
+        if self.analysis_id not in [2, 4]:
+
+            if self.analysis_id in [1, 6]:
+                number_of_modes = self.check_inputs(self.lineEdit_modes, "'number of modes'")
                 if self.stop:
                     self.lineEdit_modes.setFocus()
                     return True
 
-            input_fmin = self.check_inputs(self.lineEdit_fmin, "'minimum frequency'", zero_included=True, _float=True)
+            f_min = self.check_inputs(self.lineEdit_fmin, "'minimum frequency'", zero_included=True, _float=True)
             if self.stop:
                 self.lineEdit_fmin.setFocus()
                 return True
 
-            input_fmax = self.check_inputs(self.lineEdit_fmax, "'maximum frequency'", _float=True)
+            f_max = self.check_inputs(self.lineEdit_fmax, "'maximum frequency'", _float=True)
             if self.stop:
                 self.lineEdit_fmax.setFocus()
                 return True
 
-            input_fstep = self.check_inputs(self.lineEdit_fstep, "'frequency resolution (df)'", _float=True)
+            f_step = self.check_inputs(self.lineEdit_fstep, "'frequency resolution (df)'", _float=True)
             if self.stop:
                 self.lineEdit_fstep.setFocus()
                 return True
 
-            if input_fmax < input_fmin + input_fstep:
+            if f_max < f_min + f_step:
                 title = "Invalid frequency setup"
                 message = "The maximum frequency (fmax) must be greater than \n"
                 message += "the sum between minimum frequency (fmin) and \n"
                 message += "frequency resolution (df)."
                 PrintMessageInput([window_title, title, message])
                 return True
+            
+            analysis_setup["f_min"] = f_min
+            analysis_setup["f_max"] = f_max
+            analysis_setup["f_step"] = f_step
 
         alpha_v = beta_v = alpha_h = beta_h = 0.0
         
-        if self.analysis_ID in [0, 1, 5, 6]:    
+        if self.analysis_id in [0, 1, 5, 6]:    
 
             alpha_v = self.check_inputs(self.lineEdit_av, "'proportional viscous damping (alpha_v)'", zero_included=True, _float=True)
             if self.stop:
@@ -193,15 +205,19 @@ class AnalysisSetupInput(QDialog):
 
         self.global_damping = [alpha_v, beta_v, alpha_h, beta_h]
         self.project.set_structural_damping(self.global_damping)
+        analysis_setup["global damping"] = self.global_damping
 
         if self.project.file.check_if_there_are_tables_at_the_model():
             self.frequencies = self.project.frequencies
         else:
-            self.frequencies = np.arange(input_fmin, input_fmax+input_fstep, input_fstep)
-            self.project.set_frequencies(self.frequencies, input_fmin, input_fmax, input_fstep)
-        
-        if not self.analysis_ID in [3,4]:
-            self.project.set_modes_sigma(self.modes)
+            self.frequencies = np.arange(f_min, f_max + f_step, f_step)
+            self.project.set_frequencies(self.frequencies, f_min, f_max, f_step)
+
+        if not self.analysis_id in [3, 4]:
+            self.project.set_modes_sigma(number_of_modes)
+            analysis_setup["modes"] = number_of_modes
+
+        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
 
         self.project.update_project_analysis_setup_state(True)
         self.complete = True
@@ -249,7 +265,7 @@ class AnalysisSetupInput(QDialog):
         return out
 
     def check_run(self):
-        if self.check_exit():
+        if self.enter_setup_callback():
             return
         self.flag_run = True
 

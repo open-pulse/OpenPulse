@@ -171,175 +171,91 @@ class ProjectFile:
         else:
             return None, None
 
-    def load(self, project_file_path):
+    # def load(self, project_file_path):
 
-        self.project_file_path = Path(project_file_path)
-        self._project_path = os.path.dirname(self.project_file_path)
+    #     self.project_file_path = Path(project_file_path)
+    #     self._project_path = os.path.dirname(self.project_file_path)
 
-        config = configparser.ConfigParser()
-        config.read(project_file_path)
+    #     config = configparser.ConfigParser()
+    #     config.read(project_file_path)
 
-        section = config['PROJECT']
-        # project_name = section['name']
-        import_type = int(section['import type'])
+    #     section = config['PROJECT']
+    #     # project_name = section['name']
+    #     import_type = int(section['import type'])
 
-        keys = list(section.keys())
+    #     keys = list(section.keys())
 
-        if 'length unit' in keys:
-            self._length_unit = section['length unit']
+    #     if 'length unit' in keys:
+    #         self._length_unit = section['length unit']
 
-        if 'geometry file' in keys:
-            geometry_file = section['geometry file']
-            self._geometry_path =  get_new_path(self._project_path, geometry_file)
+    #     if 'geometry file' in keys:
+    #         geometry_file = section['geometry file']
+    #         self._geometry_path =  get_new_path(self._project_path, geometry_file)
 
-        if 'element size' in keys:
-            element_size = section['element size']
-            self._element_size = float(element_size)
+    #     if 'element size' in keys:
+    #         element_size = section['element size']
+    #         self._element_size = float(element_size)
 
-        if 'geometry tolerance' in keys:
-            geometry_tolerance = section['geometry tolerance']
-            self._geometry_tolerance = float(geometry_tolerance)
+    #     if 'geometry tolerance' in keys:
+    #         geometry_tolerance = section['geometry tolerance']
+    #         self._geometry_tolerance = float(geometry_tolerance)
 
-        if 'material list file' in keys:
-            self._material_file_name = section['material list file']
+    #     if 'material list file' in keys:
+    #         self._material_file_name = section['material list file']
 
-        if 'fluid list file' in keys:
-            self._fluid_file_name = section['fluid list file']
+    #     if 'fluid list file' in keys:
+    #         self._fluid_file_name = section['fluid list file']
 
-        # self._project_name = project_name
-        self._import_type = import_type
-        self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-        self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
-        self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
-        self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
-        self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
-        self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
-        self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
-
-    def modify_project_attributes(self, **kwargs):
-
-        project_name = kwargs.get('project_name', None)
-        import_type = kwargs.get('import_type', None)
-        length_unit = kwargs.get('length_unit', None)
-        element_size = kwargs.get('element_size', None)
-        geometry_tolerance = kwargs.get('geometry_tolerance', None)
-        geometry_filename = kwargs.get('geometry_filename', None)
-        
-        config = configparser.ConfigParser()
-        config.read(self._project_ini_file_path)
-        
-        if config.has_section('PROJECT'):
-            section = config['PROJECT']
-            keys = section.keys()
-
-            if project_name is not None:
-                section['Name'] = project_name
-
-            if import_type is not None:
-                section['Import type'] = str(import_type)
-
-            if length_unit is not None:
-                section['Length unit'] = length_unit
-
-            if element_size is not None:
-                if 'element size' in keys: 
-                    read_element_size = section['element size']
-                    if read_element_size != str(element_size):
-                        section['element size'] = str(element_size)
-                else:
-                    section['element size'] = str(element_size)
-            
-            if geometry_tolerance is not None:
-                section['geometry tolerance'] = str(geometry_tolerance)
-
-            if geometry_filename is not None:
-                section['geometry file'] = geometry_filename
-
-            self.write_data_in_file(self._project_ini_file_path, config)
-            self.load(self._project_ini_file_path)
-
-    def check_if_entity_file_is_active(self):
-        
-        import_type = self.get_import_type()
-        if os.path.exists(self._pipeline_path):
-            config = configparser.ConfigParser()
-            config.read(self._pipeline_path)
-            if len(config.sections()):
-                for tag in config.sections():
-                    if import_type == 0:
-                        return True
-                    else:
-                        if "-" in tag:
-                            continue
-                        keys_to_check = ["start coords", "end coords"]
-                        for key in keys_to_check:
-                            if key not in config[tag].keys():
-                                return False
-                return True
-            else:
-                return False
-        else:
-            return False
+    #     # self._project_name = project_name
+    #     self._import_type = import_type
+    #     self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
+    #     self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
+    #     self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
+    #     self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
+    #     self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
+    #     self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
+    #     self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
 
     #Frequency Setup Analysis
     def load_analysis_file(self):
 
-        f_min = 0
-        f_max = 0
-        f_step = 0
-        alpha_v, beta_v = 0, 0
-        alpha_h, beta_h = 0, 0
-        
-        temp_project_base_file_path =  get_new_path(self._project_path, self._project_ini_name)
-        config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
-        sections = config.sections()
-        
-        if "Frequency setup" in sections:
-            keys = list(config['Frequency setup'].keys())
-            if "frequency min" in keys and "frequency max" in keys and "frequency step" in keys:
-                f_min = config['Frequency setup']['frequency min']
-                f_max = config['Frequency setup']['frequency max']
-                f_step = config['Frequency setup']['frequency step']
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
 
-        if "Global damping setup" in sections:
-            keys = list(config['Global damping setup'].keys())
-            if "alpha_v" in keys and "beta_v" in keys and "alpha_h" in keys and "beta_h" in keys:
-                alpha_v = config['Global damping setup']['alpha_v']
-                beta_v = config['Global damping setup']['beta_v']
-                alpha_h = config['Global damping setup']['alpha_h']
-                beta_h = config['Global damping setup']['beta_h']
-        
-        global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
+        if analysis_setup is None:
+            f_min = 0.
+            f_max = 0.
+            f_step = 0.
+            global_damping = [0., 0., 0., 0.]
 
-        return float(f_min), float(f_max), float(f_step), global_damping
+        else:
+            f_min = analysis_setup["f_min"]
+            f_max = analysis_setup["f_max"]
+            f_step = analysis_setup["f_step"]
+            global_damping = analysis_setup["global damping"]
+
+        return f_min, f_max, f_step, global_damping
 
     def add_frequency_in_file(self, f_min, f_max, f_step):
 
-        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
-        config = configparser.ConfigParser()
-        config.read(project_ini_path)
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
 
-        config["Frequency setup"] = {}
-        config['Frequency setup']['frequency min'] = str(f_min)
-        config['Frequency setup']['frequency max'] = str(f_max)
-        config['Frequency setup']['frequency step'] = str(f_step)
+        analysis_setup["f_min"] = f_min
+        analysis_setup["f_max"] = f_max
+        analysis_setup["f_step"] = f_step
 
-        self.write_data_in_file(project_ini_path, config)
+        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def add_damping_in_file(self, global_damping):
 
-        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
-        config = configparser.ConfigParser()
-        config.read(project_ini_path)
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
 
-        config['Global damping setup'] = {}
-        config['Global damping setup']['alpha_v'] = str(global_damping[0])
-        config['Global damping setup']['beta_v'] = str(global_damping[1])
-        config['Global damping setup']['alpha_h'] = str(global_damping[2])
-        config['Global damping setup']['beta_h'] = str(global_damping[3])
+        analysis_setup["global damping"] = global_damping
 
-        self.write_data_in_file(project_ini_path, config)
+        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def reset_project_setup(self, **kwargs):
 
@@ -394,56 +310,7 @@ class ProjectFile:
                         config.remove_option(tag, key)
 
             self.write_data_in_file(self._pipeline_path, config)
-        
-    def add_inertia_load_setup_to_file(self, gravity, stiffening_effect):
-        
-        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
-        config = configparser.ConfigParser()
-        config.read(project_ini_path)
 
-        key_effect = int(stiffening_effect)
-
-        config['Inertia load setup'] = {'gravity' : list(gravity),
-                                        'stiffening_effect' : key_effect}
-
-        self.write_data_in_file(project_ini_path, config)
-
-    def load_inertia_load_setup(self):
-
-        project_ini_path =  get_new_path(self._project_path, self._project_ini_name)
-        config = configparser.ConfigParser()
-        config.read(project_ini_path)
-        sections = config.sections()
-        
-        gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
-        key_stiffening = 0
-        
-        if 'Inertia load setup' in sections:
-            section = config['Inertia load setup']
-            if 'gravity' in section.keys():
-                gravity = get_list_of_values_from_string(section['gravity'], int_values=False)
-            if 'stiffening_effect' in section.keys():
-                key_stiffening = int(section['stiffening_effect'])
-
-        return np.array(gravity, dtype=float), bool(key_stiffening)
-
-    # def create_pipeline_file(self, lines):
-
-    #     if isinstance(lines, (int, float)):
-    #         lines = [lines]
-
-    #     config = configparser.ConfigParser()
-
-    #     if os.path.exists(self._pipeline_path):
-    #         sections = config.sections()
-    #         for line_id in lines:
-    #             if str(line_id) not in sections:
-    #                 config[str(line_id)] = dict()
-    #     else:
-    #         for line_id in lines:
-    #             config[str(line_id)] = dict()
-        
-    #     self.write_data_in_file(self._pipeline_path, config)
 
     def update_entity_file(self, entities, dict_map_lines={}):
 
@@ -671,18 +538,15 @@ class ProjectFile:
         
         self.write_data_in_file(self._pipeline_path, config)      
 
-    def add_cross_section_segment_in_file(self, segments, data):
+    def add_cross_section_segment_in_file(self, section_info : dict):
         
         try:
 
-            if isinstance(segments, int):
-                segments = [segments]
+            config = app().main_window.pulse_file.read_pipeline_data_from_file()
 
-            config = configparser.ConfigParser()
-            config.read(self._pipeline_path)
+            for line_id, data in section_info.items():
 
-            for segment_id in segments:
-                segment_id = str(segment_id)
+                line_id = str(line_id)
 
                 str_keys = [    'section parameters',
                                 'section properties',
@@ -695,38 +559,38 @@ class ProjectFile:
                                 'flange section parameters'   ]
 
                 for str_key in str_keys:
-                    if str_key in list(config[segment_id].keys()):
-                        config.remove_option(section=segment_id, option=str_key)
+                    if str_key in list(config[line_id].keys()):
+                        config.remove_option(section=line_id, option=str_key)
 
                 if data is not None:
 
                     section_type_label = data["section_type_label"]
-                    config[segment_id]['section type'] = section_type_label
+                    config[line_id]['section type'] = section_type_label
 
                     if section_type_label == "Pipe section":
-                        if segment_id in list(config.sections()):
+                        if line_id in list(config.sections()):
                             section_parameters = data["section_parameters"]
-                            config[segment_id]['section parameters'] = str(section_parameters)
+                            config[line_id]['section parameters'] = str(section_parameters)
 
                     else:
 
-                        if segment_id in list(config.sections()):
+                        if line_id in list(config.sections()):
 
                             if section_type_label == "Generic section":
                                 section_properties = data["section_properties"]
-                                config[segment_id]['section properties'] = str(section_properties)
+                                config[line_id]['section properties'] = str(section_properties)
 
                             else:
                                 section_parameters = data["section_parameters"]
-                                config[segment_id]['section parameters'] = str(section_parameters)                    
-        
+                                config[line_id]['section parameters'] = str(section_parameters)                    
+
         except Exception as error_log:
             title = "Error while writing cross-section data in file"
             message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
             return
 
-        self.write_data_in_file(self._pipeline_path, config)
+        app().main_window.pulse_file.write_pipeline_data_in_file(config)
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
@@ -1195,8 +1059,7 @@ class ProjectFile:
         if isinstance(lines, int):
             lines = [lines]
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
+        config = app().main_window.pulse_file.read_pipeline_data_from_file()
 
         for line_id in lines:
             str_line = str(line_id)
@@ -1206,10 +1069,10 @@ class ProjectFile:
                 for str_key in str_keys:
                     if str_key in config[str_line].keys():
                         config.remove_option(section=str_line, option=str_key)
-            
+
             config[str_line]['structural element type'] = element_type
 
-        self.write_data_in_file(self._pipeline_path, config)
+        app().main_window.pulse_file.write_pipeline_data_in_file(config)
 
     def modify_structural_element_wall_formulation_in_file(self, lines, formulation):
         
@@ -1360,32 +1223,6 @@ class ProjectFile:
 
     #     return segment_build_data
 
-    def remove_entity_gaps_from_file(self):
-
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-
-        config_no_gap = configparser.ConfigParser()
-
-        splited_lines = list()
-        for section in config.sections():
-            if "-" in section:
-                splited_lines.append(section)
-
-        tag = 0
-        for section in config.sections():
-
-            if section not in splited_lines:
-                tag += 1
-
-            if "-" in section:
-                suffix = int(section.split("-")[1])
-                config_no_gap[f"{tag}-{suffix}"] = config[section]
-            else:
-                config_no_gap[str(tag)] = config[section]
-
-        self.write_data_in_file(self._pipeline_path, config_no_gap)
-
     def add_material_in_file(self, lines, material):
 
         if isinstance(lines, int):
@@ -1408,17 +1245,16 @@ class ProjectFile:
 
         if isinstance(lines, int):
             lines = [lines]
-        
+
         if material_id is None:
             material_id = ""
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
+        config = app().main_window.pulse_file.read_pipeline_data_from_file()
 
         for line_id in lines:
             config[str(line_id)]['material id'] = str(material_id)
-            
-        self.write_data_in_file(self._pipeline_path, config)
+
+        app().main_window.pulse_file.write_pipeline_data_in_file(config)
 
     def add_psd_label_in_file(self, lines, psd_label):
 
@@ -1446,7 +1282,7 @@ class ProjectFile:
     #                 name = str(config[section]['name'])
     #                 identifier = int(config[section]['identifier'])
     #                 density =  float(config[section]['density'])
-    #                 elasticity_modulus =  float(config[section]['young modulus'])
+    #                 elasticity_modulus =  float(config[section]['elasticity modulus'])
     #                 poisson =  float(config[section]['poisson'])
     #                 thermal_expansion_coefficient = config[section]['thermal expansion coefficient']
     #                 # color =  str(config[section]['color'])

@@ -250,7 +250,7 @@ def analysis_info_text(frequency_index):
     project = app().project
 
     tree = TreeInfo(project.analysis_type_label)
-    if project.analysis_ID in [2, 4]:
+    if project.analysis_id in [2, 4]:
         if project.analysis_type_label == "Structural Modal Analysis":
             frequencies = project.get_structural_natural_frequencies()
         

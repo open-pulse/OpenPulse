@@ -24,10 +24,10 @@ t0 = time()
 
 ## Material definition:
 # steel
-young_modulus = 210e9 # Young modulus [Pa]
+elasticity_modulus = 210e9 # Young modulus [Pa]
 poisson_ratio = 0.3   # Poisson ratio[-]
 density = 7860  # Density[kg/m^3]
-material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_ratio = poisson_ratio)
+material_1 = Material('Steel', density, elasticity_modulus = elasticity_modulus, poisson_ratio = poisson_ratio)
 
 ## Cross section definition:
 outer_diameter = 0.05   # Outer diameter [m]

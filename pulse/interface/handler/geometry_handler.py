@@ -629,8 +629,8 @@ class GeometryHandler:
         tag = 1
         structures_data = dict()
         section_info = dict()
-        element_type_info = dict()
-        material_info = dict()
+        element_type_info = defaultdict(list)
+        material_info = defaultdict(list)
         psd_info = dict()
 
         for structure in self.pipeline.structures:
@@ -649,11 +649,13 @@ class GeometryHandler:
                 section_info[tag] = structure.extra_info["cross_section_info"]
 
             if "material_info" in structure.extra_info.keys():
-                material_info[tag] = structure.extra_info["material_info"]
+                material_id = structure.extra_info["material_info"]
+                material_info[material_id].append(tag)
 
             if "structural_element_type" in structure.extra_info.keys():
                 if structure.extra_info["structural_element_type"] is not None:
-                    element_type_info[tag] = structure.extra_info["structural_element_type"]
+                    structural_element_type = structure.extra_info["structural_element_type"]
+                    element_type_info[structural_element_type].append(tag)
 
             if "psd_label" in structure.extra_info.keys():
                 psd_info[tag] = structure.extra_info["psd_label"]
@@ -664,21 +666,16 @@ class GeometryHandler:
 
             self.create_pipeline_file(structures_data)
 
-            if len(section_info):
-                for tag, section in section_info.items():
-                    self.file.add_cross_section_segment_in_file(tag, section)
+            self.file.add_cross_section_segment_in_file(section_info)
 
-            if len(element_type_info):
-                for tag, e_type in element_type_info.items():
-                    self.file.modify_structural_element_type_in_file(tag, e_type)
+            for element_type, lines in element_type_info.items():
+                self.file.modify_structural_element_type_in_file(lines, element_type)
 
-            if len(material_info):
-                for tag, material_id in material_info.items():
-                    self.file.add_material_segment_in_file(tag, material_id)
+            for material_id, lines in material_info.items():
+                self.file.add_material_segment_in_file(lines, material_id)
 
-            if psd_info:
-                for tag, label in psd_info.items():
-                    self.file.add_psd_label_in_file(tag, label)
+            for tag, label in psd_info.items():
+                self.file.add_psd_label_in_file(tag, label)
 
             app().main_window.pulse_file.modify_project_attributes(import_type = 1)
             # self.load_project()

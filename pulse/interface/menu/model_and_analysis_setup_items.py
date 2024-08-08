@@ -306,12 +306,12 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_analysis_setup.setDisabled(True)
         self.item_child_run_analysis.setDisabled(True)
                     
-        if self.project.analysis_ID in [None, 2, 4]:
+        if self.project.analysis_id in [None, 2, 4]:
             self.item_child_analysis_setup.setDisabled(True)
         else:
             self.item_child_analysis_setup.setDisabled(False)
         
-        if self.project.analysis_ID is not None and self.project.setup_analysis_complete:
+        if self.project.analysis_id is not None and self.project.setup_analysis_complete:
             self.item_child_run_analysis.setDisabled(False)
             
     def update_structural_analysis_visibility_items(self):

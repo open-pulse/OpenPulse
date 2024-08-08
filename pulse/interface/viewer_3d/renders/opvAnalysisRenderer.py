@@ -523,7 +523,7 @@ class opvAnalysisRenderer(vtkRendererBase):
     def updateInfoText(self, *args, **kwargs):
         
         text = self.project.analysis_type_label + "\n"
-        if self.project.analysis_ID in [2, 4]:
+        if self.project.analysis_id in [2, 4]:
             if self.project.analysis_type_label == "Structural Modal Analysis":
                 frequencies = self.project.get_structural_natural_frequencies()
             if self.project.analysis_type_label == "Acoustic Modal Analysis":

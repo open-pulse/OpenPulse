@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
+from pulse.properties.material import Material
 from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.processing.assembly_structural import AssemblyStructural 
 from pulse.processing.structural_solver import StructuralSolver
@@ -21,7 +21,7 @@ from pulse.animation.plot_function import plot_results
 t0 = time()
 # PREPARING MESH
 element_type = 'beam_1'
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 preprocessor = Preprocessor()
 
 load_file = 1

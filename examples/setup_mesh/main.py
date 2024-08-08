@@ -1,11 +1,11 @@
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
+from pulse.properties.material import Material
 from pulse.preprocessing.preprocessor import  Preprocessor
 from pulse.processing.assembly_structural import get_global_matrices
 
 # create materials
-steel = Material('Steel', density=7860, young_modulus=210e9, poisson_ratio=0.3)
-alloy_steel = Material('AISI4140', density=7850, young_modulus=203200000000, poisson_ratio=0.27)
+steel = Material('Steel', density=7860, elasticity_modulus=210e9, poisson_ratio=0.3)
+alloy_steel = Material('AISI4140', density=7850, elasticity_modulus=203200000000, poisson_ratio=0.27)
 
 # create cross sections
 large_tube = CrossSection(0.05, 0.034)

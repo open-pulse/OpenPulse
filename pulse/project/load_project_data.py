@@ -1,6 +1,6 @@
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.project.load_project_file import LoadProjectFile
+from pulse.interface.file.load_project_file import LoadProjectFile
 from pulse.tools.utils import *
 
 from pulse.preprocessing.cross_section import CrossSection
@@ -22,6 +22,7 @@ class LoadProjectData:
         
     def _initialize(self):
         self.loader = LoadProjectFile()
+        self.bc_loader = None
         self.preprocessor = self.project.preprocessor
 
     def load_material_data(self):

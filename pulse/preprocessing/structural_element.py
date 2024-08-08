@@ -477,7 +477,7 @@ class StructuralElement:
         """
         L = self.length
 
-        E = self.material.young_modulus
+        E = self.material.elasticity_modulus
         mu = self.material.mu_parameter
         G = self.material.shear_modulus
                    
@@ -709,7 +709,7 @@ class StructuralElement:
         """
         L = self.length
 
-        E = self.material.young_modulus
+        E = self.material.elasticity_modulus
         mu = self.material.mu_parameter
         G = self.material.shear_modulus
         
@@ -1272,7 +1272,7 @@ class StructuralElement:
         L   = self.length
 
         # Material properities
-        E   = self.material.young_modulus
+        E   = self.material.elasticity_modulus
         nu  = self.material.poisson_ratio
         G   = self.material.shear_modulus
 
@@ -1364,7 +1364,7 @@ class StructuralElement:
         # Material properities
         rho = self.material.density
         # nu = self.material.poisson_ratio
-        E   = self.material.young_modulus
+        E   = self.material.elasticity_modulus
         G   = self.material.shear_modulus
 
         # Tube cross section properties

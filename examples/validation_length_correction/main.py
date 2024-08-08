@@ -15,7 +15,7 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 speed_of_sound = 343.21
 density = 1.2041
 air = Fluid('air', density, speed_of_sound)
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008, offset_y=0, offset_z=0)
 cross_section.update_properties()

@@ -48,7 +48,7 @@ class Project:
         self.name = None
         self.save_path = None
 
-        self.analysis_ID = None
+        self.analysis_id = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
         self.global_damping = [0, 0, 0, 0]
@@ -109,7 +109,7 @@ class Project:
         try:
 
             self.reset(reset_all=True)
-            self.file.load(app().main_window.temp_project_file_path)
+            # self.file.load(app().main_window.temp_project_file_path)
 
             if app().main_window.pulse_file.check_pipeline_data():
                 self.process_geometry_and_mesh()
@@ -160,9 +160,9 @@ class Project:
             self.process_geometry_and_mesh()
             self.load_project_files()
 
-    def process_geometry_and_mesh(self, setup_data : dict):
+    def process_geometry_and_mesh(self):
         t0 = time()
-        self.preprocessor.generate(setup_data)
+        self.preprocessor.generate()
         self.file.update_node_ids_after_mesh_changed()
         dt = time()-t0
         print(f"Time to process_geometry_and_mesh: {dt} [s]")
@@ -372,7 +372,7 @@ class Project:
             if self.preprocessor.stop_processing:
                 return
 
-            # if self.analysis_ID in [3, 4]:
+            # if self.analysis_id in [3, 4]:
             #     self.preprocessor.set_cross_section_by_element(elements, 
             #                                                    cross_section, 
             #                                                    update_cross_section = False, 
@@ -619,6 +619,13 @@ class Project:
         self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
 
     def load_inertia_load_setup(self):
+
+        inertia_load = app().main_window.pulse_file.read_inertia_load_from_file()
+        if inertia_load is None:
+            return
+
+        gravity = np.array(inertia_load["gravity"], dtype=float)
+        stiffening_effect = inertia_load["stiffening effect"]
         gravity, stiffening_effect = self.file.load_inertia_load_setup()
         self.preprocessor.set_inertia_load(gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
@@ -1294,7 +1301,7 @@ class Project:
             self.f_min, self.f_max, self.f_step = min_, max_, step_
             self.file.add_frequency_in_file(min_, max_, step_)
         self.frequencies = frequencies
-    
+
     def set_static_analysis_setup(self, analysis_setup):
         [self.weight_load, 
          self.internal_pressure_load,
@@ -1447,7 +1454,7 @@ class Project:
     #     label = ["acoustic pressure"]
     #     if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
     #         return
-    #     self.file.add_acoustic_bc_in_file(node_ids, data, label) 
+        # self.file.add_acoustic_bc_in_file(node_ids, data, label)
 
     def set_volume_velocity_bc_by_node(self, node_ids, data):
         label = ["volume velocity"]
@@ -1578,11 +1585,6 @@ class Project:
         self._set_structural_element_force_offset_to_lines(lines, force_offset)
         self.file.modify_structural_element_force_offset_in_file(lines, force_offset)
 
-    def set_inertia_load_setup(self, gravity, stiffening_effect=False):
-        self.preprocessor.set_inertia_load(gravity)
-        self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
-        self.file.add_inertia_load_setup_to_file(gravity, stiffening_effect)
-
     def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
         if isinstance(lines, int):
             lines = [lines]
@@ -1690,12 +1692,12 @@ class Project:
         return self.file._fluid_list_path
 
     def set_analysis_type(self, ID, analysis_text, method_text = ""):
-        self.analysis_ID = ID
+        self.analysis_id = ID
         self.analysis_type_label = analysis_text
         self.analysis_method_label = method_text
 
     def get_analysis_id(self): 
-        return self.analysis_ID
+        return self.analysis_id
 
     def get_analysis_type_label(self):
         return self.analysis_type_label
@@ -1722,12 +1724,12 @@ class Project:
 
     def get_structural_solve(self):
 
-        if self.analysis_ID in [5, 6]:
+        if self.analysis_id in [5, 6]:
             results = StructuralSolver(self.preprocessor, self.frequencies, acoustic_solution=self.solution_acoustic)
 
         else:
 
-            if self.analysis_ID in [2, 4]:
+            if self.analysis_id in [2, 4]:
                 results = StructuralSolver(self.preprocessor, None)
             else:
                 results = StructuralSolver(self.preprocessor, self.frequencies)
@@ -1768,9 +1770,9 @@ class Project:
         return self.structural_reactions
 
     def get_unit(self):
-        if self.analysis_ID is None:
-            return self.analysis_ID
-        analysis = self.analysis_ID
+        if self.analysis_id is None:
+            return self.analysis_id
+        analysis = self.analysis_id
         if analysis >=0 and analysis <= 7:
             if (analysis in [3, 5, 6] and self.plot_pressure_field) or self.plot_stress_field:
                 return "Pa"

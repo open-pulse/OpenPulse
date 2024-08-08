@@ -13,7 +13,7 @@ DEFAULT_MATERIAL = Material(
     identifier=1,
     color=(200, 200, 200),
     density=7860,
-    young_modulus=210e9,
+    elasticity_modulus=210e9,
     poisson_ratio=0.3,
 )
 

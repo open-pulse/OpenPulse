@@ -19,11 +19,11 @@ class PulsationSuppressionDevice:
 
         self.project = project
         self.file = project.file
+        self.preprocessor = project.preprocessor
 
         self._initialize()
     
     def _initialize(self):
-        self.psd_entity_data = dict()
         self.pulsation_suppression_device = dict()
         
     def add_pulsation_suppression_device(self, device_label, suppression_device_data):
@@ -47,11 +47,9 @@ class PulsationSuppressionDevice:
         self.load_project()
         self.set_element_length_corrections(device_label, device.branch_data)
 
-    def build_device(self, device_label, device):
+    def build_device(self, device_label, device : (SingleVolumePSD | DualVolumePSD)):
 
-        entity_path = self.file._pipeline_path
-        config = configparser.ConfigParser()
-        config.read(entity_path)
+        config = app().main_window.pulse_file.read_pipeline_data_from_file()
 
         line_tags = list()
         for section in config.sections():
@@ -102,60 +100,39 @@ class PulsationSuppressionDevice:
                 counter += 1
                 self.pulsation_suppression_device[device_label][f"Link-{counter}"] = link
 
-        with open(entity_path, 'w') as config_file:
-            config.write(config_file)
+        app().main_window.pulse_file.write_pipeline_data_in_file(config)
 
-    def write_psd_length_correction_in_file(self, device_label, device):
+    def write_psd_length_correction_in_file(self, device_label, device : (SingleVolumePSD | DualVolumePSD)):
 
-        project_path = Path(self.file._project_path)
-        path = project_path / "psd_info.json"
+        psd_data = app().main_window.pulse_file.read_psd_data_from_file()
+        if psd_data is None:
+            return
 
-        if path.exists():
-            with open(path) as file:
-                psd_data = json.load(file)
+        index = 0
+        if device_label in psd_data.keys():    
+            for (coords, connection_type) in device.branch_data:
+                index += 1
+                key = f"element length correction - {index}"
+                psd_data[device_label][key] = { "connection coords" : list(np.round(coords, 6)),
+                                                "connection type" : connection_type }
 
-            index = 0
-            if device_label in psd_data.keys():    
-                for (coords, connection_type) in device.branch_data:
-                    index += 1
-                    key = f"element length correction - {index}"
-                    psd_data[device_label][key] = { "connection coords" : list(np.round(coords, 6)),
-                                                    "connection type" : connection_type }
-
-            with open(path, "w") as file:
-                json.dump(psd_data, file, indent=2)
+        app().main_window.pulse_file.write_psd_data_in_file(psd_data)
 
     def write_psd_data_in_file(self):
-
-        project_path = Path(self.file._project_path)
-        path = project_path / "psd_info.json"
-
-        with open(path, "w") as file:
-            json.dump(self.pulsation_suppression_device, file, indent=2)
-
-        with open(path) as file:
-            read_data = json.load(file)
-
-            if read_data == {}:
-                os.remove(path)
+        app().main_window.pulse_file.write_psd_data_in_file(self.pulsation_suppression_device)
 
     def load_psd_data_from_file(self):
 
-        project_path = Path(self.file._project_path)
-        path = project_path / "psd_info.json"
-
-        self.link_info = defaultdict(list)
-        if not os.path.exists(path):
+        psd_data = app().main_window.pulse_file.read_psd_data_from_file()
+        if psd_data is None:
             return
 
         self.pulsation_suppression_device.clear()
-        with open(path) as file:
-            read_data = json.load(file)
-            self.pulsation_suppression_device = read_data
+        self.pulsation_suppression_device = psd_data
 
         self.link_data = defaultdict(list)
 
-        for psd_label, data in read_data.items():
+        for psd_label, data in psd_data.items():
             for key, value in data.items():
 
                 if "Link-" in key:
@@ -172,14 +149,14 @@ class PulsationSuppressionDevice:
         for key, values in  link_data.items():
             for (start_coords, end_coords) in values:
 
-                id_1 = self.project.preprocessor.get_node_id_by_coordinates(start_coords)
-                id_2 = self.project.preprocessor.get_node_id_by_coordinates(end_coords)
+                id_1 = self.preprocessor.get_node_id_by_coordinates(start_coords)
+                id_2 = self.preprocessor.get_node_id_by_coordinates(end_coords)
                 nodes = (id_1, id_2)
 
                 if key[1] == "acoustic_link":
-                    self.project.preprocessor.add_acoustic_link_data(nodes)
+                    self.preprocessor.add_acoustic_link_data(nodes)
                 else:
-                    self.project.preprocessor.add_structural_link_data(nodes)
+                    self.preprocessor.add_structural_link_data(nodes)
 
     def get_device_related_lines(self):
 
@@ -195,11 +172,9 @@ class PulsationSuppressionDevice:
 
         return self.psd_lines
 
-    def remove_psd_lines_from_entity_file(self, device_labels):
+    def remove_psd_lines_from_pipeline_file(self, device_labels):
 
-        entity_path = self.file._pipeline_path
-        config = configparser.ConfigParser()
-        config.read(entity_path)
+        config = app().main_window.pulse_file.read_pipeline_data_from_file()
 
         if isinstance(device_labels, str):
             device_labels = [device_labels]
@@ -210,11 +185,35 @@ class PulsationSuppressionDevice:
                     if config[section]["psd label"] == device_label:
                         config.remove_section(section)
 
-        with open(entity_path, 'w') as config_file:
-            config.write(config_file)
+        app().main_window.pulse_file.write_pipeline_data_in_file(config)
 
         if list(config.sections()):
-            self.file.remove_entity_gaps_from_file()
+            self.remove_line_gaps_from_file()
+
+    def remove_line_gaps_from_file(self):
+
+        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+
+        config_no_gap = configparser.ConfigParser()
+
+        splited_lines = list()
+        for section in config.sections():
+            if "-" in section:
+                splited_lines.append(section)
+
+        tag = 0
+        for section in config.sections():
+
+            if section not in splited_lines:
+                tag += 1
+
+            if "-" in section:
+                suffix = int(section.split("-")[1])
+                config_no_gap[f"{tag}-{suffix}"] = config[section]
+            else:
+                config_no_gap[str(tag)] = config[section]
+
+        app().main_window.pulse_file.write_pipeline_data_in_file(config_no_gap)
 
     def remove_selected_psd(self, device_label):
 
@@ -222,7 +221,7 @@ class PulsationSuppressionDevice:
             self.pulsation_suppression_device.pop(device_label)
 
         self.write_psd_data_in_file()
-        self.remove_psd_lines_from_entity_file(device_label)
+        self.remove_psd_lines_from_pipeline_file(device_label)
         self.remove_psd_related_element_length_correction("_remove_all_")
         self.load_project()
         self.update_length_correction_after_psd_removal()
@@ -233,31 +232,28 @@ class PulsationSuppressionDevice:
         self.pulsation_suppression_device.clear()
 
         self.write_psd_data_in_file()
-        self.remove_psd_lines_from_entity_file(device_labels)
+        self.remove_psd_lines_from_pipeline_file(device_labels)
         self.remove_psd_related_element_length_correction("_remove_all_")
         self.load_project()
 
     def update_length_correction_after_psd_removal(self):
 
-        project_path = Path(self.file._project_path)
-        path = project_path / "psd_info.json"
+        read_data = app().main_window.pulse_file.read_psd_data_from_file()
 
-        if path.exists():
+        if read_data is None:
+            return
 
-            with open(path) as file:
-                read_data = json.load(file)
+        for device_label, psd_data in read_data.items():
 
-            for device_label, psd_data in read_data.items():
+            elc_data = list()
+            for key, value in psd_data.items():
+                if "element length correction -" in key:
+                    elc_coords = value["connection coords"]
+                    elc_type = value["connection type"]
+                    elc_data.append((elc_coords, elc_type))
 
-                elc_data = list()
-                for key, value in psd_data.items():
-                    if "element length correction -" in key:
-                        elc_coords = value["connection coords"]
-                        elc_type = value["connection type"]
-                        elc_data.append((elc_coords, elc_type))
-
-                if elc_data:
-                    self.set_element_length_corrections(device_label, elc_data)
+            if elc_data:
+                self.set_element_length_corrections(device_label, elc_data)
 
     def set_element_length_corrections(self, device_label, elc_data):
 
@@ -265,8 +261,8 @@ class PulsationSuppressionDevice:
 
         for (coords, connection_type) in elc_data:
 
-            node_id = self.project.preprocessor.get_node_id_by_coordinates(coords)
-            elements = self.project.preprocessor.neighboor_elements_of_node(node_id)
+            node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+            elements = self.preprocessor.neighboor_elements_of_node(node_id)
             list_elements = [element.index for element in elements]
 
             if connection_type == "radial":
@@ -276,7 +272,7 @@ class PulsationSuppressionDevice:
                 _type = 0
 
             section = prefix.format("Selection-1")
-            keys = self.project.preprocessor.group_elements_with_length_correction.keys()
+            keys = self.preprocessor.group_elements_with_length_correction.keys()
 
             if section in keys:
                 index = 1
