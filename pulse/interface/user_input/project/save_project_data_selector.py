@@ -40,7 +40,7 @@ class SaveProjectDataSelector(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("Vibra")
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
         self.keep_window_open = True

@@ -46,7 +46,7 @@ class ConnectingFlangesInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.preprocessor._map_lines_to_nodes()
 
-        self.element_size = self.project.file._element_size
+        self.element_size = self.preprocessor.element_size
 
         self.complete = False
         self.multiple_selection = False
@@ -272,11 +272,11 @@ class ConnectingFlangesInput(QDialog):
         self.selection_callback()
 
     def update_flange_length_line(self):
-        self.flange_length = self.spinBox_number_elements_line.value()*self.element_size
+        self.flange_length = self.spinBox_number_elements_line.value() * self.element_size
         self.lineEdit_flange_length_line.setText(str(self.flange_length))
 
     def update_flange_length_node(self):
-        self.flange_length = self.spinBox_number_elements_node.value()*self.element_size
+        self.flange_length = self.spinBox_number_elements_node.value() * self.element_size
         self.lineEdit_flange_length_node.setText(str(self.flange_length))
 
     def reset_selection(self):

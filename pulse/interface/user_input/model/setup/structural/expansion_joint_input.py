@@ -55,7 +55,7 @@ class ExpansionJointInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         
         self.structural_elements = self.preprocessor.structural_elements
-        self.element_size = self.project.file._element_size
+        self.element_size = self.preprocessor.element_size
 
         self.userPath = os.path.expanduser('~')     
         self.imported_data_path = self.project.file._imported_data_folder_path

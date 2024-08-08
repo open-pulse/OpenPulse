@@ -264,7 +264,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def _get_lumped_spring_symbol(self):
 
-        e_size = self.project.file._element_size
+        e_size = self.preprocessor.element_size
         length = self.scaleFactor/2
 
         if self.scaleFactor/2 > 4*e_size:
@@ -308,7 +308,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def _get_lumped_damper_symbol(self):
 
-        e_size = self.project.file._element_size
+        e_size = self.preprocessor.element_size
         length = self.scaleFactor/2
 
         if self.scaleFactor/2 > 4*e_size:

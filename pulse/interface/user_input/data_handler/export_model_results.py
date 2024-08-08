@@ -24,8 +24,6 @@ class ExportModelResults(QFileDialog):
         self._initialize()
 
     def _initialize(self):
-        self.user_path = os.path.expanduser('~')
-        self.save_path = ""
         self.data = dict()
 
     def _set_data_to_export(self, data : dict):

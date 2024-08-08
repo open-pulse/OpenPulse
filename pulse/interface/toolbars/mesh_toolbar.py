@@ -1,12 +1,11 @@
-from pathlib import Path
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import QAction, QDoubleSpinBox, QFrame, QGridLayout, QLabel, QLineEdit, QPushButton, QToolBar
-
-from pulse.interface.toolbars.mesh_updater import MeshUpdater
-from pulse.interface.utils import check_inputs
 
 from pulse import app
+from pulse.interface.toolbars.mesh_updater import MeshUpdater
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.utils import check_inputs
 
 class MeshToolbar(QToolBar):
     def __init__(self):
@@ -101,7 +100,7 @@ class MeshToolbar(QToolBar):
     def change_button_visibility(self):
 
         self.pushButton_generate_mesh.setDisabled(True)
-        current_element_size, current_geometry_tolerance = self.project.file.get_mesh_attributes_from_project_file()
+        current_element_size, current_geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
 
         try:
             _element_size = float(self.lineEdit_element_size.text())
@@ -141,12 +140,13 @@ class MeshToolbar(QToolBar):
             return True
         
     def update_mesh_attributes(self):
-        try:
-            element_size, geometry_tolerance = self.project.file.get_mesh_attributes_from_project_file()
-            if element_size is not None:
-                self.lineEdit_element_size.setText(str(element_size))
-            if geometry_tolerance is not None:
-                self.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
-            self.change_button_visibility()
-        except:
-            pass
+
+        element_size, geometry_tolerance = self.mesh_updater.get_mesh_attributes_from_project_file()
+
+        if element_size is not None:
+            self.lineEdit_element_size.setText(str(element_size))
+
+        if geometry_tolerance is not None:
+            self.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
+
+        self.change_button_visibility()

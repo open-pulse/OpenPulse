@@ -152,25 +152,6 @@ class ProjectFile:
                     else:
                         rmtree(file_path)
 
-    def get_mesh_attributes_from_project_file(self):
-        element_size = None
-        geometry_tolerance = None
-        if self._project_path != "":
-            config = configparser.ConfigParser()
-            config.read(self.project_ini_file_path)
-            keys = config['PROJECT'].keys()
-            if 'element size' in keys:
-                str_element_size = config['PROJECT']['element size']
-                if str_element_size != "":
-                    element_size = float(str_element_size)
-            if 'geometry tolerance' in keys:
-                str_geometry_tolerance = config['PROJECT']['geometry tolerance']
-                if str_geometry_tolerance != "":
-                    geometry_tolerance = float(str_geometry_tolerance)
-            return element_size, geometry_tolerance
-        else:
-            return None, None
-
     # def load(self, project_file_path):
 
     #     self.project_file_path = Path(project_file_path)
@@ -2011,15 +1992,15 @@ class ProjectFile:
     #                     output_data[key] = node_data
 
     #                 else:
-    #                     print("aqui")
+    #
     #                     bc_data = dict()
     #                     for bc_key, value in node_data.items():
     #                         print(bc_key, value)
     #                         if internal_check(bc_key):
-    #                             print("deveria ignorar")
+    #
     #                             continue
     #                         else:
-    #                             print("deveria considerar")
+    #
     #                             bc_data[bc_key] = value
 
     #                     if bc_data:

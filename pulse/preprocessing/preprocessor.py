@@ -731,10 +731,11 @@ class Preprocessor:
                     countS +=1
             return countS
              
-    def check_disconnected_lines(self, size, tolerance=1e-6):
+    def check_disconnected_lines(self, tolerance=1e-6):
         """
         This methods shearchs for disconnected lines inside sphere of radius r < (size/2) + tolerance.
         """
+        size = self.element_size
         if self.nodal_coordinates_matrix_external is not None:
             coord_matrix = self.nodal_coordinates_matrix_external
             list_node_ids = []
@@ -754,7 +755,7 @@ class Preprocessor:
                             title = "Error while checking mesh at the line edges"
                             message = str(_log_error)
                             PrintMessageInput([window_title_1, title, message])
-            
+
             if len(list_node_ids)>0:
                 title = "Problem detected in connectivity between neighbor nodes"
                 message = "At least one disconnected node has been detected at the edge of one line due "

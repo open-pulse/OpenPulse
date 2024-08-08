@@ -36,8 +36,14 @@ class MeshUpdater:
         self.t0 = 0
 
     def set_project_attributes(self, element_size, geometry_tolerance):
+
         self.element_size = element_size
         self.geometry_tolerance = geometry_tolerance
+
+        app().main_window.pulse_file.modify_project_attributes(
+                                                                element_size = element_size, 
+                                                                geometry_tolerance = geometry_tolerance
+                                                               )
             
     def process_mesh_and_load_project(self):
 
@@ -89,10 +95,15 @@ class MeshUpdater:
         self.project.time_to_load_or_create_project = time() - self.t0
 
     def process_intermediate_actions(self):
-        self.current_element_size, self.current_geometry_tolerance = self.file.get_mesh_attributes_from_project_file()
+
+        self.current_element_size, self.current_geometry_tolerance = self.get_mesh_attributes_from_project_file()
+
         self.t0 = time()
-        self.project.file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
+        # app().main_window.pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
+
+        self.project.load_mesh_setup_from_file()
         self.project.initial_load_project_actions()
+
         if self.preprocessor.structural_elements:
             #
             data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
@@ -102,17 +113,29 @@ class MeshUpdater:
             [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
 
     def undo_mesh_actions(self):
+
         self.t0 = time()
+
         element_size = self.current_element_size
         geometry_tolerance = self.current_geometry_tolerance
-        app().main_window.pulse_file.modify_project_attributes( 
-                                                                element_size = element_size, 
-                                                                geometry_tolerance = geometry_tolerance
-                                                               )
+
+        self.set_project_attributes(
+                                        element_size,
+                                        geometry_tolerance
+                                    )
+
+        # app().main_window.pulse_file.modify_project_attributes( 
+        #                                                         element_size = element_size, 
+        #                                                         geometry_tolerance = geometry_tolerance
+        #                                                        )
+
         self.main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
         self.main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
+
+        self.project.load_mesh_setup_from_file()
         self.project.initial_load_project_actions()
         self.project.load_project_files()
+
         app().main_window.update_plots()
 
     def process_final_actions(self):
@@ -141,3 +164,28 @@ class MeshUpdater:
         self.project.load_project_files()
         app().main_window.update_plots()  
         self.complete = True
+
+    def get_mesh_attributes_from_project_file(self):
+
+        if app().main_window.pulse_file is None:
+            return None, None
+
+        project_setup = app().main_window.pulse_file.read_project_setup_from_file()
+        if project_setup is None:
+            return None, None
+
+        element_size = None
+        geometry_tolerance = None
+
+        if "mesher setup" in project_setup.keys():
+
+            mesh_setup = project_setup["mesher setup"]
+            keys = mesh_setup.keys()
+
+            if 'element size' in keys:
+                element_size = mesh_setup['element size']
+
+            if 'geometry tolerance' in keys:
+                geometry_tolerance = mesh_setup['geometry tolerance']
+
+        return element_size, geometry_tolerance

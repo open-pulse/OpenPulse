@@ -60,7 +60,6 @@ class SetFluidCompositionInput(QDialog):
         self.keep_window_open = True
         self.composition_file_path = ""
 
-        self.save_path = ""
         self.export_file_path = ""
         self.user_path = os.path.expanduser('~')
         self.fluid_path = self.project.get_fluid_list_path()

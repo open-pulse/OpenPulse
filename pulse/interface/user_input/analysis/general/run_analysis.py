@@ -8,8 +8,6 @@ from pulse.interface.formatters.icons import *
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
-from pulse.postprocessing.save_data import SaveData
-from pulse.postprocessing.read_data import ReadData
 
 from time import time, sleep
 import matplotlib.pyplot as plt
@@ -283,9 +281,6 @@ class RunAnalysisInput(QDialog):
             self.project.set_structural_reactions([ self.dict_reactions_at_constrained_dofs,
                                                     self.dict_reactions_at_springs,
                                                     self.dict_reactions_at_dampers  ])
-
-        # save = SaveData(self.project, file_name="results_data.hdf5")
-        # read = ReadData(self.project, file_name="results_data.hdf5")
 
         self.project.time_to_postprocess = time() - t0
         _times =  [self.project.time_to_process_cross_sections, self.project.time_to_preprocess_model, self.project.time_to_solve_model, self.project.time_to_postprocess]

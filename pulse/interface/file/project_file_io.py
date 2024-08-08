@@ -68,7 +68,7 @@ class ProjectFileIO:
             if project_setup is None:
                 project_setup = dict()
 
-            project_setup["project"] = data
+            project_setup["mesher setup"] = data
 
             self.filebox.write(self.project_setup_filename, project_setup)
             app().main_window.project_data_modified = True
@@ -80,8 +80,8 @@ class ProjectFileIO:
 
         data = self.filebox.read(self.project_setup_filename)
 
-        if "project" in data.keys():
-            project_setup = data["project"]
+        if "mesher setup" in data.keys():
+            project_setup = data["mesher setup"]
 
             if "geometry_filename" in project_setup.keys():
 
@@ -341,12 +341,12 @@ class ProjectFileIO:
 
     def check_pipeline_data(self):
         
-        project_data = self.read_project_setup_from_file()
-        if project_data is None:
+        project_setup = self.read_project_setup_from_file()
+        if project_setup is None:
             return False
 
-        project_setup = project_data["project"]
-        import_type = project_setup["import type"]
+        mesher_setup = project_setup["mesher setup"]
+        import_type = mesher_setup["import type"]
 
         pipeline_data = self.read_pipeline_data_from_file()
         if pipeline_data is None:
@@ -458,9 +458,9 @@ class ProjectFileIO:
         if project_setup is None:
             return
 
-        if "project" in project_setup.keys():
+        if "mesher setup" in project_setup.keys():
 
-            data = project_setup["project"]
+            data = project_setup["mesher setup"]
 
             if project_name is not None:
                 data['name'] = project_name

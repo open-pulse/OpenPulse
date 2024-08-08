@@ -3,10 +3,6 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
 from PyQt5 import uic
 
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-from opps.io.pcf.pcf_exporter import PCFExporter
-from opps.io.pcf.pcf_handler import PCFHandler
-
 from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
@@ -17,6 +13,8 @@ from pulse.interface.user_input.model.geometry.geometry_designer_widget import G
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
+
+from pulse.interface.auxiliar.file_dialog import FileDialog
 
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
@@ -31,6 +29,9 @@ from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilte
 from pulse.interface.file.project_file_io import ProjectFileIO
 
 from molde.render_widgets import CommonRenderWidget
+
+from opps.io.pcf.pcf_exporter import PCFExporter
+from opps.io.pcf.pcf_handler import PCFHandler
 
 import os
 import sys
@@ -67,19 +68,22 @@ class MainWindow(QMainWindow):
 
     def _initialize(self):
 
-        self.user_path = Path().home()
-        self.temp_project_folder_path = self.user_path / "temp_pulse"
-        self.temp_project_file_path = str(self.temp_project_folder_path / "tmp.pulse") 
-
         self.dialog = None
+        self.pulse_file = None
         self.input_ui = None
+
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
+
         self.interface_theme = None
         self.last_index = None
         self.last_render_index = None
 
         self.project_data_modified = False
+
+        self.user_path = Path().home()
+        self.temp_project_folder_path = self.user_path / "temp_pulse"
+        self.temp_project_file_path = str(self.temp_project_folder_path / "tmp.pulse") 
 
         self.cache_indexes = list()
 
@@ -248,6 +252,9 @@ class MainWindow(QMainWindow):
 
         self.model_and_analysis_items = self.model_and_analysis_setup_widget.model_and_analysis_setup_items
 
+    def create_file_dialog(self):
+        self.file_dialog = FileDialog()
+
     def configure_window(self):
         t0 = time()
         # self._load_stylesheets()
@@ -280,6 +287,7 @@ class MainWindow(QMainWindow):
         self.showMaximized()
 
         app().processEvents()
+        self.create_file_dialog()
         dt = time() - t0
         print(f"Time to process D: {dt} [s]")
 
@@ -313,79 +321,17 @@ class MainWindow(QMainWindow):
         caption += "Would you like to try to recover the last project files?"
 
         obj = QMessageBox.question(   
-            self, 
-            "Project recovery", 
-            caption, 
-            QMessageBox.Yes | QMessageBox.No
-        )
+                                    self, 
+                                    "Project recovery", 
+                                    caption, 
+                                    QMessageBox.Yes | QMessageBox.No
+                                  )
 
         if obj == QMessageBox.Yes:
             self.open_project()
         else:
             self.reset_temporary_folder()
             self.load_recent_project()
-
-    # public
-    def update_plots(self):
-        self.geometry_widget.update_plot(reset_camera=True)
-        self.mesh_widget.update_plot(reset_camera=True)
-        self.results_widget.update_plot(reset_camera=True)
-
-    def selection_changed_callback(self):
-        # TODO: implement something useful
-        pass
-
-    def new_project(self):
-        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
-        self.reset_geometry_render()
-        obj = NewProjectInput()
-        self.initial_project_action(obj.complete)
-        return obj.complete
-
-    def open_project(self, project_path: str | Path | None = None):
-
-        # t0 = time()
-        self.reset_geometry_render()
-
-        if project_path is not None:
-            app().config.add_recent_file(project_path)
-            app().config.write_last_folder_path_in_file("project folder", project_path)
-            # self.project_menu.update_recents_menu()
-            copy(project_path, self.temp_project_file_path)
-            self.update_window_title(project_path)
-
-        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
-
-        self.project.load_project()
-        self.mesh_toolbar.update_mesh_attributes()
-
-        # dt = time() - t0
-        # print(f"load_project: {dt} [s]")
-
-        self.initial_project_action(True)
-        self._update_recent_projects()
-        self.update_plots()
-        self.action_front_view_callback()
-
-    def open_project_dialog(self):
-
-        last_path = app().config.get_last_folder_for("project folder")
-        if last_path is None:
-            path = str(Path().home())
-        else:
-            path = last_path
-
-        project_path, check = QFileDialog.getOpenFileName( 
-                                                            self, 
-                                                            "Open Project", 
-                                                            path, 
-                                                            filter = "Pulse File (*.pulse)"
-                                                         )
-
-        if not check:
-            return True
-
-        self.open_project(project_path)
 
     def open_pcf(self):
         '''
@@ -394,13 +340,22 @@ class MainWindow(QMainWindow):
         '''
         from opps.model import Pipe, Bend, Flange
 
-        path, ok = QFileDialog.getOpenFileName(self, 'Load PCF', '', 'PCF (*.pcf)')
-        if not ok:
+        last_path = app().config.get_last_folder_for("pcf folder")
+        if last_path is None:
+            last_path = str(Path().home())
+
+        file_path, check = self.file_dialog.get_open_file_name(
+                                                                "Open PCF File", 
+                                                                last_path, 
+                                                                filter = "PCF File (*.pcf)"
+                                                               )
+
+        if not check:
             return
 
         pipeline = app().project.pipeline
         pcf_handler = PCFHandler()
-        pcf_handler.load(path, pipeline)
+        pcf_handler.load(file_path, pipeline)
 
         for structure in pipeline.structures:
             if isinstance(structure, Pipe | Bend):
@@ -433,12 +388,17 @@ class MainWindow(QMainWindow):
 
     def export_pcf(self):
 
-        init_path = os.path.expanduser("~")
-        path, ok = QFileDialog.getSaveFileName(self, 
-                                               'Export PCF file', 
-                                               init_path, 
-                                               'PCF (*.pcf)')
-        if not ok:
+        last_path = app().config.get_last_folder_for("exported pcf folder")
+        if last_path is None:
+            last_path = str(Path().home())
+
+        path, check = self.file_dialog.get_save_file_name( 
+                                                            'Export PCF file', 
+                                                            last_path, 
+                                                            'PCF File (*.pcf)'
+                                                         )
+
+        if not check:
             return
 
         pipeline = app().project.pipeline
@@ -448,16 +408,31 @@ class MainWindow(QMainWindow):
 
     def export_geometry(self):
 
-        init_path = os.path.expanduser("~")
-        path, ok = QFileDialog.getSaveFileName(self, 
-                                               'Export geometry file', 
-                                               init_path, 
-                                               'STEP (*.step)')
-        if not ok:
+        last_path = app().config.get_last_folder_for("exported geometry folder")
+        if last_path is None:
+            last_path = str(Path().home())
+
+        path, check = self.file_dialog.get_save_file_name(
+                                                            'Export geometry file', 
+                                                            last_path, 
+                                                            'Geometry File (*.step)'
+                                                          )
+
+        if not check:
             return
 
         geometry_handler = GeometryHandler()
         geometry_handler.export_cad_file(path)
+
+    # public
+    def update_plots(self):
+        self.geometry_widget.update_plot(reset_camera=True)
+        self.mesh_widget.update_plot(reset_camera=True)
+        self.results_widget.update_plot(reset_camera=True)
+
+    def selection_changed_callback(self):
+        # TODO: implement something useful
+        pass
 
     def set_selection(self, *, nodes=None, elements=None, lines=None, join=False, remove=False):
 
@@ -642,7 +617,7 @@ class MainWindow(QMainWindow):
         self.open_project()
 
     def action_save_project_as_callback(self):
-        self.input_ui.save_project_as()
+        self.save_project_as()
 
     def action_import_pcf_callback(self):
         self.open_pcf()
@@ -717,6 +692,8 @@ class MainWindow(QMainWindow):
         self.savePNG_call()
     
     def action_reset_callback(self):
+        #TODO: reimplement the project resetting
+        return
         self.input_ui.reset_project()
 
     def action_plot_geometry_editor_callback(self):
@@ -1000,10 +977,17 @@ class MainWindow(QMainWindow):
             # self.opv_widget.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
-        project_path = self.file._project_path
-        if not os.path.exists(project_path):
-            project_path = ""
-        path, check = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
+
+        last_path = app().config.get_last_folder_for("exported image folder")
+        if last_path is None:
+            last_path = str(Path().home())
+
+        path, check = self.file_dialog.get_save_file_name(
+                                                            'Save Captured Image', 
+                                                            last_path, 
+                                                            'PNG File (*.png)'
+                                                          )
+
         if not check:
             return
 
@@ -1014,27 +998,61 @@ class MainWindow(QMainWindow):
         width, height = widget.width(), widget.height()
         final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
         QCursor.setPos(final_pos)
-
-    def set_input_widget(self, dialog):
-        self.dialog = dialog
-
-    def close_dialogs(self):
-        if isinstance(self.dialog, (QDialog, QWidget)):
-            self.dialog.close()
-            self.set_input_widget(None)
-
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.ShortcutOverride:
-            if event.key() == Qt.Key_E:
-                self.combo_box_workspaces.setCurrentIndex(0)
-            elif event.key() == Qt.Key_S:
-                self.combo_box_workspaces.setCurrentIndex(1)
-            elif event.key() == Qt.Key_A:
-                self.combo_box_workspaces.setCurrentIndex(2)
-            elif event.key() == Qt.Key_R:
-                self.combo_box_workspaces.setCurrentIndex(3)
-        return super(MainWindow, self).eventFilter(obj, event)
     
+    def new_project(self):
+        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
+        self.reset_geometry_render()
+        obj = NewProjectInput()
+        self.initial_project_action(obj.complete)
+        return obj.complete
+
+    def open_project(self, project_path: str | Path | None = None):
+
+        # t0 = time()
+        self.reset_geometry_render()
+
+        if project_path is not None:
+            app().config.add_recent_file(project_path)
+            app().config.write_last_folder_path_in_file("project folder", project_path)
+            # self.project_menu.update_recents_menu()
+            copy(project_path, self.temp_project_file_path)
+            self.update_window_title(project_path)
+
+        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
+
+        self.project.load_project()
+        self.mesh_toolbar.update_mesh_attributes()
+
+        if project_path is not None:
+            path = Path(project_path)
+            self.project.name = path.stem
+            self.project.save_path = path
+
+        # dt = time() - t0
+        # print(f"load_project: {dt} [s]")
+
+        self.initial_project_action(True)
+        self._update_recent_projects()
+        self.update_plots()
+        self.action_front_view_callback()
+
+    def open_project_dialog(self):
+
+        last_path = app().config.get_last_folder_for("project folder")
+        if last_path is None:
+            last_path = str(Path().home())
+
+        project_path, check = self.file_dialog.get_open_file_name(
+                                                                    "Open Project", 
+                                                                    last_path, 
+                                                                    filter = "Pulse File (*.pulse)"
+                                                                  )
+
+        if not check:
+            return True
+
+        self.open_project(project_path)
+
     def save_project_dialog(self):
         if self.project.save_path is None:
             return self.save_project_as_dialog()
@@ -1049,16 +1067,13 @@ class MainWindow(QMainWindow):
 
             last_path = app().config.get_last_folder_for("project folder")
             if last_path is None:
-                path = os.path.expanduser("~")
-            else:
-                path = last_path
+                last_path = str(Path.home())
 
-            file_path, check = QFileDialog.getSaveFileName(
-                                                            self,
-                                                            "Save As",
-                                                            path,
-                                                            filter = "Pulse File (*.pulse)",
-                                                        )
+            file_path, check = self.file_dialog.get_save_file_name(
+                                                                    "Save As",
+                                                                    last_path,
+                                                                    filter = "Pulse File (*.pulse)",
+                                                                  )
 
             if not check:
                 return
@@ -1092,6 +1107,26 @@ class MainWindow(QMainWindow):
             project_path = Path(project_path)
         project_name = project_path.stem
         self.setWindowTitle(f"{project_name}")
+
+    def set_input_widget(self, dialog):
+        self.dialog = dialog
+
+    def close_dialogs(self):
+        if isinstance(self.dialog, (QDialog, QWidget)):
+            self.dialog.close()
+            self.set_input_widget(None)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.ShortcutOverride:
+            if event.key() == Qt.Key_E:
+                self.combo_box_workspaces.setCurrentIndex(0)
+            elif event.key() == Qt.Key_S:
+                self.combo_box_workspaces.setCurrentIndex(1)
+            elif event.key() == Qt.Key_A:
+                self.combo_box_workspaces.setCurrentIndex(2)
+            elif event.key() == Qt.Key_R:
+                self.combo_box_workspaces.setCurrentIndex(3)
+        return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
         self.close_app()

@@ -54,7 +54,7 @@ class ValvesInput(QDialog):
 
         self.structural_elements = self.preprocessor.structural_elements
 
-        self.element_size = self.project.file._element_size
+        self.element_size = self.preprocessor.element_size
         self.elements_info_path = self.project.file._element_info_path
         
         self.stop = False

@@ -37,6 +37,10 @@ class Project:
         self.PSD = PulsationSuppressionDevice(self)
         self.properties = ModelProperties()
 
+        self.name = None
+        self.save_path = None
+        self.thumbnail = None
+
         self.reset()
 
     def reset(self, reset_all=False):
@@ -44,10 +48,6 @@ class Project:
         if reset_all:
             self.preprocessor.reset_variables()
             self.file.reset()
-
-        self.name = None
-        self.save_path = None
-        self.thumbnail = None
 
         self.analysis_id = None
         self.analysis_type_label = ""
@@ -153,7 +153,7 @@ class Project:
                             message = "Loading project files",
                             target = load_callback
                         )
-        self.preprocessor.check_disconnected_lines(self.file._element_size)
+        self.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
         self.reset()
@@ -165,11 +165,11 @@ class Project:
             self.load_project_files()
 
     def process_geometry_and_mesh(self):
-        t0 = time()
+        # t0 = time()
         self.preprocessor.generate()
         self.file.update_node_ids_after_mesh_changed()
-        dt = time()-t0
-        print(f"Time to process_geometry_and_mesh: {dt} [s]")
+        # dt = time()-t0
+        # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
     def load_project_files(self):
         self.load_structural_bc_file()
@@ -620,10 +620,11 @@ class Project:
         self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
 
     def load_mesh_setup_from_file(self):
-        mesh_setup = app().main_window.pulse_file.read_project_setup_from_file()
-        if mesh_setup is None:
+        project_setup = app().main_window.pulse_file.read_project_setup_from_file()
+        if project_setup is None:
             return
-        self.preprocessor.set_mesher_setup(mesh_setup)
+        if "mesher setup" in project_setup.keys():
+            self.preprocessor.set_mesher_setup(project_setup["mesher setup"])
 
     def load_inertia_load_setup(self):
 
@@ -1666,9 +1667,6 @@ class Project:
             points[i] = self.preprocessor.nodes[i]
         return points
 
-    # def get_model_lines(self):
-    #     return self.preprocessor.lines
-
     def get_node(self, node_id):
         return self.preprocessor.nodes[node_id]
 
@@ -1676,8 +1674,8 @@ class Project:
         self.preprocessor.lines_from_model[line_id]
         return self.preprocessor.lines_from_model[line_id]
 
-    def get_element_size(self):
-        return self.file.element_size
+    # def get_element_size(self):
+    #     return self.file.element_size
 
     def set_modes_sigma(self, modes, sigma=1e-2):
         self.modes = modes
