@@ -3,10 +3,9 @@ from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtCore import Qt, pyqtSignal, QObject, QSize, QThread
 from PyQt5 import uic
 
-from pulse import app, UI_DIR, ICON_DIR
+from pulse import app, UI_DIR, ICON_DIR, version
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse import __version__, __release_date__
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -54,7 +53,7 @@ class LoadingScreen(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
         self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle(f"OpenPulse v{__version__}")
+        self.setWindowTitle(f"OpenPulse v{version}")
 
     def _define_qt_variables(self):
         self.label_animation : QLabel

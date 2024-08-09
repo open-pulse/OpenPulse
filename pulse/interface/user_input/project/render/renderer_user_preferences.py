@@ -108,10 +108,11 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_background_color.setDisabled(_bool)
 
     def _load_reference_scale_state(self):
+        return
         self.checkBox_reference_scale.setChecked(self.opv.opvRenderer.show_reference_scale)
 
     def _load_color_state(self):
-
+        return
         self.background_color = self.opv.opvRenderer.background_color
         self.bottom_font_color = self.opv.bottom_font_color
         self.top_font_color = self.opv.top_font_color
@@ -147,6 +148,7 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_surfaces_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
     
     def _load_logo_state(self):
+        return
         self.checkBox_OpenPulse_logo.setChecked(self.opv.opvRenderer.add_OpenPulse_logo)
 
     def update_background_color_state(self):
@@ -160,21 +162,25 @@ class RendererUserPreferencesInput(QDialog):
                 if self.update_background_color():
                     return
 
+        return
         # self.opv.background_color = self.background_color
         self.opv.opvRenderer.set_background_color(self.background_color)
         self.opv.opvAnalysisRenderer.set_background_color(self.background_color)
 
     def update_font_color_state(self):
+        return
         self.opv.bottom_font_color = self.bottom_font_color
         self.opv.opvRenderer.change_font_color(self.bottom_font_color)
         self.opv.opvAnalysisRenderer.change_font_color(self.bottom_font_color)
     
     def update_reference_scale_state(self):
+        return
         self.opv.opvRenderer.show_reference_scale = self.checkBox_reference_scale.isChecked()
         self.opv.opvRenderer._createScaleBar()
         self.opv.opvAnalysisRenderer._createScaleBar()
             
     def update_logo_state(self):     
+        return
         self.opv.opvRenderer.add_OpenPulse_logo = self.checkBox_OpenPulse_logo.isChecked()
         self.opv.opvRenderer.add_openpulse_logo()
         self.opv.opvAnalysisRenderer.add_openpulse_logo()
@@ -184,6 +190,7 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_elements_transparency.setText(str(self.elements_transparency))
 
     def update_slider_transparency(self):
+        return
         value = self.opv.opvRenderer.elements_transparency
         self.slider_transparency.setValue(int(100*value))
         self.lineEdit_elements_transparency.setText(str(value))
@@ -234,6 +241,7 @@ class RendererUserPreferencesInput(QDialog):
             return        
 
     def update_nodes_lines_elements_settings(self):
+        return
         self.opv.opvRenderer.changeNodesColor(self.nodes_color)
         self.opv.opvRenderer.changeLinesColor(self.lines_color)
         self.opv.opvRenderer.changeSurfacesColor(self.surfaces_color)
@@ -247,6 +255,9 @@ class RendererUserPreferencesInput(QDialog):
         self.update_reference_scale_state()
         self.update_nodes_lines_elements_settings()
         self.update_transparency_value()
+
+        return
+
 
         preferences = { 'interface theme' : self.main_window.interface_theme,
                         'background color' : str(self.opv.opvRenderer.background_color),
@@ -265,6 +276,7 @@ class RendererUserPreferencesInput(QDialog):
         # self.close()
 
     def update_renders(self):
+        return
 
         final_setup = [ self.opv.opvRenderer.background_color,
                         self.opv.bottom_font_color,
@@ -286,6 +298,7 @@ class RendererUserPreferencesInput(QDialog):
         self.reset_reference_scale_state()
         self.reset_nodes_lines_elements_settings()
         self.reset_transparency_value()
+        return
 
         preferences = { 'interface theme' : self.main_window.interface_theme,
                         'background color' : str(self.opv.opvRenderer.background_color),

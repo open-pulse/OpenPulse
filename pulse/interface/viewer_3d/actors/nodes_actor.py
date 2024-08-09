@@ -1,10 +1,9 @@
-import vtk
-from vtkmodules.vtkCommonCore import vtkPoints
-from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
-
-from molde.utils import set_polydata_property, set_polydata_colors
 from molde.actors import GhostActor
 from molde.colors import Color
+from molde.utils import set_polydata_colors, set_polydata_property
+from vtkmodules.vtkCommonCore import vtkCharArray, vtkPoints, vtkUnsignedIntArray
+from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 
 class NodesActor(GhostActor):
@@ -13,17 +12,19 @@ class NodesActor(GhostActor):
 
         self.project = project
         self.nodes = project.get_nodes()
-        self.hidden_nodes = kwargs.get('hidden_nodes', set())
+        self.hidden_nodes = kwargs.get("hidden_nodes", set())
         self.show_deformed = show_deformed
         self.build()
-    
+
     def build(self):
-        visible_nodes = {i:e for i,e in self.nodes.items() if (i not in self.hidden_nodes)}
-        self._key_index = {j:i for i,j in enumerate(visible_nodes.keys())}
+        visible_nodes = {
+            i: e for i, e in self.nodes.items() if (i not in self.hidden_nodes)
+        }
+        self._key_index = {j: i for i, j in enumerate(visible_nodes.keys())}
 
         points = vtkPoints()
         data = vtkPolyData()
-        node_index = vtk.vtkUnsignedIntArray()
+        node_index = vtkUnsignedIntArray()
         node_index.SetName("node_index")
         data.Allocate(len(visible_nodes))
 
@@ -36,7 +37,7 @@ class NodesActor(GhostActor):
         data.SetPoints(points)
         data.GetCellData().AddArray(node_index)
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()
         set_polydata_colors(data, (255, 180, 50))
@@ -52,14 +53,14 @@ class NodesActor(GhostActor):
 
     def set_color(self, color, nodes=None):
         data = self.GetMapper().GetInput()
-        if (nodes is None):
+        if nodes is None:
             set_polydata_colors(data, color)
             self.GetMapper().SetScalarModeToUseCellData()
             self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
             self.GetMapper().ScalarVisibilityOn()
             return
 
-        colors: vtk.vtkCharArray = data.GetCellData().GetArray("colors")
+        colors: vtkCharArray = data.GetCellData().GetArray("colors")
         for i in nodes:
             index = self._key_index.get(i)
             if index is not None:
@@ -68,4 +69,3 @@ class NodesActor(GhostActor):
         self.GetMapper().SetScalarModeToUseCellData()
         self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
         self.GetMapper().ScalarVisibilityOn()
-

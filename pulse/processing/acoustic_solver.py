@@ -2,7 +2,6 @@ from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 import numpy as np
 from numpy.linalg import norm
-import matplotlib.pyplot as plt
 from scipy.sparse.linalg import eigs, spsolve
 
 def relative_error(vect_1, vect_2):
@@ -211,6 +210,8 @@ class AcousticSolver:
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
+        import matplotlib.pyplot as plt
+
         self.get_global_matrices()
         volume_velocity = self.get_combined_volume_velocity()
 
@@ -332,6 +333,7 @@ class AcousticSolver:
             return solution, self.convergence_dataLog
 
     def graph_callback(self, interval, fig, ax):  
+        import matplotlib.pyplot as plt
 
         if (len(self.iterations) < 2) or (len(self.relative_error) < 2):
             xlim = (1, 10)

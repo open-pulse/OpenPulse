@@ -7,7 +7,7 @@ from pathlib import Path
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_new_path
-from pulse import app, UI_DIR, __version__
+from pulse import app, UI_DIR, version
 
 import os
 from shutil import copyfile
@@ -53,7 +53,7 @@ class NewProjectInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle(f"OpenPulse v{__version__}")
+        self.setWindowTitle(f"OpenPulse v{version()}")
 
     def _define_qt_variables(self):
         # QComboBox

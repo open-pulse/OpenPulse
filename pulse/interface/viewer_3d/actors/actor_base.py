@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
-import vtk
+
+from vtkmodules.vtkRenderingCore import vtkActor
+
 
 class ActorBase(ABC):
     def __init__(self):
-        self._actor = vtk.vtkActor()
+        self._actor = vtkActor()
         super().__init__()
 
     @abstractmethod
@@ -30,6 +32,6 @@ class ActorBase(ABC):
 
     def getActor(self):
         return self._actor
-    
+
     def setVisibility(self, cond):
         self._actor.SetVisibility(cond)

@@ -16,9 +16,9 @@ jet_colors = [
 # https://waldyrious.net/viridis-palette-generator/
 viridis_colors = [
     (68, 1, 84),
-    (59, 82, 139), 
-    (33, 145, 140), 
-    (94, 201, 98), 
+    (59, 82, 139),
+    (33, 145, 140),
+    (94, 201, 98),
     (253, 231, 37),
 ]
 

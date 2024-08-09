@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 
-from pulse import app, UI_DIR, __version__
+from pulse import app, UI_DIR, version
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.formatters.icons import * 
 
@@ -18,7 +18,7 @@ class GetUserConfirmationInput(QDialog):
         self.title = title
         self.message = message
         self.buttons_config = buttons_config
-        self.window_title = kwargs.get('window_title', f'OpenPulse v{__version__}')
+        self.window_title = kwargs.get('window_title', f'OpenPulse v{version()}')
 
         self._config_window()
         self._reset_variables()

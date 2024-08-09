@@ -1,33 +1,41 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-import numpy as np
 
+import numpy as np
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.render_widgets import AnimatedRenderWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
+from vtkmodules.vtkCommonDataModel import vtkPolyData
 
-import vtk
-from molde.interactor_styles import BoxSelectionInteractorStyle
-from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
-from molde.render_widgets import AnimatedRenderWidget
-from molde.utils import TreeInfo, format_long_sequence
+from pulse import ICON_DIR, app
+from pulse.interface.utils import rotation_matrices
+from pulse.interface.viewer_3d.actors import (
+    CuttingPlaneActor,
+    ElementLinesActor,
+    NodesActor,
+    PointsActor,
+    TubeActorGPU,
+)
+from pulse.interface.viewer_3d.coloring.color_table import ColorTable
+from pulse.postprocessing.plot_acoustic_data import (
+    get_acoustic_response,
+    get_max_min_values_of_pressures,
+)
+from pulse.postprocessing.plot_structural_data import (
+    get_min_max_resultant_displacements,
+    get_min_max_stresses_values,
+    get_stresses_to_plot,
+    get_structural_response,
+)
 
 from ._mesh_picker import MeshPicker
-from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text, analysis_info_text
-
-from pulse.interface.viewer_3d.actors import TubeActorGPU, NodesActor, PointsActor, ElementLinesActor, CuttingPlaneActor
-from pulse.interface.viewer_3d.coloring.color_table import ColorTable
-from pulse.interface.utils import rotation_matrices
-from pulse.postprocessing.plot_structural_data import (
-    get_structural_response,
-    get_stresses_to_plot,
-    get_min_max_stresses_values,
-    get_min_max_resultant_displacements,
+from ._model_info_text import (
+    analysis_info_text,
+    elements_info_text,
+    entity_info_text,
+    nodes_info_text,
 )
-from pulse.postprocessing.plot_acoustic_data import (
-    get_max_min_values_of_pressures,
-    get_acoustic_response,
-)
-from pulse import app, ICON_DIR
 
 
 class AnalysisMode(Enum):
@@ -46,10 +54,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.left_released.connect(self.selection_callback)
 
         app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(self.visualization_changed_callback)
+        app().main_window.visualization_changed.connect(
+            self.visualization_changed_callback
+        )
         app().main_window.selection_changed.connect(self.update_selection)
 
-        self.renderer.SetUseDepthPeeling(True)  # dont't remove, transparency depends on it
+        self.renderer.SetUseDepthPeeling(
+            True
+        )  # dont't remove, transparency depends on it
 
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
@@ -88,7 +100,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def create_logos(self, theme="light"):
         self.renderer.RemoveViewProp(self.open_pulse_logo)
-        self.open_pulse_logo = self.create_logo(ICON_DIR/ 'logos/OpenPulse_logo_gray.png')
+        self.open_pulse_logo = self.create_logo(
+            ICON_DIR / "logos/OpenPulse_logo_gray.png"
+        )
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
@@ -105,13 +119,19 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             # update the data according to the current analysis
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
                 deformed = True
-                color_table = self._compute_displacement_field(self.current_frequency_index, self.current_phase_step)
+                color_table = self._compute_displacement_field(
+                    self.current_frequency_index, self.current_phase_step
+                )
 
             elif self.analysis_mode == AnalysisMode.STRESS:
-                color_table = self._compute_stress_field(self.current_frequency_index, self.current_phase_step)
+                color_table = self._compute_stress_field(
+                    self.current_frequency_index, self.current_phase_step
+                )
 
             elif self.analysis_mode == AnalysisMode.PRESURE:
-                color_table = self._compute_pressure_field(self.current_frequency_index, self.current_phase_step)
+                color_table = self._compute_pressure_field(
+                    self.current_frequency_index, self.current_phase_step
+                )
 
             else:
                 # Empty color table
@@ -119,7 +139,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 self.colorbar_actor.VisibilityOff()
 
         except Exception as e:
-            return 
+            return
 
         self.lines_actor = ElementLinesActor(project, show_deformed=deformed)
         self.nodes_actor = NodesActor(project, show_deformed=deformed)
@@ -169,7 +189,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.update()
         else:
             self.update_plot()
-            cached = vtk.vtkPolyData()
+            cached = vtkPolyData()
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
             self._animation_cached_data[frame] = cached
 
@@ -187,7 +207,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if update:
             self.update()
 
-    def slider_callback(self, phase_deg):        
+    def slider_callback(self, phase_deg):
         self.current_phase_step = phase_deg * (2 * np.pi / 360)
         self.update_plot()
 
@@ -267,11 +287,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.plane_actor.VisibilityOn()
         self.update()
-    
+
     def dismiss_cutting_plane(self):
         if not self._actor_exists():
             return
-        
+
         self.cutting_plane_active = False
         self.tubes_actor.disable_cut()
         self.plane_actor.VisibilityOff()
@@ -279,11 +299,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def click_callback(self, x, y):
         self.mouse_click = x, y
-    
+
     def selection_callback(self, x1, y1):
         if not self._actor_exists():
             return
-        
+
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
         visualization_filter = app().main_window.visualization_filter
@@ -299,7 +319,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             if selection_filter.elements and visualization_filter.lines:
                 picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
-    
+
             if selection_filter.lines and visualization_filter.lines:
                 picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
 
@@ -311,7 +331,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             if selection_filter.elements and visualization_filter.lines:
                 picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
                 picked_elements.difference_update([-1])
-    
+
             if selection_filter.lines and visualization_filter.lines:
                 picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
                 picked_lines.difference_update([-1])
@@ -331,12 +351,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         alt_pressed = bool(modifiers & Qt.AltModifier)
 
         app().main_window.set_selection(
-                                        nodes = picked_nodes,
-                                        lines = picked_lines,
-                                        elements = picked_elements,
-                                        join = ctrl_pressed | shift_pressed,
-                                        remove = alt_pressed,   
-                                    )
+            nodes=picked_nodes,
+            lines=picked_lines,
+            elements=picked_elements,
+            join=ctrl_pressed | shift_pressed,
+            remove=alt_pressed,
+        )
 
     def update_selection(self):
         if not self._actor_exists():
@@ -403,9 +423,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         _, _, u_def, self._magnification_factor = get_structural_response(
             preprocessor,
             solution,
-            frequency_index, 
-            phase_step = phase_step,
-            r_max = self.r_xyz_abs
+            frequency_index,
+            phase_step=phase_step,
+            r_max=self.r_xyz_abs,
         )
 
         color_table = ColorTable(
@@ -421,13 +441,13 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         project = app().project
         preprocessor = project.preprocessor
         solution = project.get_structural_solution()
-        
+
         *_, self._magnification_factor = get_structural_response(
             preprocessor,
             solution,
-            frequency_index, 
-            phase_step = phase_step,
-            r_max = self.r_xyz_abs
+            frequency_index,
+            phase_step=phase_step,
+            r_max=self.r_xyz_abs,
         )
 
         stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(
@@ -439,21 +459,19 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             stresses_data,
             (self.stress_min, self.stress_max),
             self.colormap,
-            stress_field_plot=True,   
+            stress_field_plot=True,
         )
         return color_table
-
 
     def _compute_pressure_field(self, frequency_index, phase_step):
         project = app().project
         preprocessor = project.preprocessor
         solution = project.get_acoustic_solution()
 
-        *_, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(
-            preprocessor,
-            solution,
-            frequency_index, 
-            phase_step=phase_step
+        *_, pressure_field_data, self.min_max_pressures_values_current = (
+            get_acoustic_response(
+                preprocessor, solution, frequency_index, phase_step=phase_step
+            )
         )
 
         color_table = ColorTable(
@@ -461,9 +479,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             pressure_field_data,
             (self.pressure_min, self.pressure_max),
             self.colormap,
-            pressure_field_plot=True,   
+            pressure_field_plot=True,
         )
-        
+
         return color_table
 
     def _reset_min_max_values(self):
@@ -481,22 +499,22 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def _get_plane_size(self):
         x0, x1, y0, y1, z0, z1 = self.tubes_actor.GetBounds()
-        size = np.max(np.abs([x1-x0, y1-y0, z1-z0]))
+        size = np.max(np.abs([x1 - x0, y1 - y0, z1 - z0]))
         return size
 
     def _calculate_relative_position(self, position):
         def lerp(a, b, t):
-           return a + (b - a) * t
+            return a + (b - a) * t
 
         if not self._actor_exists():
-            return       
-        
+            return
+
         bounds = self.tubes_actor.GetBounds()
         x = lerp(bounds[0], bounds[1], position[0] / 100)
         y = lerp(bounds[2], bounds[3], position[1] / 100)
         z = lerp(bounds[4], bounds[5], position[2] / 100)
         return np.array([x, y, z])
-    
+
     def _calculate_normal_vector(self, orientation):
         orientation = np.array(orientation) * np.pi / 180
         rx, ry, rz = rotation_matrices(*orientation)

@@ -10,7 +10,6 @@ from opps.io.pcf.pcf_handler import PCFHandler
 from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.viewer_3d.opv_ui import OPVUi
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
@@ -672,22 +671,13 @@ class MainWindow(QMainWindow):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
 
-        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-        #     self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
-
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.apply_cutting_plane()
-        
-        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-        #     self.opv_widget.opvRenderer.apply_clipping_plane()
-        
+
     def close_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.dismiss_cutting_plane()
-        
-        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-        #     self.opv_widget.opvRenderer.dismiss_clipping_plane()
 
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()
@@ -835,7 +825,6 @@ class MainWindow(QMainWindow):
                 self.action_set_light_theme_callback()
         else:
             self.action_set_light_theme_callback()
-        # self.opv_widget.set_user_interface_preferences(self.user_preferences)
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
@@ -924,7 +913,6 @@ class MainWindow(QMainWindow):
         return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
-
         self.close_dialogs()
 
         title = "OpenPulse"

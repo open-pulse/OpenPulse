@@ -1,7 +1,8 @@
-import vtk
-from molde.poly_data import LinesData
-from molde.utils import set_polydata_property, set_polydata_colors
 from molde.actors import GhostActor
+from molde.poly_data import LinesData
+from molde.utils import set_polydata_colors
+from vtkmodules.vtkCommonCore import vtkCharArray, vtkIntArray, vtkUnsignedIntArray
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 
 class ElementLinesActor(GhostActor):
@@ -11,18 +12,20 @@ class ElementLinesActor(GhostActor):
         self.project = project
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
-        self.hidden_elements = kwargs.get('hidden_elements', set())
+        self.hidden_elements = kwargs.get("hidden_elements", set())
         self.show_deformed = show_deformed
         self.build()
 
     def build(self):
-        visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
-        self._key_index  = {j:i for i,j in enumerate(visible_elements)}
+        visible_elements = {
+            i: e for i, e in self.elements.items() if (i not in self.hidden_elements)
+        }
+        self._key_index = {j: i for i, j in enumerate(visible_elements)}
 
         lines = []
-        entity_index = vtk.vtkUnsignedIntArray()
+        entity_index = vtkUnsignedIntArray()
         entity_index.SetName("entity_index")
-        element_index = vtk.vtkUnsignedIntArray()
+        element_index = vtkUnsignedIntArray()
         element_index.SetName("element_index")
 
         for i, element in visible_elements.items():
@@ -43,7 +46,7 @@ class ElementLinesActor(GhostActor):
         data.GetCellData().AddArray(element_index)
         set_polydata_colors(data, (80, 80, 80))
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()
         mapper.ScalarVisibilityOff()  # Just to force color updates
@@ -60,38 +63,38 @@ class ElementLinesActor(GhostActor):
     def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()
         data = mapper.GetInput()
-        
+
         if (elements is None) and (lines is None):
             set_polydata_colors(data, color)
             mapper.SetScalarModeToUseCellData()
             mapper.ScalarVisibilityOff()  # Just to force color updates
             mapper.ScalarVisibilityOn()
             return
-        
+
         elements = set(elements) if elements else set()
         lines = set(lines) if lines else set()
 
         n_cells = data.GetNumberOfCells()
-        element_indexes: vtk.vtkIntArray = data.GetCellData().GetArray("element_index")
-        entity_indexes: vtk.vtkIntArray = data.GetCellData().GetArray("entity_index")
-        colors: vtk.vtkCharArray = data.GetCellData().GetArray("colors")
+        element_indexes: vtkIntArray = data.GetCellData().GetArray("element_index")
+        entity_indexes: vtkIntArray = data.GetCellData().GetArray("entity_index")
+        colors: vtkCharArray = data.GetCellData().GetArray("colors")
 
         for i in range(n_cells):
             element = element_indexes.GetValue(i)
             entity = entity_indexes.GetValue(i)
             if (entity in lines) or (element in elements):
                 colors.SetTuple3(i, *color)
-        
+
         mapper.SetScalarModeToUseCellData()
         mapper.ScalarVisibilityOff()  # Just to force color updates
         mapper.ScalarVisibilityOn()
 
     def get_cell_element(self, cell):
         data = self.GetMapper().GetInput()
-        element_indexes: vtk.vtkIntArray = data.GetCellData().GetArray("element_index")
+        element_indexes: vtkIntArray = data.GetCellData().GetArray("element_index")
         return element_indexes.GetValue(cell)
 
     def get_cell_entity(self, cell):
         data = self.GetMapper().GetInput()
-        entity_index: vtk.vtkIntArray = data.GetCellData().GetArray("entity_index")
+        entity_index: vtkIntArray = data.GetCellData().GetArray("entity_index")
         return entity_index.GetValue(cell)
