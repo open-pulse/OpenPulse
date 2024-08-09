@@ -95,10 +95,18 @@ class AnimationWidget(QWidget):
         
         if not check:
             return
-    
-        self.process_animation()
-        self.main_window.results_widget.generate_video(file_path)
-        self.main_window.results_widget.stop_animation()
+        
+        try:
+            self.process_animation()
+            self.main_window.results_widget.generate_video(file_path)
+            self.main_window.results_widget.stop_animation()
+            
+        except Exception as error_log:
+            title = "Error while exporting animation"
+            message = "An error has occured while exporting the animation file.\n"
+            message += str(error_log)
+            PrintMessageInput([window_title_1, title, message])
+
         
         
     
