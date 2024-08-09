@@ -167,6 +167,7 @@ class Project:
     def process_geometry_and_mesh(self):
         # t0 = time()
         self.preprocessor.generate()
+        app().main_window.update_status_bar_info()
         self.file.update_node_ids_after_mesh_changed()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")

@@ -405,6 +405,12 @@ class Preprocessor:
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
             self.number_acoustic_elements = len(self.acoustic_elements)
 
+    def get_mesh_statistics(self):
+        return len(self.nodes), len(self.acoustic_elements), len(self.structural_elements)
+
+    def get_geometry_statistics(self):
+        return len(self.geometry_points), len(self.lines_from_model)
+
     # def _create_dict_gdofs_to_external_indexes(self):
     #     # t0 = time()
     #     self.dict_gdofs_to_external_indexes = {}

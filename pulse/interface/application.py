@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication
 
 from pulse import ICON_DIR, UI_DIR
 from pulse.interface.main_window import MainWindow
-from pulse.interface.splash_screen import SplashScreen
+from pulse.interface.others.splash_screen import SplashScreen
 
 from pulse.project.config import Config
 from pulse.project.project import Project

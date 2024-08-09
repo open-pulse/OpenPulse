@@ -6,7 +6,7 @@ from PyQt5 import uic
 from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.viewer_3d.opv_ui import OPVUi
+from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
@@ -226,9 +226,6 @@ class MainWindow(QMainWindow):
 
     def _create_layout(self):
 
-        # self.opv_widget = OPVUi(self.project, self)
-        # self.opv_widget.opvAnalysisRenderer._createPlayer()
-
         self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget()
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_ui = InputUi(self)
@@ -268,6 +265,7 @@ class MainWindow(QMainWindow):
         t1 = time()
         self._create_layout()
         self._create_workspaces_toolbar()
+        self._create_status_bar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
         app().splash.update_progress(70)
@@ -1172,6 +1170,14 @@ class MainWindow(QMainWindow):
         self.mesh_widget.render_interactor.Finalize()
         self.results_widget.render_interactor.Finalize()
         sys.exit()
+
+    def _create_status_bar(self):
+        self.status_bar = StatusBar(self)
+        self.setStatusBar(self.status_bar)
+
+    def update_status_bar_info(self):
+        self.status_bar.update_mesh_information()
+        self.status_bar.update_geometry_information()
 
     # def _createStatusBar(self):
     #     self.status_bar = QStatusBar()
