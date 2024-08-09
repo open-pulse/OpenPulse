@@ -3,9 +3,9 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.properties.material import Material
-from pulse.preprocessing.preprocessor import  Preprocessor
+from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 

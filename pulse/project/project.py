@@ -1,11 +1,11 @@
 from pulse.tools.utils import *
 #
 from pulse.project.load_project_data import LoadProjectData
-from pulse.preprocessing.line import Line
-from pulse.preprocessing.preprocessor import Preprocessor
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.after_run import AfterRun
-from pulse.preprocessing.before_run import BeforeRun
+from pulse.model.line import Line
+from pulse.model.preprocessor import Preprocessor
+from pulse.model.cross_section import CrossSection
+from pulse.model.after_run import AfterRun
+from pulse.model.before_run import BeforeRun
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.processing.acoustic_solver import AcousticSolver
 #
@@ -230,26 +230,26 @@ class Project:
                 else:
                     rmtree(file_path)
 
-    def remove_structural_table_files_from_folder(self, filename, folder_name, remove_empty_files=True):
-        _folder_path = get_new_path(self.file._structural_imported_data_folder_path, folder_name)
-        if os.path.exists(_folder_path):
-            list_filenames = os.listdir(_folder_path).copy()
-            if filename in list_filenames:
-                file_path = get_new_path(_folder_path, filename)
-                if os.path.exists(file_path):
-                    os.remove(file_path)
+    # def remove_structural_table_files_from_folder(self, filename, folder_name, remove_empty_files=True):
+    #     _folder_path = get_new_path(self.file._structural_imported_data_folder_path, folder_name)
+    #     if os.path.exists(_folder_path):
+    #         list_filenames = os.listdir(_folder_path).copy()
+    #         if filename in list_filenames:
+    #             file_path = get_new_path(_folder_path, filename)
+    #             if os.path.exists(file_path):
+    #                 os.remove(file_path)
 
-        if remove_empty_files:
-            if os.path.exists(_folder_path):
-                list_filenames = os.listdir(_folder_path).copy()
-                if len(list_filenames) == 0:
-                    rmtree(_folder_path)
-                structural_folders = os.listdir(self.file._structural_imported_data_folder_path).copy()
-                if len(structural_folders) == 0:
-                    rmtree(self.file._structural_imported_data_folder_path)
-                base_folders = os.listdir(self.file._imported_data_folder_path).copy()
-                if len(base_folders) == 0:
-                    rmtree(self.file._imported_data_folder_path)
+    #     if remove_empty_files:
+    #         if os.path.exists(_folder_path):
+    #             list_filenames = os.listdir(_folder_path).copy()
+    #             if len(list_filenames) == 0:
+    #                 rmtree(_folder_path)
+    #             structural_folders = os.listdir(self.file._structural_imported_data_folder_path).copy()
+    #             if len(structural_folders) == 0:
+    #                 rmtree(self.file._structural_imported_data_folder_path)
+    #             base_folders = os.listdir(self.file._imported_data_folder_path).copy()
+    #             if len(base_folders) == 0:
+    #                 rmtree(self.file._imported_data_folder_path)
 
     def remove_acoustic_table_files_from_folder(self, filename, folder_name, remove_empty_files=True):
         _folder_path = get_new_path(self.file._acoustic_imported_data_folder_path, folder_name)
@@ -842,7 +842,7 @@ class Project:
         labels = ["displacements", "rotations"]
         if imported_table:
             values = table_names
-        self.file.add_structural_bc_in_file(node_id, values, labels)
+        # self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove = False):
 

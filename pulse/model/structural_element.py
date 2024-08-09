@@ -1,8 +1,8 @@
 from math import pi, sqrt, sin, cos
-from pulse.preprocessing.acoustic_element import DOF_PER_NODE
+from pulse.model.acoustic_element import DOF_PER_NODE
 import numpy as np
 
-from pulse.preprocessing.node import Node, distance, DOF_PER_NODE_STRUCTURAL
+from pulse.model.node import Node, distance, DOF_PER_NODE_STRUCTURAL
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT

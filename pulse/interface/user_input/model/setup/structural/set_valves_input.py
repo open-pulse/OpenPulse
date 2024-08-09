@@ -5,7 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.tools.utils import get_V_linear_distribution, remove_bc_from_file
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput

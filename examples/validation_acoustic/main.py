@@ -3,10 +3,10 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.properties.material import Material
 from pulse.properties.fluid import Fluid
-from pulse.preprocessing.preprocessor import  Preprocessor
+from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf, get_acoustic_response
 from examples.animation.plot_function import plot_results

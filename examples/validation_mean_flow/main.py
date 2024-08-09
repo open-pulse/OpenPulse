@@ -3,11 +3,11 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.properties.material import Material
 from pulse.properties.fluid import Fluid
-from pulse.preprocessing.preprocessor import Preprocessor
-from pulse.preprocessing.perforated_plate import PerforatedPlate
+from pulse.model.preprocessor import Preprocessor
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf

@@ -2,8 +2,8 @@ from numpy import sqrt, pi
 import numpy as np
 from scipy.special import jv, hankel1
 from scipy.optimize import root
-from pulse.preprocessing.perforated_plate import Foks_function
-from pulse.preprocessing.node import distance
+from pulse.model.perforated_plate import Foks_function
+from pulse.model.node import distance
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2

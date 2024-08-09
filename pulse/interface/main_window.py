@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
-from PyQt5.QtGui import QColor, QCursor
+from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
 
 from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
+from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
@@ -13,8 +14,6 @@ from pulse.interface.user_input.model.geometry.geometry_designer_widget import G
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
-
-from pulse.interface.auxiliar.file_dialog import FileDialog
 
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
@@ -1126,7 +1125,7 @@ class MainWindow(QMainWindow):
                 self.combo_box_workspaces.setCurrentIndex(3)
         return super(MainWindow, self).eventFilter(obj, event)
 
-    def closeEvent(self, event):
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.close_app()
         event.ignore()
 
@@ -1178,19 +1177,6 @@ class MainWindow(QMainWindow):
     def update_status_bar_info(self):
         self.status_bar.update_mesh_information()
         self.status_bar.update_geometry_information()
-
-    # def _createStatusBar(self):
-    #     self.status_bar = QStatusBar()
-    #     self.setStatusBar(self.status_bar)
-    #     #
-    #     label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
-    #     self.label_geometry_state = QLabel("", self)
-    #     self.label_geometry_state.setFont(label_font)
-    #     self.status_bar.addPermanentWidget(self.label_geometry_state)
-    #     #
-    #     self.label_mesh_state = QLabel("", self)
-    #     self.label_mesh_state.setFont(label_font)
-    #     self.status_bar.addPermanentWidget(self.label_mesh_state)
 
 def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name

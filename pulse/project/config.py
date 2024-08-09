@@ -12,7 +12,7 @@ class Config:
     def reset(self):
         self.recent_projects = dict()
         self.open_last_project = False
-        self.config_path = Path().home() / ".open_pulse_config"
+        self.config_path = Path().home() / ".pulse_config"
         self.load_config_file()
         self.load_args()
 

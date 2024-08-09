@@ -3,7 +3,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.file.load_project_file import LoadProjectFile
 from pulse.tools.utils import *
 
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 
 
 from time import time

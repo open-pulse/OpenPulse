@@ -6,7 +6,7 @@ import numpy as np
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
-from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"

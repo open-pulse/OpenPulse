@@ -1,7 +1,7 @@
 from pulse import app
 from pulse.properties.material import Material
 from pulse.properties.fluid import Fluid
-from pulse.preprocessing.cross_section import get_beam_section_properties
+from pulse.model.cross_section import get_beam_section_properties
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -42,6 +42,7 @@ class ProjectFileIO:
         self.pipeline_filename = "pipeline.dat"
         self.model_properties = "model_properties.json"
         self.mesh_data_filename = "mesh_data.hdf5"
+        self.imported_table_data_filename = "imported_table_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
         self.thumbnail_filename = "thumbnail.png"
         self.psd_info_filename = "psd_info.json"
@@ -108,8 +109,25 @@ class ProjectFileIO:
         self.filebox.write(self.project_setup_filename, project_setup)
         app().main_window.project_data_modified = True
 
-    def read_model_setup_from_file(self):
-        return self.filebox.read(self.project_setup_filename)
+    def read_imported_table_from_file(self, folder_name : str, file_name : str):
+        internal_path = f"imported_tables/{folder_name}/{file_name}"
+        return self.filebox.read(internal_path)
+
+    def create_temporary_folder(self, folder_name : str) -> Path:
+        dirname = self.project_folder_path / folder_name
+        if not dirname.exists():
+            os.makedirs(dirname)
+        return dirname
+
+    def write_imported_table_in_file(self, file_name : str, folder_name : str):
+
+        suffix = f"imported_tables/{folder_name}"
+        dirname = self.project_folder_path / suffix
+        temp_path = dirname / file_name
+        internal_path = f"imported_tables/{folder_name}/{file_name}"
+
+        self.filebox.write_from_path(internal_path, temp_path)
+        app().main_window.project_data_modified = True
 
     def write_pipeline_data_in_file(self, pipeline_data):
         self.filebox.write(self.pipeline_filename, pipeline_data)
@@ -200,23 +218,31 @@ class ProjectFileIO:
                 output = dict()
                 for (property, tag), data in prop.items():
 
+                    aux = dict()
                     key = f"{property} {tag}"
 
                     if property in ["fluid", "material"]:
                         if isinstance(data, (Fluid, Material)):
                             output[key] = data.identifier
                     else:
-                        output[key] = data
+                        if isinstance(data, dict):
+                            for _key, _data in data.items():
+                                if _key in ["values", "data arrays"]:
+                                    continue
+                                aux[_key] = _data
+
+                    if aux:
+                        output[key] = aux
 
                 return output
 
             properties = app().main_window.project.properties
 
             data = dict(
-                        # global_properties = normalize(properties.global_properties),
-                        line_properties = normalize(properties.line_properties),
-                        element_properties = normalize(properties.element_properties),
-                        nodal_properties = normalize(properties.nodal_properties),
+                            # global_properties = normalize(properties.global_properties),
+                            line_properties = normalize(properties.line_properties),
+                            element_properties = normalize(properties.element_properties),
+                            nodal_properties = normalize(properties.nodal_properties),
                         )
 
             self.filebox.write(self.model_properties, data)
@@ -227,7 +253,6 @@ class ProjectFileIO:
             title = "Error while exporting model properties"
             message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
-
 
     def read_model_properties_from_file(self):
 
@@ -256,6 +281,35 @@ class ProjectFileIO:
 
         return model_properties
     
+    def write_imported_table_data_in_file(self):
+        with self.filebox.open(self.imported_table_data_filename, "w") as internal_file:
+            with h5py.File(internal_file, "w") as f:
+
+                for (property, node_id), data in app().main_window.project.properties.nodal_properties.items():
+                    if "table names" in data.keys():
+
+                        if property in ["acoustic_pressure", "volume_velocity", "specific_impedance", "compressor_excitation"]:
+                            folder_name = "acoustic"
+                        else:
+                            folder_name = "structural"
+
+                        if "data arrays" in data.keys():
+                            data_arrays = data["data arrays"]
+
+                        if "table names" in data.keys():
+                            table_names = data["table names"]
+
+                        for i, table_name in enumerate(table_names):
+
+                            if table_name is None:
+                                continue
+
+                            data_name = f"{folder_name}/{table_name}"
+
+                            f.create_dataset(data_name, data=data_arrays[i], dtype=float)
+                
+                app().main_window.project_data_modified = True
+
     def write_thumbnail(self):
         thumbnail = app().main_window.project.thumbnail
         if thumbnail is None:
@@ -329,15 +383,23 @@ class ProjectFileIO:
             return dict()
 
         return results_data
-    
+
     def remove_model_properties_from_project_file(self):
         self.filebox.remove(self.model_properties)
+        app().main_window.project_data_modified = True
 
     def remove_mesh_data_from_project_file(self):
         self.filebox.remove(self.mesh_data_filename)
+        app().main_window.project_data_modified = True
 
     def remove_results_data_from_project_file(self):
         self.filebox.remove(self.results_data_filename)
+        app().main_window.project_data_modified = True
+
+    def remove_table_from_project_file(self, folder_name : str, file_name : str):
+        internal_path = f"imported_tables/{folder_name}/{file_name}"
+        self.filebox.remove(internal_path)
+        app().main_window.project_data_modified = True
 
     def check_pipeline_data(self):
         

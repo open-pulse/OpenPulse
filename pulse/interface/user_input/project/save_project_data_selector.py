@@ -6,7 +6,6 @@ from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-# from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 
 import os
 
@@ -28,8 +27,6 @@ class SaveProjectDataSelector(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-
-        # ConfigWidgetAppearance(self, tool_tip=True)
 
         self.get_required_memory()
 

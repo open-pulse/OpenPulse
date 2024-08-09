@@ -2,8 +2,8 @@ from time import time
 import numpy as np
 from scipy.sparse import csr_matrix
 
-from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
+from pulse.model.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 class AssemblyStructural:
     """ This class creates a structural assembly object from input data.

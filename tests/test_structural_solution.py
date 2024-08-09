@@ -3,9 +3,9 @@ import pytest
 from pathlib import Path
 
 from pulse.tools.utils import sparse_is_equal
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.properties.material import Material
-from pulse.preprocessing.preprocessor import Preprocessor
+from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.read_data import ReadData

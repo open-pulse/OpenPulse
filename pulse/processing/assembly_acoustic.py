@@ -4,8 +4,8 @@ from math import pi
 from numpy.linalg import norm
 from scipy.sparse import csr_matrix, csc_matrix
 
-from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
-from pulse.preprocessing.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC
+from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 def length_correction_expansion(smaller_diameter, larger_diameter):
     """ This function returns the acoustic length correction due to expansion in the acoustic domain. This discontinuity is characterized by two elements in line with different diameters.

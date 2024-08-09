@@ -8,7 +8,7 @@ from pulse import app, UI_DIR
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.preprocessing.perforated_plate import PerforatedPlate
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 from pulse.tools.utils import get_new_path, remove_bc_from_file
 

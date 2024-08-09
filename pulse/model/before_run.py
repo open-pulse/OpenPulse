@@ -1,4 +1,4 @@
-# from pulse.preprocessing.before_run import BeforeRun
+# from pulse.model.before_run import BeforeRun
 from collections import defaultdict
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 import numpy as np

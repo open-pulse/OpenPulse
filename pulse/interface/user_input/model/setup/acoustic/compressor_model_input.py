@@ -10,7 +10,7 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFlui
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-# from pulse.preprocessing.compressor_model import CompressorModel
+# from pulse.model.compressor_model import CompressorModel
 from compressors.reciprocating.model import CompressorModel
 
 import numpy as np

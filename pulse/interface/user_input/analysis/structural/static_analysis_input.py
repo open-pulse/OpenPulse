@@ -5,7 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
-from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 import numpy as np
 from pathlib import Path

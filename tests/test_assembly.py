@@ -4,9 +4,9 @@ from pathlib import Path
 from scipy.sparse import save_npz, load_npz
 
 from pulse.tools.utils import sparse_is_equal
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.properties.material import Material
-from pulse.preprocessing.preprocessor import Preprocessor
+from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project
 from pulse.processing.assembly_structural import AssemblyStructural 
 

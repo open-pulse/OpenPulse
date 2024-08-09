@@ -1,6 +1,6 @@
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.properties.material import Material
-from pulse.preprocessing.preprocessor import  Preprocessor
+from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.assembly_structural import get_global_matrices
 
 # PREPARING MESH

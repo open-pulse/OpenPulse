@@ -104,68 +104,84 @@ class ModelProperties:
     #         factor = dissipation_model["speed of sound factor"]
     #         return (1 + factor * 1j) * c_0
 
-    def get_prescribed_dofs(self, node):
-        return self._get_property("prescribed_dofs", node=node)
+    def get_prescribed_dofs(self, node_ids):
+        return self._get_property("prescribed_dofs", node_ids=node_ids)
 
-    def get_nodal_load(self, node):
-        return self._get_property("nodal_load", node=node)
+    def get_nodal_loads(self, node_ids):
+        return self._get_property("nodal_loads", node_ids=node_ids)
 
-    def set_prescribed_dofs(self, data, node):
-        self._set_property("prescribed_dofs", data, node)
+    def set_prescribed_dofs(self, data, node_ids):
+        self._set_property("prescribed_dofs", data, node_ids)
 
-    def set_nodal_load(self, data, node):
-        self._set_property("nodal_load", data, node)
+    def set_nodal_loads(self, data, node_ids):
+        self._set_property("nodal_loads", data, node_ids)
 
-    def get_acoustic_pressure(self, node):
-        return self._get_property("acoustic_pressure", node=node)
+    def set_structural_elastic_links(self, data, node_ids):
+        self._set_property("prescribed_dofs", data, node_ids)
 
-    def get_volume_velocity(self, node):
-        return self._get_property("volume_velocity", node=node)
+    def get_acoustic_pressure(self, node_ids):
+        return self._get_property("acoustic_pressure", node_ids=node_ids)
 
-    def get_specific_impedance(self, node):
-        return self._get_property("specific_impedance", node=node)
+    def get_volume_velocity(self, node_ids):
+        return self._get_property("volume_velocity", node_ids=node_ids)
 
-    def get_radiation_impedance(self, node):
-        return self._get_property("radiation_impedance", node=node)
+    def get_specific_impedance(self, node_ids):
+        return self._get_property("specific_impedance", node_ids=node_ids)
 
-    def set_acoustic_pressure(self, data, node):
-        self._set_property("acoustic_pressure", data, node=node)
+    def get_radiation_impedance(self, node_ids):
+        return self._get_property("radiation_impedance", node_ids=node_ids)
 
-    def set_volume_velocity(self, data, node):
-        self._set_property("volume_velocity", data, node=node)
+    def set_acoustic_pressure(self, data, node_ids):
+        self._set_property("acoustic_pressure", data, node_ids=node_ids)
 
-    def set_specific_impedance(self, data, node):
-        self._set_property("specific_impedance", data, node=node)
+    def set_volume_velocity(self, data, node_ids):
+        self._set_property("volume_velocity", data, node_ids=node_ids)
 
-    def set_radiation_impedance(self, data, node):
-        self._set_property("radiation_impedance", data, node=node)
+    def set_specific_impedance(self, data, node_ids):
+        self._set_property("specific_impedance", data, node_ids=node_ids)
 
-    def _set_property(self, property: str, value, node=None, element=None, line=None, group=None):
+    def set_radiation_impedance(self, data, node_ids):
+        self._set_property("radiation_impedance", data, node_ids=node_ids)
+
+    def _set_property(self, property: str, value, node_ids=None, element=None, line=None, group=None):
         """
         Sets a value to a property by node, element, line, surface or volume
         if any of these exists. Otherwise sets the property as global.
 
         """
-        if node is not None:
-            self.nodal_properties[property, node] = value
+        if node_ids is not None:
+            if isinstance(node_ids, int):
+                self.nodal_properties[property, node_ids] = value
+            elif isinstance(node_ids, list) and len(node_ids) == 2:
+                self.nodal_properties[property, node_ids[0], node_ids[1]]
+
         elif element is not None:
             self.element_properties[property, element] = value
+
         elif line is not None:
             self.line_properties[property, line] = value
+
         elif group is not None:
             self.group_properties[property, group] = value
-        else:
-            self.global_properties[property, "global"] = value
 
-    def _get_property(self, property: str, node=None, element=None, line=None, surface=None, volume=None):
+        # else:
+        #     self.global_properties[property, "global"] = value
+
+    def _get_property(self, property: str, node_ids=None, element=None, line=None):
         """
         Finds the value that corresponds to the property needed.
         Checks node, element, entity, volume and global data by
         this respective order of priority.
         If the any of this is defined returns None.
         """
-        if (property, node) in self.nodal_properties:
-            return self.nodal_properties[property, node]
+
+        if isinstance(node_ids, int):
+            if (property, node_ids) in self.nodal_properties:
+                return self.nodal_properties[property, node_ids]
+
+        elif isinstance(node_ids, list) and len(node_ids) == 2:
+            if (property, node_ids[0], node_ids[1]) in self.nodal_properties:
+                return self.nodal_properties[property, node_ids[0], node_ids[1]]
 
         if (property, element) in self.element_properties:
             return self.element_properties[property, element]
@@ -222,29 +238,73 @@ class ModelProperties:
             for _key in keys_to_remove:
                 data.pop(_key)
 
-    def _remove_nodal_property(self, property: str, nodal_id: int):
+    def _remove_nodal_property(self, property: str, node_ids: int | list):
         """Remove a nodal property at specific nodal_id."""
-        key = (property, nodal_id)
-        if key in self.nodal_properties.keys():
-            self.nodal_properties.pop(key)
+        if isinstance(node_ids, int):
+            node_ids = [node_ids]
 
-    def _remove_element_property(self, property: str, element_id: int):
+        for node_id in node_ids:
+            key = (property, node_id)
+            if key in self.nodal_properties.keys():
+                self.nodal_properties.pop(key)
+
+    def _remove_element_property(self, property: str, element_ids: int | list):
         """Remove a element property at specific element_id."""
-        key = (property, element_id)
-        if key in self.element_properties.keys():
-            self.element_properties.pop(key)
+        if isinstance(element_ids, int):
+            element_ids = [element_ids]
 
-    def _remove_line_property(self, property: str, line_id: int):
+        for element_id in element_ids:
+            key = (property, element_id)
+            if key in self.element_properties.keys():
+                self.element_properties.pop(key)
+
+    def _remove_line_property(self, property: str, line_ids: int | list):
         """Remove a line property at specific line_id."""
-        key = (property, line_id)
-        if key in self.line_properties.keys():
-            self.line_properties.pop(key)
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for line_id in line_ids:
+            key = (property, line_id)
+            if key in self.line_properties.keys():
+                self.line_properties.pop(key)
 
     def _remove_group_property(self, property: str, group_id: int):
         """Remove a group property at specific group_id."""
         key = (property, group_id)
         if key in self.group_properties.keys():
             self.group_properties.pop(key)
+
+    def get_nodal_related_table_names(self, property : str, node_ids : list | tuple, equals = False):
+        table_names = dict()
+        for key, data in self.nodal_properties.items():
+            for node_id in node_ids:
+                if "table names" in data.keys():
+                    if equals:
+                        if key == (property, node_id):
+                            table_names[key] = data["table names"]
+                    else:
+                        if key == (property, node_id):
+                            continue
+                        else:
+                            if key[1] == node_id:
+                                table_names[key] = data["table names"]
+        return table_names
+
+    def get_element_related_table_names(self, property : str, element_ids : list | tuple, equals = False):
+        table_names = dict()
+        for key, data in self.element_properties.items():
+            for element_id in element_ids:
+                if "table names" in data.keys():
+                    if equals:
+                        if key == (property, element_id):
+                            table_names[key] = data["table names"]
+                    else:
+                        if key == (property, element_id):
+                            continue
+                        else:
+                            if key[1] == element_id:
+                                table_names[key] = data["table names"]
+        return table_names
 
 if __name__ == "__main__":
     p = ModelProperties()

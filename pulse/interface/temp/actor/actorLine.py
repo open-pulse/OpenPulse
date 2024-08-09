@@ -1,6 +1,6 @@
 import vtk
 from pulse.interface.viewer_3d.actors.actor_base import ActorBase
-from pulse.preprocessing.line import Line
+from pulse.model.line import Line
 
 class ActorLine(ActorBase):
     def __init__(self, entity = Line(-1), plotRadius = False):

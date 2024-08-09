@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from pulse.preprocessing.compressor_model import CompressorModel
+from pulse.model.compressor_model import CompressorModel
 
 pi = 3.141592653589
 pi_2 = 1.57079632679489

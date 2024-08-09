@@ -1,7 +1,7 @@
 
 from pulse import app
-from pulse.preprocessing.cross_section import get_beam_section_properties
-from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
+from pulse.model.cross_section import get_beam_section_properties
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.libraries.default_libraries import default_material_library, default_fluid_library
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *

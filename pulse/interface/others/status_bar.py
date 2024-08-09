@@ -6,37 +6,28 @@ class StatusBar(QStatusBar):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.main_window = app().main_window
-
         self._create_qt_variables()
         self._config_widgets()
         self._config_sizes()
 
     def _create_qt_variables(self):
-
         self.points_label = QLabel("Points: \t")
         self.lines_label = QLabel("Lines: \t")
-
         self.nodes_label = QLabel("Nodes: \t")
         self.acoustic_elements_label = QLabel("Acoustic elements: \t")
         self.structural_elements_label = QLabel("Structural elements: \t")
-    
-    def _config_widgets(self):
 
+    def _config_widgets(self):
         self.addWidget(self.points_label)
         self.addWidget(self.lines_label)
-
         self.addWidget(self.nodes_label)
         self.addWidget(self.acoustic_elements_label)
         self.addWidget(self.structural_elements_label)
-
         self.reset_labels_visibility()
-    
-    def _config_sizes(self):
 
+    def _config_sizes(self):
         self.points_label.setFixedWidth(80)
         self.lines_label.setFixedWidth(80)
-
         self.nodes_label.setFixedWidth(100)
         self.acoustic_elements_label.setFixedWidth(160)
         self.structural_elements_label.setFixedWidth(160)

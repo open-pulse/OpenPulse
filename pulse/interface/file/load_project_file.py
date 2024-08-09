@@ -1,8 +1,8 @@
 
 from pulse.properties.material import Material
 from pulse.properties.fluid import Fluid
-from pulse.preprocessing.perforated_plate import PerforatedPlate
-from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
+from pulse.model.perforated_plate import PerforatedPlate
+from pulse.model.cross_section import CrossSection, get_beam_section_properties
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.file.project_file import ProjectFile

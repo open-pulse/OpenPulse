@@ -8,7 +8,7 @@ from pulse.interface.user_input.model.setup.general.get_information_of_group imp
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.model.cross_section import CrossSection
 from pulse.tools.utils import get_new_path
 
 import os
