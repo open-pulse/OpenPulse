@@ -1,5 +1,7 @@
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
+from molde.colors import Color
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
@@ -171,6 +173,20 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def set_theme(self, theme):
         super().set_theme(theme)
+
+    # def set_theme(self, theme):
+    #     if theme == "dark":
+    #         self.renderer.GradientBackgroundOn()
+    #         self.renderer.SetBackground(Color.from_hex("#243748").to_rgb_f())
+    #         self.renderer.SetBackground2(Color.from_hex("#4B749F").to_rgb_f())
+
+    #     elif theme == "light":
+    #         self.renderer.GradientBackgroundOn()
+    #         self.renderer.SetBackground(Color.from_hex("#8399A2").to_rgb_f())
+    #         self.renderer.SetBackground2(Color.from_hex("#EEF2F3").to_rgb_f())
+
+    #     else:
+    #         NotImplemented
 
     def create_logos(self, theme="light"):
         self.renderer.RemoveViewProp(self.open_pulse_logo)
