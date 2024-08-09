@@ -39,7 +39,7 @@ def main():
 
     qdarktheme.enable_hi_dpi()
     app = Application(sys.argv)
-    # sys.exit(app.exec_())
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

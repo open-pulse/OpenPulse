@@ -259,7 +259,7 @@ class MainWindow(QMainWindow):
 
         dt = time() - t0
         print(f"Time to process D: {dt} [s]")
-        # self.load_recent_project()
+        self.load_recent_project()
  
     # public
     def update_plots(self):
@@ -825,7 +825,6 @@ class MainWindow(QMainWindow):
                 self.action_set_light_theme_callback()
         else:
             self.action_set_light_theme_callback()
-        # self.opv_widget.set_user_interface_preferences(self.user_preferences)
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
@@ -914,7 +913,6 @@ class MainWindow(QMainWindow):
         return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event):
-
         self.close_dialogs()
 
         title = "OpenPulse"
