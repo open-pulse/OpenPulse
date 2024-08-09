@@ -1,4 +1,6 @@
-import vtk
+from vtkmodules.vtkCommonCore import vtkUnsignedIntArray
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
+from vtkmodules.vtkCommonCore import vtkCharArray
 from vtkmodules.vtkCommonCore import vtkPoints
 from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
 
@@ -23,7 +25,7 @@ class PointsActor(GhostActor):
 
         points = vtkPoints()
         data = vtkPolyData()
-        node_index = vtk.vtkUnsignedIntArray()
+        node_index = vtkUnsignedIntArray()
         node_index.SetName("node_index")
         data.Allocate(len(visible_nodes))
 
@@ -36,7 +38,7 @@ class PointsActor(GhostActor):
         data.SetPoints(points)
         data.GetCellData().AddArray(node_index)
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()
         set_polydata_colors(data, (255, 180, 50))
@@ -59,7 +61,7 @@ class PointsActor(GhostActor):
             self.GetMapper().ScalarVisibilityOn()
             return
 
-        colors: vtk.vtkCharArray = data.GetCellData().GetArray("colors")
+        colors: vtkCharArray = data.GetCellData().GetArray("colors")
         for i in nodes:
             index = self._key_index.get(i)
             if index is not None:

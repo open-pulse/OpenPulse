@@ -1,4 +1,6 @@
-import vtk
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData
+from vtkmodules.vtkFiltersSources import vtkLineSource
+from vtkmodules.vtkFiltersSources import vtkSphereSource
 
 from pulse import SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
@@ -27,17 +29,17 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
     def _create_acoustic_links(self):
 
         nodes = self.preprocessor.nodes
-        linkedSymbols = vtk.vtkAppendPolyData()
+        linkedSymbols = vtkAppendPolyData()
 
         for (a, b) in self.preprocessor.nodes_with_acoustic_links.keys():
             # divide the value of the coordinates by the scale factor
-            source = vtk.vtkLineSource()
+            source = vtkLineSource()
             source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
             source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
             source.Update()
             linkedSymbols.AddInputData(source.GetOutput())
         
-        s = vtk.vtkSphereSource()
+        s = vtkSphereSource()
         s.SetRadius(0)
 
         linkedSymbols.AddInputData(s.GetOutput())

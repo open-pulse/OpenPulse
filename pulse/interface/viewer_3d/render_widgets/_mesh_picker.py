@@ -2,9 +2,23 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .mesh_render_widget import MeshRenderWidget
 
+from vtkmodules.vtkRenderingCore import vtkAreaPicker
+from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
+from vtkmodules.vtkRenderingCore import vtkAreaPicker
+from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
+from vtkmodules.vtkRenderingCore import vtkAreaPicker
+from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
+from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkRenderingCore import vtkPropPicker
+from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkRenderingCore import vtkCellPicker
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkRenderingCore import vtkActor
+
 from itertools import product
 import numpy as np
-import vtk
 from molde.pickers import CellAreaPicker
 from pulse import app
 
@@ -72,8 +86,8 @@ class MeshPicker:
             self.tube_bounds[key] = tube_bounds
 
     def area_pick_nodes(self, x0, y0, x1, y1) -> set[int]:
-        picker = vtk.vtkAreaPicker()
-        extractor = vtk.vtkExtractSelectedFrustum()
+        picker = vtkAreaPicker()
+        extractor = vtkExtractSelectedFrustum()
         picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
@@ -85,8 +99,8 @@ class MeshPicker:
         return picked_nodes
 
     def area_pick_elements(self, x0, y0, x1, y1) -> set[int]:
-        picker = vtk.vtkAreaPicker()
-        extractor = vtk.vtkExtractSelectedFrustum()
+        picker = vtkAreaPicker()
+        extractor = vtkExtractSelectedFrustum()
         picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
@@ -103,8 +117,8 @@ class MeshPicker:
         return picked_elements
 
     def area_pick_lines(self, x0, y0, x1, y1) -> set[int]:
-        picker = vtk.vtkAreaPicker()
-        extractor = vtk.vtkExtractSelectedFrustum()
+        picker = vtkAreaPicker()
+        extractor = vtkExtractSelectedFrustum()
         picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
@@ -154,8 +168,8 @@ class MeshPicker:
 
         return -1
     
-    def _pick_tube_element(self, x: float, y: float, target_actor: vtk.vtkActor):
-        picker = vtk.vtkPropPicker()
+    def _pick_tube_element(self, x: float, y: float, target_actor: vtkActor):
+        picker = vtkPropPicker()
         elements = app().project.get_structural_elements()
 
         pickability = self._narrow_pickability_to_actor(target_actor)
@@ -177,8 +191,8 @@ class MeshPicker:
 
         return closest_id
 
-    def _pick_cell_property(self, x: float, y: float, property_name: str, target_actor: vtk.vtkActor):
-        cell_picker = vtk.vtkCellPicker()
+    def _pick_cell_property(self, x: float, y: float, property_name: str, target_actor: vtkActor):
+        cell_picker = vtkCellPicker()
         cell_picker.SetTolerance(0.0018)
 
         pickability = self._narrow_pickability_to_actor(target_actor)
@@ -188,7 +202,7 @@ class MeshPicker:
         if target_actor != cell_picker.GetActor():
             return -1
 
-        data: vtk.vtkPolyData = target_actor.GetMapper().GetInput()
+        data: vtkPolyData = target_actor.GetMapper().GetInput()
         if data is None:
             return -1
 
@@ -219,8 +233,8 @@ class MeshPicker:
         vertices = self._verts_from_bounds(bounds)
         return min(vertices, key=distance_fn)
 
-    def _narrow_pickability_to_actor(self, target_actor: vtk.vtkActor):
-        actor: vtk.vtkActor
+    def _narrow_pickability_to_actor(self, target_actor: vtkActor):
+        actor: vtkActor
         pickability = dict()
         for actor in self.mesh_render_widget.renderer.GetActors():
             pickability[actor] = actor.GetPickable()
@@ -228,6 +242,6 @@ class MeshPicker:
         return pickability 
     
     def _restore_pickability(self, pickability: dict):
-        actor: vtk.vtkActor
+        actor: vtkActor
         for actor in self.mesh_render_widget.renderer.GetActors():
             actor.SetPickable(pickability[actor])

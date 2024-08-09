@@ -1,14 +1,16 @@
-import vtk
+from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkFiltersSources import vtkCubeSource
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 
-class CuttingPlaneActor(vtk.vtkActor):
+class CuttingPlaneActor(vtkActor):
     def __init__(self, size=1):
         self.size = size
         self.create_geometry()
         self.configure_appearance()
 
     def create_geometry(self):
-        plane = vtk.vtkCubeSource()
+        plane = vtkCubeSource()
 
         plane.SetCenter(0, 0, 0)
         plane.SetXLength(self.size * 0.005)
@@ -16,7 +18,7 @@ class CuttingPlaneActor(vtk.vtkActor):
         plane.SetZLength(self.size)
         plane.Update()
 
-        mapper = vtk.vtkPolyDataMapper()
+        mapper = vtkPolyDataMapper()
         mapper.SetInputData(plane.GetOutput())
         self.SetMapper(mapper)
 

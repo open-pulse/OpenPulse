@@ -1,15 +1,13 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 import numpy as np
+from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
-import vtk
 from molde.interactor_styles import BoxSelectionInteractorStyle
-from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import AnimatedRenderWidget
-from molde.utils import TreeInfo, format_long_sequence
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text, analysis_info_text
@@ -169,7 +167,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.update()
         else:
             self.update_plot()
-            cached = vtk.vtkPolyData()
+            cached = vtkPolyData()
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
             self._animation_cached_data[frame] = cached
 

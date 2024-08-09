@@ -1,4 +1,23 @@
-import vtk
+from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkRenderingCore import vtkGlyph3DMapper
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonCore import vtkIntArray
+from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkCommonDataModel import vtkPlane
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
+from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
+
 import numpy as np
 
 from opps.interface.viewer_3d.utils import cross_section_sources 
@@ -8,7 +27,7 @@ from pulse.interface.utils import ColorMode
 from pulse import app
 
 
-class TubeActorGPU(vtk.vtkActor):
+class TubeActorGPU(vtkActor):
     '''
     This actor show the tubes as a set of element sections that compose it.
 
@@ -37,18 +56,18 @@ class TubeActorGPU(vtk.vtkActor):
         visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
         self._key_index  = {j:i for i,j in enumerate(visible_elements.keys())}
 
-        data = vtk.vtkPolyData()
-        mapper = vtk.vtkGlyph3DMapper()
+        data = vtkPolyData()
+        mapper = vtkGlyph3DMapper()
 
-        points = vtk.vtkPoints()
-        sources = vtk.vtkIntArray()
+        points = vtkPoints()
+        sources = vtkIntArray()
         sources.SetName('sources')
 
-        rotations = vtk.vtkDoubleArray()
+        rotations = vtkDoubleArray()
         rotations.SetNumberOfComponents(3)
         rotations.SetName('rotations')
 
-        colors = vtk.vtkUnsignedCharArray()
+        colors = vtkUnsignedCharArray()
         colors.SetNumberOfComponents(3)
         colors.SetNumberOfTuples(len(visible_elements))
         colors.Fill(255)
@@ -141,8 +160,8 @@ class TubeActorGPU(vtk.vtkActor):
 
     def set_color(self, color, elements=None, lines=None):
         # This copy is needed, otherwise the mapper is not updated
-        data: vtk.vtkPolyData = self.GetMapper().GetInput()
-        colors = vtk.vtkUnsignedCharArray()
+        data: vtkPolyData = self.GetMapper().GetInput()
+        colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
         if (elements is None) and (lines is None):
@@ -172,8 +191,8 @@ class TubeActorGPU(vtk.vtkActor):
 
     def set_color_table(self, color_table: ColorTable):
         # This copy is needed, otherwise the mapper is not updated
-        data: vtk.vtkPolyData = self.GetMapper().GetInput()
-        colors = vtk.vtkUnsignedCharArray()
+        data: vtkPolyData = self.GetMapper().GetInput()
+        colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
         for i, element in self.elements.items():
@@ -188,8 +207,8 @@ class TubeActorGPU(vtk.vtkActor):
 
     def color_by_material(self):
         # This copy is needed, otherwise the mapper is not updated
-        data: vtk.vtkPolyData = self.GetMapper().GetInput()
-        colors = vtk.vtkUnsignedCharArray()
+        data: vtkPolyData = self.GetMapper().GetInput()
+        colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
         for i, element in self.elements.items():
@@ -211,8 +230,8 @@ class TubeActorGPU(vtk.vtkActor):
 
     def color_by_fluid(self):
         # This copy is needed, otherwise the mapper is not updated
-        data: vtk.vtkPolyData = self.GetMapper().GetInput()
-        colors = vtk.vtkUnsignedCharArray()
+        data: vtkPolyData = self.GetMapper().GetInput()
+        colors = vtkUnsignedCharArray()
         colors.DeepCopy(data.GetPointData().GetScalars())
 
         for i, element in self.elements.items():
@@ -233,7 +252,7 @@ class TubeActorGPU(vtk.vtkActor):
         self.GetMapper().Update()
 
     def apply_cut(self, origin, normal):
-        self.plane = vtk.vtkPlane()
+        self.plane = vtkPlane()
         self.plane.SetOrigin(origin)
         self.plane.SetNormal(normal)
         self.GetMapper().AddClippingPlane(self.plane)
@@ -249,17 +268,17 @@ class TubeActorGPU(vtk.vtkActor):
         ))
 
     def _fixed_section(self, source):
-        transform = vtk.vtkTransform()
+        transform = vtkTransform()
         transform.RotateZ(-90)
         transform.RotateY(180)
         transform.Update()
 
-        transform_filter = vtk.vtkTransformFilter()
+        transform_filter = vtkTransformFilter()
         transform_filter.SetInputData(source)
         transform_filter.SetTransform(transform)
         transform_filter.Update()
 
-        normals_filter = vtk.vtkPolyDataNormals()
+        normals_filter = vtkPolyDataNormals()
         normals_filter.AddInputData(transform_filter.GetOutput())
         normals_filter.Update()
 

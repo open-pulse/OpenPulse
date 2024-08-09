@@ -1,10 +1,6 @@
-from pathlib import Path
-
-import vtk
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 from molde.interactor_styles import BoxSelectionInteractorStyle
-from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
 
 from ._mesh_picker import MeshPicker

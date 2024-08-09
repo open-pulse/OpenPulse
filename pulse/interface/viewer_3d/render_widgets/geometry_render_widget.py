@@ -1,4 +1,3 @@
-import vtk
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from pulse import app, ICON_DIR
 

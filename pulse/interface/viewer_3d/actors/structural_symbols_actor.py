@@ -1,4 +1,8 @@
-import vtk
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData
+from vtkmodules.vtkFiltersSources import vtkLineSource
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkFiltersSources import vtkLineSource
+from vtkmodules.vtkFiltersSources import vtkSphereSource
 
 from pulse import SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
@@ -28,7 +32,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _create_nodal_links(self):
 
         linked_nodes = set()
-        self.linked_symbols = vtk.vtkAppendPolyData()
+        self.linked_symbols = vtkAppendPolyData()
 
         for key_s in self.project.preprocessor.nodes_with_elastic_link_stiffness.keys():
             node_ids = [int(node) for node in key_s.split("-")]
@@ -42,13 +46,13 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
         for a, b in linked_nodes:
             # divide the value of the coordinates by the scale factor
-            source = vtk.vtkLineSource()
+            source = vtkLineSource()
             source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
             source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
             source.Update()
             self.linked_symbols.AddInputData(source.GetOutput())
         
-        s = vtk.vtkSphereSource()
+        s = vtkSphereSource()
         s.SetRadius(0)
 
         self.linked_symbols.AddInputData(s.GetOutput())
@@ -68,13 +72,13 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
         for (a, b) in self.preprocessor.nodes_with_structural_links.keys():
             # divide the value of the coordinates by the scale factor
-            source = vtk.vtkLineSource()
+            source = vtkLineSource()
             source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
             source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
             source.Update()
             self.linked_symbols.AddInputData(source.GetOutput())
 
-        s = vtk.vtkSphereSource()
+        s = vtkSphereSource()
         s.SetRadius(0)
 
         self.linked_symbols.AddInputData(s.GetOutput())

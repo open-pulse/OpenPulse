@@ -1,14 +1,18 @@
-import vtk
-import numpy as np 
-from time import time
-from collections import namedtuple
-# from itertools import chain
+from vtkmodules.vtkIOGeometry import vtkOBJReader
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkRenderingCore import vtkGlyph3DMapper
+from vtkmodules.vtkCommonCore import vtkIntArray
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkCommonCore import vtkDoubleArray
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
 
+from collections import namedtuple
 from abc import ABC, abstractmethod
 from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
 def loadSymbol(path):
-    reader = vtk.vtkOBJReader()
+    reader = vtkOBJReader()
     reader.SetFileName(path)
     reader.Update()
     return reader.GetOutput()
@@ -41,8 +45,8 @@ class SymbolsActorBase(ActorBase):
         self._connections = self._createConnections()
         # self._sequence = self._createSequence()
 
-        self._data = vtk.vtkPolyData()
-        self._mapper = vtk.vtkGlyph3DMapper()
+        self._data = vtkPolyData()
+        self._mapper = vtkGlyph3DMapper()
 
     @abstractmethod
     def _createConnections(self):
@@ -135,11 +139,11 @@ class SymbolsActorBase(ActorBase):
         self._actor.SetUseBounds(False)
 
     def _createArrays(self):
-        self._sources = vtk.vtkIntArray()
-        self._positions = vtk.vtkPoints()
-        self._rotations = vtk.vtkDoubleArray()
-        self._scales = vtk.vtkDoubleArray()
-        self._colors = vtk.vtkUnsignedCharArray()
+        self._sources = vtkIntArray()
+        self._positions = vtkPoints()
+        self._rotations = vtkDoubleArray()
+        self._scales = vtkDoubleArray()
+        self._colors = vtkUnsignedCharArray()
 
         self._sources.SetName('sources')
         self._rotations.SetName('rotations')

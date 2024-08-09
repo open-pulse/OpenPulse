@@ -1,9 +1,5 @@
 from PyQt5.QtWidgets import QDialog
-from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
-from PyQt5 import uic
-
-import matplotlib
 
 from pulse import app
 
@@ -20,6 +16,7 @@ class PlotPerforatedPlateConvergenceData(QDialog):
 
     def plot_convergence_graph(self, iterations, pressure_residues, delta_residues, target):
         import matplotlib.pyplot as plt
+        import matplotlib
 
         plt.close()
         self.fig = plt.figure(figsize=[8,6])

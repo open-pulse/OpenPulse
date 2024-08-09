@@ -1,4 +1,6 @@
-import vtk
+from vtkmodules.vtkCommonCore import vtkLookupTable
+from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
+
 import numpy as np
 from pulse.interface.viewer_3d.coloring.color_palettes import (
     grey_colors, jet_colors, 
@@ -6,7 +8,7 @@ from pulse.interface.viewer_3d.coloring.color_palettes import (
     bwr_colors, PiYG_colors, PRGn_colors, BrBG_colors, PuOR_colors,
 )
 
-class ColorTable(vtk.vtkLookupTable):
+class ColorTable(vtkLookupTable):
     def __init__(self, project, data, min_max_values, colormap, stress_field_plot=False, pressure_field_plot=False):
         super().__init__()
 
@@ -69,7 +71,7 @@ class ColorTable(vtk.vtkLookupTable):
             self.SetTableRange(self.min_value, self.max_value)
 
     def set_colors(self, colors, shades=256):
-        color_transfer = vtk.vtkColorTransferFunction()
+        color_transfer = vtkColorTransferFunction()
         for i, color in enumerate(colors):
             color_transfer.AddRGBPoint(i/(len(colors) - 1), *color)
 
