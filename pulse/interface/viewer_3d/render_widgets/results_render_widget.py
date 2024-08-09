@@ -50,18 +50,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         super().__init__(parent)
 
         self.mouse_click = (0, 0)
-        self.left_clicked.connect(self.click_callback)
-        self.left_released.connect(self.selection_callback)
-
-        app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(
-            self.visualization_changed_callback
-        )
-        app().main_window.selection_changed.connect(self.update_selection)
-
+        # dont't remove, transparency depends on it
         self.renderer.SetUseDepthPeeling(
             True
-        )  # dont't remove, transparency depends on it
+        )
 
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
@@ -97,14 +89,17 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_logos()
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
+        self._create_connections()
 
-    def create_logos(self, theme="light"):
-        self.renderer.RemoveViewProp(self.open_pulse_logo)
-        self.open_pulse_logo = self.create_logo(
-            ICON_DIR / "logos/OpenPulse_logo_gray.png"
+    def _create_connections(self):
+        self.left_clicked.connect(self.click_callback)
+        self.left_released.connect(self.selection_callback)
+
+        app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.visualization_changed.connect(
+            self.visualization_changed_callback
         )
-        self.open_pulse_logo.SetPosition(0.845, 0.89)
-        self.open_pulse_logo.SetPosition2(0.15, 0.15)
+        app().main_window.selection_changed.connect(self.update_selection)
 
     def update_plot(self, reset_camera=False):
         self.remove_actors()
@@ -296,6 +291,23 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
+
+    def set_theme(self, theme):
+        super().set_theme(theme)
+        self.create_logos(theme)
+
+    def create_logos(self, theme="light"):
+        if theme == "light":
+            path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
+        else:
+            path = ICON_DIR / "logos/OpenPulse_logo_white.png"
+
+        if hasattr(self, "open_pulse_logo"):
+            self.renderer.RemoveViewProp(self.open_pulse_logo)
+
+        self.open_pulse_logo = self.create_logo(path)
+        self.open_pulse_logo.SetPosition(0.845, 0.89)
+        self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
     def click_callback(self, x, y):
         self.mouse_click = x, y

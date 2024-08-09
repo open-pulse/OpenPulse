@@ -29,17 +29,6 @@ from ._model_info_text import elements_info_text, entity_info_text, nodes_info_t
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self.mouse_click = (0, 0)
-        self.left_clicked.connect(self.click_callback)
-        self.left_released.connect(self.selection_callback)
-
-        app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(
-            self.visualization_changed_callback
-        )
-        app().main_window.selection_changed.connect(self.update_selection)
-
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
         self.mesh_picker = MeshPicker(self)
@@ -57,12 +46,24 @@ class MeshRenderWidget(CommonRenderWidget):
         self.selected_nodes = set()
         self.selected_lines = set()
         self.selected_elements = set()
+        self.mouse_click = (0, 0)
 
         self.create_axes()
         self.create_scale_bar()
         self.create_logos()
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
+        self._create_connections()
+
+    def _create_connections(self):
+        self.left_clicked.connect(self.click_callback)
+        self.left_released.connect(self.selection_callback)
+
+        app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.visualization_changed.connect(
+            self.visualization_changed_callback
+        )
+        app().main_window.selection_changed.connect(self.update_selection)
 
     def update_plot(self, reset_camera=False):
         self.remove_actors()
@@ -173,26 +174,18 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def set_theme(self, theme):
         super().set_theme(theme)
-
-    # def set_theme(self, theme):
-    #     if theme == "dark":
-    #         self.renderer.GradientBackgroundOn()
-    #         self.renderer.SetBackground(Color.from_hex("#243748").to_rgb_f())
-    #         self.renderer.SetBackground2(Color.from_hex("#4B749F").to_rgb_f())
-
-    #     elif theme == "light":
-    #         self.renderer.GradientBackgroundOn()
-    #         self.renderer.SetBackground(Color.from_hex("#8399A2").to_rgb_f())
-    #         self.renderer.SetBackground2(Color.from_hex("#EEF2F3").to_rgb_f())
-
-    #     else:
-    #         NotImplemented
+        self.create_logos(theme)
 
     def create_logos(self, theme="light"):
-        self.renderer.RemoveViewProp(self.open_pulse_logo)
-        self.open_pulse_logo = self.create_logo(
-            ICON_DIR / "logos/OpenPulse_logo_gray.png"
-        )
+        if theme == "light":
+            path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
+        else:
+            path = ICON_DIR / "logos/OpenPulse_logo_white.png"
+
+        if hasattr(self, "open_pulse_logo"):
+            self.renderer.RemoveViewProp(self.open_pulse_logo)
+
+        self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
