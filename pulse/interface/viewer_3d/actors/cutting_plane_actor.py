@@ -1,6 +1,5 @@
-from vtkmodules.vtkRenderingCore import vtkActor
 from vtkmodules.vtkFiltersSources import vtkCubeSource
-from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
+from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
 
 class CuttingPlaneActor(vtkActor):

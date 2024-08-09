@@ -1,11 +1,8 @@
-from vtkmodules.vtkCommonCore import vtkUnsignedIntArray
-from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
-from vtkmodules.vtkCommonCore import vtkCharArray
-from vtkmodules.vtkCommonCore import vtkPoints
-from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
-
-from molde.utils import set_polydata_colors
 from molde.actors import GhostActor
+from molde.utils import set_polydata_colors
+from vtkmodules.vtkCommonCore import vtkCharArray, vtkPoints, vtkUnsignedIntArray
+from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 from pulse import app
 
@@ -15,13 +12,15 @@ class PointsActor(GhostActor):
         super().__init__()
 
         self.points = app().project.get_geometry_points()
-        self.hidden_nodes = kwargs.get('hidden_nodes', set())
+        self.hidden_nodes = kwargs.get("hidden_nodes", set())
         self.show_deformed = show_deformed
         self.build()
-    
+
     def build(self):
-        visible_nodes = {i:e for i,e in self.points.items() if (i not in self.hidden_nodes)}
-        self._key_index = {j:i for i,j in enumerate(visible_nodes.keys())}
+        visible_nodes = {
+            i: e for i, e in self.points.items() if (i not in self.hidden_nodes)
+        }
+        self._key_index = {j: i for i, j in enumerate(visible_nodes.keys())}
 
         points = vtkPoints()
         data = vtkPolyData()
@@ -54,7 +53,7 @@ class PointsActor(GhostActor):
 
     def set_color(self, color, nodes=None):
         data = self.GetMapper().GetInput()
-        if (nodes is None):
+        if nodes is None:
             set_polydata_colors(data, color)
             self.GetMapper().SetScalarModeToUseCellData()
             self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
@@ -70,4 +69,3 @@ class PointsActor(GhostActor):
         self.GetMapper().SetScalarModeToUseCellData()
         self.GetMapper().ScalarVisibilityOff()  # Just to force color updates
         self.GetMapper().ScalarVisibilityOn()
-

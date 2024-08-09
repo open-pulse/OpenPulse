@@ -1,15 +1,8 @@
-from vtkmodules.vtkCommonCore import vtkUnsignedIntArray
-from vtkmodules.vtkCommonCore import vtkUnsignedIntArray
-from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
-from vtkmodules.vtkCommonCore import vtkIntArray
-from vtkmodules.vtkCommonCore import vtkIntArray
-from vtkmodules.vtkCommonCore import vtkCharArray
-from vtkmodules.vtkCommonCore import vtkIntArray
-from vtkmodules.vtkCommonCore import vtkIntArray
-
+from molde.actors import GhostActor
 from molde.poly_data import LinesData
 from molde.utils import set_polydata_colors
-from molde.actors import GhostActor
+from vtkmodules.vtkCommonCore import vtkCharArray, vtkIntArray, vtkUnsignedIntArray
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 
 class ElementLinesActor(GhostActor):
@@ -19,13 +12,15 @@ class ElementLinesActor(GhostActor):
         self.project = project
         self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
-        self.hidden_elements = kwargs.get('hidden_elements', set())
+        self.hidden_elements = kwargs.get("hidden_elements", set())
         self.show_deformed = show_deformed
         self.build()
 
     def build(self):
-        visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
-        self._key_index  = {j:i for i,j in enumerate(visible_elements)}
+        visible_elements = {
+            i: e for i, e in self.elements.items() if (i not in self.hidden_elements)
+        }
+        self._key_index = {j: i for i, j in enumerate(visible_elements)}
 
         lines = []
         entity_index = vtkUnsignedIntArray()
@@ -68,14 +63,14 @@ class ElementLinesActor(GhostActor):
     def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()
         data = mapper.GetInput()
-        
+
         if (elements is None) and (lines is None):
             set_polydata_colors(data, color)
             mapper.SetScalarModeToUseCellData()
             mapper.ScalarVisibilityOff()  # Just to force color updates
             mapper.ScalarVisibilityOn()
             return
-        
+
         elements = set(elements) if elements else set()
         lines = set(lines) if lines else set()
 
@@ -89,7 +84,7 @@ class ElementLinesActor(GhostActor):
             entity = entity_indexes.GetValue(i)
             if (entity in lines) or (element in elements):
                 colors.SetTuple3(i, *color)
-        
+
         mapper.SetScalarModeToUseCellData()
         mapper.ScalarVisibilityOff()  # Just to force color updates
         mapper.ScalarVisibilityOn()

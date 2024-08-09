@@ -12,8 +12,7 @@ def nodes_info_text() -> str:
 
     if len(nodes) > 1:
         info_text += (
-            f"{len(nodes)} NODES IN SELECTION\n"
-            f"{format_long_sequence(nodes)}\n\n"
+            f"{len(nodes)} NODES IN SELECTION\n" f"{format_long_sequence(nodes)}\n\n"
         )
     elif len(nodes) == 1:
         _id, *_ = nodes
@@ -30,35 +29,35 @@ def nodes_info_text() -> str:
             node.prescribed_dofs,
             ("u", "r"),
             ("m", "rad"),
-            node.loaded_table_for_prescribed_dofs
+            node.loaded_table_for_prescribed_dofs,
         )
         info_text += _structural_format(
             "Nodal loads",
             node.nodal_loads,
             ("F", "M"),
             ("N", "N.m"),
-            node.loaded_table_for_nodal_loads
+            node.loaded_table_for_nodal_loads,
         )
         info_text += _structural_format(
             "Lumped stiffness",
             node.lumped_stiffness,
             ("k", "kr"),
             ("N/m", "N.m/rad"),
-            node.loaded_table_for_lumped_stiffness
+            node.loaded_table_for_lumped_stiffness,
         )
         info_text += _structural_format(
             "Lumped dampings",
             node.lumped_dampings,
             ("c", "cr"),
             ("N.s/m", "N.m.s/rad"),
-            node.loaded_table_for_lumped_dampings
+            node.loaded_table_for_lumped_dampings,
         )
         info_text += _structural_format(
             "Lumped masses",
             node.lumped_masses,
             ("m", "J"),
             ("kg", "N.m²"),
-            node.loaded_table_for_lumped_masses
+            node.loaded_table_for_lumped_masses,
         )
         if node.there_are_elastic_nodal_link_stiffness:
             for key, [_, values] in node.elastic_nodal_link_stiffness.items():
@@ -67,7 +66,7 @@ def nodes_info_text() -> str:
                     values,
                     ("k", "kr"),
                     ("N/m", "N.m/rad"),
-                    node.loaded_table_for_elastic_link_stiffness
+                    node.loaded_table_for_elastic_link_stiffness,
                 )
         if node.there_are_elastic_nodal_link_dampings:
             for key, [_, values] in node.elastic_nodal_link_dampings.items():
@@ -76,46 +75,38 @@ def nodes_info_text() -> str:
                     values,
                     ("k", "kr"),
                     ("N/m", "N.m/rad"),
-                    node.loaded_table_for_elastic_link_stiffness
+                    node.loaded_table_for_elastic_link_stiffness,
                 )
         if node in preprocessor.nodes_with_acoustic_pressure:
             info_text += _acoustic_format(
-                "Acoustic pressure",
-                node.acoustic_pressure,
-                "P",
-                "Pa"
+                "Acoustic pressure", node.acoustic_pressure, "P", "Pa"
             )
         if node in preprocessor.nodes_with_volume_velocity:
             info_text += _acoustic_format(
-                "Volume velocity",
-                node.volume_velocity,
-                "Q",
-                "m³/s"
+                "Volume velocity", node.volume_velocity, "Q", "m³/s"
             )
         if node in preprocessor.nodes_with_specific_impedance:
             info_text += _acoustic_format(
-                "Specific impedance",
-                node.specific_impedance,
-                "Zs",
-                "kg/m².s"
+                "Specific impedance", node.specific_impedance, "Zs", "kg/m².s"
             )
         if node in preprocessor.nodes_with_radiation_impedance:
             aux_dict = {
-                0:"anechoic termination", 
-                1:"unflanged pipe", 
-                2:"flanged pipe"
+                0: "anechoic termination",
+                1: "unflanged pipe",
+                2: "flanged pipe",
             }
 
             info_text += _acoustic_format(
                 "Radiation impedance",
                 aux_dict[node.radiation_impedance_type],
                 "Type",
-                ""
+                "",
             )
         if node in preprocessor.nodes_with_compressor_excitation:
             info_text += compressor_excitation_info_text(node)
 
     return info_text
+
 
 def elements_info_text() -> str:
     elements = app().main_window.list_selected_elements()
@@ -160,6 +151,7 @@ def elements_info_text() -> str:
 
     return info_text
 
+
 def entity_info_text() -> str:
     lines = app().main_window.list_selected_lines()
     info_text = ""
@@ -167,8 +159,7 @@ def entity_info_text() -> str:
 
     if len(lines) > 1:
         info_text += (
-            f"{len(lines)} LINES IN SELECTION\n"
-            f"{format_long_sequence(lines)}\n\n"
+            f"{len(lines)} LINES IN SELECTION\n" f"{format_long_sequence(lines)}\n\n"
         )
     elif len(lines) == 1:
 
@@ -189,10 +180,12 @@ def entity_info_text() -> str:
 
     return info_text
 
+
 def material_info_text(material) -> str:
     tree = TreeInfo("Material")
     tree.add_item("Name", material.name)
     return str(tree)
+
 
 def fluid_info_text(fluid) -> str:
     tree = TreeInfo("fluid")
@@ -202,6 +195,7 @@ def fluid_info_text(fluid) -> str:
     if fluid.pressure:
         tree.add_item("Pressure", round(fluid.pressure, 4), "Pa")
     return str(tree)
+
 
 def cross_section_info_text(cross_section, element_type) -> str:
     info_text = ""
@@ -246,6 +240,7 @@ def cross_section_info_text(cross_section, element_type) -> str:
 
     return info_text
 
+
 def analysis_info_text(frequency_index):
     project = app().project
 
@@ -253,10 +248,10 @@ def analysis_info_text(frequency_index):
     if project.analysis_ID in [2, 4]:
         if project.analysis_type_label == "Structural Modal Analysis":
             frequencies = project.get_structural_natural_frequencies()
-        
+
         if project.analysis_type_label == "Acoustic Modal Analysis":
             frequencies = project.get_acoustic_natural_frequencies()
-        
+
         if frequencies is None:
             return ""
 
@@ -277,6 +272,7 @@ def analysis_info_text(frequency_index):
 
     return str(tree)
 
+
 def compressor_excitation_info_text(node) -> str:
     tree = TreeInfo("Volume velocity - compressor excitation")
     if isinstance(node.volume_velocity, np.ndarray):
@@ -284,28 +280,38 @@ def compressor_excitation_info_text(node) -> str:
     else:
         tree.add_item("Q", node.volume_velocity, "m³/s")
 
-    values_connection_info = list(node.dict_index_to_compressor_connection_info.values())
+    values_connection_info = list(
+        node.dict_index_to_compressor_connection_info.values()
+    )
     if len(values_connection_info) == 1:
         tree.add_item("Connection type", values_connection_info[0])
     elif "discharge" in values_connection_info and "suction" in values_connection_info:
         tree.add_item(
-            "Connection types", 
+            "Connection types",
             f"discharge ({values_connection_info[0]}x)"
-            + "& suction ({values_connection_info.count('suction')}x)"
+            + "& suction ({values_connection_info.count('suction')}x)",
         )
     elif "discharge" in values_connection_info:
-        tree.add_item("Connection types", f"discharge ({values_connection_info.count('discharge')}x)")
+        tree.add_item(
+            "Connection types",
+            f"discharge ({values_connection_info.count('discharge')}x)",
+        )
     elif "suction" in values_connection_info:
-        tree.add_item("Connection types", f"suction ({values_connection_info.count('suction')}x)")
+        tree.add_item(
+            "Connection types", f"suction ({values_connection_info.count('suction')}x)"
+        )
 
     return str(tree)
+
 
 def _pretty_sequence(sequence) -> str:
     str_sequence = [("Ø" if i is None else str(i)) for i in sequence]
     return "[" + ", ".join(str_sequence) + "]"
 
+
 def _all_none(sequence) -> bool:
     return all(i is None for i in sequence)
+
 
 def _structural_format(property_name, values, labels, units, has_table):
     if _all_none(values):
@@ -326,6 +332,7 @@ def _structural_format(property_name, values, labels, units, has_table):
         if not _all_none(r):
             tree.add_item(r_labels, _pretty_sequence(r), units[1])
     return str(tree)
+
 
 def _acoustic_format(property_name, value, label, unit):
     tree = TreeInfo(property_name)

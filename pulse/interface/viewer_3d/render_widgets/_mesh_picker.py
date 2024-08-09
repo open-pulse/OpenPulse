@@ -1,39 +1,36 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .mesh_render_widget import MeshRenderWidget
 
-from vtkmodules.vtkRenderingCore import vtkAreaPicker
-from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
-from vtkmodules.vtkRenderingCore import vtkAreaPicker
-from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
-from vtkmodules.vtkRenderingCore import vtkAreaPicker
-from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
-from vtkmodules.vtkRenderingCore import vtkActor
-from vtkmodules.vtkRenderingCore import vtkPropPicker
-from vtkmodules.vtkRenderingCore import vtkActor
-from vtkmodules.vtkRenderingCore import vtkCellPicker
-from vtkmodules.vtkCommonDataModel import vtkPolyData
-from vtkmodules.vtkRenderingCore import vtkActor
-from vtkmodules.vtkRenderingCore import vtkActor
-from vtkmodules.vtkRenderingCore import vtkActor
-
 from itertools import product
+
 import numpy as np
 from molde.pickers import CellAreaPicker
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkAreaPicker,
+    vtkCellPicker,
+    vtkPropPicker,
+)
+
 from pulse import app
 
 
 class MeshPicker:
-    '''
+    """
     A custom class to make mesh selection as fast as possible.
-    '''
-    def __init__(self, mesh_render_widget: 'MeshRenderWidget'):
+    """
+
+    def __init__(self, mesh_render_widget: "MeshRenderWidget"):
         self.mesh_render_widget = mesh_render_widget
 
         self.nodes_bounds = dict()
         self.line_bounds = dict()
         self.tube_bounds = dict()
-    
+
     def update_bounds(self):
         elements = app().project.get_structural_elements()
         nodes = app().project.get_nodes()
@@ -43,8 +40,8 @@ class MeshPicker:
         self.tube_bounds.clear()
 
         for key, node in nodes.items():
-            x,y,z = node.coordinates
-            self.nodes_bounds[key] = (x,x,y,y,z,z)
+            x, y, z = node.coordinates
+            self.nodes_bounds[key] = (x, x, y, y, z, z)
 
         for key, element in elements.items():
             first_node = element.first_node.coordinates
@@ -63,7 +60,7 @@ class MeshPicker:
             # not sure if it works every time, but is a good approximation
             radius = max(element.cross_section.section_parameters)
             center = element.element_center_coordinates
-            
+
             line_bounds = (x0, x1, y0, y1, z0, z1)
             self.line_bounds[key] = line_bounds
 
@@ -72,7 +69,7 @@ class MeshPicker:
             if abs(x1 - x0) < radius:
                 x0 = center[0] - radius / 2
                 x1 = center[0] + radius / 2
-            
+
             if abs(y1 - y0) < radius:
                 y0 = center[1] - radius / 2
                 y1 = center[1] + radius / 2
@@ -92,7 +89,8 @@ class MeshPicker:
         extractor.SetFrustum(picker.GetFrustum())
 
         picked_nodes = {
-            key for key, bound in self.nodes_bounds.items()
+            key
+            for key, bound in self.nodes_bounds.items()
             if extractor.OverallBoundsTest(bound)
         }
 
@@ -105,11 +103,12 @@ class MeshPicker:
         extractor.SetFrustum(picker.GetFrustum())
 
         picked_elements = {
-            key for key, bound in self.line_bounds.items()
+            key
+            for key, bound in self.line_bounds.items()
             if extractor.OverallBoundsTest(bound)
         }
-        
-        # Add an extra pick on the last corner 
+
+        # Add an extra pick on the last corner
         element = self.pick_element(x1, y1)
         if element >= 0:
             picked_elements.add(element)
@@ -130,7 +129,7 @@ class MeshPicker:
 
             if entity in picked_lines:
                 continue
-            
+
             if extractor.OverallBoundsTest(bound):
                 picked_lines.add(entity)
 
@@ -167,7 +166,7 @@ class MeshPicker:
                 return i
 
         return -1
-    
+
     def _pick_tube_element(self, x: float, y: float, target_actor: vtkActor):
         picker = vtkPropPicker()
         elements = app().project.get_structural_elements()
@@ -178,7 +177,7 @@ class MeshPicker:
 
         if picker.GetActor() != target_actor:
             return -1
-        
+
         point = picker.GetPickPosition()
         closest_id = -1
         closest_dist = None
@@ -191,7 +190,9 @@ class MeshPicker:
 
         return closest_id
 
-    def _pick_cell_property(self, x: float, y: float, property_name: str, target_actor: vtkActor):
+    def _pick_cell_property(
+        self, x: float, y: float, property_name: str, target_actor: vtkActor
+    ):
         cell_picker = vtkCellPicker()
         cell_picker.SetTolerance(0.0018)
 
@@ -217,12 +218,14 @@ class MeshPicker:
     def _point_inside_bounds(self, point, bounds) -> bool:
         x, y, z = point
         x0, x1, y0, y1, z0, z1 = bounds
-        return all([
-            (x0 < x < x1) or (x0 > x > x1),  # inside x
-            (y0 < y < y1) or (y0 > y > y1),  # inside y
-            (z0 < z < z1) or (z0 > z > z1),  # inside z
-        ])
-    
+        return all(
+            [
+                (x0 < x < x1) or (x0 > x > x1),  # inside x
+                (y0 < y < y1) or (y0 > y > y1),  # inside y
+                (z0 < z < z1) or (z0 > z > z1),  # inside z
+            ]
+        )
+
     def _verts_from_bounds(self, bounds):
         x0, x1, y0, y1, z0, z1 = bounds
         return product((x0, x1), (y0, y1), (z0, z1))
@@ -239,8 +242,8 @@ class MeshPicker:
         for actor in self.mesh_render_widget.renderer.GetActors():
             pickability[actor] = actor.GetPickable()
             actor.SetPickable(actor == target_actor)
-        return pickability 
-    
+        return pickability
+
     def _restore_pickability(self, pickability: dict):
         actor: vtkActor
         for actor in self.mesh_render_widget.renderer.GetActors():
