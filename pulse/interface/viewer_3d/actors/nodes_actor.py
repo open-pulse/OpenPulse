@@ -4,17 +4,20 @@ from molde.utils import set_polydata_property, set_polydata_colors
 from molde.actors import GhostActor
 from molde.colors import Color
 
+from pulse import app
 
 class NodesActor(GhostActor):
     def __init__(self, project, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
-        self.project = project
-        self.nodes = project.get_nodes()
+        self.project = app().project
+        self.nodes = app().project.preprocessor.nodes
+
         self.hidden_nodes = kwargs.get('hidden_nodes', set())
         self.show_deformed = show_deformed
+
         self.build()
-    
+
     def build(self):
         visible_nodes = {i:e for i,e in self.nodes.items() if (i not in self.hidden_nodes)}
         self._key_index = {j:i for i,j in enumerate(visible_nodes.keys())}

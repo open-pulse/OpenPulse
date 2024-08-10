@@ -17,7 +17,7 @@ from time import time
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class LoadProjectFile:
+class ProjectFilesLoader:
     def __init__(self):
         super().__init__()
 
@@ -765,21 +765,7 @@ class LoadProjectFile:
         return output, list_table_names, list_frequencies
 
     def load_analysis_file(self):
-
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
-
-        if analysis_setup is None:
-            f_min = 0.
-            f_max = 0.
-            f_step = 0.
-            global_damping = [0., 0., 0., 0.]
-        
-        f_min = analysis_setup["f_min"]
-        f_max = analysis_setup["f_max"]
-        f_step = analysis_setup["f_step"]
-        global_damping = analysis_setup["global damping"]
-
-        return f_min, f_max, f_step, global_damping
+        return app().main_window.pulse_file.read_analysis_setup_from_file()
     
     def load_thumbnail(self):
         thumbnail = app().main_window.pulse_file.read_thumbnail()
@@ -807,6 +793,12 @@ class LoadProjectFile:
         analysis_setup["global damping"] = global_damping
 
         app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+
+    def load_model_properties_from_file(self):
+        return app().main_window.pulse_file.read_model_properties_from_file()
+
+    def load_imported_table_data_from_file(self):
+        return app().main_window.pulse_file.read_imported_table_data_from_file()
 
 def get_color_rgb(color : str):
     color = color.replace(" ", "")

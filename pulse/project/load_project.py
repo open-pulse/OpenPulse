@@ -1,35 +1,44 @@
 from pulse import app
+
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.file.load_project_file import LoadProjectFile
+from pulse.interface.file.project_files_loader import ProjectFilesLoader
 from pulse.tools.utils import *
 
 from pulse.model.cross_section import CrossSection
-
 
 from time import time
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class LoadProjectData:
+class LoadProject:
     def __init__(self):
         super().__init__()
 
         self.project = app().project
-        self.file = app().file
+        self.properties = app().project.properties
+        self.preprocessor = app().project.preprocessor
+
+        self.files_loader = ProjectFilesLoader()
 
         self._initialize()
         
     def _initialize(self):
-        self.loader = LoadProjectFile()
         self.bc_loader = None
-        self.preprocessor = self.project.preprocessor
+
+    def load_project_data(self):
+        self.load_mesh_setup_from_file()
+        self.load_pipeline_file()
+        self.load_imported_table_data_from_file()
+        self.load_model_properties_file()
+        self.load_analysis_file()
+        self.load_inertia_load_setup()
 
     def load_material_data(self):
         try:
 
             # Material to the entities
-            for key, mat in self.loader.material_data.items():
+            for key, mat in self.files_loader.material_data.items():
                 self.project.load_material_by_line(key, mat)
 
         except Exception as log_error:
@@ -42,7 +51,7 @@ class LoadProjectData:
         try:
 
             # Fluid to the entities
-            for key, fld in self.loader.fluid_data.items():
+            for key, fld in self.files_loader.fluid_data.items():
                 self.project.load_fluid_by_line(key, fld)
 
         except Exception as log_error:
@@ -56,7 +65,7 @@ class LoadProjectData:
 
             # Constant cross-section to the entities
             self.number_sections_by_line = dict()
-            for key, section_data in self.loader.cross_section_data.items():
+            for key, section_data in self.files_loader.cross_section_data.items():
 
                 # key[0] -> tag : str
                 # key[1] -> label ("pipe", "beam")
@@ -74,7 +83,7 @@ class LoadProjectData:
 
                 else:
 
-                    if key not in self.loader.variable_sections_data.keys():
+                    if key not in self.files_loader.variable_sections_data.keys():
 
                         cross = None
                         if key[1] == "pipe":
@@ -96,7 +105,7 @@ class LoadProjectData:
         try:
 
             # Variable Cross-section to the entities
-            for key, value in self.loader.variable_sections_data.items():
+            for key, value in self.files_loader.variable_sections_data.items():
                 self.project.load_variable_cross_section_by_line(int(key[0]), value)
 
         except Exception as log_error:
@@ -109,8 +118,8 @@ class LoadProjectData:
         try:
             # self.lines_with_cross_section_by_elements = list()
             # Load structural element type info
-            for key, etype_data in self.loader.structural_element_type_data.items():
-                if self.loader.element_type_is_structural:
+            for key, etype_data in self.files_loader.structural_element_type_data.items():
+                if self.files_loader.element_type_is_structural:
                     if "-" in key:
                         self.project.load_structural_element_type_by_elements(etype_data[0], etype_data[1])
                     else:
@@ -126,7 +135,7 @@ class LoadProjectData:
         try:
 
             # Structural element force offset to the entities
-            for key, force_offset_data in self.loader.structural_element_force_offset_data.items():
+            for key, force_offset_data in self.files_loader.structural_element_force_offset_data.items():
                 if "-" in key:
                     self.project.load_structural_element_force_offset_by_elements(force_offset_data[0], 
                                                                           force_offset_data[1])
@@ -145,7 +154,7 @@ class LoadProjectData:
         try:
 
             # Structural element wall formulation to the entities
-            for key, wall_formulation_data in self.loader.structural_element_wall_formulation_data.items():
+            for key, wall_formulation_data in self.files_loader.structural_element_wall_formulation_data.items():
                 if "-" in key:
                     self.project.load_structural_element_wall_formulation_by_elements(wall_formulation_data[0], 
                                                                               wall_formulation_data[1])
@@ -164,8 +173,8 @@ class LoadProjectData:
         try:
 
             # Acoustic element type to the entities
-            for key, [el_type, proportional_damping, vol_flow] in self.loader.acoustic_element_type_data.items():
-                if self.loader.element_type_is_acoustic:
+            for key, [el_type, proportional_damping, vol_flow] in self.files_loader.acoustic_element_type_data.items():
+                if self.files_loader.element_type_is_acoustic:
                     if "-" in key:
                         continue
                     else:
@@ -184,7 +193,7 @@ class LoadProjectData:
     def load_acoustic_element_length_correction_data(self):
         try:
 
-            for key, value in self.loader.element_length_correction_data.items():
+            for key, value in self.files_loader.element_length_correction_data.items():
                 self.project.load_length_correction_by_elements(value[0], value[1], key)
    
         except Exception as log_error:
@@ -196,7 +205,7 @@ class LoadProjectData:
     def load_perforated_plate_by_elements_data(self):
         try:
 
-            for key, value in self.loader.perforated_plate_data.items():
+            for key, value in self.files_loader.perforated_plate_data.items():
                 frequency_setup_pass = True
                 table_name = value[1].dimensionless_impedance_table_name
                 if table_name is not None:
@@ -216,7 +225,7 @@ class LoadProjectData:
         try:
 
             # Compressor info to the entities
-            for key, _info in self.loader.compressor_info.items():
+            for key, _info in self.files_loader.compressor_info.items():
                 self.project.load_compressor_info_by_line(key, _info)
 
         except Exception as log_error:
@@ -229,9 +238,9 @@ class LoadProjectData:
         try:
 
             # Beam X-axis rotation to the entities
-            for key, angle in self.loader.beam_xaxis_rotation_data.items():
+            for key, angle in self.files_loader.beam_xaxis_rotation_data.items():
                 self.project.load_beam_xaxis_rotation_by_line(key, angle)
-            if len(self.loader.beam_xaxis_rotation_data) > 0:
+            if len(self.files_loader.beam_xaxis_rotation_data) > 0:
                 self.preprocessor.process_all_rotation_matrices() 
 
         except Exception as log_error:
@@ -244,7 +253,7 @@ class LoadProjectData:
         try:
 
             # B2PX Rotation Decoupling
-            for key, item in self.loader.B2XP_rotation_decoupling_data.items():
+            for key, item in self.files_loader.B2XP_rotation_decoupling_data.items():
                 if "B2PX ROTATION DECOUPLING" in str(key):
                     self.preprocessor.dict_B2PX_rotation_decoupling[str(item[2])] = [item[0], item[1], key]
                     for i in range(len(item[0])):
@@ -260,7 +269,7 @@ class LoadProjectData:
         try:
 
             # Expansion Joint to the entities
-            for key, joint_data in self.loader.expansion_joint_parameters_data.items():
+            for key, joint_data in self.files_loader.expansion_joint_parameters_data.items():
                 frequency_setup_pass = True
                 if "-" in key:
                     parameters = joint_data[1]
@@ -296,7 +305,7 @@ class LoadProjectData:
         try:
 
             # Valve to the entities
-            for key, [valve_data, cross_sections] in self.loader.valve_data.items():
+            for key, [valve_data, cross_sections] in self.files_loader.valve_data.items():
                 if "-" in key:
                     self.project.load_valve_by_elements(valve_data, cross_sections)  
                 else:
@@ -313,7 +322,7 @@ class LoadProjectData:
         try:
 
             # Capped end to the entities and elements
-            for key, group in self.loader.capped_end_data.items():
+            for key, group in self.files_loader.capped_end_data.items():
                 if "CAPPED END" in key:  
                     self.project.load_capped_end_by_elements(group, True, key)
                 else:
@@ -329,7 +338,7 @@ class LoadProjectData:
         try:
 
             # Stress Stiffening to the entities and elements
-            for key, parameters in self.loader.stress_stiffening_data.items():
+            for key, parameters in self.files_loader.stress_stiffening_data.items():
                 if "STRESS STIFFENING" in str(key):
                     self.project.load_stress_stiffening_by_elements(parameters[0], parameters[1], section=key)
                 else:
@@ -344,7 +353,7 @@ class LoadProjectData:
     def load_pipeline_file(self):
         try:
 
-            self.loader.load_project_data_from_files()
+            self.files_loader.load_project_data_from_files()
 
             self.load_material_data()
             self.load_fluid_data()
@@ -368,3 +377,78 @@ class LoadProjectData:
             title = "Error while loading project data"
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
+
+    def load_model_properties_file(self):
+
+        model_properties = self.files_loader.load_model_properties_from_file()
+
+        for key, data in model_properties.items():
+            if isinstance(data, dict):
+                for (property, id), prop_data in data.items():
+
+                    # if property == "fluid":
+                    #     fluid_id = prop_data
+                    #     if fluid_id not in self.library_fluids.keys():
+                    #         continue
+                    #     else:
+                    #         prop_data = self.library_fluids[fluid_id]
+
+                    # elif property == "material":
+                    #     material_id = prop_data
+                    #     if material_id not in self.library_materials.keys():
+                    #         continue
+                    #     else:
+                    #         prop_data = self.library_materials[material_id]
+
+                    if key == "nodal_properties":
+                        self.properties._set_property(property, prop_data, node_ids=id)
+
+                    elif key == "element_properties":
+                        self.properties._set_property(property, prop_data, element=id)
+
+                    elif key == "line_properties":
+                        self.properties._set_property(property, prop_data, line=id)
+
+                    else:
+                        self.properties._set_property(property, prop_data)
+
+    def load_imported_table_data_from_file(self):
+        app().project.properties.imported_tables = self.files_loader.load_imported_table_data_from_file()
+
+    def load_mesh_setup_from_file(self):
+        project_setup = app().main_window.pulse_file.read_project_setup_from_file()
+        if project_setup is None:
+            return
+
+        if "mesher setup" in project_setup.keys():
+            self.preprocessor.set_mesher_setup(project_setup["mesher setup"])
+
+    def load_inertia_load_setup(self):
+        inertia_load = app().main_window.pulse_file.read_inertia_load_from_file()
+        if inertia_load is None:
+            return
+
+        gravity = np.array(inertia_load["gravity"], dtype=float)
+        stiffening_effect = inertia_load["stiffening effect"]
+
+        self.preprocessor.set_inertia_load(gravity)
+        self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
+
+    def load_analysis_file(self):
+
+        analysis_setup = self.files_loader.load_analysis_file()
+
+        if analysis_setup is None:
+            return
+
+        if "f_min" in analysis_setup.keys():
+            self.project.f_min = analysis_setup["f_min"]
+
+        if "f_max" in analysis_setup.keys():
+            self.project.f_max = analysis_setup["f_max"]
+
+        if "f_step" in analysis_setup.keys():
+            self.project.f_step = analysis_setup["f_step"]
+
+        if "global damping" in analysis_setup.keys():
+            self.project.global_damping = analysis_setup["global damping"]

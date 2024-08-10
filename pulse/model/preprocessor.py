@@ -3049,6 +3049,19 @@ class Preprocessor:
             node1.there_are_elastic_nodal_link_dampings = True
             node2.there_are_elastic_nodal_link_dampings = True
 
+    def add_psd_link_data_to_nodes(self, link_data):
+
+        for key, values in  link_data.items():
+            for (start_coords, end_coords) in values:
+
+                id_1 = self.get_node_id_by_coordinates(start_coords)
+                id_2 = self.get_node_id_by_coordinates(end_coords)
+                nodes = (id_1, id_2)
+
+                if key[1] == "acoustic_link":
+                    self.add_acoustic_link_data(nodes)
+                else:
+                    self.add_structural_link_data(nodes)
 
     def process_element_cross_sections_orientation_to_plot(self):
         """

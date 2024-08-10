@@ -59,6 +59,9 @@ class ModelProperties:
         self._reset_variables()
 
     def _reset_variables(self):
+
+        self.imported_tables = dict()
+
         self.global_properties = dict()
         self.group_properties = dict()
         self.line_properties = dict()
@@ -143,29 +146,65 @@ class ModelProperties:
     def set_radiation_impedance(self, data, node_ids):
         self._set_property("radiation_impedance", data, node_ids=node_ids)
 
-    def _set_property(self, property: str, value, node_ids=None, element=None, line=None, group=None):
+    def get_data_group_label(self, property : str):
+        if property in ["acoustic_pressure", "volume_velocity", "specific_impedance", "radiation_impedance", "compressor_excitation"]:
+            return "acoustic"
+        else:
+            return "structural"
+
+    def _set_property(self, property: str, data, node_ids=None, element=None, line=None, group=None):
         """
-        Sets a value to a property by node, element, line, surface or volume
+        Sets a data to a property by node, element, line, surface or volume
         if any of these exists. Otherwise sets the property as global.
 
         """
+        imported_tables = app().project.properties.imported_tables
         if node_ids is not None:
+
+            group_label = self.get_data_group_label(property)
+
+            values = list()
+            if "real values" in data.keys() and "imag values" in data.keys():
+                for i, a in enumerate(data["real values"]):
+                    if a is None:
+                        values.append(None)
+                    else:
+                        b = data["imag values"][i]
+                        values.append(a + 1j*b)
+            
+            if "table names" in data.keys():
+                for i, table_name in enumerate(data["table names"]):
+            
+                    if table_name is None:
+                        values.append(None)
+                        continue
+
+                    if group_label in imported_tables.keys():
+                        if table_name in imported_tables[group_label].keys():
+
+                            data_array = imported_tables[group_label][table_name]
+                            value = data_array[:, 1] + 1j*data_array[:, 2]
+                            values.append(value)
+
+            data["values"] = values
+
             if isinstance(node_ids, int):
-                self.nodal_properties[property, node_ids] = value
+                self.nodal_properties[property, node_ids] = data
+
             elif isinstance(node_ids, list) and len(node_ids) == 2:
-                self.nodal_properties[property, node_ids[0], node_ids[1]]
+                self.nodal_properties[property, node_ids[0], node_ids[1]] = data
 
         elif element is not None:
-            self.element_properties[property, element] = value
+            self.element_properties[property, element] = data
 
         elif line is not None:
-            self.line_properties[property, line] = value
+            self.line_properties[property, line] = data
 
         elif group is not None:
-            self.group_properties[property, group] = value
+            self.group_properties[property, group] = data
 
         # else:
-        #     self.global_properties[property, "global"] = value
+        #     self.global_properties[property, "global"] = data
 
     def _get_property(self, property: str, node_ids=None, element=None, line=None):
         """
@@ -238,35 +277,23 @@ class ModelProperties:
             for _key in keys_to_remove:
                 data.pop(_key)
 
-    def _remove_nodal_property(self, property: str, node_ids: int | list):
+    def _remove_nodal_property(self, property: str, node_id: int):
         """Remove a nodal property at specific nodal_id."""
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
+        key = (property, node_id)
+        if key in self.nodal_properties.keys():
+            self.nodal_properties.pop(key)
 
-        for node_id in node_ids:
-            key = (property, node_id)
-            if key in self.nodal_properties.keys():
-                self.nodal_properties.pop(key)
-
-    def _remove_element_property(self, property: str, element_ids: int | list):
+    def _remove_element_property(self, property: str, element_id: int):
         """Remove a element property at specific element_id."""
-        if isinstance(element_ids, int):
-            element_ids = [element_ids]
+        key = (property, element_id)
+        if key in self.element_properties.keys():
+            self.element_properties.pop(key)
 
-        for element_id in element_ids:
-            key = (property, element_id)
-            if key in self.element_properties.keys():
-                self.element_properties.pop(key)
-
-    def _remove_line_property(self, property: str, line_ids: int | list):
+    def _remove_line_property(self, property: str, line_id: int):
         """Remove a line property at specific line_id."""
-        if isinstance(line_ids, int):
-            line_ids = [line_ids]
-
-        for line_id in line_ids:
-            key = (property, line_id)
-            if key in self.line_properties.keys():
-                self.line_properties.pop(key)
+        key = (property, line_id)
+        if key in self.line_properties.keys():
+            self.line_properties.pop(key)
 
     def _remove_group_property(self, property: str, group_id: int):
         """Remove a group property at specific group_id."""

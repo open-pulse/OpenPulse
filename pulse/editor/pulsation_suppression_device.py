@@ -5,14 +5,10 @@ from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.editor.dual_volume_psd import DualVolumePSD
 
 import os
-import configparser
-import json
+from configparser import ConfigParser
 
 import numpy as np
-from pathlib import Path
-from pprint import pprint
 from collections import defaultdict
-from itertools import count
 
 class PulsationSuppressionDevice:
     def __init__(self, project):
@@ -142,28 +138,13 @@ class PulsationSuppressionDevice:
                     self.link_data[(psd_label, link_type)].append((start_coords, end_coords))
 
         if self.link_data:
-            self.add_psd_link_data_to_nodes(self.link_data)
-
-    def add_psd_link_data_to_nodes(self, link_data):
-
-        for key, values in  link_data.items():
-            for (start_coords, end_coords) in values:
-
-                id_1 = self.preprocessor.get_node_id_by_coordinates(start_coords)
-                id_2 = self.preprocessor.get_node_id_by_coordinates(end_coords)
-                nodes = (id_1, id_2)
-
-                if key[1] == "acoustic_link":
-                    self.preprocessor.add_acoustic_link_data(nodes)
-                else:
-                    self.preprocessor.add_structural_link_data(nodes)
+            self.preprocessor.add_psd_link_data_to_nodes(self.link_data)
 
     def get_device_related_lines(self):
 
-        config = configparser.ConfigParser()
-        config.read(self.file._pipeline_path)
+        self.psd_lines = defaultdict(list)
 
-        self.psd_lines= defaultdict(list)
+        config = app().main_window.pulse_file.read_pipeline_data_from_file()
 
         for section in config.sections():
             if "psd label" in config[section].keys():
@@ -192,9 +173,8 @@ class PulsationSuppressionDevice:
 
     def remove_line_gaps_from_file(self):
 
+        config_no_gap = ConfigParser()
         config = app().main_window.pulse_file.read_pipeline_data_from_file()
-
-        config_no_gap = configparser.ConfigParser()
 
         splited_lines = list()
         for section in config.sections():
@@ -287,31 +267,19 @@ class PulsationSuppressionDevice:
 
     def remove_psd_related_element_length_correction(self, device_label):
 
-        path = self.file._element_info_path
-        config = configparser.ConfigParser()
+        element_ids = list()
+        for (property, element_id), data in app().main_window.project.properties.element_properties.items():
+            if property == "element length correction":
+                if "psd label" in data.keys():
+                        if device_label == "_remove_all_":
+                            element_ids.append(element_id)
+                        elif device_label == data["psd label"]:
+                            element_ids.append(element_id)
 
-        config.read(path)
-
-        if path.exists():
-
-            for section in config.sections():
-                if "psd label" in config[section].keys():
-                    if device_label == "_remove_all_":
-                        config.remove_section(section=section)
-
-                    elif device_label == config[section]["psd label"]:
-                        config.remove_section(section=section)
-
-            if list(config.sections()):
-                with open(path, 'w') as config_file:
-                    config.write(config_file)
-
-            else:
-                if path.exists():
-                    os.remove(path)
+        app().main_window.project.properties._remove_element_property("element length correction", element_ids) 
+        app().main_window.pulse_file.write_model_properties_in_file()
 
     def load_project(self):
-
         self.project.initial_load_project_actions()
         self.project.load_project_files()
         app().main_window.input_ui.initial_project_action(True)

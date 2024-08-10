@@ -40,7 +40,7 @@ class ProjectFileIO:
         self.fluid_library_filename = "fluid_library.config"
         self.material_library_filename = "material_library.config"
         self.pipeline_filename = "pipeline.dat"
-        self.model_properties = "model_properties.json"
+        self.model_properties_filename = "model_properties.json"
         self.mesh_data_filename = "mesh_data.hdf5"
         self.imported_table_data_filename = "imported_table_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
@@ -245,7 +245,7 @@ class ProjectFileIO:
                             nodal_properties = normalize(properties.nodal_properties),
                         )
 
-            self.filebox.write(self.model_properties, data)
+            self.filebox.write(self.model_properties_filename, data)
             app().main_window.project_data_modified = True
 
         except Exception as error_log:
@@ -257,26 +257,34 @@ class ProjectFileIO:
     def read_model_properties_from_file(self):
 
         def denormalize(prop: dict):
+
             new_prop = dict()
             for key, val in prop.items():
-                p, i = key.split()
-                p = p.strip()
-                i = int(i)
-                new_prop[p, i] = val
+
+                if len(key.split()) == 2:
+                    p, id = key.split()
+                    p = p.strip()
+                    id = int(id)
+                    new_prop[p, id] = val
+
+                elif len(key.split()) == 3:
+                    p, id_1, id_2 = key.split()
+                    id_1 = int(id_1)
+                    id_2 = int(id_2)
+                    new_prop[p, id_1, id_2] = val
+
             return new_prop
 
-        data = self.filebox.read(self.model_properties)
+        data = self.filebox.read(self.model_properties_filename)
 
         if data is None:
             return dict()
 
         model_properties = dict(
-                                # global_properties = denormalize(data["global_properties"]),
-                                volume_properties = denormalize(data["volume_properties"]),
-                                surface_properties = denormalize(data["surface_properties"]),
-                                line_properties = denormalize(data["line_properties"]),
-                                element_properties = denormalize(data["element_properties"]),
-                                nodal_properties = denormalize(data["nodal_properties"])
+                                    # global_properties = denormalize(data["global_properties"]),
+                                    nodal_properties = denormalize(data["nodal_properties"]),
+                                    element_properties = denormalize(data["element_properties"]),
+                                    line_properties = denormalize(data["line_properties"])
                                 )
 
         return model_properties
@@ -309,6 +317,32 @@ class ProjectFileIO:
                             f.create_dataset(data_name, data=data_arrays[i], dtype=float)
                 
                 app().main_window.project_data_modified = True
+
+    def read_imported_table_data_from_file(self):
+        
+        tables_data = dict()
+
+        try:
+
+            with self.filebox.open(self.imported_table_data_filename) as internal_file:
+                with h5py.File(internal_file, "r") as f:
+
+                    for group in list(f.keys()):
+                        aux = dict()
+                        for key, values in f.get(group).items():
+
+                            try:
+                                aux[key] = np.array(values)
+                            except:
+                                continue
+
+                        if aux:
+                            tables_data[group] = aux
+
+        except:
+            return dict()
+
+        return tables_data
 
     def write_thumbnail(self):
         thumbnail = app().main_window.project.thumbnail
@@ -385,7 +419,7 @@ class ProjectFileIO:
         return results_data
 
     def remove_model_properties_from_project_file(self):
-        self.filebox.remove(self.model_properties)
+        self.filebox.remove(self.model_properties_filename)
         app().main_window.project_data_modified = True
 
     def remove_mesh_data_from_project_file(self):

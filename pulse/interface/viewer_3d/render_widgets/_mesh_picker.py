@@ -21,8 +21,9 @@ class MeshPicker:
         self.tube_bounds = dict()
     
     def update_bounds(self):
-        elements = app().project.get_structural_elements()
-        nodes = app().project.get_nodes()
+
+        elements = app().project.preprocessor.structural_elements
+        nodes = app().project.preprocessor.nodes
 
         self.nodes_bounds.clear()
         self.line_bounds.clear()

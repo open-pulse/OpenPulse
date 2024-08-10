@@ -662,9 +662,10 @@ class PrescribedDofsInput(QDialog):
         return text
 
     def load_nodes_info(self):
+
         self.treeWidget_prescribed_dofs.clear()
         for (property, node_id), data in app().main_window.project.properties.nodal_properties.items():
-            print(property, node_id, data)
+
             if property == "prescribed_dofs":
                 values = data["values"]
                 constrained_dofs_mask = [False if value is None else True for value in values]
@@ -672,6 +673,7 @@ class PrescribedDofsInput(QDialog):
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_prescribed_dofs.addTopLevelItem(new)
+
         self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
@@ -753,7 +755,9 @@ class PrescribedDofsInput(QDialog):
 
             self.remove_all_table_files_from_nodes(node_ids)
 
-            app().main_window.project.properties._remove_nodal_property("prescribed_dofs", node_ids)
+            for node_id in node_ids:
+                app().main_window.project.properties._remove_nodal_property("prescribed_dofs", node_id)
+
             app().main_window.pulse_file.write_model_properties_in_file()
 
             data = [self.list_Nones, self.list_Nones]

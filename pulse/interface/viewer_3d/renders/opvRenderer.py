@@ -393,7 +393,6 @@ class opvRenderer(vtkRendererBase):
             self.elementsBounds[key] = bounds
 
     def saveLineToElements(self):
-        # preprocessor = self.project.get_preprocess()
         self.lineToElements = self.preprocessor.line_to_elements
     
     def saveRawLinesData(self):
