@@ -30,7 +30,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         linked_nodes = set()
         self.linked_symbols = vtk.vtkAppendPolyData()
 
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "structural_elastic_links":
 
@@ -82,7 +82,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def _create_structural_links(self):
 
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "structural_links":
 
@@ -119,7 +119,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         offset = 0 * self.scaleFactor
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "prescribed_dofs":
 
@@ -161,7 +161,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         offset = 0 * self.scaleFactor
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "prescribed_dofs":
 
@@ -203,7 +203,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         offset = 0.05 * self.scaleFactor
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "nodal_loads":
 
@@ -245,7 +245,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         offset = 0.05 * self.scaleFactor
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "nodal_loads":
 
@@ -287,7 +287,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         col = (7,156,231)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "lumped masses":
 
@@ -323,7 +323,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         col = (242,121,0)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "lumped_springs":
 
@@ -371,7 +371,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         col = (255,0,100)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "lumped_dampers":
 
@@ -426,7 +426,7 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
         col = (0,10,255)
 
         symbols = list()
-        for (property, element_id), data in app().project.properties.element_properties.items():
+        for (property, element_id), data in app().project.model.properties.element_properties.items():
 
             if property == "valve":
 

@@ -178,27 +178,27 @@ class ProjectFile:
 
         return f_min, f_max, f_step, global_damping
 
-    def add_frequency_in_file(self, f_min, f_max, f_step):
+    # def add_frequency_in_file(self, f_min, f_max, f_step):
 
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
+    #     analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+    #     if analysis_setup is None:
+    #         analysis_setup = dict()
 
-        analysis_setup["f_min"] = f_min
-        analysis_setup["f_max"] = f_max
-        analysis_setup["f_step"] = f_step
+    #     analysis_setup["f_min"] = f_min
+    #     analysis_setup["f_max"] = f_max
+    #     analysis_setup["f_step"] = f_step
 
-        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+    #     app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
 
-    def add_damping_in_file(self, global_damping):
+    # def add_damping_in_file(self, global_damping):
 
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
+    #     analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+    #     if analysis_setup is None:
+    #         analysis_setup = dict()
 
-        analysis_setup["global damping"] = global_damping
+    #     analysis_setup["global damping"] = global_damping
 
-        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+    #     app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def reset_project_setup(self, **kwargs):
 
@@ -308,13 +308,6 @@ class ProjectFile:
                 entity_data[entity] = dict_section
 
         return entity_data
-
-    def check_if_there_are_tables_at_the_model(self):
-        if os.path.exists(self._structural_imported_data_folder_path):
-            return True
-        if os.path.exists(self._acoustic_imported_data_folder_path):
-            return True
-        return False
 
     def get_cross_sections_from_file(self):
         """ This method returns a dictionary of already applied cross-sections.
@@ -1758,7 +1751,7 @@ class ProjectFile:
 
     # def add_acoustic_bc_in_file(self, node_ids, data, label):
 
-    #     preprocessor = app().main_window.project.preprocessor
+    #     preprocessor = app().project.preprocessor
     #     nodes = preprocessor.nodes
 
     #     path = self._node_acoustic_path
@@ -1810,7 +1803,7 @@ class ProjectFile:
 
     # def add_structural_bc_in_file(self, node_ids, values, labels):
 
-    #     preprocessor = app().main_window.project.preprocessor
+    #     preprocessor = app().project.preprocessor
     #     nodes = preprocessor.nodes
 
     #     path = self._node_structural_path
@@ -1873,7 +1866,7 @@ class ProjectFile:
         path_2 = self._node_structural_path
 
         non_mapped_nodes = list()
-        preprocessor = app().main_window.project.preprocessor
+        preprocessor = app().project.preprocessor
 
         print(path_1, path_2)
         return
@@ -1979,7 +1972,7 @@ class ProjectFile:
 
     #     [value, table_name] = data
 
-    #     preprocessor = app().main_window.project.preprocessor
+    #     preprocessor = app().project.preprocessor
     #     nodes = preprocessor.nodes
 
     #     path = self._project_path / "acoustic_nodal_info.json"
@@ -2017,7 +2010,7 @@ class ProjectFile:
 
     # def add_structural_bc_in_file(self, node_ids, data, labels):
 
-    #     preprocessor = app().main_window.project.preprocessor
+    #     preprocessor = app().project.preprocessor
     #     nodes = preprocessor.nodes
 
     #     path = self._project_path / "structural_nodal_info.json"
@@ -2066,7 +2059,7 @@ class ProjectFile:
     #     path_2 = self._project_path / "structural_nodal_info.json"
 
     #     non_mapped_nodes = list()
-    #     preprocessor = app().main_window.project.preprocessor
+    #     preprocessor = app().project.preprocessor
 
     #     for path in [path_1, path_2]:
     #         if path.exists():

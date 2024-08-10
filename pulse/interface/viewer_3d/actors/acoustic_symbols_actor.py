@@ -28,7 +28,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
         linkedSymbols = vtk.vtkAppendPolyData()
 
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
             if property == "acoustic_nodal_links":
 
                 coords = data["coords"]
@@ -64,7 +64,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         col = (150,0,210) #violet
         
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "acoustic_pressure":
                 pos = data["coords"]
@@ -80,7 +80,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         col = (255,10,10)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property in ["acoustic_pressure", "compressor_excitation"]:
                 pos = data["coords"]
@@ -97,7 +97,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         col = (100,255,100)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "specific_impedance":
                 pos = data["coords"]
@@ -113,7 +113,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         col = (224,0,75)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "radiation_impedance":
                 pos = data["coords"]
@@ -129,7 +129,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         col = (10,10,255)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "compressor_excitation":
 
@@ -169,7 +169,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         col = (255,10,10)
 
         symbols = list()
-        for (property, *args), data in app().project.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "compressor_excitation":
 
@@ -231,7 +231,7 @@ class AcousticElementsSymbolsActor(SymbolsActorBase):
         col = (255,0,0)
 
         symbols = list()
-        for (property, element_id), data in app().project.properties.element_properties.items():
+        for (property, element_id), data in app().project.model.properties.element_properties.items():
 
             if property == "perforated_plate":
 

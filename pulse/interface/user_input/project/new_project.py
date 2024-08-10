@@ -22,7 +22,7 @@ class NewProjectInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
-        self.preprocessor = app().main_window.project.preprocessor
+        self.preprocessor = app().project.preprocessor
 
         self._config_window()
         self._initialize()

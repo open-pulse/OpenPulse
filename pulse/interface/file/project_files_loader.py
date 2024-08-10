@@ -770,29 +770,7 @@ class ProjectFilesLoader:
     def load_thumbnail(self):
         thumbnail = app().main_window.pulse_file.read_thumbnail()
         if thumbnail is not None:
-            app().main_window.project.thumbnail = thumbnail
-
-    def add_frequency_in_file(self, f_min, f_max, f_step):
-
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
-
-        analysis_setup["f_min"] = f_min
-        analysis_setup["f_max"] = f_max
-        analysis_setup["f_step"] = f_step
-
-        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
-
-    def add_damping_in_file(self, global_damping):
-
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
-
-        analysis_setup["global damping"] = global_damping
-
-        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+            app().project.thumbnail = thumbnail
 
     def load_model_properties_from_file(self):
         return app().main_window.pulse_file.read_model_properties_from_file()

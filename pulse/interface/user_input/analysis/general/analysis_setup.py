@@ -129,7 +129,7 @@ class AnalysisSetupInput(QDialog):
             self.lineEdit_fmin.setText(str(self.f_min))
             self.lineEdit_fmax.setText(str(self.f_max))
             self.lineEdit_fstep.setText(str(self.f_step))
-            if self.project.file.check_if_there_are_tables_at_the_model():
+            if app().project.model.properties.check_if_there_are_tables_at_the_model():
                 self.lineEdit_fmin.setDisabled(True)
                 self.lineEdit_fmax.setDisabled(True)
                 self.lineEdit_fstep.setDisabled(True)
@@ -207,7 +207,7 @@ class AnalysisSetupInput(QDialog):
         self.project.set_structural_damping(self.global_damping)
         analysis_setup["global damping"] = self.global_damping
 
-        if self.project.file.check_if_there_are_tables_at_the_model():
+        if app().project.model.properties.check_if_there_are_tables_at_the_model():
             self.frequencies = self.project.frequencies
         else:
             self.frequencies = np.arange(f_min, f_max + f_step, f_step)

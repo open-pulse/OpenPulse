@@ -16,7 +16,7 @@ class LoadProject:
         super().__init__()
 
         self.project = app().project
-        self.properties = app().project.properties
+        self.properties = app().project.model.properties
         self.preprocessor = app().project.preprocessor
 
         self.files_loader = ProjectFilesLoader()
@@ -413,7 +413,11 @@ class LoadProject:
                         self.properties._set_property(property, prop_data)
 
     def load_imported_table_data_from_file(self):
-        app().project.properties.imported_tables = self.files_loader.load_imported_table_data_from_file()
+        imported_tables = self.files_loader.load_imported_table_data_from_file()
+        if "acoustic" in imported_tables.keys():
+            app().project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
+        elif "structural" in imported_tables.keys():
+            app().project.model.properties.structural_imported_tables = imported_tables["structural"]
 
     def load_mesh_setup_from_file(self):
         project_setup = app().main_window.pulse_file.read_project_setup_from_file()

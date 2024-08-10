@@ -268,14 +268,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._plotOnce(self._currentPhase)
 
     def get_min_max_values_to_resultant_displacements(self, frequency_index):
-        solution = app().main_window.project.get_structural_solution()
+        solution = app().project.get_structural_solution()
         _, r_min, r_max, self.r_xyz_abs = get_min_max_resultant_displacements(solution, frequency_index)
         self.result_disp_min = r_min
         self.result_disp_max = r_max
 
     def computeDisplacementField(self, frequency_index, phase_step):
-        preprocessor = app().main_window.project.preprocessor
-        solution = app().main_window.project.get_structural_solution()
+        preprocessor = app().project.preprocessor
+        solution = app().project.get_structural_solution()
 
         _, _, u_def, self._magnification_factor = get_structural_response(   preprocessor,
                                                                             solution,
@@ -312,8 +312,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         
     def computeStressField(self, frequency, phase_step):
 
-        preprocessor = app().main_window.project.preprocessor
-        solution = app().main_window.project.get_structural_solution()
+        preprocessor = app().project.preprocessor
+        solution = app().project.get_structural_solution()
 
         *args, self._magnification_factor = get_structural_response( preprocessor,
                                                                     solution,
@@ -349,13 +349,13 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.opvPressureTubes.getActor().SetVisibility(False)
 
     def get_min_max_values_to_pressure(self, frequency_index):
-        solution = app().main_window.project.get_acoustic_solution()
+        solution = app().project.get_acoustic_solution()
         self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
 
     def computePressureField(self, frequency, phase_step):
 
-        preprocessor = app().main_window.project.preprocessor
-        solution = app().main_window.project.get_acoustic_solution()
+        preprocessor = app().project.preprocessor
+        solution = app().project.get_acoustic_solution()
         self._currentFrequencyIndex = frequency
 
         *args, pressure_field_data, self.min_max_pressures_values_current = get_acoustic_response(  preprocessor,

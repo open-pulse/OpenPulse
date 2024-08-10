@@ -18,12 +18,13 @@ from pulse.interface.user_input.model.setup.structural.expansion_joint_input imp
 # from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
 from pulse.properties.model_properties import ModelProperties
+from pulse.model.model import Model
 #
 from opps.model import Pipeline
 #
-import os
+# import os
 import numpy as np
-from shutil import rmtree
+# from shutil import rmtree
 from collections import defaultdict
 
 window_title = "Error"
@@ -35,7 +36,8 @@ class Project:
         self.pipeline = Pipeline()
         self.preprocessor = Preprocessor(self)        
         self.PSD = PulsationSuppressionDevice(self)
-        self.properties = ModelProperties()
+        # self.properties = ModelProperties()
+        self.model = Model()
 
         self.name = None
         self.save_path = None
@@ -158,6 +160,28 @@ class Project:
         load_project.load_model_properties_file()
         load_project.load_inertia_load_setup()
         self.PSD.load_psd_data_from_file()
+
+    def add_frequency_in_file(self, f_min, f_max, f_step):
+
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
+
+        analysis_setup["f_min"] = f_min
+        analysis_setup["f_max"] = f_max
+        analysis_setup["f_step"] = f_step
+
+        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+
+    def add_damping_in_file(self, global_damping):
+
+        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
+
+        analysis_setup["global damping"] = global_damping
+
+        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
@@ -622,24 +646,28 @@ class Project:
         self.frequencies = self.file.frequencies 
 
     def change_project_frequency_setup(self, table_name, frequencies):
+
         if frequencies is None:
             return False
         if isinstance(frequencies, np.ndarray):
             frequencies = list(frequencies)
+
         updated = False
-        if self.list_frequencies == list() or not self.file.check_if_there_are_tables_at_the_model():
+        condition_1 = self.list_frequencies == list() 
+        condition_2 = not self.model.properties.check_if_there_are_tables_at_the_model()
+
+        if condition_1 or condition_2:
             updated = True
             self.list_frequencies = frequencies
-        if self.list_frequencies == frequencies:
-            if updated:
-                self.frequencies = np.array(frequencies)
-                self.f_min = self.frequencies[0]
-                self.f_max = self.frequencies[-1]
-                self.f_step = self.frequencies[1] - self.frequencies[0] 
-                self.file.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
-                self.imported_table_frequency_setup = True
+            self.frequencies = np.array(frequencies)
+            self.f_min = self.frequencies[0]
+            self.f_max = self.frequencies[-1]
+            self.f_step = self.frequencies[1] - self.frequencies[0] 
+            self.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
+            self.imported_table_frequency_setup = True
             return False
-        else:
+
+        if self.list_frequencies != frequencies:
             title = "Project frequency setup cannot be modified"
             message = f"The following imported table of values has a frequency setup\n"
             message += "different from the others already imported ones. The current\n"
@@ -1286,7 +1314,7 @@ class Project:
     def set_frequencies(self, frequencies, min_, max_, step_):
         if max_ != 0 and step_ != 0:
             self.f_min, self.f_max, self.f_step = min_, max_, step_
-            self.file.add_frequency_in_file(min_, max_, step_)
+            self.add_frequency_in_file(min_, max_, step_)
         self.frequencies = frequencies
 
     def set_static_analysis_setup(self, analysis_setup):
@@ -1674,7 +1702,7 @@ class Project:
     def set_structural_damping(self, value):
         self.global_damping = value
         self.preprocessor.set_structural_damping(value)
-        self.file.add_damping_in_file(value)
+        self.add_damping_in_file(value)
 
     def get_damping(self):
         return self.global_damping

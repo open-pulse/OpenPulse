@@ -227,7 +227,7 @@ class AcousticPressureInput(QDialog):
                                 "imag_values": imag_values,
                             }
 
-                self.project.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
+                self.project.model.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
 
             app().main_window.pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
@@ -373,7 +373,7 @@ class AcousticPressureInput(QDialog):
                                 "table_path": self.path_imported_table,
                             }
 
-                self.project.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
+                self.project.model.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
 
             self.process_table_file_removal(list_table_names)
             app().main_window.pulse_file.write_model_properties_in_file()

@@ -25,7 +25,7 @@ class ProjectFileIO:
         self.path = path
         self.filebox = Filebox(Path(path), override=override)
 
-        # self.model = app().main_window.project.model
+        # self.model = app().project.model
         # self.properties = self.model.properties
 
         self._initialize()
@@ -42,10 +42,10 @@ class ProjectFileIO:
         self.pipeline_filename = "pipeline.dat"
         self.model_properties_filename = "model_properties.json"
         self.mesh_data_filename = "mesh_data.hdf5"
-        self.imported_table_data_filename = "imported_table_data.hdf5"
+        self.imported_table_data_filename = "imported_tables_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
-        self.thumbnail_filename = "thumbnail.png"
         self.psd_info_filename = "psd_info.json"
+        self.thumbnail_filename = "thumbnail.png"
 
     def _default_foldernames(self):
         pass
@@ -119,15 +119,15 @@ class ProjectFileIO:
             os.makedirs(dirname)
         return dirname
 
-    def write_imported_table_in_file(self, file_name : str, folder_name : str):
+    # def write_imported_table_in_file(self, file_name : str, folder_name : str):
 
-        suffix = f"imported_tables/{folder_name}"
-        dirname = self.project_folder_path / suffix
-        temp_path = dirname / file_name
-        internal_path = f"imported_tables/{folder_name}/{file_name}"
+    #     suffix = f"imported_tables/{folder_name}"
+    #     dirname = self.project_folder_path / suffix
+    #     temp_path = dirname / file_name
+    #     internal_path = f"imported_tables/{folder_name}/{file_name}"
 
-        self.filebox.write_from_path(internal_path, temp_path)
-        app().main_window.project_data_modified = True
+    #     self.filebox.write_from_path(internal_path, temp_path)
+    #     app().main_window.project_data_modified = True
 
     def write_pipeline_data_in_file(self, pipeline_data):
         self.filebox.write(self.pipeline_filename, pipeline_data)
@@ -236,7 +236,7 @@ class ProjectFileIO:
 
                 return output
 
-            properties = app().main_window.project.properties
+            properties = app().project.model.properties
 
             data = dict(
                             # global_properties = normalize(properties.global_properties),
@@ -290,33 +290,33 @@ class ProjectFileIO:
         return model_properties
     
     def write_imported_table_data_in_file(self):
-        with self.filebox.open(self.imported_table_data_filename, "w") as internal_file:
-            with h5py.File(internal_file, "w") as f:
 
-                for (property, node_id), data in app().main_window.project.properties.nodal_properties.items():
-                    if "table names" in data.keys():
+        self.filebox.remove(self.imported_table_data_filename)
+        acoustic_imported_tables = app().project.model.properties.acoustic_imported_tables
+        structural_imported_tables = app().project.model.properties.structural_imported_tables
 
-                        if property in ["acoustic_pressure", "volume_velocity", "specific_impedance", "compressor_excitation"]:
-                            folder_name = "acoustic"
+        exist_tables = acoustic_imported_tables or structural_imported_tables
+        print(exist_tables)
+
+        if exist_tables:
+            with self.filebox.open(self.imported_table_data_filename, "w") as internal_file:
+                with h5py.File(internal_file, "w") as f:
+
+                    for group_label in ["acoustic", "structural"]:
+
+                        if group_label == "acoustic":
+                            imported_tables = acoustic_imported_tables
                         else:
-                            folder_name = "structural"
+                            imported_tables = structural_imported_tables
 
-                        if "data arrays" in data.keys():
-                            data_arrays = data["data arrays"]
-
-                        if "table names" in data.keys():
-                            table_names = data["table names"]
-
-                        for i, table_name in enumerate(table_names):
-
+                        for table_name, data_array in imported_tables.items():
                             if table_name is None:
                                 continue
 
-                            data_name = f"{folder_name}/{table_name}"
+                            data_name = f"{group_label}/{table_name}"
+                            f.create_dataset(data_name, data=data_array, dtype=float)
 
-                            f.create_dataset(data_name, data=data_arrays[i], dtype=float)
-                
-                app().main_window.project_data_modified = True
+                    app().main_window.project_data_modified = True
 
     def read_imported_table_data_from_file(self):
         
@@ -345,7 +345,7 @@ class ProjectFileIO:
         return tables_data
 
     def write_thumbnail(self):
-        thumbnail = app().main_window.project.thumbnail
+        thumbnail = app().project.thumbnail
         if thumbnail is None:
             return
         self.filebox.write(self.thumbnail_filename, thumbnail)
@@ -358,7 +358,7 @@ class ProjectFileIO:
         with self.filebox.open(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:
 
-                acoustic_modal_solver = app().main_window.project.acoustic_modal_solver
+                acoustic_modal_solver = app().project.acoustic_modal_solver
                 if acoustic_modal_solver is not None:
                     if acoustic_modal_solver.modal_shape is not None:
                         natural_frequencies = acoustic_modal_solver.natural_frequencies
@@ -366,7 +366,7 @@ class ProjectFileIO:
                         f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=float)
                 
-                structural_modal_solver = app().main_window.project.structural_modal_solver
+                structural_modal_solver = app().project.structural_modal_solver
                 if structural_modal_solver is not None:
                     if structural_modal_solver.modal_shape is not None:
                         natural_frequencies = structural_modal_solver.natural_frequencies
@@ -374,7 +374,7 @@ class ProjectFileIO:
                         f.create_dataset("modal_structural/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_structural/modal_shape", data=modal_shape, dtype=float)
 
-                acoustic_harmonic_solver = app().main_window.project.acoustic_harmonic_solver
+                acoustic_harmonic_solver = app().project.acoustic_harmonic_solver
                 if acoustic_harmonic_solver is not None:
                     if acoustic_harmonic_solver.solution is not None:
                         frequencies = acoustic_harmonic_solver.frequencies
@@ -382,7 +382,7 @@ class ProjectFileIO:
                         f.create_dataset("harmonic_acoustic/frequencies", data=frequencies, dtype=float)
                         f.create_dataset("harmonic_acoustic/solution", data=solution, dtype=complex)
                 
-                structural_harmonic_solver = app().main_window.project.structural_harmonic_solver
+                structural_harmonic_solver = app().project.structural_harmonic_solver
                 if structural_harmonic_solver is not None:
                     if structural_harmonic_solver.solution is not None:
                         frequencies = acoustic_harmonic_solver.frequencies
@@ -430,10 +430,10 @@ class ProjectFileIO:
         self.filebox.remove(self.results_data_filename)
         app().main_window.project_data_modified = True
 
-    def remove_table_from_project_file(self, folder_name : str, file_name : str):
-        internal_path = f"imported_tables/{folder_name}/{file_name}"
-        self.filebox.remove(internal_path)
-        app().main_window.project_data_modified = True
+    # def remove_table_from_project_file(self, folder_name : str, file_name : str):
+    #     internal_path = f"imported_tables/{folder_name}/{file_name}"
+    #     self.filebox.remove(internal_path)
+    #     app().main_window.project_data_modified = True
 
     def check_pipeline_data(self):
         

@@ -7,6 +7,8 @@ from pulse.properties.material import Material
 from pulse.properties.fluid import Fluid
 # from vibra.project.project_file import *
 
+from numpy import ndarray
+
 
 DEFAULT_MATERIAL = Material(
     name="Steel",
@@ -60,7 +62,8 @@ class ModelProperties:
 
     def _reset_variables(self):
 
-        self.imported_tables = dict()
+        self.acoustic_imported_tables = dict()
+        self.structural_imported_tables = dict()
 
         self.global_properties = dict()
         self.group_properties = dict()
@@ -70,6 +73,20 @@ class ModelProperties:
 
         self.global_properties["material", "global"] = DEFAULT_MATERIAL
         self.global_properties["fluid", "global"] = DEFAULT_FLUID
+
+    def add_imported_tables(self, group_label : str, table_name : str, data : ndarray | list | tuple):
+        if group_label == "acoustic":
+            self.acoustic_imported_tables[table_name] = data
+        elif group_label == "structural":
+            self.structural_imported_tables[table_name] = data
+
+    def remove_imported_tables(self, group_label : str, table_name : str):
+        if group_label == "acoustic":
+            if table_name in self.acoustic_imported_tables.keys():
+                self.acoustic_imported_tables.pop(table_name)
+        elif group_label == "structural":
+            if table_name in self.structural_imported_tables.keys():
+                self.structural_imported_tables.pop(table_name)
 
     def get_material(self, **kwargs) -> Material:
         return self._get_property("material", **kwargs)
@@ -158,7 +175,7 @@ class ModelProperties:
         if any of these exists. Otherwise sets the property as global.
 
         """
-        imported_tables = app().project.properties.imported_tables
+
         if node_ids is not None:
 
             group_label = self.get_data_group_label(property)
@@ -173,18 +190,23 @@ class ModelProperties:
                         values.append(a + 1j*b)
             
             if "table names" in data.keys():
+
+                if group_label == "acoustic":
+                    imported_tables = self.acoustic_imported_tables
+                else:
+                    imported_tables = self.structural_imported_tables
+
                 for i, table_name in enumerate(data["table names"]):
-            
+
                     if table_name is None:
                         values.append(None)
                         continue
 
-                    if group_label in imported_tables.keys():
-                        if table_name in imported_tables[group_label].keys():
+                    if table_name in imported_tables.keys():
 
-                            data_array = imported_tables[group_label][table_name]
-                            value = data_array[:, 1] + 1j*data_array[:, 2]
-                            values.append(value)
+                        data_array = imported_tables[table_name]
+                        value = data_array[:, 1] + 1j*data_array[:, 2]
+                        values.append(value)
 
             data["values"] = values
 
@@ -237,20 +259,21 @@ class ModelProperties:
         """This method checks if there are imported table of values in
         the model. It returns True if exists or False elsewhere.
         """
+
         data_dicts = [
-            self.nodal_properties,
-            self.element_properties,
-            self.line_properties,
-            self.global_properties,
-        ]
+                        self.nodal_properties,
+                        self.element_properties,
+                        self.line_properties,
+                        self.global_properties,
+                     ]
 
         for data_dict in data_dicts:
             for data in data_dict.values():
                 if isinstance(data, dict):
                     if "table_name" in data.keys():
                         return True
-        else:
-            return False
+
+        return False
 
     def _reset_property(self, property: str):
         """
@@ -301,20 +324,25 @@ class ModelProperties:
         if key in self.group_properties.keys():
             self.group_properties.pop(key)
 
-    def get_nodal_related_table_names(self, property : str, node_ids : list | tuple, equals = False):
-        table_names = dict()
+    def get_nodal_related_table_names(self, property : str, node_ids : list | tuple, equals = False) -> list:
+        table_names = list()
         for key, data in self.nodal_properties.items():
             for node_id in node_ids:
+
                 if "table names" in data.keys():
                     if equals:
                         if key == (property, node_id):
-                            table_names[key] = data["table names"]
+                            for table_name in data["table names"]:
+                                if table_name is not None:
+                                    table_names.append(table_name)
+
                     else:
-                        if key == (property, node_id):
-                            continue
-                        else:
+                        if key != (property, node_id):
                             if key[1] == node_id:
-                                table_names[key] = data["table names"]
+                                for table_name in data["table names"]:
+                                    if table_name is not None:
+                                        table_names.append(table_name)
+
         return table_names
 
     def get_element_related_table_names(self, property : str, element_ids : list | tuple, equals = False):

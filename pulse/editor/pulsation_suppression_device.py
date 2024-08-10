@@ -268,7 +268,7 @@ class PulsationSuppressionDevice:
     def remove_psd_related_element_length_correction(self, device_label):
 
         element_ids = list()
-        for (property, element_id), data in app().main_window.project.properties.element_properties.items():
+        for (property, element_id), data in app().project.model.properties.element_properties.items():
             if property == "element length correction":
                 if "psd label" in data.keys():
                         if device_label == "_remove_all_":
@@ -276,7 +276,7 @@ class PulsationSuppressionDevice:
                         elif device_label == data["psd label"]:
                             element_ids.append(element_id)
 
-        app().main_window.project.properties._remove_element_property("element length correction", element_ids) 
+        app().project.model.properties._remove_element_property("element length correction", element_ids) 
         app().main_window.pulse_file.write_model_properties_in_file()
 
     def load_project(self):

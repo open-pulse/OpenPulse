@@ -21,7 +21,7 @@ class SetInertialLoad(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
-        self.preprocessor = app().main_window.project.preprocessor
+        self.preprocessor = app().project.preprocessor
         
         self._initialize()
         self._config_window()
