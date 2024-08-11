@@ -32,7 +32,7 @@ class ProjectFilesLoader:
     def load_project_data_from_files(self):
         t0 = time()
 
-        self.pipeline_data = app().main_window.pulse_file.read_pipeline_data_from_file()
+        self.pipeline_data = app().pulse_file.read_pipeline_data_from_file()
 
         self.initialize_dictionaries_for_load_data()
         self.load_material_data_from_file()
@@ -70,7 +70,7 @@ class ProjectFilesLoader:
     def load_material_library(self):
 
         materials_library = dict()
-        config = app().main_window.pulse_file.read_material_library_from_file()
+        config = app().pulse_file.read_material_library_from_file()
 
         if config is None:
             return
@@ -109,7 +109,7 @@ class ProjectFilesLoader:
     def load_fluid_library(self):
 
         fluids_library = dict()
-        config = app().main_window.pulse_file.read_fluid_library_from_file()
+        config = app().pulse_file.read_fluid_library_from_file()
 
         if config is None:
             return
@@ -765,18 +765,18 @@ class ProjectFilesLoader:
         return output, list_table_names, list_frequencies
 
     def load_analysis_file(self):
-        return app().main_window.pulse_file.read_analysis_setup_from_file()
+        return app().pulse_file.read_analysis_setup_from_file()
     
     def load_thumbnail(self):
-        thumbnail = app().main_window.pulse_file.read_thumbnail()
+        thumbnail = app().pulse_file.read_thumbnail()
         if thumbnail is not None:
             app().project.thumbnail = thumbnail
 
     def load_model_properties_from_file(self):
-        return app().main_window.pulse_file.read_model_properties_from_file()
+        return app().pulse_file.read_model_properties_from_file()
 
     def load_imported_table_data_from_file(self):
-        return app().main_window.pulse_file.read_imported_table_data_from_file()
+        return app().pulse_file.read_imported_table_data_from_file()
 
 def get_color_rgb(color : str):
     color = color.replace(" ", "")

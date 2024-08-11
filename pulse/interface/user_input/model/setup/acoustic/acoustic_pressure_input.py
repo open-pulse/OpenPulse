@@ -229,7 +229,7 @@ class AcousticPressureInput(QDialog):
 
                 self.project.model.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
 
-            app().main_window.pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
 
             print(f"[Set Acoustic Pressure] - defined at node(s) {self.nodes_typed}")
@@ -376,7 +376,7 @@ class AcousticPressureInput(QDialog):
                 self.project.model.properties.set_acoustic_pressure("acoustic pressure", prop_data, node_id)
 
             self.process_table_file_removal(list_table_names)
-            app().main_window.pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
 
             print(f"[Set Acoustic Pressure] - defined at node(s) {self.nodes_typed}")   

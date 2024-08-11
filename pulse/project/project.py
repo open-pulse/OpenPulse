@@ -106,7 +106,7 @@ class Project:
 
             self.reset(reset_all=True)
 
-            if app().main_window.pulse_file.check_pipeline_data():
+            if app().pulse_file.check_pipeline_data():
                 self.process_geometry_and_mesh()
                 return True
             else:
@@ -140,7 +140,7 @@ class Project:
         self.file.remove_all_unnecessary_files(**kwargs)
         self.file.reset_project_setup(**kwargs)
         self.file.reset_entity_file(**kwargs)
-        if app().main_window.pulse_file.check_pipeline_data():
+        if app().pulse_file.check_pipeline_data():
             self.process_geometry_and_mesh()
             self.load_project_files()
 
@@ -163,7 +163,7 @@ class Project:
 
     def add_frequency_in_file(self, f_min, f_max, f_step):
 
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
         if analysis_setup is None:
             analysis_setup = dict()
 
@@ -171,17 +171,17 @@ class Project:
         analysis_setup["f_max"] = f_max
         analysis_setup["f_step"] = f_step
 
-        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def add_damping_in_file(self, global_damping):
 
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
         if analysis_setup is None:
             analysis_setup = dict()
 
         analysis_setup["global damping"] = global_damping
 
-        app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
@@ -623,7 +623,7 @@ class Project:
     #     self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
 
     # def load_mesh_setup_from_file(self):
-    #     project_setup = app().main_window.pulse_file.read_project_setup_from_file()
+    #     project_setup = app().pulse_file.read_project_setup_from_file()
     #     if project_setup is None:
     #         return
     #     if "mesher setup" in project_setup.keys():
@@ -631,7 +631,7 @@ class Project:
 
     # def load_inertia_load_setup(self):
 
-    #     inertia_load = app().main_window.pulse_file.read_inertia_load_from_file()
+    #     inertia_load = app().pulse_file.read_inertia_load_from_file()
     #     if inertia_load is None:
     #         return
 

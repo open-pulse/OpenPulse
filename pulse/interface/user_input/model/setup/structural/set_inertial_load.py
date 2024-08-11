@@ -155,7 +155,7 @@ class SetInertialLoad(QDialog):
 
         self.preprocessor.set_inertia_load(self.gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
-        app().main_window.pulse_file.write_inertia_load_in_file(inertia_load)
+        app().pulse_file.write_inertia_load_in_file(inertia_load)
 
         self.complete = True
         self.close()

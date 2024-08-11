@@ -59,7 +59,7 @@ class ImportGeometry(QFileDialog):
   
                 import_type = 0
                 self.geometry_filename = os.path.basename(self.geometry_path)
-                app().main_window.pulse_file.modify_project_attributes(
+                app().pulse_file.modify_project_attributes(
                                                                         import_type = import_type,
                                                                         geometry_filename = self.geometry_filename
                                                                        )

@@ -393,7 +393,7 @@ class GeometryDesignerWidget(QWidget):
         geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.export_model_data_file()
 
-        app().main_window.pulse_file.modify_project_attributes(
+        app().pulse_file.modify_project_attributes(
                                                                 length_unit = self.length_unit,
                                                                 element_size = 0.01, 
                                                                 geometry_tolerance = 1e-6,

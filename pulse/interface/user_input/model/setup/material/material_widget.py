@@ -120,7 +120,7 @@ class MaterialInputs(QWidget):
             self.reset_library_to_default()
             return
 
-        config = app().main_window.pulse_file.read_material_library_from_file()
+        config = app().pulse_file.read_material_library_from_file()
         if config is None:
             self.reset_library_to_default()
             return
@@ -399,10 +399,10 @@ class MaterialInputs(QWidget):
             if not material_name:
                 return
 
-            config = app().main_window.pulse_file.read_material_library_from_file()
+            config = app().pulse_file.read_material_library_from_file()
             config[material_name] = material_data
 
-            app().main_window.pulse_file.write_material_library_in_file(config)
+            app().pulse_file.write_material_library_in_file(config)
  
         except Exception as error_log:
             title = "Error while writing material data in file"
@@ -412,13 +412,13 @@ class MaterialInputs(QWidget):
 
     def remove_material_from_file(self, material : Material):
 
-        config = app().main_window.pulse_file.read_material_library_from_file()
+        config = app().pulse_file.read_material_library_from_file()
 
         if not material.name in config.sections():
             return
 
         config.remove_section(material.name)
-        app().main_window.pulse_file.write_material_library_in_file(config)
+        app().pulse_file.write_material_library_in_file(config)
 
         self.reset_materials_from_bodies_and_surfaces([material.name])
         self.load_data_from_materials_library()
@@ -477,7 +477,7 @@ class MaterialInputs(QWidget):
 
     def reset_library_to_default(self):
 
-        config_cache = app().main_window.pulse_file.read_material_library_from_file()
+        config_cache = app().pulse_file.read_material_library_from_file()
 
         sections_cache = list()
         if config_cache is not None:
@@ -485,7 +485,7 @@ class MaterialInputs(QWidget):
 
         default_material_library()
 
-        config = app().main_window.pulse_file.read_material_library_from_file()
+        config = app().pulse_file.read_material_library_from_file()
 
         material_names = list()
         for section_cache in sections_cache:

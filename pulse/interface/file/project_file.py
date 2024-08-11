@@ -162,7 +162,7 @@ class ProjectFile:
     #Frequency Setup Analysis
     def load_analysis_file(self):
 
-        analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
 
         if analysis_setup is None:
             f_min = 0.
@@ -180,7 +180,7 @@ class ProjectFile:
 
     # def add_frequency_in_file(self, f_min, f_max, f_step):
 
-    #     analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
     #     if analysis_setup is None:
     #         analysis_setup = dict()
 
@@ -188,17 +188,17 @@ class ProjectFile:
     #     analysis_setup["f_max"] = f_max
     #     analysis_setup["f_step"] = f_step
 
-    #     app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     # def add_damping_in_file(self, global_damping):
 
-    #     analysis_setup = app().main_window.pulse_file.read_analysis_setup_from_file()
+    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
     #     if analysis_setup is None:
     #         analysis_setup = dict()
 
     #     analysis_setup["global damping"] = global_damping
 
-    #     app().main_window.pulse_file.write_analysis_setup_in_file(analysis_setup)
+    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def reset_project_setup(self, **kwargs):
 
@@ -478,7 +478,7 @@ class ProjectFile:
         
         try:
 
-            config = app().main_window.pulse_file.read_pipeline_data_from_file()
+            config = app().pulse_file.read_pipeline_data_from_file()
 
             for line_id, data in section_info.items():
 
@@ -526,7 +526,7 @@ class ProjectFile:
             PrintMessageInput([window_title_1, title, message])
             return
 
-        app().main_window.pulse_file.write_pipeline_data_in_file(config)
+        app().pulse_file.write_pipeline_data_in_file(config)
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
@@ -995,7 +995,7 @@ class ProjectFile:
         if isinstance(lines, int):
             lines = [lines]
 
-        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+        config = app().pulse_file.read_pipeline_data_from_file()
 
         for line_id in lines:
             str_line = str(line_id)
@@ -1008,7 +1008,7 @@ class ProjectFile:
 
             config[str_line]['structural element type'] = element_type
 
-        app().main_window.pulse_file.write_pipeline_data_in_file(config)
+        app().pulse_file.write_pipeline_data_in_file(config)
 
     def modify_structural_element_wall_formulation_in_file(self, lines, formulation):
         
@@ -1185,12 +1185,12 @@ class ProjectFile:
         if material_id is None:
             material_id = ""
 
-        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+        config = app().pulse_file.read_pipeline_data_from_file()
 
         for line_id in lines:
             config[str(line_id)]['material id'] = str(material_id)
 
-        app().main_window.pulse_file.write_pipeline_data_in_file(config)
+        app().pulse_file.write_pipeline_data_in_file(config)
 
     def add_psd_label_in_file(self, lines, psd_label):
 

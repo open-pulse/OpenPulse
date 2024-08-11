@@ -320,7 +320,7 @@ class PrescribedDofsInput(QDialog):
 
                 app().project.model.properties.set_prescribed_dofs(bc_data, node_id)
 
-            app().main_window.pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_model_properties_in_file()
 
             app().main_window.update_plots()
             self.close()
@@ -461,7 +461,7 @@ class PrescribedDofsInput(QDialog):
         # np.savetxt(new_path_table, data, delimiter=",", header=header)
 
         app().project.model.properties.add_imported_tables("structural", table_name, data)
-        # app().main_window.pulse_file.write_imported_table_data_in_file()
+        # app().pulse_file.write_imported_table_data_in_file()
 
         return table_name, data
 
@@ -642,8 +642,8 @@ class PrescribedDofsInput(QDialog):
 
         self.preprocessor.set_prescribed_dofs_bc_by_node(node_ids, data)
 
-        app().main_window.pulse_file.write_model_properties_in_file()
-        app().main_window.pulse_file.write_imported_table_data_in_file()
+        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_imported_table_data_in_file()
 
         self.process_table_file_removal(table_names)
 
@@ -768,7 +768,7 @@ class PrescribedDofsInput(QDialog):
             for node_id in node_ids:
                 app().project.model.properties._remove_nodal_property("prescribed_dofs", node_id)
 
-            app().main_window.pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_model_properties_in_file()
 
             data = [self.list_Nones, self.list_Nones]
             self.preprocessor.set_prescribed_dofs_bc_by_node(node_ids, data)
@@ -821,7 +821,7 @@ class PrescribedDofsInput(QDialog):
             self.preprocessor.set_prescribed_dofs_bc_by_node(node_ids, data)
 
             app().project.model.properties._reset_property("prescribed_dofs")
-            app().main_window.pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_model_properties_in_file()
 
             app().main_window.update_plots()
             self.close()
@@ -829,7 +829,7 @@ class PrescribedDofsInput(QDialog):
     def process_table_file_removal(self, table_names : dict, equals=False):
         for table_name in table_names:
             app().project.model.properties.remove_imported_tables("structural", table_name)
-        app().main_window.pulse_file.write_imported_table_data_in_file()    
+        app().pulse_file.write_imported_table_data_in_file()    
 
     def reset_input_fields(self):
         self.lineEdit_selection_id.setText("")

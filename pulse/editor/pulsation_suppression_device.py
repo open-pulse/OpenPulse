@@ -45,7 +45,7 @@ class PulsationSuppressionDevice:
 
     def build_device(self, device_label, device : (SingleVolumePSD | DualVolumePSD)):
 
-        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+        config = app().pulse_file.read_pipeline_data_from_file()
 
         line_tags = list()
         for section in config.sections():
@@ -96,11 +96,11 @@ class PulsationSuppressionDevice:
                 counter += 1
                 self.pulsation_suppression_device[device_label][f"Link-{counter}"] = link
 
-        app().main_window.pulse_file.write_pipeline_data_in_file(config)
+        app().pulse_file.write_pipeline_data_in_file(config)
 
     def write_psd_length_correction_in_file(self, device_label, device : (SingleVolumePSD | DualVolumePSD)):
 
-        psd_data = app().main_window.pulse_file.read_psd_data_from_file()
+        psd_data = app().pulse_file.read_psd_data_from_file()
         if psd_data is None:
             return
 
@@ -112,14 +112,14 @@ class PulsationSuppressionDevice:
                 psd_data[device_label][key] = { "connection coords" : list(np.round(coords, 6)),
                                                 "connection type" : connection_type }
 
-        app().main_window.pulse_file.write_psd_data_in_file(psd_data)
+        app().pulse_file.write_psd_data_in_file(psd_data)
 
     def write_psd_data_in_file(self):
-        app().main_window.pulse_file.write_psd_data_in_file(self.pulsation_suppression_device)
+        app().pulse_file.write_psd_data_in_file(self.pulsation_suppression_device)
 
     def load_psd_data_from_file(self):
 
-        psd_data = app().main_window.pulse_file.read_psd_data_from_file()
+        psd_data = app().pulse_file.read_psd_data_from_file()
         if psd_data is None:
             return
 
@@ -144,7 +144,7 @@ class PulsationSuppressionDevice:
 
         self.psd_lines = defaultdict(list)
 
-        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+        config = app().pulse_file.read_pipeline_data_from_file()
 
         for section in config.sections():
             if "psd label" in config[section].keys():
@@ -155,7 +155,7 @@ class PulsationSuppressionDevice:
 
     def remove_psd_lines_from_pipeline_file(self, device_labels):
 
-        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+        config = app().pulse_file.read_pipeline_data_from_file()
 
         if isinstance(device_labels, str):
             device_labels = [device_labels]
@@ -166,7 +166,7 @@ class PulsationSuppressionDevice:
                     if config[section]["psd label"] == device_label:
                         config.remove_section(section)
 
-        app().main_window.pulse_file.write_pipeline_data_in_file(config)
+        app().pulse_file.write_pipeline_data_in_file(config)
 
         if list(config.sections()):
             self.remove_line_gaps_from_file()
@@ -174,7 +174,7 @@ class PulsationSuppressionDevice:
     def remove_line_gaps_from_file(self):
 
         config_no_gap = ConfigParser()
-        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+        config = app().pulse_file.read_pipeline_data_from_file()
 
         splited_lines = list()
         for section in config.sections():
@@ -193,7 +193,7 @@ class PulsationSuppressionDevice:
             else:
                 config_no_gap[str(tag)] = config[section]
 
-        app().main_window.pulse_file.write_pipeline_data_in_file(config_no_gap)
+        app().pulse_file.write_pipeline_data_in_file(config_no_gap)
 
     def remove_selected_psd(self, device_label):
 
@@ -218,7 +218,7 @@ class PulsationSuppressionDevice:
 
     def update_length_correction_after_psd_removal(self):
 
-        read_data = app().main_window.pulse_file.read_psd_data_from_file()
+        read_data = app().pulse_file.read_psd_data_from_file()
 
         if read_data is None:
             return
@@ -277,7 +277,7 @@ class PulsationSuppressionDevice:
                             element_ids.append(element_id)
 
         app().project.model.properties._remove_element_property("element length correction", element_ids) 
-        app().main_window.pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_model_properties_in_file()
 
     def load_project(self):
         self.project.initial_load_project_actions()

@@ -127,7 +127,7 @@ class GeometryHandler:
         structures = list()
         self.pipeline.reset()
         
-        structures_data = app().main_window.pulse_file.get_pipeline_data_from_file()
+        structures_data = app().pulse_file.get_pipeline_data_from_file()
 
         for key, data in structures_data.items():
             data : dict
@@ -390,7 +390,7 @@ class GeometryHandler:
             element_size = in_to_m(element_size)
 
         if self.length_unit !=  "meter":
-            app().main_window.pulse_file.modify_project_attributes( 
+            app().pulse_file.modify_project_attributes( 
                                                                     length_unit = "meter",
                                                                     element_size = element_size
                                                                    )
@@ -678,7 +678,7 @@ class GeometryHandler:
             for tag, label in psd_info.items():
                 self.file.add_psd_label_in_file(tag, label)
 
-            app().main_window.pulse_file.modify_project_attributes(import_type = 1)
+            app().pulse_file.modify_project_attributes(import_type = 1)
             # self.load_project()
 
     def get_pipeline_data(self, structure):
@@ -702,7 +702,7 @@ class GeometryHandler:
 
     def create_pipeline_file(self, structures_data):
 
-        config = app().main_window.pulse_file.read_pipeline_data_from_file()
+        config = app().pulse_file.read_pipeline_data_from_file()
 
         if config is None:
             from configparser import ConfigParser
@@ -713,6 +713,6 @@ class GeometryHandler:
             for key, data in structure_data.items():
                 config[str(line_id)][key] = str(data)
 
-        app().main_window.pulse_file. write_pipeline_data_in_file(config)
+        app().pulse_file. write_pipeline_data_in_file(config)
 
 # fmt: on

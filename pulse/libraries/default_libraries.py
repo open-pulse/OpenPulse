@@ -65,7 +65,7 @@ def default_material_library():
         "thermal expansion coefficient": 1.9e-5,
     }
 
-    app().main_window.pulse_file.write_material_library_in_file(config)
+    app().pulse_file.write_material_library_in_file(config)
 
 
 def default_fluid_library():
@@ -146,4 +146,4 @@ def default_fluid_library():
         "pressure": 101325,
     }
 
-    app().main_window.pulse_file.write_fluid_library_in_file(config)
+    app().pulse_file.write_fluid_library_in_file(config)

@@ -40,7 +40,7 @@ class MeshUpdater:
         self.element_size = element_size
         self.geometry_tolerance = geometry_tolerance
 
-        app().main_window.pulse_file.modify_project_attributes(
+        app().pulse_file.modify_project_attributes(
                                                                 element_size = element_size, 
                                                                 geometry_tolerance = geometry_tolerance
                                                                )
@@ -51,7 +51,7 @@ class MeshUpdater:
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
         self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()        
 
-        if app().main_window.pulse_file.check_pipeline_data():
+        if app().pulse_file.check_pipeline_data():
 
             self.process_intermediate_actions() 
 
@@ -99,7 +99,7 @@ class MeshUpdater:
         self.current_element_size, self.current_geometry_tolerance = self.get_mesh_attributes_from_project_file()
 
         self.t0 = time()
-        # app().main_window.pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
+        # app().pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
 
         self.project.load_mesh_setup_from_file()
         self.project.initial_load_project_actions()
@@ -124,7 +124,7 @@ class MeshUpdater:
                                         geometry_tolerance
                                     )
 
-        # app().main_window.pulse_file.modify_project_attributes( 
+        # app().pulse_file.modify_project_attributes( 
         #                                                         element_size = element_size, 
         #                                                         geometry_tolerance = geometry_tolerance
         #                                                        )
@@ -167,10 +167,10 @@ class MeshUpdater:
 
     def get_mesh_attributes_from_project_file(self):
 
-        if app().main_window.pulse_file is None:
+        if app().pulse_file is None:
             return None, None
 
-        project_setup = app().main_window.pulse_file.read_project_setup_from_file()
+        project_setup = app().pulse_file.read_project_setup_from_file()
         if project_setup is None:
             return None, None
 

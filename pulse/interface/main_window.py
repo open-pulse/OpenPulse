@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
 
-from pulse import app, UI_DIR, QSS_DIR
+from pulse import *
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
@@ -79,10 +79,6 @@ class MainWindow(QMainWindow):
         self.last_render_index = None
 
         self.project_data_modified = False
-
-        self.user_path = Path().home()
-        self.temp_project_folder_path = self.user_path / "temp_pulse"
-        self.temp_project_file_path = str(self.temp_project_folder_path / "tmp.pulse") 
 
         self.cache_indexes = list()
 
@@ -294,12 +290,12 @@ class MainWindow(QMainWindow):
             self.load_recent_project()
  
     def create_temporary_folder(self):
-        create_new_folder(self.user_path, "temp_pulse")
+        create_new_folder(USER_PATH, "temp_pulse")
 
     def reset_temporary_folder(self):
-        if self.temp_project_folder_path.exists():
-            for filename in os.listdir(self.temp_project_folder_path).copy():
-                file_path = self.temp_project_folder_path / filename
+        if TEMP_PROJECT_DIR.exists():
+            for filename in os.listdir(TEMP_PROJECT_DIR).copy():
+                file_path = TEMP_PROJECT_DIR / filename
                 if os.path.exists(file_path):
                     if "." in filename:
                         os.remove(file_path)
@@ -307,8 +303,8 @@ class MainWindow(QMainWindow):
                         rmtree(file_path)
 
     def is_temporary_folder_empty(self):
-        if self.temp_project_folder_path.exists():
-            if os.listdir(self.temp_project_folder_path):
+        if TEMP_PROJECT_DIR.exists():
+            if os.listdir(TEMP_PROJECT_DIR):
                 return False
         return True
     
@@ -524,7 +520,7 @@ class MainWindow(QMainWindow):
         self.model_and_analysis_items.modify_model_setup_items_access(True)
         if finalized:
             self.disable_workspace_selector_and_geometry_editor(False)
-            if self.pulse_file.check_pipeline_data():
+            if app().pulse_file.check_pipeline_data():
                 self.project.none_project_action = False
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
@@ -997,7 +993,7 @@ class MainWindow(QMainWindow):
         QCursor.setPos(final_pos)
     
     def new_project(self):
-        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
+        # self.pulse_file = ProjectFileIO(TEMP_PROJECT_FILE)
         self.reset_geometry_render()
         obj = NewProjectInput()
         self.initial_project_action(obj.complete)
@@ -1012,10 +1008,10 @@ class MainWindow(QMainWindow):
             app().config.add_recent_file(project_path)
             app().config.write_last_folder_path_in_file("project folder", project_path)
             # self.project_menu.update_recents_menu()
-            copy(project_path, self.temp_project_file_path)
+            copy(project_path, TEMP_PROJECT_FILE)
             self.update_window_title(project_path)
 
-        self.pulse_file = ProjectFileIO(self.temp_project_file_path)
+        # self.pulse_file = ProjectFileIO(TEMP_PROJECT_FILE)
 
         self.project.load_project()
         self.mesh_toolbar.update_mesh_attributes()
@@ -1091,11 +1087,11 @@ class MainWindow(QMainWindow):
         path = Path(path)
         self.project.name = path.stem
         self.project.save_path = path
-        self.pulse_file.write_thumbnail()
+        app().pulse_file.write_thumbnail()
         app().config.add_recent_file(path)
         app().config.write_last_folder_path_in_file("project folder", path)
         # self.project_menu.update_recents_menu()
-        copy(self.temp_project_file_path, path)
+        copy(TEMP_PROJECT_FILE, path)
         self.update_window_title(path)
         self.project_data_modified = False
 
@@ -1125,7 +1121,7 @@ class MainWindow(QMainWindow):
                 self.combo_box_workspaces.setCurrentIndex(3)
         return super(MainWindow, self).eventFilter(obj, event)
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
+    def closeEvent(self, event: QCloseEvent | None) -> None:
         self.close_app()
         event.ignore()
 
@@ -1134,7 +1130,7 @@ class MainWindow(QMainWindow):
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None
-        condition_2 = os.path.exists(self.temp_project_file_path)
+        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
         condition_3 = self.project_data_modified
         condition = (condition_1 and condition_2) or condition_3
 
