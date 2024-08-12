@@ -270,7 +270,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.VisibilityOn()
         self.update()
 
-    def apply_cutting_plane(self):
+    def apply_cutting_plane(self, reverse_cut=False):
         if self.plane_origin is None:
             return
 
@@ -278,7 +278,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             return
 
         self.cutting_plane_active = True
-        self.tubes_actor.apply_cut(self.plane_origin, self.plane_normal)
+        normal = self.plane_normal
+
+        if reverse_cut:
+            normal = -normal
+        self.tubes_actor.apply_cut(self.plane_origin, normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.plane_actor.VisibilityOn()
         self.update()

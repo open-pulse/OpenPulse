@@ -673,7 +673,7 @@ class MainWindow(QMainWindow):
 
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.apply_cutting_plane()
+            self.results_widget.apply_cutting_plane(reverse_cut=self.clip_plane.invert_value)
 
     def close_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:

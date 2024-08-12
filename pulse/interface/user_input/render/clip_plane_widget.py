@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QDialog, QLabel, QSlider
+from PyQt5.QtWidgets import QDialog, QSpinBox, QSlider, QPushButton
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
@@ -19,6 +19,7 @@ class ClipPlaneWidget(QDialog):
 
         ui_path = UI_DIR / "render/cutting_plane_inputs.ui"
         uic.loadUi(ui_path, self)
+        self.invert_value = False
 
         self._config_window()
         self._define_qt_variables()
@@ -43,76 +44,111 @@ class ClipPlaneWidget(QDialog):
         self.setWindowTitle("Section Plane")
 
     def _define_qt_variables(self):
-
-        # QLabel
-        self.label_delta_x_value : QLabel
-        self.label_delta_y_value : QLabel
-        self.label_delta_z_value : QLabel
-        self.label_rotation_x_value : QLabel
-        self.label_rotation_y_value : QLabel
-        self.label_rotation_z_value : QLabel
+        # QPushButton
+        self.pushButton_invert : QPushButton
+        self.pushButton_reset : QPushButton
 
         # QSlider
-        self.slider_delta_x : QSlider
-        self.slider_delta_y : QSlider
-        self.slider_delta_z : QSlider
-        self.slider_rotation_about_x_axis : QSlider
-        self.slider_rotation_about_y_axis : QSlider
-        self.slider_rotation_about_z_axis : QSlider
+        self.relative_plane_position_x_slider : QSlider
+        self.relative_plane_position_y_slider : QSlider
+        self.relative_plane_position_z_slider : QSlider
+
+        self.plane_rotation_x_slider : QSlider
+        self.plane_rotation_y_slider : QSlider
+        self.plane_rotation_z_slider : QSlider
+
+        # QSpinBox
+        self.relative_plane_position_x_spinbox : QSpinBox
+        self.relative_plane_position_y_spinbox : QSpinBox
+        self.relative_plane_position_z_spinbox : QSpinBox
+
+        self.plane_rotation_x_spinbox : QSpinBox
+        self.plane_rotation_y_spinbox : QSpinBox
+        self.plane_rotation_z_spinbox : QSpinBox
 
     def _create_connections(self):
 
-        self.slider_delta_x.valueChanged.connect(self.value_change_callback)
-        self.slider_delta_x.sliderReleased.connect(self.slider_release_callback)
-        self.slider_delta_x.sliderPressed.connect(self.slider_pressed_callback)
+        self.relative_plane_position_x_slider.valueChanged.connect(self.value_change_callback)
+        self.relative_plane_position_x_slider.sliderReleased.connect(self.slider_release_callback)
+        self.relative_plane_position_x_slider.sliderPressed.connect(self.slider_pressed_callback)
         
-        self.slider_delta_y.valueChanged.connect(self.value_change_callback)
-        self.slider_delta_y.sliderReleased.connect(self.slider_release_callback)
-        self.slider_delta_y.sliderPressed.connect(self.slider_pressed_callback)
+        self.relative_plane_position_y_slider.valueChanged.connect(self.value_change_callback)
+        self.relative_plane_position_y_slider.sliderReleased.connect(self.slider_release_callback)
+        self.relative_plane_position_y_slider.sliderPressed.connect(self.slider_pressed_callback)
         
-        self.slider_delta_z.valueChanged.connect(self.value_change_callback)
-        self.slider_delta_z.sliderReleased.connect(self.slider_release_callback)
-        self.slider_delta_z.sliderPressed.connect(self.slider_pressed_callback)
+        self.relative_plane_position_z_slider.valueChanged.connect(self.value_change_callback)
+        self.relative_plane_position_z_slider.sliderReleased.connect(self.slider_release_callback)
+        self.relative_plane_position_z_slider.sliderPressed.connect(self.slider_pressed_callback)
 
-        self.slider_rotation_about_x_axis.valueChanged.connect(self.value_change_callback)
-        self.slider_rotation_about_x_axis.sliderReleased.connect(self.slider_release_callback)
-        self.slider_rotation_about_x_axis.sliderPressed.connect(self.slider_pressed_callback)
+        self.plane_rotation_x_slider.valueChanged.connect(self.value_change_callback)
+        self.plane_rotation_x_slider.sliderReleased.connect(self.slider_release_callback)
+        self.plane_rotation_x_slider.sliderPressed.connect(self.slider_pressed_callback)
 
-        self.slider_rotation_about_y_axis.valueChanged.connect(self.value_change_callback)
-        self.slider_rotation_about_y_axis.sliderReleased.connect(self.slider_release_callback)
-        self.slider_rotation_about_y_axis.sliderPressed.connect(self.slider_pressed_callback)
+        self.plane_rotation_y_slider.valueChanged.connect(self.value_change_callback)
+        self.plane_rotation_y_slider.sliderReleased.connect(self.slider_release_callback)
+        self.plane_rotation_y_slider.sliderPressed.connect(self.slider_pressed_callback)
         
-        self.slider_rotation_about_z_axis.valueChanged.connect(self.value_change_callback)
-        self.slider_rotation_about_z_axis.sliderReleased.connect(self.slider_release_callback)
-        self.slider_rotation_about_z_axis.sliderPressed.connect(self.slider_pressed_callback)
+        self.plane_rotation_z_slider.valueChanged.connect(self.value_change_callback)
+        self.plane_rotation_z_slider.sliderReleased.connect(self.slider_release_callback)
+        self.plane_rotation_z_slider.sliderPressed.connect(self.slider_pressed_callback)
 
-    def get_position(self):
-        Px = self.slider_delta_x.value()
-        Py = self.slider_delta_y.value()
-        Pz = self.slider_delta_z.value()
+        self.pushButton_reset.clicked.connect(self.reset_button_callback)
+        self.pushButton_invert.clicked.connect(self.invert_button_callback)
+
+    def get_position(self, get_from: str = "spinboxes"):
+        if get_from == "sliders":
+            Px = self.relative_plane_position_x_slider.value()
+            Py = self.relative_plane_position_y_slider.value()
+            Pz = self.relative_plane_position_z_slider.value()
+        else:
+            Px = self.relative_plane_position_x_spinbox.value()
+            Py = self.relative_plane_position_y_spinbox.value()
+            Pz = self.relative_plane_position_z_spinbox.value()
         return Px, Py, Pz
 
-    def get_rotation(self):
-        Rx = self.slider_rotation_about_x_axis.value()
-        Ry = self.slider_rotation_about_y_axis.value() 
-        Rz = self.slider_rotation_about_z_axis.value()
+    def get_rotation(self, get_from: str = "spinboxes"):
+        if get_from == "sliders":
+            Rx = self.plane_rotation_x_slider.value()
+            Ry = self.plane_rotation_y_slider.value()
+            Rz = self.plane_rotation_z_slider.value()
+        else:
+            Rx = self.plane_rotation_x_spinbox.value()
+            Ry = self.plane_rotation_y_spinbox.value()
+            Rz = self.plane_rotation_z_spinbox.value()
         return Rx, Ry, Rz
 
     def value_change_callback(self):
         self.setUpdatesEnabled(False)
 
-        Px, Py, Pz = self.get_position()
-        self.label_delta_x_value.setText(f"{Px} %")
-        self.label_delta_y_value.setText(f"{Py} %")
-        self.label_delta_z_value.setText(f"{Pz} %")
+        Px, Py, Pz = self.get_position("sliders")
+        self.relative_plane_position_x_spinbox.setValue(Px)
+        self.relative_plane_position_y_spinbox.setValue(Py)
+        self.relative_plane_position_z_spinbox.setValue(Pz)
 
-        Rx, Ry, Rz = self.get_rotation()
-        self.label_rotation_x_value.setText(f"{Rx} °")
-        self.label_rotation_y_value.setText(f"{Ry} °")
-        self.label_rotation_z_value.setText(f"{Rz} °")
+        Rx, Ry, Rz = self.get_rotation("sliders")
+        self.plane_rotation_x_spinbox.setValue(Rx)
+        self.plane_rotation_y_spinbox.setValue(Ry)
+        self.plane_rotation_z_spinbox.setValue(Rz)
 
         self.setUpdatesEnabled(True)
         self.value_changed.emit(*self.get_position(), *self.get_rotation())
+    
+    def reset_button_callback(self):
+        self.relative_plane_position_x_slider.setValue(50)
+        self.relative_plane_position_y_slider.setValue(50)
+        self.relative_plane_position_z_slider.setValue(50)
+        self.plane_rotation_x_slider.setValue(0)
+        self.plane_rotation_y_slider.setValue(0)
+        self.plane_rotation_z_slider.setValue(0)
+        self.invert_value = False
+
+        self.value_changed.emit(*self.get_position(), *self.get_rotation())
+        self.slider_released.emit(*self.get_position(), *self.get_rotation())
+    
+    def invert_button_callback(self):
+        self.invert_value = not self.invert_value
+        self.value_changed.emit(*self.get_position(), *self.get_rotation())
+        self.slider_released.emit(*self.get_position(), *self.get_rotation())
 
     def slider_release_callback(self):
         self.slider_released.emit(*self.get_position(), *self.get_rotation())
