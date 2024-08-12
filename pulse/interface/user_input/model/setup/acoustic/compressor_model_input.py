@@ -29,8 +29,10 @@ class CompressorModelInput(QDialog):
         ui_path = UI_DIR / "model/setup/acoustic/compressor_model_input.ui"
         uic.loadUi(ui_path, self)
 
-        self.project = app().project
         app().main_window.set_input_widget(self)
+        self.project = app().project
+        self.preprocessor = app().project.preprocessor
+        self.properties = app().project.model.properties
 
         self._config_window()
         self._initialize()
@@ -38,7 +40,7 @@ class CompressorModelInput(QDialog):
         self._create_connections()
         self._config_widget()
         self.selection_callback()
-        self.load_compressor_excitation_tables_info()
+        self.load_compressor_excitation_info()
 
         while self.keep_window_open:
             self.exec()
@@ -55,14 +57,10 @@ class CompressorModelInput(QDialog):
         self.keep_window_open = True
 
         self.aquisition_parameters_processed = False
-        self.remove_message = True
         self.not_update_event = False
 
         self.table_name = None
-        self.node_ID_remove = None
 
-        self.preprocessor = self.project.preprocessor
-        self.nodes = self.preprocessor.nodes
         self.before_run = self.project.get_pre_solution_model_checks()    
 
         self.project_folder_path = self.project.file._project_path  
@@ -506,15 +504,15 @@ class CompressorModelInput(QDialog):
                     self.lineEdit_suction_node_ID.setFocus()
                     return True
 
-                self.suction_node_ID = self.node_ID
+                self.suction_node_id = self.node_ID
                 
                 if self.check_node_id(self.lineEdit_discharge_node_ID):
                     self.lineEdit_discharge_node_ID.setFocus()
                     return True
 
-                self.discharge_node_ID = self.node_ID
+                self.discharge_node_id = self.node_ID
 
-                if self.suction_node_ID == self.discharge_node_ID:
+                if self.suction_node_id == self.discharge_node_id:
                     title = "ERROR IN NODES SELECTION"
                     message = "The nodes selected to the suction and discharge must differ. Try to choose another pair of nodes."
                     PrintMessageInput([window_title_1, title, message])
@@ -525,14 +523,14 @@ class CompressorModelInput(QDialog):
                     self.lineEdit_suction_node_ID.setFocus()
                     return True
               
-                self.suction_node_ID = self.node_ID
+                self.suction_node_id = self.node_ID
 
             if index == 2:
                 if self.check_node_id(self.lineEdit_discharge_node_ID):
                     self.lineEdit_discharge_node_ID.setFocus()
                     return True
 
-                self.discharge_node_ID = self.node_ID
+                self.discharge_node_id = self.node_ID
 
         return False
         
@@ -707,19 +705,12 @@ class CompressorModelInput(QDialog):
                 df = 1/(i*T_rev)
         self.N_rev = i
 
-        final_df_label = '{} Hz'.format(round(df,6))
+        final_df_label = '{} Hz'.format(round(df, 6))
         self.lineEdit_frequency_resolution.setText(final_df_label)
         self.lineEdit_number_of_revolutions.setText(str(self.N_rev))
         self.aquisition_parameters_processed = True
 
-    def save_table_values(self, frequencies, complex_values, basename):
-
-        header = " COMPRESSOR MODEL PARAMETERS\n\n"
-        for key, value in self.parameters.items():
-            header += "{} = {}\n".format(key, str(value))
-
-        header += "\nACOUSTIC COMPRESSOR EXCITATION: VOLUME VELOCITY SOURCE" 
-        header += "\n\nFrequency [Hz], real[m³/s], imaginary[m³/s], absolute[m³/s]"
+    def save_table_values(self, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray):
 
         f_min = frequencies[0]
         f_max = frequencies[-1]
@@ -730,14 +721,13 @@ class CompressorModelInput(QDialog):
         else:
             self.project.set_frequencies(frequencies, f_min, f_max, f_step)
 
-        self.project.create_folders_acoustic("compressor_excitation_files")
-        self.new_load_path_table = get_new_path(self.compressor_excitation_tables_folder_path, basename)
-
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
-        abs_values = np.abs(complex_values)
-        data = np.array([frequencies, real_values, imag_values, abs_values]).T
-        np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
+
+        data = np.array([frequencies, real_values, imag_values], dtype=float).T
+
+        app().project.model.properties.add_imported_tables("structural", table_name, data)
+
         return False
 
     def get_table_name(self, node_id, label):
@@ -762,21 +752,23 @@ class CompressorModelInput(QDialog):
 
         if self.check_all_nodes():
             return
+
         if self.check_all_parameters():
             return
 
         self.process_aquisition_parameters()
         self.check_existing_compressor_parameters_and_edit()
+
         index = self.comboBox_connection_setup.currentIndex()
         if index in [0, 1]:
 
-            line_suction_node_ID = self.preprocessor.get_line_from_node_id(self.suction_node_ID)
+            line_suction_node_ID = self.preprocessor.get_line_from_node_id(self.suction_node_id)
             compressor_info = { "temperature (suction)" : self.T_suction,
                                 "pressure (suction)" : self.P_suction,
                                 "line_id" : line_suction_node_ID[0],
-                                "node_id" : self.suction_node_ID,
+                                "node_id" : self.suction_node_id,
                                 "pressure ratio" : self.parameters['pressure ratio'],
-                                "connection type" : 0 }
+                                "connection type" : "suction" }
 
             self.hide()
             read = SetFluidInput(compressor_thermodynamic_state = compressor_info)
@@ -799,30 +791,37 @@ class CompressorModelInput(QDialog):
                 # self.T_discharge = self.compressor.T_disc
 
                 freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
-                table_name = self.get_table_name(self.suction_node_ID, 'suction')
+
+                table_name = f"compresor_excitation_suction_node_{self.suction_node_id}"
                 data = [in_flow_rate, table_name]
 
-            self.project.remove_acoustic_pressure_table_files(self.suction_node_ID)
-            self.project.remove_volume_velocity_table_files(self.suction_node_ID)
+            self.remove_conflictant_excitations(self.suction_node_id)
 
-            if self.project.set_compressor_excitation_bc_by_node(   [self.suction_node_ID], 
-                                                                    data, 
-                                                                    self.table_index,
+            if self.project.set_compressor_excitation_bc_by_node(   [self.suction_node_id], 
+                                                                    data,
                                                                     'suction'   ):
                 return
             else:
-                if self.save_table_values(freq, in_flow_rate, table_name):
+                if self.save_table_values(table_name, self.suction_node_id, freq, in_flow_rate):
                     return
+                
+            compressor_info["parameters"] = self.parameters
+
+            self.properties._set_property(
+                                            "compressor_excitation", 
+                                            compressor_info, 
+                                            node_ids=self.suction_node_id
+                                          )
 
         if index in [0, 2]:
 
-            line_discharge_node_ID = self.preprocessor.get_line_from_node_id(self.discharge_node_ID)
+            line_discharge_node_ID = self.preprocessor.get_line_from_node_id(self.discharge_node_id)
             compressor_info = { "temperature (suction)" : self.T_suction,
                                 "pressure (suction)" : self.P_suction,
                                 "line_id" : line_discharge_node_ID[0],
-                                "node_id" : self.discharge_node_ID,
+                                "node_id" : self.discharge_node_id,
                                 "pressure ratio" : self.parameters['pressure ratio'],
-                                "connection type" : 1 }
+                                "connection type" : "discharge" }
 
             self.hide()
             read = SetFluidInput(compressor_thermodynamic_state = compressor_info)
@@ -843,38 +842,31 @@ class CompressorModelInput(QDialog):
                                                                       self.parameters['molar mass'])
 
             freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
-            table_name = self.get_table_name(self.discharge_node_ID, 'discharge')
+            table_name = f"compressor_excitation_discharge_node_{self.discharge_node_id}"
             data = [out_flow_rate, table_name]
 
-            self.project.remove_acoustic_pressure_table_files(self.discharge_node_ID)
-            self.project.remove_volume_velocity_table_files(self.discharge_node_ID)
+            self.remove_conflictant_excitations(self.discharge_node_id)
 
-            if self.project.set_compressor_excitation_bc_by_node(   [self.discharge_node_ID], 
-                                                                    data, 
-                                                                    self.table_index, 
+            if self.project.set_compressor_excitation_bc_by_node(   [self.discharge_node_id], 
+                                                                    data,
                                                                     'discharge'   ):
                 return
+
             else:
-                if self.save_table_values(freq, out_flow_rate, table_name):
+                if self.save_table_values(table_name, self.discharge_node_id, freq, out_flow_rate):
                     return
-                    
+
+            compressor_info["parameters"] = self.parameters
+
+            self.properties._set_property(
+                                            "compressor_excitation", 
+                                            compressor_info, 
+                                            node_ids=self.discharge_node_id
+                                          )
+
         app().main_window.update_plots()
         self.close()
 
-    # def save_compressor_parameters(self, connection_type):
-    #     parameters = []
-    #     for key, parameter in self.parameters.items():
-    #         if key == 'fluid properties source':
-    #             fluid_prop_source = parameter
-    #         else:
-    #             parameters.append(parameter)
-
-    #     compressor_parameters = parameters
-    #     compressor_fluid_prop_source = fluid_prop_source
-
-    def remove_volume_velocity_table_files(self, node_id, table_name):
-        self.project.remove_volume_velocity_table_files(node_id, table_name)
-    
     def spinBox_event_number_of_points(self):
         if self.aquisition_parameters_processed:
             self.process_aquisition_parameters()
@@ -1017,145 +1009,123 @@ class CompressorModelInput(QDialog):
         N = self.update_number_points()
         self.compressor.number_points = N
         self.compressor.plot_crank_end_volume_vs_angle()
-        return    
+        return
+    
+    def get_compressor_table_names(self, node_id: int):
+        key = ("compressor_excitation", node_id)
+        if key in self.project.model.properties.nodal_properties.keys():
+            try:
+                table_names = self.project.model.properties.nodal_properties[key]["table names"]
+                return table_names
+            except:
+                return list()
+
+    def process_table_file_removal(self, table_names : list):
+        if table_names:
+            for table_name in table_names:
+                self.properties.remove_imported_tables("acoustic", table_name)
+            app().pulse_file.write_imported_table_data_in_file()
+
+    def remove_conflictant_excitations(self, node_id: int):
+        for label in ["acoustic_pressure", "volume_velocity"]:
+            table_names = self.properties.get_nodal_related_table_names(label, node_id)
+            self.properties._remove_nodal_property(label, node_id)
+            self.process_table_file_removal(table_names)
+        app().pulse_file.write_model_properties_in_file()
+
+    def remove_table_files_from_nodes(self, node_ids : list):
+        table_names = self.properties.get_nodal_related_table_names(
+                                                                        "compressor_excitation", 
+                                                                        node_ids, 
+                                                                        equals=True
+                                                                    )
+        self.process_table_file_removal(table_names)
 
     def reset_node(self):
-        self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
-        if self.node_ID_remove is None:    
-            node_id = self.lineEdit_node_ID_info.text()
-            if node_id == "":
-                title = "EMPTY NODE SELECTION"
-                message = "You should to select a node from the list before continue."
-                PrintMessageInput([window_title_2, title, message])
-                return
-            else:
-                self.selected_node = int(node_id)
-        else:
-            self.selected_node = self.node_ID_remove
-        
-        try:
 
-            self.project.reset_compressor_info_by_node(self.selected_node)  
-    
-            if self.remove_message:
-                title = "Compressor excitation removal finished"
-                message = f"The compressor excitation attributed to \n"
-                message += f"the {self.selected_node} node has been removed."
-                PrintMessageInput([window_title_2, title, message])
-            self.load_compressor_excitation_tables_info()
-            app().main_window.update_plots()
-        
-        except Exception as log_error:
-            title = "Error while removing compressor excitation from node"
-            message = "An error has been detected during the compressor \n"
-            message += "excitation removal from selected node.\n\n"
-            message += str(log_error)
-            PrintMessageInput([window_title_1, title, message])
-        self.remove_message = True
-
-    def remove_table(self):
-        self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
-        if self.table_name == self.comboBox_compressors_tables.currentText():
-            self.selected_node = self.current_lineEdit.text()
-            self.selected_table = self.table_name
-        else:
-            self.selected_node = self.lineEdit_node_ID_info.text()
-            self.selected_table = self.lineEdit_table_name_info.text()
-        
-        if self.selected_node == "":
-            title = "EMPTY TABLE SELECTION"
-            message = "You should to select a table from list before continue."
+        if self.lineEdit_node_ID_info.text() == "":   
+            title = "Empty node selection"
+            message = "You should to select a node from the list before continue."
             PrintMessageInput([window_title_2, title, message])
             return
+            
+        node_id = int(self.lineEdit_node_ID_info.text())
 
-        else:
+        self.remove_table_files_from_nodes(node_id)
 
-            node_id = int(self.selected_node)
-            node = self.preprocessor.nodes[node_id]
-            prefix = self.selected_table.split("_node")[0]
-            str_table_index = prefix.split("table")[1]
-            table_index = int(str_table_index)
+        self.properties._remove_nodal_property("compressor_excitation", node_id)
+        app().pulse_file.write_model_properties_in_file()
 
-            if table_index in node.compressor_excitation_table_indexes:
-                node.compressor_excitation_table_indexes.remove(table_index)
-            if table_index in node.dict_index_to_compressor_connection_info.keys():
-                node.dict_index_to_compressor_connection_info.pop(table_index)
-            for list_data in self.dict_node_to_compressor_excitation[node_id]:
-                [str_key, table_name_file] = list_data
-                if self.selected_table in table_name_file:
-                    self.project.file.filter_bc_data_from_dat_file([node_id], [str_key], self.node_acoustic_path)
-                    # remove_bc_from_file([node_id], self.node_acoustic_path, [str_key], None)
+        try:
 
-            title = "Compressor excitation table removal finished"
-            message = f"The following compressor excitation table attributed to \n"
-            message += f"the {node_id} node has been removed from the model:\n\n"
-            message += f"{self.selected_table}"
-            PrintMessageInput([window_title_2, title, message])
+            line_id = self.preprocessor.get_line_from_node_id(node_id)
+            self.project.set_compressor_info_by_lines(line_id)
+            self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
 
-            self.load_compressor_excitation_tables_info()
-            self.reset_node_and_reload(node_id)
-    
-    def reset_node_and_reload(self, node_id):
-        self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
-        if node_id in self.dict_node_to_compressor_excitation.keys():
-            for str_key, table_name in self.dict_node_to_compressor_excitation[node_id]:
-                compressor_excitation, table_name, _ = self.project.file._get_acoustic_bc_from_string(  table_name, str_key, 
-                                                                                                        "compressor_excitation_files"  )
-                if 'discharge' in table_name:
-                    connection_info = "discharge"
-                else:
-                    connection_info = "suction"
-                self.preprocessor.set_compressor_excitation_bc_by_node( node_id, 
-                                                                        [compressor_excitation, table_name], 
-                                                                        connection_info=connection_info )
-        else:
-            self.project.reset_compressor_info_by_node(node_id)
+            self.load_compressor_excitation_info()
+            app().main_window.update_plots()
 
-        if self.project.file.check_if_table_can_be_removed_in_acoustic_model( node_id, "compressor excitation",
-                                                                              self.selected_table, "compressor_excitation_files" ):
-            self.project.remove_acoustic_table_files_from_folder( self.selected_table, "compressor_excitation_files" )
-            self.load_compressor_excitation_tables_info()
-        app().main_window.update_plots()
+        except Exception as log_error:
+            title = "Error while removing compressor excitation from node "
+            message = "An error has been detected during the compressor "
+            message += "excitation removal from selected node. \n\n"
+            message += f"Details: {str(log_error)}"
+            PrintMessageInput([window_title_1, title, message])
 
     def reset_all(self):
-        if self.preprocessor.nodes_with_compressor_excitation:
 
-            self.hide()
+        self.hide()
 
-            title = f"Resetting of compressor excitations"
-            message = "Would you like to remove all compressor excitations from the acoustic model?\n\n"
+        title = "Resetting of compressor excitations"
+        message = "Would you like to remove all compressor " 
+        message += "excitations from the acoustic model?"
 
-            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if read._continue:
-                self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
-                for node_id in self.dict_node_to_compressor_excitation.keys():
-                    self.remove_message = False
-                    self.node_ID_remove = node_id
-                    self.reset_node()
+        if read._continue:
 
-                self.node_ID_remove = None
-                title = "Reset of compressor excitations"
-                message = "All compressor excitations have been removed from the model."
-                PrintMessageInput([window_title_2, title, message], auto_close=True)
+            node_ids = list()
 
-                self.close()
-                app().main_window.update_plots()
+            for (property, *args) in app().project.model.properties.nodal_properties.keys():
+                if property == "compressor_excitation":
 
-    def load_compressor_excitation_tables_info(self):
+                    node_id = args
+                    node_ids.append(node_id)
+
+            self.remove_table_files_from_nodes(node_ids)
+
+            self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
+
+            app().project.model.properties._reset_property("compressor_excitation")
+            app().pulse_file.write_model_properties_in_file()
+            app().main_window.update_plots()
+            self.close()
+
+    def get_compressor_excitation_data(self):
+        node_to_compressor_excitation = dict()
+        compressor_excitation_data = self.project.model.properties.nodal_properties
+        for (property, *args), data in compressor_excitation_data.items():
+            if property == "compressor_excitation":
+                node_id = args
+                node_to_compressor_excitation[node_id] = data["table names"]
+        return node_to_compressor_excitation
+
+    def load_compressor_excitation_info(self):
+
         self.treeWidget_compressor_excitation.clear()
-        self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
-        for node_ID, tables_info in self.dict_node_to_compressor_excitation.items():
-            for _, table_str in tables_info:
-                table_name = table_str[1:-1]       
-                new = QTreeWidgetItem([str(node_ID), table_name])
+        node_to_compressor_excitation = self.get_compressor_excitation_data()
+
+        for node_id, table_names in node_to_compressor_excitation.items():
+            for table_name in table_names:
+                new = QTreeWidgetItem([str(node_id), table_name])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_compressor_excitation.addTopLevelItem(new)
+
         self.lineEdit_node_ID_info.setText("")
         self.lineEdit_table_name_info.setText("")
         self.update_tabs_visibility()
@@ -1184,9 +1154,6 @@ class CompressorModelInput(QDialog):
                     list_table_names.append(table_name)
         return list_table_names
 
-    def remove_compressor_excitation_table_files(self, list_node_ids):
-        self.project.remove_compressor_excitation_table_files(list_node_ids)
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter:
             self.process_all_inputs()
@@ -1196,3 +1163,72 @@ class CompressorModelInput(QDialog):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         return super().closeEvent(a0)
+
+    def remove_table(self):
+        return
+
+        # self.get_compressor_excitation_data()
+        # if self.table_name == self.comboBox_compressors_tables.currentText():
+        #     self.selected_node = self.current_lineEdit.text()
+        #     self.selected_table = self.table_name
+        # else:
+        #     self.selected_node = self.lineEdit_node_ID_info.text()
+        #     self.selected_table = self.lineEdit_table_name_info.text()
+        
+        # if self.selected_node == "":
+        #     title = "EMPTY TABLE SELECTION"
+        #     message = "You should to select a table from list before continue."
+        #     PrintMessageInput([window_title_2, title, message])
+        #     return
+
+        # else:
+
+        #     node_id = int(self.selected_node)
+        #     node = self.preprocessor.nodes[node_id]
+        #     prefix = self.selected_table.split("_node")[0]
+        #     str_table_index = prefix.split("table")[1]
+        #     table_index = int(str_table_index)
+
+        #     if table_index in node.compressor_excitation_table_indexes:
+        #         node.compressor_excitation_table_indexes.remove(table_index)
+        #     if table_index in node.dict_index_to_compressor_connection_info.keys():
+        #         node.dict_index_to_compressor_connection_info.pop(table_index)
+
+        #     #TODO: reimplement this
+        #     for table_names in self.node_to_compressor_excitation[node_id]:
+        #         self.project.model.properties._remove_nodal_property
+        #         [str_key, table_name_file] = list_data
+        #         if self.selected_table in table_names:
+        #             self.project.file.filter_bc_data_from_dat_file([node_id], [str_key], self.node_acoustic_path)
+        #             # remove_bc_from_file([node_id], self.node_acoustic_path, [str_key], None)
+
+        #     title = "Compressor excitation table removal finished"
+        #     message = f"The following compressor excitation table attributed to \n"
+        #     message += f"the {node_id} node has been removed from the model:\n\n"
+        #     message += f"{self.selected_table}"
+        #     PrintMessageInput([window_title_2, title, message])
+
+        #     self.load_compressor_excitation_info()
+        #     self.reset_node_and_reload(node_id)
+    
+    # def reset_node_and_reload(self, node_id):
+    #     self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
+    #     if node_id in self.node_to_compressor_excitation.keys():
+    #         for str_key, table_name in self.node_to_compressor_excitation[node_id]:
+    #             compressor_excitation, table_name, _ = self.project.file._get_acoustic_bc_from_string(  table_name, str_key, 
+    #                                                                                                     "compressor_excitation_files"  )
+    #             if 'discharge' in table_name:
+    #                 connection_info = "discharge"
+    #             else:
+    #                 connection_info = "suction"
+    #             self.preprocessor.set_compressor_excitation_bc_by_node( node_id, 
+    #                                                                     [compressor_excitation, table_name], 
+    #                                                                     connection_info=connection_info )
+    #     else:
+    #         self.project.reset_compressor_info_by_node(node_id)
+
+    #     if self.project.file.check_if_table_can_be_removed_in_acoustic_model( node_id, "compressor excitation",
+    #                                                                           self.selected_table, "compressor_excitation_files" ):
+    #         self.project.remove_acoustic_table_files_from_folder( self.selected_table, "compressor_excitation_files" )
+    #         self.load_compressor_excitation_info()
+    #     app().main_window.update_plots()

@@ -683,7 +683,8 @@ class SetCrossSectionInput(QDialog):
 
     def load_project(self):
         self.project.initial_load_project_actions()
-        self.project.load_project_files()
+        # self.project.load_project_files()
+        app().loader.load_project_data()
         app().main_window.input_ui.initial_project_action(True)
         self.complete = True
 

@@ -28,7 +28,7 @@ def model():
     preprocessor.generate(geometry_path, 0.01)
 
     table_names = [None, None, None, None, None, None]
-    preprocessor.set_prescribed_dofs_bc_by_node([40, 1424, 1324], [np.zeros(6), table_names])
+    preprocessor.set_prescribed_dofs([40, 1424, 1324], [np.zeros(6), table_names])
 
     preprocessor.set_material_by_element('all', steel)
     preprocessor.set_cross_section_by_element('all', cross_section)

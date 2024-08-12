@@ -142,7 +142,7 @@ class AnalysisSetupInput(QDialog):
         
         analysis_setup["analysis id"] = self.analysis_id
 
-        f_min = f_max = f_step = 0
+        f_min = f_max = f_step = 0.
 
         if self.analysis_id not in [2, 4]:
 
@@ -213,7 +213,7 @@ class AnalysisSetupInput(QDialog):
             self.frequencies = np.arange(f_min, f_max + f_step, f_step)
             self.project.set_frequencies(self.frequencies, f_min, f_max, f_step)
 
-        if not self.analysis_id in [3, 4]:
+        if self.analysis_id in [1, 6]:
             self.project.set_modes_sigma(number_of_modes)
             analysis_setup["modes"] = number_of_modes
 
@@ -223,7 +223,7 @@ class AnalysisSetupInput(QDialog):
         self.complete = True
         self.close()
         return False
-    
+
     def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, _float=False):
         self.stop = False
         message = ""

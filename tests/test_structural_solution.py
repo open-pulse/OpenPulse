@@ -30,9 +30,9 @@ def model():
     preprocessor.set_structural_damping([1e-3, 1e-6, 0, 0])
 
     table_names = [None, None, None, None, None, None]
-    preprocessor.set_prescribed_dofs_bc_by_node([1223, 10, 665, 921, 796], [np.zeros(6, dtype=complex), table_names])
-    preprocessor.set_structural_load_bc_by_node([690], [np.array([1,0,0,0,0,0], dtype=complex), table_names])
-    preprocessor.set_structural_load_bc_by_node([1108], [np.array([0,0,1,0,0,0], dtype=complex), table_names])
+    preprocessor.set_prescribed_dofs([1223, 10, 665, 921, 796], [np.zeros(6, dtype=complex), table_names])
+    preprocessor.set_structural_loads([690], [np.array([1,0,0,0,0,0], dtype=complex), table_names])
+    preprocessor.set_structural_loads([1108], [np.array([0,0,1,0,0,0], dtype=complex), table_names])
 
     preprocessor.set_material_by_element('all', steel)
     preprocessor.set_cross_section_by_element('all', cross_section)

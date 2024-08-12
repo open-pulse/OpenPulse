@@ -134,7 +134,8 @@ class MeshUpdater:
 
         self.project.load_mesh_setup_from_file()
         self.project.initial_load_project_actions()
-        self.project.load_project_files()
+        # self.project.load_project_files()
+        app().loader.load_project_data()
 
         app().main_window.update_plots()
 
@@ -161,7 +162,8 @@ class MeshUpdater:
                                                                                 self.dict_non_mapped_subgroups_info_file,
                                                                                 self.dict_list_elements_to_subgroups  )
 
-        self.project.load_project_files()
+        # self.project.load_project_files()
+        app().loader.load_project_data()
         app().main_window.update_plots()  
         self.complete = True
 

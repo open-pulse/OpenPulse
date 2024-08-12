@@ -889,7 +889,7 @@ class MainWindow(QMainWindow):
         self.mesh_widget.set_color_mode_to_fluid()
 
     def update_export_geometry_file_access(self):
-        import_type = self.file.get_import_type()
+        import_type = app().project.preprocessor.import_type
         if import_type == 0:
             self.action_export_geometry.setDisabled(True)
         elif import_type == 1:

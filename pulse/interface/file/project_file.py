@@ -49,70 +49,70 @@ class ProjectFile:
 
     def default_filenames(self):
         self._project_ini_name = "project.ini"
-        self._fluid_file_name = "fluid_list.dat"
-        self._material_file_name = "material_list.dat"
-        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
-        self._node_structural_file_name = "structural_nodal_info.dat"
-        self._elements_file_name = "elements_info.dat"
-        self._imported_data_folder_name = "imported_data"
-        self._backup_geometry_foldername = "geometry_backup"
+        # self._fluid_file_name = "fluid_list.dat"
+        # self._material_file_name = "material_list.dat"
+        # self._node_acoustic_file_name = "acoustic_nodal_info.dat"
+        # self._node_structural_file_name = "structural_nodal_info.dat"
+        # self._elements_file_name = "elements_info.dat"
+        # self._imported_data_folder_name = "imported_data"
+        # self._backup_geometry_foldername = "geometry_backup"
 
-    def get_list_filenames_to_maintain_after_reset(self, **kwargs):
+    # def get_list_filenames_to_maintain_after_reset(self, **kwargs):
 
-        reset_fluids = kwargs.get('reset_fluids', False)
-        reset_materials = kwargs.get('reset_materials', False)
-        reset_acoustic_model = kwargs.get('reset_acoustic_model', False)
-        reset_structural_model = kwargs.get('reset_structural_model', False)
+    #     reset_fluids = kwargs.get('reset_fluids', False)
+    #     reset_materials = kwargs.get('reset_materials', False)
+    #     reset_acoustic_model = kwargs.get('reset_acoustic_model', False)
+    #     reset_structural_model = kwargs.get('reset_structural_model', False)
 
-        list_filenames = os.listdir(self._project_path).copy()
-        imported_data_files = list()
-        if self._imported_data_folder_name in list_filenames:
-            imported_data_files = os.listdir(self._imported_data_folder_path).copy()
+    #     list_filenames = os.listdir(self._project_path).copy()
+    #     imported_data_files = list()
+    #     if self._imported_data_folder_name in list_filenames:
+    #         imported_data_files = os.listdir(self._imported_data_folder_path).copy()
 
-        files_to_maintain_after_reset = list()
-        files_to_maintain_after_reset.append(self._project_ini_name)
+    #     files_to_maintain_after_reset = list()
+    #     files_to_maintain_after_reset.append(self._project_ini_name)
 
-        if not reset_fluids:
-            files_to_maintain_after_reset.append(self._fluid_file_name)
+    #     if not reset_fluids:
+    #         files_to_maintain_after_reset.append(self._fluid_file_name)
 
-        if not reset_materials:
-            files_to_maintain_after_reset.append(self._material_file_name)
+    #     if not reset_materials:
+    #         files_to_maintain_after_reset.append(self._material_file_name)
 
-        if reset_acoustic_model:
-            if self._imported_data_folder_name in list_filenames:
-                if "acoustic" in imported_data_files:
-                    file_path = get_new_path(self._imported_data_folder_path, "acoustic")
-                    rmtree(file_path)
-        else:
-            files_to_maintain_after_reset.append(self._node_acoustic_file_name)
+    #     if reset_acoustic_model:
+    #         if self._imported_data_folder_name in list_filenames:
+    #             if "acoustic" in imported_data_files:
+    #                 file_path = get_new_path(self._imported_data_folder_path, "acoustic")
+    #                 rmtree(file_path)
+    #     else:
+    #         files_to_maintain_after_reset.append(self._node_acoustic_file_name)
 
-        if reset_structural_model:
-            if self._imported_data_folder_name in list_filenames:
-                if "structural" in imported_data_files:
-                    file_path = get_new_path(self._imported_data_folder_path, "structural")
-                    rmtree(file_path)
-        else:
-            files_to_maintain_after_reset.append(self._node_structural_file_name)
+    #     if reset_structural_model:
+    #         if self._imported_data_folder_name in list_filenames:
+    #             if "structural" in imported_data_files:
+    #                 file_path = get_new_path(self._imported_data_folder_path, "structural")
+    #                 rmtree(file_path)
+    #     else:
+    #         files_to_maintain_after_reset.append(self._node_structural_file_name)
             
-        if os.path.exists(self._geometry_path):
-            files_to_maintain_after_reset.append(os.path.basename(self._geometry_path))
+    #     if os.path.exists(self._geometry_path):
+    #         files_to_maintain_after_reset.append(os.path.basename(self._geometry_path))
 
-        return files_to_maintain_after_reset
+    #     return files_to_maintain_after_reset
 
-    def remove_all_unnecessary_files(self, **kwargs):
-        list_filenames = os.listdir(self._project_path).copy()
-        files_to_maintain = self.get_list_filenames_to_maintain_after_reset(**kwargs)
-        for filename in list_filenames:
-            if filename not in files_to_maintain:
-                file_path = get_new_path(self._project_path, filename)
-                if os.path.exists(file_path):
-                    if filename == self._imported_data_folder_name:
-                        if len(os.listdir(file_path).copy()):
-                            continue
-                    if "." in filename:
-                        os.remove(file_path)
-                    else:
-                        rmtree(file_path)
+    # def remove_all_unnecessary_files(self, **kwargs):
+    #     list_filenames = os.listdir(self._project_path).copy()
+    #     files_to_maintain = self.get_list_filenames_to_maintain_after_reset(**kwargs)
+    #     for filename in list_filenames:
+    #         if filename not in files_to_maintain:
+    #             file_path = get_new_path(self._project_path, filename)
+    #             if os.path.exists(file_path):
+    #                 if filename == self._imported_data_folder_name:
+    #                     if len(os.listdir(file_path).copy()):
+    #                         continue
+    #                 if "." in filename:
+    #                     os.remove(file_path)
+    #                 else:
+    #                     rmtree(file_path)
 
     # def load(self, project_file_path):
 
@@ -160,23 +160,23 @@ class ProjectFile:
     #     self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
 
     #Frequency Setup Analysis
-    def load_analysis_file(self):
+    # def load_analysis_file(self):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
 
-        if analysis_setup is None:
-            f_min = 0.
-            f_max = 0.
-            f_step = 0.
-            global_damping = [0., 0., 0., 0.]
+    #     if analysis_setup is None:
+    #         f_min = 0.
+    #         f_max = 0.
+    #         f_step = 0.
+    #         global_damping = [0., 0., 0., 0.]
 
-        else:
-            f_min = analysis_setup["f_min"]
-            f_max = analysis_setup["f_max"]
-            f_step = analysis_setup["f_step"]
-            global_damping = analysis_setup["global damping"]
+    #     else:
+    #         f_min = analysis_setup["f_min"]
+    #         f_max = analysis_setup["f_max"]
+    #         f_step = analysis_setup["f_step"]
+    #         global_damping = analysis_setup["global damping"]
 
-        return f_min, f_max, f_step, global_damping
+    #     return f_min, f_max, f_step, global_damping
 
     # def add_frequency_in_file(self, f_min, f_max, f_step):
 
@@ -1072,16 +1072,230 @@ class ProjectFile:
     
         self.write_data_in_file(self._pipeline_path, config)
 
-    def add_pipeline_data_in_file(self, structures_data : dict):
+
+
+    def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
+        """ This method updates the lists of elements in entity file after remesh process. A mapping process checks the boundaries of the
+            attribution before and after meshing process. If the mapping process could not find boundaries of atribution after remesh, 
+            so the all attribuiton from line related to the group of elements will be removed.
+        
+        """
+        if os.path.exists(self._pipeline_path):
+            config = configparser.ConfigParser()
+            config.read(self._pipeline_path)
+            sections = config.sections()
+            
+            for section in sections:
+                if section in config.sections():
+                    if 'list of elements' in config[section].keys():
+                        str_list_elements = config[section]['list of elements']
+                        list_elements = get_list_of_values_from_string(str_list_elements)
+                        list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+                        temp_list = list()
+                        lines_to_reset = list()
+                        try:
+
+                            for subgroup_elements in list_subgroup_elements:
+                                str_subgroup_elements = str(subgroup_elements)
+                                if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
+                                    temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
+                                elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
+                                    lines_to_reset.append(section)    
+
+                            if lines_to_reset:
+                                for line_to_reset in lines_to_reset:
+                                    prefix = line_to_reset.split("-")[0] + "-"
+                                    for _section in sections:
+                                        if prefix in _section:
+                                            config.remove_section(section=_section)
+                            elif temp_list:
+                                new_list_elements = [value for group in temp_list for value in group]
+                                config[section]['list of elements'] =  str(new_list_elements)
+                            else:
+                                config.remove_section(section=section)
+
+                        except Exception as log_error:
+
+                            if "-" in section:
+                                line_id = section.split("-")[0]
+                                subkey = f"{line_id}-"
+                                config.remove_section(section)
+                                if line_id in sections:
+                                    for key in config[line_id].keys():                                                     
+                                        # for key in config[line_id].keys():
+                                        config.remove_option(section=line_id, option=key)
+                                for _section in sections:
+                                    if subkey in _section:
+                                        config.remove_section(_section)       
+
+            self.write_data_in_file(self._pipeline_path, config)
+
+
+    def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
+        config = configparser.ConfigParser()
+        config.read(self._element_info_path)
+        sections = config.sections()
+        
+        for section in sections:
+            if 'list of elements' in config[section].keys():
+                
+                str_list_elements = config[section]['list of elements']
+                list_subgroups_elements = dict_list_elements_to_subgroups[str_list_elements]
+
+                temp_list = list()
+                try:
+
+                    for subgroup_elements in list_subgroups_elements:
+                        str_group_elements = str(subgroup_elements)
+                        if str_group_elements not in dict_non_mapped_subgroups.keys():
+                            temp_list.append(dict_old_to_new_subgroups_elements[str(subgroup_elements)])
+                    
+                    if temp_list:
+                        new_list_elements = [value for group in temp_list for value in group]
+                        config[section]['list of elements'] =  str(new_list_elements)
+                    else:
+                        config.remove_section(section)
+
+                except:
+                    
+                    config.remove_section(section) 
+
+        self.write_data_in_file(self._element_info_path, config)
+
+    def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
+        _line_id = str(line_id)
+        config = configparser.ConfigParser()
+        config.read(self._pipeline_path)
+        if _line_id in list(config.sections()):
+            if value == 0:
+                if "beam x-axis rotation" in list(config[_line_id].keys()):
+                    config.remove_option(section=str(_line_id), option="beam x-axis rotation")
+            else:                    
+                config[_line_id]["beam x-axis rotation"] = str(value)               
+            self.write_data_in_file(self._pipeline_path, config)
+
+    def write_data_in_file(self, path, config):
+        with open(path, 'w') as config_file:
+            config.write(config_file)
+
+    def add_material_in_file(self, lines, material):
+
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        if material is None:
+            material_id = ""
+        else:
+            material_id = material.identifier
 
         config = configparser.ConfigParser()
         config.read(self._pipeline_path)
 
-        for line_id, structure_data in structures_data.items():
-            for key, data in structure_data.items():
-                config[str(line_id)][key] = str(data)
-
+        for line_id in lines:
+            config[str(line_id)]['material id'] = str(material_id)
+            
         self.write_data_in_file(self._pipeline_path, config)
+
+    def add_material_segment_in_file(self, lines, material_id):
+
+        if isinstance(lines, int):
+            lines = [lines]
+
+        if material_id is None:
+            material_id = ""
+
+        config = app().pulse_file.read_pipeline_data_from_file()
+
+        for line_id in lines:
+            config[str(line_id)]['material id'] = str(material_id)
+
+        app().pulse_file.write_pipeline_data_in_file(config)
+
+    def add_psd_label_in_file(self, lines, psd_label):
+
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        config = configparser.ConfigParser()
+        config.read(self._pipeline_path)
+
+        for line_id in lines:
+            config[str(line_id)]['psd label'] = psd_label
+            
+        self.write_data_in_file(self._pipeline_path, config)
+
+    # def modify_compressor_info_in_file(self, lines, compressor_info={}):
+        
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+        
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
+
+    #     for line_id in lines:
+    #         if compressor_info:
+    #             config[str(line_id)]['compressor info'] = str(list(compressor_info.values()))
+    #         else:
+    #             _section = str(line_id)
+    #             if 'compressor info' in config[str(line_id)].keys():
+    #                 config.remove_option(section=_section, option='compressor info')  
+
+        self.write_data_in_file(self._pipeline_path, config) 
+
+    # TODO: implement this
+    def update_node_ids_after_mesh_changed(self):
+
+        # path_1 = self._node_acoustic_path
+        # path_2 = self._node_structural_path
+
+        non_mapped_nodes = list()
+        preprocessor = app().project.preprocessor
+
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+
+            if "coords" in data.keys():
+                coords = np.array(data["coords"], dtype=float)
+                if len(coords) == 6:
+
+                    coords_1 = coords[:3]
+                    coords_2 = coords[3:]
+                    new_node_id1 = preprocessor.get_node_id_by_coordinates(coords_1)
+                    new_node_id2 = preprocessor.get_node_id_by_coordinates(coords_2)
+                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
+
+                    if new_node_id1 is None:
+                        if new_node_id1 not in non_mapped_nodes:
+                            non_mapped_nodes.append((key, coords))
+                        continue
+
+                    if new_node_id2 is None:
+                        if new_node_id2 not in non_mapped_nodes:
+                            non_mapped_nodes.append((key, coords))
+                        continue
+
+                elif len(coords) == 3:
+
+                    new_node_id = preprocessor.get_node_id_by_coordinates(coords)
+
+                    if new_node_id is None:
+                        if new_node_id not in non_mapped_nodes:
+                            non_mapped_nodes.append((key, coords))
+                        continue
+
+                if non_mapped_nodes:
+                    print(f"List of non-mapped nodes: {non_mapped_nodes}")
+                    return non_mapped_nodes
+
+    # def add_pipeline_data_in_file(self, structures_data : dict):
+
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
+
+    #     for line_id, structure_data in structures_data.items():
+    #         for key, data in structure_data.items():
+    #             config[str(line_id)][key] = str(data)
+
+    #     self.write_data_in_file(self._pipeline_path, config)
 
     # def get_pipeline_data_from_file(self):
     #     '''
@@ -1159,52 +1373,6 @@ class ProjectFile:
 
     #     return segment_build_data
 
-    def add_material_in_file(self, lines, material):
-
-        if isinstance(lines, int):
-            lines = [lines]
-        
-        if material is None:
-            material_id = ""
-        else:
-            material_id = material.identifier
-
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-
-        for line_id in lines:
-            config[str(line_id)]['material id'] = str(material_id)
-            
-        self.write_data_in_file(self._pipeline_path, config)
-
-    def add_material_segment_in_file(self, lines, material_id):
-
-        if isinstance(lines, int):
-            lines = [lines]
-
-        if material_id is None:
-            material_id = ""
-
-        config = app().pulse_file.read_pipeline_data_from_file()
-
-        for line_id in lines:
-            config[str(line_id)]['material id'] = str(material_id)
-
-        app().pulse_file.write_pipeline_data_in_file(config)
-
-    def add_psd_label_in_file(self, lines, psd_label):
-
-        if isinstance(lines, int):
-            lines = [lines]
-        
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-
-        for line_id in lines:
-            config[str(line_id)]['psd label'] = psd_label
-            
-        self.write_data_in_file(self._pipeline_path, config)
-
     # def get_material_properties(self, material_id):
     #     config = configparser.ConfigParser()
     #     config.read(self._material_list_path)
@@ -1248,24 +1416,6 @@ class ProjectFile:
     #         config[str(line_id)]['fluid id'] = str(fluid_id)
 
     #     self.write_data_in_file(self._pipeline_path, config)
-
-    def modify_compressor_info_in_file(self, lines, compressor_info={}):
-        
-        if isinstance(lines, int):
-            lines = [lines]
-        
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-
-        for line_id in lines:
-            if compressor_info:
-                config[str(line_id)]['compressor info'] = str(list(compressor_info.values()))
-            else:
-                _section = str(line_id)
-                if 'compressor info' in config[str(line_id)].keys():
-                    config.remove_option(section=_section, option='compressor info')  
-
-        self.write_data_in_file(self._pipeline_path, config) 
 
     # def get_structural_bc_data_from_dat_file(self):
 
@@ -1704,50 +1854,50 @@ class ProjectFile:
 
     #     return keys_to_remove
 
-    def filter_bc_data_from_dat_file(self, selection_key, bc_keys_to_remove, path):
+    # def filter_bc_data_from_dat_file(self, selection_key, bc_keys_to_remove, path):
         
-        def internal_check(bc_label):
-            for bc_key_to_remove in bc_keys_to_remove:
-                if bc_label in bc_key_to_remove:
-                    return True
-            return False
+    #     def internal_check(bc_label):
+    #         for bc_key_to_remove in bc_keys_to_remove:
+    #             if bc_label in bc_key_to_remove:
+    #                 return True
+    #         return False
 
-        if path.exists():
+    #     if path.exists():
             
-            config_input = configparser.ConfigParser()
-            config_output = configparser.ConfigParser()
-            config_input.read(path)
+    #         config_input = configparser.ConfigParser()
+    #         config_output = configparser.ConfigParser()
+    #         config_input.read(path)
 
-            for key in config_input.sections():
+    #         for key in config_input.sections():
 
-                if "-" in key:
-                    _key = key
-                else:
-                    _key = int(key)
+    #             if "-" in key:
+    #                 _key = key
+    #             else:
+    #                 _key = int(key)
 
-                node_data = config_input[key]
-                if _key not in selection_key:
-                    config_output[key] = node_data
+    #             node_data = config_input[key]
+    #             if _key not in selection_key:
+    #                 config_output[key] = node_data
 
-                else:
+    #             else:
 
-                    bc_data = dict()
-                    for bc_key, value in node_data.items():
+    #                 bc_data = dict()
+    #                 for bc_key, value in node_data.items():
 
-                        if internal_check(bc_key):
-                            continue
-                        else:
-                            bc_data[bc_key] = value
+    #                     if internal_check(bc_key):
+    #                         continue
+    #                     else:
+    #                         bc_data[bc_key] = value
 
-                    if bc_data:
-                        # if only "coords" exists ignore the section
-                        if len(bc_data) > 1:
-                            config_output[key] = bc_data
+    #                 if bc_data:
+    #                     # if only "coords" exists ignore the section
+    #                     if len(bc_data) > 1:
+    #                         config_output[key] = bc_data
 
-            if len(config_output.sections()):
-                self.write_data_in_file(path, config_output)
-            else:
-                os.remove(path)
+    #         if len(config_output.sections()):
+    #             self.write_data_in_file(path, config_output)
+    #         else:
+    #             os.remove(path)
 
     # def add_acoustic_bc_in_file(self, node_ids, data, label):
 
@@ -1859,69 +2009,57 @@ class ProjectFile:
 
     #         self.write_data_in_file(self._node_structural_path, config)
 
-    # TODO: implement this
-    def update_node_ids_after_mesh_changed(self):
+        # for path in [path_1, path_2]:
+        #     if path.exists():
 
-        path_1 = self._node_acoustic_path
-        path_2 = self._node_structural_path
+        #         config_input = configparser.ConfigParser()
+        #         config_output = configparser.ConfigParser()
+        #         config_input.read(path)
 
-        non_mapped_nodes = list()
-        preprocessor = app().project.preprocessor
+        #         for key in config_input.sections():
 
-        print(path_1, path_2)
-        return
+        #             str_coords = config_input[key]["coords"]
+        #             _coords = get_list_of_values_from_string(str_coords, int_values=False)
+        #             coords = np.array(_coords)
 
-        for path in [path_1, path_2]:
-            if path.exists():
+        #             if "-" in key:
+        #                 coords_1 = coords[:3]
+        #                 coords_2 = coords[3:]
+        #                 new_node_id1 = preprocessor.get_node_id_by_coordinates(coords_1)
+        #                 new_node_id2 = preprocessor.get_node_id_by_coordinates(coords_2)
+        #                 new_key = f"{new_node_id1}-{new_node_id2}"
 
-                config_input = configparser.ConfigParser()
-                config_output = configparser.ConfigParser()
-                config_input.read(path)
+        #                 if new_node_id1 is None:
+        #                     if new_node_id1 not in non_mapped_nodes:
+        #                         non_mapped_nodes.append((key, coords))
+        #                     continue
 
-                for key in config_input.sections():
+        #                 if new_node_id2 is None:
+        #                     if new_node_id2 not in non_mapped_nodes:
+        #                         non_mapped_nodes.append((key, coords))
+        #                     continue
 
-                    str_coords = config_input[key]["coords"]
-                    _coords = get_list_of_values_from_string(str_coords, int_values=False)
-                    coords = np.array(_coords)
+        #             else:
+        #                 new_node_id = preprocessor.get_node_id_by_coordinates(coords)
+        #                 new_key = f"{new_node_id}"
 
-                    if "-" in key:
-                        coords_1 = coords[:3]
-                        coords_2 = coords[3:]
-                        new_node_id1 = preprocessor.get_node_id_by_coordinates(coords_1)
-                        new_node_id2 = preprocessor.get_node_id_by_coordinates(coords_2)
-                        new_key = f"{new_node_id1}-{new_node_id2}"
+        #                 if new_node_id is None:
+        #                     if new_node_id not in non_mapped_nodes:
+        #                         non_mapped_nodes.append((key, coords))
+        #                     continue
 
-                        if new_node_id1 is None:
-                            if new_node_id1 not in non_mapped_nodes:
-                                non_mapped_nodes.append((key, coords))
-                            continue
+        #             # print(key, new_node_id)
+        #             config_output[new_key] = config_input[key]
 
-                        if new_node_id2 is None:
-                            if new_node_id2 not in non_mapped_nodes:
-                                non_mapped_nodes.append((key, coords))
-                            continue
+        #         if len(config_output.sections()):
+        #             self.write_data_in_file(path, config_output)
+        #         else:
+        #             os.remove(path)
 
-                    else:
-                        new_node_id = preprocessor.get_node_id_by_coordinates(coords)
-                        new_key = f"{new_node_id}"
+        # if non_mapped_nodes:
+        #     print(f"List of non-mapped nodes: {non_mapped_nodes}")
 
-                        if new_node_id is None:
-                            if new_node_id not in non_mapped_nodes:
-                                non_mapped_nodes.append((key, coords))
-                            continue
-
-                    # print(key, new_node_id)
-                    config_output[new_key] = config_input[key]
-
-                if len(config_output.sections()):
-                    self.write_data_in_file(path, config_output)
-                else:
-                    os.remove(path)
-
-        if non_mapped_nodes:
-            print(f"List of non-mapped nodes: {non_mapped_nodes}")
-
-        return non_mapped_nodes
+        # return non_mapped_nodes
 
     ## METHODS FOR *.json FILES
 
@@ -2095,42 +2233,29 @@ class ProjectFile:
 
     #     return non_mapped_nodes
 
-    def check_if_table_can_be_removed_in_acoustic_model(self, input_id, str_key, table_name, 
-                                                        folder_table_name, node_info=True, label=""):
+    # def check_if_table_can_be_removed_in_acoustic_model(self, input_id, str_key, table_name, 
+    #                                                     folder_table_name, node_info=True, label=""):
 
-        config = configparser.ConfigParser()
-        if node_info:
-            config.read(self._node_acoustic_path)
-        else:
-            config.read(self._element_info_path)
+    #     config = configparser.ConfigParser()
+    #     if node_info:
+    #         config.read(self._node_acoustic_path)
+    #     else:
+    #         config.read(self._element_info_path)
 
-        sections = config.sections()
-        str_input_id = str(input_id)
-        if label == "":
-            label = str_key.capitalize()
+    #     sections = config.sections()
+    #     str_input_id = str(input_id)
+    #     if label == "":
+    #         label = str_key.capitalize()
 
-        for section in sections:
-            if section != str_input_id:
-                for key in config[section].keys():
-                    if str_key in key:
-                        str_value = config[section][key]
-                        _, table_name_info_file, _ = self._get_acoustic_bc_from_string(str_value, label, folder_table_name)
-                        if table_name_info_file == table_name:
-                            return False
-        return True
-
-    def get_dict_of_compressor_excitation_from_file(self):
-        config = configparser.ConfigParser()
-        config.read(self._node_acoustic_path)
-        sections = config.sections()
-        dict_node_to_compressor_excitation = defaultdict(list)  
-        for node_id in sections:
-            keys = list(config[node_id].keys())
-            for key in keys:
-                if "compressor excitation - " in key:
-                    table_file_name = config[node_id][key]
-                    dict_node_to_compressor_excitation[int(node_id)].append([key, table_file_name])   
-        return dict_node_to_compressor_excitation
+    #     for section in sections:
+    #         if section != str_input_id:
+    #             for key in config[section].keys():
+    #                 if str_key in key:
+    #                     str_value = config[section][key]
+    #                     _, table_name_info_file, _ = self._get_acoustic_bc_from_string(str_value, label, folder_table_name)
+    #                     if table_name_info_file == table_name:
+    #                         return False
+    #     return True
 
     # def check_if_table_can_be_removed_in_structural_model(self, node_id, str_keys, table_name, folder_table_name, node_info=True, labels=["", ""]):
     #     config = configparser.ConfigParser()
@@ -2220,7 +2345,6 @@ class ProjectFile:
     #                 config.remove_section(node_id)
     #         self.write_data_in_file(self._node_acoustic_path, config)
 
-
     # def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes, dict_non_mapped_nodes):
     #     if os.path.exists(self._node_structural_path):
 
@@ -2253,145 +2377,40 @@ class ProjectFile:
             
     #         self.write_data_in_file(self._node_structural_path, config_new)
 
+    # def get_import_type(self):
+    #     return self._import_type
 
-    def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
-        """ This method updates the lists of elements in entity file after remesh process. A mapping process checks the boundaries of the
-            attribution before and after meshing process. If the mapping process could not find boundaries of atribution after remesh, 
-            so the all attribuiton from line related to the group of elements will be removed.
-        
-        """
-        if os.path.exists(self._pipeline_path):
-            config = configparser.ConfigParser()
-            config.read(self._pipeline_path)
-            sections = config.sections()
-            
-            for section in sections:
-                if section in config.sections():
-                    if 'list of elements' in config[section].keys():
-                        str_list_elements = config[section]['list of elements']
-                        list_elements = get_list_of_values_from_string(str_list_elements)
-                        list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                        temp_list = list()
-                        lines_to_reset = list()
-                        try:
+    # @property
+    # def project_name(self):
+    #     return self._project_name
 
-                            for subgroup_elements in list_subgroup_elements:
-                                str_subgroup_elements = str(subgroup_elements)
-                                if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
-                                    temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
-                                elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
-                                    lines_to_reset.append(section)    
-
-                            if lines_to_reset:
-                                for line_to_reset in lines_to_reset:
-                                    prefix = line_to_reset.split("-")[0] + "-"
-                                    for _section in sections:
-                                        if prefix in _section:
-                                            config.remove_section(section=_section)
-                            elif temp_list:
-                                new_list_elements = [value for group in temp_list for value in group]
-                                config[section]['list of elements'] =  str(new_list_elements)
-                            else:
-                                config.remove_section(section=section)
-
-                        except Exception as log_error:
-
-                            if "-" in section:
-                                line_id = section.split("-")[0]
-                                subkey = f"{line_id}-"
-                                config.remove_section(section)
-                                if line_id in sections:
-                                    for key in config[line_id].keys():                                                     
-                                        # for key in config[line_id].keys():
-                                        config.remove_option(section=line_id, option=key)
-                                for _section in sections:
-                                    if subkey in _section:
-                                        config.remove_section(_section)       
-
-            self.write_data_in_file(self._pipeline_path, config)
-
-
-    def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
-        config = configparser.ConfigParser()
-        config.read(self._element_info_path)
-        sections = config.sections()
-        
-        for section in sections:
-            if 'list of elements' in config[section].keys():
-                
-                str_list_elements = config[section]['list of elements']
-                list_subgroups_elements = dict_list_elements_to_subgroups[str_list_elements]
-
-                temp_list = list()
-                try:
-
-                    for subgroup_elements in list_subgroups_elements:
-                        str_group_elements = str(subgroup_elements)
-                        if str_group_elements not in dict_non_mapped_subgroups.keys():
-                            temp_list.append(dict_old_to_new_subgroups_elements[str(subgroup_elements)])
-                    
-                    if temp_list:
-                        new_list_elements = [value for group in temp_list for value in group]
-                        config[section]['list of elements'] =  str(new_list_elements)
-                    else:
-                        config.remove_section(section)
-
-                except:
-                    
-                    config.remove_section(section) 
-
-        self.write_data_in_file(self._element_info_path, config)
-
-    def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
-        _line_id = str(line_id)
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-        if _line_id in list(config.sections()):
-            if value == 0:
-                if "beam x-axis rotation" in list(config[_line_id].keys()):
-                    config.remove_option(section=str(_line_id), option="beam x-axis rotation")
-            else:                    
-                config[_line_id]["beam x-axis rotation"] = str(value)               
-            self.write_data_in_file(self._pipeline_path, config)
-
-    def write_data_in_file(self, path, config):
-        with open(path, 'w') as config_file:
-            config.write(config_file)
-
-    def get_import_type(self):
-        return self._import_type
-
-    @property
-    def project_name(self):
-        return self._project_name
+    # @property
+    # def project_ini_name(self):
+    #     return self._project_ini_name
     
-    @property
-    def project_ini_name(self):
-        return self._project_ini_name
-    
-    @property
-    def project_path(self):
-        return self._project_path
+    # @property
+    # def project_path(self):
+    #     return self._project_path
 
-    @property
-    def project_ini_file_path(self):
-        return self._project_ini_file_path
+    # @property
+    # def project_ini_file_path(self):
+    #     return self._project_ini_file_path
 
-    @property
-    def geometry_path(self):
-        return self._geometry_path
+    # @property
+    # def geometry_path(self):
+    #     return self._geometry_path
     
-    @property
-    def length_unit(self):
-        return self._length_unit
+    # @property
+    # def length_unit(self):
+    #     return self._length_unit
     
-    @property
-    def element_size(self):
-        return self._element_size
+    # @property
+    # def element_size(self):
+    #     return self._element_size
 
-    @property
-    def geometry_tolerance(self):
-        return self._geometry_tolerance
+    # @property
+    # def geometry_tolerance(self):
+    #     return self._geometry_tolerance
 
     # def update_list_elements_already_exists_in_entity_file(self, line_id, config, ext_list_elements):
     #     dict_section_to_list_elements = {}
@@ -2408,22 +2427,3 @@ class ProjectFile:
     #                     if element_id not in ext_list_elements:
     #                         new_list_elements.append(element_id)
     #                 config[section]['list of elements'] = str(new_list_elements)
-
-
-def normalize(prop: dict):
-    """
-    Sadly json doesn't accepts tuple keys,
-    so we need to convert it to a string like:
-    "property id" = value
-    """
-    return {f"{p} {i}": v for (p, i), v in prop.items()}
-
-
-def denormalize(prop: dict):
-    new_prop = dict()
-    for key, val in prop.items():
-        p, i = key.split()
-        p = p.strip()
-        i = int(i)
-        new_prop[p, i] = val
-    return new_prop

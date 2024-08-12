@@ -163,6 +163,12 @@ class ModelProperties:
     def set_radiation_impedance(self, data, node_ids):
         self._set_property("radiation_impedance", data, node_ids=node_ids)
 
+    def remove_compressor_table_name(self, node_id: int, table_name: str):
+        key = ("compressor_excitation", node_id)
+        if key in self.nodal_properties.keys():
+            if table_name in self.nodal_properties[key]["table names"]:
+                self.nodal_properties[key]["table names"].remove(table_name)
+
     def get_data_group_label(self, property : str):
         if property in ["acoustic_pressure", "volume_velocity", "specific_impedance", "radiation_impedance", "compressor_excitation"]:
             return "acoustic"
@@ -325,23 +331,31 @@ class ModelProperties:
             self.group_properties.pop(key)
 
     def get_nodal_related_table_names(self, property : str, node_ids : list | tuple, equals = False) -> list:
-        table_names = list()
-        for key, data in self.nodal_properties.items():
-            for node_id in node_ids:
 
-                if "table names" in data.keys():
-                    if equals:
-                        if key == (property, node_id):
+        table_names = list()
+        if isinstance(node_ids, int):
+            test_key = (property, node_ids)
+        elif isinstance(node_ids, list | tuple) and len(node_ids) == 2:
+            test_key = (property, node_ids[0], node_ids[1])
+        else:
+            return table_names
+
+        for key, data in self.nodal_properties.items():
+
+            if "table names" in data.keys():
+                if equals:
+                    if key == test_key:
+                        for table_name in data["table names"]:
+                            if table_name is not None:
+                                table_names.append(table_name)
+
+                else:
+                    if key != test_key:
+                        (property, *args) = key
+                        if args == node_ids:
                             for table_name in data["table names"]:
                                 if table_name is not None:
                                     table_names.append(table_name)
-
-                    else:
-                        if key != (property, node_id):
-                            if key[1] == node_id:
-                                for table_name in data["table names"]:
-                                    if table_name is not None:
-                                        table_names.append(table_name)
 
         return table_names
 

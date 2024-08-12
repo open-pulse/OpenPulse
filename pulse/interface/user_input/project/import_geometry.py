@@ -75,7 +75,8 @@ class ImportGeometry(QFileDialog):
         self.project.reset(reset_all=True)
         self.file.load(self.file.project_ini_file_path)
         self.project.process_geometry_and_mesh()
-        self.project.load_project_files()
+        # self.project.load_project_files()
+        app().loader.load_project_data()
         self.project.preprocessor.check_disconnected_lines()
         #
         app().main_window.update_plots()

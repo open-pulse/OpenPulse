@@ -240,8 +240,6 @@ class InputUi:
 
         if self.project.analysis_id in [None, 2, 4]:
             return False
-        if self.project.file._project_name == "":
-            return False
         
         read = self.process_input(AnalysisSetupInput)
         

@@ -420,6 +420,7 @@ class LoadProject:
             app().project.model.properties.structural_imported_tables = imported_tables["structural"]
 
     def load_mesh_setup_from_file(self):
+
         project_setup = app().pulse_file.read_project_setup_from_file()
         if project_setup is None:
             return
@@ -428,6 +429,7 @@ class LoadProject:
             self.preprocessor.set_mesher_setup(project_setup["mesher setup"])
 
     def load_inertia_load_setup(self):
+
         inertia_load = app().pulse_file.read_inertia_load_from_file()
         if inertia_load is None:
             return

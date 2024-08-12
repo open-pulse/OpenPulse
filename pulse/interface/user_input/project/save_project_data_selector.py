@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
 
-from pulse import app, UI_DIR
+from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 
 import os
 
@@ -20,8 +20,8 @@ class SaveProjectDataSelector(QDialog):
         ui_path = UI_DIR / "project/save_project_data_selector.ui"
         uic.loadUi(ui_path, self)
 
-        self.main_window = app().main_window
-        self.main_window.set_input_widget(self)
+        main_window = app().main_window
+        main_window.set_input_widget(self)
 
         self._config_window()
         self._initialize()
@@ -61,7 +61,7 @@ class SaveProjectDataSelector(QDialog):
         self.pushButton_proceed.clicked.connect(self.proceed_callback)
 
     def get_required_memory(self):
-        path = app().main_window.temp_project_file_path
+        path = TEMP_PROJECT_FILE
         size_of_file = os.path.getsize(path) / 1e6
         self.lineEdit_required_memory.setText(str(round(size_of_file, 4)))
 

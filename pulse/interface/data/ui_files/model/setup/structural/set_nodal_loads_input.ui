@@ -156,7 +156,7 @@
               <number>8</number>
              </property>
              <item row="4" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_Mx">
+              <widget class="QLineEdit" name="lineEdit_imag_mx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -213,7 +213,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_Mx">
+              <widget class="QLineEdit" name="lineEdit_real_mx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -243,7 +243,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_Fx">
+              <widget class="QLineEdit" name="lineEdit_real_fx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -306,7 +306,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_Fz">
+              <widget class="QLineEdit" name="lineEdit_real_fz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -366,7 +366,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_Fz">
+              <widget class="QLineEdit" name="lineEdit_imag_fz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -436,7 +436,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </spacer>
              </item>
              <item row="6" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_Mz">
+              <widget class="QLineEdit" name="lineEdit_real_mz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -466,7 +466,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="6" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_Mz">
+              <widget class="QLineEdit" name="lineEdit_imag_mz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -496,7 +496,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_My">
+              <widget class="QLineEdit" name="lineEdit_real_my">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -596,7 +596,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </spacer>
              </item>
              <item row="2" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_Fy">
+              <widget class="QLineEdit" name="lineEdit_imag_fy">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -683,7 +683,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_Fx">
+              <widget class="QLineEdit" name="lineEdit_imag_fx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -743,7 +743,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_Fy">
+              <widget class="QLineEdit" name="lineEdit_real_fy">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -773,7 +773,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="5" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_My">
+              <widget class="QLineEdit" name="lineEdit_imag_my">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -1210,7 +1210,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_Fz">
+              <widget class="QLineEdit" name="lineEdit_path_table_fz">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1232,7 +1232,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="5" column="3">
-              <widget class="QPushButton" name="pushButton_load_Mz_table">
+              <widget class="QPushButton" name="pushButton_load_mz_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1268,7 +1268,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_Fx">
+              <widget class="QLineEdit" name="lineEdit_path_table_fx">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1290,7 +1290,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QPushButton" name="pushButton_load_Fx_table">
+              <widget class="QPushButton" name="pushButton_load_fx_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1356,7 +1356,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_Mz">
+              <widget class="QLineEdit" name="lineEdit_path_table_mz">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1378,7 +1378,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_Fy">
+              <widget class="QLineEdit" name="lineEdit_path_table_fy">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1400,7 +1400,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QPushButton" name="pushButton_load_Fz_table">
+              <widget class="QPushButton" name="pushButton_load_fz_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1436,7 +1436,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QPushButton" name="pushButton_load_Fy_table">
+              <widget class="QPushButton" name="pushButton_load_fy_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1532,7 +1532,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_Mx">
+              <widget class="QLineEdit" name="lineEdit_path_table_mx">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1554,7 +1554,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QPushButton" name="pushButton_load_Mx_table">
+              <widget class="QPushButton" name="pushButton_load_mx_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1590,7 +1590,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="4" column="3">
-              <widget class="QPushButton" name="pushButton_load_My_table">
+              <widget class="QPushButton" name="pushButton_load_my_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1656,7 +1656,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_My">
+              <widget class="QLineEdit" name="lineEdit_path_table_my">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1903,7 +1903,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_remove_bc_confirm">
+              <widget class="QPushButton" name="pushButton_remove">
                <property name="enabled">
                 <bool>true</bool>
                </property>

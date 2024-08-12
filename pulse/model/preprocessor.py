@@ -67,7 +67,7 @@ class Preprocessor:
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
         self.nodes_with_nodal_loads = list()
-        self.nodes_with_prescribed_dofs = list()
+
         self.nodes_with_constrained_dofs = list()
         self.nodes_with_masses = list()
         self.nodes_connected_to_springs = list()
@@ -777,7 +777,7 @@ class Preprocessor:
         if isinstance(node_ids, int):
             node_ids = [node_ids]
         
-        line_ids = []
+        line_ids = list()
         for node_id in node_ids:
 
             if node_id in self.dict_first_node_to_element_index.keys():
@@ -1496,7 +1496,7 @@ class Preprocessor:
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
     
-    def set_structural_load_bc_by_node(self, nodes_id, data):
+    def set_nodal_loads(self, nodes_id, data):
         """
         This method attributes structural force and moment loads to a list of nodes.
 
@@ -1650,7 +1650,7 @@ class Preprocessor:
                 if node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.remove(node)
 
-    def set_prescribed_dofs_bc_by_node(self, nodes, data):
+    def set_prescribed_dofs(self, nodes, data):
         """
         This method attributes structural displacement and rotation boundary condition to a list of nodes.
 
@@ -1675,8 +1675,7 @@ class Preprocessor:
                 node.there_are_prescribed_dofs = True
                 if not node in self.nodes_with_constrained_dofs:
                     self.nodes_with_constrained_dofs.append(node)
-                if not node in self.nodes_with_prescribed_dofs:
-                    self.nodes_with_prescribed_dofs.append(node)
+
                 continue
                 # return
             else:
@@ -1689,15 +1688,13 @@ class Preprocessor:
                     node.there_are_constrained_dofs = True
                     if not node in self.nodes_with_constrained_dofs:
                         self.nodes_with_constrained_dofs.append(node)
-                if not node in self.nodes_with_prescribed_dofs:
-                    self.nodes_with_prescribed_dofs.append(node)              
+          
             else:
                 node.there_are_prescribed_dofs = False
                 node.there_are_constrained_dofs = False
                 if node in self.nodes_with_constrained_dofs:
                     self.nodes_with_constrained_dofs.remove(node)
-                if node in self.nodes_with_prescribed_dofs:
-                    self.nodes_with_prescribed_dofs.remove(node) 
+
 
     def set_B2PX_rotation_decoupling(   
                                         self, 

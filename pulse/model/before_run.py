@@ -1,4 +1,4 @@
-# from pulse.model.before_run import BeforeRun
+# fmt: off
 from collections import defaultdict
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 import numpy as np
@@ -9,15 +9,16 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class BeforeRun:
-    def __init__(self, **kwargs):
+    def __init__(self):
 
-        self.main_window = app().main_window
         self.project = app().project
+        self.properties = app().project.model.properties
+        self.preprocessor = app().project.preprocessor
 
-        self.preprocessor = self.project.preprocessor
         self.nodes = self.preprocessor.nodes
-        self.structural_elements = self.preprocessor.structural_elements
         self.acoustic_elements = self.preprocessor.acoustic_elements
+
+        self.structural_elements = self.preprocessor.structural_elements
         self.lines_from_model = self.preprocessor.lines_from_model
 
     def check_modal_analysis_imported_data(self):
@@ -262,36 +263,41 @@ class BeforeRun:
             True if a coupled analysis will be performed. False otherwise.
             Default is False.
         """
+
         self.is_there_loads = False
         self.is_there_prescribed_dofs = False
         self.is_there_acoustic_pressure = False
         self.is_there_volume_velocity = False
-        for node in self.nodes.values():
             
-            if structural:               
-                if self.preprocessor.stress_stiffening_enabled:
+        if structural:               
+            if self.preprocessor.stress_stiffening_enabled:
+                self.is_there_loads = True
+                return
+
+            for (property, *args) in self.properties.nodal_properties.keys():
+                if property == "nodal_loads":
                     self.is_there_loads = True
                     return
 
-                if node.there_are_nodal_loads:
-                    self.is_there_loads = True
+            for (property, *args), data in self.properties.nodal_properties.values():
+                if "values" in data["values"]:
+                    values = data["values"]
+                    if True in [True if isinstance(value, np.ndarray) else False for value in values]:
+                        self.is_there_prescribed_dofs = True
+                        return
+
+                elif sum([complex(0) if value is None else value for value in values]) != complex(0):
+                    self.is_there_prescribed_dofs = True
                     return
 
-                if node.there_are_prescribed_dofs:
-                    if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs]:
-                        self.is_there_prescribed_dofs = True
-                        return
-
-                    elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs]) != complex(0):
-                        self.is_there_prescribed_dofs = True
-                        return
-
-            if acoustic or coupled:
-                if node.acoustic_pressure is not None:
+        if acoustic or coupled:
+            for (property, *args) in self.properties.nodal_properties.keys():
+                if property == "acoustic_pressure":
                     self.is_there_acoustic_pressure = True
                     return
 
-                if node.volume_velocity is not None:
+            for (property, *args) in self.properties.nodal_properties.keys():
+                if property == "acoustic_pressure":
                     self.is_there_volume_velocity = True
                     return    
 
@@ -360,7 +366,7 @@ class BeforeRun:
 
         for index, flag in enumerate(list_flags):
             if flag:
-                self.main_window.plot_mesh()
+                app().main_window.plot_mesh()
                 app().main_window.set_selection(elements = lists_elements[index])
                 PrintMessageInput([window_title, title, list_messages[index]])
 
@@ -732,3 +738,5 @@ class BeforeRun:
                 lines.append(line_2)
         
         return lines
+
+# fmt: on

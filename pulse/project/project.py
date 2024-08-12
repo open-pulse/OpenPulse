@@ -14,17 +14,13 @@ from pulse.editor.pulsation_suppression_device import PulsationSuppressionDevice
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
-# from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
-# from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
 from pulse.properties.model_properties import ModelProperties
 from pulse.model.model import Model
 #
 from opps.model import Pipeline
 #
-# import os
 import numpy as np
-# from shutil import rmtree
 from collections import defaultdict
 
 window_title = "Error"
@@ -36,7 +32,6 @@ class Project:
         self.pipeline = Pipeline()
         self.preprocessor = Preprocessor(self)        
         self.PSD = PulsationSuppressionDevice(self)
-        # self.properties = ModelProperties()
         self.model = Model()
 
         self.name = None
@@ -132,17 +127,19 @@ class Project:
 
         self.initial_load_project_actions()
         app().loader.load_project_data()
+        self.PSD.load_psd_data_from_file()
 
         self.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
         self.reset()
-        self.file.remove_all_unnecessary_files(**kwargs)
+        # self.file.remove_all_unnecessary_files(**kwargs)
         self.file.reset_project_setup(**kwargs)
         self.file.reset_entity_file(**kwargs)
         if app().pulse_file.check_pipeline_data():
             self.process_geometry_and_mesh()
-            self.load_project_files()
+            # self.load_project_files()
+            app().loader.load_project_data()
 
     def process_geometry_and_mesh(self):
         # t0 = time()
@@ -151,15 +148,6 @@ class Project:
         self.file.update_node_ids_after_mesh_changed()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
-
-    def load_project_files(self):
-        load_project = LoadProject()
-        load_project.load_pipeline_file()
-        load_project.load_imported_table_data_from_file()
-        load_project.load_analysis_file()
-        load_project.load_model_properties_file()
-        load_project.load_inertia_load_setup()
-        self.PSD.load_psd_data_from_file()
 
     def add_frequency_in_file(self, f_min, f_max, f_step):
 
@@ -197,118 +185,6 @@ class Project:
         self.file.modify_element_ids_in_element_info_file(  dict_group_elements_to_update,
                                                             dict_non_mapped_subgroups,
                                                             dict_list_elements_to_subgroups  )
-
-    # def create_folders_structural(self, new_folder_name):
-    #     """This method creates the 'imported_data', 'structural' and 'new_folder_name' folders 
-    #         in the project's directory if they do not exist yet.
-    #     """
-    #     if not os.path.exists(self.file._imported_data_folder_path):
-    #         create_new_folder(self.file._project_path, "imported_data")
-    #     if not os.path.exists(self.file._structural_imported_data_folder_path):
-    #         create_new_folder(self.file._imported_data_folder_path, "structural")   
-    #     new_path = get_new_path(self.file._structural_imported_data_folder_path, new_folder_name)
-    #     if not os.path.exists(new_path):
-    #         create_new_folder(self.file._structural_imported_data_folder_path, new_folder_name)
-
-    # def create_folders_acoustic(self, new_folder_name):
-    #     """ This method creates the 'imported_data', 'acoustic' and 'new_folder_name' folders 
-    #         in the project's directory if they do not exist yet.
-    #     """
-    #     if not os.path.exists(self.file._imported_data_folder_path):
-    #         create_new_folder(self.file._project_path, "imported_data")
-    #     if not os.path.exists(self.file._acoustic_imported_data_folder_path):
-    #         create_new_folder(self.file._imported_data_folder_path, "acoustic")   
-    #     new_path = get_new_path(self.file._acoustic_imported_data_folder_path, new_folder_name)
-    #     if not os.path.exists(new_path):
-    #         create_new_folder(self.file._acoustic_imported_data_folder_path, new_folder_name)
-                    
-    # def remove_file_or_folder_from_project_directory(self, filename, folder_name=""):
-    #     if folder_name != "":
-    #         path = get_new_path(self.file._imported_data_folder_path, folder_name)
-    #     else:
-    #         path = self.file._imported_data_folder_path
-    #     list_filenames = os.listdir(path).copy()
-    #     if filename in list_filenames:
-    #         file_path = get_new_path(path, filename)
-    #         if os.path.exists(file_path):
-    #             if "." in filename:
-    #                 os.remove(file_path)
-    #             else:
-    #                 rmtree(file_path)
-
-    # def remove_structural_table_files_from_folder(self, filename, folder_name, remove_empty_files=True):
-    #     _folder_path = get_new_path(self.file._structural_imported_data_folder_path, folder_name)
-    #     if os.path.exists(_folder_path):
-    #         list_filenames = os.listdir(_folder_path).copy()
-    #         if filename in list_filenames:
-    #             file_path = get_new_path(_folder_path, filename)
-    #             if os.path.exists(file_path):
-    #                 os.remove(file_path)
-
-    #     if remove_empty_files:
-    #         if os.path.exists(_folder_path):
-    #             list_filenames = os.listdir(_folder_path).copy()
-    #             if len(list_filenames) == 0:
-    #                 rmtree(_folder_path)
-    #             structural_folders = os.listdir(self.file._structural_imported_data_folder_path).copy()
-    #             if len(structural_folders) == 0:
-    #                 rmtree(self.file._structural_imported_data_folder_path)
-    #             base_folders = os.listdir(self.file._imported_data_folder_path).copy()
-    #             if len(base_folders) == 0:
-    #                 rmtree(self.file._imported_data_folder_path)
-
-    # def remove_acoustic_table_files_from_folder(self, filename, folder_name, remove_empty_files=True):
-    #     _folder_path = get_new_path(self.file._acoustic_imported_data_folder_path, folder_name)
-    #     if os.path.exists(_folder_path):
-    #         list_filenames = os.listdir(_folder_path).copy()
-    #         if filename in list_filenames:
-    #             file_path = get_new_path(_folder_path, filename)
-    #             if os.path.exists(file_path):
-    #                 os.remove(file_path)
-
-    #     if remove_empty_files:
-    #         if os.path.exists(_folder_path):
-    #             list_filenames = os.listdir(_folder_path).copy()
-    #             if len(list_filenames) == 0:
-    #                 rmtree(_folder_path)
-    #             acoustic_folders = os.listdir(self.file._acoustic_imported_data_folder_path).copy()
-    #             if len(acoustic_folders) == 0:
-    #                 rmtree(self.file._acoustic_imported_data_folder_path)
-    #             base_folders = os.listdir(self.file._imported_data_folder_path).copy()
-    #             if len(base_folders) == 0:
-    #                 rmtree(self.file._imported_data_folder_path)
-
-    # def remove_structural_empty_folders(self, folder_name=""):
-    #     if folder_name != "":
-    #         folder_path = get_new_path(self.file._structural_imported_data_folder_path, folder_name)
-    #     else:
-    #         folder_path = self.file._structural_imported_data_folder_path
-    #     if os.path.exists(folder_path):
-    #         list_filenames = os.listdir(folder_path).copy()
-    #         if len(list_filenames) == 0:
-    #             rmtree(folder_path)
-    #         structural_folders = os.listdir(self.file._structural_imported_data_folder_path).copy()
-    #         if len(structural_folders) == 0:
-    #             rmtree(self.file._structural_imported_data_folder_path)
-    #         base_folders = os.listdir(self.file._imported_data_folder_path).copy()
-    #         if len(base_folders) == 0:
-    #             rmtree(self.file._imported_data_folder_path)
-
-    # def remove_acoustic_empty_folders(self, folder_name=""):
-    #     if folder_name != "":
-    #         folder_path = get_new_path(self.file._acoustic_imported_data_folder_path, folder_name)
-    #     else:
-    #         folder_path = self.file._acoustic_imported_data_folder_path
-    #     if os.path.exists(folder_path):
-    #         list_filenames = os.listdir(folder_path).copy()
-    #         if len(list_filenames) == 0:
-    #             rmtree(folder_path)
-    #         acoustic_folders = os.listdir(self.file._acoustic_imported_data_folder_path).copy()
-    #         if len(acoustic_folders) == 0:
-    #             rmtree(self.file._acoustic_imported_data_folder_path)
-    #         base_folders = os.listdir(self.file._imported_data_folder_path).copy()
-    #         if len(base_folders) == 0:
-    #             rmtree(self.file._imported_data_folder_path)
 
     def process_cross_sections_mapping(self):  
 
@@ -453,197 +329,6 @@ class Project:
                     single_cross = True 
 
         return dict_multiple_cross_sections, single_cross   
-
-    # def load_structural_bc_file(self):
-
-    #     title = "ERROR WHILE LOADING STRUCTURAL DATA"
-    #     bc_data = self.file.get_structural_bc_data_from_dat_file()
-
-    #     for key, values_pd in bc_data["prescribed_dofs"].items():
-    #         frequency_setup_pass = True
-    #         [prescribed_dofs, dofs_tables, dofs_list_freq] = values_pd
-    #         if isinstance(prescribed_dofs, list):
-    #             try:
-    #                 for i, dofs_freq in enumerate(dofs_list_freq):
-    #                     if dofs_freq is not None:
-    #                         if self.change_project_frequency_setup(dofs_tables[i], dofs_freq):
-    #                             frequency_setup_pass = False
-    #                             break
-    #                 if frequency_setup_pass:
-    #                     self.load_prescribed_dofs_bc_by_node(key, [prescribed_dofs, dofs_tables])
-    #             except Exception as log_error:
-    #                 message = "An error has occurred while loading prescribed dofs data. \n\n"
-    #                 message += str(log_error)
-    #                 PrintMessageInput([window_title, title, message])
-
-    #     for key, values_nl in bc_data["nodal_loads"].items():
-    #         frequency_setup_pass = True
-    #         [nodal_loads, nodal_loads_tables, nodal_loads_list_freq] = values_nl
-    #         if isinstance(nodal_loads, list):
-    #             try:
-    #                 for i, nodal_loads_freq in enumerate(nodal_loads_list_freq):
-    #                     if nodal_loads_freq is not None:
-    #                         if self.change_project_frequency_setup(nodal_loads_tables[i], nodal_loads_freq):
-    #                             frequency_setup_pass = False
-    #                             break
-    #                 if frequency_setup_pass:
-    #                     self.load_structural_loads_by_node(key, [nodal_loads, nodal_loads_tables])
-    #             except Exception as log_error:
-    #                 message = "An error has occurred while loading nodal loads data. \n\n"
-    #                 message += str(log_error)
-    #                 PrintMessageInput([window_title, title, message])
-
-    #     for key, values_li in bc_data["lumped_inertia"].items():
-    #         frequency_setup_pass = True
-    #         [lumped_inertia, lumped_inertia_tables, lumped_inertia_list_freq] = values_li
-    #         if isinstance(lumped_inertia, list):
-    #             try:
-    #                 for i, lumped_inertia_freq in enumerate(lumped_inertia_list_freq):
-    #                     if lumped_inertia_freq is not None:
-    #                         if self.change_project_frequency_setup(lumped_inertia_tables[i], lumped_inertia_freq):
-    #                             frequency_setup_pass = False
-    #                             break
-    #                 if frequency_setup_pass:
-    #                     self.load_mass_by_node(key, [lumped_inertia, lumped_inertia_tables])
-    #             except Exception as log_error:
-    #                 message = "An error has occurred while loading lumped masses/moments of inertia data.\n\n"
-    #                 message += str(log_error)
-    #                 PrintMessageInput([window_title, title, message])
-                
-    #     for key, values_ls in bc_data["lumped_stiffness"].items():
-    #         frequency_setup_pass = True
-    #         [lumped_stiffness, lumped_stiffness_tables, lumped_stiffness_list_freq] = values_ls
-    #         if isinstance(lumped_stiffness, list):
-    #             try:
-    #                 for i, lumped_stiffness_freq in enumerate(lumped_stiffness_list_freq):
-    #                     if lumped_stiffness_freq is not None:
-    #                         if self.change_project_frequency_setup(lumped_stiffness_tables[i], lumped_stiffness_freq):
-    #                             frequency_setup_pass = False
-    #                             break
-    #                 if frequency_setup_pass:
-    #                     self.load_spring_by_node(key, [lumped_stiffness, lumped_stiffness_tables])
-    #             except Exception as log_error:
-    #                 message = "An error has occurred while loading lumped stiffness data.\n\n"
-    #                 message += str(log_error)
-    #                 PrintMessageInput([window_title, title, message])  
-
-    #     for key, values_ld in bc_data["lumped_damping"].items():
-    #         frequency_setup_pass = True
-    #         [lumped_dampings, lumped_damping_tables, lumped_damping_list_freq] = values_ld
-    #         if isinstance(lumped_dampings, list):
-    #             try:
-    #                 for i, lumped_damping_freq in enumerate(lumped_damping_list_freq):
-    #                     if lumped_damping_freq is not None:
-    #                         if self.change_project_frequency_setup(lumped_damping_tables[i], lumped_damping_freq):
-    #                             frequency_setup_pass = False
-    #                             break
-    #                 if frequency_setup_pass:
-    #                     self.load_damper_by_node(key, [lumped_dampings, lumped_damping_tables])
-    #             except Exception as log_error:
-    #                 message = "An error has occurred while loading lumped damping data.\n\n"
-    #                 message += str(log_error)
-    #                 PrintMessageInput([window_title, title, message]) 
-
-    #     for key, values_els in bc_data["elastic_link_stiffness"].items():
-    #         frequency_setup_pass = True
-    #         [stiffness_data, elastic_link_stiffness_tables, connecting_stiffness_list_freq] = values_els
-    #         if isinstance(stiffness_data, list):
-    #             print(key)
-    #             nodes = [int(node) for node in key.split("-")]
-    #             try:
-    #                 for i, connecting_stiffness_freq in enumerate(connecting_stiffness_list_freq):
-    #                     if connecting_stiffness_freq is not None:
-    #                         if self.change_project_frequency_setup(elastic_link_stiffness_tables[i], connecting_stiffness_freq):
-    #                             frequency_setup_pass = False
-    #                             break
-    #                 if frequency_setup_pass:
-    #                     self.load_elastic_nodal_link_stiffness(nodes, [stiffness_data, elastic_link_stiffness_tables])
-    #             except Exception as log_error:
-    #                 message = "An error has occurred while loading elastic nodal link stiffness data.\n\n"
-    #                 message += str(log_error)
-    #                 PrintMessageInput([window_title, title, message]) 
-
-    #     for key, values_eld in bc_data["elastic_link_damping"].items():
-    #         frequency_setup_pass = True
-    #         [damping_data, elastic_link_damping_tables, connecting_damping_list_freq] = values_eld
-    #         if isinstance(damping_data, list):
-    #             nodes = [int(node) for node in key.split("-")]
-    #             try:
-    #                 for i, connecting_damping_freq in enumerate(connecting_damping_list_freq):
-    #                     if connecting_damping_freq is not None:
-    #                         if self.change_project_frequency_setup(elastic_link_damping_tables[i], connecting_damping_freq):
-    #                             frequency_setup_pass = False
-    #                             break
-    #                 if frequency_setup_pass:
-    #                     self.load_elastic_nodal_link_damping(nodes, [damping_data, elastic_link_damping_tables])
-    #             except Exception as log_error:
-    #                 message = "An error has occurred while loading elastic nodal link damping data.\n\n" 
-    #                 message += str(log_error)
-    #                 PrintMessageInput([window_title, title, message]) 
-
-    # def load_acoustic_bc_file(self):
-
-    #     # bc_data = self.file.get_acoustic_bc_data_from_file()
-    #     bc_data = self.file.get_acoustic_bc_data_from_dat_file()
-
-    #     for key, [ActPres, ActPres_table_name, ActPres_freq] in bc_data["acoustic_pressure"].items():
-    #         if ActPres_table_name is not None:
-    #             if self.change_project_frequency_setup(ActPres_table_name, ActPres_freq):
-    #                 continue
-    #         if ActPres is not None:
-    #             self.load_acoustic_pressure_bc_by_node(key, [ActPres, ActPres_table_name])
-
-    #     for key, [VelVol, VelVol_table_name, VelVol_freq] in bc_data["volume_velocity"].items():
-    #         if VelVol_table_name is not None:
-    #             if self.change_project_frequency_setup(VelVol_table_name, VelVol_freq):
-    #                 continue  
-    #         if VelVol is not None:
-    #             self.load_volume_velocity_bc_by_node(key, [VelVol, VelVol_table_name])
-  
-    #     for key, data in bc_data["compressor_excitation"].items():
-    #         for [CompExcit, CompExcit_table_name, connection_info, CompExcit_freq] in data:
-    #             if CompExcit_table_name is not None:
-    #                 if self.change_project_frequency_setup(CompExcit_table_name, CompExcit_freq):
-    #                     continue 
-    #             if CompExcit is not None:
-    #                 self.load_compressor_excitation_bc_by_node(key, [CompExcit, CompExcit_table_name], connection_info)  
-
-    #     for key, [SpecImp, SpecImp_table_name, SpecImp_freq] in bc_data["specific_impedance"].items():
-    #         if SpecImp_table_name is not None:
-    #             if self.change_project_frequency_setup(SpecImp_table_name, SpecImp_freq):
-    #                 continue 
-    #         if SpecImp is not None:
-    #             self.load_specific_impedance_bc_by_node(key, [SpecImp, SpecImp_table_name])
-
-    #     for key, RadImp in bc_data["radiation_impedance"].items():
-    #         if RadImp is not None:
-    #             self.load_radiation_impedance_bc_by_node(key, RadImp)
-
-    # def load_analysis_file(self):
-    #     self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
-
-    # def load_mesh_setup_from_file(self):
-    #     project_setup = app().pulse_file.read_project_setup_from_file()
-    #     if project_setup is None:
-    #         return
-    #     if "mesher setup" in project_setup.keys():
-    #         self.preprocessor.set_mesher_setup(project_setup["mesher setup"])
-
-    # def load_inertia_load_setup(self):
-
-    #     inertia_load = app().pulse_file.read_inertia_load_from_file()
-    #     if inertia_load is None:
-    #         return
-
-    #     gravity = np.array(inertia_load["gravity"], dtype=float)
-    #     stiffening_effect = inertia_load["stiffening effect"]
-    #     gravity, stiffening_effect = self.file.load_inertia_load_setup()
-    #     self.preprocessor.set_inertia_load(gravity)
-    #     self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
-
-    def load_frequencies_from_table(self):
-        self.f_min, self.f_max, self.f_step = self.file.f_min, self.file.f_max, self.file.f_step
-        self.frequencies = self.file.frequencies 
 
     def change_project_frequency_setup(self, table_name, frequencies):
 
@@ -842,13 +527,9 @@ class Project:
         self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
         self.file.modify_beam_xaxis_rotation_by_lines_in_file(line_id, angle)
 
-    def set_prescribed_dofs_bc_by_node(self, node_id, data, imported_table):
+    def set_prescribed_dofs(self, node_id, data, imported_table):
         [values, table_names] = data
-        self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
-        labels = ["displacements", "rotations"]
-        if imported_table:
-            values = table_names
-        # self.file.add_structural_bc_in_file(node_id, values, labels)
+        self.preprocessor.set_prescribed_dofs(node_id, data)
 
     def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove = False):
 
@@ -895,61 +576,27 @@ class Project:
         self.preprocessor.dict_elements_with_B2PX_rotation_decoupling = dict()
         self.file.modify_B2PX_rotation_decoupling_in_file(reset = True)
 
-    def set_nodal_loads_by_node(self, node_id, data, imported_table):
-        [values, table_names] = data
-        self.preprocessor.set_structural_load_bc_by_node(node_id, data)
-        labels = ["forces", "moments"]
-        if imported_table:
-            values = table_names
-        self.file.add_structural_bc_in_file(node_id, values, labels)
+    # def set_nodal_loads_by_node(self, node_id, data, imported_table):
+    #     [values, table_names] = data
+    #     self.preprocessor.set_structural_loads(node_id, data)
 
     def add_lumped_masses_by_node(self, node_id, data, imported_table):
         [values, table_names] = data
         self.preprocessor.add_mass_to_node(node_id, data)
-        labels = ["masses", "moments of inertia"]
-        if imported_table:
-            values = table_names
-        self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def add_lumped_stiffness_by_node(self, node_id, data, imported_table):
         [values, table_names] = data
         self.preprocessor.add_spring_to_node(node_id, data)
-        labels = ["spring stiffness", "torsional spring stiffness"]
-        if imported_table:
-            values = table_names
-        self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def add_lumped_dampings_by_node(self, node_id, data, imported_table):
         [values, table_names] = data
         self.preprocessor.add_damper_to_node(node_id, data)
-        labels = ["damping coefficients", "torsional damping coefficients"]
-        if imported_table:
-            values = table_names        
-        self.file.add_structural_bc_in_file(node_id, values, labels)
 
-    def add_elastic_nodal_link_stiffness(self, nodeID_1, nodeID_2, parameters, imported_table):
-        min_node_ID = min(nodeID_1, nodeID_2)
-        max_node_ID = max(nodeID_1, nodeID_2)
-        self.preprocessor.add_elastic_nodal_link(min_node_ID, max_node_ID, parameters, _stiffness=True)
-        labels = ["connecting stiffness", "connecting torsional stiffness"]
-        section_string = ["{}-{}".format(min_node_ID, max_node_ID)]
-        if imported_table:
-            values = parameters[1]
-        else:
-            values = parameters[0]
-        self.file.add_structural_bc_in_file(section_string, values, labels)
+    def add_elastic_nodal_link_stiffness(self, first_node, last_node, parameters):
+        self.preprocessor.add_elastic_nodal_link(first_node, last_node, parameters, _stiffness=True)
 
-    def add_elastic_nodal_link_damping(self, nodeID_1, nodeID_2, parameters, imported_table):
-        min_node_ID = min(nodeID_1, nodeID_2)
-        max_node_ID = max(nodeID_1, nodeID_2)
-        self.preprocessor.add_elastic_nodal_link(min_node_ID, max_node_ID, parameters, _damping=True)
-        labels = ["connecting damping", "connecting torsional damping"]
-        section_string = ["{}-{}".format(min_node_ID, max_node_ID)]
-        if imported_table:
-            values = parameters[1]
-        else:
-            values = parameters[0]
-        self.file.add_structural_bc_in_file(section_string, values, labels)
+    def add_elastic_nodal_link_damping(self, first_node, last_node, parameters):
+        self.preprocessor.add_elastic_nodal_link(first_node, last_node, parameters, _damping=True)
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:
@@ -1269,7 +916,7 @@ class Project:
                                                           vol_flow = vol_flow)
 
     def load_structural_loads_by_node(self, node_id, data):
-        self.preprocessor.set_structural_load_bc_by_node(node_id, data)
+        self.preprocessor.set_structural_loads(node_id, data)
 
     def load_mass_by_node(self, node_id, data):
         self.preprocessor.add_mass_to_node(node_id, data)
@@ -1323,8 +970,8 @@ class Project:
          self.external_nodal_loads,
          self.element_distributed_load] = analysis_setup
 
-    def load_prescribed_dofs_bc_by_node(self, node_id, data):
-        self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
+    def load_prescribed_dofs(self, node_id, data):
+        self.preprocessor.set_prescribed_dofs(node_id, data)
 
     def _set_material_to_selected_lines(self, lines, material):
         if isinstance(lines, int):
@@ -1347,22 +994,23 @@ class Project:
             else:
                 entity.fluid = fluid    
 
-    def _set_compressor_info_to_selected_lines(self, lines, compressor_info={}):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+    def _set_compressor_info_to_selected_lines(self, line_ids: int | list | tuple, compressor_info=dict()):
+
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for line_id in line_ids:
+            line = self.preprocessor.lines_from_model[line_id]
             if compressor_info:
-                if entity.structural_element_type in ['beam_1']:
-                    entity.compressor_info =  {}
+                if line.structural_element_type in ['beam_1']:
+                    line.compressor_info =  dict()
                 else:  
-                    entity.compressor_info = compressor_info 
+                    line.compressor_info = compressor_info 
             else:
-                if entity.compressor_info:
-                    node_id = entity.compressor_info['node_id']
-                    self.remove_compressor_excitation_table_files([node_id])
+                if line.compressor_info:
+                    node_id = line.compressor_info['node_id']
                     self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
-                    entity.compressor_info = dict()
+                    line.compressor_info = dict()
 
     def _set_fluid_to_all_lines(self, fluid):
         for entity in self.preprocessor.lines_from_model.values():
@@ -1451,13 +1099,9 @@ class Project:
         self._set_fluid_to_selected_lines(lines, fluid)
         # self.file.add_fluid_in_file(lines, fluid)
 
-    def set_compressor_info_by_lines(self, lines, compressor_info={}):
-        self.file.modify_compressor_info_in_file(lines, compressor_info=compressor_info)
+    def set_compressor_info_by_lines(self, lines, compressor_info=dict()):
+        # self.file.modify_compressor_info_in_file(lines, compressor_info=compressor_info)
         self._set_compressor_info_to_selected_lines(lines, compressor_info=compressor_info)
-
-    def reset_compressor_info_by_node(self, node_id):
-        line_id = self.preprocessor.get_line_from_node_id(node_id)
-        self.set_compressor_info_by_lines(line_id, compressor_info={})
 
     def set_fluid_to_all_lines(self, fluid):
         self.preprocessor.set_fluid_by_element('all', fluid)
@@ -1487,83 +1131,12 @@ class Project:
         label = ["radiation impedance"] 
         if self.preprocessor.set_radiation_impedance_bc_by_node(node_ids, data):
             return
-        self.file.add_acoustic_bc_in_file(node_ids, [data, None], label)
-    
-    def set_compressor_excitation_bc_by_node(self, node_ids, data, table_index, connection_info):
-        label = [f"compressor excitation - {table_index}"]
+
+    def set_compressor_excitation_bc_by_node(self, node_ids, data, connection_info):
         for node_id in node_ids:
             if self.preprocessor.set_compressor_excitation_bc_by_node([node_id], data, connection_info):
                 return True
-            self.file.add_acoustic_bc_in_file([node_id], data, label)
         return False
-
-    # def remove_acoustic_pressure_table_files(self, node_ids):
-    #     str_key = "acoustic pressure"
-    #     folder_table_name = "acoustic_pressure_files"
-    #     if isinstance(node_ids, int):
-    #         node_ids = [node_ids]
-    #     for node_id in node_ids:
-    #         node = self.preprocessor.nodes[node_id]
-    #         if node.acoustic_pressure_table_name is not None:
-    #             table_name = node.acoustic_pressure_table_name
-    #             if self.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
-    #                                                                             str_key,
-    #                                                                             table_name, 
-    #                                                                             folder_table_name   ):
-    #                 self.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")
-    #         # remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None, equals_keys=True)
-    #     self.file.filter_bc_data_from_dat_file(node_ids, [str_key], self.file._node_acoustic_path)
-
-    # def remove_volume_velocity_table_files(self, node_ids):
-    #     str_key = "volume velocity"
-    #     folder_table_name = "volume_velocity_files"
-    #     if isinstance(node_ids, int):
-    #         node_ids = [node_ids]
-    #     for node_id in node_ids:
-    #         node = self.preprocessor.nodes[node_id]
-    #         if node.volume_velocity_table_name is not None:
-    #             table_name = node.volume_velocity_table_name        
-    #             if self.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
-    #                                                                             str_key,
-    #                                                                             table_name, 
-    #                                                                             folder_table_name   ):
-    #                 self.remove_acoustic_table_files_from_folder(table_name, "volume_velocity_files")    
-    #         # remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None, equals_keys=True)
-    #     self.file.filter_bc_data_from_dat_file(node_ids, [str_key], self.file._node_acoustic_path)             
-
-    # def remove_compressor_excitation_table_files(self, node_ids):
-    #     str_key = "compressor excitation -"
-    #     folder_table_name = "compressor_excitation_files"
-    #     if isinstance(node_ids, int):
-    #         node_ids = [node_ids]
-    #     for node_id in node_ids:
-    #         node = self.preprocessor.nodes[node_id]
-    #         for table_name in node.compressor_excitation_table_names:
-    #             if table_name is not None:
-    #                 if self.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
-    #                                                                                 str_key,
-    #                                                                                 table_name, 
-    #                                                                                 folder_table_name   ):
-    #                     self.remove_acoustic_table_files_from_folder(table_name, "compressor_excitation_files")
-    #         # remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None)
-    #     self.file.filter_bc_data_from_dat_file(node_ids, [str_key], self.file._node_acoustic_path)
-
-    # def remove_specific_impedance_table_files(self, node_ids):
-    #     str_key = "specific impedance"
-    #     folder_table_name = "specific_impedance_files"
-    #     if isinstance(node_ids, int):
-    #         node_ids = [node_ids]
-    #     for node_id in node_ids:
-    #         node = self.preprocessor.nodes[node_id]
-    #         if node.specific_impedance_table_name is not None:
-    #             table_name = node.acoustic_pressure_table_name
-    #             if self.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
-    #                                                                             str_key,
-    #                                                                             table_name, 
-    #                                                                             folder_table_name   ):
-    #                 self.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")  
-    #         # remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None, equals_keys=True)
-    #     self.file.filter_bc_data_from_dat_file(node_ids, [str_key], self.file._node_acoustic_path)
 
     def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
         # label = ["acoustic element length correction"] 

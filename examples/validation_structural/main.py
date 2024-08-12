@@ -27,12 +27,12 @@ preprocessor = Preprocessor()
 load_file = 1
 if load_file==1:
     preprocessor.generate('examples/iges_files/tube_1.iges', 0.01)
-    preprocessor.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6, dtype=complex))
-    preprocessor.set_structural_load_bc_by_node([359], np.array([1,0,0,0,0,0], dtype=complex))
+    preprocessor.set_prescribed_dofs([40, 1424, 1324], np.zeros(6, dtype=complex))
+    preprocessor.set_structural_loads([359], np.array([1,0,0,0,0,0], dtype=complex))
 if load_file==2:
     preprocessor.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
-    preprocessor.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6, dtype=complex))
-    preprocessor.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0], dtype=complex))
+    preprocessor.set_prescribed_dofs([1, 1200, 1325], np.zeros(6, dtype=complex))
+    preprocessor.set_structural_loads([361], np.array([1,0,0,0,0,0], dtype=complex))
 
 mat_out = preprocessor.set_B2PX_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
 

@@ -37,13 +37,13 @@ preprocessor = Preprocessor()
 preprocessor.generate('examples/iges_files/tube_2.iges', 0.01)
 # preprocessor.set_acoustic_pressure_bc_by_node([50], 1e5 + 0j)
 # preprocessor.set_specific_impedance_bc_by_node(1086, speed_of_sound * density+ 0j)
-preprocessor.set_prescribed_dofs_bc_by_node([1136, 1236], np.zeros(6)+ 0j)
+preprocessor.set_prescribed_dofs([1136, 1236], np.zeros(6)+ 0j)
 
 preprocessor.set_element_type_by_element('all', element_type)
 preprocessor.set_fluid_by_element('all', air)
 preprocessor.set_material_by_element('all', steel)
 preprocessor.set_cross_section_by_element('all', cross_section)
-preprocessor.set_structural_load_bc_by_node([50], np.array([1,1,1,0,0,0])+ 0j)
+preprocessor.set_structural_loads([50], np.array([1,1,1,0,0,0])+ 0j)
 
 f_max = 200
 df = 2

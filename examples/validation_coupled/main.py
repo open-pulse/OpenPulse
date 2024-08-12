@@ -156,7 +156,7 @@ column = 3
 
 #%%
 ## Structural Coupled ##
-preprocessor.set_prescribed_DOFs_BC_by_node([1136, 1236, 1086], np.zeros(6))
+preprocessor.set_prescribed_dofs([1136, 1236, 1086], np.zeros(6))
 
 preprocessor.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
 preprocessor.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
