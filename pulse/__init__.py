@@ -3,12 +3,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.interface.application import Application
 
-import pkg_resources
-
-# copying the version from pyproject.toml
-__version__ = pkg_resources.get_distribution('pulse').version
-__release_date__ = 'Apr 30th 2024'
-
 from PyQt5.QtWidgets import QApplication
 from pathlib import Path
 
@@ -20,3 +14,11 @@ SYMBOLS_DIR = OPEN_PULSE_DIR / "interface/data/symbols/"
 
 def app() -> "Application":
     return QApplication.instance()
+
+def version():
+    # copying the version from pyproject.toml
+    import pkg_resources
+    return pkg_resources.get_distribution('pulse').version
+
+def release_date():
+    return 'Apr 30th 2024'

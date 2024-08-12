@@ -11,7 +11,6 @@ from pulse.preprocessing.cross_section import CrossSection
 from pulse.tools.utils import *
 
 import configparser
-import matplotlib.pyplot as plt
 
 window_title = "Error"
 
@@ -670,6 +669,7 @@ class SetCrossSectionInput(QDialog):
             self.update_variable_section_element_ids()
 
     def actions_to_finalize(self):
+        import matplotlib.pyplot as plt
 
         plt.close()
         self.complete = True

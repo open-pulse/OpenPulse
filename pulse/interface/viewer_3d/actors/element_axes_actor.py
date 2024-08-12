@@ -1,7 +1,9 @@
-import vtk
+from vtkmodules.vtkCommonTransforms import vtkTransform
+from vtkmodules.vtkRenderingAnnotation import vtkAxesActor
+from vtkmodules.vtkRenderingCore import vtkActor, vtkPropCollection
 
 
-class ElementAxesActor(vtk.vtkAxesActor):
+class ElementAxesActor(vtkAxesActor):
     def __init__(self) -> None:
         super().__init__()
         self.build()
@@ -10,13 +12,13 @@ class ElementAxesActor(vtk.vtkAxesActor):
         self.AxisLabelsOff()
         self.SetShaftTypeToCylinder()
         self._make_ghost()
-    
+
     def position_from_element(self, element):
         xyz = element.element_center_coordinates
         rx, ry, rz = element.section_rotation_xyz_undeformed
         size = [element.length] * 3
 
-        transform = vtk.vtkTransform()
+        transform = vtkTransform()
         transform.Translate(xyz)
         transform.RotateZ(rz)
         transform.RotateX(rx)
@@ -29,10 +31,10 @@ class ElementAxesActor(vtk.vtkAxesActor):
     def _make_ghost(self):
         offset = -66000
 
-        actor: vtk.vtkActor
-        actors = vtk.vtkPropCollection()
+        actor: vtkActor
+        actors = vtkPropCollection()
         self.GetActors(actors)
-    
+
         for actor in actors:
             # actor.GetProperty().LightingOff()
             mapper = actor.GetMapper()

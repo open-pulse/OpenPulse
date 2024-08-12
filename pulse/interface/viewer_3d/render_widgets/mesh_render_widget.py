@@ -1,16 +1,18 @@
-from pathlib import Path
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.render_widgets import CommonRenderWidget
+from molde.colors import Color
 
-import vtk
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
-from molde.interactor_styles import BoxSelectionInteractorStyle
-from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
-from molde.render_widgets import CommonRenderWidget
 
-from ._mesh_picker import MeshPicker
-from ._model_info_text import nodes_info_text, elements_info_text, entity_info_text
-
-from pulse.interface.viewer_3d.actors import ElementLinesActor, NodesActor, PointsActor, TubeActorGPU, ElementAxesActor
+from pulse import ICON_DIR, app
+from pulse.interface.viewer_3d.actors import (
+    ElementAxesActor,
+    ElementLinesActor,
+    NodesActor,
+    PointsActor,
+    TubeActorGPU,
+)
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
     AcousticNodesSymbolsActor,
@@ -19,21 +21,14 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
     StructuralElementsSymbolsActor,
     StructuralNodesSymbolsActor,
 )
-from pulse import app, ICON_DIR
+
+from ._mesh_picker import MeshPicker
+from ._model_info_text import elements_info_text, entity_info_text, nodes_info_text
 
 
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self.mouse_click = (0, 0)
-        self.left_clicked.connect(self.click_callback)
-        self.left_released.connect(self.selection_callback)
-
-        app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(self.visualization_changed_callback)
-        app().main_window.selection_changed.connect(self.update_selection)
-        
         self.interactor_style = BoxSelectionInteractorStyle()
         self.render_interactor.SetInteractorStyle(self.interactor_style)
         self.mesh_picker = MeshPicker(self)
@@ -51,12 +46,24 @@ class MeshRenderWidget(CommonRenderWidget):
         self.selected_nodes = set()
         self.selected_lines = set()
         self.selected_elements = set()
+        self.mouse_click = (0, 0)
 
         self.create_axes()
         self.create_scale_bar()
         self.create_logos()
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
+        self._create_connections()
+
+    def _create_connections(self):
+        self.left_clicked.connect(self.click_callback)
+        self.left_released.connect(self.selection_callback)
+
+        app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.visualization_changed.connect(
+            self.visualization_changed_callback
+        )
+        app().main_window.selection_changed.connect(self.update_selection)
 
     def update_plot(self, reset_camera=False):
         self.remove_actors()
@@ -81,9 +88,13 @@ class MeshRenderWidget(CommonRenderWidget):
         self._structural_nodes_symbols.build()
         self._structural_elements_symbols.build()
         self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
-        self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
+        self.acoustic_elements_symbols_actor = (
+            self._acoustic_elements_symbols.getActor()
+        )
         self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
-        self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
+        self.structural_elements_symbols_actor = (
+            self._structural_elements_symbols.getActor()
+        )
 
         self.add_actors(
             self.lines_actor,
@@ -134,9 +145,15 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
         self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
-        self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)
-        self.structural_nodes_symbols_actor.SetVisibility(visualization.structural_symbols)
-        self.structural_elements_symbols_actor.SetVisibility(visualization.structural_symbols)
+        self.acoustic_elements_symbols_actor.SetVisibility(
+            visualization.acoustic_symbols
+        )
+        self.structural_nodes_symbols_actor.SetVisibility(
+            visualization.structural_symbols
+        )
+        self.structural_elements_symbols_actor.SetVisibility(
+            visualization.structural_symbols
+        )
 
         # To update default, material or fluid visualization
         self.tubes_actor.clear_colors()
@@ -157,10 +174,18 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def set_theme(self, theme):
         super().set_theme(theme)
+        self.create_logos(theme)
 
     def create_logos(self, theme="light"):
-        self.renderer.RemoveViewProp(self.open_pulse_logo)
-        self.open_pulse_logo = self.create_logo(ICON_DIR/ 'logos/OpenPulse_logo_gray.png')
+        if theme == "light":
+            path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
+        else:
+            path = ICON_DIR / "logos/OpenPulse_logo_white.png"
+
+        if hasattr(self, "open_pulse_logo"):
+            self.renderer.RemoveViewProp(self.open_pulse_logo)
+
+        self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
@@ -222,7 +247,7 @@ class MeshRenderWidget(CommonRenderWidget):
             lines=picked_lines,
             elements=picked_elements,
             join=ctrl_pressed | shift_pressed,
-            remove=alt_pressed,   
+            remove=alt_pressed,
         )
 
     def update_selection(self):
@@ -249,7 +274,7 @@ class MeshRenderWidget(CommonRenderWidget):
             self.element_axes_actor.VisibilityOn()
             element_id, *_ = elements
             element = app().project.get_structural_element(element_id)
-            self.element_axes_actor.position_from_element(element)       
+            self.element_axes_actor.position_from_element(element)
 
         self.update_info_text()
         self.update()
