@@ -64,28 +64,6 @@ class AnimationWidget(QWidget):
         self.frames = self.spinBox_frames.value()
         self.cycles = self.spinBox_cycles.value()
 
-    # def export_animation_to_file(self):
-
-    #     init_path = os.path.expanduser("~")
-    #     path, ok = QFileDialog.getSaveFileName(self, 
-    #                                            'Export geometry file', 
-    #                                            init_path, 
-    #                                            'MP4 (*.mp4);; MPEG (*.mpeg);; OGV (*.ogv)')
-    #     if not ok:
-    #         return
-
-    #     try:
-
-    #         self.update_animation_settings()
-    #         # self.main_window.opv_widget.opvAnalysisRenderer.start_export_animation_to_file(path, self.frames)
-    #         self.process_animation()
-
-    #     except Exception as error_log:
-    #         title = "Error while exporting animation"
-    #         message = "An error has occured while exporting the animation file.\n"
-    #         message += str(error_log)
-    #         PrintMessageInput([window_title_1, title, message])
-
     def export_animation_to_file(self):
         file_path, check = QFileDialog.getSaveFileName(
                                                         self,
