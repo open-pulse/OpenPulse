@@ -68,29 +68,13 @@ class ClipPlaneWidget(QDialog):
 
     def _create_connections(self):
 
-        self.relative_plane_position_x_slider.valueChanged.connect(self.value_change_callback)
-        self.relative_plane_position_x_slider.sliderReleased.connect(self.slider_release_callback)
-        self.relative_plane_position_x_slider.sliderPressed.connect(self.slider_pressed_callback)
-        
-        self.relative_plane_position_y_slider.valueChanged.connect(self.value_change_callback)
-        self.relative_plane_position_y_slider.sliderReleased.connect(self.slider_release_callback)
-        self.relative_plane_position_y_slider.sliderPressed.connect(self.slider_pressed_callback)
-        
-        self.relative_plane_position_z_slider.valueChanged.connect(self.value_change_callback)
-        self.relative_plane_position_z_slider.sliderReleased.connect(self.slider_release_callback)
-        self.relative_plane_position_z_slider.sliderPressed.connect(self.slider_pressed_callback)
+        for slider in self._sliders():
+            slider.valueChanged.connect(self.value_change_callback)
+            slider.sliderReleased.connect(self.slider_release_callback)
+            slider.sliderPressed.connect(self.slider_pressed_callback)
 
-        self.plane_rotation_x_slider.valueChanged.connect(self.value_change_callback)
-        self.plane_rotation_x_slider.sliderReleased.connect(self.slider_release_callback)
-        self.plane_rotation_x_slider.sliderPressed.connect(self.slider_pressed_callback)
-
-        self.plane_rotation_y_slider.valueChanged.connect(self.value_change_callback)
-        self.plane_rotation_y_slider.sliderReleased.connect(self.slider_release_callback)
-        self.plane_rotation_y_slider.sliderPressed.connect(self.slider_pressed_callback)
-        
-        self.plane_rotation_z_slider.valueChanged.connect(self.value_change_callback)
-        self.plane_rotation_z_slider.sliderReleased.connect(self.slider_release_callback)
-        self.plane_rotation_z_slider.sliderPressed.connect(self.slider_pressed_callback)
+        for spinbox in self._spinboxes():
+            spinbox.valueChanged.connect(self.spinbox_value_change_callback)
 
         self.pushButton_reset.clicked.connect(self.reset_button_callback)
         self.pushButton_invert.clicked.connect(self.invert_button_callback)
@@ -133,6 +117,22 @@ class ClipPlaneWidget(QDialog):
         self.setUpdatesEnabled(True)
         self.value_changed.emit(*self.get_position(), *self.get_rotation())
     
+    def spinbox_value_change_callback(self):
+        self.setUpdatesEnabled(False)
+
+        Px, Py, Pz = self.get_position()
+        self.relative_plane_position_x_slider.setValue(Px)
+        self.relative_plane_position_y_slider.setValue(Py)
+        self.relative_plane_position_z_slider.setValue(Pz)
+
+        Rx, Ry, Rz = self.get_rotation()
+        self.plane_rotation_x_slider.setValue(Rx)
+        self.plane_rotation_y_slider.setValue(Ry)
+        self.plane_rotation_z_slider.setValue(Rz)
+
+        self.setUpdatesEnabled(True)
+        self.value_changed.emit(*self.get_position(), *self.get_rotation())
+    
     def reset_button_callback(self):
         self.relative_plane_position_x_slider.setValue(50)
         self.relative_plane_position_y_slider.setValue(50)
@@ -158,3 +158,35 @@ class ClipPlaneWidget(QDialog):
 
     def closeEvent(self, event):
         self.closed.emit()
+    
+    def _sliders(self):
+        return (
+            self.relative_plane_position_x_slider,
+            self.relative_plane_position_x_slider,
+            self.relative_plane_position_x_slider,
+            self.relative_plane_position_y_slider,
+            self.relative_plane_position_y_slider,
+            self.relative_plane_position_y_slider,
+            self.relative_plane_position_z_slider,
+            self.relative_plane_position_z_slider,
+            self.relative_plane_position_z_slider,
+            self.plane_rotation_x_slider,
+            self.plane_rotation_x_slider,
+            self.plane_rotation_x_slider,
+            self.plane_rotation_y_slider,
+            self.plane_rotation_y_slider,
+            self.plane_rotation_y_slider,
+            self.plane_rotation_z_slider,
+            self.plane_rotation_z_slider,
+            self.plane_rotation_z_slider,
+        )
+
+    def _spinboxes(self):
+        return (
+            self.relative_plane_position_x_spinbox,
+            self.relative_plane_position_y_spinbox,
+            self.relative_plane_position_z_spinbox,
+            self.plane_rotation_x_spinbox,
+            self.plane_rotation_y_spinbox,
+            self.plane_rotation_z_spinbox,
+        )
