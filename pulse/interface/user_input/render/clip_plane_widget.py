@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QDialog, QSpinBox, QSlider, QPushButton
+from PyQt5.QtWidgets import QDialog, QSpinBox, QSlider, QPushButton, QCheckBox
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
@@ -20,11 +20,11 @@ class ClipPlaneWidget(QDialog):
         ui_path = UI_DIR / "render/cutting_plane_inputs.ui"
         uic.loadUi(ui_path, self)
         self.invert_value = False
+        self.keep_section_plane = False
 
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.show()
 
     def _config_window(self):
 
@@ -66,6 +66,9 @@ class ClipPlaneWidget(QDialog):
         self.plane_rotation_y_spinbox : QSpinBox
         self.plane_rotation_z_spinbox : QSpinBox
 
+        # QCheckBox
+        self.keep_section_plane_checkbox : QCheckBox
+
     def _create_connections(self):
 
         for slider in self._sliders():
@@ -78,6 +81,8 @@ class ClipPlaneWidget(QDialog):
 
         self.pushButton_reset.clicked.connect(self.reset_button_callback)
         self.pushButton_invert.clicked.connect(self.invert_button_callback)
+
+        self.keep_section_plane_checkbox.stateChanged.connect(self.keep_section_plane_callback)
 
     def get_position(self, get_from: str = "spinboxes"):
         if get_from == "sliders":
@@ -149,6 +154,9 @@ class ClipPlaneWidget(QDialog):
         self.invert_value = not self.invert_value
         self.value_changed.emit(*self.get_position(), *self.get_rotation())
         self.slider_released.emit(*self.get_position(), *self.get_rotation())
+    
+    def keep_section_plane_callback(self):
+        self.keep_section_plane = self.keep_section_plane_checkbox.checkState()
 
     def slider_release_callback(self):
         self.slider_released.emit(*self.get_position(), *self.get_rotation())

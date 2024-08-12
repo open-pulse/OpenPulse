@@ -234,6 +234,7 @@ class MainWindow(QMainWindow):
         self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
+        self._load_section_plane()
         dt = time() - t0
         print(f"Time to process A: {dt} [s]")
 
@@ -505,6 +506,9 @@ class MainWindow(QMainWindow):
         self.selection_filter.lines = not self.selection_filter.elements
         self.visualization_changed.emit()
 
+    def _load_section_plane(self):
+        self.clip_plane = ClipPlaneWidget()
+
     # callbacks
     def action_new_project_callback(self):
         self.new_project()
@@ -653,7 +657,7 @@ class MainWindow(QMainWindow):
         render_widget.set_back_view()
     
     def action_clip_plane_callback(self):
-        self.clip_plane = ClipPlaneWidget()
+        self.clip_plane.show()
 
         self.clip_plane.value_changed.connect(self.set_clip_plane_configs)
         self.clip_plane.slider_released.connect(self.apply_clip_plane)
@@ -676,6 +680,9 @@ class MainWindow(QMainWindow):
             self.results_widget.apply_cutting_plane(reverse_cut=self.clip_plane.invert_value)
 
     def close_clip_plane(self):
+        if self.clip_plane.keep_section_plane:
+            return
+        
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.dismiss_cutting_plane()
 
