@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QFileDialog, QPushButton, QSlider, QSpinBox, QWidget
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5 import uic
+from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -70,13 +71,19 @@ class AnimationWidget(QWidget):
                                                         "Save As",
                                                         filter = "All Files ();; Video (*.mp4);; GIF (*.gif);;",
                                                     )
+        file_path = Path(file_path)
         
         if not check:
             return
         
         try:
             self.process_animation()
-            self.main_window.results_widget.generate_video(file_path)
+
+            if file_path.suffix.lower() in [".gif", ".webp"]:
+                self.main_window.results_widget.save_animation(file_path)
+            else:
+                self.main_window.results_widget.save_video(file_path)
+
             self.main_window.results_widget.stop_animation()
             
         except Exception as error_log:
