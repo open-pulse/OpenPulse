@@ -66,24 +66,34 @@ class AnimationWidget(QWidget):
         self.cycles = self.spinBox_cycles.value()
 
     def export_animation_to_file(self):
-        file_path, check = QFileDialog.getSaveFileName(
-                                                        self,
-                                                        "Save As",
-                                                        filter = "All Files ();; Video (*.mp4);; GIF (*.gif);;",
-                                                    )
-        file_path = Path(file_path)
-        
-        if not check:
+        file_path, extension = QFileDialog.getSaveFileName(
+            self, "Save As",
+            filter = "Video (*.mp4);;WEBP (*.webp);;GIF (*.gif);; All Files ();;",
+        )
+
+        if not extension:
             return
-        
+
+        # Add default suffix if it does not have one
+        file_path = Path(file_path)
+        if extension == "Video (*.mp4)":
+            suffix = ".mp4"
+        elif extension == "WEBP (*.webp)":
+            suffix = ".webp"
+        elif extension == "GIF (*.gif)":
+            suffix = ".gif"
+        else:
+            suffix = ".mp4"
+
+        if not file_path.suffix:
+            file_path = file_path.parent / (file_path.name + suffix)
+
         try:
             self.process_animation()
-
             if file_path.suffix.lower() in [".gif", ".webp"]:
                 self.main_window.results_widget.save_animation(file_path)
             else:
                 self.main_window.results_widget.save_video(file_path)
-
             self.main_window.results_widget.stop_animation()
             
         except Exception as error_log:
