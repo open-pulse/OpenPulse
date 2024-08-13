@@ -1,3 +1,5 @@
+#fmt: off
+
 import numpy as np
 from molde.utils import TreeInfo, format_long_sequence
 
@@ -5,114 +7,108 @@ from pulse import app
 
 
 def nodes_info_text() -> str:
+
     nodes = app().main_window.list_selected_nodes()
-    project = app().project
     preprocessor = app().project.preprocessor
+    properties = app().project.model.properties
     info_text = ""
 
     if len(nodes) > 1:
-        info_text += (
-            f"{len(nodes)} NODES IN SELECTION\n"
-            f"{format_long_sequence(nodes)}\n\n"
-        )
-    elif len(nodes) == 1:
-        _id, *_ = nodes
-        node = project.get_node(_id)
-        tree = TreeInfo(f"Node {_id}")
-        tree.add_item(
-            f"Position",
-            "[{:.3f}, {:.3f}, {:.3f}]".format(*node.coordinates),
-            "m",
-        )
-        info_text += str(tree)
-        info_text += _structural_format(
-            "Prescribed dofs",
-            node.prescribed_dofs,
-            ("u", "r"),
-            ("m", "rad"),
-            node.loaded_table_for_prescribed_dofs
-        )
-        info_text += _structural_format(
-            "Nodal loads",
-            node.nodal_loads,
-            ("F", "M"),
-            ("N", "N.m"),
-            node.loaded_table_for_nodal_loads
-        )
-        info_text += _structural_format(
-            "Lumped stiffness",
-            node.lumped_stiffness,
-            ("k", "kr"),
-            ("N/m", "N.m/rad"),
-            node.loaded_table_for_lumped_stiffness
-        )
-        info_text += _structural_format(
-            "Lumped dampings",
-            node.lumped_dampings,
-            ("c", "cr"),
-            ("N.s/m", "N.m.s/rad"),
-            node.loaded_table_for_lumped_dampings
-        )
-        info_text += _structural_format(
-            "Lumped masses",
-            node.lumped_masses,
-            ("m", "J"),
-            ("kg", "N.m²"),
-            node.loaded_table_for_lumped_masses
-        )
-        if node.there_are_elastic_nodal_link_stiffness:
-            for key, [_, values] in node.elastic_nodal_link_stiffness.items():
-                info_text += _structural_format(
-                    f"Stiffness elastic link: {key}",
-                    values,
-                    ("k", "kr"),
-                    ("N/m", "N.m/rad"),
-                    node.loaded_table_for_elastic_link_stiffness
-                )
-        if node.there_are_elastic_nodal_link_dampings:
-            for key, [_, values] in node.elastic_nodal_link_dampings.items():
-                info_text += _structural_format(
-                    f"Stiffness elastic link: {key}",
-                    values,
-                    ("k", "kr"),
-                    ("N/m", "N.m/rad"),
-                    node.loaded_table_for_elastic_link_stiffness
-                )
-        if node in preprocessor.nodes_with_acoustic_pressure:
-            info_text += _acoustic_format(
-                "Acoustic pressure",
-                node.acoustic_pressure,
-                "P",
-                "Pa"
-            )
-        if node in preprocessor.nodes_with_volume_velocity:
-            info_text += _acoustic_format(
-                "Volume velocity",
-                node.volume_velocity,
-                "Q",
-                "m³/s"
-            )
-        if node in preprocessor.nodes_with_specific_impedance:
-            info_text += _acoustic_format(
-                "Specific impedance",
-                node.specific_impedance,
-                "Zs",
-                "kg/m².s"
-            )
-        if node in preprocessor.nodes_with_radiation_impedance:
-            aux_dict = {
-                0:"anechoic termination", 
-                1:"unflanged pipe", 
-                2:"flanged pipe"
-            }
+        info_text += (f"{len(nodes)} NODES IN SELECTION\n" f"{format_long_sequence(nodes)}\n\n")
 
-            info_text += _acoustic_format(
-                "Radiation impedance",
-                aux_dict[node.radiation_impedance_type],
-                "Type",
-                ""
-            )
-        if node in preprocessor.nodes_with_compressor_excitation:
+    elif len(nodes) == 1:
+
+        node_id, *_ = nodes
+        node = preprocessor.nodes[node_id]
+        tree = TreeInfo(f"Node {node_id}")
+        tree.add_item(f"Position", "[{:.3f}, {:.3f}, {:.3f}]".format(*node.coordinates), "m")
+        info_text += str(tree)
+
+        key = ("prescribed_dofs", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            values = data["values"]
+            loaded_table = "tables data" in data.keys()
+            info_text += _structural_format("Prescribed dofs",  values, ("u", "r"), ("m", "rad"), loaded_table)
+
+        key = ("nodal_loads", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            values = data["values"]
+            loaded_table = "tables data" in data.keys()
+            info_text += _structural_format("Nodal loads", values, ("F", "M"), ("N", "N.m"), loaded_table)
+
+        key = ("lumped_stiffness", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            values = data["values"]
+            loaded_table = "tables data" in data.keys()
+            info_text += _structural_format("Lumped stiffness", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table)
+
+        key = ("lumped_dampers", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            values = data["values"]
+            loaded_table = "tables data" in data.keys()
+            info_text += _structural_format("Lumped dampings", values, ("c", "cr"), ("N.s/m", "N.m.s/rad"), loaded_table)        
+
+        key = ("lumped_masses", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            values = data["values"]   
+            loaded_table = "tables data" in data.keys()
+            info_text += _structural_format("Lumped masses", values, ("m", "J"), ("kg", "N.m²"), loaded_table)
+
+        for (property, *args), data in properties.nodal_properties.items():
+            if property == "stiffness_elastic_link" and node_id in args:
+                values = data["values"]
+                loaded_table = "tables data" in data.keys()
+                info_text += _structural_format(f"Stiffness elastic link: {key}", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table)
+
+        for (property, *args), data in properties.nodal_properties.items():
+            if property == "dampings_elastic_link" and node_id in args:
+                values = data["values"]
+                loaded_table = "tables data" in data.keys()
+                info_text += _structural_format(f"Damping elastic link: {key}", values, ("k", "kr"), ("N.s/m", "N.m.s/rad"), loaded_table)
+
+        key = ("acoustic_pressure", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            ap_values = data["values"]   
+            loaded_table = "tables data" in data.keys()
+            info_text += _acoustic_format("Acoustic pressure", ap_values, "P", "Pa")
+
+        key = ("volume_velocity", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            vv_values = data["values"]   
+            loaded_table = "tables data" in data.keys()
+            info_text += _acoustic_format("Volume velocity", vv_values, "Q", "m³/s")
+
+        key = ("specific_impedance", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            si_values = data["values"]   
+            loaded_table = "tables data" in data.keys()
+            info_text += _acoustic_format("Specific impedance", si_values, "Zs", "kg/m².s")
+
+        key = ("radiation_impedance", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            ri_value = data["values"]   
+            loaded_table = "tables data" in data.keys()
+
+            aux_dict = {
+                        0 : "anechoic termination", 
+                        1 : "unflanged pipe", 
+                        2 : "flanged pipe"
+                        }
+
+            info_text += _acoustic_format("Radiation impedance", aux_dict[ri_value], "Type", "")
+
+        key = ("compressor_excitation", node_id)
+        if key in properties.nodal_properties.keys():
+
             info_text += compressor_excitation_info_text(node)
 
     return info_text
@@ -277,26 +273,28 @@ def analysis_info_text(frequency_index):
 
     return str(tree)
 
-def compressor_excitation_info_text(node) -> str:
+def compressor_excitation_info_text(compressor_data: dict) -> str:
     tree = TreeInfo("Volume velocity - compressor excitation")
-    if isinstance(node.volume_velocity, np.ndarray):
-        tree.add_item("Q", "Table of values")
-    else:
-        tree.add_item("Q", node.volume_velocity, "m³/s")
+    tree.add_item("Q", "Table of values")
 
-    values_connection_info = list(node.dict_index_to_compressor_connection_info.values())
-    if len(values_connection_info) == 1:
-        tree.add_item("Connection type", values_connection_info[0])
-    elif "discharge" in values_connection_info and "suction" in values_connection_info:
-        tree.add_item(
-            "Connection types", 
-            f"discharge ({values_connection_info[0]}x)"
-            + "& suction ({values_connection_info.count('suction')}x)"
-        )
-    elif "discharge" in values_connection_info:
-        tree.add_item("Connection types", f"discharge ({values_connection_info.count('discharge')}x)")
-    elif "suction" in values_connection_info:
-        tree.add_item("Connection types", f"suction ({values_connection_info.count('suction')}x)")
+    connection_type = compressor_data["connection_type"]
+    tree.add_item("Connection type", connection_type)
+    
+    #TODO: check physical consistency for multiple compressor connections
+    
+    # values_connection_info = list(node.dict_index_to_compressor_connection_info.values())
+    # if len(values_connection_info) == 1:
+    #     tree.add_item("Connection type", values_connection_info[0])
+    # elif "discharge" in values_connection_info and "suction" in values_connection_info:
+    #     tree.add_item(
+    #         "Connection types", 
+    #         f"discharge ({values_connection_info[0]}x)"
+    #         + "& suction ({values_connection_info.count('suction')}x)"
+    #     )
+    # elif "discharge" in values_connection_info:
+    #     tree.add_item("Connection types", f"discharge ({values_connection_info.count('discharge')}x)")
+    # elif "suction" in values_connection_info:
+    #     tree.add_item("Connection types", f"suction ({values_connection_info.count('suction')}x)")
 
     return str(tree)
 
@@ -334,3 +332,5 @@ def _acoustic_format(property_name, value, label, unit):
     else:
         tree.add_item(label, value, unit)
     return str(tree)
+
+#fmt: on

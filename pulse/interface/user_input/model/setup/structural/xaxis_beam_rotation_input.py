@@ -22,6 +22,7 @@ class BeamXaxisRotationInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self.project = app().project
+        self.model = app().project.model
         self.preprocessor = app().project.preprocessor
 
         self._config_window()
@@ -115,16 +116,16 @@ class BeamXaxisRotationInput(QDialog):
 
             self.comboBox_selection.setCurrentIndex(1)
             for line_id in selected_lines:
-                entity = self.preprocessor.lines_from_model[line_id]
+                line = self.model.mesh.lines_from_model[line_id]
 
-                if entity.structural_element_type != "beam_1":
+                if line.structural_element_type != "beam_1":
                     self.lineEdit_selected_id.setText("")
                     self.tabWidget_xaxis_rotation_angle.setDisabled(True)
                     return
 
             if len(selected_lines) == 1:
-                entity = self.preprocessor.lines_from_model[selected_lines[0]]
-                angle = entity.xaxis_beam_rotation
+                line = self.model.mesh.lines_from_model[selected_lines[0]]
+                angle = line.xaxis_beam_rotation
                 self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
             else:
                 self.lineEdit_xaxis_rotation_actual_angle.setText("")
@@ -178,7 +179,7 @@ class BeamXaxisRotationInput(QDialog):
             self.beam_lines = list()
             non_beam_lines = list()
             for line in lines:
-                entity = self.preprocessor.lines_from_model[line]
+                entity = self.model.mesh.lines_from_model[line]
                 if entity.structural_element_type != "beam_1":
                     non_beam_lines.append(line)
                 else:
@@ -199,7 +200,7 @@ class BeamXaxisRotationInput(QDialog):
 
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
-            lines = list(self.preprocessor.lines_from_model.keys())
+            lines = list(self.model.mesh.lines_from_model.keys())
 
         else:
             str_lines = self.lineEdit_selected_id.text()

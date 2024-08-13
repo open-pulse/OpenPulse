@@ -4,10 +4,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 import numpy as np
-from pathlib import Path
+
 
 class PlotReactionsForStaticAnalysis(QWidget):
     def __init__(self, *args, **kwargs):
@@ -18,6 +17,7 @@ class PlotReactionsForStaticAnalysis(QWidget):
         
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
 
         self._initialize()
         self._config_window()
@@ -27,9 +27,9 @@ class PlotReactionsForStaticAnalysis(QWidget):
         self._config_widgets()
 
     def _initialize(self):
-        [   self.dict_reactions_at_constrained_dofs, 
-            self.dict_reactions_at_springs, 
-            self.dict_reactions_at_dampers   ] = self.project.get_structural_reactions()
+        [   self.reactions_at_constrained_dofs, 
+            self.reactions_at_springs, 
+            self.reactions_at_dampers   ] = self.project.get_structural_reactions()
         
         self.preprocessor = self.project.preprocessor
 
@@ -71,13 +71,16 @@ class PlotReactionsForStaticAnalysis(QWidget):
         self.treeWidget_reactions_at_springs : QTreeWidget
 
     def _create_connections(self):
+        #
         self.pushButton_reset.clicked.connect(self._reset_lineEdits)
+        #
         self.treeWidget_reactions_at_constrained_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_constrained_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.treeWidget_reactions_at_dampers.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
         self._tabWidgets_visibility()
 
     def _config_widgets(self):
@@ -93,7 +96,7 @@ class PlotReactionsForStaticAnalysis(QWidget):
 
     def _tabWidgets_visibility(self):
         self.tabWidget_springs_dampers.removeTab(1)
-        if len(self.dict_reactions_at_springs) == 0:
+        if len(self.reactions_at_springs) == 0:
             self.tabWidget_reactions.removeTab(1)
 
     def _reset_lineEdits(self):
@@ -108,8 +111,7 @@ class PlotReactionsForStaticAnalysis(QWidget):
         reactions = [None, None, None, None, None, None]
 
         if self.tabWidget_reactions.currentIndex() == 0:
-            dict_reactions = self.dict_reactions_at_constrained_dofs
-            for dof_index, value in dict_reactions.items():
+            for dof_index, value in self.reactions_at_constrained_dofs.items():
                 global_dofs = list(node.global_dof)
                 if dof_index in global_dofs:
                     i = global_dofs.index(dof_index)
@@ -119,8 +121,7 @@ class PlotReactionsForStaticAnalysis(QWidget):
         else:
 
             if self.tabWidget_springs_dampers.currentIndex() == 0:
-                dict_reactions = self.dict_reactions_at_springs
-                for dof_index, value in dict_reactions.items():
+                for dof_index, value in self.reactions_at_springs.items():
                     global_dofs = list(node.global_dof)
                     if dof_index in global_dofs:
                         i = global_dofs.index(dof_index)
@@ -152,62 +153,79 @@ class PlotReactionsForStaticAnalysis(QWidget):
         
         text = ""
         load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
-        temp = load_labels[mask]
+        labels = load_labels[mask]
 
         if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4])
+            text = "[{}, {}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3])
+            text = "[{}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(temp[0], temp[1], temp[2])
+            text = "[{}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(temp[0], temp[1])
+            text = "[{}, {}]".format(*labels)
         elif list(mask).count(True) == 1:
-            text = "[{}]".format(temp[0])
+            text = "[{}]".format(*labels)
         return text
 
     def _load_nodes_info(self):
         
-        for node in self.preprocessor.nodes_connected_to_springs:
-            lumped_stiffness_mask = self.get_lumped_stiffness_mask(node)
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask))])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_reactions_at_springs.addTopLevelItem(new)
+        for (property, *args), data in self.model.properties.nodal_properties.items():
 
-        for node in self.preprocessor.nodes_connected_to_dampers:
-            lumped_dampings_mask = self.get_lumped_dampings_mask(node)
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask))])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_reactions_at_dampers.addTopLevelItem(new)
+            if property == "lumped_stiffness":
+                node_id = args[0]
+                values = data["values"]
 
-        for node in self.preprocessor.nodes_with_constrained_dofs:
-            # constrained_dofs_mask = np.array(node.prescribed_dofs) == complex(0)
-            constrained_dofs_mask = self.get_constrained_dofs_mask(node)
-            if constrained_dofs_mask.count(False) != 6:         
-                new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
+                lumped_stiffness_mask = self.get_lumped_stiffness_mask(values)
+                new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_stiffness_mask))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
+                self.treeWidget_reactions_at_springs.addTopLevelItem(new)
 
-    def get_constrained_dofs_mask(self, node):
+            if property == "lumped_dampers":
+                node_id = args[0]
+                values = data["values"]
+
+                lumped_dampings_mask = self.get_lumped_dampings_mask(values)
+                new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_dampings_mask))])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_reactions_at_dampers.addTopLevelItem(new)
+        
+            if property == "prescribed_dofs":
+                node_id = args[0]
+                values = data["values"]
+
+                constrained_dofs_mask = self.get_constrained_dofs_mask(values)
+                if constrained_dofs_mask.count(False) != 6:         
+                    new = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask))])
+                    new.setTextAlignment(0, Qt.AlignCenter)
+                    new.setTextAlignment(1, Qt.AlignCenter)
+                    self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
+
+    def get_constrained_dofs_mask(self, values: list) -> list:
+
         constrained_dofs_mask = [False, False, False, False, False, False]
-        for index, value in enumerate(node.prescribed_dofs):
+        for index, value in enumerate(values):
+
             if isinstance(value, complex):
                 if value == complex(0):
                     constrained_dofs_mask[index] = True
+
             elif isinstance(value, np.ndarray):
-                constrained_dofs_mask[index] = False
+                if np.sum(value) == complex(0):
+                    constrained_dofs_mask[index] = True
+                else:
+                    constrained_dofs_mask[index] = False
+
         return constrained_dofs_mask
 
-    def get_lumped_dampings_mask(self, node):
-        return [False if bc is None else True for bc in node.lumped_dampings]
+    def get_lumped_dampings_mask(self, values: list):
+        return [False if bc is None else True for bc in values]
 
-    def get_lumped_stiffness_mask(self, node):
-        return [False if bc is None else True for bc in node.lumped_stiffness]
+    def get_lumped_stiffness_mask(self, values: list):
+        return [False if bc is None else True for bc in values]
 
     def on_click_item(self, item):
         self.lineEdit_node_id.setText(item.text(0))

@@ -17,8 +17,9 @@ class AcousticElementTypeInput(QDialog):
         ui_path = UI_DIR / "model/setup/acoustic/acoustic_element_type_input.ui"
         uic.loadUi(ui_path, self)
 
-        self.project = app().project
         app().main_window.set_input_widget(self)
+        self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -42,7 +43,6 @@ class AcousticElementTypeInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
 
-        self.lines_from_model = self.preprocessor.lines_from_model
         self.element_type = 'undamped'
         self.complete = False
         self.update_cross_section = False
@@ -116,7 +116,7 @@ class AcousticElementTypeInput(QDialog):
                 self.checkBox_flow_effects.setChecked(False)
                 self.lineEdit_proportional_damping.setDisabled(True)
 
-                line = self.preprocessor.lines_from_model[selected_lines[0]]
+                line = self.model.mesh.lines_from_model[selected_lines[0]]
                 element_type = line.acoustic_element_type
 
                 if element_type == "proportional":
@@ -260,7 +260,7 @@ class AcousticElementTypeInput(QDialog):
 
         index_selection = self.comboBox_selection.currentIndex()
         if index_selection == 0:
-            lines = list(self.preprocessor.lines_from_model.keys())
+            lines = list(self.model.mesh.lines_from_model.keys())
             print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
 
         elif index_selection == 1:
@@ -283,7 +283,7 @@ class AcousticElementTypeInput(QDialog):
 
     def reset_element_type(self):
         self.element_type = "undamped"
-        lines = list(self.preprocessor.lines_from_model.keys())
+        lines = list(self.model.mesh.lines_from_model.keys())
         self.project.set_acoustic_element_type_by_lines(lines, self.element_type)
         self.complete = True
         self.close()
@@ -314,7 +314,7 @@ class AcousticElementTypeInput(QDialog):
 
         for key, lines in self.preprocessor.dict_acoustic_element_type_to_lines.items():
 
-            vol_flow = [self.lines_from_model[line].vol_flow for line in lines]
+            vol_flow = [self.model.mesh.lines_from_model[line].vol_flow for line in lines]
             if None in vol_flow:
                 item = QTreeWidgetItem([str(key), str('---'), str(lines)[1:-1]])
             else:
@@ -355,11 +355,11 @@ class AcousticElementTypeInput(QDialog):
 
                     element_data = [key]
                     if key == "proportional":
-                        damping = self.lines_from_model[line_id].proportional_damping
+                        damping = self.model.mesh.lines_from_model[line_id].proportional_damping
                         element_data.append(damping)
     
                     elif key in ["undamped mean flow", "peters", "howe"]:
-                        vol_flow = self.lines_from_model[line_id].vol_flow
+                        vol_flow = self.model.mesh.lines_from_model[line_id].vol_flow
                         element_data.append(vol_flow)
 
                     data[line_id] = element_data

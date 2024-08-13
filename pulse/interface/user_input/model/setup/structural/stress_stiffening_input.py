@@ -22,6 +22,8 @@ class StressStiffeningInput(QDialog):
         
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
+        self.preprocessor = app().project.model.preprocessor
 
         self._config_window()
         self._initialize()
@@ -40,14 +42,9 @@ class StressStiffeningInput(QDialog):
 
     def _initialize(self):
 
-        self.lines_id = app().main_window.list_selected_lines()
-        self.elements_id = app().main_window.list_selected_elements()
-
-        self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
 
         self.structural_elements = self.preprocessor.structural_elements
-        self.lines_from_model = self.preprocessor.lines_from_model
 
         # self.dict_group_elements = self.preprocessor.group_elements_with_stress_stiffening
         self.lines_with_stress_stiffening = self.preprocessor.lines_with_stress_stiffening
@@ -120,7 +117,7 @@ class StressStiffeningInput(QDialog):
             self.label_selected_id.setText("Lines IDs:")
             
             if len(selected_lines) == 1:
-                entity = self.preprocessor.lines_from_model[selected_lines[0]] 
+                entity = self.model.mesh.lines_from_model[selected_lines[0]] 
                 if entity.stress_stiffening_parameters is not None:
                     pressures = entity.stress_stiffening_parameters
                     self.lineEdit_external_pressure.setText(str(pressures[0]))
@@ -284,7 +281,7 @@ class StressStiffeningInput(QDialog):
 
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
-            for line_id in self.lines_from_model.keys():
+            for line_id in self.model.mesh.lines_from_model.keys():
                 self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
 
         elif selection_index == 1:
@@ -353,7 +350,7 @@ class StressStiffeningInput(QDialog):
 
     def check_reset_all(self):
 
-        for line_id in self.preprocessor.lines_from_model.keys():
+        for line_id in self.model.mesh.lines_from_model.keys():
             self.project.set_stress_stiffening_by_line(line_id, [0,0,0,0], remove=True)
 
         temp_dict = self.preprocessor.group_elements_with_stress_stiffening.copy()

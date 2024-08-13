@@ -85,19 +85,18 @@ class InputUi:
 
     def _reset(self):
         self.analysis_id = None
-        self.global_damping = [0,0,0,0]
         self.project.none_project_action = False
 
     def process_input(self, workingClass, *args, **kwargs):
-        try:
-            app().main_window.close_dialogs()
-            read = workingClass(*args, **kwargs)
-            return read
-        except Exception as log_error:
-            title = "Error detected in 'process_input' method"
-            message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
-            return None
+        # try:
+        app().main_window.close_dialogs()
+        read = workingClass(*args, **kwargs)
+        return read
+        # except Exception as log_error:
+        #     title = "Error detected in 'process_input' method"
+        #     message = str(log_error)
+        #     PrintMessageInput([window_title_1, title, message])
+        #     return None
 
     def set_clipping_plane(self):
         return

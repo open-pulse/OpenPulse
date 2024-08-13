@@ -1240,22 +1240,23 @@ class ProjectFile:
     #             if 'compressor info' in config[str(line_id)].keys():
     #                 config.remove_option(section=_section, option='compressor info')  
 
-        self.write_data_in_file(self._pipeline_path, config) 
+        # self.write_data_in_file(self._pipeline_path, config) 
 
-    # TODO: implement this
     def update_node_ids_after_mesh_changed(self):
 
-        # path_1 = self._node_acoustic_path
-        # path_2 = self._node_structural_path
-
+        aux = dict()
         non_mapped_nodes = list()
         preprocessor = app().project.preprocessor
 
-        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+        for key, data in app().project.model.properties.nodal_properties.items():
+
+            (property, *args) = key
 
             if "coords" in data.keys():
                 coords = np.array(data["coords"], dtype=float)
                 if len(coords) == 6:
+
+                    node_id1, node_id2 = args
 
                     coords_1 = coords[:3]
                     coords_2 = coords[3:]
@@ -1263,28 +1264,49 @@ class ProjectFile:
                     new_node_id2 = preprocessor.get_node_id_by_coordinates(coords_2)
                     sorted_indexes = np.sort([new_node_id1, new_node_id2])
 
+                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
+
                     if new_node_id1 is None:
                         if new_node_id1 not in non_mapped_nodes:
-                            non_mapped_nodes.append((key, coords))
+                            non_mapped_nodes.append((node_id1, coords))
                         continue
 
                     if new_node_id2 is None:
                         if new_node_id2 not in non_mapped_nodes:
-                            non_mapped_nodes.append((key, coords))
+                            non_mapped_nodes.append((node_id2, coords))
                         continue
 
                 elif len(coords) == 3:
 
+                    node_id = args
                     new_node_id = preprocessor.get_node_id_by_coordinates(coords)
+                    new_key = (property, new_node_id)
 
                     if new_node_id is None:
                         if new_node_id not in non_mapped_nodes:
-                            non_mapped_nodes.append((key, coords))
+                            non_mapped_nodes.append((node_id, coords))
                         continue
 
+                aux[key] = [new_key, data]
+                
                 if non_mapped_nodes:
                     print(f"List of non-mapped nodes: {non_mapped_nodes}")
                     return non_mapped_nodes
+
+        app().project.model.properties.nodal_properties.clear()
+
+        for [new_key, data] in aux.values():
+            (property, *args) = new_key
+            if len(new_key) == 2:
+                property = new_key[0]
+                node_ids = new_key[1]
+            elif len(new_key) == 3:
+                property = new_key[0]
+                node_ids = (new_key[1], new_key[2])
+            else:
+                return
+
+            app().project.model.properties._set_property(property, data, node_ids=node_ids)
 
     # def add_pipeline_data_in_file(self, structures_data : dict):
 

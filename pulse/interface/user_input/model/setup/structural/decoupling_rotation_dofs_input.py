@@ -53,7 +53,6 @@ class DecouplingRotationDOFsInput(QDialog):
 
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements
-        self.lines_from_model = self.preprocessor.lines_from_model
 
         self.complete = False
 

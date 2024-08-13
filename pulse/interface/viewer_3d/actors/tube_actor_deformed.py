@@ -44,7 +44,7 @@ class TubeActorDeformed(TubeActor):
             transform_filter.Update()
 
             transformed_source = transform_filter.GetOutput()
-            entity = self.preprocessor.elements_to_line[i]
+            entity = self.model.mesh.elements_to_line[i]
             set_polydata_property(transformed_source, i, "element_index")
             set_polydata_property(transformed_source, entity, "entity_index")
 

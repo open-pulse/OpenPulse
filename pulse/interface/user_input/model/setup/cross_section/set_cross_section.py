@@ -29,6 +29,7 @@ class SetCrossSectionInput(QDialog):
         self.elements_to_update_cross_section = kwargs.get("elements_to_update_cross_section", list())
 
         app().main_window.set_input_widget(self)
+        self.model = app().project.model
         self.project = app().project
 
         self.preprocessor = self.project.preprocessor
@@ -72,7 +73,6 @@ class SetCrossSectionInput(QDialog):
         self.remove_expansion_joint_tables_files = True
 
         self.structural_elements = self.project.preprocessor.structural_elements
-        self.lines_from_model = self.project.preprocessor.lines_from_model
 
         self.before_run = self.project.get_pre_solution_model_checks()
 
@@ -172,7 +172,7 @@ class SetCrossSectionInput(QDialog):
         self.update_line_and_element_ids(selected_lines, selected_elements)
 
         if len(selected_lines) == 1:   
-            self.selection = self.lines_from_model[selected_lines[0]]
+            self.selection = self.model.mesh.lines_from_model[selected_lines[0]]
             element_type = self.selection.structural_element_type
             if element_type is None:
                 for element_id in self.preprocessor.line_to_elements[selected_lines[0]]:
@@ -551,7 +551,7 @@ class SetCrossSectionInput(QDialog):
         lines_id = app().main_window.list_selected_lines()
         if len(lines_id) > 0:
             line_id = lines_id[0]
-            # entity = self.lines_from_model[line_id]
+            # entity = self.model.mesh.lines_from_model[line_id]
             self.tabWidget_general.setCurrentIndex(0)
             self.tabWidget_pipe_section.setCurrentIndex(1)
             if len(lines_id) == 1:
@@ -740,7 +740,7 @@ class SetCrossSectionInput(QDialog):
         selection_index = self.comboBox_selection.currentIndex()
         
         if selection_index == 0:
-            self.lines_typed = list(self.preprocessor.lines_from_model.keys())
+            self.lines_typed = list(self.model.mesh.lines_from_model.keys())
 
         elif selection_index == 1:
             lineEdit = self.lineEdit_selected_id.text()
@@ -806,7 +806,7 @@ class SetCrossSectionInput(QDialog):
 
         else:
 
-            line_ids = list(self.preprocessor.lines_from_model.keys())
+            line_ids = list(self.model.mesh.lines_from_model.keys())
             if self.check_if_lines_belongs_to_psd(line_ids):
                 return
 

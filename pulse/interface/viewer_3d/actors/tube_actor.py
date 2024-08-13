@@ -19,7 +19,8 @@ class TubeActor(vtk.vtkActor):
         super().__init__()
 
         self.project = project
-        self.preprocessor = project.preprocessor
+        self.model = project.model
+        # self.preprocessor = project.preprocessor
         self.elements = project.get_structural_elements()
         self.hidden_elements = kwargs.get('hidden_elements', set())
         self.color_mode = ColorMode.empty
@@ -43,7 +44,7 @@ class TubeActor(vtk.vtkActor):
             if source is None:
                 continue
 
-            entity = self.preprocessor.elements_to_line[i]
+            entity = self.model.mesh.elements_to_line[i]
             set_polydata_property(source, i, "element_index")
             set_polydata_property(source, entity, "entity_index")
 

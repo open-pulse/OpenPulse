@@ -124,44 +124,44 @@ class ModelProperties:
     #         factor = dissipation_model["speed of sound factor"]
     #         return (1 + factor * 1j) * c_0
 
-    def get_prescribed_dofs(self, node_ids):
-        return self._get_property("prescribed_dofs", node_ids=node_ids)
+    # def get_prescribed_dofs(self, node_ids):
+    #     return self._get_property("prescribed_dofs", node_ids=node_ids)
 
-    def get_nodal_loads(self, node_ids):
-        return self._get_property("nodal_loads", node_ids=node_ids)
+    # def get_nodal_loads(self, node_ids):
+    #     return self._get_property("nodal_loads", node_ids=node_ids)
 
-    def set_prescribed_dofs(self, data, node_ids):
-        self._set_property("prescribed_dofs", data, node_ids)
+    # def set_prescribed_dofs(self, data, node_ids):
+    #     self._set_property("prescribed_dofs", data, node_ids)
 
-    def set_nodal_loads(self, data, node_ids):
-        self._set_property("nodal_loads", data, node_ids)
+    # def set_nodal_loads(self, data, node_ids):
+    #     self._set_property("nodal_loads", data, node_ids)
 
-    def set_structural_elastic_links(self, data, node_ids):
-        self._set_property("prescribed_dofs", data, node_ids)
+    # def set_structural_elastic_links(self, data, node_ids):
+    #     self._set_property("prescribed_dofs", data, node_ids)
 
-    def get_acoustic_pressure(self, node_ids):
-        return self._get_property("acoustic_pressure", node_ids=node_ids)
+    # def get_acoustic_pressure(self, node_ids):
+    #     return self._get_property("acoustic_pressure", node_ids=node_ids)
 
-    def get_volume_velocity(self, node_ids):
-        return self._get_property("volume_velocity", node_ids=node_ids)
+    # def get_volume_velocity(self, node_ids):
+    #     return self._get_property("volume_velocity", node_ids=node_ids)
 
-    def get_specific_impedance(self, node_ids):
-        return self._get_property("specific_impedance", node_ids=node_ids)
+    # def get_specific_impedance(self, node_ids):
+    #     return self._get_property("specific_impedance", node_ids=node_ids)
 
-    def get_radiation_impedance(self, node_ids):
-        return self._get_property("radiation_impedance", node_ids=node_ids)
+    # def get_radiation_impedance(self, node_ids):
+    #     return self._get_property("radiation_impedance", node_ids=node_ids)
 
-    def set_acoustic_pressure(self, data, node_ids):
-        self._set_property("acoustic_pressure", data, node_ids=node_ids)
+    # def set_acoustic_pressure(self, data, node_ids):
+    #     self._set_property("acoustic_pressure", data, node_ids=node_ids)
 
-    def set_volume_velocity(self, data, node_ids):
-        self._set_property("volume_velocity", data, node_ids=node_ids)
+    # def set_volume_velocity(self, data, node_ids):
+    #     self._set_property("volume_velocity", data, node_ids=node_ids)
 
-    def set_specific_impedance(self, data, node_ids):
-        self._set_property("specific_impedance", data, node_ids=node_ids)
+    # def set_specific_impedance(self, data, node_ids):
+    #     self._set_property("specific_impedance", data, node_ids=node_ids)
 
-    def set_radiation_impedance(self, data, node_ids):
-        self._set_property("radiation_impedance", data, node_ids=node_ids)
+    # def set_radiation_impedance(self, data, node_ids):
+    #     self._set_property("radiation_impedance", data, node_ids=node_ids)
 
     def remove_compressor_table_name(self, node_id: int, table_name: str):
         key = ("compressor_excitation", node_id)
@@ -170,7 +170,16 @@ class ModelProperties:
                 self.nodal_properties[key]["table names"].remove(table_name)
 
     def get_data_group_label(self, property : str):
-        if property in ["acoustic_pressure", "volume_velocity", "specific_impedance", "radiation_impedance", "compressor_excitation"]:
+
+        acoustic_labels = [ 
+                            "acoustic_pressure", 
+                            "volume_velocity", 
+                            "specific_impedance", 
+                            "radiation_impedance", 
+                            "compressor_excitation"
+                           ]
+
+        if property in acoustic_labels:
             return "acoustic"
         else:
             return "structural"
@@ -306,9 +315,14 @@ class ModelProperties:
             for _key in keys_to_remove:
                 data.pop(_key)
 
-    def _remove_nodal_property(self, property: str, node_id: int):
+    def _remove_nodal_property(self, property: str, node_ids: int | list | tuple):
         """Remove a nodal property at specific nodal_id."""
-        key = (property, node_id)
+        if isinstance(node_ids, int):
+            key = (property, node_ids)
+        elif isinstance(node_ids, list | tuple) and len(node_ids) == 2:
+            key = (property, node_ids[0], node_ids[1])
+        else:
+            return
         if key in self.nodal_properties.keys():
             self.nodal_properties.pop(key)
 

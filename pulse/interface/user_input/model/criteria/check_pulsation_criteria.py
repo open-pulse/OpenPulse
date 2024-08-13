@@ -26,11 +26,10 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
-        self.preprocessor = main_window.project.preprocessor
+        self.project = app().project
+        self.model = app().project.model
+        self.preprocessor = app().project.model.preprocessor
 
         self._config_window()
         self._initialize()        
@@ -265,16 +264,16 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_line_properties(self):
         line_id = int(self.comboBox_line_ids.currentText().replace(" ", ""))
-        entity = self.preprocessor.lines_from_model[line_id]
-        fluid = entity.fluid
+        line = self.model.mesh.lines_from_model[line_id]
+        fluid = line.fluid
         speed_of_sound = fluid.speed_of_sound
         line_pressure = fluid.pressure
-        inner_diameter = entity.cross_section.inner_diameter
+        inner_diameter = line.cross_section.inner_diameter
         return speed_of_sound, line_pressure/1e5, 1000*inner_diameter
     
     def get_line_pressure(self):
         if len(self.line_ids) == 1:
-            entity = self.preprocessor.lines_from_model[self.line_ids[0]]
+            entity = self.model.mesh.lines_from_model[self.line_ids[0]]
             fluid = entity.fluid
             return fluid.pressure
         else:

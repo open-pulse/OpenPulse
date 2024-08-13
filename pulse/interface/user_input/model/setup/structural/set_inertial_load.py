@@ -5,7 +5,6 @@ from PyQt5 import uic
 import numpy as np
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -21,6 +20,7 @@ class SetInertialLoad(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
         self.preprocessor = app().project.preprocessor
         
         self._initialize()
@@ -34,8 +34,8 @@ class SetInertialLoad(QDialog):
     def _initialize(self):
         self.complete = False
         self.global_damping = [0, 0, 0, 0]
-        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
-        self.gravity_vector = self.preprocessor.gravity_vector
+        # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
+        self.gravity_vector = self.model.gravity_vector
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -153,7 +153,7 @@ class SetInertialLoad(QDialog):
                         "stiffening_effect" : stiffening_effect
                         }
 
-        self.preprocessor.set_inertia_load(self.gravity)
+        self.model.set_gravity_vector(self.gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
         app().pulse_file.write_inertia_load_in_file(inertia_load)
 

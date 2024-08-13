@@ -382,7 +382,7 @@ class GeometryHandler:
         self.pipeline.merge_coincident_points()
         self.export_model_data_file()
 
-        element_size = app().project.preprocessor.element_size
+        element_size = app().project.preprocessor.mesh.element_size
         if self.length_unit == "millimeter":
             element_size = mm_to_m(element_size)
 

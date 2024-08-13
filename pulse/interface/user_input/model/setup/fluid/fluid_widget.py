@@ -43,6 +43,7 @@ class FluidWidget(QWidget):
 
         self.main_window = app().main_window
         self.project = app().project
+        self.model = app().project.model
         self.file = app().file
 
         self._initialize()
@@ -509,11 +510,11 @@ class FluidWidget(QWidget):
         with open(self.fluid_path, 'w') as config_file:
             config.write(config_file)
 
-        for line_id, entity in self.preprocessor.lines_from_model.items():
-            if entity.fluid is None:
+        for line_id, line in self.model.mesh.lines_from_model.items():
+            if line.fluid is None:
                 continue
 
-            if entity.fluid.name == fluid.name:
+            if line.fluid.name == fluid.name:
                 self.project.set_fluid_by_lines(line_id, None)
 
         self.load_data_from_fluids_library()
@@ -602,9 +603,9 @@ class FluidWidget(QWidget):
                 if section_cache not in config.sections():
                     fluid_names.append(config_cache[section_cache]["name"])
 
-            for line_id, entity in self.preprocessor.lines_from_model.items():
-                if entity.fluid is not None:
-                    if entity.fluid.name in fluid_names:
+            for line_id, line in self.model.mesh.lines_from_model.items():
+                if line.fluid is not None:
+                    if line.fluid.name in fluid_names:
                         self.project.set_fluid_by_lines(line_id, None)
 
             self.load_data_from_fluids_library()

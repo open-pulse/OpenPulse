@@ -6,6 +6,7 @@ from scipy.sparse import save_npz, load_npz
 from pulse.tools.utils import sparse_is_equal
 from pulse.model.cross_section import CrossSection
 from pulse.properties.material import Material
+from pulse.model.model import Model
 from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project
 from pulse.processing.assembly_structural import AssemblyStructural 
@@ -23,7 +24,8 @@ def model():
     cross_section.update_properties()
 
     project = Project()
-    preprocessor = Preprocessor(project)
+    model = Model(project)
+    preprocessor = model.preprocessor
     geometry_path = Path("examples/iges_files/new_geometries/example_2_withBeam.iges")
     preprocessor.generate(geometry_path, 0.01)
 
@@ -34,7 +36,7 @@ def model():
     preprocessor.set_cross_section_by_element('all', cross_section)
 
     frequencies = np.linspace(0, 200, 101)
-    assembly = AssemblyStructural(preprocessor, frequencies)
+    assembly = AssemblyStructural(model, frequencies)
 
     # We need to separate it in multiple atribute or functions as soon as possible. 
     # names = ['Kadd_lump', 'Madd_lump', 'K', 'M', 'Kr', 'Mr', 'K_lump', 'M_lump', 'C_lump', 'Kr_lump', 'Mr_lump', 'Cr_lump']

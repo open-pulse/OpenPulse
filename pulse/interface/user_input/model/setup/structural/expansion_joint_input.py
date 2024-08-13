@@ -29,6 +29,7 @@ class ExpansionJointInput(QDialog):
 
         self.main_window = app().main_window
         self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -55,7 +56,7 @@ class ExpansionJointInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         
         self.structural_elements = self.preprocessor.structural_elements
-        self.element_size = self.preprocessor.element_size
+        self.element_size = self.preprocessor.mesh.element_size
 
         self.userPath = os.path.expanduser('~')     
         self.imported_data_path = self.project.file._imported_data_folder_path
@@ -342,7 +343,7 @@ class ExpansionJointInput(QDialog):
             _stop, self.selected_lines = self.before_run.check_selected_ids(lineEdit_selection, "lines")
 
             for line_id in self.selected_lines:
-                entity = self.preprocessor.lines_from_model[line_id]
+                entity = self.model.mesh.lines_from_model[line_id]
                 if entity.structural_element_type in ["beam_1"]:
                     _stop = True
                     break
@@ -384,7 +385,7 @@ class ExpansionJointInput(QDialog):
 
         if len(lines_id) == 1:
 
-            entity = self.preprocessor.lines_from_model[lines_id[0]]
+            entity = self.model.mesh.lines_from_model[lines_id[0]]
             if entity.expansion_joint_parameters is None:
                 return
             else:
@@ -465,7 +466,7 @@ class ExpansionJointInput(QDialog):
 
         list_lines = list()
         for element_id in _elements:
-            line_id = self.preprocessor.elements_to_line[element_id]
+            line_id = self.model.mesh.elements_to_line[element_id]
             if line_id not in list_lines:
                 list_lines.append(line_id)
 
@@ -654,8 +655,8 @@ class ExpansionJointInput(QDialog):
     def get_list_of_lines_to_update_cross_section(self):
         list_lines = []
         for element_id in self.joint_elements:
-            line_id = self.preprocessor.elements_to_line[element_id]
-            entity = self.preprocessor.lines_from_model[line_id]
+            line_id = self.model.mesh.elements_to_line[element_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             if entity.structural_element_type in ["expansion_joint"]:
                 if line_id not in list_lines:
                     list_lines.append(line_id)
@@ -672,7 +673,7 @@ class ExpansionJointInput(QDialog):
 
         list_lines = list()
         for element_id in self.joint_elements:
-            line_id = self.preprocessor.elements_to_line[element_id]
+            line_id = self.model.mesh.elements_to_line[element_id]
             if line_id not in list_lines:
                 list_lines.append(line_id)
                 
@@ -691,7 +692,7 @@ class ExpansionJointInput(QDialog):
 
         list_lines = list()
         for element_id in self.joint_elements:
-            line_id = self.preprocessor.elements_to_line[element_id]
+            line_id = self.model.mesh.elements_to_line[element_id]
             for element_id_from_line in self.preprocessor.line_to_elements[line_id]:
                 element = self.structural_elements[element_id_from_line]
                 if element.element_type in [None, "beam_1"] or element.cross_section is None:
@@ -734,7 +735,7 @@ class ExpansionJointInput(QDialog):
             joint_detected = False
             for element_id in joint_elements:
                 if element_id in list_elements:
-                    line_id = self.preprocessor.elements_to_line[element_id]
+                    line_id = self.model.mesh.elements_to_line[element_id]
                     joint_detected = True
                     break
 
@@ -953,7 +954,7 @@ class ExpansionJointInput(QDialog):
             line_id = self.selected_lines
             table_index = 1
         else:
-            line_id = self.preprocessor.elements_to_line[self.joint_elements[0]]
+            line_id = self.model.mesh.elements_to_line[self.joint_elements[0]]
             if line_id in self.preprocessor.number_expansion_joints_by_lines.keys():
                 table_index = self.preprocessor.number_expansion_joints_by_lines[line_id] + 1
             else:
@@ -1146,7 +1147,7 @@ class ExpansionJointInput(QDialog):
                                         last_element_id - 1,  
                                         last_element_id + 1  ])
 
-        line_id = self.preprocessor.elements_to_line[input_elements[0]]
+        line_id = self.model.mesh.elements_to_line[input_elements[0]]
         first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
         last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
         lists_element_indexes.append([  first_element_id_from_line - 1, 
@@ -1207,7 +1208,7 @@ class ExpansionJointInput(QDialog):
             [joint_elements, _] = self.preprocessor.group_elements_with_expansion_joints[selected_group]
             list_lines = list()
             for element_id in joint_elements:
-                line_id = self.preprocessor.elements_to_line[element_id]
+                line_id = self.model.mesh.elements_to_line[element_id]
                 if line_id not in list_lines:
                     list_lines.append(line_id)
 

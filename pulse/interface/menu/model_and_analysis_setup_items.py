@@ -19,7 +19,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         super().__init__()
 
         self.main_window = app().main_window
-        self.project = app().main_window.project
+        self.project = app().project
 
         self._create_items()
         self._create_connections()

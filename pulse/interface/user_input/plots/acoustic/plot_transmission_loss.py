@@ -123,7 +123,7 @@ class PlotTransmissionLoss(QWidget):
             title = "Required data to process the Transmission Loss"
             message = "Dear user, to determine the Transmission Loss (TL) of a filter or duct it is necessary to "
             message += "select the input node ID where the indicent wave is applied (usually by a volume velocity "
-            message += "source) and the output node ID with a anechoic termination. An anechoic termination also "
+            message += "source) and the output node ID with an anechoic termination. An anechoic termination also "
             message += "should be applied at the input node ID to avoid wave reflections caused by the source itself."
             message += "\n\nInput node ID: incident plane wave (volume velocity + anechoic impedance)"
             message += "\nOutput node ID: outlet of filter or duct with an anechoic impedance\n"

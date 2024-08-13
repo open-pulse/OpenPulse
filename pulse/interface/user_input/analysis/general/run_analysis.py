@@ -33,36 +33,42 @@ class RunAnalysisInput(QDialog):
         # self._create_connections()
         # self._config_widgets()
 
-        LoadingScreen(title = 'Solution in progress', 
-                      message = 'Processing the cross-sections',  
-                      target = self.process_cross_sections, 
-                      project = self.project)
+        self.process_cross_sections()
+
+        # LoadingScreen(title = 'Solution in progress', 
+        #               message = 'Processing the cross-sections',  
+        #               target = self.process_cross_sections, 
+        #               project = self.project)
         
         if self.project.preprocessor.stop_processing:
             self.project.preprocessor.stop_processing = False
             return
 
-        LoadingScreen(title = 'Solution in progress', 
-                      message = 'Preparing the model to solve', 
-                      target = self.preparing_mathematical_model_to_solve)
+        self.preparing_mathematical_model_to_solve()
+        # LoadingScreen(title = 'Solution in progress', 
+        #               message = 'Preparing the model to solve', 
+        #               target = self.preparing_mathematical_model_to_solve)
 
         self.pre_non_linear_convergence_plot()
 
-        LoadingScreen(title = 'Solution in progress', 
-                      message = 'Solving the analysis',  
-                      target = self.process_analysis, 
-                      project = self.project)
+        self.process_analysis()
+
+        # LoadingScreen(title = 'Solution in progress', 
+        #               message = 'Solving the analysis',  
+        #               target = self.process_analysis, 
+        #               project = self.project)
 
         self.post_non_linear_convergence_plot()  
 
         if self.project.preprocessor.stop_processing:
             self.reset_all_results()
             self.project.preprocessor.stop_processing = False
-        else:
 
-            LoadingScreen(title = 'Solution in progress', 
-                          message = 'Post-processing the obtained results', 
-                          target = self.post_process_results)
+        else:
+            self.post_process_results()
+            # LoadingScreen(title = 'Solution in progress', 
+            #               message = 'Post-processing the obtained results', 
+            #               target = self.post_process_results)
             
             # self.timer.start(200)
             # self.exec()
@@ -178,7 +184,7 @@ class RunAnalysisInput(QDialog):
         elif self.analysis_id in [5, 6]:
             self.project.preprocessor.enable_fluid_mass_adding_effect()
             self.solve = self.project.get_acoustic_solve()
-            
+
         else:
             self.project.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.solve = self.project.get_structural_solve()
@@ -276,11 +282,11 @@ class RunAnalysisInput(QDialog):
 
             self.project.set_structural_solve(self.solve)
             self.project.set_structural_solution(self.solution_structural)
-            self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes()
-            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
-            self.project.set_structural_reactions([ self.dict_reactions_at_constrained_dofs,
-                                                    self.dict_reactions_at_springs,
-                                                    self.dict_reactions_at_dampers  ])
+            self.reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes()
+            self.reactions_at_springs, self.reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
+            self.project.set_structural_reactions([ self.reactions_at_constrained_dofs,
+                                                    self.reactions_at_springs,
+                                                    self.reactions_at_dampers ])
 
         self.project.time_to_postprocess = time() - t0
         _times =  [self.project.time_to_process_cross_sections, self.project.time_to_preprocess_model, self.project.time_to_solve_model, self.project.time_to_postprocess]

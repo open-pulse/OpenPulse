@@ -31,6 +31,7 @@ class PerforatedPlateInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -1023,7 +1024,7 @@ class PerforatedPlateInput(QDialog):
                     lists_element_indexes.append([  first_element_id-1, first_element_id+1, 
                                                     last_element_id-1, last_element_id+1  ])
                     #
-                    line_id = self.preprocessor.elements_to_line[valve_elements[0]]
+                    line_id = self.model.mesh.elements_to_line[valve_elements[0]]
                     first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
                     last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
                     lists_element_indexes.append([  first_element_id_from_line-1, first_element_id_from_line+1, 

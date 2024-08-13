@@ -24,18 +24,19 @@ class StructuralSolver:
         Default is None.
     """
 
-    def __init__(self, preprocessor, frequencies, **kwargs):
+    def __init__(self, model, frequencies, **kwargs):
+
+        self.model = model
+        self.frequencies = frequencies
 
         self.acoustic_solution = kwargs.get("acoustic_solution", None)
-        self.assembly = AssemblyStructural(preprocessor, frequencies, acoustic_solution=self.acoustic_solution)
-        self.preprocessor = preprocessor
-        self.frequencies = frequencies
+        self.assembly = AssemblyStructural(model, frequencies, acoustic_solution=self.acoustic_solution)
         
-        self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
+        self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K_exp_joint, self.M_exp_joint, self.Kr_exp_joint, self.Mr_exp_joint = self.assembly.get_expansion_joint_global_matrices()
 
-        self.cache_K = self.K.copy()
+        # self.cache_K = self.K.copy()
 
         self.nodes_connected_to_springs = self.assembly.nodes_connected_to_springs
         self.nodes_with_lumped_masses = self.assembly.nodes_with_lumped_masses
@@ -111,7 +112,7 @@ class StructuralSolver:
         """
 
         unprescribed_indexes = self.unprescribed_indexes
-        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
+        alphaV, betaV, alphaH, betaH = self.model.global_damping
 
         F = self.assembly.get_global_loads(static_analysis=static_analysis)
 
@@ -201,9 +202,9 @@ class StructuralSolver:
 
         if K==[] and M==[]:
 
-            if self.preprocessor.stress_stiffening_enabled:
+            if self.model.preprocessor.stress_stiffening_enabled:
                 static_solution = self.static_analysis()
-                self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+                self.model.preprocessor.update_nodal_solution_info(np.real(static_solution))
                 self.update_global_matrices()
   
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
@@ -253,11 +254,11 @@ class StructuralSolver:
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
 
-        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
+        alphaV, betaV, alphaH, betaH = self.model.global_damping
 
-        if self.preprocessor.stress_stiffening_enabled:
+        if self.model.preprocessor.stress_stiffening_enabled:
             static_solution = self.static_analysis()
-            self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+            self.model.preprocessor.update_nodal_solution_info(np.real(static_solution))
             self.update_global_matrices()
 
         rows = self.K.shape[0]
@@ -313,7 +314,7 @@ class StructuralSolver:
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
-        global_damping = self.preprocessor.global_damping
+        global_damping = self.model.global_damping
         alphaV, betaV, alphaH, betaH = global_damping
 
         if np.sum(self.prescribed_values)>0:
@@ -323,9 +324,9 @@ class StructuralSolver:
             return solution
         else:
             F = self.assembly.get_global_loads(loads_matrix3D=fastest)
-            if self.preprocessor.stress_stiffening_enabled:
+            if self.model.preprocessor.stress_stiffening_enabled:
                 static_solution = self.static_analysis()
-                self.preprocessor.update_nodal_solution_info(np.real(static_solution))
+                self.model.preprocessor.update_nodal_solution_info(np.real(static_solution))
                 self.update_global_matrices()
             
             # Kadd_lump = self.K + self.K_lump[0]
@@ -400,7 +401,7 @@ class StructuralSolver:
             Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
         """
        
-        alphaV, betaV, alphaH, betaH = self.preprocessor.global_damping
+        alphaV, betaV, alphaH, betaH = self.model.global_damping
         # F = self.assembly.get_global_loads_for_static_analysis()
         F = self.get_combined_loads(static_analysis=True)
 
@@ -439,7 +440,7 @@ class StructuralSolver:
             Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.
         """
 
-        alphaH, betaH, alphaV, betaV = self.preprocessor.global_damping
+        alphaH, betaH, alphaV, betaV = self.model.global_damping
         load_reactions = {}
         if self.solution is not None:    
 
@@ -499,8 +500,8 @@ class StructuralSolver:
             Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a spring and damper.
         """
 
-        dict_reactions_at_springs = {}
-        dict_reactions_at_dampers = {}
+        dict_reactions_at_springs = dict()
+        dict_reactions_at_dampers = dict()
 
         if self.solution is not None: 
 
@@ -509,26 +510,37 @@ class StructuralSolver:
 
             U = self.solution
 
-            global_dofs_of_springs = []
-            global_dofs_of_dampers = []
-            springs_stiffness = []
-            dampers_dampings = []
+            springs_stiffness = list()
+            dampers_dampings = list()
+            global_dofs_of_springs = list()
+            global_dofs_of_dampers = list()
+            
+            for (property, *args), data in self.model.properties.nodal_properties.items():
+                if property == "lumped_stiffness":
 
-            for node in self.preprocessor.nodes_connected_to_springs:
-                global_dofs_of_springs.append(node.global_dof)
-                if node.loaded_table_for_lumped_stiffness:
-                    springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else value for value in node.lumped_stiffness])
-                else:
-                    springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in node.lumped_stiffness])
+                    node_id = args 
+                    node = self.model.preprocessor.nodes[node_id]
+                    global_dofs_of_springs.append(node.global_dof)
+                    values = data["values"]
+    
+                    if "table names" in data.keys():
+                        springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
+                    else:
+                        springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
 
-            for node in self.preprocessor.nodes_connected_to_dampers:
-                global_dofs_of_dampers.append(node.global_dof)
-                if node.loaded_table_for_lumped_dampings:
-                    dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else value for value in node.lumped_dampings])
-                else:
-                    dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in node.lumped_dampings])
+                elif property == "lumped_dampers":
 
-            if springs_stiffness != []:
+                    node_id = args 
+                    node = self.model.preprocessor.nodes[node_id]
+                    global_dofs_of_dampers.append(node.global_dof)
+                    values = data["values"]
+
+                    if "table names" in data.keys():
+                        dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
+                    else:
+                        dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
+
+            if springs_stiffness:
                 global_dofs_of_springs = np.array(global_dofs_of_springs).flatten()
                 springs_stiffness = np.array(springs_stiffness).reshape(-1,cols)
                 reactions_at_springs = springs_stiffness*U[global_dofs_of_springs,:]
@@ -536,7 +548,7 @@ class StructuralSolver:
                 for i, gdof in enumerate(global_dofs_of_springs):
                     dict_reactions_at_springs[gdof] = reactions_at_springs[i,:]
 
-            if dampers_dampings != []:
+            if dampers_dampings:
                 global_dofs_of_dampers = np.array(global_dofs_of_dampers).flatten()
                 dampers_dampings = np.array(dampers_dampings).reshape(-1,cols)
                 reactions_at_dampers = (1j*omega)*dampers_dampings*U[global_dofs_of_dampers,:]
@@ -580,11 +592,11 @@ class StructuralSolver:
         self.stress_field_dict = dict()
 
         if damping:
-            _, betaH, _, betaV = self.preprocessor.global_damping
+            _, betaH, _, betaV = self.model.global_damping
         else:
             betaH = betaV = 0
 
-        elements = self.preprocessor.structural_elements.values()
+        elements = self.model.preprocessor.structural_elements.values()
         omega = 2 * pi * self.frequencies.reshape(1,-1)
         damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))
         p0 = pressure_external
@@ -661,6 +673,6 @@ class StructuralSolver:
         return self.stress_field_dict
 
     def stop_processing(self):
-        if self.preprocessor.stop_processing:
+        if self.model.preprocessor.stop_processing:
             print("\nProcessing interruption was requested by the user. \nSolution interruped.")
             return True

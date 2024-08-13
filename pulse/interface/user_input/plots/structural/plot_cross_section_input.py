@@ -22,6 +22,7 @@ class PlotCrossSectionInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -43,7 +44,6 @@ class PlotCrossSectionInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         
         self.structural_elements = self.project.preprocessor.structural_elements
-        self.lines_from_model = self.project.preprocessor.lines_from_model
 
     def _define_qt_variables(self):
 
@@ -139,7 +139,7 @@ class PlotCrossSectionInput(QDialog):
                 self.window_title = window_title_2
                 return True
 
-            entity = self.lines_from_model[self.line_typed]
+            entity = self.model.mesh.lines_from_model[self.line_typed]
             
             if entity.cross_section is None and entity.expansion_joint_parameters is None:
                 self.message = "Please, define a cross-section to the \nselected line before trying to plot the section."

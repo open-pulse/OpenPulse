@@ -25,6 +25,7 @@ class ConnectingFlangesInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
         self.preprocessor = app().project.preprocessor
 
         self._config_window()
@@ -46,7 +47,7 @@ class ConnectingFlangesInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.preprocessor._map_lines_to_nodes()
 
-        self.element_size = self.preprocessor.element_size
+        self.element_size = self.preprocessor.mesh.element_size
 
         self.complete = False
         self.multiple_selection = False
@@ -170,8 +171,8 @@ class ConnectingFlangesInput(QDialog):
                 self.get_elements_from_start_end_line()
                 
                 if len(selected_lines) == 1:
-                    first_node = self.preprocessor.dict_line_to_nodes[selected_lines[0]][0]
-                    last_node = self.preprocessor.dict_line_to_nodes[selected_lines[0]][1]
+                    first_node = self.preprocessor.line_to_nodes[selected_lines[0]][0]
+                    last_node = self.preprocessor.line_to_nodes[selected_lines[0]][1]
                     self.lineEdit_first_node.setText(str(first_node))
                     self.lineEdit_last_node.setText(str(last_node))
 
@@ -329,7 +330,7 @@ class ConnectingFlangesInput(QDialog):
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
         for element_id in app().main_window.list_selected_elements():
-            line = self.preprocessor.elements_to_line[element_id]
+            line = self.model.mesh.elements_to_line[element_id]
             elements_from_line[line].append(element_id)
         return elements_from_line
 
@@ -352,8 +353,8 @@ class ConnectingFlangesInput(QDialog):
         if selection_index == 0:
             _stop, self.lineID = self.before_run.check_selected_ids(lineEdit_selection, "lines")
             for line_id in self.lineID:
-                entity = self.preprocessor.lines_from_model[line_id]
-                if entity.structural_element_type in ["beam_1", "expansion_joint"]:
+                line = self.model.mesh.lines_from_model[line_id]
+                if line.structural_element_type in ["beam_1", "expansion_joint"]:
                     _stop = True
                     break
                    

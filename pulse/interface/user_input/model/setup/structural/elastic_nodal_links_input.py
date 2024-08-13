@@ -872,22 +872,22 @@ class ElasticNodalLinksInput(QDialog):
             self.project.remove_structural_table_files_from_folder(table_name, folder_name="elastic_links_files")
 
     def text_label(self, mask, load_labels):
-        
+
         text = ""
-        temp = load_labels[mask]
+        labels = load_labels[mask]
 
         if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4])
+            text = "[{}, {}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3])
+            text = "[{}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(temp[0], temp[1], temp[2])
+            text = "[{}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(temp[0], temp[1])
+            text = "[{}, {}]".format(*labels)
         elif list(mask).count(True) == 1:
-            text = "[{}]".format(temp[0])
+            text = "[{}]".format(*labels)
         return text
 
     def skip_treeWidget_row(self, treeWidget):

@@ -4,11 +4,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 import numpy as np
-from pathlib import Path
 
 
 class StaticAnalysisInput(QDialog):
@@ -18,8 +16,9 @@ class StaticAnalysisInput(QDialog):
         ui_path = UI_DIR / "/analysis/structural/static_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        self.main_window = app().main_window
-        self.project = self.main_window.project
+        app().main_window.set_input_widget(self)
+        self.project = app().project
+        self.model = app().project.model
         
         self._config_window()
         self._initialize()
@@ -36,8 +35,7 @@ class StaticAnalysisInput(QDialog):
 
     def _initialize(self):
         self.complete = False
-        self.global_damping = [0, 0, 0, 0]
-        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
+        # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
         self.gravity_vector = self.project.preprocessor.gravity_vector
 
     def _define_qt_variables(self):
@@ -55,23 +53,30 @@ class StaticAnalysisInput(QDialog):
         self.pushButton_run_analysis.clicked.connect(self.confirm)
 
     def _load_current_state(self):
-        self.checkBox_self_weight_load.setChecked(self.project.weight_load)
-        self.checkBox_internal_pressure_load.setChecked(self.project.internal_pressure_load)
-        self.checkBox_external_nodal_loads.setChecked(self.project.external_nodal_loads)
-        self.checkBox_distributed_element.setChecked(self.project.element_distributed_load)
+        self.checkBox_self_weight_load.setChecked(self.model.weight_load)
+        self.checkBox_internal_pressure_load.setChecked(self.model.internal_pressure_load)
+        self.checkBox_external_nodal_loads.setChecked(self.model.external_nodal_loads)
+        self.checkBox_distributed_element.setChecked(self.model.element_distributed_load)
 
     def confirm(self):
 
-        self.project.set_structural_damping(self.global_damping)
+        self.model.set_global_damping([0, 0, 0, 0])
         self.project.set_frequencies(np.array([0], dtype=float), 0, 0, 0)
 
         weight_load = self.checkBox_self_weight_load.isChecked()
         internal_pressure_load = self.checkBox_internal_pressure_load.isChecked()
         external_nodal_load = self.checkBox_external_nodal_loads.isChecked()
         distributed_load = self.checkBox_distributed_element.isChecked()
-        analysis_setup = [weight_load, internal_pressure_load, external_nodal_load, distributed_load]
+        # analysis_setup = [weight_load, internal_pressure_load, external_nodal_load, distributed_load]
 
-        self.project.set_static_analysis_setup(analysis_setup)
+        static_analysis_setup = {
+                                    "weight_load" : weight_load,
+                                    "internal_pressure_load" : internal_pressure_load,
+                                    "external_pressure_load" : external_nodal_load,
+                                    "distributed_load" : distributed_load
+                                }
+
+        self.project.set_static_analysis_setup(static_analysis_setup)
 
         self.complete = True
         self.close()

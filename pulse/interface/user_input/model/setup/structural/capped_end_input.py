@@ -24,6 +24,7 @@ class CappedEndInput(QDialog):
 
         self.main_window = app().main_window
         self.project = app().project
+        self.model = app().project.model
 
         self._initialize()
         self._config_window()
@@ -44,7 +45,6 @@ class CappedEndInput(QDialog):
         self.elements_id = app().main_window.list_selected_elements()
 
         self.structural_elements = self.preprocessor.structural_elements
-        self.lines_from_model = self.preprocessor.lines_from_model
     
         self.dictkey_to_remove = None
         self.elements_info_path = self.project.file._element_info_path
@@ -52,7 +52,7 @@ class CappedEndInput(QDialog):
         self.dictKey_label = "CAPPED END || {}"
    
         self.project_lines = {}
-        for line in self.preprocessor.lines_from_model.keys():
+        for line in self.model.mesh.lines_from_model.keys():
             self.project_lines[line] = True
         
         self.complete = False
@@ -205,8 +205,8 @@ class CappedEndInput(QDialog):
 
     def update_capped_end_effect_by_lines_selection(self):
         if len(self.lines_id) == 1:
-            entity = self.preprocessor.lines_from_model[self.lines_id[0]]
-            if entity.capped_end:
+            line = self.model.mesh.lines_from_model[self.lines_id[0]]
+            if line.capped_end:
                 self.comboBox_capped_end.setCurrentIndex(0)
             else:
                 self.comboBox_capped_end.setCurrentIndex(1)
@@ -401,7 +401,7 @@ class CappedEndInput(QDialog):
         self.load_lines_info()
 
     def set_capped_end_to_all_lines(self):
-        lines = list(self.preprocessor.lines_from_model.keys())
+        lines = list(self.model.mesh.lines_from_model.keys())
         capped_end = self.get_capped_end()
         self.project.set_capped_end_by_lines(lines, capped_end)
         self.load_lines_info()
@@ -413,7 +413,7 @@ class CappedEndInput(QDialog):
         for key, elements in aux_dict.items():
             self.project.set_capped_end_by_elements(elements, False, key)
 
-        lines = list(self.preprocessor.lines_from_model.keys())
+        lines = list(self.model.mesh.lines_from_model.keys())
         self.project.set_capped_end_by_lines(lines, False)
 
         self.load_treeWidgets_info()

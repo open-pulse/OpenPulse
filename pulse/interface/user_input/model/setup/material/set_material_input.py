@@ -51,7 +51,6 @@ class SetMaterialInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.material_path = self.project.get_material_list_path()
-        self.lines_from_model = self.preprocessor.lines_from_model
 
     def _define_qt_variables(self):
 

@@ -63,7 +63,6 @@ class SetFluidInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.fluid_path = self.project.get_fluid_list_path()
-        self.lines_from_model = self.preprocessor.lines_from_model
 
         self.keep_window_open = True
 

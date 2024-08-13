@@ -143,7 +143,7 @@ class opvRenderer(vtkRendererBase):
         if self.selectionToLines():
             lines = self.getListPickedLines()
             if self.opv.change_plot_to_entities_with_cross_section:
-                _elements = [element_id for line_id in lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                _elements = [element_id for line_id in lines for element_id in app().project.model.mesh.line_to_elements[line_id]]
                 self.hide_elements(_elements)  
             self.hide_lines(lines)
 
@@ -215,7 +215,7 @@ class opvRenderer(vtkRendererBase):
                         _lines.append(line_id)
                 self.hide_lines(_lines, _update_Renderer=True)
             else:
-                _lines = list(self.preprocessor.lines_from_model.keys())
+                _lines = list(self.model.mesh.lines_from_model.keys())
                 self.hide_lines(_lines, _update_Renderer=True)
             
     def hide_show_elements_and_nodes(self, _show):
@@ -228,7 +228,7 @@ class opvRenderer(vtkRendererBase):
             if picked_elements:
                 self.hide_elements(picked_elements, _update_Renderer=False)
             elif picked_lines:
-                picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                picked_elements = [element_id for line_id in picked_lines for element_id in app().project.model.mesh.line_to_elements[line_id]]
                 self.hide_elements(picked_elements, _update_Renderer=False)
             else:
                 _elements = list(self.preprocessor.structural_elements.keys())
@@ -250,7 +250,7 @@ class opvRenderer(vtkRendererBase):
             if picked_elements:
                 self.hide_elements(picked_elements, _update_Renderer=True)
             elif picked_lines:
-                picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                picked_elements = [element_id for line_id in picked_lines for element_id in app().project.model.mesh.line_to_elements[line_id]]
                 self.hide_elements(picked_elements, _update_Renderer=True)
             else:
                 _elements = list(self.preprocessor.structural_elements.keys())
@@ -323,7 +323,7 @@ class opvRenderer(vtkRendererBase):
         if (plot_filter.lines):
             self.unhide_lines(_update_Renderer=True)
         else:
-            _lines = list(self.preprocessor.lines_from_model.keys())
+            _lines = list(self.model.mesh.lines_from_model.keys())
             self.hide_lines(_lines, _update_Renderer=True)
 
         if (plot_filter.tubes):
@@ -393,7 +393,7 @@ class opvRenderer(vtkRendererBase):
             self.elementsBounds[key] = bounds
 
     def saveLineToElements(self):
-        self.lineToElements = self.preprocessor.line_to_elements
+        self.lineToElements = app().project.model.mesh.line_to_elements
     
     def saveRawLinesData(self):
         pass

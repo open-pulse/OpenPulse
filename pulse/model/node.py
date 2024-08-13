@@ -52,7 +52,6 @@ class Node:
         self.prescribed_dofs_table_names = [None, None, None, None, None, None]
         self.there_are_prescribed_dofs = False
         self.loaded_table_for_prescribed_dofs = False
-        self.there_are_constrained_dofs = False
         
         self.lumped_masses = [None, None, None, None, None, None]
         self.lumped_masses_table_names = [None, None, None, None, None, None]
@@ -181,44 +180,44 @@ class Node:
         """
         self.prescribed_dofs = boundary_condition
 
-    def get_prescribed_dofs(self):
-        """
-        This method returns the node's structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.
+    # def get_prescribed_dofs(self):
+    #     """
+    #     This method returns the node's structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.
 
-        Returns
-        ----------
-        boundary_condition : array
-            The boundary conditions prescribed into the node.
+    #     Returns
+    #     ----------
+    #     boundary_condition : array
+    #         The boundary conditions prescribed into the node.
 
-        See also
-        --------
-        set_prescribed_dofs_bc : Attributes the structural boundary conditions into the node.
-        """
-        return self.prescribed_dofs
+    #     See also
+    #     --------
+    #     set_prescribed_dofs_bc : Attributes the structural boundary conditions into the node.
+    #     """
+    #     return self.prescribed_dofs
 
-    def get_lumped_dampings(self):
-        """
-        This method returns the node's lumped dampings in the local coordinate system according to the degrees of freedom.
+    # def get_lumped_dampings(self):
+    #     """
+    #     This method returns the node's lumped dampings in the local coordinate system according to the degrees of freedom.
 
-        Returns
-        ----------
-        lumped_dampings : array
-            The lumped dampings prescribed into the node.
-        """
-        return self.lumped_dampings
+    #     Returns
+    #     ----------
+    #     lumped_dampings : array
+    #         The lumped dampings prescribed into the node.
+    #     """
+    #     return self.lumped_dampings
 
-    def get_lumped_stiffness(self):
-        """
-        This method returns the node's lumped stiffness in the local coordinate system according to the degrees of freedom.
+    # def get_lumped_stiffness(self):
+    #     """
+    #     This method returns the node's lumped stiffness in the local coordinate system according to the degrees of freedom.
 
-        Returns
-        ----------
-        lumped_stiffness : array
-            The lumped stiffness prescribed into the node.
-        """
-        return self.lumped_stiffness
+    #     Returns
+    #     ----------
+    #     lumped_stiffness : array
+    #         The lumped stiffness prescribed into the node.
+    #     """
+    #     return self.lumped_stiffness
 
-    def get_prescribed_dofs_bc_indexes(self):
+    def get_prescribed_dofs_indexes(self):
         """
         This method returns the index(es) of the degrees of freedom in the local coordinate system which has(have) prescribed structural displacement or rotation boundary conditions. The array share the same structure of the get_prescribed_dofs_bc_values array.
 
@@ -231,7 +230,7 @@ class Node:
         --------
         get_prescribed_dofs_bc_values : Value(s) of the prescribed boundary conditions.
         """
-        return [i for i, j in enumerate(self.prescribed_dofs) if j is not None]
+        return [i for i, value in enumerate(self.prescribed_dofs) if value is not None]
 
     def get_prescribed_dofs_bc_values(self):
         """

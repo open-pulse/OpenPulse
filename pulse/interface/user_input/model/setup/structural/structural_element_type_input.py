@@ -20,6 +20,7 @@ class StructuralElementTypeInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -41,7 +42,6 @@ class StructuralElementTypeInput(QDialog):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.lines_from_model = self.preprocessor.lines_from_model
 
         self.element_type = 'pipe_1'
         self.complete = False
@@ -110,7 +110,7 @@ class StructuralElementTypeInput(QDialog):
 
             if len(selected_lines) == 1:
 
-                line = self.preprocessor.lines_from_model[selected_lines[0]]
+                line = self.model.mesh.lines_from_model[selected_lines[0]]
 
                 element_type = line.structural_element_type
                 if element_type == 'pipe_1':
@@ -210,11 +210,11 @@ class StructuralElementTypeInput(QDialog):
         line_ids = app().main_window.list_selected_lines()
 
         if len(line_ids) == 0:
-            line_ids = list(self.preprocessor.lines_from_model.keys())
+            line_ids = list(self.model.mesh.lines_from_model.keys())
 
         for tag in line_ids:
 
-            line = self.lines_from_model[tag]
+            line = self.model.mesh.lines_from_model[tag]
             initial_etype = line.structural_element_type
 
             if initial_etype in ['pipe_1', None] and final_etype in ['beam_1']:
@@ -248,7 +248,7 @@ class StructuralElementTypeInput(QDialog):
         
         # final_etype = self.element_type
         # for tag in tags:
-        #     initial_etype = self.lines_from_model[tag].structural_element_type
+        #     initial_etype = self.model.mesh.lines_from_model[tag].structural_element_type
         #     if initial_etype in ['pipe_1'] and final_etype in ['beam_1']:
         #         self.project.set_cross_section_by_lines(tag, None)
         #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1']:
@@ -260,7 +260,7 @@ class StructuralElementTypeInput(QDialog):
 
         if index == 0:
             self.check_element_type_changes()
-            lines = list(self.preprocessor.lines_from_model.keys())
+            lines = list(self.model.mesh.lines_from_model.keys())
             print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
 
         elif index == 1:
@@ -314,7 +314,7 @@ class StructuralElementTypeInput(QDialog):
 
     def reset_element_type(self):
         self.element_type = "pipe_1"
-        lines = list(self.preprocessor.lines_from_model.keys())
+        lines = list(self.model.mesh.lines_from_model.keys())
         self.project.set_structural_element_type_by_lines(lines, self.element_type)
         self.complete = True
         self.close()

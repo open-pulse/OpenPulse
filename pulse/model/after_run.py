@@ -11,6 +11,7 @@ class AfterRun:
 
         self.main_window = app().main_window
         self.project = app().project
+        self.model = app().project.model
         self.preprocessor = app().project.preprocessor
 
         self.solution_acoustic = self.project.solution_acoustic
@@ -19,7 +20,6 @@ class AfterRun:
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements
         self.acoustic_elements = self.preprocessor.acoustic_elements
-        self.lines_from_model = self.preprocessor.lines_from_model
         # self.acoustic_criteria = defaultdict(list)
 
     def check_the_acoustic_criterias_related_to_elements(self, nl_criteria=0.08):

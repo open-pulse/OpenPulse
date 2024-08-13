@@ -305,7 +305,7 @@ class PrescribedDofsInput(QDialog):
             self.remove_table_files_from_nodes(node_ids)
             self.remove_conflictant_excitations(node_ids)
 
-            self.preprocessor.set_prescribed_dofs(node_ids, data)
+            # self.preprocessor.set_prescribed_dofs(node_ids, data)
 
             real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
             imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
@@ -552,7 +552,7 @@ class PrescribedDofsInput(QDialog):
 
             self.properties._set_property("prescribed_dofs", bc_data, node_ids=node_id)
 
-        self.preprocessor.set_prescribed_dofs(node_ids, data)
+        # self.preprocessor.set_prescribed_dofs(node_ids, data)
 
         app().pulse_file.write_model_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
@@ -689,7 +689,7 @@ class PrescribedDofsInput(QDialog):
             app().pulse_file.write_model_properties_in_file()
 
             data = [self.list_Nones, self.list_Nones]
-            self.preprocessor.set_prescribed_dofs(node_ids, data)
+            # self.preprocessor.set_prescribed_dofs(node_ids, data)
 
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove.setDisabled(True)
@@ -725,7 +725,7 @@ class PrescribedDofsInput(QDialog):
             self.remove_table_files_from_nodes(node_ids)
 
             data = [self.list_Nones, self.list_Nones]
-            self.preprocessor.set_prescribed_dofs(node_ids, data)
+            # self.preprocessor.set_prescribed_dofs(node_ids, data)
 
             self.properties._reset_property("prescribed_dofs")
             app().pulse_file.write_model_properties_in_file()

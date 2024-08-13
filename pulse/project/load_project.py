@@ -16,6 +16,7 @@ class LoadProject:
         super().__init__()
 
         self.project = app().project
+        self.model = app().project.model
         self.properties = app().project.model.properties
         self.preprocessor = app().project.preprocessor
 
@@ -426,7 +427,7 @@ class LoadProject:
             return
 
         if "mesher setup" in project_setup.keys():
-            self.preprocessor.set_mesher_setup(project_setup["mesher setup"])
+            self.preprocessor.mesh.set_mesher_setup(mesh_setup=project_setup["mesher setup"])
 
     def load_inertia_load_setup(self):
 
@@ -437,7 +438,7 @@ class LoadProject:
         gravity = np.array(inertia_load["gravity"], dtype=float)
         stiffening_effect = inertia_load["stiffening effect"]
 
-        self.preprocessor.set_inertia_load(gravity)
+        self.project.model.set_gravity_vector(gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
     def load_analysis_file(self):
@@ -447,14 +448,5 @@ class LoadProject:
         if analysis_setup is None:
             return
 
-        if "f_min" in analysis_setup.keys():
-            self.project.f_min = analysis_setup["f_min"]
-
-        if "f_max" in analysis_setup.keys():
-            self.project.f_max = analysis_setup["f_max"]
-
-        if "f_step" in analysis_setup.keys():
-            self.project.f_step = analysis_setup["f_step"]
-
-        if "global damping" in analysis_setup.keys():
-            self.project.global_damping = analysis_setup["global damping"]
+        self.model.set_frequency_setup(analysis_setup)
+        self.model.set_global_damping(analysis_setup)

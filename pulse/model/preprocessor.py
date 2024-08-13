@@ -10,6 +10,8 @@ from pulse.model.before_run import BeforeRun
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
+from pulse.model.mesh import Mesh
+
 import os
 import gmsh 
 import numpy as np
@@ -23,30 +25,31 @@ class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self, project):
-        self.project = project
-        self.file = project.file
+    def __init__(self):
+
+        self.mesh = None
         self.reset_variables()
-        self.set_mesher_setup(dict())
 
     def reset_variables(self):
         """
         This method reset the class default values.
         """
-        self.geometry_handler = None
+
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
-        self.number_structural_elements = 0
-        self.number_acosutic_elements = 0
+
         self.nodes = dict()
         self.structural_elements = dict()
         self.acoustic_elements = dict()
+
+        self.number_structural_elements = 0
+        self.number_acosutic_elements = 0
+
         self.transformation_matrices = None
         self.section_rotations_xyz = None
         self.elements_connected_to_node = None
-        self.lines_from_model = dict()
-        self.line_to_elements = dict()
-        self.dict_line_to_nodes = dict()
-        self.elements_to_line = dict()
+
+        self.line_to_nodes = dict()
+
         self.elements_with_expansion_joint = list()
         self.elements_with_valve = list()
         self.number_expansion_joints_by_lines = dict()
@@ -66,13 +69,11 @@ class Preprocessor:
 
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
-        self.nodes_with_nodal_loads = list()
-
-        self.nodes_with_constrained_dofs = list()
+ 
         self.nodes_with_masses = list()
         self.nodes_connected_to_springs = list()
         self.nodes_connected_to_dampers = list()
-        self.pair_of_nodes_with_elastic_nodal_links = list()
+
         self.nodes_with_acoustic_pressure = list()
         self.nodes_with_volume_velocity = list()
         self.nodes_with_compressor_excitation = list()
@@ -85,8 +86,7 @@ class Preprocessor:
         self.element_with_capped_end = list()
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
-        self.geometry_points = list()
-
+  
         self.dict_structural_element_type_to_lines = defaultdict(list)
         self.dict_acoustic_element_type_to_lines = defaultdict(list)
         self.dict_beam_xaxis_rotating_angle_to_lines = defaultdict(list)
@@ -120,21 +120,9 @@ class Preprocessor:
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
         self.camera_rotation_center = [0, 0, 0]
-        self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
-        self.global_damping = [0, 0, 0, 0]
 
-    def set_element_size(self, element_size):
-        self.element_size = element_size
-
-    # def set_geometry_handler(self, geometry_handler):
-    #     self.geometry_handler = geometry_handler
-
-    def set_mesher_setup(self, mesh_setup : dict):
-        self.element_size = mesh_setup.get('element size', 0.01)
-        self.tolerance = mesh_setup.get('tolerance', 1e-6)
-        self.length_unit = mesh_setup.get('length unit', 'meter')
-        self.import_type = mesh_setup.get("import type", 1)
-        self.geometry_path = mesh_setup.get('geometry path', "")
+    def set_mesh(self, mesh: Mesh):
+        self.mesh = mesh
 
     def generate(self):
         """
@@ -164,22 +152,10 @@ class Preprocessor:
         """
 
         self.reset_variables()
+        self.mesh.generate()
 
-        if self.import_type == 0:
-
-            if os.path.exists(self.geometry_path):
-                self._load_cad_geometry_on_gmsh()
-            else:
-                return
-
-        self._create_gmsh_geometry()
-        self._set_gmsh_options()
-        self._process_mesh()
-
-        self._map_lines_to_elements()
+        # self._map_lines_to_elements()
         self._map_lines_to_nodes()
-        self._save_geometry_points()
-        self._finalize_gmsh()
 
         # t0 = time()
         self._load_neighbors()
@@ -203,137 +179,6 @@ class Preprocessor:
         # dt = time() - t0
         # print("Time to process all rotations matrices: ", dt)
 
-    def _load_cad_geometry_on_gmsh(self):
-        """
-        This method initializes mesher algorithm gmsh.
-
-        Parameters
-        ----------
-
-        """
-        geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(self.length_unit)
-        geometry_handler.open_cad_file(str(self.geometry_path))
-
-    def _create_gmsh_geometry(self):
-        """
-        This method creates the GMSH geometry based on entity file data.
-
-        Parameters
-        ----------
-
-        """
-        geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(self.length_unit) 
-        geometry_handler.process_pipeline()
-        geometry_handler.create_geometry()
-
-    def _set_gmsh_options(self):
-        """
-        This method sets the mesher algorithm configuration.
-
-        Parameters
-        ----------
-
-        """
-        try:
-            gmsh.option.setNumber("General.NumThreads", 4)
-        except:
-            pass
-
-        if self.length_unit == 'meter':
-            length = m_to_mm(self.element_size)
-        elif self.length_unit == 'inch':
-            length = in_to_mm(self.element_size)
-        else:
-            length = self.element_size
-
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', length)
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', length)
-        gmsh.option.setNumber('Mesh.Optimize', 1)
-        gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
-        gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)
-        gmsh.option.setNumber('Mesh.ElementOrder', 1)
-        gmsh.option.setNumber('Mesh.Algorithm', 2)
-        gmsh.option.setNumber('Mesh.Algorithm3D', 1)
-        gmsh.option.setNumber('Geometry.Tolerance', self.tolerance)
-
-        # fields_list = []
-        # gmsh.model.mesh.field.add("Constant")
-        # gmsh.model.mesh.field.setNumbers(1, "CurvesList", [])
-        # gmsh.model.mesh.field.setNumber(1, "VOut", length)
-        # fields_list.append(1)
-
-        # lines = list()
-        # for dim, line_tag in gmsh.model.getEntities(1):
-        #     lines.append(line_tag)
-
-        # threshold_type = gmsh.model.mesh.field.add("Constant")
-        # gmsh.model.mesh.field.setNumbers(threshold_type, "CurvesList", lines)
-        # gmsh.model.mesh.field.setNumber(threshold_type, "VIn", 2)
-        # fields_list.append(threshold_type)
-
-        # minimum_field = gmsh.model.mesh.field.add("Min")
-        # gmsh.model.mesh.field.setNumbers(minimum_field, "FieldsList", fields_list)
-        # gmsh.model.mesh.field.setAsBackgroundMesh(minimum_field)
-
-    def _process_mesh(self):
-        """
-        This method generate the mesh entities, nodes, structural elements, acoustic elements 
-        and their connectivity.
-        """
-
-        try:
-            gmsh.model.mesh.generate(3)
-
-            for dim, line_tag in gmsh.model.getEntities(1):
-        
-                new_line = Line(line_tag)
-
-                # Element
-                _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
-                if line_element_indexes:
-                    line_connect_data = np.zeros((len(line_element_indexes[0]), 3))
-                    line_connect_data[:,0] = line_element_indexes[0]
-                    line_connect_data[:,1:] = line_connectivity[0].reshape(-1, 2)
-                    new_line.insertEdge(list(line_connect_data))
-
-                # line_connectivity = split_sequence(line_connectivity[0], 2)
-                # for index, (start, end) in zip(line_element_indexes[0], line_connectivity):
-                #     edges = index, start, end
-                #     new_line.insertEdge(edges)
-
-                # Nodes
-                line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
-                line_node_coordinates = mm_to_m(line_node_coordinates).reshape(-1, 3)
-                line_node_data = np.zeros((len(line_node_indexes), 4))
-                line_node_data[:, 0] = line_node_indexes
-                line_node_data[:,1:] = line_node_coordinates
-                new_line.insertNode(list(line_node_data))
-
-                # line_node_coordinates = split_sequence(line_node_coordinates, 3)
-                # for index, (x, y, z) in zip(line_node_indexes, line_node_coordinates):
-                #     node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
-                #     new_line.insertNode(node)
-
-                self.lines_from_model[line_tag] = new_line
-
-            gmsh.model.mesh.removeDuplicateNodes()
-
-            node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
-            _, element_indexes, connectivity = gmsh.model.mesh.getElements()
-
-            self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
-            self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
-
-            self._create_nodes(node_indexes, coords, self.map_nodes)
-            self._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
-            self._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)                       
-            self.update_number_divisions()
-        
-        except Exception as log_error:
-            print(str(log_error))
-
     def _create_nodes(self, indexes, coords, map_nodes):
         """
         This method generate the mesh nodes.
@@ -349,7 +194,8 @@ class Preprocessor:
         map_nodes : dict
             Dictionary maps global indexes to external indexes.
         """
-
+        self.map_nodes = map_nodes
+        self.nodes.clear()
         for i, coord in zip(indexes, split_sequence(coords, 3)):
             x = mm_to_m(coord[0])
             y = mm_to_m(coord[1])
@@ -375,6 +221,8 @@ class Preprocessor:
         map_elements : dict
             Dictionary maps global element indexes.
         """
+        self.map_elements = map_elements
+        self.structural_elements.clear()
         for i, connect in zip(indexes, split_sequence(connectivities, 2)):
             first_node = self.nodes[map_nodes[connect[0]]]
             last_node  = self.nodes[map_nodes[connect[1]]]
@@ -399,62 +247,21 @@ class Preprocessor:
         map_elements : dict
             Dictionary maps global element indexes.
         """
+        self.map_elements = map_elements
+        self.acoustic_elements.clear()
         for i, connect in zip(indexes, split_sequence(connectivities, 2)):
             first_node = self.nodes[map_nodes[connect[0]]]
             last_node  = self.nodes[map_nodes[connect[1]]]
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
             self.number_acoustic_elements = len(self.acoustic_elements)
 
-    def get_mesh_statistics(self):
-        return len(self.nodes), len(self.acoustic_elements), len(self.structural_elements)
-
-    def get_geometry_statistics(self):
-        return len(self.geometry_points), len(self.lines_from_model)
-
-    # def _create_dict_gdofs_to_external_indexes(self):
-    #     # t0 = time()
-    #     self.dict_gdofs_to_external_indexes = {}
-    #     for external_index, node in self.nodes.items():
-    #         for gdof in node.global_dof:
-    #             self.dict_gdofs_to_external_indexes[gdof] = external_index
-    #     # dt = time()-t0
-    #     # print(len(self.dict_gdofs_to_external_indexes))
-    #     # print("Time to process: ", dt)
-
-    def _map_lines_to_elements(self, mesh_loaded=False):
-        """
-        This method maps entities to elements.
-
-        Parameters
-        ----------
-        mesh_loaded : bool, optional.
-            True if the mesh was already generated (internally or externally). False otherwise.
-        """
-        if mesh_loaded:
-            self.line_to_elements[1] = list(self.structural_elements.keys())
-            for element in list(self.structural_elements.keys()):
-                self.elements_to_line[element] = 1
-        else: 
-            # t0 = time()   
-            mapping = self.map_elements
-            for dim, tag in gmsh.model.getEntities(1):
-                elements_of_entity = gmsh.model.mesh.getElements(dim, tag)
-                if elements_of_entity and elements_of_entity[1]:
-                    elements_of_entity = elements_of_entity[1][0]
-                    list_elements = np.array([mapping[element] for element in elements_of_entity], dtype=int)
-                    self.line_to_elements[tag] = list_elements
-                    for element_id in list_elements:
-                        self.elements_to_line[element_id] = tag 
-            # dt = time() - t0
-            # print(f"Time to process : {dt}")
-
     def _map_lines_to_nodes(self):
         """
         This method maps entities to nodes.
         """
         # t0 = time()
-        self.dict_line_to_nodes = dict()
-        for line_ID, list_elements in self.line_to_elements.items():
+        self.line_to_nodes = dict()
+        for line_ID, list_elements in self.mesh.line_to_elements.items():
             list_nodes = np.zeros(len(list_elements)+1, dtype=int)
             for i, _id in enumerate(list_elements):
                 element = self.structural_elements[_id]
@@ -463,25 +270,22 @@ class Preprocessor:
                 if i==0:
                     list_nodes[i] = first_node_id
                 list_nodes[i+1] = last_node_id
-            self.dict_line_to_nodes[line_ID] = np.sort(list_nodes)              
+            self.line_to_nodes[line_ID] = np.sort(list_nodes)              
         # dt = time() - t0
         # print(f"Time to process : {dt}")
 
-    def _save_geometry_points(self):
-        self.geometry_points.clear()
-        node_ids, *_ = gmsh.model.mesh.getNodes(0, -1)
-        for tag in node_ids:
-            index = self.map_nodes.get(tag)
-            if index is None:
-                continue
-            self.geometry_points.append(index)
+    def get_model_statistics(self):
+        return len(self.nodes), len(self.acoustic_elements), len(self.structural_elements)
 
-    def _finalize_gmsh(self):
-        """
-        This method finalize the mesher gmsh algorithm.
-        """
-        gmsh.finalize()
-        self.length_unit = "meter"
+    def _create_dict_gdofs_to_external_indexes(self):
+        # t0 = time()
+        self.dict_gdofs_to_external_indexes = {}
+        for external_index, node in self.nodes.items():
+            for gdof in node.global_dof:
+                self.dict_gdofs_to_external_indexes[gdof] = external_index
+        # dt = time()-t0
+        # print(len(self.dict_gdofs_to_external_indexes))
+        # print("Time to process: ", dt)
 
     def get_line_length(self, line_ID):
         """
@@ -492,8 +296,8 @@ class Preprocessor:
         line_ID : int
         
         """
-        first_element_ID = self.line_to_elements[line_ID][0]
-        last_element_ID = self.line_to_elements[line_ID][-1]
+        first_element_ID = self.mesh.line_to_elements[line_ID][0]
+        last_element_ID = self.mesh.line_to_elements[line_ID][-1]
 
         node1_first_element = self.structural_elements[first_element_ID].first_node
         node2_first_element = self.structural_elements[first_element_ID].last_node
@@ -518,8 +322,8 @@ class Preprocessor:
         This method returns a dictionary containing line IDs as keys and its vertex node coordinates as values.
         """
         dict_line_to_vertex_coords = defaultdict(list)
-        if len(self.dict_line_to_nodes) != 0:
-            for line_id in self.lines_from_model.keys():
+        if self.line_to_nodes:
+            for line_id in self.mesh.lines_from_model.keys():
                 _, vertex_nodes = self.get_line_length(line_id)
                 for vertex_node in vertex_nodes:
                     if _array:
@@ -742,7 +546,7 @@ class Preprocessor:
         """
         This methods shearchs for disconnected lines inside sphere of radius r < (size/2) + tolerance.
         """
-        size = self.element_size
+        element_size = self.mesh.element_size
         if self.nodal_coordinates_matrix_external is not None:
             coord_matrix = self.nodal_coordinates_matrix_external
             list_node_ids = []
@@ -750,7 +554,7 @@ class Preprocessor:
                 if len(neigh_nodes) == 1:
                     coord = node.coordinates
                     diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
-                    mask = diff < ((size/2) + tolerance)
+                    mask = diff < ((element_size / 2) + tolerance)
                     if True in mask:
                         try:
                             external_indexes = coord_matrix[:,0][mask]
@@ -783,14 +587,14 @@ class Preprocessor:
             if node_id in self.dict_first_node_to_element_index.keys():
                 element_id = self.dict_first_node_to_element_index[node_id]
                 for _id in element_id:
-                    line_id = self.elements_to_line[_id]
+                    line_id = self.mesh.elements_to_line[_id]
                     if line_id not in line_ids:
                         line_ids.append(line_id)
             
             if node_id in self.dict_last_node_to_element_index.keys():
                 element_id = self.dict_last_node_to_element_index[node_id]
                 for _id in element_id:
-                    line_id = self.elements_to_line[_id]
+                    line_id = self.mesh.elements_to_line[_id]
                     if line_id not in line_ids:
                         line_ids.append(line_id)
 
@@ -869,58 +673,6 @@ class Preprocessor:
 
     def _mapping_nodes_indexes(self):
         self.map_global_to_external_index = {node.global_index:node.external_index for node in self.nodes.values()}
-
-
-    def load_mesh(self, coordinates, connectivity):
-        """
-        This method creates mesh data from nodes coordinates and connectivity matrix.
-
-        Parameters
-        ----------
-        coordinates : array.
-            Nodes' coordinates. Each row presents the nodes' index, x-coordinate, y-coordinate, and z-coordinate. Coordinates matrix row structure:
-            ''[Node index, x-coordinate, y-coordinate, z-coordinate]''.
-            
-        connectivity : array.
-            Connectivity matrix. Each row presents the elements' index, first node index, and last node index. Connectivity matrix row structure:
-            ''[Element index, first node index, last node index]''.
-        """
-
-        coordinates = np.loadtxt(coordinates)
-        connectivity = np.loadtxt(connectivity, dtype=int).reshape(-1,3)
-        self.number_structural_elements = connectivity.shape[0]
-        self.number_acoustic_elements = connectivity.shape[0]
-
-        new_line = Line(1)
-        map_indexes = dict(zip(coordinates[:,0], np.arange(1, len(coordinates[:,0])+1, 1)))
-
-        for i, x, y, z in coordinates:
-            self.nodes[int(map_indexes[i])] = Node(x, y, z, external_index = int(map_indexes[i]))
-            node = int(map_indexes[i]), x, y, z
-            new_line.insertNode(node)
-        self.number_nodes = len(self.nodes)
-
-        for i, nodes in enumerate(connectivity[:,1:]):
-            first_node = self.nodes[map_indexes[nodes[0]]]
-            last_node  = self.nodes[map_indexes[nodes[1]]]
-            self.structural_elements[i+1] = StructuralElement(first_node, last_node, i+1)
-            self.acoustic_elements[i+1] = AcousticElement(first_node, last_node, i+1)
-            edges = i+1, map_indexes[nodes[0]], map_indexes[nodes[1]]
-            new_line.insertEdge(edges)
-
-        self.lines_from_model[1] = new_line
-        #Ordering global indexes
-        for index, node in enumerate(self.nodes.values()):
-            node.global_index = index
-
-        self.get_nodal_coordinates_matrix()
-        self.get_connectivity_matrix()
-        self.get_dict_nodes_to_element_indexes()
-        self.get_principal_diagonal_structure_parallelepiped()
-        self._map_lines_to_elements(mesh_loaded=True)
-        self.process_all_rotation_matrices()
-        self.create_dict_lines_to_rotation_angles()
-        # self._create_dict_gdofs_to_external_indexes()
 
     def get_dict_nodes_to_element_indexes(self):
         """
@@ -1313,7 +1065,7 @@ class Preprocessor:
         cross_section : Cross section object
             Tube cross section data.
         """
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_cross_section_by_element(elements, cross_section)
     
     # def set_cross_section_plot_info_by_element(self, elements, cross_section):
@@ -1359,7 +1111,7 @@ class Preprocessor:
     #     cross_section : Cross section plot info object
     #         Tube cross section data.
     #     """
-    #     for elements in slicer(self.line_to_elements, lines):
+    #     for elements in slicer(self.mesh.line_to_elements, lines):
     #         self.set_cross_section_plot_info_by_element(elements, cross_section)
 
     def set_structural_element_type_by_lines(self, lines, element_type, remove=False):
@@ -1381,7 +1133,7 @@ class Preprocessor:
         if isinstance(lines, int):
             lines = [lines]
         
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_structural_element_type_by_element(elements, element_type)
         for line in lines:
             if remove:
@@ -1430,7 +1182,7 @@ class Preprocessor:
         if isinstance(lines, int):
             lines = [lines]
 
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_acoustic_element_type_by_element(  elements, element_type, 
                                                         proportional_damping = proportional_damping, 
                                                         vol_flow = vol_flow  )
@@ -1489,52 +1241,53 @@ class Preprocessor:
         material : Material object
             Material data.
         """
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_material_by_element(elements, material)
 
     def set_force_by_element(self, elements, loads):
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
     
-    def set_nodal_loads(self, nodes_id, data):
-        """
-        This method attributes structural force and moment loads to a list of nodes.
+    # def set_nodal_loads(self, nodes_id: list, data: list):
+    #     """
+    #     This method attributes structural force and moment loads to a list of nodes.
 
-        Parameters
-        ----------
-        nodes_id : list
-            Nodes external indexes.
+    #     Parameters
+    #     ----------
+    #     nodes_id : list
+    #         Nodes external indexes.
             
-        values : complex or array
-            Force and moment loads. Complex valued input corresponds to a constant load with respect to the frequency. Array valued input corresponds to a variable load with respect to the frequency.
-        """
-        [values, table_names] = data
-        for node in slicer(self.nodes, nodes_id):
-            node.nodal_loads = values
-            node.nodal_loads_table_names = table_names            
-            node.prescribed_dofs = [None, None, None, None, None, None]
+    #     values : complex or array
+    #         Force and moment loads. Complex valued input corresponds to a constant load with respect to the frequency. Array valued input corresponds to a variable load with respect to the frequency.
+    #     """
+    #     [values, table_names] = data
+    #     for node in slicer(self.nodes, nodes_id):
+    #         node.nodal_loads = values
+    #         node.nodal_loads_table_names = table_names            
+    #         node.prescribed_dofs = [None, None, None, None, None, None]
 
-            # Checking imported tables 
-            check_array = [isinstance(bc, np.ndarray) for bc in values]
-            if True in check_array:
-                node.loaded_table_for_nodal_loads = True
-                node.there_are_nodal_loads = True
-                if not node in self.nodes_with_nodal_loads:
-                    self.nodes_with_nodal_loads.append(node)
-                continue
-                # return
-            else:
-                node.loaded_table_for_nodal_loads = False
-            # Checking complex single values    
-            check_values = [isinstance(bc, complex) for bc in values]
-            if True in check_values:
-                node.there_are_nodal_loads = True
-                if not node in self.nodes_with_nodal_loads:
-                    self.nodes_with_nodal_loads.append(node)
-            else:
-                node.there_are_nodal_loads = False
-                if node in self.nodes_with_nodal_loads:
-                    self.nodes_with_nodal_loads.remove(node)
+    #         # Checking imported tables 
+    #         check_array = [isinstance(bc, np.ndarray) for bc in values]
+    #         if True in check_array:
+    #             node.loaded_table_for_nodal_loads = True
+    #             node.there_are_nodal_loads = True
+    #             if not node in self.nodes_with_nodal_loads:
+    #                 self.nodes_with_nodal_loads.append(node)
+    #             continue
+    #             # return
+    #         else:
+    #             node.loaded_table_for_nodal_loads = False
+
+    #         # Checking complex single values    
+    #         check_values = [isinstance(bc, complex) for bc in values]
+    #         if True in check_values:
+    #             node.there_are_nodal_loads = True
+    #             if not node in self.nodes_with_nodal_loads:
+    #                 self.nodes_with_nodal_loads.append(node)
+    #         else:
+    #             node.there_are_nodal_loads = False
+    #             if node in self.nodes_with_nodal_loads:
+    #                 self.nodes_with_nodal_loads.remove(node)
 
     def add_mass_to_node(self, nodes, data):
         """
@@ -1650,50 +1403,51 @@ class Preprocessor:
                 if node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.remove(node)
 
-    def set_prescribed_dofs(self, nodes, data):
-        """
-        This method attributes structural displacement and rotation boundary condition to a list of nodes.
+    # def set_prescribed_dofs(self, nodes, data):
+    #     """
+    #     This method attributes structural displacement and rotation boundary condition to a list of nodes.
 
-        Parameters
-        ----------
-        nodes_id : list
-            Nodes external indexes.
+    #     Parameters
+    #     ----------
+    #     nodes_id : list
+    #         Nodes external indexes.
             
-        values : complex or array
-            Displacement and rotation. Complex valued input corresponds to a constant boundary condition with respect to the frequency. Array valued input corresponds to a variable boundary condition with respect to the frequency.
-        """
-        [values, table_names] = data
-        for node in slicer(self.nodes, nodes):
-            node.prescribed_dofs = values
-            node.prescribed_dofs_table_names = table_names
-            node.nodal_loads = [None, None, None, None, None, None]
+    #     values : complex or array
+    #         Displacement and rotation. Complex valued input corresponds to a constant boundary condition with respect to the frequency. Array valued input corresponds to a variable boundary condition with respect to the frequency.
+    #     """
+    #     [values, table_names] = data
+    #     for node in slicer(self.nodes, nodes):
+    #         node.prescribed_dofs = values
+    #         node.prescribed_dofs_table_names = table_names
+    #         node.nodal_loads = [None, None, None, None, None, None]
 
-            # Checking imported tables 
-            check_array = [isinstance(bc, np.ndarray) for bc in values]
-            if True in check_array:
-                node.loaded_table_for_prescribed_dofs = True
-                node.there_are_prescribed_dofs = True
-                if not node in self.nodes_with_constrained_dofs:
-                    self.nodes_with_constrained_dofs.append(node)
+    #         # Checking imported tables 
+    #         check_array = [isinstance(bc, np.ndarray) for bc in values]
+    #         if True in check_array:
+    #             node.loaded_table_for_prescribed_dofs = True
+    #             node.there_are_prescribed_dofs = True
+    #             if not node in self.nodes_with_constrained_dofs:
+    #                 self.nodes_with_constrained_dofs.append(node)
 
-                continue
-                # return
-            else:
-                node.loaded_table_for_prescribed_dofs = False
-            # Checking complex single values    
-            check_values = [isinstance(bc, complex) for bc in values]
-            if True in check_values:
-                node.there_are_prescribed_dofs = True
-                if complex(0) in values:
-                    node.there_are_constrained_dofs = True
-                    if not node in self.nodes_with_constrained_dofs:
-                        self.nodes_with_constrained_dofs.append(node)
+    #             continue
+    #             # return
+    #         else:
+    #             node.loaded_table_for_prescribed_dofs = False
+
+    #         # Checking complex single values    
+    #         check_values = [isinstance(bc, complex) for bc in values]
+    #         if True in check_values:
+    #             node.there_are_prescribed_dofs = True
+    #             if complex(0) in values:
+    #                 node.there_are_constrained_dofs = True
+    #                 if not node in self.nodes_with_constrained_dofs:
+    #                     self.nodes_with_constrained_dofs.append(node)
           
-            else:
-                node.there_are_prescribed_dofs = False
-                node.there_are_constrained_dofs = False
-                if node in self.nodes_with_constrained_dofs:
-                    self.nodes_with_constrained_dofs.remove(node)
+    #         else:
+    #             node.there_are_prescribed_dofs = False
+    #             node.there_are_constrained_dofs = False
+    #             if node in self.nodes_with_constrained_dofs:
+    #                 self.nodes_with_constrained_dofs.remove(node)
 
 
     def set_B2PX_rotation_decoupling(   
@@ -1886,7 +1640,7 @@ class Preprocessor:
                 self.group_elements_with_capped_end.pop(selection) 
 
     # def set_capped_end_line_to_element(self, lines, value):
-    #     for elements in slicer(self.line_to_elements, lines):
+    #     for elements in slicer(self.mesh.line_to_elements, lines):
     #         for element in slicer(self.structural_elements, elements):
     #             element.capped_end = value
  
@@ -1906,14 +1660,14 @@ class Preprocessor:
         if isinstance(lines, int):
             lines = [lines]
 
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             for element in slicer(self.structural_elements, elements):
                 element.capped_end = value
         if lines == "all":
             self.group_elements_with_capped_end = {}
             self.lines_with_capped_end = []
             if value:
-                for line in self.lines_from_model.keys():
+                for line in self.mesh.lines_from_model.keys():
                     self.lines_with_capped_end.append(line)
         else:
             for tag in lines:
@@ -1941,7 +1695,7 @@ class Preprocessor:
             if isinstance(lines, int):
                 lines = [lines]
 
-            for elements in slicer(self.line_to_elements, lines):
+            for elements in slicer(self.mesh.line_to_elements, lines):
                 for element in slicer(self.structural_elements, elements):
                     element.wall_formulation = formulation
             
@@ -1954,12 +1708,13 @@ class Preprocessor:
                     self.lines_with_structural_element_wall_formulation[line] = formulation
         except Exception as _error:
             print(str(_error))
+
     # def set_capped_end_all_lines(self, value):
     #     self.set_capped_end_line_to_element("all", value)
     #     self.group_elements_with_capped_end = {}
     #     self.lines_with_capped_end = []
     #     if value:
-    #         for line in self.lines_from_model.keys():
+    #         for line in self.mesh.lines_from_model.keys():
     #             self.lines_with_capped_end.append(line)
 
     def set_structural_element_force_offset_by_lines(self, lines, force_offset):
@@ -1978,7 +1733,7 @@ class Preprocessor:
             if isinstance(lines, int):
                 lines = [lines]
 
-            for elements in slicer(self.line_to_elements, lines):
+            for elements in slicer(self.mesh.line_to_elements, lines):
                 for element in slicer(self.structural_elements, elements):
                     element.force_offset = bool(force_offset)
             
@@ -2013,13 +1768,13 @@ class Preprocessor:
         """
         if isinstance(lines, int):
             lines = [lines]
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_stress_stiffening_by_elements(elements, pressures)
         if lines == "all":
             self.group_elements_with_stress_stiffening = {}
             self.lines_with_stress_stiffening = []
             if not remove:
-                for line in self.lines_from_model.keys():
+                for line in self.mesh.lines_from_model.keys():
                     self.lines_with_stress_stiffening.append(line)
                     self.dict_lines_with_stress_stiffening[line] = pressures
         else:
@@ -2095,7 +1850,7 @@ class Preprocessor:
         """
         if aux_line_id is not None:
             
-            elements_from_line = self.line_to_elements[aux_line_id]
+            elements_from_line = self.mesh.line_to_elements[aux_line_id]
             temp_dict = self.group_elements_with_expansion_joints.copy()
             for key, [_list_elements_ids, _] in temp_dict.items():
                 for element_id in _list_elements_ids:
@@ -2105,7 +1860,7 @@ class Preprocessor:
 
         list_lines = []
         for element_id in list_elements:
-            line_id = self.elements_to_line[element_id]
+            line_id = self.mesh.elements_to_line[element_id]
             if line_id not in list_lines:
                 list_lines.append(line_id)
 
@@ -2197,7 +1952,7 @@ class Preprocessor:
             lines = [lines]
 
         for line_id in lines:
-            for elements in slicer(self.line_to_elements, line_id):
+            for elements in slicer(self.mesh.line_to_elements, line_id):
                 self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
             if remove:
                 if line_id in list(self.dict_lines_with_expansion_joints.keys()):
@@ -2229,7 +1984,7 @@ class Preprocessor:
             Default is False.
         """
         # if aux_line_id is not None:
-        #     elements_from_line = self.line_to_elements[aux_line_id]
+        #     elements_from_line = self.mesh.line_to_elements[aux_line_id]
         #     temp_dict = self.group_elements_with_valves.copy()
         #     for key, [_list_elements_ids, _] in temp_dict.items():
         #         for element_id in _list_elements_ids:
@@ -2242,7 +1997,7 @@ class Preprocessor:
 
         list_lines = []
         for element_id in list_elements:
-            line_id = self.elements_to_line[element_id]
+            line_id = self.mesh.elements_to_line[element_id]
             if line_id not in list_lines:
                 list_lines.append(line_id)
 
@@ -2319,7 +2074,7 @@ class Preprocessor:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            for elements in slicer(self.line_to_elements, line_id):
+            for elements in slicer(self.mesh.line_to_elements, line_id):
                 self.add_valve_by_elements(elements, parameters, remove=remove, aux_line_id=line_id, reset_cross=reset_cross)
             if remove:
                 if line_id in list(self.dict_lines_with_valves.keys()):
@@ -2357,7 +2112,7 @@ class Preprocessor:
         value : bool
             True if the stress intensification effect have to be activated. False otherwise.
         """
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_stress_intensification_by_element(elements, value)
             
     # Acoustic physical quantities
@@ -2397,7 +2152,7 @@ class Preprocessor:
         fluid : Fluid object
             Fluid data.
         """
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
             
     def set_length_correction_by_element(self, elements, value, section, delete_from_dict=False):
@@ -2536,7 +2291,7 @@ class Preprocessor:
                 element.vol_flow = None
     
     def set_vol_flow_by_line(self, lines, vol_flow):
-        for elements in slicer(self.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_vol_flow_by_element(elements, vol_flow)
 
     def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
@@ -2709,34 +2464,31 @@ class Preprocessor:
             title = "Error while setting radiation impedance"
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
-            return True  
+            return True
 
-    def set_inertia_load(self, gravity):
-        self.gravity_vector = gravity
+    # def get_radius(self):
+    #     """
+    #     This method updates and returns the ????.
 
-    def get_radius(self):
-        """
-        This method updates and returns the ????.
-
-        Returns
-        ----------
-        dictionary
-            Radius at certain node.
-        """
-        self.radius = {}
-        for element in self.structural_elements.values():
-            first = element.first_node.global_index
-            last  = element.last_node.global_index
-            radius = element.cross_section.external_radius
-            if self.radius.get(first, -1) == -1:
-                self.radius[first] = radius
-            elif self.radius[first] < radius:
-                self.radius[first] = radius
-            if self.radius.get(last, -1) == -1:
-                self.radius[last] = radius
-            elif self.radius[last] < radius:
-                self.radius[last] = radius
-        return self.radius
+    #     Returns
+    #     ----------
+    #     dictionary
+    #         Radius at certain node.
+    #     """
+    #     self.radius = {}
+    #     for element in self.structural_elements.values():
+    #         first = element.first_node.global_index
+    #         last  = element.last_node.global_index
+    #         radius = element.cross_section.external_radius
+    #         if self.radius.get(first, -1) == -1:
+    #             self.radius[first] = radius
+    #         elif self.radius[first] < radius:
+    #             self.radius[first] = radius
+    #         if self.radius.get(last, -1) == -1:
+    #             self.radius[last] = radius
+    #         elif self.radius[last] < radius:
+    #             self.radius[last] = radius
+    #     return self.radius
 
 
     def get_pipe_and_expansion_joint_elements_global_dofs(self):
@@ -2863,9 +2615,6 @@ class Preprocessor:
             CompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
         else:
             CompressorModel(list_parameters)
-        
-    def set_structural_damping(self, value):
-        self.global_damping = value
 
     def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
         """
@@ -3062,7 +2811,8 @@ class Preprocessor:
 
     def process_element_cross_sections_orientation_to_plot(self):
         """
-        This method ???????
+        This method processes each element cross-seciton in accordance with
+        the element rotation matrix.
         """
         rotation_data = np.zeros((self.number_structural_elements, 3), dtype=float)
         for index, element in enumerate(self.structural_elements.values()):
@@ -3114,7 +2864,7 @@ class Preprocessor:
             angle += gimball_deviation
         angle *= np.pi/180
 
-        for elements in slicer(self.line_to_elements, line):
+        for elements in slicer(self.mesh.line_to_elements, line):
             self.set_beam_xaxis_rotation_by_elements(elements, angle)
     
         if str_angle != "":
@@ -3150,7 +2900,7 @@ class Preprocessor:
     def create_dict_lines_to_rotation_angles(self):
         self.dict_lines_to_rotation_angles = dict()
         self.dict_beam_xaxis_rotating_angle_to_lines.clear()
-        for line in self.lines_from_model.keys():
+        for line in self.mesh.lines_from_model.keys():
             self.dict_lines_to_rotation_angles[line] = 0
 
     def process_nodes_to_update_indexes_after_remesh(self, node):
@@ -3216,7 +2966,7 @@ class Preprocessor:
             coords = list(coords)
 
         if radius is None:
-            radius = self.element_size / 20
+            radius = self.mesh.element_size / 20
 
         if coords in list_coordinates:
             ind = list_coordinates.index(coords)
@@ -3313,7 +3063,7 @@ class Preprocessor:
                 start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
                 first_node_coordinates = self.nodes[start_node_id].coordinates
                 last_node_coordinates = self.nodes[end_node_id].coordinates
-                line_id = self.elements_to_line[first_element_id]
+                line_id = self.mesh.elements_to_line[first_element_id]
                 key = f"{first_element_id}-{last_element_id}||{line_id}"
                 self.dict_element_info_to_update_indexes_in_entity_file[key] = [list(first_node_coordinates),
                                                                                 list(last_node_coordinates),
@@ -3350,7 +3100,7 @@ class Preprocessor:
                 start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
                 first_node_coordinates = self.nodes[start_node_id].coordinates
                 last_node_coordinates = self.nodes[end_node_id].coordinates
-                line_id = self.elements_to_line[first_element_id]
+                line_id = self.mesh.elements_to_line[first_element_id]
                 key = f"{first_element_id}-{last_element_id}||{line_id}"
                 self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
                                                                                     list(last_node_coordinates),
@@ -3366,7 +3116,7 @@ class Preprocessor:
         for input_group in input_groups_elements:
             line_to_elements = defaultdict(list)
             for element_id in input_group:
-                line = self.elements_to_line[element_id]
+                line = self.mesh.elements_to_line[element_id]
                 line_to_elements[line].append(element_id)
             for line, elements in line_to_elements.items():
                 output_subgroups_elements.append(elements)
@@ -3525,22 +3275,25 @@ class Preprocessor:
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes
         and reduces the amplitude through rescalling if higher levels are observed."""
+
+        element_size = self.mesh.element_size
+
         for element in self.elements_with_expansion_joint:
 
             results_lcs = element.element_results_lcs()
             delta_yz = sum(results_lcs[1:3]**2)**(1/2)
-            
-            if delta_yz > 3*self.element_size:
+
+            if delta_yz > 3 * element_size:
                 value = element.joint_effective_diameter/6
                 return True, value
-            
+
             first_node = element.first_node
             last_node = element.last_node
             delta_x = abs(  (last_node.x + results_lcs[6]) - 
                             (first_node.x + results_lcs[0]) )
 
-            if delta_x < self.element_size/3 or delta_x > 2*self.element_size: 
-                value = self.element_size/2
+            if delta_x < element_size / 3 or delta_x > 2 * element_size:
+                value = element_size / 2
                 return True, value
 
         return False, None
@@ -3582,21 +3335,6 @@ class Preprocessor:
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
 
-    def remove_selected_lines_and_process_geometry(self, geometry_path, lines):
-        """
-        """
-        gmsh.initialize('', False)
-        gmsh.option.setNumber("General.Terminal", 0)
-        gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.open(str(geometry_path))
-
-        for line in lines:
-            gmsh.model.occ.remove([[1, line]], recursive=True)
-
-        gmsh.model.occ.synchronize()
-        gmsh.write(geometry_path)
-        gmsh.finalize()
-
     def update_nodal_solution_info(self, nodal_solution):
         """ This method sets the static nodal solution for 
             stress stiffening analysis.
@@ -3611,3 +3349,18 @@ class Preprocessor:
 
         for element in self.structural_elements.values():
             element.static_analysis_evaluated = True
+
+    # def remove_selected_lines_and_process_geometry(self, geometry_path, lines):
+    #     """
+    #     """
+    #     gmsh.initialize('', False)
+    #     gmsh.option.setNumber("General.Terminal", 0)
+    #     gmsh.option.setNumber("General.Verbosity", 0)
+    #     gmsh.open(str(geometry_path))
+
+    #     for line in lines:
+    #         gmsh.model.occ.remove([[1, line]], recursive=True)
+
+    #     gmsh.model.occ.synchronize()
+    #     gmsh.write(geometry_path)
+    #     gmsh.finalize()

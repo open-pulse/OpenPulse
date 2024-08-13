@@ -10,13 +10,11 @@ from pulse.processing.structural_solver import StructuralSolver
 from pulse.processing.acoustic_solver import AcousticSolver
 #
 from pulse import app
-from pulse.editor.pulsation_suppression_device import PulsationSuppressionDevice
+from pulse.model.model import Model
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
 
-from pulse.properties.model_properties import ModelProperties
-from pulse.model.model import Model
 #
 from opps.model import Pipeline
 #
@@ -30,9 +28,9 @@ class Project:
 
         self.file = app().file
         self.pipeline = Pipeline()
-        self.preprocessor = Preprocessor(self)        
-        self.PSD = PulsationSuppressionDevice(self)
-        self.model = Model()
+
+        self.model = Model(self)
+        self.preprocessor = self.model.preprocessor
 
         self.name = None
         self.save_path = None
@@ -72,10 +70,7 @@ class Project:
         self.setup_analysis_complete = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
-        self.weight_load = True
-        self.internal_pressure_load = True
-        self.external_nodal_loads = True
-        self.element_distributed_load = True
+
         self.color_scale_setup = dict()
 
         self.time_to_load_or_create_project = 0
@@ -127,7 +122,7 @@ class Project:
 
         self.initial_load_project_actions()
         app().loader.load_project_data()
-        self.PSD.load_psd_data_from_file()
+        # self.model.PSD.load_psd_data_from_file()
 
         self.preprocessor.check_disconnected_lines()
 
@@ -279,7 +274,7 @@ class Project:
         dict_etype_index = dict(zip(label_etypes,indexes))
 
         dict_multiple_cross_sections = defaultdict(list)
-        list_elements_from_line = list(self.preprocessor.line_to_elements[line_id])
+        list_elements_from_line = list(self.model.mesh.line_to_elements[line_id])
         
         elements = self.preprocessor.structural_elements
         count_sections = 0
@@ -364,7 +359,7 @@ class Project:
     def set_material_to_all_lines(self, material):
         self.preprocessor.set_material_by_element('all', material)
         self._set_material_to_all_lines(material)
-        self.file.add_material_in_file(list(self.preprocessor.lines_from_model.keys()), material)
+        self.file.add_material_in_file(list(self.model.mesh.lines_from_model.keys()), material)
 
     def set_material_by_lines(self, lines, material):
         self.preprocessor.set_material_by_lines(lines, material)
@@ -381,7 +376,7 @@ class Project:
                 outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
                 insulation_thickness, insulation_density  ] = section_data["section_parameters"]
 
-            elements_from_line = self.preprocessor.line_to_elements[line_id]
+            elements_from_line = self.model.mesh.line_to_elements[line_id]
             self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
 
             first_element = self.preprocessor.structural_elements[elements_from_line[0]]
@@ -466,7 +461,7 @@ class Project:
             self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
         self.preprocessor.set_cross_section_by_element(list_elements, cross_section, variable_section=variable_section)       
         # for element in list_elements:
-        #     line = self.preprocessor.elements_to_line[element]
+        #     line = self.model.mesh.elements_to_line[element]
         #     if line not in self.lines_with_cross_section_by_elements:
         #         self.lines_with_cross_section_by_elements.append(line)
 
@@ -477,7 +472,7 @@ class Project:
     def add_cross_sections_expansion_joints_valves_in_file(self, list_elements):
         list_lines = list()
         for element_id in list_elements:
-            line_id = self.preprocessor.elements_to_line[element_id]
+            line_id = self.model.mesh.elements_to_line[element_id]
             if line_id not in list_lines:
                 list_lines.append(line_id)
         for _line_id in list_lines:
@@ -500,7 +495,7 @@ class Project:
     def set_structural_element_type_to_all(self, element_type):
         self.preprocessor.set_structural_element_type_by_element('all', element_type)
         self._set_structural_element_type_to_all_lines(element_type)
-        self.file.modify_structural_element_type_in_file(list(self.preprocessor.lines_from_model.keys()), element_type)
+        self.file.modify_structural_element_type_in_file(list(self.model.mesh.lines_from_model.keys()), element_type)
 
     def set_structural_element_type_by_lines(self, lines, element_type):
         self.preprocessor.set_structural_element_type_by_lines(lines, element_type)
@@ -526,10 +521,6 @@ class Project:
         angle = self.preprocessor.dict_lines_to_rotation_angles[line_id]
         self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
         self.file.modify_beam_xaxis_rotation_by_lines_in_file(line_id, angle)
-
-    def set_prescribed_dofs(self, node_id, data, imported_table):
-        [values, table_names] = data
-        self.preprocessor.set_prescribed_dofs(node_id, data)
 
     def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove = False):
 
@@ -650,7 +641,7 @@ class Project:
 
         list_lines = list()
         for element in list_elements:
-            line_id = self.preprocessor.elements_to_line[element]
+            line_id = self.model.mesh.elements_to_line[element]
             if line_id not in list_lines:
                 list_lines.append(line_id)
                             
@@ -675,7 +666,7 @@ class Project:
                                                                                                     dict_map_cross = dict_multiple_cross_sections,
                                                                                                     dict_map_expansion_joint = dict_multiple_expansion_joints )
 
-                elements_from_line = self.preprocessor.line_to_elements[line_id]
+                elements_from_line = self.model.mesh.line_to_elements[line_id]
                 self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )
 
     def add_expansion_joint_by_line(self, lines_id, parameters):
@@ -728,7 +719,7 @@ class Project:
 
         list_lines = list()
         for element in list_elements:
-            line_id = self.preprocessor.elements_to_line[element]
+            line_id = self.model.mesh.elements_to_line[element]
             if line_id not in list_lines:
                 list_lines.append(line_id)
                             
@@ -751,7 +742,7 @@ class Project:
                                                                                                     dict_map_cross = dict_multiple_cross_sections,
                                                                                                     dict_map_expansion_joint = dict_multiple_expansion_joints )
 
-                elements_from_line = self.preprocessor.line_to_elements[line_id]
+                elements_from_line = self.model.mesh.line_to_elements[line_id]
                 self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )                                                
 
     def get_map_expansion_joints_to_elements(self, line_id):
@@ -760,7 +751,7 @@ class Project:
         dict_exp_joint_key_parameters_to_parameters = dict()
         dict_exp_joint_key_parameters_to_table_names = dict()
         dict_exp_joint_key_parameters_to_elements = defaultdict(list)
-        for element_id in self.preprocessor.line_to_elements[line_id]:
+        for element_id in self.model.mesh.line_to_elements[line_id]:
             element = structural_elements[element_id]
             if element.expansion_joint_parameters:
                 dict_exp_joint_key_parameters_to_elements[str(element.expansion_joint_parameters)].append(element_id)
@@ -778,7 +769,7 @@ class Project:
         dict_multiple_valves = dict()
         dict_valve_key_parameters_to_parameters = dict()
         dict_valve_key_parameters_to_elements = defaultdict(list)
-        for element_id in self.preprocessor.line_to_elements[line_id]:
+        for element_id in self.model.mesh.line_to_elements[line_id]:
             element = structural_elements[element_id]
             if element.valve_parameters:
                 dict_valve_key_parameters_to_elements[str(element.valve_parameters)].append(element_id)
@@ -836,7 +827,7 @@ class Project:
         self.set_variable_cross_section_by_line(line_id, data)
 
     def load_expansion_joint_by_lines(self, line_id, data):
-        joint_elements = self.preprocessor.line_to_elements[line_id]
+        joint_elements = self.model.mesh.line_to_elements[line_id]
         cross_sections = get_list_cross_sections_to_plot_expansion_joint(joint_elements, data[0][1])
         self._set_cross_section_to_selected_line(line_id, cross_sections[0])
         self.preprocessor.add_expansion_joint_by_line(line_id, data)
@@ -964,31 +955,25 @@ class Project:
             self.add_frequency_in_file(min_, max_, step_)
         self.frequencies = frequencies
 
-    def set_static_analysis_setup(self, analysis_setup):
-        [self.weight_load, 
-         self.internal_pressure_load,
-         self.external_nodal_loads,
-         self.element_distributed_load] = analysis_setup
-
-    def load_prescribed_dofs(self, node_id, data):
-        self.preprocessor.set_prescribed_dofs(node_id, data)
+    # def load_prescribed_dofs(self, node_id, data):
+    #     self.preprocessor.set_prescribed_dofs(node_id, data)
 
     def _set_material_to_selected_lines(self, lines, material):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             entity.material = material
 
     def _set_material_to_all_lines(self, material):
-        for entity in self.preprocessor.lines_from_model.values():
+        for entity in self.model.mesh.lines_from_model.values():
             entity.material = material
 
     def _set_fluid_to_selected_lines(self, lines, fluid):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             if entity.structural_element_type in ['beam_1']:
                 entity.fluid = None
             else:
@@ -1000,7 +985,7 @@ class Project:
             line_ids = [line_ids]
 
         for line_id in line_ids:
-            line = self.preprocessor.lines_from_model[line_id]
+            line = self.model.mesh.lines_from_model[line_id]
             if compressor_info:
                 if line.structural_element_type in ['beam_1']:
                     line.compressor_info =  dict()
@@ -1013,7 +998,7 @@ class Project:
                     line.compressor_info = dict()
 
     def _set_fluid_to_all_lines(self, fluid):
-        for entity in self.preprocessor.lines_from_model.values():
+        for entity in self.model.mesh.lines_from_model.values():
             if entity.structural_element_type in ['beam_1']:
                 entity.fluid = None
             else:
@@ -1025,14 +1010,14 @@ class Project:
             lines = [lines]
 
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             entity.cross_section = cross
             entity.valve_parameters = None
             entity.expansion_joint_parameters = None
             entity.variable_cross_section_data = None
 
     def _set_variable_cross_section_to_selected_line(self, line_id, section_info):
-        entity = self.preprocessor.lines_from_model[line_id]
+        entity = self.model.mesh.lines_from_model[line_id]
         entity.cross_section = None
         entity.variable_cross_section_data = section_info
 
@@ -1040,40 +1025,40 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             entity.structural_element_type = element_type
 
     def _set_structural_element_type_to_all_lines(self, element_type):
-        for entity in self.preprocessor.lines_from_model.values():
+        for entity in self.model.mesh.lines_from_model.values():
             entity.structural_element_type = element_type
 
     def _set_acoustic_element_type_to_selected_lines(self, lines, element_type, proportional_damping=None, vol_flow=None):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             entity.acoustic_element_type = element_type
             entity.proportional_damping = proportional_damping
             entity.vol_flow = vol_flow
 
     def _set_acoustic_element_type_to_all_lines(self, element_type, proportional_damping=None):
-        for entity in self.preprocessor.lines_from_model.values(): 
+        for entity in self.model.mesh.lines_from_model.values(): 
             entity.acoustic_element_type = element_type
             entity.proportional_damping = proportional_damping
 
     def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
-        entity = self.preprocessor.lines_from_model[line_id]
+        entity = self.model.mesh.lines_from_model[line_id]
         entity.xaxis_beam_rotation = angle
 
     def _set_stress_stiffening_to_selected_lines(self, lines, pressures):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             entity.stress_stiffening_parameters = pressures
             
     # def _set_stress_stiffening_to_all_entities(self, pressures):
-    #     for entity in self.preprocessor.lines_from_model.values():
+    #     for entity in self.model.mesh.lines_from_model.values():
     #         entity.external_pressure = pressures[0]
     #         entity.internal_pressure = pressures[1]
 
@@ -1081,14 +1066,14 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             entity.expansion_joint_parameters = parameters
 
     def _set_valve_to_selected_lines(self, lines, parameters):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             entity.valve_parameters = parameters
 
     def get_nodes_with_prescribed_dofs_bc(self):
@@ -1106,29 +1091,22 @@ class Project:
     def set_fluid_to_all_lines(self, fluid):
         self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_all_lines(fluid)
-        # for line in self.preprocessor.lines_from_model.keys():
+        # for line in self.model.mesh.lines_from_model.keys():
             # self.file.add_fluid_in_file(line, fluid)
 
-    # def set_acoustic_pressure_bc_by_node(self, node_ids, data):
-    #     label = ["acoustic pressure"]
-    #     if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
-    #         return
-        # self.file.add_acoustic_bc_in_file(node_ids, data, label)
+    def set_acoustic_pressure_bc_by_node(self, node_ids, data):
+        if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
+            return
 
     def set_volume_velocity_bc_by_node(self, node_ids, data):
-        label = ["volume velocity"]
         if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
             return True
-        self.file.add_acoustic_bc_in_file(node_ids, data, label)
-    
+
     def set_specific_impedance_bc_by_node(self, node_ids, data):
-        label = ["specific impedance"]
         if self.preprocessor.set_specific_impedance_bc_by_node(node_ids, data):
             return
-        self.file.add_acoustic_bc_in_file(node_ids, data, label) 
 
     def set_radiation_impedance_bc_by_node(self, node_ids, data):
-        label = ["radiation impedance"] 
         if self.preprocessor.set_radiation_impedance_bc_by_node(node_ids, data):
             return
 
@@ -1177,21 +1155,21 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line in lines:
-            entity = self.preprocessor.lines_from_model[line] 
+            entity = self.model.mesh.lines_from_model[line] 
             entity.structural_element_wall_formulation = formulation
 
     def _set_structural_element_force_offset_to_lines(self, lines, force_offset):
         if isinstance(lines, int):
             lines = [lines]
         for line in lines:
-            entity = self.preprocessor.lines_from_model[line] 
+            entity = self.model.mesh.lines_from_model[line] 
             entity.force_offset = force_offset
 
     def _set_capped_end_to_lines(self, lines, value):
         if isinstance(lines, int):
             lines = [lines]
         for line in lines:
-            entity = self.preprocessor.lines_from_model[line] 
+            entity = self.model.mesh.lines_from_model[line] 
             entity.capped_end = value
 
     def get_nodes_with_acoustic_pressure_bc(self):
@@ -1228,7 +1206,7 @@ class Project:
 
     def get_geometry_points(self):
         points = dict()
-        for i in self.preprocessor.geometry_points:
+        for i in self.preprocessor.mesh.geometry_points:
             points[i] = self.preprocessor.nodes[i]
         return points
 
@@ -1236,8 +1214,8 @@ class Project:
         return self.preprocessor.nodes[node_id]
 
     def get_entity(self, line_id):
-        self.preprocessor.lines_from_model[line_id]
-        return self.preprocessor.lines_from_model[line_id]
+        self.model.mesh.lines_from_model[line_id]
+        return self.model.mesh.lines_from_model[line_id]
 
     def set_modes_sigma(self, modes, sigma=1e-2):
         self.modes = modes
@@ -1257,28 +1235,11 @@ class Project:
         self.analysis_type_label = analysis_text
         self.analysis_method_label = method_text
 
-    def get_analysis_id(self): 
-        return self.analysis_id
-
-    def get_analysis_type_label(self):
-        return self.analysis_type_label
-
-    def get_analysis_method_label(self):
-        return self.analysis_method_label
-
     def get_pre_solution_model_checks(self):
         return BeforeRun()
 
     def get_post_solution_model_checks(self):
         return AfterRun()
-
-    def set_structural_damping(self, value):
-        self.global_damping = value
-        self.preprocessor.set_structural_damping(value)
-        self.add_damping_in_file(value)
-
-    def get_damping(self):
-        return self.global_damping
 
     def set_structural_solve(self, structural_solve):
         self.structural_solve = structural_solve
@@ -1286,14 +1247,14 @@ class Project:
     def get_structural_solve(self):
 
         if self.analysis_id in [5, 6]:
-            results = StructuralSolver(self.preprocessor, self.frequencies, acoustic_solution=self.solution_acoustic)
+            results = StructuralSolver(self.model, self.frequencies, acoustic_solution=self.solution_acoustic)
 
         else:
 
             if self.analysis_id in [2, 4]:
-                results = StructuralSolver(self.preprocessor, None)
+                results = StructuralSolver(self.model, None)
             else:
-                results = StructuralSolver(self.preprocessor, self.frequencies)
+                results = StructuralSolver(self.model, self.frequencies)
 
         return results
 
@@ -1304,7 +1265,7 @@ class Project:
         return self.solution_structural
 
     def get_acoustic_solve(self):
-        return AcousticSolver(self.preprocessor, self.frequencies)
+        return AcousticSolver(self.preprocessor, self.model, self.frequencies)
 
     def set_acoustic_solution(self, value):
         self.solution_acoustic = value

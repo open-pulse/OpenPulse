@@ -33,13 +33,13 @@ class StatusBar(QStatusBar):
         self.structural_elements_label.setFixedWidth(160)
 
     def update_geometry_information(self):
-        points, curves = app().project.preprocessor.get_geometry_statistics()
+        points, curves = app().project.model.mesh.get_geometry_statistics()
         self.points_label.setText(f"Points: {points}")
         self.lines_label.setText(f"Lines: {curves}")
         self.reset_geometry_info_visibility(key=True)
 
     def update_mesh_information(self):
-        nodes, acoustic_elements, structural_elements = app().project.preprocessor.get_mesh_statistics()
+        nodes, acoustic_elements, structural_elements = app().project.model.preprocessor.get_model_statistics()
         self.nodes_label.setText(f"Nodes: {nodes}")
         self.acoustic_elements_label.setText(f"Acoustic elements: {acoustic_elements}")
         self.structural_elements_label.setText(f"Structural elements: {structural_elements}")

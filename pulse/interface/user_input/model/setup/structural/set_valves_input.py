@@ -27,6 +27,7 @@ class ValvesInput(QDialog):
 
         self.main_window = app().main_window
         self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -54,7 +55,7 @@ class ValvesInput(QDialog):
 
         self.structural_elements = self.preprocessor.structural_elements
 
-        self.element_size = self.preprocessor.element_size
+        self.element_size = self.preprocessor.mesh.element_size
         self.elements_info_path = self.project.file._element_info_path
         
         self.stop = False
@@ -247,8 +248,8 @@ class ValvesInput(QDialog):
         valve_parameters = None
         if len(line_id) == 1:
 
-            entity = self.preprocessor.lines_from_model[line_id[0]]
-            list_of_elements = self.preprocessor.line_to_elements[line_id[0]]
+            entity = self.model.mesh.lines_from_model[line_id[0]]
+            list_of_elements = self.model.mesh.line_to_elements[line_id[0]]
 
             if entity.valve_parameters is not None:
                 valve_parameters = entity.valve_parameters
@@ -298,7 +299,7 @@ class ValvesInput(QDialog):
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
         for element_id in app().main_window.list_selected_elements():
-            line = self.preprocessor.elements_to_line[element_id]
+            line = self.model.mesh.elements_to_line[element_id]
             elements_from_line[line].append(element_id)
         return elements_from_line
 
@@ -309,7 +310,7 @@ class ValvesInput(QDialog):
 
         _stop, self.selected_lines = self.before_run.check_selected_ids(lineEdit_selection, "lines")
         for line_id in self.selected_lines:
-            entity = self.preprocessor.lines_from_model[line_id]
+            entity = self.model.mesh.lines_from_model[line_id]
             if entity.structural_element_type in ["beam_1", "expansion_joint"]:
                 _stop = True
                 break
@@ -393,7 +394,7 @@ class ValvesInput(QDialog):
 
     def get_start_end_elements_from_line(self, line_id):
         number_flange_elements = self.spinBox_number_elements_flange.value()
-        elements_from_line = np.sort(self.preprocessor.line_to_elements[line_id])
+        elements_from_line = np.sort(self.model.mesh.line_to_elements[line_id])
         if number_flange_elements < len(elements_from_line): 
             lists_elements = [  elements_from_line[:number_flange_elements], 
                                 elements_from_line[-number_flange_elements:]  ]
@@ -448,7 +449,7 @@ class ValvesInput(QDialog):
         if self.checkBox_enable_acoustic_effects.isChecked():
 
             for line_id in self.selected_lines:    
-                list_elements = self.preprocessor.line_to_elements[line_id]
+                list_elements = self.model.mesh.line_to_elements[line_id]
                 N = len(list_elements)
                 if np.remainder(N, 2) == 0:
                     index = int(N/2)
@@ -483,7 +484,7 @@ class ValvesInput(QDialog):
             self.lineEdit_valve_length.setText(str(valve_length))
             self.valve_center_coordinates = list(np.round((edge_nodes[0].coordinates + edge_nodes[1].coordinates)/2, 6))
         
-            valve_elements = list(self.preprocessor.line_to_elements[line_id])
+            valve_elements = list(self.model.mesh.line_to_elements[line_id])
             valve_section_parameters = self.search_for_cross_section_in_neighborhood(valve_elements)
 
             if valve_section_parameters:
@@ -678,9 +679,9 @@ class ValvesInput(QDialog):
 
             if set_by_elements:
                 element_id = valve_elements[0]
-                line_id = self.preprocessor.elements_to_line[element_id]
-                first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
-                last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
+                line_id = self.model.mesh.elements_to_line[element_id]
+                first_element_id_from_line = self.model.mesh.line_to_elements[line_id][0]
+                last_element_id_from_line = self.model.mesh.line_to_elements[line_id][-1]
                 lists_element_indexes.append([  first_element_id_from_line-1, first_element_id_from_line+1, 
                                                 last_element_id_from_line-1, last_element_id_from_line+1  ])
 
@@ -724,12 +725,12 @@ class ValvesInput(QDialog):
     def reset_valve_attributes_from_lines(self, elements):
         lines = list()
         for element_id in elements:
-            line_id = self.preprocessor.elements_to_line[element_id]
+            line_id = self.model.mesh.elements_to_line[element_id]
             if line_id not in lines:
                 lines.append(line_id)
 
         for line in lines:
-            entity = self.preprocessor.lines_from_model[line]
+            entity = self.model.mesh.lines_from_model[line]
             entity.valve_parameters = None
 
     def remove_valve_function(self, key):
@@ -752,9 +753,9 @@ class ValvesInput(QDialog):
                                         last_element_id - 1,  
                                         last_element_id + 1  ])
 
-        line_id = self.preprocessor.elements_to_line[input_elements[0]]
-        first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
-        last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
+        line_id = self.model.mesh.elements_to_line[input_elements[0]]
+        first_element_id_from_line = self.model.mesh.line_to_elements[line_id][0]
+        last_element_id_from_line = self.model.mesh.line_to_elements[line_id][-1]
         lists_element_indexes.append([  first_element_id_from_line - 1, 
                                         first_element_id_from_line + 1, 
                                         last_element_id_from_line - 1,  

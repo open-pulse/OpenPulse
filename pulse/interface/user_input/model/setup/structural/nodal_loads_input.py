@@ -276,12 +276,12 @@ class NodalLoadsInput(QDialog):
         if nodal_loads.count(None) != 6:
 
             table_names = self.list_Nones
-            data = [nodal_loads, table_names]
+            # data = [nodal_loads, table_names]
 
             self.remove_table_files_from_nodes(node_ids)
             self.remove_conflictant_excitations(node_ids)
 
-            self.preprocessor.set_nodal_loads(node_ids, data)
+            # self.preprocessor.set_nodal_loads(node_ids, data)
 
             real_values = [value if value is None else np.real(value) for value in nodal_loads]
             imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
@@ -499,7 +499,7 @@ class NodalLoadsInput(QDialog):
 
             self.properties._set_property("nodal_loads", bc_data, node_ids=node_id)
 
-        self.preprocessor.set_nodal_loads(node_ids, data)
+        # self.preprocessor.set_nodal_loads(node_ids, data)
 
         app().pulse_file.write_model_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
@@ -636,8 +636,8 @@ class NodalLoadsInput(QDialog):
 
             app().pulse_file.write_model_properties_in_file()
 
-            data = [self.list_Nones, self.list_Nones]
-            self.preprocessor.set_nodal_loads(node_ids, data)
+            # data = [self.list_Nones, self.list_Nones]
+            # self.preprocessor.set_nodal_loads(node_ids, data)
 
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove.setDisabled(True)
@@ -672,8 +672,8 @@ class NodalLoadsInput(QDialog):
 
             self.remove_table_files_from_nodes(node_ids)
 
-            data = [self.list_Nones, self.list_Nones]
-            self.preprocessor.set_nodal_loads(node_ids, data)
+            # data = [self.list_Nones, self.list_Nones]
+            # self.preprocessor.set_nodal_loads(node_ids, data)
 
             self.properties._reset_property("nodal_loads")
             app().pulse_file.write_model_properties_in_file()
