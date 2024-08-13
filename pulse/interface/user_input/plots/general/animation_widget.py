@@ -53,13 +53,12 @@ class AnimationWidget(QWidget):
         # self.main_window.opv_widget.opvAnalysisRenderer.slider_callback(value)
         self.main_window.results_widget.slider_callback(value)
 
-    def process_animation(self):
+    def process_animation(self, state):
         self.update_animation_settings()
-        # self.main_window.opv_widget.opvAnalysisRenderer._setNumberFrames(self.frames)
-        # self.main_window.opv_widget.opvAnalysisRenderer._setNumberCycles(self.cycles)
-        # self.main_window.opv_widget.opvAnalysisRenderer.playAnimation()
-        # self.main_window.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
-        self.main_window.results_widget.start_animation()
+        if state:
+            self.main_window.results_widget.start_animation(frames=self.frames)
+        else:
+            self.main_window.results_widget.stop_animation()
 
     def update_animation_settings(self):
         self.frames = self.spinBox_frames.value()
@@ -101,7 +100,3 @@ class AnimationWidget(QWidget):
             message = "An error has occured while exporting the animation file.\n"
             message += str(error_log)
             PrintMessageInput([window_title_1, title, message])
-
-        
-        
-    
