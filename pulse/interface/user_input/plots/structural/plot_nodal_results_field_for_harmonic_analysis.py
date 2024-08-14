@@ -16,8 +16,8 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-
-        self.project = app().main_window.project
+        self.project = app().project
+        self.model = app().project.model
 
         self._initialize()
         self._config_window()
@@ -27,7 +27,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.load_user_preference_colormap()
 
     def _initialize(self):
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
         self.colormaps = ["jet",

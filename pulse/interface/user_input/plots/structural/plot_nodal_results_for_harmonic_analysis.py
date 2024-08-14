@@ -17,10 +17,9 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
         ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
+        self.project = app().project
+        self.model = app().project.model
 
         self._initialize()
         self._config_window()
@@ -35,7 +34,7 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.project.preprocessor.nodes
         self.analysisMethod = self.project.analysis_method_label
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.solution = self.project.get_structural_solution()
 
     def _config_window(self):

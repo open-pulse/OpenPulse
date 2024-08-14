@@ -48,7 +48,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.nodes = self.preprocessor.nodes
 
         self.project_folder_path = self.project.file._project_path

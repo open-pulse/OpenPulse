@@ -1,12 +1,8 @@
-import json
-import os
-from dataclasses import dataclass
 
-from pulse import app
-from pulse.properties.material import Material
-from pulse.properties.fluid import Fluid
-# from vibra.project.project_file import *
+from pulse.model.properties.material import Material
+from pulse.model.properties.fluid import Fluid
 
+from json import load
 from numpy import ndarray
 
 
@@ -106,24 +102,6 @@ class ModelProperties:
     def set_fluid(self, fluid: Fluid, line=None, element=None):
         self._set_property("fluid", fluid, line=line, element=element)
 
-    # def get_fluid_density(self, fluid, **kwargs):
-    #     rho_0 = fluid.fluid_density
-    #     dissipation_model = self.get_dissipation_model(**kwargs)
-    #     if dissipation_model is None:
-    #         return rho_0
-    #     elif dissipation_model["model"] == "proportional damping":
-    #         factor = dissipation_model["fluid density factor"]
-    #         return (1 + factor * 1j) * rho_0
-
-    # def get_speed_of_sound(self, fluid, **kwargs):
-    #     c_0 = fluid.speed_of_sound
-    #     dissipation_model = self.get_dissipation_model(**kwargs)
-    #     if dissipation_model is None:
-    #         return c_0
-    #     elif dissipation_model["model"] == "proportional damping":
-    #         factor = dissipation_model["speed of sound factor"]
-    #         return (1 + factor * 1j) * c_0
-
     # def get_prescribed_dofs(self, node_ids):
     #     return self._get_property("prescribed_dofs", node_ids=node_ids)
 
@@ -184,7 +162,7 @@ class ModelProperties:
         else:
             return "structural"
 
-    def _set_property(self, property: str, data, node_ids=None, element=None, line=None, group=None):
+    def _set_property(self, property: str, data, node_ids=None, element_ids=None, line_ids=None, group=None):
         """
         Sets a data to a property by node, element, line, surface or volume
         if any of these exists. Otherwise sets the property as global.
@@ -231,11 +209,13 @@ class ModelProperties:
             elif isinstance(node_ids, list) and len(node_ids) == 2:
                 self.nodal_properties[property, node_ids[0], node_ids[1]] = data
 
-        elif element is not None:
-            self.element_properties[property, element] = data
+        elif element_ids is not None:
+            if isinstance(element_ids, int):
+                self.element_properties[property, element_ids] = data
 
-        elif line is not None:
-            self.line_properties[property, line] = data
+        elif line_ids is not None:
+            if isinstance(line_ids, int):
+                self.line_properties[property, line_ids] = data
 
         elif group is not None:
             self.group_properties[property, group] = data
@@ -388,13 +368,3 @@ class ModelProperties:
                             if key[1] == element_id:
                                 table_names[key] = data["table names"]
         return table_names
-
-if __name__ == "__main__":
-    p = ModelProperties()
-    with open("teste.json", "w") as file:
-        file.write(p.as_json())
-
-    q = ModelProperties()
-    with open("teste.json", "r") as file:
-        data = json.load(file)
-        q.load_json(data)

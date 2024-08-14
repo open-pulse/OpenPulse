@@ -205,10 +205,9 @@ class AnalysisSetupInput(QDialog):
         self.model.set_global_damping(analysis_setup)
 
         if app().project.model.properties.check_if_there_are_tables_at_the_model():
-            self.frequencies = self.project.frequencies
+            self.frequencies = self.model.frequencies
         else:
-            self.frequencies = np.arange(f_min, f_max + f_step, f_step)
-            self.project.set_frequencies(self.frequencies, f_min, f_max, f_step)
+            self.model.set_frequency_setup(analysis_setup)
 
         if self.analysis_id in [1, 6]:
             self.project.set_modes_sigma(number_of_modes)

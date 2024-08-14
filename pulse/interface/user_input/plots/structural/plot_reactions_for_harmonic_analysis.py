@@ -37,7 +37,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
         self.analysis_method = self.project.analysis_method_label
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

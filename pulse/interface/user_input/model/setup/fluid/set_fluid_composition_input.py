@@ -4,13 +4,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
+from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path
 
 import os
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -58,16 +59,12 @@ class SetFluidCompositionInput(QDialog):
         self.selected_row = None
 
         self.keep_window_open = True
-        self.composition_file_path = ""
-
-        self.export_file_path = ""
-        self.user_path = os.path.expanduser('~')
-        self.fluid_path = self.project.get_fluid_list_path()
+        self.temp_file_path = ""
 
         # self.isentropic_label = "ISENK"   # isentropic exponent (real gas)
         self.isentropic_label = "CP/CV"     # isentropic expansion coefficient (ideal gas)
 
-        self.map_properties = { "D" : "fluid density",
+        self.map_properties = { "D" : "density",
                                 "CP" : "specific heat Cp",
                                 "CV" : "specific heat Cv",
                                 self.isentropic_label : "isentropic exponent",
@@ -146,8 +143,6 @@ class SetFluidCompositionInput(QDialog):
         self.treeWidget_reference_gases.itemDoubleClicked.connect(self.on_double_click_item_refprop_fluids)
 
     def _config_widgets(self):
-
-        ConfigWidgetAppearance(self, tool_tip=True)
 
         self.label_discharge.setVisible(False)
         self.label_suction.setVisible(False)
@@ -562,7 +557,7 @@ class SetFluidCompositionInput(QDialog):
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
-                self.fluid_properties["impedance"] = round(self.fluid_properties["fluid density"]*self.fluid_properties["speed of sound"],6)
+                self.fluid_properties["impedance"] = round(self.fluid_properties["density"]*self.fluid_properties["speed of sound"],6)
                 self.fluid_setup = [fluids_string, molar_fractions]
                 
                 self.process_errors()
@@ -857,8 +852,10 @@ class SetFluidCompositionInput(QDialog):
 
         if refProp_path is None:
 
-            title = 'Choose the REFPROP folder'
-            folder_path = QFileDialog.getExistingDirectory(None, title, self.user_path)
+            caption = 'Search for the REFPROP folder'
+            initial_path = str(Path().home())
+
+            folder_path = app().main_window.file_dialog.get_existing_directory(caption, initial_path)
             
             if folder_path == "":
                 return None
@@ -963,11 +960,11 @@ class SetFluidCompositionInput(QDialog):
 
         self.fluid_data = dict()
         self.fluid_to_composition = dict()
-        read = LoadFluidCompositionInput(file_path = self.composition_file_path)
+        read = LoadFluidCompositionInput(file_path = self.temp_file_path)
 
         if read.complete:
 
-            self.composition_file_path = read.file_path
+            self.temp_file_path = read.file_path
             composition_data = read.fluid_composition_data
 
             comp = 0

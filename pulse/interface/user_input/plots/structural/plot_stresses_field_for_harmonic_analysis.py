@@ -17,7 +17,8 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = app().main_window.project
+        self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -45,7 +46,7 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
 
         self.solve = self.project.structural_solve
         self.preprocessor = self.project.preprocessor
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.dict_frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
 
         self.colormaps = ["jet",

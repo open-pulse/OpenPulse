@@ -2,8 +2,7 @@ from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 from pulse.model.mesh import Mesh
 from pulse.model.preprocessor import Preprocessor
-from pulse.properties.model_properties import ModelProperties
-from pulse.editor.pulsation_suppression_device import PulsationSuppressionDevice
+from pulse.model.properties.model_properties import ModelProperties
 
 import numpy as np
 
@@ -19,16 +18,17 @@ class Model:
         self.preprocessor = Preprocessor()
         self.mesh = Mesh(self.preprocessor)
 
+        # self.preprocessor.set_model(self)
         self.preprocessor.set_mesh(self.mesh)
-
-        # self.PSD = PulsationSuppressionDevice(project)
 
         self.properties = ModelProperties()
 
     def _initialize(self):
+
         self.mesh = None
         self.preprocessor = None
         self.properties = None
+        self.psd_data = dict()
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
         self.set_static_analysis_setup(dict())
@@ -44,10 +44,14 @@ class Model:
         self.element_distributed_load = analysis_setup.get("element_distributed_load", True)
 
     def set_frequency_setup(self, analysis_setup: dict):
-        self.frequencies = analysis_setup.get("frequencies", None)
         self.f_min = analysis_setup.get("f_min", None)
         self.f_max = analysis_setup.get("f_max", None)
         self.f_step = analysis_setup.get("f_step", None)
+        if (self.f_min, self.f_max, self.f_step).count(None) != 3:
+            self.frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
 
     def set_global_damping(self, analysis_setup: dict):
         self.global_damping = analysis_setup.get("global damping", [0., 0., 0., 0.])
+
+    def set_psd_data(self, psd_data: dict):
+        self.psd_data = psd_data

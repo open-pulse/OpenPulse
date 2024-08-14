@@ -114,93 +114,8 @@ class ProjectFile:
     #                 else:
     #                     rmtree(file_path)
 
-    # def load(self, project_file_path):
-
-    #     self.project_file_path = Path(project_file_path)
-    #     self._project_path = os.path.dirname(self.project_file_path)
-
-    #     config = configparser.ConfigParser()
-    #     config.read(project_file_path)
-
-    #     section = config['PROJECT']
-    #     # project_name = section['name']
-    #     import_type = int(section['import type'])
-
-    #     keys = list(section.keys())
-
-    #     if 'length unit' in keys:
-    #         self._length_unit = section['length unit']
-
-    #     if 'geometry file' in keys:
-    #         geometry_file = section['geometry file']
-    #         self._geometry_path =  get_new_path(self._project_path, geometry_file)
-
-    #     if 'element size' in keys:
-    #         element_size = section['element size']
-    #         self._element_size = float(element_size)
-
-    #     if 'geometry tolerance' in keys:
-    #         geometry_tolerance = section['geometry tolerance']
-    #         self._geometry_tolerance = float(geometry_tolerance)
-
-    #     if 'material list file' in keys:
-    #         self._material_file_name = section['material list file']
-
-    #     if 'fluid list file' in keys:
-    #         self._fluid_file_name = section['fluid list file']
-
-    #     # self._project_name = project_name
-    #     self._import_type = import_type
-    #     self._project_ini_file_path = get_new_path(self._project_path, self._project_ini_name)
-    #     self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
-    #     self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
-    #     self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
-    #     self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
-    #     self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
-    #     self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
-
-    #Frequency Setup Analysis
-    # def load_analysis_file(self):
-
-    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-
-    #     if analysis_setup is None:
-    #         f_min = 0.
-    #         f_max = 0.
-    #         f_step = 0.
-    #         global_damping = [0., 0., 0., 0.]
-
-    #     else:
-    #         f_min = analysis_setup["f_min"]
-    #         f_max = analysis_setup["f_max"]
-    #         f_step = analysis_setup["f_step"]
-    #         global_damping = analysis_setup["global damping"]
-
-    #     return f_min, f_max, f_step, global_damping
-
-    # def add_frequency_in_file(self, f_min, f_max, f_step):
-
-    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-    #     if analysis_setup is None:
-    #         analysis_setup = dict()
-
-    #     analysis_setup["f_min"] = f_min
-    #     analysis_setup["f_max"] = f_max
-    #     analysis_setup["f_step"] = f_step
-
-    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
-
-    # def add_damping_in_file(self, global_damping):
-
-    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-    #     if analysis_setup is None:
-    #         analysis_setup = dict()
-
-    #     analysis_setup["global damping"] = global_damping
-
-    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
-
     def reset_project_setup(self, **kwargs):
+        return
 
         reset_analysis_setup = kwargs.get('reset_analysis_setup', False)
 
@@ -255,176 +170,176 @@ class ProjectFile:
             self.write_data_in_file(self._pipeline_path, config)
 
 
-    def update_entity_file(self, entities, dict_map_lines={}):
+    # def update_entity_file(self, entities, dict_map_lines={}):
 
-        try:
+    #     try:
             
-            if os.path.exists(self._pipeline_path):
+    #         if os.path.exists(self._pipeline_path):
 
-                config = configparser.ConfigParser()
-                config2 = configparser.ConfigParser()
-                config2.read(self._pipeline_path)
-                sections = config2.sections()
+    #             config = configparser.ConfigParser()
+    #             config2 = configparser.ConfigParser()
+    #             config2.read(self._pipeline_path)
+    #             sections = config2.sections()
 
-                mapped_entities = list()
-                for entity_id in entities:
-                    if len(dict_map_lines) == 0:
-                        config[str(entity_id)] = {}
-                    elif str(entity_id) not in sections:
-                        config[str(entity_id)] = {}
-                    elif entity_id not in dict_map_lines.keys():
-                        config[str(entity_id)] = {} 
-                    else:
-                        for section in sections:
-                            if "-" in section:
-                                prefix = int(section.split("-")[0])
-                                sufix = int(section.split("-")[1])
-                                if dict_map_lines[entity_id] == prefix:
-                                    _key = f"{entity_id}-{sufix}"
-                                    config[_key] = config2[section]
-                            else:
-                                if entity_id not in mapped_entities:
-                                    config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
-                                    mapped_entities.append(entity_id)
+    #             mapped_entities = list()
+    #             for entity_id in entities:
+    #                 if len(dict_map_lines) == 0:
+    #                     config[str(entity_id)] = {}
+    #                 elif str(entity_id) not in sections:
+    #                     config[str(entity_id)] = {}
+    #                 elif entity_id not in dict_map_lines.keys():
+    #                     config[str(entity_id)] = {} 
+    #                 else:
+    #                     for section in sections:
+    #                         if "-" in section:
+    #                             prefix = int(section.split("-")[0])
+    #                             sufix = int(section.split("-")[1])
+    #                             if dict_map_lines[entity_id] == prefix:
+    #                                 _key = f"{entity_id}-{sufix}"
+    #                                 config[_key] = config2[section]
+    #                         else:
+    #                             if entity_id not in mapped_entities:
+    #                                 config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
+    #                                 mapped_entities.append(entity_id)
             
-                self.write_data_in_file(self._pipeline_path, config)
+    #             self.write_data_in_file(self._pipeline_path, config)
 
-        except Exception as _error:
-            print(str(_error))
+    #     except Exception as _error:
+    #         print(str(_error))
 
-    def get_entity_file_data(self):
+    # def get_entity_file_data(self):
 
-        entity_data = {}
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
+    #     entity_data = {}
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
 
-        for entity in config.sections():
-            keys = config[entity].keys()
-            if len(config[entity].keys()) > 0:
-                dict_section = {}
-                for key in keys:
-                    dict_section[key] = config[entity][key]
+    #     for entity in config.sections():
+    #         keys = config[entity].keys()
+    #         if len(config[entity].keys()) > 0:
+    #             dict_section = {}
+    #             for key in keys:
+    #                 dict_section[key] = config[entity][key]
                 
-                entity_data[entity] = dict_section
+    #             entity_data[entity] = dict_section
 
-        return entity_data
+    #     return entity_data
 
-    def get_cross_sections_from_file(self):
-        """ This method returns a dictionary of already applied cross-sections.
-        """
-        try:
+    # def get_cross_sections_from_file(self):
+    #     """ This method returns a dictionary of already applied cross-sections.
+    #     """
+    #     try:
 
-            entityFile = configparser.ConfigParser()
-            entityFile.read(self._pipeline_path)
-            sections = entityFile.sections()
+    #         config = app().pulse_file.read_pipeline_data_from_file()
+    #         sections = config.sections()
 
-            _id = 1
-            section_info = dict()
-            variable_section_line_ids = list()
-            parameters_to_entity_id = defaultdict(list)
-            parameters_to_elements_id = defaultdict(list)
+    #         _id = 1
+    #         section_info = dict()
+    #         variable_section_line_ids = list()
+    #         parameters_to_line_id = defaultdict(list)
+    #         parameters_to_elements_id = defaultdict(list)
 
-            for entity in sections:
+    #         for line in sections:
 
-                line_prefix = ""
-                list_elements = list()
+    #             line_prefix = ""
+    #             list_elements = list()
 
-                section = entityFile[entity]
-                keys = section.keys()
+    #             section = config[line]
+    #             keys = section.keys()
 
-                if 'structural element type' in keys:
-                    structural_element_type = section['structural element type']
-                else:
-                    structural_element_type = "pipe_1"
+    #             if 'structural element type' in keys:
+    #                 structural_element_type = section['structural element type']
+    #             else:
+    #                 structural_element_type = "pipe_1"
 
-                if 'section type' in keys:
-                    section_type_label = section['section type']
-                else:
-                    section_type_label = "Pipe section"
+    #             if 'section type' in keys:
+    #                 section_type_label = section['section type']
+    #             else:
+    #                 section_type_label = "Pipe section"
 
-                if structural_element_type in ["expansion_joint", "valve"]:
-                    continue
+    #             if structural_element_type in ["expansion_joint", "valve"]:
+    #                 continue
                 
-                section_parameters = list()
-                if structural_element_type == "pipe_1":
+    #             section_parameters = list()
+    #             if structural_element_type == "pipe_1":
 
-                    if 'section parameters' in keys:
-                        str_section_parameters = section['section parameters']
-                        section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+    #                 if 'section parameters' in keys:
+    #                     str_section_parameters = section['section parameters']
+    #                     section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
   
-                    if len(section_parameters) == 10:
-                        if line_prefix not in variable_section_line_ids:
-                            variable_section_line_ids.append(entity)
+    #                 if len(section_parameters) == 10:
+    #                     if line_prefix not in variable_section_line_ids:
+    #                         variable_section_line_ids.append(line)
 
-                    if "-" in entity:
-                        line_prefix = entity.split("-")[0]
-                        if line_prefix in variable_section_line_ids:
-                            continue
-                        elif 'list of elements' in keys:
-                            str_list_elements = section['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)                 
+    #                 if "-" in line:
+    #                     line_prefix = line.split("-")[0]
+    #                     if line_prefix in variable_section_line_ids:
+    #                         continue
+    #                     elif 'list of elements' in keys:
+    #                         str_list_elements = section['list of elements']
+    #                         list_elements = get_list_of_values_from_string(str_list_elements)                 
 
-                else:
+    #             else:
 
-                        structural_element_type = f"beam_1 - {section_type_label}"
-                        if section_type_label == "Generic section":   
-                            continue              
+    #                     structural_element_type = f"beam_1 - {section_type_label}"
+    #                     if section_type_label == "Generic section":   
+    #                         continue              
 
-                        else:
-                            if 'section parameters' in keys:
-                                str_section_parameters = section['section parameters']
-                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+    #                     else:
+    #                         if 'section parameters' in keys:
+    #                             str_section_parameters = section['section parameters']
+    #                             section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
 
-                str_section_parameters = str(section_parameters)
-                if str_section_parameters not in parameters_to_entity_id.keys():
-                    section_info[_id] = [structural_element_type, section_parameters]
-                    _id += 1
+    #             str_section_parameters = str(section_parameters)
+    #             if str_section_parameters not in parameters_to_line_id.keys():
+    #                 section_info[_id] = [structural_element_type, section_parameters]
+    #                 _id += 1
 
-                if line_prefix == "":
-                    parameters_to_entity_id[str_section_parameters].append(int(entity))
+    #             if line_prefix == "":
+    #                 parameters_to_line_id[str_section_parameters].append(int(line))
 
-                else:
-                    if list_elements:
-                        for element_id in list_elements:
-                            parameters_to_elements_id[str_section_parameters].append(element_id)
-                    else:    
-                        parameters_to_entity_id[str_section_parameters].append(int(entity))
+    #             else:
+    #                 if list_elements:
+    #                     for element_id in list_elements:
+    #                         parameters_to_elements_id[str_section_parameters].append(element_id)
+    #                 else:    
+    #                     parameters_to_line_id[str_section_parameters].append(int(line))
 
-            id_1 = 0
-            id_2 = 0
-            section_info_elements = dict()
-            section_info_lines = dict()
+    #         id_1 = 0
+    #         id_2 = 0
+    #         section_info_elements = dict()
+    #         section_info_lines = dict()
 
-            for _id, _data in section_info.items():
+    #         for _id, _data in section_info.items():
 
-                _section_parameters = _data[1]
-                str_section_parameters = str(_section_parameters)
+    #             _section_parameters = _data[1]
+    #             str_section_parameters = str(_section_parameters)
 
-                if str_section_parameters in parameters_to_entity_id.keys():
-                    id_1 += 1
-                    data_lines = _data.copy()
-                    data_lines.append("line ids")
-                    data_lines.append(parameters_to_entity_id[str_section_parameters])
-                    section_info_lines[id_1] = data_lines
+    #             if str_section_parameters in parameters_to_line_id.keys():
+    #                 id_1 += 1
+    #                 data_lines = _data.copy()
+    #                 data_lines.append("line ids")
+    #                 data_lines.append(parameters_to_line_id[str_section_parameters])
+    #                 section_info_lines[id_1] = data_lines
 
-                if str_section_parameters in parameters_to_elements_id.keys():
-                    id_2 += 1
-                    data_elements = _data.copy()
-                    data_elements.append("element ids")
-                    data_elements.append(parameters_to_elements_id[str_section_parameters])
-                    section_info_elements[id_2] = data_elements
+    #             if str_section_parameters in parameters_to_elements_id.keys():
+    #                 id_2 += 1
+    #                 data_elements = _data.copy()
+    #                 data_elements.append("element ids")
+    #                 data_elements.append(parameters_to_elements_id[str_section_parameters])
+    #                 section_info_elements[id_2] = data_elements
 
-        except Exception as error_log:
+    #     except Exception as error_log:
 
-            title = "Error while processing cross-sections"
-            message = "Error detected while processing the 'get_cross_sections_from_file' method.\n\n"
-            message += f"Last line id: {entity}\n\n"
-            message += f"Details: \n\n {str(error_log)}"
-            PrintMessageInput([window_title, title, message])
+    #         title = "Error while processing cross-sections"
+    #         message = "Error detected while processing the 'get_cross_sections_from_file' method.\n\n"
+    #         message += f"Last line id: {line}\n\n"
+    #         message += f"Details: \n\n {str(error_log)}"
+    #         PrintMessageInput([window_title, title, message])
 
-            return dict(), dict()
+    #         return dict(), dict()
 
-        return section_info_lines, section_info_elements
+
+    #     return section_info_lines, section_info_elements
     
     def add_cross_section_in_file(self, lines, cross_section):  
 
@@ -2398,41 +2313,6 @@ class ProjectFile:
     #                 config.remove_section(section)
             
     #         self.write_data_in_file(self._node_structural_path, config_new)
-
-    # def get_import_type(self):
-    #     return self._import_type
-
-    # @property
-    # def project_name(self):
-    #     return self._project_name
-
-    # @property
-    # def project_ini_name(self):
-    #     return self._project_ini_name
-    
-    # @property
-    # def project_path(self):
-    #     return self._project_path
-
-    # @property
-    # def project_ini_file_path(self):
-    #     return self._project_ini_file_path
-
-    # @property
-    # def geometry_path(self):
-    #     return self._geometry_path
-    
-    # @property
-    # def length_unit(self):
-    #     return self._length_unit
-    
-    # @property
-    # def element_size(self):
-    #     return self._element_size
-
-    # @property
-    # def geometry_tolerance(self):
-    #     return self._geometry_tolerance
 
     # def update_list_elements_already_exists_in_entity_file(self, line_id, config, ext_list_elements):
     #     dict_section_to_list_elements = {}

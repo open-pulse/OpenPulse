@@ -26,7 +26,8 @@ class ShakingForcesCriteriaInput(QWidget):
         app().main_window.set_input_widget(self)
 
         self.project = app().project
-        self.preprocessor = app().project.preprocessor
+        self.model = app().project.model
+        self.preprocessor = app().project.model.preprocessor
 
         self._config_window()
         self._initialize()
@@ -88,7 +89,7 @@ class ShakingForcesCriteriaInput(QWidget):
             element_ids.extend(elements_from_line)
         
         pressure_external = 0
-        frequencies = self.project.frequencies
+        frequencies = self.model.frequencies
 
         rows = self.preprocessor.DOFS_ELEMENT
         cols = len(frequencies)
@@ -122,7 +123,7 @@ class ShakingForcesCriteriaInput(QWidget):
 
         shaking_forces = self.process_shaking_forces_for_selected_lines()
 
-        x_data = self.project.frequencies
+        x_data = self.model.frequencies
 
         self.results_to_plot = dict()
         if self.checkBox_force_Fx.isChecked():

@@ -23,7 +23,8 @@ class RunAnalysisInput(QDialog):
         # ui_path = UI_DIR / "messages/solution_log.ui"
         # uic.loadUi(ui_path, self)
 
-        self.project = app().main_window.project
+        self.project = app().project
+        self.model = app().project.model
 
         # self._load_icons()
         # self._config_window()
@@ -130,7 +131,7 @@ class RunAnalysisInput(QDialog):
     def _load_analysis_info(self):
         self.analysis_id = self.project.analysis_id
         self.analysis_type_label = self.project.analysis_type_label
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.modes = self.project.modes
 
     def pre_non_linear_convergence_plot(self):

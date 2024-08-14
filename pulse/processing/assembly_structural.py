@@ -26,11 +26,11 @@ class AssemblyStructural:
         Default is None.
     """
 
-    def __init__(self, model: Model, frequencies, **kwargs):
+    def __init__(self, model: Model, **kwargs):
 
         self.model = model
         self.preprocessor = model.preprocessor
-        self.frequencies = frequencies
+        self.frequencies = model.frequencies
         self.acoustic_solution = kwargs.get('acoustic_solution', None)
         self.no_table = True
 

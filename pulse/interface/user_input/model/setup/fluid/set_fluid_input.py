@@ -30,10 +30,8 @@ class SetFluidInput(QDialog):
         self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
 
         app().main_window.set_input_widget(self)
-
-        self.main_window = app().main_window
         self.project = app().project
-        self.file = self.project.file
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -62,7 +60,6 @@ class SetFluidInput(QDialog):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.fluid_path = self.project.get_fluid_list_path()
 
         self.keep_window_open = True
 

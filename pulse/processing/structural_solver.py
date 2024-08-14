@@ -2,6 +2,8 @@ from time import time
 import numpy as np
 from math import pi
 from scipy.sparse.linalg import eigs, spsolve
+
+from pulse.model.model import Model
 from pulse.processing.assembly_structural import AssemblyStructural
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -24,14 +26,14 @@ class StructuralSolver:
         Default is None.
     """
 
-    def __init__(self, model, frequencies, **kwargs):
+    def __init__(self, model: Model, **kwargs):
 
         self.model = model
-        self.frequencies = frequencies
+        self.frequencies = model.frequencies
 
         self.acoustic_solution = kwargs.get("acoustic_solution", None)
-        self.assembly = AssemblyStructural(model, frequencies, acoustic_solution=self.acoustic_solution)
-        
+        self.assembly = AssemblyStructural(model, acoustic_solution=self.acoustic_solution)
+
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K_exp_joint, self.M_exp_joint, self.Kr_exp_joint, self.Mr_exp_joint = self.assembly.get_expansion_joint_global_matrices()

@@ -642,7 +642,7 @@ class BeforeRun:
             
             return output_lines, list_of_neighboor_lines, neighboor_data, index
 
-        self.section_data_lines, _ = self.project.file.get_cross_sections_from_file()
+        self.section_data_lines, _ = app().loader.files_loader.get_cross_sections_from_file()
 
         self.one_section_one_line = {}
         self.one_section_multiple_lines = {}

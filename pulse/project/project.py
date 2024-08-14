@@ -1,9 +1,11 @@
 from pulse.tools.utils import *
 #
-from pulse.project.load_project import LoadProject
-from pulse.model.line import Line
-from pulse.model.preprocessor import Preprocessor
+# from pulse.project.load_project import LoadProject
+# from pulse.model.line import Line
+# from pulse.model.preprocessor import Preprocessor
 from pulse.model.cross_section import CrossSection
+from pulse.model.properties.fluid import Fluid
+from pulse.model.properties.material import Material
 from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun
 from pulse.processing.structural_solver import StructuralSolver
@@ -949,35 +951,35 @@ class Project:
     def get_acoustic_element(self, element_id):
         return self.preprocessor.acoustic_elements[element_id]
 
-    def set_frequencies(self, frequencies, min_, max_, step_):
-        if max_ != 0 and step_ != 0:
-            self.f_min, self.f_max, self.f_step = min_, max_, step_
-            self.add_frequency_in_file(min_, max_, step_)
-        self.frequencies = frequencies
-
-    # def load_prescribed_dofs(self, node_id, data):
-    #     self.preprocessor.set_prescribed_dofs(node_id, data)
-
-    def _set_material_to_selected_lines(self, lines, material):
+    def _set_material_to_selected_lines(self, lines, material: Material):
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
             entity = self.model.mesh.lines_from_model[line_id]
             entity.material = material
 
-    def _set_material_to_all_lines(self, material):
+    def _set_material_to_all_lines(self, material: Material):
         for entity in self.model.mesh.lines_from_model.values():
             entity.material = material
 
-    def _set_fluid_to_selected_lines(self, lines, fluid):
+    def _set_fluid_to_selected_lines(self, lines, fluid: Fluid):
         if isinstance(lines, int):
             lines = [lines]
+
+        self.model.properties._set_property("fluid", fluid.identifier, line_ids=lines, )
         for line_id in lines:
             entity = self.model.mesh.lines_from_model[line_id]
             if entity.structural_element_type in ['beam_1']:
                 entity.fluid = None
             else:
-                entity.fluid = fluid    
+                entity.fluid = fluid  
+
+    def _set_fluid_to_all_lines(self, fluid: Fluid):
+        for entity in self.model.mesh.lines_from_model.values():
+            if entity.structural_element_type in ['beam_1']:
+                entity.fluid = None
+            else:
+                entity.fluid = fluid      
 
     def _set_compressor_info_to_selected_lines(self, line_ids: int | list | tuple, compressor_info=dict()):
 
@@ -995,14 +997,7 @@ class Project:
                 if line.compressor_info:
                     node_id = line.compressor_info['node_id']
                     self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
-                    line.compressor_info = dict()
-
-    def _set_fluid_to_all_lines(self, fluid):
-        for entity in self.model.mesh.lines_from_model.values():
-            if entity.structural_element_type in ['beam_1']:
-                entity.fluid = None
-            else:
-                entity.fluid = fluid               
+                    line.compressor_info = dict()          
 
     def _set_cross_section_to_selected_line(self, lines, cross):
 
@@ -1247,14 +1242,15 @@ class Project:
     def get_structural_solve(self):
 
         if self.analysis_id in [5, 6]:
-            results = StructuralSolver(self.model, self.frequencies, acoustic_solution=self.solution_acoustic)
+            results = StructuralSolver(self.model, acoustic_solution=self.solution_acoustic)
 
         else:
 
-            if self.analysis_id in [2, 4]:
-                results = StructuralSolver(self.model, None)
-            else:
-                results = StructuralSolver(self.model, self.frequencies)
+            results = StructuralSolver(self.model)
+            # if self.analysis_id in [2, 4]:
+            #     results = StructuralSolver(self.model)
+            # else:
+            #     results = StructuralSolver(self.model)
 
         return results
 
@@ -1265,7 +1261,7 @@ class Project:
         return self.solution_structural
 
     def get_acoustic_solve(self):
-        return AcousticSolver(self.preprocessor, self.model, self.frequencies)
+        return AcousticSolver(self.model, self.model, self.frequencies)
 
     def set_acoustic_solution(self, value):
         self.solution_acoustic = value

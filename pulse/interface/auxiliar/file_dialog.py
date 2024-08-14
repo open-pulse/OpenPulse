@@ -27,3 +27,6 @@ class FileDialog(QFileDialog):
 
     def get_save_file_name(self, caption, directory, filter):
         return self.getSaveFileName(self, caption, directory, filter)
+    
+    def get_existing_directory(self, caption, directory):
+        return self.getExistingDirectory(self, caption, directory)

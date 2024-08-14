@@ -5,7 +5,7 @@ from scipy.sparse import save_npz, load_npz
 
 from pulse.tools.utils import sparse_is_equal
 from pulse.model.cross_section import CrossSection
-from pulse.properties.material import Material
+from pulse.model.properties.material import Material
 from pulse.model.model import Model
 from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project

@@ -269,10 +269,10 @@ class Config:
 
         return None
 
-    def write_last_folder_path_in_file(self, label : str, project_path : str):
+    def write_last_folder_path_in_file(self, label : str, file_path : str):
         try:
 
-            _path = os.path.dirname(project_path)
+            _path = os.path.dirname(file_path)
             config = configparser.ConfigParser()
             config.read(self.config_path)
             

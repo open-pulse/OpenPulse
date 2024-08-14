@@ -17,10 +17,9 @@ class PlotStressesForHarmonicAnalysis(QWidget):
         ui_path = UI_DIR / "plots/results/structural/get_stresses_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
+        self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -43,7 +42,7 @@ class PlotStressesForHarmonicAnalysis(QWidget):
 
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.solve = self.project.structural_solve 
         self.analysis_method = self.project.analysis_method_label
 

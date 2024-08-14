@@ -1,3 +1,5 @@
+
+from pulse.model.model import Model
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 import numpy as np
@@ -13,30 +15,31 @@ class AcousticSolver:
 
     Parameters
     ----------
-    preprocessor : Preprocessor object
-        Acoustic finite element preprocessor.
+    model :Model object
+        Acoustic finite element model.
 
     frequencies : array
         Frequencies of analysis.
     """
 
-    def __init__(self, preprocessor, frequencies):
+    def __init__(self, model: Model):
 
-        self.preprocessor = preprocessor
+        self.model = model
+        frequencies = model.frequencies
 
         if frequencies is None:
             pass
-        elif frequencies[0]==0:
+        elif frequencies[0] == 0:
             frequencies[0] = float(1e-4)
 
-        self.all_dofs = len(preprocessor.nodes)
-        self.assembly = AssemblyAcoustic(preprocessor, frequencies)
-        self.acoustic_elements = preprocessor.acoustic_elements
+        self.all_dofs = len(model.preprocessor.nodes)
+        self.assembly = AssemblyAcoustic(model, frequencies)
+        self.acoustic_elements = model.preprocessor.acoustic_elements
         self.frequencies = frequencies
         self.max_iter = 100
         self.target = 10/100
 
-        self.group_elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
+        self.group_elements_with_perforated_plate = model.preprocessor.group_elements_with_perforated_plate
         self.valve_elements = self.check_non_linear_valves()
         self.solution_nm1 = None
         self.convergence_dataLog = None
@@ -458,6 +461,6 @@ class AcousticSolver:
         return False
 
     def stop_processing(self):
-        if self.preprocessor.stop_processing:
+        if self.model.preprocessor.stop_processing:
             print("\nProcessing interruption was requested by the user. \nSolution interruped.")
             return True

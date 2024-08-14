@@ -22,7 +22,8 @@ class PlotTransmissionLoss(QWidget):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
+        self.project = app().project
+        self.model = app().project.model
 
         self._config_window()
         self._initialize()
@@ -34,7 +35,7 @@ class PlotTransmissionLoss(QWidget):
     def _initialize(self):
         self.unit_label = "dB"
         self.analysis_method = self.project.analysis_method_label
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.solution = self.project.get_acoustic_solution()
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()

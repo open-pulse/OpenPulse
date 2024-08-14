@@ -4,7 +4,8 @@ from pathlib import Path
 
 from pulse.tools.utils import sparse_is_equal
 from pulse.model.cross_section import CrossSection
-from pulse.properties.material import Material
+from pulse.model.properties.material import Material
+from pulse.model.model import Model
 from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project
 from pulse.processing.structural_solver import StructuralSolver
@@ -12,7 +13,7 @@ from pulse.postprocessing.read_data import ReadData
 
 # Setting up model
 @pytest.fixture
-def model():
+def current_model():
 
     section_parameters = [0.08, 0.008, 0, 0, 0, 0]
     pipe_section_info = {  "section_type_label" : "Pipe section" ,
@@ -24,7 +25,9 @@ def model():
     steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
     
     project = Project()
-    preprocessor = Preprocessor(project)
+    model = Model(project)
+    preprocessor = model.preprocessor
+
     geometry_path = Path("examples/iges_files/new_geometries/example_2_withBeam.iges")
     preprocessor.generate(geometry_path, 0.01)
     preprocessor.set_structural_damping([1e-3, 1e-6, 0, 0])
@@ -40,8 +43,9 @@ def model():
     return preprocessor
 
 # start testing 
-def test_modal_analysis(model):
-    project = model.project
+def test_modal_analysis(current_model):
+    project = current_model.project
+    model = current_model.model
     solution = StructuralSolver(model, None)
     natural_frequencies, eigen_vectors = solution.modal_analysis(modes=40)
     folder_path = "tests/data/structural"
@@ -52,8 +56,9 @@ def test_modal_analysis(model):
     assert np.allclose(natural_frequencies, correct_natural_frequencies)
     assert np.allclose(eigen_vectors, correct_eigen_vectors)
 
-def test_direct_method(model):
-    project = model.project
+def test_direct_method(current_model):
+    project = current_model.project
+    model = current_model.model
     frequencies = np.linspace(0, 200, 201)
     solve = StructuralSolver(model, frequencies)    
     solution = solve.direct_method()
@@ -63,8 +68,9 @@ def test_direct_method(model):
     correct_solution = project.solution_structural
     assert np.allclose(solution, correct_solution)
 
-def test_mode_superposition(model, modes=60):
-    project = model.project
+def test_mode_superposition(current_model, modes=60):
+    project = current_model.project
+    model = current_model.model
     frequencies = np.linspace(0, 200, 201)
     solution = StructuralSolver(model, frequencies)
     solution = solution.mode_superposition(modes, fastest=True)

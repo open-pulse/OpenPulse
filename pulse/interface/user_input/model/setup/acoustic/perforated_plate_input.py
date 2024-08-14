@@ -74,7 +74,7 @@ class PerforatedPlateInput(QDialog):
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.perforated_plate_tables_folder_path = get_new_path(self.acoustic_folder_path, "perforated_plate_files") 
 
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.acoustic_elements = self.project.preprocessor.acoustic_elements
         self.structural_elements = self.project.preprocessor.structural_elements
         self.group_elements_with_perforated_plates = self.project.preprocessor.group_elements_with_perforated_plate

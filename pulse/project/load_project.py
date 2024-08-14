@@ -7,6 +7,7 @@ from pulse.tools.utils import *
 from pulse.model.cross_section import CrossSection
 
 from time import time
+from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -34,6 +35,7 @@ class LoadProject:
         self.load_model_properties_file()
         self.load_analysis_file()
         self.load_inertia_load_setup()
+        self.load_psd_data_from_file()
 
     def load_material_data(self):
         try:
@@ -450,3 +452,55 @@ class LoadProject:
 
         self.model.set_frequency_setup(analysis_setup)
         self.model.set_global_damping(analysis_setup)
+
+    def load_psd_data_from_file(self):
+
+        psd_data = app().pulse_file.read_psd_data_from_file()
+        if psd_data is None:
+            return
+        
+        self.model.set_psd_data(psd_data)
+
+        link_data = defaultdict(list)
+
+        for psd_label, data in psd_data.items():
+            for key, value in data.items():
+
+                if "Link-" in key:
+                    link_type = value["link type"]
+                    start_coords = value["start coords"]
+                    end_coords = value["end coords"]
+                    link_data[(psd_label, link_type)].append((start_coords, end_coords))
+
+        if link_data:
+            self.add_psd_link_data_to_nodes(link_data)
+
+    def add_psd_link_data_to_nodes(self, link_data: dict):
+
+        for key, values in link_data.items():
+            for (start_coords, end_coords) in values:
+
+                id_1 = self.preprocessor.get_node_id_by_coordinates(start_coords)
+                id_2 = self.preprocessor.get_node_id_by_coordinates(end_coords)
+                nodes = (id_1, id_2)
+
+                if key[1] == "acoustic_link":
+                    property = "psd_acoustic_link"
+                    node_ids, data = self.preprocessor.get_acoustic_link_data(nodes)
+                else:
+                    property = "psd_structural_link"
+                    node_ids, data = self.preprocessor.get_structural_link_data(nodes)
+
+                self.model.properties._set_property(property, data, node_ids=node_ids)
+
+    def get_device_related_lines(self):
+
+        psd_lines = defaultdict(list)
+        config = app().pulse_file.read_pipeline_data_from_file()
+
+        for section in config.sections():
+            if "psd label" in config[section].keys():
+                psd_label = config[section]["psd label"]
+                psd_lines[psd_label].append(int(section))
+
+        return psd_lines

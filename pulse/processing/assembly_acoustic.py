@@ -4,6 +4,7 @@ from math import pi
 from numpy.linalg import norm
 from scipy.sparse import csr_matrix, csc_matrix
 
+from pulse.model.model import Model
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
@@ -72,15 +73,19 @@ class AssemblyAcoustic:
     frequencies : array
         Frequencies of analysis.
     """
-    def __init__(self, preprocessor, frequencies):
-        self.preprocessor = preprocessor
-        self.frequencies = frequencies
+    def __init__(self, model: Model):
+
+        self.model = model
+        self.preprocessor = model.preprocessor
+        self.frequencies = model.frequencies
+
         if self.preprocessor.beam_gdofs is None:
             self.beam_gdofs, _ = self.preprocessor.get_beam_and_non_beam_elements_global_dofs()
         else:
             self.beam_gdofs, _ = self.preprocessor.beam_gdofs, self.preprocessor.pipe_gdofs
-        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+
         self.total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
         self.neighbor_diameters = self.preprocessor.neighbor_elements_diameter_global()
         self.prescribed_indexes = self.get_prescribed_indexes()
         self.unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()

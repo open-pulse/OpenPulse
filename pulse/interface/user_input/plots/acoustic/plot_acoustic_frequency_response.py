@@ -16,13 +16,12 @@ class PlotAcousticFrequencyResponse(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
         ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
+        self.project = app().project
+        self.model = app().project.model
 
         self._initialize()
         self._config_window()
@@ -35,7 +34,7 @@ class PlotAcousticFrequencyResponse(QWidget):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.preprocessor.nodes
         self.analysis_method = self.project.analysis_method_label
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.solution = self.project.get_acoustic_solution()
 
     def _config_window(self):        

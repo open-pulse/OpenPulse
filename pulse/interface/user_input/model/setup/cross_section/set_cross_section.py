@@ -29,10 +29,10 @@ class SetCrossSectionInput(QDialog):
         self.elements_to_update_cross_section = kwargs.get("elements_to_update_cross_section", list())
 
         app().main_window.set_input_widget(self)
-        self.model = app().project.model
         self.project = app().project
+        self.model = app().project.model
 
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = app().project.preprocessor
         self.file = self.project.file
        
         self.input_widget = CrossSectionWidget()
@@ -75,8 +75,6 @@ class SetCrossSectionInput(QDialog):
         self.structural_elements = self.project.preprocessor.structural_elements
 
         self.before_run = self.project.get_pre_solution_model_checks()
-
-        self.psd_lines = self.project.PSD.get_device_related_lines()
 
     def _define_qt_variables(self):
 
@@ -225,7 +223,7 @@ class SetCrossSectionInput(QDialog):
         self.section_id_data_elements = dict()
         self.treeWidget_sections_parameters_by_lines.clear()
         self.treeWidget_sections_parameters_by_elements.clear()
-        self.section_data_lines, self.section_data_elements = self.file.get_cross_sections_from_file()
+        self.section_data_lines, self.section_data_elements = app().loader.files_loader.get_cross_sections_from_file()
 
         if len(self.section_data_elements) + len(self.section_data_lines) == 0:
             self.tabWidget_general.setTabVisible(2, False)
@@ -573,7 +571,10 @@ class SetCrossSectionInput(QDialog):
                 self.tabWidget_beam_section.setCurrentIndex(i)
 
     def check_if_lines_belongs_to_psd(self, lines):
-        for psd_lines in self.psd_lines.values():
+
+        device_related_lines =app().loader.get_device_related_lines()
+
+        for psd_lines in device_related_lines.values():
             for line in lines:
                 if line in psd_lines:
                     self.lineEdit_selected_id.setText("")

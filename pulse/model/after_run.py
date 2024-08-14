@@ -14,8 +14,11 @@ class AfterRun:
         self.model = app().project.model
         self.preprocessor = app().project.preprocessor
 
+        self.load_model_and_analysis_data()
+
+    def load_model_and_analysis_data(self):
         self.solution_acoustic = self.project.solution_acoustic
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.map_nodes = self.preprocessor.map_global_to_external_index
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements

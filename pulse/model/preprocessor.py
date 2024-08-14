@@ -1,7 +1,7 @@
 from pulse.model.cross_section import *
 from pulse.model.line import Line
-from pulse.model.geometry import Geometry
-from pulse.interface.handler.geometry_handler import GeometryHandler
+# from pulse.model.geometry import Geometry
+# from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
@@ -12,8 +12,6 @@ from pulse.tools.utils import *
 
 from pulse.model.mesh import Mesh
 
-import os
-import gmsh 
 import numpy as np
 from time import time
 from collections import defaultdict, deque
@@ -27,7 +25,9 @@ class Preprocessor:
     """
     def __init__(self):
 
+        # self.project = project
         self.mesh = None
+
         self.reset_variables()
 
     def reset_variables(self):
@@ -2795,19 +2795,19 @@ class Preprocessor:
             node1.there_are_elastic_nodal_link_dampings = True
             node2.there_are_elastic_nodal_link_dampings = True
 
-    def add_psd_link_data_to_nodes(self, link_data):
+    # def add_psd_link_data_to_nodes(self, link_data):
 
-        for key, values in  link_data.items():
-            for (start_coords, end_coords) in values:
+    #     for key, values in  link_data.items():
+    #         for (start_coords, end_coords) in values:
 
-                id_1 = self.get_node_id_by_coordinates(start_coords)
-                id_2 = self.get_node_id_by_coordinates(end_coords)
-                nodes = (id_1, id_2)
+    #             id_1 = self.get_node_id_by_coordinates(start_coords)
+    #             id_2 = self.get_node_id_by_coordinates(end_coords)
+    #             nodes = (id_1, id_2)
 
-                if key[1] == "acoustic_link":
-                    self.add_acoustic_link_data(nodes)
-                else:
-                    self.add_structural_link_data(nodes)
+    #             if key[1] == "acoustic_link":
+    #                 self.add_acoustic_link_data(nodes)
+    #             else:
+    #                 self.add_structural_link_data(nodes)
 
     def process_element_cross_sections_orientation_to_plot(self):
         """
@@ -2826,7 +2826,6 @@ class Preprocessor:
         for index, element in enumerate(self.structural_elements.values()):
             element.deformed_rotation_xyz = [angles[index,1], angles[index,2], angles[index,0]]
 
-            
     def process_all_rotation_matrices(self):
         """
         This method ???????
@@ -2903,39 +2902,41 @@ class Preprocessor:
         for line in self.mesh.lines_from_model.keys():
             self.dict_lines_to_rotation_angles[line] = 0
 
-    def process_nodes_to_update_indexes_after_remesh(self, node):
-        """
-        This method ...
-        """
-        str_coord = str(node.coordinates)
-        self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
+    # def process_nodes_to_update_indexes_after_remesh(self, node):
+    #     """
+    #     This method ...
+    #     """
+    #     str_coord = str(node.coordinates)
+    #     self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
 
-    def update_node_ids_after_remesh(self, dict_cache, tolerance=1e-6):
-        """
-        This method ...
-        """
-        coord_matrix = self.nodal_coordinates_matrix_external
-        list_coordinates = coord_matrix[:,1:].tolist()
-        new_external_indexes = coord_matrix[:,0]
-        self.dict_non_mapped_bcs = {}
+    # def update_node_ids_after_remesh(self, dict_cache, tolerance=1e-6):
+    #     """
+    #     This method ...
+    #     """
+    #     coord_matrix = self.nodal_coordinates_matrix_external
+    #     list_coordinates = coord_matrix[:,1:].tolist()
+    #     new_external_indexes = coord_matrix[:,0]
+    #     self.dict_non_mapped_bcs = {}
 
-        for key, old_external_index in dict_cache.items():
-            list_key = key[1:-1].split(" ")
-            coord = [float(_key) for _key in list_key if _key != ""]
-            if coord in list_coordinates:
-                ind = list_coordinates.index(coord)
-                new_external_index = int(new_external_indexes[ind])
-                self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
-            else:
-                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
-                mask = diff < tolerance
-                try:
-                    new_external_index = int(coord_matrix[:,0][mask])
-                    self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
-                except:
-                    self.dict_non_mapped_bcs[key] = old_external_index
-        self.get_nodal_coordinates_matrix()
-        return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
+    #     for key, old_external_index in dict_cache.items():
+    #         list_key = key[1:-1].split(" ")
+    #         coord = [float(_key) for _key in list_key if _key != ""]
+    #         if coord in list_coordinates:
+    #             ind = list_coordinates.index(coord)
+    #             new_external_index = int(new_external_indexes[ind])
+    #             self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
+    #         else:
+    #             diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
+    #             mask = diff < tolerance
+    #             try:
+    #                 new_external_index = int(coord_matrix[:,0][mask])
+    #                 self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
+    #             except:
+    #                 self.dict_non_mapped_bcs[key] = old_external_index
+
+    #     self.get_nodal_coordinates_matrix()
+
+    #     return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
     
     def get_node_id_by_coordinates(self, coords, radius=None):
         """
@@ -2982,10 +2983,12 @@ class Preprocessor:
         return external_index
 
 
-    def add_acoustic_link_data(self, nodes):
+    def get_acoustic_link_data(self, nodes):
         """
         """
         if len(nodes) == 2:
+
+            coords = list()
             
             ext_id1 = min(nodes) 
             ext_id2 = max(nodes)
@@ -3001,13 +3004,16 @@ class Preprocessor:
                 element_volume = neigh_elem_node_2[0]
                 d_major = element_volume.cross_section.inner_diameter
 
-            if len(neigh_elem_node_2) == 1:
+            elif len(neigh_elem_node_2) == 1:
 
                 element_pipe = neigh_elem_node_2[0]
                 d_minor = element_pipe.cross_section.inner_diameter
 
                 element_volume = neigh_elem_node_1[0]
                 d_major = element_volume.cross_section.inner_diameter
+
+            else:
+                return
 
             node_id1 = self.nodes[ext_id1].global_index
             node_id2 = self.nodes[ext_id2].global_index
@@ -3018,13 +3024,33 @@ class Preprocessor:
             self.nodes_with_acoustic_links[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element_pipe ]
             element_pipe.acoustic_link_diameters = [d_minor, d_major]
 
+            coords_1 = self.nodes[ext_id1].coordinates
+            coords_2 = self.nodes[ext_id2].coordinates
+
+            coords.append(list(np.round(coords_1, 5)))
+            coords.append(list(np.round(coords_2, 5)))
+
+            node_ids = (ext_id1, ext_id2)
+
+            data = {
+                        "coords" : coords,
+                        "indexes_i" : indexes_i,
+                        "indexes_j" : indexes_j,
+                        "element_pipe" : element_pipe,
+                        "diameters" : [d_minor, d_major]
+                    }
+
+            return node_ids, data
+
             # for node_id in nodes:
             #     self.nodes[node_id].acoustic_link[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element ]
 
-    def add_structural_link_data(self, nodes, k=1e9, kr=1e8):
+    def get_structural_link_data(self, nodes, k=1e9, kr=1e8):
         """
         """
         if len(nodes) == 2:
+
+            coords = list()
 
             gdofs, *args = self.get_gdofs_from_nodes(nodes[0], nodes[1])
             gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
@@ -3047,6 +3073,22 @@ class Preprocessor:
             # for node_id in nodes:
             #     self.nodes[node_id].structural_link[nodes] = [indexes_i, indexes_j, out_data]
 
+            ext_id1, ext_id2 = np.sort(nodes)
+            coords_1 = self.nodes[ext_id1].coordinates
+            coords_2 = self.nodes[ext_id2].coordinates
+
+            coords.append(list(np.round(coords_1, 5)))
+            coords.append(list(np.round(coords_2, 5)))
+
+            node_ids = (ext_id1, ext_id2)
+
+            data = {
+                        "coords" : coords,
+                        "indexes_i" : indexes_i,
+                        "indexes_j" : indexes_j
+                    }
+
+            return node_ids, data
 
     def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):
         """

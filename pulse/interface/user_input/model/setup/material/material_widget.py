@@ -3,7 +3,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
-from pulse import app, UI_DIR
+from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 from pulse.interface.formatters.icons import *
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
@@ -11,7 +11,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from pulse.libraries.default_libraries import default_material_library
-from pulse.properties.material import Material
+from pulse.model.properties.material import Material
 
 import configparser
 from itertools import count
@@ -115,8 +115,7 @@ class MaterialInputs(QWidget):
     
     def load_data_from_materials_library(self):
 
-        project_path = app().main_window.temp_project_file_path
-        if not os.path.exists(project_path):
+        if not os.path.exists(TEMP_PROJECT_FILE):
             self.reset_library_to_default()
             return
 
