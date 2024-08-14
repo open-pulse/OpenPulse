@@ -25,6 +25,7 @@ class PrescribedDofsInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
+        self.model = app().project.model
         self.properties = app().project.model.properties
         self.preprocessor = app().project.preprocessor
 
@@ -375,18 +376,24 @@ class PrescribedDofsInput(QDialog):
 
             imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-            self.frequencies = imported_file[:,0]
-            self.f_min = self.frequencies[0]
-            self.f_max = self.frequencies[-1]
-            self.f_step = self.frequencies[1] - self.frequencies[0]
-
+            frequencies = imported_file[:,0]
+            f_min = frequencies[0]
+            f_max = frequencies[-1]
+            f_step = frequencies[1] - frequencies[0] 
+            
             app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
 
-            if self.project.change_project_frequency_setup(imported_filename, list(self.frequencies)):
+            if app().project.model.change_analysis_frequency_setup(imported_filename, list(frequencies)):
                 return None, None
+
             else:
-                self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-            
+
+                frequency_setup = { "f_min" : f_min,
+                                    "f_max" : f_max,
+                                    "f_step" : f_step }
+
+                app().project.model.set_frequency_setup(frequency_setup)
+
             return imported_values, path_imported_table
 
         except Exception as log_error:

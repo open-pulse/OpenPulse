@@ -327,36 +327,36 @@ class Project:
 
         return dict_multiple_cross_sections, single_cross   
 
-    def change_project_frequency_setup(self, table_name, frequencies):
+    # def change_project_frequency_setup(self, table_name, frequencies):
 
-        if frequencies is None:
-            return False
-        if isinstance(frequencies, np.ndarray):
-            frequencies = list(frequencies)
+    #     if frequencies is None:
+    #         return False
+    #     if isinstance(frequencies, np.ndarray):
+    #         frequencies = list(frequencies)
 
-        updated = False
-        condition_1 = self.list_frequencies == list() 
-        condition_2 = not self.model.properties.check_if_there_are_tables_at_the_model()
+    #     updated = False
+    #     condition_1 = self.list_frequencies == list() 
+    #     condition_2 = not self.model.properties.check_if_there_are_tables_at_the_model()
 
-        if condition_1 or condition_2:
-            updated = True
-            self.list_frequencies = frequencies
-            self.frequencies = np.array(frequencies)
-            self.f_min = self.frequencies[0]
-            self.f_max = self.frequencies[-1]
-            self.f_step = self.frequencies[1] - self.frequencies[0] 
-            self.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
-            self.imported_table_frequency_setup = True
-            return False
+    #     if condition_1 or condition_2:
+    #         updated = True
+    #         self.list_frequencies = frequencies
+    #         self.frequencies = np.array(frequencies)
+    #         self.f_min = self.frequencies[0]
+    #         self.f_max = self.frequencies[-1]
+    #         self.f_step = self.frequencies[1] - self.frequencies[0] 
+    #         self.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
+    #         self.imported_table_frequency_setup = True
+    #         return False
 
-        if self.list_frequencies != frequencies:
-            title = "Project frequency setup cannot be modified"
-            message = f"The following imported table of values has a frequency setup\n"
-            message += "different from the others already imported ones. The current\n"
-            message += "project frequency setup is not going to be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([window_title, title, message])
-            return True
+    #     if self.list_frequencies != frequencies:
+    #         title = "Project frequency setup cannot be modified"
+    #         message = f"The following imported table of values has a frequency setup\n"
+    #         message += "different from the others already imported ones. The current\n"
+    #         message += "project frequency setup is not going to be modified."
+    #         message += f"\n\n{table_name}"
+    #         PrintMessageInput([window_title, title, message])
+    #         return True
 
     def set_material_to_all_lines(self, material):
         self.preprocessor.set_material_by_element('all', material)

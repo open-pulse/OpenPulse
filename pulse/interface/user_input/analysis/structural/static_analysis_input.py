@@ -60,8 +60,12 @@ class StaticAnalysisInput(QDialog):
 
     def confirm(self):
 
+        frequency_setup = { "f_min" : 0,
+                            "f_max" : 0,
+                            "f_step" : 0 }
+
         self.model.set_global_damping([0, 0, 0, 0])
-        self.project.set_frequencies(np.array([0], dtype=float), 0, 0, 0)
+        app().project.model.set_frequency_setup(frequency_setup)
 
         weight_load = self.checkBox_self_weight_load.isChecked()
         internal_pressure_load = self.checkBox_internal_pressure_load.isChecked()

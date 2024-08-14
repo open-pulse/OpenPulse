@@ -167,13 +167,6 @@ class NodalLoadsInput(QDialog):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-        selected_nodes = app().main_window.list_selected_nodes()
-        if selected_nodes:
-            text = ", ".join([str(i) for i in selected_nodes])
-            self.lineEdit_selection_id.setText(text)
-            self.process_selection(selected_nodes)
-
-    def selection_callback(self):
 
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
@@ -218,7 +211,7 @@ class NodalLoadsInput(QDialog):
                 message = f"Wrong input for real part of {label}."
                 PrintMessageInput([window_title, title, message])
                 stop = True
-                return
+                return stop, None
         else:
             _real = 0
 
@@ -230,7 +223,7 @@ class NodalLoadsInput(QDialog):
                 message = f"Wrong input for imaginary part of {label}."
                 PrintMessageInput([window_title, title, message])
                 stop = True
-                return
+                return stop, None
         else:
             _imag = 0
         
@@ -275,13 +268,8 @@ class NodalLoadsInput(QDialog):
         
         if nodal_loads.count(None) != 6:
 
-            table_names = self.list_Nones
-            # data = [nodal_loads, table_names]
-
             self.remove_table_files_from_nodes(node_ids)
             self.remove_conflictant_excitations(node_ids)
-
-            # self.preprocessor.set_nodal_loads(node_ids, data)
 
             real_values = [value if value is None else np.real(value) for value in nodal_loads]
             imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
@@ -352,17 +340,23 @@ class NodalLoadsInput(QDialog):
 
             imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-            self.frequencies = imported_file[:,0]
-            self.f_min = self.frequencies[0]
-            self.f_max = self.frequencies[-1]
-            self.f_step = self.frequencies[1] - self.frequencies[0]
-
+            frequencies = imported_file[:,0]
+            f_min = frequencies[0]
+            f_max = frequencies[-1]
+            f_step = frequencies[1] - frequencies[0] 
+            
             app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
 
-            if self.project.change_project_frequency_setup(imported_filename, list(self.frequencies)):
+            if app().project.model.change_analysis_frequency_setup(imported_filename, list(frequencies)):
                 return None, None
+
             else:
-                self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
+
+                frequency_setup = { "f_min" : f_min,
+                                    "f_max" : f_max,
+                                    "f_step" : f_step }
+
+                app().project.model.set_frequency_setup(frequency_setup)
             
             return imported_values, path_imported_table
 
@@ -477,8 +471,6 @@ class NodalLoadsInput(QDialog):
             
             array_data = [  self.fx_array, self.fy_array, self.fz_array, 
                             self.mx_array, self.my_array, self.mz_array  ]
-
-            data = [nodal_loads, basenames]
                         
             if basenames == self.list_Nones:
                 title = "Additional inputs required"
@@ -636,19 +628,12 @@ class NodalLoadsInput(QDialog):
 
             app().pulse_file.write_model_properties_in_file()
 
-            # data = [self.list_Nones, self.list_Nones]
-            # self.preprocessor.set_nodal_loads(node_ids, data)
-
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
 
             app().main_window.update_plots()
             # self.close()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids, equals=True)
-        self.process_table_file_removal(table_names)
 
     def reset_all(self):
 
@@ -672,13 +657,14 @@ class NodalLoadsInput(QDialog):
 
             self.remove_table_files_from_nodes(node_ids)
 
-            # data = [self.list_Nones, self.list_Nones]
-            # self.preprocessor.set_nodal_loads(node_ids, data)
-
             self.properties._reset_property("nodal_loads")
             app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
             self.close()
+
+    def remove_table_files_from_nodes(self, node_ids : list):
+        table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids, equals=True)
+        self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):
         if table_names:

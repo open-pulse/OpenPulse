@@ -55,3 +55,37 @@ class Model:
 
     def set_psd_data(self, psd_data: dict):
         self.psd_data = psd_data
+
+    def change_analysis_frequency_setup(self, table_name: str, frequencies: list | np.ndarray | None):
+
+        if frequencies is None:
+            return False
+
+        if isinstance(frequencies, np.ndarray):
+            frequencies = list(frequencies)
+
+        updated = False
+        condition_1 = self.list_frequencies == list() 
+        condition_2 = not self.properties.check_if_there_are_tables_at_the_model()
+
+        if condition_1 or condition_2:
+            updated = True
+            self.list_frequencies = frequencies
+            self.frequencies = np.array(frequencies)
+            self.f_min = self.frequencies[0]
+            self.f_max = self.frequencies[-1]
+            self.f_step = self.frequencies[1] - self.frequencies[0]
+            self.set_frequency_setup()
+            self.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
+            self.imported_table_frequency_setup = True
+            return False
+
+        if self.list_frequencies != frequencies:
+            #TODO: reimplement this
+            # title = "Project frequency setup cannot be modified"
+            # message = f"The following imported table of values has a frequency setup\n"
+            # message += "different from the others already imported ones. The current\n"
+            # message += "project frequency setup is not going to be modified."
+            # message += f"\n\n{table_name}"
+            # PrintMessageInput([window_title, title, message])
+            return True

@@ -346,7 +346,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <number>0</number>
              </property>
              <item row="0" column="0">
-              <widget class="QPushButton" name="constant_value_confirm_button">
+              <widget class="QPushButton" name="pushButton_constant_values">
                <property name="minimumSize">
                 <size>
                  <width>120</width>
@@ -724,7 +724,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <number>0</number>
              </property>
              <item row="1" column="0">
-              <widget class="QPushButton" name="table_values_confirm_button">
+              <widget class="QPushButton" name="pushButton_table_values">
                <property name="minimumSize">
                 <size>
                  <width>120</width>
@@ -818,7 +818,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                  <number>0</number>
                 </property>
                 <item row="0" column="2">
-                 <widget class="QPushButton" name="search_button">
+                 <widget class="QPushButton" name="pushButton_search">
                   <property name="enabled">
                    <bool>true</bool>
                   </property>
@@ -1107,7 +1107,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <number>12</number>
              </property>
              <item row="0" column="0">
-              <widget class="QPushButton" name="reset_button">
+              <widget class="QPushButton" name="pushButton_reset">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -1138,7 +1138,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QPushButton" name="remove_button">
+              <widget class="QPushButton" name="pushButton_remove">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
