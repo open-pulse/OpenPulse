@@ -662,6 +662,8 @@ class MainWindow(QMainWindow):
         self.clip_plane.value_changed.connect(self.set_clip_plane_configs)
         self.clip_plane.slider_released.connect(self.apply_clip_plane)
         self.clip_plane.closed.connect(self.close_clip_plane)
+        self.set_clip_plane_configs()
+        self.apply_clip_plane()
 
     def action_zoom_callback(self):
         self.geometry_widget.renderer.ResetCamera()
@@ -672,7 +674,7 @@ class MainWindow(QMainWindow):
         self.results_widget.update()
 
     def set_clip_plane_configs(self):
-        if self.get_current_workspace() == Workspace.RESULTS:
+        if self.get_current_workspace() == Workspace.RESULTS or self.get_current_workspace() == Workspace.ACOUSTIC_SETUP:
             self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
 
     def apply_clip_plane(self):

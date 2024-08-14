@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>392</width>
-    <height>449</height>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -126,6 +126,9 @@
            <property name="maximum">
             <number>100</number>
            </property>
+           <property name="value">
+            <number>50</number>
+           </property>
           </widget>
          </item>
          <item row="3" column="2">
@@ -220,6 +223,9 @@
           <widget class="QSlider" name="relative_plane_position_x_slider">
            <property name="maximum">
             <number>100</number>
+           </property>
+           <property name="value">
+            <number>50</number>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -701,7 +707,7 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -788,7 +794,7 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
@@ -811,6 +817,8 @@
         <property name="font">
          <font>
           <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
          </font>
         </property>
         <property name="text">
@@ -827,7 +835,7 @@
    <item row="2" column="0">
     <widget class="QFrame" name="frame_6">
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
