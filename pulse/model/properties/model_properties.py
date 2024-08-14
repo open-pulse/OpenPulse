@@ -70,13 +70,13 @@ class ModelProperties:
         self.global_properties["material", "global"] = DEFAULT_MATERIAL
         self.global_properties["fluid", "global"] = DEFAULT_FLUID
 
-    def add_imported_tables(self, group_label : str, table_name : str, data : ndarray | list | tuple):
+    def add_imported_tables(self, group_label: str, table_name: str, data: ndarray | list | tuple):
         if group_label == "acoustic":
             self.acoustic_imported_tables[table_name] = data
         elif group_label == "structural":
             self.structural_imported_tables[table_name] = data
 
-    def remove_imported_tables(self, group_label : str, table_name : str):
+    def remove_imported_tables(self, group_label: str, table_name: str):
         if group_label == "acoustic":
             if table_name in self.acoustic_imported_tables.keys():
                 self.acoustic_imported_tables.pop(table_name)

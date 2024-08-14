@@ -161,10 +161,10 @@ class NewProjectInput(QDialog):
             self.create_project_file(import_type)
 
             self.project.reset(reset_all=True)
-            self.preprocessor.mesh.set_mesher_setup(mesh_setup=self.setup_data)
+            app().project.model.mesh.set_mesher_setup(mesh_setup=self.setup_data)
 
             if import_type == 1:
-                self.preprocessor._create_gmsh_geometry()
+                app().project.model.mesh._create_gmsh_geometry()
             else:
                 self.project.process_geometry_and_mesh()
 
