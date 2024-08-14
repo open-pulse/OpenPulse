@@ -674,7 +674,7 @@ class MainWindow(QMainWindow):
         self.results_widget.update()
 
     def set_clip_plane_configs(self):
-        if self.get_current_workspace() == Workspace.RESULTS or self.get_current_workspace() == Workspace.ACOUSTIC_SETUP:
+        if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
 
     def apply_clip_plane(self):
