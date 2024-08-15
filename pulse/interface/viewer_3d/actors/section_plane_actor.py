@@ -2,7 +2,7 @@ from vtkmodules.vtkFiltersSources import vtkCubeSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
 
-class CuttingPlaneActor(vtkActor):
+class SectionPlaneActor(vtkActor):
     def __init__(self, size=1):
         self.size = size
         self.create_geometry()

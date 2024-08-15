@@ -11,7 +11,7 @@ from vtkmodules.vtkCommonDataModel import vtkPolyData
 from pulse import ICON_DIR, app
 from pulse.interface.utils import rotation_matrices
 from pulse.interface.viewer_3d.actors import (
-    CuttingPlaneActor,
+    SectionPlaneActor,
     ElementLinesActor,
     NodesActor,
     PointsActor,
@@ -140,7 +140,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.nodes_actor = NodesActor(project, show_deformed=deformed)
         self.points_actor = PointsActor(show_deformed=deformed)
         self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
-        self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
+        self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()
 
         self.add_actors(

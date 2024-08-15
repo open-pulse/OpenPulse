@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QApplication
 
 from pulse import ICON_DIR, app
 from pulse.interface.viewer_3d.actors import (
-    CuttingPlaneActor,
+    SectionPlaneActor,
     ElementAxesActor,
     ElementLinesActor,
     NodesActor,
@@ -87,7 +87,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.points_actor = PointsActor()
         self.element_axes_actor = ElementAxesActor()
         self.element_axes_actor.VisibilityOff()
-        self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
+        self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()
 
         # TODO: Replace these actors for newer ones that
