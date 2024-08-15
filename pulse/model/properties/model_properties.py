@@ -102,45 +102,6 @@ class ModelProperties:
     def set_fluid(self, fluid: Fluid, line=None, element=None):
         self._set_property("fluid", fluid, line=line, element=element)
 
-    # def get_prescribed_dofs(self, node_ids):
-    #     return self._get_property("prescribed_dofs", node_ids=node_ids)
-
-    # def get_nodal_loads(self, node_ids):
-    #     return self._get_property("nodal_loads", node_ids=node_ids)
-
-    # def set_prescribed_dofs(self, data, node_ids):
-    #     self._set_property("prescribed_dofs", data, node_ids)
-
-    # def set_nodal_loads(self, data, node_ids):
-    #     self._set_property("nodal_loads", data, node_ids)
-
-    # def set_structural_elastic_links(self, data, node_ids):
-    #     self._set_property("prescribed_dofs", data, node_ids)
-
-    # def get_acoustic_pressure(self, node_ids):
-    #     return self._get_property("acoustic_pressure", node_ids=node_ids)
-
-    # def get_volume_velocity(self, node_ids):
-    #     return self._get_property("volume_velocity", node_ids=node_ids)
-
-    # def get_specific_impedance(self, node_ids):
-    #     return self._get_property("specific_impedance", node_ids=node_ids)
-
-    # def get_radiation_impedance(self, node_ids):
-    #     return self._get_property("radiation_impedance", node_ids=node_ids)
-
-    # def set_acoustic_pressure(self, data, node_ids):
-    #     self._set_property("acoustic_pressure", data, node_ids=node_ids)
-
-    # def set_volume_velocity(self, data, node_ids):
-    #     self._set_property("volume_velocity", data, node_ids=node_ids)
-
-    # def set_specific_impedance(self, data, node_ids):
-    #     self._set_property("specific_impedance", data, node_ids=node_ids)
-
-    # def set_radiation_impedance(self, data, node_ids):
-    #     self._set_property("radiation_impedance", data, node_ids=node_ids)
-
     def remove_compressor_table_name(self, node_id: int, table_name: str):
         key = ("compressor_excitation", node_id)
         if key in self.nodal_properties.keys():

@@ -408,7 +408,7 @@ class Preprocessor:
             neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
         return neighbor_diameters    
     
-    def neighboor_elements_of_node(self, node_ID):
+    def neighboor_elements_of_node(self, node_id: int):
         """
         This method returns the acoustic elements that a node belongs to.
 
@@ -422,7 +422,7 @@ class Preprocessor:
         List
             List of acoustic elements indexes.
         """
-        node = self.nodes[node_ID]
+        node = self.nodes[node_id]
         neighboor_elements = defaultdict(list) 
 
         for element in self.acoustic_elements.values():
@@ -432,111 +432,6 @@ class Preprocessor:
                 neighboor_elements[node].append(element)#.index)
         return neighboor_elements[node]
 
-    def add_lids_to_variable_cross_sections(self):
-        """ 
-        This method adds lids to cross-section variations and terminations.
-        """
-        if self.elements_connected_to_node is not None:
-            for elements in self.elements_connected_to_node.values():
-
-                element = None
-                if len(elements)==2:
-                    first_element, last_element = elements
-                    
-                    if 'beam_1' not in [first_element.element_type, last_element.element_type]:
-                        first_cross = first_element.cross_section
-                        last_cross = last_element.cross_section
-                        
-                        if not (first_cross and last_cross):
-                            continue
-
-                        first_outer_diameter = first_cross.outer_diameter
-                        first_inner_diameter = first_cross.inner_diameter
-                        last_outer_diameter = last_cross.outer_diameter
-                        last_inner_diameter = last_cross.inner_diameter
-
-                        if first_outer_diameter < last_inner_diameter:
-                            inner_diameter = first_inner_diameter 
-                            element = last_element
-
-                        if last_outer_diameter < first_inner_diameter:
-                            inner_diameter = last_inner_diameter 
-                            element = first_element
-                
-                elif len(elements) == 1: 
-
-                    element = elements[0]   
-                    if element.element_type == 'beam_1':
-                        continue  
-
-                    first_node = element.first_node
-                    last_node = element.last_node  
-
-                    if element.cross_section is None:
-                        continue
-                    inner_diameter = element.cross_section.inner_diameter 
-
-                    if len(self.neighbors[first_node]) == 1:
-                        if self.get_number_attributes_from_node(first_node, acoustic=True) == 0:
-                            inner_diameter = 0
-
-                    elif len(self.neighbors[last_node]) == 1: 
-                        if self.get_number_attributes_from_node(last_node, acoustic=True) == 0:
-                            inner_diameter = 0
-                
-                if element:
-
-                    cross = element.cross_section
-                    outer_diameter = cross.outer_diameter
-                    offset_y = cross.offset_y
-                    offset_z = cross.offset_z
-                    insulation_thickness = cross.insulation_thickness
-                    section_label = cross.section_label
-            
-                    if element.element_type == 'expansion_joint':
-                        _key = element.cross_section.expansion_joint_plot_key
-                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
-                    else:
-                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
-                    element.cross_section_points = element.cross_section.get_circular_section_points(parameters, section_label)
-
-    def get_number_attributes_from_node(self, node, acoustic=False, structural=False):
-        
-        countA = 0
-        if acoustic:
-
-            acoustic_bcs = [node.acoustic_pressure, 
-                            node.volume_velocity, 
-                            node.specific_impedance, 
-                            node.radiation_impedance, 
-                            node.compressor_excitation_table_names]
-
-            for acoustic_bc in acoustic_bcs:
-                if isinstance(acoustic_bc, np.ndarray):
-                    countA += 1
-                elif acoustic_bc:
-                    countA += 1
-            if node.radiation_impedance_type in [0, 1, 2]:
-                countA += 1
-            return countA
-
-        countS = 0
-        if structural:
-
-            structural_bcs = [node.prescribed_dofs, 
-                              node.nodal_loads, 
-                              node.lumped_masses, 
-                              node.lumped_stiffness, 
-                              node.lumped_dampings, 
-                              node.elastic_nodal_link_stiffness]
-
-            for structural_bc in structural_bcs:
-                if isinstance(structural_bc, np.ndarray):
-                    countS += 1
-                elif structural_bc:
-                    countS +=1
-            return countS
-             
     def check_disconnected_lines(self, tolerance=1e-6):
         """
         This methods shearchs for disconnected lines inside sphere of radius r < (size/2) + tolerance.
@@ -2352,71 +2247,6 @@ class Preprocessor:
             message = str(error)
             PrintMessageInput([window_title_1, title, message])
             return True  
-
-    def set_specific_impedance_bc_by_node(self, nodes, data):
-        """
-        This method attributes acoustic lumped specific impedance to a list of nodes.
-
-        Parameters
-        ----------
-        nodes : list
-            Nodes external indexes.
-            
-        values : complex or array, None
-            Specific impedance. Complex valued input corresponds to a constant specific impedance with respect to the frequency. Array valued input corresponds to a variable specific impedance with respect to the frequency.
-
-            If None is attributed, then no specific impedance is considered.
-        """
-        try:
-            [values, table_name] = data
-            for node in slicer(self.nodes, nodes):
-                node.specific_impedance = values
-                node.specific_impedance_table_name = table_name
-                node.radiation_impedance = None
-                node.radiation_impedance_type = None
-
-            return False
-
-        except Exception as error:
-            title = "Error while setting specific impedance"
-            message = str(error)
-            PrintMessageInput([window_title_1, title, message])
-            return True  
-
-
-    def set_radiation_impedance_bc_by_node(self, nodes, impedance_type):
-        """
-        This method attributes acoustic lumped radiation impedance to a list of nodes according to the anechoic, flanged, and unflanged prescription.
-
-        Parameters
-        ----------
-        nodes : list
-            Nodes external indexes.
-            
-        impedance_type : [None, 0, 1, 2]
-            Acoustic length correction due to acoustic discontinuities. The prescription is done through the following labeling:
-            0 : anechoic termination
-            1 : unflanged pipe
-            2 : flanged pipe
-
-            If None is attributed, then no radiation impedance is considered.
-        """
-        try:
-            for node in slicer(self.nodes, nodes):
-
-                node.specific_impedance = None
-                node.radiation_impedance_type = impedance_type
-
-                if impedance_type is None:
-                    node.radiation_impedance = None
-                
-            return False
-
-        except Exception as log_error:
-            title = "Error while setting radiation impedance"
-            message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
-            return True
 
     # def get_radius(self):
     #     """

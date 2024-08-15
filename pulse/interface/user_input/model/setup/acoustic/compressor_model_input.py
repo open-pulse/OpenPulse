@@ -30,6 +30,7 @@ class CompressorModelInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
+ 
         self.project = app().project
         self.preprocessor = app().project.preprocessor
         self.properties = app().project.model.properties
@@ -61,12 +62,7 @@ class CompressorModelInput(QDialog):
 
         self.table_name = None
 
-        self.before_run = self.project.get_pre_solution_model_checks()    
-
-        self.project_folder_path = self.project.file._project_path  
-        self.node_acoustic_path = self.project.file._node_acoustic_path   
-        self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
-        self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
+        self.before_run = app().project.get_pre_solution_model_checks()    
 
     def _define_qt_variables(self):
 
@@ -323,6 +319,7 @@ class CompressorModelInput(QDialog):
         self.comboBox_frequency_resolution.setDisabled(_bool)
     
     def get_existing_compressor_info(self, list_node_ids, update_tables=False):
+        
         self.not_update_event = True
         node = self.preprocessor.nodes[list_node_ids[0]]
         self.change_aquisition_parameters_controls(False)
@@ -716,17 +713,28 @@ class CompressorModelInput(QDialog):
         f_max = frequencies[-1]
         f_step = frequencies[1] - frequencies[0] 
 
-        if self.project.change_project_frequency_setup("Compressor excitation", list(frequencies)):
+        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+
+            title = "Project frequency setup cannot be modified"
+            message = f"The following imported table of values has a frequency setup\n"
+            message += "different from the others already imported ones. The current\n"
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([window_title_1, title, message])
             return True
-        else:
-            self.project.set_frequencies(frequencies, f_min, f_max, f_step)
+
+        frequency_setup = {"f_min" : f_min,
+                        "f_max" : f_max,
+                        "f_step" : f_step}
+
+        app().project.model.set_frequency_setup(frequency_setup)
 
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
 
         data = np.array([frequencies, real_values, imag_values], dtype=float).T
 
-        app().project.model.properties.add_imported_tables("structural", table_name, data)
+        self.properties.add_imported_tables("structural", table_name, data)
 
         return False
 
@@ -793,25 +801,24 @@ class CompressorModelInput(QDialog):
                 freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
 
                 table_name = f"compresor_excitation_suction_node_{self.suction_node_id}"
-                data = [in_flow_rate, table_name]
+                
+                node = self.preprocessor.nodes[self.suction_node_id]
+                coords = list(np.round(node.coordinates, 5))
 
-            self.remove_conflictant_excitations(self.suction_node_id)
+                data = {    
+                        "coords" : coords,
+                        "values" : in_flow_rate,
+                        "connection" : "suction",
+                        "table names" : [table_name],
+                        "parameters" : self.parameters
+                        }
 
-            if self.project.set_compressor_excitation_bc_by_node(   [self.suction_node_id], 
-                                                                    data,
-                                                                    'suction'   ):
-                return
-            else:
+                self.remove_conflictant_excitations(self.suction_node_id)
+
+                self.properties._set_property("compressor_excitation", data, node_ids=self.suction_node_id)
+
                 if self.save_table_values(table_name, self.suction_node_id, freq, in_flow_rate):
                     return
-                
-            compressor_info["parameters"] = self.parameters
-
-            self.properties._set_property(
-                                            "compressor_excitation", 
-                                            compressor_info, 
-                                            node_ids=self.suction_node_id
-                                          )
 
         if index in [0, 2]:
 
@@ -842,28 +849,28 @@ class CompressorModelInput(QDialog):
                                                                       self.parameters['molar mass'])
 
             freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
+            
             table_name = f"compressor_excitation_discharge_node_{self.discharge_node_id}"
-            data = [out_flow_rate, table_name]
+
+            node = self.preprocessor.nodes[self.discharge_node_id]
+            coords = list(np.round(node.coordinates, 5))
+
+            data = {    
+                    "coords" : coords,
+                    "values" : out_flow_rate,
+                    "connection" : "discharge",
+                    "table names" : [table_name],
+                    "parameters" : self.parameters
+                    }
 
             self.remove_conflictant_excitations(self.discharge_node_id)
 
-            if self.project.set_compressor_excitation_bc_by_node(   [self.discharge_node_id], 
-                                                                    data,
-                                                                    'discharge'   ):
+            self.properties._set_property("compressor_excitation", data, node_ids=self.discharge_node_id)
+
+            if self.save_table_values(table_name, self.discharge_node_id, freq, out_flow_rate):
                 return
 
-            else:
-                if self.save_table_values(table_name, self.discharge_node_id, freq, out_flow_rate):
-                    return
-
-            compressor_info["parameters"] = self.parameters
-
-            self.properties._set_property(
-                                            "compressor_excitation", 
-                                            compressor_info, 
-                                            node_ids=self.discharge_node_id
-                                          )
-
+        app().pulse_file.write_model_properties_in_file()
         app().main_window.update_plots()
         self.close()
 
@@ -1013,9 +1020,9 @@ class CompressorModelInput(QDialog):
     
     def get_compressor_table_names(self, node_id: int):
         key = ("compressor_excitation", node_id)
-        if key in self.project.model.properties.nodal_properties.keys():
+        if key in self.properties.nodal_properties.keys():
             try:
-                table_names = self.project.model.properties.nodal_properties[key]["table names"]
+                table_names = self.properties.nodal_properties[key]["table names"]
                 return table_names
             except:
                 return list()
@@ -1060,7 +1067,7 @@ class CompressorModelInput(QDialog):
 
             line_id = self.preprocessor.get_line_from_node_id(node_id)
             self.project.set_compressor_info_by_lines(line_id)
-            self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
+            # self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
 
             self.load_compressor_excitation_info()
             app().main_window.update_plots()
@@ -1090,7 +1097,7 @@ class CompressorModelInput(QDialog):
 
             node_ids = list()
 
-            for (property, *args) in app().project.model.properties.nodal_properties.keys():
+            for (property, *args) in self.properties.nodal_properties.keys():
                 if property == "compressor_excitation":
 
                     node_id = args
@@ -1100,31 +1107,35 @@ class CompressorModelInput(QDialog):
 
             self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
 
-            app().project.model.properties._reset_property("compressor_excitation")
+            self.properties._reset_property("compressor_excitation")
             app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
             self.close()
 
-    def get_compressor_excitation_data(self):
-        node_to_compressor_excitation = dict()
-        compressor_excitation_data = self.project.model.properties.nodal_properties
-        for (property, *args), data in compressor_excitation_data.items():
-            if property == "compressor_excitation":
-                node_id = args
-                node_to_compressor_excitation[node_id] = data["table names"]
-        return node_to_compressor_excitation
+    # def get_compressor_excitation_data(self):
+    #     node_to_compressor_excitation = dict()
+    #     compressor_excitation_data = self.properties.nodal_properties
+    #     for (property, *args), data in compressor_excitation_data.items():
+    #         if property == "compressor_excitation":
+    #             node_id = args
+    #             node_to_compressor_excitation[node_id] = data["table names"]
+    #     return node_to_compressor_excitation
 
     def load_compressor_excitation_info(self):
 
         self.treeWidget_compressor_excitation.clear()
-        node_to_compressor_excitation = self.get_compressor_excitation_data()
+        # node_to_compressor_excitation = self.get_compressor_excitation_data()
 
-        for node_id, table_names in node_to_compressor_excitation.items():
-            for table_name in table_names:
-                new = QTreeWidgetItem([str(node_id), table_name])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_compressor_excitation.addTopLevelItem(new)
+        for (property, *args), data in self.properties.nodal_properties.items():
+            if property == "compressor_excitation":
+                
+                node_id = args[0]
+
+                for table_name in data["table names"]:
+                    new = QTreeWidgetItem([str(node_id), table_name])
+                    new.setTextAlignment(0, Qt.AlignCenter)
+                    new.setTextAlignment(1, Qt.AlignCenter)
+                    self.treeWidget_compressor_excitation.addTopLevelItem(new)
 
         self.lineEdit_node_ID_info.setText("")
         self.lineEdit_table_name_info.setText("")
@@ -1143,16 +1154,6 @@ class CompressorModelInput(QDialog):
             if property == "compressor_excitation":
                 self.tabWidget_compressor.setCurrentIndex(0)
                 self.tabWidget_compressor.setTabVisible(3, True)
-
-    # def get_volume_velocity_table_names_in_typed_nodes(self, list_node_ids):
-    #     list_table_names = []
-    #     for node_id in list_node_ids:
-    #         node = self.preprocessor.nodes[node_id]
-    #         if node.volume_velocity_table_name is not None:
-    #             table_name = node.volume_velocity_table_name
-    #             if table_name not in list_table_names:
-    #                 list_table_names.append(table_name)
-    #     return list_table_names
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter:
@@ -1196,7 +1197,7 @@ class CompressorModelInput(QDialog):
 
         #     #TODO: reimplement this
         #     for table_names in self.node_to_compressor_excitation[node_id]:
-        #         self.project.model.properties._remove_nodal_property
+        #         self.properties._remove_nodal_property
         #         [str_key, table_name_file] = list_data
         #         if self.selected_table in table_names:
         #             self.project.file.filter_bc_data_from_dat_file([node_id], [str_key], self.node_acoustic_path)

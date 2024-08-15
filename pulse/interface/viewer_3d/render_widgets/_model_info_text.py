@@ -95,9 +95,9 @@ def nodes_info_text() -> str:
         key = ("radiation_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            index = data["impedance index"]
+            impedance_type = data["impedance type"]
             labels = ["anechoic termination", "unflanged pipe", "flanged pipe"]
-            info_text += _acoustic_format("Radiation impedance", labels[index], "Type", "")
+            info_text += _acoustic_format("Radiation impedance", labels[impedance_type], "Type", "")
 
         key = ("compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():
@@ -160,12 +160,13 @@ def entity_info_text() -> str:
         info_text += (
             f"{len(lines)} LINES IN SELECTION\n" f"{format_long_sequence(lines)}\n\n"
         )
+
     elif len(lines) == 1:
 
-        _id, *_ = lines
-        entity = project.get_entity(_id)
+        line_id, *_ = lines
+        entity = project.model.mesh.lines_from_model[line_id]
 
-        info_text += f"LINE {_id}\n\n"
+        info_text += f"LINE {line_id}\n\n"
 
         if entity.material:
             info_text += material_info_text(entity.material)
@@ -258,8 +259,10 @@ def analysis_info_text(frequency_index):
         frequency = frequencies[frequency_index]
         tree.add_item("Mode", mode)
         tree.add_item("Natural Frequency", f"{frequency:.2f}", "Hz")
+
     else:
-        frequencies = project.get_frequencies()
+
+        frequencies = project.model.frequencies
         if frequencies is None:
             return ""
 

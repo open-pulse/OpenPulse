@@ -365,30 +365,38 @@ class AssemblyAcoustic:
         elements = self.acoustic_elements
 
         # processing external elements by node
-        for node in self.preprocessor.nodes.values():
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property in ["specific_impedance", "radiation_impedance"]:
 
-            if node.specific_impedance is None:
-                node_specific_impedance = 0
-            else:
-                node_specific_impedance = node.specific_impedance
-
-            if node.radiation_impedance is None:
-                node_radiation_impedance = 0
-            else:
-                node_radiation_impedance = node.radiation_impedance
-
-            if np.sum(node_specific_impedance + node_radiation_impedance) != 0:
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
                 position = node.global_index
 
-                for element in elements:
-                    if element.first_node.global_index == position or element.last_node.global_index == position:
-                        area_fluid = element.cross_section.area_fluid
+                if property == "specific_impedance":
+    
+                    impedance = data["values"]
+
+                    for element in elements:
+                        if element.first_node.global_index == position or element.last_node.global_index == position:
+                            area_fluid = element.cross_section.area_fluid
+
+                elif property == "radiation_impedance":
+
+                    impedance_type = data["impedance type"]
+
+                    elements = self.preprocessor.neighboor_elements_of_node[node_id]
+                    
+                    if len(elements) == 1:
+                        element = elements[0]
+                        impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
 
                 ind_Klump.append(position)
+                admittance = self.get_nodal_admittance(impedance, area_fluid, self.frequencies)
+
                 if data_Klump == []:
-                    data_Klump = node.admittance(area_fluid, self.frequencies)
+                    data_Klump = admittance
                 else:
-                    data_Klump = np.c_[data_Klump, node.admittance(area_fluid, self.frequencies)]
+                    data_Klump = np.c_[data_Klump, admittance]
 
         if area_fluid is None:
             full_K = [csr_matrix((total_dof, total_dof)) for _ in self.frequencies]
@@ -399,6 +407,23 @@ class AssemblyAcoustic:
         Kr_lump = [full[:, self.prescribed_indexes] for full in full_K]
 
         return K_lump, Kr_lump  
+
+    def get_nodal_admittance(self, impedance: (None | complex | np.ndarray), area_fluid: float, frequencies: np.ndarray) -> np.ndarray:
+        
+        admittance = np.zeros(len(frequencies), dtype=complex)
+
+        if impedance is not None:
+            Z = impedance / area_fluid
+            
+            if isinstance(impedance, complex):
+                admittance = (1 / Z) * np.ones_like(frequencies)
+
+            elif isinstance(impedance, np.ndarray):
+                if len(impedance) != len(frequencies):
+                    raise TypeError("The Specific Impedance array and frequencies array must have \nthe same length.")
+                admittance = np.divide(1, Z)
+        
+        return admittance.reshape(-1, 1)#([len(frequencies),1])
 
     def get_global_matrices_modal(self):
         """

@@ -146,27 +146,112 @@ class Project:
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
-    def add_frequency_in_file(self, f_min, f_max, f_step):
+    def add_lids_to_variable_cross_sections(self):
+        """ 
+        This method adds lids to cross-section variations and terminations.
+        """
+        if self.elements_connected_to_node is not None:
+            for elements in self.elements_connected_to_node.values():
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
+                element = None
+                if len(elements)==2:
+                    first_element, last_element = elements
+                    
+                    if 'beam_1' not in [first_element.element_type, last_element.element_type]:
+                        first_cross = first_element.cross_section
+                        last_cross = last_element.cross_section
+                        
+                        if not (first_cross and last_cross):
+                            continue
 
-        analysis_setup["f_min"] = f_min
-        analysis_setup["f_max"] = f_max
-        analysis_setup["f_step"] = f_step
+                        first_outer_diameter = first_cross.outer_diameter
+                        first_inner_diameter = first_cross.inner_diameter
+                        last_outer_diameter = last_cross.outer_diameter
+                        last_inner_diameter = last_cross.inner_diameter
 
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+                        if first_outer_diameter < last_inner_diameter:
+                            inner_diameter = first_inner_diameter 
+                            element = last_element
 
-    def add_damping_in_file(self, global_damping):
+                        if last_outer_diameter < first_inner_diameter:
+                            inner_diameter = last_inner_diameter 
+                            element = first_element
+                
+                elif len(elements) == 1: 
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
+                    element = elements[0]   
+                    if element.element_type == 'beam_1':
+                        continue  
 
-        analysis_setup["global damping"] = global_damping
+                    first_node = element.first_node
+                    last_node = element.last_node  
 
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+                    if element.cross_section is None:
+                        continue
+                    inner_diameter = element.cross_section.inner_diameter 
+
+                    if len(self.neighbors[first_node]) == 1:
+                        first_node_id = first_node.external_index
+                        if self.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
+                            inner_diameter = 0
+
+                    elif len(self.neighbors[last_node]) == 1:
+                        last_node_id = last_node.external_index
+                        if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
+                            inner_diameter = 0
+
+                if element:
+
+                    cross = element.cross_section
+                    outer_diameter = cross.outer_diameter
+                    offset_y = cross.offset_y
+                    offset_z = cross.offset_z
+                    insulation_thickness = cross.insulation_thickness
+                    section_label = cross.section_label
+            
+                    if element.element_type == 'expansion_joint':
+                        _key = element.cross_section.expansion_joint_plot_key
+                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
+                    else:
+                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
+                    element.cross_section_points = element.cross_section.get_circular_section_points(parameters, section_label)
+
+    def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
+        
+        acoustic_properties = [
+                                "acoustic_pressure", 
+                                "volume_velocity", 
+                                "specific_impedance", 
+                                "radiation_impedance", 
+                                "compressor_excitation"
+                                ]
+
+        for (property, *args) in self.model.properties.nodal_properties.keys():
+            if property in acoustic_properties and node_id == args[0]:
+                    return True
+        return False
+
+    # def add_frequency_in_file(self, f_min, f_max, f_step):
+
+    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+    #     if analysis_setup is None:
+    #         analysis_setup = dict()
+
+    #     analysis_setup["f_min"] = f_min
+    #     analysis_setup["f_max"] = f_max
+    #     analysis_setup["f_step"] = f_step
+
+    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+
+    # def add_damping_in_file(self, global_damping):
+
+    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+    #     if analysis_setup is None:
+    #         analysis_setup = dict()
+
+    #     analysis_setup["global damping"] = global_damping
+
+    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
@@ -325,38 +410,7 @@ class Project:
                         self.number_sections_by_line.pop(line_id)
                     single_cross = True 
 
-        return dict_multiple_cross_sections, single_cross   
-
-    # def change_project_frequency_setup(self, table_name, frequencies):
-
-    #     if frequencies is None:
-    #         return False
-    #     if isinstance(frequencies, np.ndarray):
-    #         frequencies = list(frequencies)
-
-    #     updated = False
-    #     condition_1 = self.list_frequencies == list() 
-    #     condition_2 = not self.model.properties.check_if_there_are_tables_at_the_model()
-
-    #     if condition_1 or condition_2:
-    #         updated = True
-    #         self.list_frequencies = frequencies
-    #         self.frequencies = np.array(frequencies)
-    #         self.f_min = self.frequencies[0]
-    #         self.f_max = self.frequencies[-1]
-    #         self.f_step = self.frequencies[1] - self.frequencies[0] 
-    #         self.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
-    #         self.imported_table_frequency_setup = True
-    #         return False
-
-    #     if self.list_frequencies != frequencies:
-    #         title = "Project frequency setup cannot be modified"
-    #         message = f"The following imported table of values has a frequency setup\n"
-    #         message += "different from the others already imported ones. The current\n"
-    #         message += "project frequency setup is not going to be modified."
-    #         message += f"\n\n{table_name}"
-    #         PrintMessageInput([window_title, title, message])
-    #         return True
+        return dict_multiple_cross_sections, single_cross
 
     def set_material_to_all_lines(self, material):
         self.preprocessor.set_material_by_element('all', material)
@@ -1077,42 +1131,15 @@ class Project:
     def set_fluid_by_lines(self, lines, fluid):
         self.preprocessor.set_fluid_by_lines(lines, fluid)
         self._set_fluid_to_selected_lines(lines, fluid)
-        # self.file.add_fluid_in_file(lines, fluid)
 
     def set_compressor_info_by_lines(self, lines, compressor_info=dict()):
-        # self.file.modify_compressor_info_in_file(lines, compressor_info=compressor_info)
         self._set_compressor_info_to_selected_lines(lines, compressor_info=compressor_info)
 
     def set_fluid_to_all_lines(self, fluid):
         self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_all_lines(fluid)
-        # for line in self.model.mesh.lines_from_model.keys():
-            # self.file.add_fluid_in_file(line, fluid)
-
-    # def set_acoustic_pressure_bc_by_node(self, node_ids, data):
-    #     if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
-    #         return
-
-    # def set_volume_velocity_bc_by_node(self, node_ids, data):
-    #     if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
-    #         return True
-
-    # def set_specific_impedance_bc_by_node(self, node_ids, data):
-    #     if self.preprocessor.set_specific_impedance_bc_by_node(node_ids, data):
-    #         return
-
-    # def set_radiation_impedance_bc_by_node(self, node_ids, data):
-    #     if self.preprocessor.set_radiation_impedance_bc_by_node(node_ids, data):
-    #         return
-
-    # def set_compressor_excitation_bc_by_node(self, node_ids, data, connection_info):
-    #     for node_id in node_ids:
-    #         if self.preprocessor.set_compressor_excitation_bc_by_node([node_id], data, connection_info):
-    #             return True
-    #     return False
 
     def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
-        # label = ["acoustic element length correction"] 
         self.preprocessor.set_length_correction_by_element(elements, value, section)
         self.file.add_length_correction_in_file(elements, value, section, psd_label=psd_label)
     
@@ -1167,24 +1194,6 @@ class Project:
             entity = self.model.mesh.lines_from_model[line] 
             entity.capped_end = value
 
-    def get_nodes_with_acoustic_pressure_bc(self):
-        return self.preprocessor.nodesAcousticBC
-
-    def load_acoustic_pressure_bc_by_node(self, node_id, data):
-        self.preprocessor.set_acoustic_pressure_bc_by_node(node_id, data)
-
-    def load_volume_velocity_bc_by_node(self, node_id, data):
-        self.preprocessor.set_volume_velocity_bc_by_node(node_id, data)
-
-    def load_specific_impedance_bc_by_node(self, node_id, data):
-        self.preprocessor.set_specific_impedance_bc_by_node(node_id, data)
-
-    def load_radiation_impedance_bc_by_node(self, node_id, value):
-        self.preprocessor.set_radiation_impedance_bc_by_node(node_id, value)
-
-    def load_compressor_excitation_bc_by_node(self, node_id, data, connection_info):
-        self.preprocessor.set_compressor_excitation_bc_by_node(node_id, data, connection_info)
-
     def load_length_correction_by_elements(self, list_elements, value, key):
         self.preprocessor.set_length_correction_by_element(list_elements, value, key)
         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
@@ -1205,22 +1214,9 @@ class Project:
             points[i] = self.preprocessor.nodes[i]
         return points
 
-    def get_node(self, node_id):
-        return self.preprocessor.nodes[node_id]
-
-    def get_entity(self, line_id):
-        self.model.mesh.lines_from_model[line_id]
-        return self.model.mesh.lines_from_model[line_id]
-
     def set_modes_sigma(self, modes, sigma=1e-2):
         self.modes = modes
         self.sigma = sigma
-
-    def get_frequencies(self):
-        return self.frequencies
-
-    def get_frequency_setup(self):
-        return self.f_min, self.f_max, self.f_step
 
     def get_modes(self):
         return self.modes

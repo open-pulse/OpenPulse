@@ -76,19 +76,6 @@ class Node:
         self.there_are_elastic_nodal_link_dampings = False
         self.loaded_table_for_elastic_link_dampings = False
 
-        # Acoustic boundary conditions and specific impedance
-        # self.acoustic_pressure = None
-        # self.acoustic_pressure_table_name = None
-
-        # self.volume_velocity = None
-        # self.volume_velocity_table_name = None
-
-        # self.specific_impedance = None
-        # self.specific_impedance_table_name = None
-
-        # self.radiation_impedance = None
-        # self.radiation_impedance_type = None
-
         self.acoustic_link = dict()
         self.structural_link = dict()
 
@@ -164,58 +151,58 @@ class Node:
         """
         return np.linalg.norm(self.coordinates - other.coordinates)
     
-    def admittance(self, area_fluid, frequencies):
-        """
-        This method returns the node's lumped acoustic admittance according to either prescribed specific impedance or prescribed radiation impedance. The admittance array has the same length as the frequencies array. In terms of analysis, if admittance is constant in the frequency domain, the method returns an array filled with the constant value with the same length as the frequencies array.
+    # def admittance(self, area_fluid, frequencies):
+    #     """
+    #     This method returns the node's lumped acoustic admittance according to either prescribed specific impedance or prescribed radiation impedance. The admittance array has the same length as the frequencies array. In terms of analysis, if admittance is constant in the frequency domain, the method returns an array filled with the constant value with the same length as the frequencies array.
 
-        Parameters
-        ----------
-        area_fluid : float
-            Acoustic fluid cross section area.
+    #     Parameters
+    #     ----------
+    #     area_fluid : float
+    #         Acoustic fluid cross section area.
 
-        frequencies : list
-            Frequencies of analysis.
+    #     frequencies : list
+    #         Frequencies of analysis.
 
-        Returns
-        ----------
-        complex array
-            Lumped acoustic admittance
+    #     Returns
+    #     ----------
+    #     complex array
+    #         Lumped acoustic admittance
         
-        Raises
-        ------
-        TypeError
-            The Specific Impedance array and frequencies array must have
-            the same length.
+    #     Raises
+    #     ------
+    #     TypeError
+    #         The Specific Impedance array and frequencies array must have
+    #         the same length.
 
-        TypeError
-            The Radiation Impedance array and frequencies array must have
-            the same length.
-        """
-        admittance_specific = np.zeros(len(frequencies), dtype=complex)
-        admittance_rad = np.zeros(len(frequencies), dtype=complex)
+    #     TypeError
+    #         The Radiation Impedance array and frequencies array must have
+    #         the same length.
+    #     """
+    #     admittance_specific = np.zeros(len(frequencies), dtype=complex)
+    #     admittance_rad = np.zeros(len(frequencies), dtype=complex)
 
-        if self.specific_impedance is not None:
-            Z_specific = self.specific_impedance / area_fluid
+    #     if self.specific_impedance is not None:
+    #         Z_specific = self.specific_impedance / area_fluid
             
-            if isinstance(self.specific_impedance, complex):
-                admittance_specific = 1/Z_specific * np.ones_like(frequencies)
+    #         if isinstance(self.specific_impedance, complex):
+    #             admittance_specific = 1/Z_specific * np.ones_like(frequencies)
 
-            elif isinstance(self.specific_impedance, np.ndarray):
-                if len(self.specific_impedance) != len(frequencies):
-                    raise TypeError("The Specific Impedance array and frequencies array must have \nthe same length.")
-                admittance_specific = np.divide(1, Z_specific)
+    #         elif isinstance(self.specific_impedance, np.ndarray):
+    #             if len(self.specific_impedance) != len(frequencies):
+    #                 raise TypeError("The Specific Impedance array and frequencies array must have \nthe same length.")
+    #             admittance_specific = np.divide(1, Z_specific)
               
-        if self.radiation_impedance is not None:
-            Z_rad = self.radiation_impedance / area_fluid
+    #     if self.radiation_impedance is not None:
+    #         Z_rad = self.radiation_impedance / area_fluid
 
-            if isinstance(self.radiation_impedance, complex):
-                admittance_rad = np.divide(1, Z_rad) 
+    #         if isinstance(self.radiation_impedance, complex):
+    #             admittance_rad = np.divide(1, Z_rad) 
 
-            elif isinstance(self.radiation_impedance, np.ndarray):
-                if len(self.radiation_impedance) != len(frequencies):
-                    raise TypeError("The Radiation Impedance array and frequencies array must have \nthe same length.")
-                admittance_rad = np.divide(1, Z_rad)
+    #         elif isinstance(self.radiation_impedance, np.ndarray):
+    #             if len(self.radiation_impedance) != len(frequencies):
+    #                 raise TypeError("The Radiation Impedance array and frequencies array must have \nthe same length.")
+    #             admittance_rad = np.divide(1, Z_rad)
         
-        admittance = admittance_specific + admittance_rad
+    #     admittance = admittance_specific + admittance_rad
         
-        return admittance.reshape(-1, 1)#([len(frequencies),1])
+    #     return admittance.reshape(-1, 1)#([len(frequencies),1])

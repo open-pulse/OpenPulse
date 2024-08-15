@@ -376,7 +376,16 @@ class PrescribedDofsInput(QDialog):
             
             app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(imported_filename, list(self.frequencies)):
+            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
+
+                self.lineEdit_reset(lineEdit)
+
+                title = "Project frequency setup cannot be modified"
+                message = f"The following imported table of values has a frequency setup\n"
+                message += "different from the others already imported ones. The current\n"
+                message += "project frequency setup is not going to be modified."
+                message += f"\n\n{imported_filename}"
+                PrintMessageInput([window_title, title, message])
                 return None, None
 
             else:

@@ -91,8 +91,8 @@ class RadiationImpedanceInput(QDialog):
             for (property, node_id), data in self.properties.nodal_properties.items():
                 if property == "radiation_impedance" and selected_nodes[0] == node_id:
 
-                    impedance_index = data["impedance index"]
-                    self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_index)
+                    impedance_type = data["impedance type"]
+                    self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
 
     def tabEvent_radiation_impedance(self):
         self.pushButton_remove.setDisabled(True)
@@ -118,7 +118,7 @@ class RadiationImpedanceInput(QDialog):
         for (property, node_id), data in self.properties.nodal_properties.items():
 
             if property == "radiation_impedance":
-                index = data["impedance index"]
+                index = data["impedance type"]
                 text = radiation_impedances[index]
 
                 new = QTreeWidgetItem([str(node_id), text])
@@ -137,7 +137,7 @@ class RadiationImpedanceInput(QDialog):
         
         self.remove_conflictant_excitations(node_ids)
 
-        index = self.comboBox_radiation_impedance_type.currentIndex()
+        impedance_type = self.comboBox_radiation_impedance_type.currentIndex()
 
         for node_id in node_ids:
 
@@ -145,7 +145,7 @@ class RadiationImpedanceInput(QDialog):
             coords = list(np.round(node.coordinates, 5))
 
             prop_data = {   "coords" : coords,
-                            "impedance index": index   }
+                            "impedance type": impedance_type   }
 
             self.properties._set_property("radiation_impedance", prop_data, node_id)
 
