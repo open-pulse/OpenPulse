@@ -17,7 +17,7 @@ class SectionPlaneWidget(QDialog):
     def __init__(self):
         super().__init__()
 
-        ui_path = UI_DIR / "render/cutting_plane_inputs.ui"
+        ui_path = UI_DIR / "render/section_plane_inputs.ui"
         uic.loadUi(ui_path, self)
         self.invert_value = False
         self.keep_section_plane = False
