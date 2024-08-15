@@ -93,30 +93,32 @@ class GetStartedInput(QDialog):
         self.project_path_labels.append(self.project5_path_label)
 
     def update_buttons_visibility(self):
-        self.project_dir = list()
+        self.project_path = list()
         for i in range(5):
-            self.project_dir.append("")
+            self.project_path.append("")
             # self.project_buttons[i].setIcon()
             self.project_buttons[i].setVisible(False)
             self.project_path_labels[i].setVisible(False)
 
-        self.recent_projectsList = list(self.config.recent_projects.items())[::-1]
-        for i in range(5 if len(self.recent_projectsList) > 5 else len(self.recent_projectsList)):
-            self.project_buttons[i].setVisible(True)
-            self.project_path_labels[i].setVisible(True)
-            self.project_dir[i] = self.recent_projectsList[i][1]
-            self.project_path_labels[i].setText(str(self.recent_projectsList[i][1]))
-            self.project_path_labels[i].adjustSize()
-            self.project_path_labels[i].setWordWrap(True)
-            self.project_path_labels[i].setScaledContents(True)
+        recents = app().config.get_recent_files()
+
+        for i, project_path in enumerate(recents):
+            if i <= 5:
+                self.project_buttons[i].setVisible(True)
+                self.project_path_labels[i].setVisible(True)
+                self.project_path[i] = project_path
+                self.project_path_labels[i].setText(str(project_path))
+                self.project_path_labels[i].adjustSize()
+                self.project_path_labels[i].setWordWrap(True)
+                self.project_path_labels[i].setScaledContents(True)
 
     def initial_actions(self):
         self.update_buttons_visibility()
-        self.project_buttons[0].clicked.connect(lambda: self.open_recent_project(self.project_dir[0]))
-        self.project_buttons[1].clicked.connect(lambda: self.open_recent_project(self.project_dir[1]))
-        self.project_buttons[2].clicked.connect(lambda: self.open_recent_project(self.project_dir[2]))
-        self.project_buttons[3].clicked.connect(lambda: self.open_recent_project(self.project_dir[3]))
-        self.project_buttons[4].clicked.connect(lambda: self.open_recent_project(self.project_dir[4]))
+        self.project_buttons[0].clicked.connect(lambda: self.open_recent_project(self.project_path[0]))
+        self.project_buttons[1].clicked.connect(lambda: self.open_recent_project(self.project_path[1]))
+        self.project_buttons[2].clicked.connect(lambda: self.open_recent_project(self.project_path[2]))
+        self.project_buttons[3].clicked.connect(lambda: self.open_recent_project(self.project_path[3]))
+        self.project_buttons[4].clicked.connect(lambda: self.open_recent_project(self.project_path[4]))
 
     def continueButtonEvent(self):
         self.close()
@@ -137,16 +139,16 @@ class GetStartedInput(QDialog):
     def about_project(self):
         app().main_window.action_about_openpulse_callback()
 
-    def open_recent_project(self, dir):
+    def open_recent_project(self, project_path: str | Path):
 
-        if os.path.exists(dir):
-            if app().main_window.open_project(path=dir):
-                self.complete = True
-                self.close()
+        if os.path.exists(project_path):
+            app().main_window.open_project(project_path)
+            self.complete = True
+            self.close()
 
         else:
             for key, value in self.config.recent_projects.items():
-                if value == dir:
+                if value == project_path:
                     self.config.remove_path_from_config_file(key)
                     self.update_buttons_visibility()
                     break
@@ -154,7 +156,7 @@ class GetStartedInput(QDialog):
             window_title = "Warning"
             title = "Project folder not found"
             message = "The following project folder path cannot be found, check if the project " 
-            message += f"folder have not been deleted or moved to another directory. \n\n{dir}"
+            message += f"folder have not been deleted or moved to another directory. \n\n{project_path}"
             PrintMessageInput([window_title, title, message])
 
     def reset_list_projects(self):

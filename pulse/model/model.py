@@ -29,6 +29,8 @@ class Model:
         self.preprocessor = None
         self.properties = None
         self.psd_data = dict()
+
+        self.frequencies = None
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
         self.set_static_analysis_setup(dict())
