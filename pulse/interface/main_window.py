@@ -659,11 +659,11 @@ class MainWindow(QMainWindow):
     def action_clip_plane_callback(self):
         self.clip_plane.show()
 
-        self.clip_plane.value_changed.connect(self.set_clip_plane_configs)
-        self.clip_plane.slider_released.connect(self.apply_clip_plane)
-        self.clip_plane.closed.connect(self.close_clip_plane)
-        self.set_clip_plane_configs()
-        self.apply_clip_plane()
+        self.clip_plane.value_changed.connect(self.set_section_plane_configs)
+        self.clip_plane.slider_released.connect(self.apply_section_plane)
+        self.clip_plane.closed.connect(self.close_section_plane)
+        self.set_section_plane_configs()
+        self.apply_section_plane()
 
     def action_zoom_callback(self):
         self.geometry_widget.renderer.ResetCamera()
@@ -673,19 +673,19 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update()
         self.results_widget.update()
 
-    def set_clip_plane_configs(self):
+    def set_section_plane_configs(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.configure_section_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation()) 
         elif self.get_current_workspace() in [Workspace.ACOUSTIC_SETUP, Workspace.STRUCTURAL_SETUP]:
             self.mesh_widget.configure_section_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())               
 
-    def apply_clip_plane(self):
+    def apply_section_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.apply_section_plane(reverse_cut=self.clip_plane.invert_value)
         elif self.get_current_workspace() in [Workspace.ACOUSTIC_SETUP, Workspace.STRUCTURAL_SETUP]:
             self.mesh_widget.apply_section_plane(reverse_cut=self.clip_plane.invert_value)
 
-    def close_clip_plane(self):
+    def close_section_plane(self):
         if self.clip_plane.keep_section_plane:
             return
         
