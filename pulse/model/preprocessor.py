@@ -74,11 +74,6 @@ class Preprocessor:
         self.nodes_connected_to_springs = list()
         self.nodes_connected_to_dampers = list()
 
-        self.nodes_with_acoustic_pressure = list()
-        self.nodes_with_volume_velocity = list()
-        self.nodes_with_compressor_excitation = list()
-        self.nodes_with_specific_impedance = list()
-        self.nodes_with_radiation_impedance = list()
         self.nodes_with_acoustic_links = dict()
         self.nodes_with_structural_links = dict()
         self.element_with_length_correction = list()
@@ -2190,52 +2185,41 @@ class Preprocessor:
         else:
             self.group_elements_with_length_correction[section] = [value, elements]
 
-    def set_acoustic_pressure_bc_by_node(self, nodes, data):
-        """
-        This method attributes acoustic pressure boundary condition to a list of nodes.
+    # def set_acoustic_pressure_bc_by_node(self, nodes, data):
+    #     """
+    #     This method attributes acoustic pressure boundary condition to a list of nodes.
 
-        Parameters
-        ----------
-        nodes : list
-            Nodes external indexes.
+    #     Parameters
+    #     ----------
+    #     nodes : list
+    #         Nodes external indexes.
             
-        values : complex or array
-            Acoustic pressure. Complex valued input corresponds to a constant pressure boundary condition with respect to the frequency. Array valued input corresponds to a variable pressure boundary condition with respect to the frequency.
-        """
-        try:
-            [value, table_name] = data
-            for node in slicer(self.nodes, nodes):
+    #     values : complex or array
+    #         Acoustic pressure. Complex valued input corresponds to a constant pressure boundary condition with respect to the frequency. Array valued input corresponds to a variable pressure boundary condition with respect to the frequency.
+    #     """
+    #     try:
+    #         [value, table_name] = data
+    #         for node in slicer(self.nodes, nodes):
 
-                node.acoustic_pressure = value
-                node.acoustic_pressure_table_name = None
+    #             node.acoustic_pressure = value
+    #             node.acoustic_pressure_table_name = None
 
-                if isinstance(data, str):
-                    node.acoustic_pressure_table_name = table_name
-
-                if not node in self.nodes_with_acoustic_pressure:
-                    self.nodes_with_acoustic_pressure.append(node)
+    #             if isinstance(data, str):
+    #                 node.acoustic_pressure_table_name = table_name
                 
-                if value is None:
-                    if node in self.nodes_with_acoustic_pressure:
-                        self.nodes_with_acoustic_pressure.remove(node)
-                
-                node.volume_velocity = None
-                node.volume_velocity_table = None
-                if node in self.nodes_with_volume_velocity:
-                    self.nodes_with_volume_velocity.remove(node)
+    #             node.volume_velocity = None
+    #             node.volume_velocity_table = None
 
-                node.compressor_excitation_table_names = list()
-                node.dict_index_to_compressor_connection_info = dict()
-                if node in self.nodes_with_compressor_excitation:
-                    self.nodes_with_compressor_excitation.remove(node)
+    #             node.compressor_excitation_table_names = list()
+    #             node.dict_index_to_compressor_connection_info = dict()
 
-            return False
+    #         return False
                 
-        except Exception as log_error:
-            title = "Error while setting acoustic pressure"
-            message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
-            return True  
+    #     except Exception as log_error:
+    #         title = "Error while setting acoustic pressure"
+    #         message = str(log_error)
+    #         PrintMessageInput([window_title_1, title, message])
+    #         return True  
 
 
     def set_volume_velocity_bc_by_node(self, nodes, data):
@@ -2256,24 +2240,12 @@ class Preprocessor:
                 node.volume_velocity = values
                 node.volume_velocity_table_name = table_name
 
-                if values is None:
-                    if node in self.nodes_with_volume_velocity:
-                        self.nodes_with_volume_velocity.remove(node)
-                else:
-                    if node not in self.nodes_with_volume_velocity:
-                        self.nodes_with_volume_velocity.append(node)
-
                 node.compressor_excitation_table_names = []
                 node.compressor_excitation_table_indexes = []
                 node.dict_index_to_compressor_connection_info = {}
-                
-                if node in self.nodes_with_compressor_excitation:
-                    self.nodes_with_compressor_excitation.remove(node)
 
                 node.acoustic_pressure = None
                 node.acoustic_pressure_table_name = None
-                if node in self.nodes_with_acoustic_pressure:
-                    self.nodes_with_acoustic_pressure.remove(node)
 
             return False
 
@@ -2341,8 +2313,6 @@ class Preprocessor:
                     node.compressor_excitation_table_names = []
                     node.dict_index_to_compressor_connection_info = {}
                     node.compressor_excitation_table_indexes = []
-                    if node in self.nodes_with_compressor_excitation:
-                        self.nodes_with_compressor_excitation.remove(node)
                 
                 elif node.volume_velocity is None or isinstance(node.volume_velocity, complex):
                     node.volume_velocity = values
@@ -2371,16 +2341,9 @@ class Preprocessor:
                         node.compressor_excitation_table_indexes.append(table_index)
                     if table_name not in node.compressor_excitation_table_names:
                         node.compressor_excitation_table_names.append(table_name)
-                    if node not in self.nodes_with_compressor_excitation:
-                        self.nodes_with_compressor_excitation.append(node)   
-                                     
-                if node in self.nodes_with_volume_velocity:
-                    self.nodes_with_volume_velocity.remove(node)
                 
                 node.acoustic_pressure = None
                 node.acoustic_pressure_table_name = None
-                if node in self.nodes_with_acoustic_pressure:
-                    self.nodes_with_acoustic_pressure.remove(node)
 
             return False
 
@@ -2411,13 +2374,6 @@ class Preprocessor:
                 node.specific_impedance_table_name = table_name
                 node.radiation_impedance = None
                 node.radiation_impedance_type = None
-                if not node in self.nodes_with_specific_impedance:
-                    self.nodes_with_specific_impedance.append(node)
-                if values is None:
-                    if node in self.nodes_with_specific_impedance:
-                        self.nodes_with_specific_impedance.remove(node)
-                if node in self.nodes_with_radiation_impedance:
-                    self.nodes_with_radiation_impedance.remove(node)
 
             return False
 
@@ -2447,16 +2403,12 @@ class Preprocessor:
         """
         try:
             for node in slicer(self.nodes, nodes):
-                node.radiation_impedance_type = impedance_type
+
                 node.specific_impedance = None
-                if not node in self.nodes_with_radiation_impedance:
-                    self.nodes_with_radiation_impedance.append(node)
+                node.radiation_impedance_type = impedance_type
+
                 if impedance_type is None:
-                    if node in self.nodes_with_radiation_impedance:
-                        self.nodes_with_radiation_impedance.remove(node)
                     node.radiation_impedance = None
-                if node in self.nodes_with_specific_impedance:
-                    self.nodes_with_specific_impedance.remove(node)
                 
             return False
 

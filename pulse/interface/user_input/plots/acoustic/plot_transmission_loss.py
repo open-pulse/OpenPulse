@@ -159,13 +159,12 @@ class PlotTransmissionLoss(QWidget):
 
                 neigh_elements = self.neighboor_elements(node_id)
                 if len(neigh_elements) == 1:
-                    node = self.preprocessor.nodes[node_id]
-                    if node in self.preprocessor.nodes_with_volume_velocity:
-                        self.input_volume_velocity = np.real(node.volume_velocity)
-                        self.input_node_ID = node_id
-
-                    elif node in self.preprocessor.nodes_with_radiation_impedance:
-                        if node not in self.preprocessor.nodes_with_volume_velocity:
+                    for (property, *args), data in app().project.model.properties.nodal_properties.items():
+                        if property == "volume_velocity" and args[0] == node_id:
+                            self.input_volume_velocity = np.real(data["values"])
+                            self.input_node_ID = node_id
+                        
+                        elif property == "radiation_impedance" and args[0] == node_id:
                             self.output_node_ID = node_id
 
                 else:

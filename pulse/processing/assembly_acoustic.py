@@ -105,12 +105,29 @@ class AssemblyAcoustic:
 
         get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
         """
-        global_prescribed = []
-        for node in self.preprocessor.nodes.values():
-            starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
-            dofs = np.array(node.get_acoustic_boundary_condition_indexes()) + starting_position
-            global_prescribed.extend(dofs)
+
+        global_prescribed = list()
+
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "acoustic_pressure":
+
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
+                values = data["values"]
+
+                starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
+                internal_dofs = [i for i, value in enumerate(values) if value is not None]
+
+                dofs = starting_position + np.array(internal_dofs)
+                global_prescribed.extend(dofs)
+
         return global_prescribed
+        
+        # for node in self.preprocessor.nodes.values():
+        #     starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
+        #     dofs = np.array(node.get_acoustic_boundary_condition_indexes()) + starting_position
+        #     global_prescribed.extend(dofs)
+        # return global_prescribed
 
     def get_prescribed_values(self):
         """
@@ -127,11 +144,20 @@ class AssemblyAcoustic:
 
         get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
         """
-        global_prescribed = []
-        for node in self.preprocessor.nodes.values():
-            if node.acoustic_pressure is not None:
-                global_prescribed.extend([node.acoustic_pressure])
+
+        global_prescribed = list()
+
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "acoustic_pressure":
+                values = data["values"]
+                global_prescribed.extend([value for value in values if value is not None])   
         return global_prescribed
+
+        # global_prescribed = []
+        # for node in self.preprocessor.nodes.values():
+        #     if node.acoustic_pressure is not None:
+        #         global_prescribed.extend([node.acoustic_pressure])
+        # return global_prescribed
 
     def get_unprescribed_indexes(self):
         """
@@ -470,11 +496,19 @@ class AssemblyAcoustic:
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
         volume_velocity = np.zeros([len(self.frequencies), total_dof], dtype=complex)
 
-        for node in self.preprocessor.nodes.values():
-            if node.volume_velocity is not None:
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "volume_velocity":
+
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
                 position = node.global_index
-                volume_velocity[:, position] += node.get_volume_velocity(self.frequencies)
-        
+                values = data["values"][0]
+
+                if isinstance(values, complex):
+                    volume_velocity[:, position] = values*np.ones_like(self.frequencies)
+                elif isinstance(values, np.ndarray):
+                    volume_velocity[:, position] = values
+
         volume_velocity = volume_velocity[:, self.unprescribed_indexes]
 
         return volume_velocity

@@ -1138,21 +1138,21 @@ class CompressorModelInput(QDialog):
         self.close()
 
     def update_tabs_visibility(self):
-        if len(self.preprocessor.nodes_with_compressor_excitation) == 0:
-            self.tabWidget_compressor.setCurrentIndex(0)
-            self.tabWidget_compressor.setTabVisible(3, False)
-        else:
-            self.tabWidget_compressor.setTabVisible(3, True)
+        self.tabWidget_compressor.setTabVisible(3, False)
+        for (property, _) in self.properties.nodal_properties.keys():
+            if property == "compressor_excitation":
+                self.tabWidget_compressor.setCurrentIndex(0)
+                self.tabWidget_compressor.setTabVisible(3, True)
 
-    def get_volume_velocity_table_names_in_typed_nodes(self, list_node_ids):
-        list_table_names = []
-        for node_id in list_node_ids:
-            node = self.preprocessor.nodes[node_id]
-            if node.volume_velocity_table_name is not None:
-                table_name = node.volume_velocity_table_name
-                if table_name not in list_table_names:
-                    list_table_names.append(table_name)
-        return list_table_names
+    # def get_volume_velocity_table_names_in_typed_nodes(self, list_node_ids):
+    #     list_table_names = []
+    #     for node_id in list_node_ids:
+    #         node = self.preprocessor.nodes[node_id]
+    #         if node.volume_velocity_table_name is not None:
+    #             table_name = node.volume_velocity_table_name
+    #             if table_name not in list_table_names:
+    #                 list_table_names.append(table_name)
+    #     return list_table_names
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter:

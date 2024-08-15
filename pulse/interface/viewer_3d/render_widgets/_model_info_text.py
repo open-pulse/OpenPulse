@@ -95,16 +95,9 @@ def nodes_info_text() -> str:
         key = ("radiation_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            ri_value = data["values"]   
-            loaded_table = "tables data" in data.keys()
-
-            aux_dict = {
-                        0 : "anechoic termination", 
-                        1 : "unflanged pipe", 
-                        2 : "flanged pipe"
-                        }
-
-            info_text += _acoustic_format("Radiation impedance", aux_dict[ri_value], "Type", "")
+            index = data["impedance index"]
+            labels = ["anechoic termination", "unflanged pipe", "flanged pipe"]
+            info_text += _acoustic_format("Radiation impedance", labels[index], "Type", "")
 
         key = ("compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():

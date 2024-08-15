@@ -1,17 +1,16 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QCloseEvent, QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.tools.utils import get_new_path, remove_bc_from_file
 
 import os
 import numpy as np
+from pathlib import Path
+
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -24,8 +23,6 @@ class AcousticPressureInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
         self.properties = app().project.model.properties
 
         self._initialize()
@@ -41,14 +38,14 @@ class AcousticPressureInput(QDialog):
 
     def _initialize(self):
 
+        self.array = None
+        self.table_name = None
+        self.table_path = None
+        self.table_values = None                
+
         self.keep_window_open = True
 
-        self.before_run = self.project.get_pre_solution_model_checks()
-
-        self.inputs_from_node = False
-        self.remove_acoustic_pressure = False
-        self.acoustic_pressure = None
-        self.list_Nones = [None, None, None, None, None, None]
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -84,7 +81,7 @@ class AcousticPressureInput(QDialog):
 
     def _create_connections(self):
         #
-        self.pushButton_constant_value.clicked.connect(self.constant_values_attribution_callback)
+        self.pushButton_constant_values.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_table_values.clicked.connect(self.table_values_attribution_callback)
@@ -102,13 +99,13 @@ class AcousticPressureInput(QDialog):
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if selected_nodes:
+        if len(selected_nodes) == 1:
 
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
 
             for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "nodal_loads" and selected_nodes[0] == node_id:
+                if property == "acoustic_pressure" and selected_nodes[0] == node_id:
 
                     values = data["values"]
     
@@ -145,7 +142,7 @@ class AcousticPressureInput(QDialog):
 
             if property == "acoustic_pressure":
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                new = QTreeWidgetItem([str(node_id), str(self.text_label(values[0]))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_acoustic_pressure.addTopLevelItem(new)
@@ -198,6 +195,13 @@ class AcousticPressureInput(QDialog):
 
         if stop:
             return
+        
+        if acoustic_pressure is None:
+            title = "Additional inputs required"
+            message = "You must inform at least one acoustic pressure " 
+            message += "before confirming the input!"
+            PrintMessageInput([window_title_1, title, message])
+            self.lineEdit_real_value.setFocus()
 
         self.remove_table_files_from_nodes(node_ids)
         self.remove_conflictant_excitations(node_ids)
@@ -212,8 +216,8 @@ class AcousticPressureInput(QDialog):
 
             prop_data = {   
                             "coords" : coords,
-                            "real_values": real_values,
-                            "imag_values": imag_values,
+                            "real values": real_values,
+                            "imag values": imag_values,
                         }
 
             self.properties._set_property("acoustic_pressure", prop_data, node_id)
@@ -223,14 +227,23 @@ class AcousticPressureInput(QDialog):
         self.close()
 
         print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")
-    
-        # else:    
-        #     title = "Additional inputs required"
-        #     message = "You must inform at least one acoustic pressure " 
-        #     message += "before confirming the input!"
-        #     PrintMessageInput([window_title_1, title, message])
-        #     self.lineEdit_real_value.setFocus()
-            
+
+    def lineEdit_reset(self, lineEdit: QLineEdit):
+        lineEdit.setText("")
+        lineEdit.setFocus()
+
+    def save_table_file(self, node_id: int, values: np.ndarray):
+
+        table_name = f"acoustic_pressure_node_{node_id}"
+
+        real_values = np.real(values)
+        imag_values = np.imag(values)
+        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+
+        self.properties.add_imported_tables("acoustic", table_name, data)
+
+        return table_name, data
+
     def load_table(self, lineEdit: QLineEdit, direct_load=False):
         try:
 
@@ -293,24 +306,8 @@ class AcousticPressureInput(QDialog):
             lineEdit.setFocus()
             return None, None
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
-
-    def save_table_file(self, node_id: int, values: np.ndarray):
-
-        table_name = f"acoustic_pressure_node_{node_id}.dat"
-
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return table_name, data
-
     def load_acoustic_pressure_table(self):
-        self.table_values, self.acoustic_pressure_table_path = self.load_table(self.lineEdit_table_path)
+        self.table_values, self.table_path = self.load_table(self.lineEdit_table_path)
 
     def table_values_attribution_callback(self):
 
@@ -320,11 +317,12 @@ class AcousticPressureInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids)
+        self.remove_conflictant_excitations(node_ids)
+        # table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids)
 
         if self.lineEdit_table_path != "":
 
-            if self.acoustic_pressure_table_path is None:
+            if self.table_path is None:
                 self.table_values, self.table_path = self.load_table(
                                                                         self.lineEdit_table_path, 
                                                                         direct_load=True
@@ -338,21 +336,22 @@ class AcousticPressureInput(QDialog):
                 self.table_name, self.array = self.save_table_file( 
                                                                     node_id, 
                                                                     self.table_values, 
-                                                                    self.acoustic_pressure_table_path
+                                                                    self.table_path
                                                                    )
 
                 basenames = [self.table_name]
                 table_paths = [self.table_path]
-                nodal_loads = [self.table_values]                
+                values = [self.table_values]                
                 array_data = [self.array]
 
-                coords = np.round(self.preprocessor.nodes[node_id].coordinates, 5)
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords = np.round(node.coordinates, 5)
 
                 bc_data = {
                             "coords" : list(coords),
                             "table names" : basenames,
                             "table paths" : table_paths,
-                            "values" : nodal_loads,
+                            "values" : values,
                             "data arrays" : array_data
                         }
 
@@ -360,9 +359,7 @@ class AcousticPressureInput(QDialog):
 
             app().pulse_file.write_model_properties_in_file()
             app().pulse_file.write_imported_table_data_in_file()
-
-            self.process_table_file_removal(table_names)
-
+            # self.process_table_file_removal(table_names)
             app().main_window.update_plots()
 
             print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")   
@@ -390,7 +387,7 @@ class AcousticPressureInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        self.remove_bc_from_node()
+        # self.remove_bc_from_node()
 
     def remove_conflictant_excitations(self, node_ids: int | list | tuple):
 
@@ -457,7 +454,7 @@ class AcousticPressureInput(QDialog):
                 self.close()
 
     def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("acoustic_presssure", node_ids, equals=True)
+        table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids, equals=True)
         self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):

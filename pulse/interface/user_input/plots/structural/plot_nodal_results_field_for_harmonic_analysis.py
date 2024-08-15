@@ -15,10 +15,6 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         ui_path = UI_DIR / "plots/results/structural/plot_nodal_results_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
-
         self._initialize()
         self._config_window()
         self._define_qt_variables()
@@ -27,7 +23,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.load_user_preference_colormap()
 
     def _initialize(self):
-        self.frequencies = self.model.frequencies
+        self.frequencies = app().project.model.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
         self.colormaps = ["jet",
@@ -123,7 +119,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
             if frequency_selected in self.frequencies:
                 self.frequency = self.frequency_to_index[frequency_selected]
                 color_scale_setup = self.get_user_color_scale_setup()
-                self.project.set_color_scale_setup(color_scale_setup)
+                app().project.set_color_scale_setup(color_scale_setup)
                 app().main_window.results_widget.show_displacement_field(self.frequency)
 
 
@@ -194,7 +190,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
 
     def load_frequencies_vector(self):
 
-        if self.project.analysis_id == 7:
+        if app().project.analysis_id == 7:
             self.plot_displacement_for_static_analysis()
             
         self.treeWidget_frequencies.clear()
@@ -210,7 +206,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.frequency = [0]
         self.lineEdit_selected_frequency.setText(str(self.frequency[0]))
         color_scale_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(color_scale_setup)
+        app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_displacement_field(self.frequency[0])
 
     def on_click_item(self, item):

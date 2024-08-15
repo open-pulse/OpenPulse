@@ -16,10 +16,6 @@ class PlotAcousticPressureField(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
-
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -28,7 +24,7 @@ class PlotAcousticPressureField(QWidget):
         self.load_user_preference_colormap()
 
     def _initialize(self):
-        self.frequencies = self.model.frequencies
+        self.frequencies = app().project.model.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
         self.colormaps = ["jet",
@@ -124,7 +120,7 @@ class PlotAcousticPressureField(QWidget):
         self.frequency = self.frequency_to_index[frequency_selected]
 
         color_scale_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(color_scale_setup)
+        app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_pressure_field(self.frequency)
 
     def get_user_color_scale_setup(self):

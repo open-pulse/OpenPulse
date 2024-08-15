@@ -91,38 +91,40 @@ class AcousticModelInfo(QDialog):
         return text
 
     def load_nodes_info(self):
-        
-        for node in self.project.preprocessor.nodes_with_acoustic_pressure:
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.acoustic_pressure))])
-            self.treeWidget_acoustic_pressure.addTopLevelItem(new)
-        
-        for node in self.project.preprocessor.nodes_with_volume_velocity:
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.volume_velocity))])
-            self.treeWidget_volume_velocity.addTopLevelItem(new)
 
-        for node in self.project.preprocessor.nodes_with_specific_impedance:
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.specific_impedance))])
-            self.treeWidget_specific_impedance.addTopLevelItem(new)
-        
-        for node in self.project.preprocessor.nodes_with_radiation_impedance:
-            if node.radiation_impedance_type == 0:
-                text = "Anechoic"
-            elif node.radiation_impedance_type == 1:
-                text = "Unflanged"
-            elif node.radiation_impedance_type == 2:
-                text = "Flanged"
-            new = QTreeWidgetItem([str(node.external_index), text])
-            self.treeWidget_radiation_impedance.addTopLevelItem(new)
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+            if property == "acoustic_pressure":
+                node_id = args[0]
+                values = data["values"]
+                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                self.treeWidget_acoustic_pressure.addTopLevelItem(new)
 
-        for element in self.project.preprocessor.element_with_length_correction:
-            if element.acoustic_length_correction == 0:
-                text = "Expansion"
-            if element.acoustic_length_correction == 1:
-                text = "Side branch"
-            if element.acoustic_length_correction == 2:
-                text = "Loop"
-            new = QTreeWidgetItem([str(element.index), text])
-            self.treeWidget_element_length_correction.addTopLevelItem(new)
+            if property == "volume_velocity":
+                node_id = args[0]
+                values = data["values"]
+                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                self.treeWidget_volume_velocity.addTopLevelItem(new)
+
+            if property == "specific_impedance":
+                node_id = args[0]
+                values = data["values"]
+                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                self.treeWidget_specific_impedance.addTopLevelItem(new)
+
+            if property == "radiation_impedance":
+                node_id = args[0]
+                index = data["radiation impedance"]
+                impedance_types = ["Anechoic", "Unflanged", "Flanged"]    
+                new = QTreeWidgetItem([str(node_id), impedance_types[index]])
+                self.treeWidget_radiation_impedance.addTopLevelItem(new)
+
+        for (property, *args), data in app().project.model.properties.element_properties.items():
+            if property == "element_length_correction":
+                element_id = args[0]
+                correction_types = ["Expansion", "Side branch", "Loop"]
+                index = data["length correction index"]    
+                new = QTreeWidgetItem([str(element_id), correction_types[index]])
+                self.treeWidget_element_length_correction.addTopLevelItem(new)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:

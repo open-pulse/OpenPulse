@@ -24,10 +24,7 @@ class PrescribedDofsInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
         self.properties = app().project.model.properties
-        self.preprocessor = app().project.preprocessor
 
         self._config_window()
         self._initialize()
@@ -56,7 +53,7 @@ class PrescribedDofsInput(QDialog):
         self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
 
         self.reset_table_variables()
-        self.before_run = self.project.get_pre_solution_model_checks()
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def reset_table_variables(self):
 
@@ -184,7 +181,7 @@ class PrescribedDofsInput(QDialog):
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if selected_nodes:
+        if len(selected_nodes) == 1:
 
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
@@ -300,20 +297,16 @@ class PrescribedDofsInput(QDialog):
 
         if prescribed_dofs.count(None) != 6:
 
-            table_names = self.list_Nones
-            data = [prescribed_dofs, table_names]
-
             self.remove_table_files_from_nodes(node_ids)
             self.remove_conflictant_excitations(node_ids)
-
-            # self.preprocessor.set_prescribed_dofs(node_ids, data)
 
             real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
             imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
 
             for node_id in node_ids:
 
-                coords = np.round(self.preprocessor.nodes[node_id].coordinates, 5)
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords = np.round(node.coordinates, 5)
 
                 bc_data = {
                             "coords" : list(coords),
@@ -376,14 +369,14 @@ class PrescribedDofsInput(QDialog):
 
             imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-            frequencies = imported_file[:,0]
-            f_min = frequencies[0]
-            f_max = frequencies[-1]
-            f_step = frequencies[1] - frequencies[0] 
+            self.frequencies = imported_file[:,0]
+            f_min = self.frequencies[0]
+            f_max = self.frequencies[-1]
+            f_step = self.frequencies[1] - self.frequencies[0] 
             
             app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(imported_filename, list(frequencies)):
+            if app().project.model.change_analysis_frequency_setup(imported_filename, list(self.frequencies)):
                 return None, None
 
             else:
@@ -486,7 +479,8 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_ids)
+        self.remove_conflictant_excitations(node_ids)
+        # table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_ids)
 
         if self.ux_table_path is None:
             self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux", direct_load = True)
@@ -546,8 +540,9 @@ class PrescribedDofsInput(QDialog):
                 message += "table path before confirming the input!"
                 PrintMessageInput([window_title, title, message]) 
                 return 
-                
-            coords = np.round(self.preprocessor.nodes[node_id].coordinates, 5)
+
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = np.round(node.coordinates, 5)
 
             bc_data = {
                         "coords" : list(coords),
@@ -559,13 +554,9 @@ class PrescribedDofsInput(QDialog):
 
             self.properties._set_property("prescribed_dofs", bc_data, node_ids=node_id)
 
-        # self.preprocessor.set_prescribed_dofs(node_ids, data)
-
         app().pulse_file.write_model_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
-
-        self.process_table_file_removal(table_names)
-
+        # self.process_table_file_removal(table_names)
         app().main_window.update_plots()
         self.close()
 
@@ -695,9 +686,6 @@ class PrescribedDofsInput(QDialog):
 
             app().pulse_file.write_model_properties_in_file()
 
-            data = [self.list_Nones, self.list_Nones]
-            # self.preprocessor.set_prescribed_dofs(node_ids, data)
-
             self.lineEdit_selection_id.setText("")
             self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
@@ -730,9 +718,6 @@ class PrescribedDofsInput(QDialog):
                     node_ids.append(node_id)
 
             self.remove_table_files_from_nodes(node_ids)
-
-            data = [self.list_Nones, self.list_Nones]
-            # self.preprocessor.set_prescribed_dofs(node_ids, data)
 
             self.properties._reset_property("prescribed_dofs")
             app().pulse_file.write_model_properties_in_file()

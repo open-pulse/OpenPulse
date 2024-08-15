@@ -24,9 +24,7 @@ class NodalLoadsInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = app().project
         self.properties = app().project.model.properties
-        self.preprocessor = app().project.preprocessor
 
         self._config_window()
         self._initialize()
@@ -55,7 +53,7 @@ class NodalLoadsInput(QDialog):
         self.load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
 
         self.reset_table_variables()
-        self.before_run = self.project.get_pre_solution_model_checks()
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def reset_table_variables(self):
 
@@ -171,7 +169,7 @@ class NodalLoadsInput(QDialog):
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if selected_nodes:
+        if len(selected_nodes) == 1:
 
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
@@ -276,7 +274,8 @@ class NodalLoadsInput(QDialog):
 
             for node_id in node_ids:
 
-                coords = np.round(self.preprocessor.nodes[node_id].coordinates, 5)
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords = np.round(node.coordinates, 5)
 
                 bc_data = {
                             "coords" : list(coords),
@@ -340,14 +339,14 @@ class NodalLoadsInput(QDialog):
 
             imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-            frequencies = imported_file[:,0]
-            f_min = frequencies[0]
-            f_max = frequencies[-1]
-            f_step = frequencies[1] - frequencies[0] 
+            self.frequencies = imported_file[:,0]
+            f_min = self.frequencies[0]
+            f_max = self.frequencies[-1]
+            f_step = self.frequencies[1] - self.frequencies[0] 
             
             app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(imported_filename, list(frequencies)):
+            if app().project.model.change_analysis_frequency_setup(imported_filename, list(self.frequencies)):
                 return None, None
 
             else:
@@ -420,7 +419,8 @@ class NodalLoadsInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids)
+        self.remove_conflictant_excitations(node_ids)
+        # table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids)
 
         if self.fx_table_path is None:
             self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx", direct_load=True)
@@ -479,7 +479,8 @@ class NodalLoadsInput(QDialog):
                 PrintMessageInput([window_title, title, message]) 
                 return
 
-            coords = np.round(self.preprocessor.nodes[node_id].coordinates, 5)
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = np.round(node.coordinates, 5)
 
             bc_data = {
                         "coords" : list(coords),
@@ -491,15 +492,12 @@ class NodalLoadsInput(QDialog):
 
             self.properties._set_property("nodal_loads", bc_data, node_ids=node_id)
 
-        # self.preprocessor.set_nodal_loads(node_ids, data)
-
         app().pulse_file.write_model_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
-
-        self.process_table_file_removal(table_names)
-
+        # self.process_table_file_removal(table_names)
         app().main_window.update_plots()
         self.close()
+
         print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
     def text_label(self, mask):

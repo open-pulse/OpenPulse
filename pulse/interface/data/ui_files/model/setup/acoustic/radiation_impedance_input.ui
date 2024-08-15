@@ -472,7 +472,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </spacer>
              </item>
              <item row="1" column="2">
-              <widget class="QPushButton" name="confirm_radiation_impedance_button">
+              <widget class="QPushButton" name="pushButton_attribution">
                <property name="minimumSize">
                 <size>
                  <width>120</width>
@@ -564,7 +564,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <number>12</number>
              </property>
              <item row="0" column="0">
-              <widget class="QPushButton" name="reset_button">
+              <widget class="QPushButton" name="pushButton_reset">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -595,7 +595,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QPushButton" name="remove_button">
+              <widget class="QPushButton" name="pushButton_remove">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -677,7 +677,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             </column>
             <column>
              <property name="text">
-              <string>DOFs</string>
+              <string>Impedance type</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>

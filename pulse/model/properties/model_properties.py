@@ -181,7 +181,7 @@ class ModelProperties:
                     else:
                         b = data["imag values"][i]
                         values.append(a + 1j*b)
-            
+
             if "table names" in data.keys():
 
                 if group_label == "acoustic":

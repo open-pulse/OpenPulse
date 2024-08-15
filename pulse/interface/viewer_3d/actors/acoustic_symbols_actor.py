@@ -112,7 +112,6 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
             if property in ["acoustic_pressure", "compressor_excitation"]:
                 pos = data["coords"]
-                # if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == list()):
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols

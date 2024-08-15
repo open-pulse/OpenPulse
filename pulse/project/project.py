@@ -1089,27 +1089,27 @@ class Project:
         # for line in self.model.mesh.lines_from_model.keys():
             # self.file.add_fluid_in_file(line, fluid)
 
-    def set_acoustic_pressure_bc_by_node(self, node_ids, data):
-        if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
-            return
+    # def set_acoustic_pressure_bc_by_node(self, node_ids, data):
+    #     if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data):
+    #         return
 
-    def set_volume_velocity_bc_by_node(self, node_ids, data):
-        if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
-            return True
+    # def set_volume_velocity_bc_by_node(self, node_ids, data):
+    #     if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
+    #         return True
 
-    def set_specific_impedance_bc_by_node(self, node_ids, data):
-        if self.preprocessor.set_specific_impedance_bc_by_node(node_ids, data):
-            return
+    # def set_specific_impedance_bc_by_node(self, node_ids, data):
+    #     if self.preprocessor.set_specific_impedance_bc_by_node(node_ids, data):
+    #         return
 
-    def set_radiation_impedance_bc_by_node(self, node_ids, data):
-        if self.preprocessor.set_radiation_impedance_bc_by_node(node_ids, data):
-            return
+    # def set_radiation_impedance_bc_by_node(self, node_ids, data):
+    #     if self.preprocessor.set_radiation_impedance_bc_by_node(node_ids, data):
+    #         return
 
-    def set_compressor_excitation_bc_by_node(self, node_ids, data, connection_info):
-        for node_id in node_ids:
-            if self.preprocessor.set_compressor_excitation_bc_by_node([node_id], data, connection_info):
-                return True
-        return False
+    # def set_compressor_excitation_bc_by_node(self, node_ids, data, connection_info):
+    #     for node_id in node_ids:
+    #         if self.preprocessor.set_compressor_excitation_bc_by_node([node_id], data, connection_info):
+    #             return True
+    #     return False
 
     def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
         # label = ["acoustic element length correction"] 

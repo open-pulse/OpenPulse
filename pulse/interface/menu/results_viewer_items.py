@@ -123,9 +123,10 @@ class ResultsViewerItems(CommonMenuItems):
                 self.item_child_plot_transmission_loss.setDisabled(False)
                 self.item_child_shaking_forces_criteria.setDisabled(False)
 
-                if self.project.preprocessor.nodes_with_compressor_excitation != []:
-                    self.item_child_check_pulsation_criteria.setDisabled(False)
-            
+                for (property, *args) in app().project.model.properties.nodal_properties.keys():
+                    if property == "compressor_excitation":
+                        self.item_child_check_pulsation_criteria.setDisabled(False)
+        
             elif self.project.analysis_id == 7:
                 self.item_child_plot_displacement_field.setDisabled(False)
                 self.item_child_plot_stress_field.setDisabled(False)

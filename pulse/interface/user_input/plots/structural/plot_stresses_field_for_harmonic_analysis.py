@@ -16,8 +16,6 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         ui_path = UI_DIR / "plots/results/structural/plot_stresses_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.project = app().project
         self.model = app().project.model
 
         self._config_window()
@@ -44,9 +42,9 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                                 "Transversal shear xy", 
                                 "Transversal shear xz"])
 
-        self.solve = self.project.structural_solve
-        self.preprocessor = self.project.preprocessor
-        self.frequencies = self.model.frequencies
+        self.solve = app().project.structural_solve
+        self.frequencies = app().project.model.frequencies
+
         self.dict_frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
 
         self.colormaps = ["jet",
@@ -175,23 +173,26 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
     def get_stress_data(self):
 
         index = self.comboBox_stress_type.currentIndex()
-        self.stress_label = self.labels[index]
-        self.stress_key = self.keys[index]
+        stress_label = self.labels[index]
+        stress_key = self.keys[index]
         self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
 
         if self.stress_data == [] or self.update_damping:
             self.stress_data = self.solve.stress_calculate( pressure_external = 0, 
                                                             damping_flag = self.flag_damping_effect )
             self.update_damping = False
+
+        stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
+
+        stress_list = list(stress_field.values())
+        min_stress = np.min(stress_list)
+        max_stress = np.max(stress_list)
             
-        self.stress_field = { key:array[self.stress_key, self.selected_index] for key, array in self.stress_data.items() }
-        self.project.set_stresses_values_for_color_table(self.stress_field)
-        self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
-                                                np.max(list(self.stress_field.values())), 
-                                                self.stress_label )
-        
+        app().project.set_stresses_values_for_color_table(stress_field)
+        app().project.set_min_max_type_stresses(min_stress, max_stress, stress_label)
+
         color_scale_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(color_scale_setup)
+        app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def on_click_item(self, item):

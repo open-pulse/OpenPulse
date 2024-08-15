@@ -16,9 +16,6 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         ui_path = UI_DIR / "plots/results/structural/plot_stresses_field_for_static_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.project = app().main_window.project
-
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -27,20 +24,12 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.load_user_preference_colormap()
 
     def _initialize(self):
-        self.selected_index = None
-        self.stress_field = []
+
         self.stress_data = []
         self.keys = np.arange(7)
-        self.labels = np.array(["Normal axial",
-                                "Normal bending y",
-                                "Normal bending z",
-                                "Hoop",
-                                "Torsional shear",
-                                "Transversal shear xy",
-                                "Transversal shear xz"])
+        self.selected_index = None
 
-        self.solve = self.project.structural_solve
-        self.preprocessor = self.project.preprocessor
+        self.solve = app().project.structural_solve
 
         self.colormaps = ["jet",
                           "viridis",
@@ -48,6 +37,14 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
                           "magma",
                           "plasma",
                           "grayscale"]
+
+        self.labels = np.array(["Normal axial",
+                                "Normal bending y",
+                                "Normal bending z",
+                                "Hoop",
+                                "Torsional shear",
+                                "Transversal shear xy",
+                                "Transversal shear xz"])
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -111,21 +108,24 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
     def get_stress_data(self):
 
         index = self.comboBox_stress_type.currentIndex()
-        self.stress_label = self.labels[index]
-        self.stress_key = self.keys[index]
+        stress_label = self.labels[index]
+        stress_key = self.keys[index]
 
         if self.stress_data == []:
             self.stress_data = self.solve.stress_calculate( pressure_external = 0, 
                                                             damping_flag = False )
             
-        self.stress_field = { key:array[self.stress_key, self.selected_index] for key, array in self.stress_data.items() }
-        self.project.set_stresses_values_for_color_table(self.stress_field)
-        self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
-                                                np.max(list(self.stress_field.values())), 
-                                                self.stress_label )
+        stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
+        
+        stress_list = list(stress_field.values())
+        min_stress = np.min(stress_list)
+        max_stress = np.max(stress_list)
+
+        app().project.set_stresses_values_for_color_table(stress_field)
+        app().project.set_min_max_type_stresses(min_stress, max_stress, stress_label)
 
         color_scale_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(color_scale_setup)
+        app().project.set_color_scale_setup(color_scale_setup)
         app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def get_user_color_scale_setup(self):

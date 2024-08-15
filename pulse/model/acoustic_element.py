@@ -45,7 +45,7 @@ def j2j0(z):
     -------
     z : array
     """
-    mask = np.abs(np.imag(z))<700
+    mask = np.abs(np.imag(z)) < 700
     value = np.zeros_like(z, dtype = complex)
     value[mask] = jv(2, z[mask]) / jv(0, z[mask])
     value[~mask] = -1
@@ -99,6 +99,7 @@ class AcousticElement:
         Default is None.
     """
     def __init__(self, first_node, last_node, index, **kwargs):
+
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
@@ -112,8 +113,6 @@ class AcousticElement:
         self.perforated_plate = kwargs.get('perforated_plate', None)
         self.vol_flow = kwargs.get('vol_flow', 0)
         self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
-
-        self.element_type = kwargs.get('element_type', 'undamped')
 
         self.reset()
 
