@@ -139,7 +139,6 @@ class ProgressBarLogUpdater(logging.Handler):
 
         # Updates QT to prevent freezing
         QApplication.processEvents()
-        print("processing")
 
         percent = self.get_percentage(record.msg)
         if percent is None:
