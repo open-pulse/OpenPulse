@@ -282,6 +282,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if reverse_cut:
             normal = -normal
+            
         self.tubes_actor.apply_cut(self.plane_origin, normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.plane_actor.VisibilityOn()

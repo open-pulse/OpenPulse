@@ -675,11 +675,15 @@ class MainWindow(QMainWindow):
 
     def set_clip_plane_configs(self):
         if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
+            self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation()) 
+        else:
+            self.mesh_widget.configure_section_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())               
 
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.apply_cutting_plane(reverse_cut=self.clip_plane.invert_value)
+        else:
+            self.mesh_widget.apply_section_plane(reverse_cut=self.clip_plane.invert_value)
 
     def close_clip_plane(self):
         if self.clip_plane.keep_section_plane:
@@ -687,6 +691,8 @@ class MainWindow(QMainWindow):
         
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.dismiss_cutting_plane()
+        else:
+            self.mesh_widget.dismiss_section_plane()
 
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()
