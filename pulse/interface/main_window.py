@@ -14,6 +14,9 @@ from pulse.interface.user_input.model.geometry.geometry_designer_widget import G
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
+from pulse.interface.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
@@ -578,6 +581,8 @@ class MainWindow(QMainWindow):
         pass
 
     def _configure_visualization(self, *args, **kwargs):
+        kwargs.setdefault("color_mode", self.visualization_filter.color_mode)
+
         self.visualization_filter = VisualizationFilter(*args, **kwargs)
         self.action_show_geometry_points.setChecked(self.visualization_filter.points)
         self.action_show_mesh_nodes.setChecked(self.visualization_filter.nodes)
@@ -770,22 +775,13 @@ class MainWindow(QMainWindow):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
 
-        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-        #     self.opv_widget.opvRenderer.configure_clipping_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())
-
     def apply_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.apply_cutting_plane()
-        
-        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-        #     self.opv_widget.opvRenderer.apply_clipping_plane()
-        
+
     def close_clip_plane(self):
         if self.get_current_workspace() == Workspace.RESULTS:
             self.results_widget.dismiss_cutting_plane()
-        
-        # elif self.get_current_workspace() in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-        #     self.opv_widget.opvRenderer.dismiss_clipping_plane()
 
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()
@@ -882,11 +878,21 @@ class MainWindow(QMainWindow):
     def action_select_elements_callback(self, cond):
         self._update_visualization()
 
+    def action_plot_default_color_callback(self):
+        self.set_color_mode(ColorMode.EMPTY)
+
     def action_plot_material_callback(self):
-        self.mesh_widget.set_color_mode_to_material()
+        self.set_color_mode(ColorMode.MATERIAL)
 
     def action_plot_fluid_callback(self):
-        self.mesh_widget.set_color_mode_to_fluid()
+        self.set_color_mode(ColorMode.FLUID)
+
+    def get_color_mode(self):
+        return self.visualization_filter.color_mode
+    
+    def set_color_mode(self, color_mode):
+        self.visualization_filter.color_mode = color_mode
+        self.visualization_changed.emit()
 
     def update_export_geometry_file_access(self):
         import_type = app().project.model.mesh.import_type
@@ -917,7 +923,6 @@ class MainWindow(QMainWindow):
                 self.action_set_light_theme_callback()
         else:
             self.action_set_light_theme_callback()
-        # self.opv_widget.set_user_interface_preferences(self.user_preferences)
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
@@ -1126,7 +1131,6 @@ class MainWindow(QMainWindow):
         event.ignore()
 
     def close_app(self):
-
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None

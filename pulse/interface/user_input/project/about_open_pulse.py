@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5 import uic
 
-from pulse import app, UI_DIR, __version__, __release_date__
+from pulse import app, UI_DIR, version, release_date
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -34,7 +34,7 @@ class AboutOpenPulseInput(QDialog):
         self.setWindowTitle("OpenPulse")
         
     def _initialize(self):
-        self.version_info = f"v{__version__} {__release_date__}"
+        self.version_info = f"v{version()} {release_date()}"
         self.licensing_info = "Copyright (c) 2020 Project OpenPulse Contributors, GPL v3 License."
         self.main_info = "OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. "
         self.main_info += "Openpulse allows the user to solve acoustic, structural, and coupled harmonic analyzes. The acoustic and structural modal analysis also can be "

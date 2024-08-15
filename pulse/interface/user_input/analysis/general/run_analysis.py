@@ -10,8 +10,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 
 from time import time, sleep
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -135,6 +133,9 @@ class RunAnalysisInput(QDialog):
         self.modes = self.project.modes
 
     def pre_non_linear_convergence_plot(self):
+        import matplotlib.pyplot as plt
+        from matplotlib.animation import FuncAnimation
+
         if isinstance(self.solve, AcousticSolver):
             if self.analysis_id in [3,5,6]:
                 if self.solve.non_linear:

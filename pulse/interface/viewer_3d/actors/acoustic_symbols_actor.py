@@ -1,21 +1,49 @@
-import vtk
-
 from pulse import app, SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 from pulse.tools.utils import transformation_matrix_3x3
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData
+from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
+
+from pulse import SYMBOLS_DIR
+from pulse.interface.viewer_3d.actors.symbols_actor import (
+    SymbolsActorBase,
+    SymbolTransform,
+    loadSymbol,
+)
+from pulse.tools.utils import transformation_matrix_3x3
+
 
 class AcousticNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
-        return [(   self._get_acoustic_pressure_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/acoustic_pressure.obj')    ),
-                (     self._get_volume_velocity_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/volume_velocity.obj')      ),
-                (  self._get_specific_impedance_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/specific_impedance.obj')   ),
-                ( self._get_radiation_impedance_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/radiation_impedance.obj')  ),
-                (  self._get_compressor_suction_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/compressor_suction.obj')  ),
-                (self._get_compressor_discharge_symbol(),   loadSymbol(SYMBOLS_DIR / 'acoustic/compressor_discharge.obj'))
-            ]
+        return [
+            (
+                self._get_acoustic_pressure_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/acoustic_pressure.obj"),
+            ),
+            (
+                self._get_volume_velocity_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/volume_velocity.obj"),
+            ),
+            (
+                self._get_specific_impedance_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/specific_impedance.obj"),
+            ),
+            (
+                self._get_radiation_impedance_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/radiation_impedance.obj"),
+            ),
+            (
+                self._get_compressor_suction_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/compressor_suction.obj"),
+            ),
+            (
+                self._get_compressor_discharge_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/compressor_discharge.obj"),
+            ),
+        ]
 
     def source(self):
         super().source()
@@ -26,7 +54,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
     def _create_acoustic_links(self):
 
-        linkedSymbols = vtk.vtkAppendPolyData()
+        linkedSymbols = vtkAppendPolyData()
 
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
             if property == "acoustic_nodal_links":
@@ -36,13 +64,13 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 coords_b = coords[3:]
 
                 # divide the value of the coordinates by the scale factor
-                source = vtk.vtkLineSource()
+                source = vtkLineSource()
                 source.SetPoint1(coords_a / self.scaleFactor) 
                 source.SetPoint2(coords_b / self.scaleFactor)
                 source.Update()
                 linkedSymbols.AddInputData(source.GetOutput())
         
-        s = vtk.vtkSphereSource()
+        s = vtkSphereSource()
         s.SetRadius(0)
 
         linkedSymbols.AddInputData(s.GetOutput())
@@ -51,18 +79,18 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         index = len(self._connections)
         self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
         self._sources.InsertNextTuple1(index)
-        self._positions.InsertNextPoint(0,0,0)
-        self._rotations.InsertNextTuple3(0,0,0)
-        self._scales.InsertNextTuple3(1,1,1)
-        self._colors.InsertNextTuple3(0,250,250)
+        self._positions.InsertNextPoint(0, 0, 0)
+        self._rotations.InsertNextTuple3(0, 0, 0)
+        self._scales.InsertNextTuple3(1, 1, 1)
+        self._colors.InsertNextTuple3(0, 250, 250)
 
     def _get_acoustic_pressure_symbol(self):
 
         src = 9
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (150,0,210) #violet
-        
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (150, 0, 210)  # violet
+
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
@@ -71,13 +99,13 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols
-    
+
     def _get_volume_velocity_symbol(self):
 
         src = 10
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (255,10,10)
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (255, 10, 10)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -92,9 +120,9 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
     def _get_specific_impedance_symbol(self):
 
         src = 11
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (100,255,100)
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (100, 255, 100)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -104,13 +132,13 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols
-    
+
     def _get_radiation_impedance_symbol(self):
 
         src = 12
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (224,0,75)
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (224, 0, 75)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -120,13 +148,13 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols
-        
+
     def _get_compressor_suction_symbol(self):
 
         src = 13
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (10,10,255)
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (10, 10, 255)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -165,8 +193,8 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
     def _get_compressor_discharge_symbol(self):
 
         src = 14
-        scl = (1,1,1)
-        col = (255,10,10)
+        scl = (1, 1, 1)
+        col = (255, 10, 10)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -208,27 +236,34 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
         else:
             rot_1 = transformation_matrix_3x3(-1, 0, 0)
-            rot_2 = transformation_matrix_3x3(element.delta_x, element.delta_y, element.delta_z)
-            mat_rot = rot_1@rot_2
+            rot_2 = transformation_matrix_3x3(
+                element.delta_x, element.delta_y, element.delta_z
+            )
+            mat_rot = rot_1 @ rot_2
             r = Rotation.from_matrix(mat_rot)
-            rotations = -r.as_euler('zxy', degrees=True)
+            rotations = -r.as_euler("zxy", degrees=True)
             rotations_xyz = np.array([rotations[1], rotations[2], rotations[0]]).T
             return rotations_xyz
 
 
 class AcousticElementsSymbolsActor(SymbolsActorBase):
-    
+
     def _createConnections(self):
-        return [(self._get_perforated_plate_symbol(), loadSymbol(SYMBOLS_DIR / 'acoustic/perforated_plate.obj'))]
-    
+        return [
+            (
+                self._get_perforated_plate_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/perforated_plate.obj"),
+            )
+        ]
+
     # def _createSequence(self):
     #     return self.preprocessor.elements_with_perforated_plate
-        # return self.project.get_structural_elements().values()
+    # return self.project.get_structural_elements().values()
 
     def _get_perforated_plate_symbol(self):
 
         src = 14
-        col = (255,0,0)
+        col = (255, 0, 0)
 
         symbols = list()
         for (property, element_id), data in app().project.model.properties.element_properties.items():
@@ -243,14 +278,18 @@ class AcousticElementsSymbolsActor(SymbolsActorBase):
                 if element.valve_parameters:
                     outer_diameter = element.cross_section.outer_diameter
                     thickness = element.cross_section.thickness
-                    inner_diameter = outer_diameter - 4*thickness                
-                    factor_yz = ((inner_diameter/2)/0.1) / self.scaleFactor
+                    inner_diameter = outer_diameter - 4 * thickness
+                    factor_yz = ((inner_diameter / 2) / 0.1) / self.scaleFactor
                 else:
                     factor_yz = (element.cross_section.inner_diameter/0.1) / self.scaleFactor
 
                 factor_x = (element.perforated_plate.thickness/0.01) / self.scaleFactor
                 scl = (factor_x, factor_yz, factor_yz)
 
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                symbols.append(
+                    SymbolTransform(
+                        source=src, position=pos, rotation=rot, scale=scl, color=col
+                    )
+                )
 
         return symbols

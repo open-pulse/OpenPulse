@@ -1,15 +1,9 @@
-import sys
-import os
-import platform
-import vtk
-from PyQt5 import Qt, QtCore, QtWidgets
+import sys, os, platform
+from vtkmodules.vtkCommonCore import vtkObject, vtkLogger
 
 from pulse.interface.application import Application
 
 import qdarktheme
-
-import matplotlib
-matplotlib.use("Qt5Agg")
 
 
 def main():
@@ -33,7 +27,8 @@ def main():
     
     # disables vtk terrible error handler
     # you may want to enable them while debugging something
-    vtk.vtkObject.GlobalWarningDisplayOff() 
+    vtkObject.GlobalWarningDisplayOff()
+    vtkLogger.SetStderrVerbosity(vtkLogger.VERBOSITY_OFF)
 
     # Make the window scale evenly for every monitor
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

@@ -82,6 +82,8 @@ class GeometryDesignerWidget(QWidget):
         self.addAction(self.select_all_action)
     
     def _create_layout(self):
+        self.cross_section_widget = CrossSectionWidget(self)
+
         self.pipe_options_widget = PipeOptionsWidget(self)
         self.reducer_options_widget = ReducerOptionsWidget(self)
         self.flange_options_widget = FlangeOptionsWidget(self)

@@ -94,6 +94,8 @@ class LoadFluidCompositionInput(QDialog):
             return True
 
     def load_composition_data_from_file(self):
+        import openpyxl
+        import pandas as pd
 
         if self.lineEdit_file_path.text() == "":
             if self.search_button_callback():

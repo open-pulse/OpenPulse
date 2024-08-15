@@ -14,7 +14,6 @@ from pulse.tools.utils import get_new_path, remove_bc_from_file
 
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
 
 window_title_1 = "Error"
@@ -909,6 +908,8 @@ class PerforatedPlateInput(QDialog):
     def plot(self):
         """
         """
+        import matplotlib.pyplot as plt
+
         # TODO: replace by general frequency plotter
         plt.ion()
         fig = plt.figure(figsize=[12,7])

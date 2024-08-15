@@ -1,21 +1,51 @@
-import vtk
-
 from pulse import app, SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData
+from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
+
+from pulse import SYMBOLS_DIR
+from pulse.interface.viewer_3d.actors.symbols_actor import (
+    SymbolsActorBase,
+    SymbolTransform,
+    loadSymbol,
+)
+
 
 class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
-        return [(self._get_prescribed_displacement_symbol() , loadSymbol(SYMBOLS_DIR / 'structural/prescribed_displacement.obj')),
-                (self._get_prescribed_rotation_symbol()     , loadSymbol(SYMBOLS_DIR / 'structural/prescribed_rotation.obj')),
-                (self._get_nodal_force_symbol()             , loadSymbol(SYMBOLS_DIR / 'structural/nodal_force.obj')), 
-                (self._get_nodal_moment_symbol()            , loadSymbol(SYMBOLS_DIR / 'structural/nodal_moment.obj')),
-                (self._get_lumped_mass_symbol()             , loadSymbol(SYMBOLS_DIR / 'structural/lumped_mass.obj')),
-                (self._get_lumped_spring_symbol()           , loadSymbol(SYMBOLS_DIR / 'structural/lumped_spring.obj')),
-                (self._get_lumped_damper_symbol()           , loadSymbol(SYMBOLS_DIR / 'structural/lumped_damper.obj')),
-                ]
+        return [
+            (
+                self._get_prescribed_displacement_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/prescribed_displacement.obj"),
+            ),
+            (
+                self._get_prescribed_rotation_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/prescribed_rotation.obj"),
+            ),
+            (
+                self._get_nodal_force_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/nodal_force.obj"),
+            ),
+            (
+                self._get_nodal_moment_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/nodal_moment.obj"),
+            ),
+            (
+                self._get_lumped_mass_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/lumped_mass.obj"),
+            ),
+            (
+                self._get_lumped_spring_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/lumped_spring.obj"),
+            ),
+            (
+                self._get_lumped_damper_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/lumped_damper.obj"),
+            ),
+        ]
 
     # def _createSequence(self):
     #     return self.project.get_nodes().values()
@@ -28,7 +58,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _create_nodal_links(self):
 
         linked_nodes = set()
-        self.linked_symbols = vtk.vtkAppendPolyData()
+        self.linked_symbols = vtkAppendPolyData()
 
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
@@ -42,7 +72,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
                 coords_b = coords[3:]
 
                 # divide the value of the coordinates by the scale factor
-                source = vtk.vtkLineSource()
+                source = vtkLineSource()
                 source.SetPoint1(coords_a / self.scaleFactor) 
                 source.SetPoint2(coords_b / self.scaleFactor)
                 source.Update()
@@ -60,13 +90,13 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
         # for a, b in linked_nodes:
         #     # divide the value of the coordinates by the scale factor
-        #     source = vtk.vtkLineSource()
+        #     source = vtkLineSource()
         #     source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
         #     source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
         #     source.Update()
         #     self.linked_symbols.AddInputData(source.GetOutput())
         
-        s = vtk.vtkSphereSource()
+        s = vtkSphereSource()
         s.SetRadius(0)
 
         self.linked_symbols.AddInputData(s.GetOutput())
@@ -75,10 +105,10 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         index = len(self._connections)
         self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
-        self._positions.InsertNextPoint(0,0,0)
-        self._rotations.InsertNextTuple3(0,0,0)
-        self._scales.InsertNextTuple3(1,1,1)
-        self._colors.InsertNextTuple3(16,222,129)
+        self._positions.InsertNextPoint(0, 0, 0)
+        self._rotations.InsertNextTuple3(0, 0, 0)
+        self._scales.InsertNextTuple3(1, 1, 1)
+        self._colors.InsertNextTuple3(16, 222, 129)
 
     def _create_structural_links(self):
 
@@ -91,13 +121,13 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
                 coords_b = coords[3:]
 
                 # divide the value of the coordinates by the scale factor
-                source = vtk.vtkLineSource()
+                source = vtkLineSource()
                 source.SetPoint1(coords_a / self.scaleFactor) 
                 source.SetPoint2(coords_b / self.scaleFactor)
                 source.Update()
                 self.linked_symbols.AddInputData(source.GetOutput())
 
-        s = vtk.vtkSphereSource()
+        s = vtkSphereSource()
         s.SetRadius(0)
 
         self.linked_symbols.AddInputData(s.GetOutput())
@@ -106,16 +136,16 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         index = len(self._connections)
         self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
-        self._positions.InsertNextPoint(0,0,0)
-        self._rotations.InsertNextTuple3(0,0,0)
-        self._scales.InsertNextTuple3(1,1,1)
-        self._colors.InsertNextTuple3(10,0,10)
+        self._positions.InsertNextPoint(0, 0, 0)
+        self._rotations.InsertNextTuple3(0, 0, 0)
+        self._scales.InsertNextTuple3(1, 1, 1)
+        self._colors.InsertNextTuple3(10, 0, 10)
 
     def _get_prescribed_displacement_symbol(self):
 
         src = 1
-        scl = (1,1,1)
-        col = (0,255,0)
+        scl = (1, 1, 1)
+        col = (0, 255, 0)
         offset = 0 * self.scaleFactor
 
         symbols = list()
@@ -156,8 +186,8 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _get_prescribed_rotation_symbol(self):
 
         src = 2
-        scl = (1,1,1)
-        col = (0,200,200)
+        scl = (1, 1, 1)
+        col = (0, 200, 200)
         offset = 0 * self.scaleFactor
 
         symbols = list()
@@ -198,8 +228,8 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _get_nodal_force_symbol(self):
 
         src = 3
-        scl = (1,1,1)
-        col = (255,0,0)
+        scl = (1, 1, 1)
+        col = (255, 0, 0)
         offset = 0.05 * self.scaleFactor
 
         symbols = list()
@@ -240,8 +270,8 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _get_nodal_moment_symbol(self):
 
         src = 4
-        scl = (1,1,1)
-        col = (0,0,255)
+        scl = (1, 1, 1)
+        col = (0, 0, 255)
         offset = 0.05 * self.scaleFactor
 
         symbols = list()
@@ -282,9 +312,9 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _get_lumped_mass_symbol(self):
 
         src = 5
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (7,156,231)
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (7, 156, 231)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -305,22 +335,22 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         e_size = app().project.preprocessor.mesh.element_size
         length = self.scaleFactor/2
 
-        if self.scaleFactor/2 > 4*e_size:
+        if self.scaleFactor / 2 > 4 * e_size:
             f = 2
-        elif self.scaleFactor/2 > 2*e_size:
+        elif self.scaleFactor / 2 > 2 * e_size:
             f = 1
-        elif self.scaleFactor/2 > e_size/2:
+        elif self.scaleFactor / 2 > e_size / 2:
             f = 0.5
         else:
             f = 0.25
 
-        delta_x = 0.14 + f*e_size*1.19/length
-        offset = delta_x*length/1.19
-        
+        delta_x = 0.14 + f * e_size * 1.19 / length
+        offset = delta_x * length / 1.19
+
         src = 6
-        scale_x = (length/1.19)/self.scaleFactor
+        scale_x = (length / 1.19) / self.scaleFactor
         scl = (scale_x, scale_x, scale_x)
-        col = (242,121,0)
+        col = (242, 121, 0)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -353,22 +383,22 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         e_size = app().project.preprocessor.mesh.element_size
         length = self.scaleFactor/2
 
-        if self.scaleFactor/2 > 4*e_size:
+        if self.scaleFactor / 2 > 4 * e_size:
             f = 2
-        elif self.scaleFactor/2 > 2*e_size:
+        elif self.scaleFactor / 2 > 2 * e_size:
             f = 1
-        elif self.scaleFactor/2 > e_size/2:
+        elif self.scaleFactor / 2 > e_size / 2:
             f = 0.5
         else:
             f = 0.25
 
-        delta_x = 0.14 + f*e_size*1.19/length
-        offset = delta_x*length/1.19
+        delta_x = 0.14 + f * e_size * 1.19 / length
+        offset = delta_x * length / 1.19
 
         src = 7
-        scale_x = (length/1.19)/self.scaleFactor
+        scale_x = (length / 1.19) / self.scaleFactor
         scl = (scale_x, scale_x, scale_x)
-        col = (255,0,100)
+        col = (255, 0, 100)
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -414,16 +444,21 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 class StructuralElementsSymbolsActor(SymbolsActorBase):
 
     def _createConnections(self):
-        return [(self._get_valve_symbol(), loadSymbol(SYMBOLS_DIR / 'structural/valve_symbol.obj'))]
-    
+        return [
+            (
+                self._get_valve_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/valve_symbol.obj"),
+            )
+        ]
+
     # def _createSequence(self):
     #     return self.preprocessor.elements_with_valve
-        # return self.project.get_structural_elements().values()
-    
+    # return self.project.get_structural_elements().values()
+
     def _get_valve_symbol(self):
 
         src = 8
-        col = (0,10,255)
+        col = (0, 10, 255)
 
         symbols = list()
         for (property, element_id), data in app().project.model.properties.element_properties.items():
@@ -443,18 +478,18 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                 # valve_section_parameters = element.valve_parameters["valve_section_parameters"]
 
                 if np.remainder(len(valve_elements), 2) == 0:
-                    index = int(len(valve_elements)/2)
+                    index = int(len(valve_elements) / 2)
                     center_element = valve_elements[index]
                 else:
-                    index = int((len(valve_elements)-1)/2) + 1
+                    index = int((len(valve_elements) - 1) / 2) + 1
                     center_element = valve_elements[index]
-                
+
                 if center_element == element.index:
 
                     rot = element.section_rotation_xyz_undeformed
-                    rotation = Rotation.from_euler('xyz', rot, degrees=True)
+                    rotation = Rotation.from_euler("xyz", rot, degrees=True)
                     rot_matrix = rotation.as_matrix()
-                    
+
                     vector = [round(value, 5) for value in rot_matrix[:, 1]]
                     if vector[1] < 0:
                         rot[0] += 180
@@ -465,6 +500,10 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                     # factor_yz = 1
                     pos = center_coordinates
                     scl = (factor_x, factor_yz, factor_yz)
-                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                    symbols.append(
+                        SymbolTransform(
+                            source=src, position=pos, rotation=rot, scale=scl, color=col
+                        )
+                    )
 
         return symbols

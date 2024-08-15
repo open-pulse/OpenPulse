@@ -8,7 +8,6 @@ from pulse.model.cross_section import get_points_to_plot_section
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
-import matplotlib.pyplot as plt    
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -182,6 +181,7 @@ class PlotCrossSectionInput(QDialog):
 
        
     def plot_section(self):
+        import matplotlib.pyplot as plt    
 
         plt.ion()
         plt.close()
@@ -234,6 +234,8 @@ class PlotCrossSectionInput(QDialog):
         plt.show()
 
     def keyPressEvent(self, event):
+        import matplotlib.pyplot as plt    
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.plot_section()
         if event.key() == Qt.Key_Escape:

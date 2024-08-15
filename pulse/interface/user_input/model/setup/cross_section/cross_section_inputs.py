@@ -11,7 +11,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.utils import check_inputs
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 window_title = "Error"
 window_title2 = "Warning"
@@ -759,6 +758,7 @@ class CrossSectionWidget(QWidget):
         read = GetStandardCrossSection(section_data=section_data)
 
     def plot_section(self):
+        import matplotlib.pyplot as plt
 
         plt.ion()
 

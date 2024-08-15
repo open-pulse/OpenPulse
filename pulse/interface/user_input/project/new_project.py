@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse import app, UI_DIR, __version__
+from pulse import app, UI_DIR
 
 import os
 from time import time

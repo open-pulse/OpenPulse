@@ -113,6 +113,7 @@ def nodes_info_text() -> str:
 
     return info_text
 
+
 def elements_info_text() -> str:
     elements = app().main_window.list_selected_elements()
     info_text = ""
@@ -156,6 +157,7 @@ def elements_info_text() -> str:
 
     return info_text
 
+
 def entity_info_text() -> str:
     lines = app().main_window.list_selected_lines()
     info_text = ""
@@ -163,8 +165,7 @@ def entity_info_text() -> str:
 
     if len(lines) > 1:
         info_text += (
-            f"{len(lines)} LINES IN SELECTION\n"
-            f"{format_long_sequence(lines)}\n\n"
+            f"{len(lines)} LINES IN SELECTION\n" f"{format_long_sequence(lines)}\n\n"
         )
     elif len(lines) == 1:
 
@@ -185,10 +186,12 @@ def entity_info_text() -> str:
 
     return info_text
 
+
 def material_info_text(material) -> str:
     tree = TreeInfo("Material")
     tree.add_item("Name", material.name)
     return str(tree)
+
 
 def fluid_info_text(fluid) -> str:
     tree = TreeInfo("fluid")
@@ -198,6 +201,7 @@ def fluid_info_text(fluid) -> str:
     if fluid.pressure:
         tree.add_item("Pressure", round(fluid.pressure, 4), "Pa")
     return str(tree)
+
 
 def cross_section_info_text(cross_section, element_type) -> str:
     info_text = ""
@@ -242,6 +246,7 @@ def cross_section_info_text(cross_section, element_type) -> str:
 
     return info_text
 
+
 def analysis_info_text(frequency_index):
     project = app().project
 
@@ -249,10 +254,10 @@ def analysis_info_text(frequency_index):
     if project.analysis_id in [2, 4]:
         if project.analysis_type_label == "Structural Modal Analysis":
             frequencies = project.get_structural_natural_frequencies()
-        
+
         if project.analysis_type_label == "Acoustic Modal Analysis":
             frequencies = project.get_acoustic_natural_frequencies()
-        
+
         if frequencies is None:
             return ""
 
@@ -298,12 +303,15 @@ def compressor_excitation_info_text(compressor_data: dict) -> str:
 
     return str(tree)
 
+
 def _pretty_sequence(sequence) -> str:
     str_sequence = [("Ø" if i is None else str(i)) for i in sequence]
     return "[" + ", ".join(str_sequence) + "]"
 
+
 def _all_none(sequence) -> bool:
     return all(i is None for i in sequence)
+
 
 def _structural_format(property_name, values, labels, units, has_table):
     if _all_none(values):
@@ -324,6 +332,7 @@ def _structural_format(property_name, values, labels, units, has_table):
         if not _all_none(r):
             tree.add_item(r_labels, _pretty_sequence(r), units[1])
     return str(tree)
+
 
 def _acoustic_format(property_name, value, label, unit):
     tree = TreeInfo(property_name)
