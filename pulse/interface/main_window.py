@@ -16,7 +16,7 @@ from pulse.interface.user_input.model.geometry.geometry_designer_widget import G
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
+from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
@@ -507,7 +507,7 @@ class MainWindow(QMainWindow):
         self.visualization_changed.emit()
 
     def _load_section_plane(self):
-        self.clip_plane = ClipPlaneWidget()
+        self.clip_plane = SectionPlaneWidget()
 
     # callbacks
     def action_new_project_callback(self):

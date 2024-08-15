@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import get_openpulse_icon
 
 
-class ClipPlaneWidget(QDialog):
+class SectionPlaneWidget(QDialog):
 
     value_changed = pyqtSignal(float, float, float, float, float, float)
     slider_released = pyqtSignal(float, float, float, float, float, float)
