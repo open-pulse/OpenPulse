@@ -674,25 +674,19 @@ class MainWindow(QMainWindow):
         self.results_widget.update()
 
     def set_section_plane_configs(self):
-        if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation()) 
-        elif self.get_current_workspace() in [Workspace.ACOUSTIC_SETUP, Workspace.STRUCTURAL_SETUP]:
-            self.mesh_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation())               
+        self.results_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation()) 
+        self.mesh_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation())               
 
     def apply_section_plane(self):
-        if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
-        elif self.get_current_workspace() in [Workspace.ACOUSTIC_SETUP, Workspace.STRUCTURAL_SETUP]:
-            self.mesh_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
+        self.results_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
+        self.mesh_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
 
     def close_section_plane(self):
         if self.section_plane.keep_section_plane:
             return
         
-        if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.dismiss_section_plane()
-        elif self.get_current_workspace() in [Workspace.ACOUSTIC_SETUP, Workspace.STRUCTURAL_SETUP]:
-            self.mesh_widget.dismiss_section_plane()
+        self.results_widget.dismiss_section_plane()
+        self.mesh_widget.dismiss_section_plane()
 
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()
