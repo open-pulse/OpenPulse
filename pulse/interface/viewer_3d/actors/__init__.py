@@ -1,4 +1,4 @@
-from .cutting_plane_actor import CuttingPlaneActor
+from .section_plane_actor import SectionPlaneActor
 from .element_axes_actor import ElementAxesActor
 from .element_lines_actor import ElementLinesActor
 from .nodes_actor import NodesActor

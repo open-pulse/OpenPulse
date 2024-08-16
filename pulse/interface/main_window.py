@@ -14,7 +14,7 @@ from pulse.interface.user_input.model.geometry.geometry_designer_widget import G
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
+from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
@@ -257,6 +257,7 @@ class MainWindow(QMainWindow):
         self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
+        self._load_section_plane()
         dt = time() - t0
         print(f"Time to process A: {dt} [s]")
 
@@ -607,6 +608,9 @@ class MainWindow(QMainWindow):
         self.selection_filter.lines = not self.selection_filter.elements
         self.visualization_changed.emit()
 
+    def _load_section_plane(self):
+        self.section_plane = SectionPlaneWidget()
+
     # callbacks
     def action_new_project_callback(self):
         self.new_project()
@@ -756,12 +760,14 @@ class MainWindow(QMainWindow):
         render_widget = self.render_widgets_stack.currentWidget()
         render_widget.set_back_view()
     
-    def action_clip_plane_callback(self):
-        self.clip_plane = ClipPlaneWidget()
+    def action_section_plane_callback(self):
+        self.section_plane.show()
 
-        self.clip_plane.value_changed.connect(self.set_clip_plane_configs)
-        self.clip_plane.slider_released.connect(self.apply_clip_plane)
-        self.clip_plane.closed.connect(self.close_clip_plane)
+        self.section_plane.value_changed.connect(self.set_section_plane_configs)
+        self.section_plane.slider_released.connect(self.apply_section_plane)
+        self.section_plane.closed.connect(self.close_section_plane)
+        self.set_section_plane_configs()
+        self.apply_section_plane()
 
     def action_zoom_callback(self):
         self.geometry_widget.renderer.ResetCamera()
@@ -771,17 +777,20 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update()
         self.results_widget.update()
 
-    def set_clip_plane_configs(self):
-        if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.configure_cutting_plane(*self.clip_plane.get_position(), *self.clip_plane.get_rotation())                
+    def set_section_plane_configs(self):
+        self.results_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation()) 
+        self.mesh_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation())               
 
-    def apply_clip_plane(self):
-        if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.apply_cutting_plane()
+    def apply_section_plane(self):
+        self.results_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
+        self.mesh_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
 
-    def close_clip_plane(self):
-        if self.get_current_workspace() == Workspace.RESULTS:
-            self.results_widget.dismiss_cutting_plane()
+    def close_section_plane(self):
+        if self.section_plane.keep_section_plane:
+            return
+        
+        self.results_widget.dismiss_section_plane()
+        self.mesh_widget.dismiss_section_plane()
 
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()

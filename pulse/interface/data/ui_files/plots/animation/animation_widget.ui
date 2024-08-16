@@ -501,13 +501,16 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../data/icons/play_pause.png</normaloff>../../../data/icons/play_pause.png</iconset>
+             <normaloff>../../../icons/common/play_pause.png</normaloff>../../../icons/common/play_pause.png</iconset>
            </property>
            <property name="iconSize">
             <size>
              <width>16</width>
              <height>16</height>
             </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
