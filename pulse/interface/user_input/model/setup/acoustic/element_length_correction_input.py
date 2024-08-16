@@ -143,7 +143,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
             filt_element_ids = list(np.sort(_element_ids))
 
             self.preprocessor.set_length_correction_by_element(filt_element_ids, data)
-
             self.properties._set_element_property("element_length_correction", data, element_ids=_element_ids)
 
             app().pulse_file.write_model_properties_in_file()
@@ -192,24 +191,35 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
                     if diam_0 != diam_1:
                         filtered_elements.extend(neigh_elements)
+        
+        if filtered_elements:
+            return [element.index for element in filtered_elements]
 
-        return [element.index for element in filtered_elements]
+        else:
+
+            self.hide()
+            title = "Invalid selection"
+            message = f"The '{self.correction_types[index]}' has not been detected in "
+            message += f"the selected group of elements. You should to change the elements "
+            message += "selection and/or modify the correction type to proceed."
+            PrintMessageInput([window_title_2, title, message])
+            return list()
 
     def load_elements_info(self):
         
         keys = [0, 1, 2]
         labels = ['Expansion', 'Side branch', 'Loop']
         
-        self.dict_correction_types = dict(zip(keys, labels))
+        self.correction_types = dict(zip(keys, labels))
         self.treeWidget_length_correction_groups.clear()
         
         self.maps_correction_type = defaultdict(list)
         for (property, element_id), data in self.properties.element_properties.items():
             if property == "element_length_correction":
-                self.maps_correction_type[data["correction index"]].append(element_id)
 
                 index = data["correction index"]
-                text = self.dict_correction_types[index]
+                text = self.correction_types[index]
+                self.maps_correction_type[data["correction index"]].append(element_id)
 
                 new = QTreeWidgetItem(["::", text, str(element_id)])
                 new.setTextAlignment(0, Qt.AlignCenter)
@@ -221,8 +231,8 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def on_click_item(self, item):
         self.lineEdit_element_id.setText(item.text(0))
-        key = self.prefix_label.format(item.text(0))
-        list_elements = self.dict_group_elements[key][1]
+        correction_type = item.text(0)
+        list_elements = self.maps_correction_type[correction_type]
         app().main_window.set_selection(elements = list_elements)
 
     def on_doubleclick_item(self, item):
@@ -256,8 +266,8 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
             self.hide()
 
-            title = f"Resetting of volume velocities"
-            message = "Would you like to remove all volume velocities from the acoustic model?"
+            title = f"Resetting of element length corrections"
+            message = "Would you like to remove all element length corrections from the acoustic model?"
 
             buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
             read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
@@ -282,34 +292,36 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def get_information_of_group(self):
         try:
 
-            selected_key = self.prefix_label.format(self.lineEdit_element_id.text())
-            if "Selection-" in selected_key:
+            element_ids = app().main_window.list_selected_elements()
 
-                self.close()
+            if element_ids:
+
                 data = dict()
-                group_data = self.dict_group_elements[selected_key]
+                for element_id in element_ids:
+                    correction_type = self.properties._get_property("element_length_correction", element_ids=element_id)
+                    if correction_type is None:
+                        continue
+                    data[element_id] = [correction_type]
 
-                key = self.dict_correction_types[group_data[0]]
-                for element_id in group_data[1]:
-                    data[element_id] = [key]
+                if data:
 
-                header_labels = ["Element ID", "Element length correction type"]
-                GetInformationOfGroup(  group_label = "Element length correction",
-                                        selection_label = "Element ID:",
-                                        header_labels = header_labels,
-                                        column_widths = [100, 200],
-                                        data = data  )
+                    self.hide()
+                    header_labels = ["Element ID", "Element length correction type"]
+                    GetInformationOfGroup(  group_label = "Element length correction",
+                                            selection_label = "Element ID:",
+                                            header_labels = header_labels,
+                                            column_widths = [100, 200],
+                                            data = data  )
 
-            else:
-                title = "Error in group selection"
-                message = "Please, select a group in the list to get the information."
-                PrintMessageInput([window_title_1, title, message])
+                else:
+                    title = "Error in group selection"
+                    message = "Please, select a group in the list to get the information."
+                    PrintMessageInput([window_title_1, title, message])
 
         except Exception as error_log:
             title = "Error while getting information of selected group"
             message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
-        self.show()
 
     def update_tabs_visibility(self):
         self.tabWidget_element_length_correction.setTabVisible(1, False)

@@ -117,6 +117,7 @@ class MainWindow(QMainWindow):
         '''
         
         # QAction
+        self.action_open_project: QAction
         self.action_geometry_workspace : QAction
         self.action_structural_setup_workspace : QAction
         self.action_acoustic_setup_workspace : QAction
@@ -610,7 +611,7 @@ class MainWindow(QMainWindow):
         self.new_project()
 
     def action_open_project_callback(self):
-        self.open_project()
+        self.open_project_dialog()
 
     def action_save_project_as_callback(self):
         self.save_project_as()

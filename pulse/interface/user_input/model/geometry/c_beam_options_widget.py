@@ -7,7 +7,7 @@ from PyQt5 import uic
 from opps.model import CBeam
 
 from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 
 
 class CBeamOptionsWidget(QWidget):

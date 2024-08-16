@@ -185,6 +185,24 @@ class ModelProperties:
             else:
                 self.line_properties[line_id] = {property : data}
 
+    def _set_line_cross_section_property(self, cross_section: dict, line_ids: (int | list | tuple | None)):
+        """
+        Sets a data to a property by line.
+
+        """
+        if line_ids is None:
+            return
+        
+        elif isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for line_id in line_ids:
+            for property, data in cross_section.items():
+                if line_id in self.line_properties.keys():
+                        self.line_properties[line_id][property] = data
+                else:
+                    self.line_properties[line_id] = {property : data}
+
     # def _set_group_property(self, property: str, data, group_ids: (int | list | tuple | None)):
     #     """
     #     Sets a data to a property by element.

@@ -581,7 +581,6 @@ class FluidWidget(QWidget):
             return True
 
         picked_color = read.color
-        print(picked_color)
 
         item = QTableWidgetItem()
         item.setBackground(QColor(*picked_color))

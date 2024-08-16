@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.model.cross_section import get_beam_section_properties, get_points_to_plot_section
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -293,7 +292,9 @@ class CrossSectionWidget(QWidget):
     def set_geometry_creator(self, geometry_creator):
         self.geometry_creator_input = geometry_creator
 
-    def get_constant_pipe_parameters(self):
+    def get_constant_section_pipe_parameters(self):
+
+        print("entrei get_constant_pipe_parameters")
 
         self.section_label = None
         self.section_parameters = list()
@@ -356,6 +357,8 @@ class CrossSectionWidget(QWidget):
                                         "section_parameters" : self.section_parameters  }
 
     def get_variable_section_pipe_parameters(self):
+
+        print("entrei get_variable_section_pipe_parameters")
         
         message = ""
 
@@ -765,7 +768,7 @@ class CrossSectionWidget(QWidget):
         plt.close()
 
         if self.tabWidget_general.currentIndex() == 0:
-            if self.get_constant_pipe_parameters():
+            if self.get_constant_section_pipe_parameters():
                 return
         
         elif self.tabWidget_general.currentIndex() == 1:

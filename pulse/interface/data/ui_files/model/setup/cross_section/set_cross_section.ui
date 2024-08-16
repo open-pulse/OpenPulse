@@ -313,11 +313,6 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
              <string> Selected lines</string>
             </property>
            </item>
-           <item>
-            <property name="text">
-             <string> Selected elements</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item row="1" column="0">

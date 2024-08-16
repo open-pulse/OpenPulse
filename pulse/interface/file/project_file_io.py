@@ -303,6 +303,8 @@ class ProjectFileIO:
                         if property in ["fluid", "material"]:
                             if isinstance(value, (Fluid, Material)):
                                 aux[property] = value.identifier
+                        elif property == "cross_section":
+                            continue
                         else:
                             aux[property] = value
 

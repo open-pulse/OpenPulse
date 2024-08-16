@@ -12,7 +12,7 @@ from pulse import app, UI_DIR
 from molde.utils import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
-from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
 from pulse.interface.user_input.model.geometry.pipe_options_widget import PipeOptionsWidget

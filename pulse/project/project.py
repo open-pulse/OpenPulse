@@ -548,10 +548,10 @@ class Project:
                 for list_elements_mapped in map_cross_sections_to_elements.values():
                     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements_mapped)
     
-    def set_structural_element_type_to_all(self, element_type):
-        self.preprocessor.set_structural_element_type_by_element('all', element_type)
-        self._set_structural_element_type_to_all_lines(element_type)
-        self.file.modify_structural_element_type_in_file(list(self.model.mesh.lines_from_model.keys()), element_type)
+    # def set_structural_element_type_to_all(self, element_type):
+    #     self.preprocessor.set_structural_element_type_by_element('all', element_type)
+    #     self._set_structural_element_type_to_all_lines(element_type)
+    #     self.file.modify_structural_element_type_in_file(list(self.model.mesh.lines_from_model.keys()), element_type)
 
     def set_structural_element_type_by_lines(self, lines, element_type):
         self.preprocessor.set_structural_element_type_by_lines(lines, element_type)
@@ -661,18 +661,18 @@ class Project:
         self.set_structural_element_type_by_lines(line_ids, etype)
         self._set_valve_to_selected_lines(line_ids, parameters)
         
-        if reset_cross:
+        # if reset_cross:
 
-            if etype == "pipe_1":
-                self.set_cross_section_by_lines(line_ids, None)  
+        #     if etype == "pipe_1":
+        #         self.set_cross_section_by_lines(line_ids, None)  
             
-            if isinstance(line_ids, int):
-                line_ids = [line_ids]
-            for line_id in line_ids:
-                if line_id in self.number_sections_by_line.keys():
-                    self.number_sections_by_line.pop(line_ids)
+        #     if isinstance(line_ids, int):
+        #         line_ids = [line_ids]
+        #     for line_id in line_ids:
+        #         if line_id in self.number_sections_by_line.keys():
+        #             self.number_sections_by_line.pop(line_ids)
 
-            self.file.modify_valve_in_file(line_ids, parameters) 
+        #     self.file.modify_valve_in_file(line_ids, parameters) 
 
     def add_valve_by_elements(  self, 
                                 list_elements, 
@@ -1097,19 +1097,19 @@ class Project:
     #         entity.external_pressure = pressures[0]
     #         entity.internal_pressure = pressures[1]
 
-    def _set_expansion_joint_to_selected_lines(self, lines, parameters):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            entity.expansion_joint_parameters = parameters
+    # def _set_expansion_joint_to_selected_lines(self, lines, parameters):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+    #     for line_id in lines:
+    #         entity = self.model.mesh.lines_from_model[line_id]
+    #         entity.expansion_joint_parameters = parameters
 
-    def _set_valve_to_selected_lines(self, lines, parameters):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            entity.valve_parameters = parameters
+    # def _set_valve_to_selected_lines(self, lines, parameters):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+    #     for line_id in lines:
+    #         entity = self.model.mesh.lines_from_model[line_id]
+    #         entity.valve_parameters = parameters
 
     def get_nodes_with_prescribed_dofs_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs
@@ -1138,12 +1138,12 @@ class Project:
         self.preprocessor.set_capped_end_by_elements(elements, value, selection)
         self.file.modify_capped_end_elements_in_file(elements, value, selection)
 
-    def set_capped_end_by_lines(self, lines, value):
-        if isinstance(lines, int):
-            lines = [lines]
-        self.preprocessor.set_capped_end_by_lines(lines, value)
-        self._set_capped_end_to_lines(lines, value)
-        self.file.modify_capped_end_lines_in_file(lines, value)      
+    # def set_capped_end_by_lines(self, lines, value):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+    #     self.preprocessor.set_capped_end_by_lines(lines, value)
+    #     self._set_capped_end_to_lines(lines, value)
+    #     self.file.modify_capped_end_lines_in_file(lines, value)      
 
     def set_structural_element_wall_formulation_by_lines(self, lines, formulation):
         if isinstance(lines, int):

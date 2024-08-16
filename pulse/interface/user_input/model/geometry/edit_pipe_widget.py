@@ -7,7 +7,7 @@ import warnings
 
 from opps.model import Bend
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
 from pulse import app, UI_DIR
@@ -60,7 +60,6 @@ class EditPipeWidget(QWidget):
 
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
 
-
     def show_cross_section_widget_callback(self):
         self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()     
@@ -71,7 +70,7 @@ class EditPipeWidget(QWidget):
         self.cross_section_widget.setVisible(True)
 
     def define_cross_section_callback(self):
-        if self.cross_section_widget.get_constant_pipe_parameters():
+        if self.cross_section_widget.get_constant_section_pipe_parameters():
             return
         self.current_cross_section_info = self.cross_section_widget.pipe_section_info
         self.cross_section_widget.hide()

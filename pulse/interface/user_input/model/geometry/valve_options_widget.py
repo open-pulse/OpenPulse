@@ -8,7 +8,7 @@ from PyQt5 import uic
 from opps.model import Valve
 
 from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.cross_section.cross_section_inputs import CrossSectionWidget
+from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 
 
 class ValveOptionsWidget(QWidget):
@@ -73,7 +73,7 @@ class ValveOptionsWidget(QWidget):
         self.cross_section_widget.show()
 
     def define_cross_section_callback(self):
-        if self.cross_section_widget.get_constant_pipe_parameters():
+        if self.cross_section_widget.get_constant_section_pipe_parameters():
             return
         self.cross_section_info = self.cross_section_widget.pipe_section_info
         self.cross_section_widget.hide()

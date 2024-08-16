@@ -506,6 +506,8 @@ class LoadProject:
     def load_lines_properties(self):
 
         line_properties = app().pulse_file.read_line_properties_from_file()
+        if line_properties is None:
+            return
 
         for line_id, data in line_properties.items():
 
@@ -527,7 +529,7 @@ class LoadProject:
                         prop_data = self.library_materials[material_id]
 
                     self.properties._set_line_property(property, prop_data, line_ids=int(line_id))
-        
+
         print(line_properties)
         if line_properties:
             self.send_lines_properties_to_elements()

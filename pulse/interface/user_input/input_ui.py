@@ -1,5 +1,5 @@
 #
-from pulse.interface.user_input.model.geometry.goemetry_editor_help import GeometryEditorHelp
+from pulse.interface.user_input.model.geometry.geometry_editor_help import GeometryEditorHelp
 #
 from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput

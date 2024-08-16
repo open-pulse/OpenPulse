@@ -53,9 +53,9 @@ class ExportModelResults(QFileDialog):
             np.savetxt(export_path, data_to_export, delimiter=delimiter, header=header)
 
     def export_data_in_spreadsheet_format(self, export_path):
-        import pandas as pd
+        from pandas import DataFrame, ExcelWriter
 
-        with pd.ExcelWriter(export_path) as writer:
+        with ExcelWriter(export_path) as writer:
 
             for key, data in self.data.items():
 
@@ -74,7 +74,7 @@ class ExportModelResults(QFileDialog):
                     header = ["Frequency[Hz]", f"{data_type.upper()} [{unit}]"]
                     data_to_export = [x_data, y_data]
 
-                df = pd.DataFrame(data_to_export, columns=header)
+                df = DataFrame(data_to_export, columns=header)
                 df.to_excel(writer, sheet_name=sheet_name, index=False)
 
     def call_file_dialog_and_export_data(self):
