@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1045</width>
-     <height>18</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -208,7 +208,7 @@
    <addaction name="action_show_tubes"/>
    <addaction name="action_show_symbols"/>
    <addaction name="separator"/>
-   <addaction name="action_clip_plane"/>
+   <addaction name="action_section_plane"/>
    <addaction name="action_show_transparent"/>
   </widget>
   <action name="action_new_project">
@@ -881,7 +881,7 @@
     <string>Geometry Editor Help</string>
    </property>
   </action>
-  <action name="action_clip_plane">
+  <action name="action_section_plane">
    <property name="icon">
     <iconset>
      <normaloff>../icons/common/section_plane_icon.png</normaloff>../icons/common/section_plane_icon.png</iconset>

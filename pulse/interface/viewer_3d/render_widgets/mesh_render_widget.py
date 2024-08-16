@@ -1,3 +1,6 @@
+import numpy as np
+from pulse.interface.utils import rotation_matrices
+
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
 from molde.colors import Color
@@ -7,6 +10,7 @@ from PyQt5.QtWidgets import QApplication
 
 from pulse import ICON_DIR, app
 from pulse.interface.viewer_3d.actors import (
+    SectionPlaneActor,
     ElementAxesActor,
     ElementLinesActor,
     NodesActor,
@@ -42,11 +46,18 @@ class MeshRenderWidget(CommonRenderWidget):
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
+        self.plane_actor = None
 
         self.selected_nodes = set()
         self.selected_lines = set()
         self.selected_elements = set()
         self.mouse_click = (0, 0)
+
+        self.section_plane_active = False
+        self.transparency = 0
+        self.plane_origin = (0, 0, 0)
+        self.plane_normal = (1, 0, 0)
+        self.config_tube_args = (0, 0, 0, 0, 0, 0)
 
         self.create_axes()
         self.create_scale_bar()
@@ -76,6 +87,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.points_actor = PointsActor()
         self.element_axes_actor = ElementAxesActor()
         self.element_axes_actor.VisibilityOff()
+        self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
+        self.plane_actor.VisibilityOff()
 
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update
@@ -106,9 +119,14 @@ class MeshRenderWidget(CommonRenderWidget):
             self.acoustic_elements_symbols_actor,
             self.structural_nodes_symbols_actor,
             self.structural_elements_symbols_actor,
+            self.plane_actor
         )
 
         self.visualization_changed_callback()
+        if self.section_plane_active:
+            self.configure_section_plane(*self.config_tube_args)
+            self.apply_section_plane()
+        self.set_tube_actors_transparency(self.transparency)
         if reset_camera:
             self.renderer.ResetCamera()
         self.update_info_text()
@@ -285,3 +303,73 @@ class MeshRenderWidget(CommonRenderWidget):
         info_text += elements_info_text()
         info_text += entity_info_text()
         self.set_info_text(info_text)
+
+    def configure_section_plane(self, x, y, z, rx, ry, rz):
+        self.tubes_actor.disable_cut()
+        self.config_tube_args = x, y, z, rx, ry, rz
+
+        self.plane_origin = self._calculate_relative_position([x, y, z])
+        self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
+        self.plane_actor.SetPosition(self.plane_origin)
+        self.plane_actor.SetOrientation(rx, ry, rz)
+        self.plane_actor.GetProperty().SetOpacity(0.9)
+        self.plane_actor.VisibilityOn()
+        self.update()
+    
+    def apply_section_plane(self, reverse_cut=False):
+        if self.plane_origin is None:
+            return
+        
+        if self.plane_normal is None:
+            return
+        
+        self.section_plane_active = True
+        normal = self.plane_normal
+
+        if reverse_cut:
+            normal = -normal
+        
+        self.tubes_actor.apply_cut(self.plane_origin, normal)
+        self.plane_actor.GetProperty().SetOpacity(0.2)
+        self.plane_actor.VisibilityOn()
+        self.update()
+
+    def dismiss_section_plane(self):
+        if not self._actor_exists():
+            return
+        
+        self.section_plane_active = False
+        self.tubes_actor.disable_cut()
+        self.plane_actor.VisibilityOff()
+        self.update()
+    
+    def set_tube_actors_transparency(self, transparency):
+        self.transparency = transparency
+        opacity = 1 - transparency
+        self.tubes_actor.GetProperty().SetOpacity(opacity)
+        self.update()
+
+    def _get_plane_size(self):
+        x0, x1, y0, y1, z0, z1 = self.tubes_actor.GetBounds()
+        size = np.max(np.abs([x1 - x0, y1 - y0, z1 - z0]))
+        return size
+
+    def _calculate_relative_position(self, position):
+        def lerp(a, b, t):
+            return a + (b - a) * t
+
+        if not self._actor_exists():
+            return
+
+        bounds = self.tubes_actor.GetBounds()
+        x = lerp(bounds[0], bounds[1], position[0] / 100)
+        y = lerp(bounds[2], bounds[3], position[1] / 100)
+        z = lerp(bounds[4], bounds[5], position[2] / 100)
+        return np.array([x, y, z])
+
+    def _calculate_normal_vector(self, orientation):
+        orientation = np.array(orientation) * np.pi / 180
+        rx, ry, rz = rotation_matrices(*orientation)
+
+        normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
+        return -normal[:3]

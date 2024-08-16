@@ -70,7 +70,7 @@ from pulse.interface.user_input.model.criteria.check_beam_criteria_input import 
 #
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 #
-from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
+from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 #
 from pulse import app
 
