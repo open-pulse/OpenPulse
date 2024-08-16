@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum, auto
 
 import numpy as np
@@ -11,7 +10,7 @@ from vtkmodules.vtkCommonDataModel import vtkPolyData
 from pulse import ICON_DIR, app
 from pulse.interface.utils import rotation_matrices
 from pulse.interface.viewer_3d.actors import (
-    CuttingPlaneActor,
+    SectionPlaneActor,
     ElementLinesActor,
     NodesActor,
     PointsActor,
@@ -74,7 +73,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._animation_current_frequency = None
         self._animation_cached_data = dict()
 
-        self.cutting_plane_active = False
+        self.section_plane_active = False
         self.transparency = 0
         self.plane_origin = (0, 0, 0)
         self.plane_normal = (1, 0, 0)
@@ -140,7 +139,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.nodes_actor = NodesActor(project, show_deformed=deformed)
         self.points_actor = PointsActor(show_deformed=deformed)
         self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
-        self.plane_actor = CuttingPlaneActor(size=self._get_plane_size())
+        self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()
 
         self.add_actors(
@@ -155,9 +154,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.set_color_table(color_table)
 
         self.visualization_changed_callback(update=False)
-        if self.cutting_plane_active:
-            self.configure_cutting_plane(*self.config_tube_args)
-            self.apply_cutting_plane()
+        if self.section_plane_active:
+            self.configure_section_plane(*self.config_tube_args)
+            self.apply_section_plane()
         self.set_tube_actors_transparency(self.transparency)
 
         if reset_camera:
@@ -258,7 +257,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.GetProperty().SetOpacity(opacity)
         self.update()
 
-    def configure_cutting_plane(self, x, y, z, rx, ry, rz):
+    def configure_section_plane(self, x, y, z, rx, ry, rz):
         self.tubes_actor.disable_cut()
         self.config_tube_args = x, y, z, rx, ry, rz
 
@@ -270,24 +269,29 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.VisibilityOn()
         self.update()
 
-    def apply_cutting_plane(self):
+    def apply_section_plane(self, reverse_cut=False):
         if self.plane_origin is None:
             return
 
         if self.plane_normal is None:
             return
 
-        self.cutting_plane_active = True
-        self.tubes_actor.apply_cut(self.plane_origin, self.plane_normal)
+        self.section_plane_active = True
+        normal = self.plane_normal
+
+        if reverse_cut:
+            normal = -normal
+            
+        self.tubes_actor.apply_cut(self.plane_origin, normal)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.plane_actor.VisibilityOn()
         self.update()
 
-    def dismiss_cutting_plane(self):
+    def dismiss_section_plane(self):
         if not self._actor_exists():
             return
 
-        self.cutting_plane_active = False
+        self.section_plane_active = False
         self.tubes_actor.disable_cut()
         self.plane_actor.VisibilityOff()
         self.update()
