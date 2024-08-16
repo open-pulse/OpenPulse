@@ -219,7 +219,7 @@ class VolumeVelocityInput(QDialog):
                             "imag values": imag_values,
                         }
 
-            self.properties._set_property("volume_velocity", prop_data, node_id)
+            self.properties._set_nodal_property("volume_velocity", prop_data, node_id)
 
         app().pulse_file.write_model_properties_in_file()
         app().main_window.update_plots()
@@ -362,7 +362,7 @@ class VolumeVelocityInput(QDialog):
                             "data arrays" : array_data
                         }
 
-                self.properties._set_property("volume_velocity", bc_data, node_ids=node_id)
+                self.properties._set_nodal_property("volume_velocity", bc_data, node_ids=node_id)
 
             app().pulse_file.write_model_properties_in_file()
             app().pulse_file.write_imported_table_data_in_file()

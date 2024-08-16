@@ -151,7 +151,8 @@ def elements_info_text() -> str:
     return info_text
 
 
-def entity_info_text() -> str:
+def lines_info_text() -> str:
+
     lines = app().main_window.list_selected_lines()
     info_text = ""
     project = app().project
@@ -164,19 +165,23 @@ def entity_info_text() -> str:
     elif len(lines) == 1:
 
         line_id, *_ = lines
-        entity = project.model.mesh.lines_from_model[line_id]
+
+        properties = app().project.model.properties
 
         info_text += f"LINE {line_id}\n\n"
 
-        if entity.material:
-            info_text += material_info_text(entity.material)
+        material = properties._get_property("material", line_id=line_id)
+        if material is not None:
+            info_text += material_info_text(material)
 
-        if entity.fluid:
-            info_text += fluid_info_text(entity.fluid)
+        fluid = properties._get_property("fluid", line_id=line_id)
+        if fluid is not None:
+            info_text += fluid_info_text(fluid)
 
-        info_text += cross_section_info_text(
-            entity.cross_section, entity.structural_element_type
-        )
+        cross_section = properties._get_property("cross_section", line_id=line_id)
+        structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
+
+        info_text += cross_section_info_text(cross_section, structural_element_type)
 
     return info_text
 

@@ -219,7 +219,9 @@ class TubeActorGPU(vtkActor):
                 continue
 
             # get the element color and make it a bit brighter
-            color = np.array(element.material.getColorRGB()) + 50
+            # color = np.array(element.material.getColorRGB()) + 50
+            color = np.array(element.material.color) + 50
+
             color = tuple(np.clip(color, 0, 255))
             colors.SetTuple(index, color)
 
@@ -242,7 +244,9 @@ class TubeActorGPU(vtkActor):
                 continue
 
             # get the element color and make it a bit brighter
-            color = np.array(element.fluid.getColorRGB()) + 50
+            # color = np.array(element.fluid.getColorRGB()) + 50
+            color = np.array(element.fluid.color) + 50
+
             color = tuple(np.clip(color, 0, 255))
             colors.SetTuple(index, color)
 

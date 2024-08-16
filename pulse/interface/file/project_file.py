@@ -1221,7 +1221,7 @@ class ProjectFile:
             else:
                 return
 
-            app().project.model.properties._set_property(property, data, node_ids=node_ids)
+            app().project.model.properties._set_nodal_property(property, data, node_ids=node_ids)
 
     # def add_pipeline_data_in_file(self, structures_data : dict):
 

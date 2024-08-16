@@ -877,7 +877,8 @@ class PulsationSuppressionDeviceInput(QDialog):
                 _type = 0
 
             section = prefix.format("Selection-1")
-            keys = app().project.model.preprocessor.group_elements_with_length_correction.keys()
+            #TODO: reimplement this
+            # keys = app().project.model.preprocessor.group_elements_with_length_correction.keys()
 
             if section in keys:
                 index = 1

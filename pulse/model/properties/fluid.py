@@ -1,11 +1,5 @@
-import numpy as np
+from numpy import allclose
 
-
-def load_fluid(name):
-    pass
-
-def save_fluid(material):
-    pass
 
 class Fluid:
     """A fluid class.
@@ -120,48 +114,7 @@ class Fluid:
         """
         return self.specific_heat_Cp * self.dynamic_viscosity / self.thermal_conductivity
 
-    def getColorRGB(self):
-        """
-        This method returns the fluid color.
-
-        Returns
-        ----------
-        tuple
-            Fluid color.
-        """
-        # Ugly hack, will be corrected (I hope)
-        temp = str(self.color)[1:-1] #Remove "[ ]"
-        tokens = temp.split(',')
-        return list(map(int, tokens))
-
-    def getNormalizedColorRGB(self):
-        """
-        This method returns the fluid normalized color.
-
-        Returns
-        ----------
-        tuple
-            Fluid color.
-        """
-        #VTK works with type of color
-        color = self.getColorRGB()
-        for i in range(3):
-            if color[i] != 0:
-                color[i] = color[i]/255
-        return color
-
-    def getName(self):
-        """
-        This method returns the fluid name.
-
-        Returns
-        ----------
-        str
-            Fluid name.
-        """
-        return self.name
-
     def __eq__(self, other):
         self_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
         other_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
-        return np.allclose(self_parameters, other_parameters)
+        return allclose(self_parameters, other_parameters)

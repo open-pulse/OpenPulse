@@ -846,14 +846,12 @@ class PerforatedPlateInput(QDialog):
             if len(specified_element) > 1:
                 title = "ERROR IN ELEMENT SELECTION"
                 message = "Please, select only one element in the group to plot the preview."
-                self.info_text = [window_title_1, title, message]
-                PrintMessageInput(self.info_text)
+                PrintMessageInput([window_title_1, title, message])
                 return True
             elif len(specified_element) == 0:
                 title = "ERROR IN ELEMENT SELECTION"
                 message = "Please, select an element in the group to plot the preview."
-                self.info_text = [window_title_1, title, message]
-                PrintMessageInput(self.info_text)
+                PrintMessageInput([window_title_1, title, message])
                 return True
             elif specified_element[0] in group_elements:
                 self.plot_select_element = specified_element
@@ -862,8 +860,7 @@ class PerforatedPlateInput(QDialog):
         else:
             title = "ERROR IN GROUP SELECTION"
             message = "Please, select a group in the list to plot the preview."
-            self.info_text = [window_title_1, title, message]
-            PrintMessageInput(self.info_text)
+            PrintMessageInput([window_title_1, title, message])
             return True
 
     def check_frequencies(self):
@@ -969,20 +966,21 @@ class PerforatedPlateInput(QDialog):
 
     def get_information_of_group(self):
         try:
+
             selected_key = self.dict_label.format(self.lineEdit_element_id.text())
+
             if "Selection-" in selected_key:
                 value = self.group_elements_with_perforated_plates[selected_key]
                 GetInformationOfGroup(value, selected_key)
             else:
                 title = "ERROR IN GROUP SELECTION"
                 message = "Please, select a group in the list to get the information."
-                self.info_text = [window_title_1, title, message]
-                PrintMessageInput(self.info_text)
+                PrintMessageInput([window_title_1, title, message])
+
         except Exception as log_error:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(log_error)
-            self.info_text = [window_title_1, title, message]
-            PrintMessageInput(self.info_text)
+            PrintMessageInput([window_title_1, title, message])
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:

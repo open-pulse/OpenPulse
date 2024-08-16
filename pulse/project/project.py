@@ -412,15 +412,15 @@ class Project:
 
         return dict_multiple_cross_sections, single_cross
 
-    def set_material_to_all_lines(self, material):
-        self.preprocessor.set_material_by_element('all', material)
-        self._set_material_to_all_lines(material)
-        self.file.add_material_in_file(list(self.model.mesh.lines_from_model.keys()), material)
+    # def set_material_to_all_lines(self, material):
+    #     self.preprocessor.set_material_by_element('all', material)
+    #     self._set_material_to_all_lines(material)
+    #     self.file.add_material_in_file(list(self.model.mesh.lines_from_model.keys()), material)
 
-    def set_material_by_lines(self, lines, material):
-        self.preprocessor.set_material_by_lines(lines, material)
-        self._set_material_to_selected_lines(lines, material)
-        self.file.add_material_in_file(lines, material)
+    # def set_material_by_lines(self, lines, material):
+    #     self.preprocessor.set_material_by_lines(lines, material)
+    #     self._set_material_to_selected_lines(lines, material)
+    #     self.file.add_material_in_file(lines, material)
 
     def set_variable_cross_section_by_line(self, line_id, section_data):
         """
@@ -558,19 +558,19 @@ class Project:
         self._set_structural_element_type_to_selected_lines(lines, element_type)
         self.file.modify_structural_element_type_in_file(lines, element_type)
         
-    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping = None, vol_flow = None):
+    # def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping = None, vol_flow = None):
 
-        self.preprocessor.set_acoustic_element_type_by_lines(lines, element_type, 
-                                                             proportional_damping = proportional_damping, 
-                                                             vol_flow = vol_flow)
+    #     self.preprocessor.set_acoustic_element_type_by_lines(lines, element_type, 
+                                                            #  proportional_damping = proportional_damping, 
+                                                            #  vol_flow = vol_flow)
 
-        self._set_acoustic_element_type_to_selected_lines(lines, element_type, 
-                                                          proportional_damping = proportional_damping, 
-                                                          vol_flow = vol_flow)
+        # self._set_acoustic_element_type_to_selected_lines(lines, element_type, 
+        #                                                   proportional_damping = proportional_damping, 
+        #                                                   vol_flow = vol_flow)
 
-        self.file.modify_acoustic_element_type_in_file(lines, element_type, 
-                                                       proportional_damping = proportional_damping, 
-                                                       vol_flow = vol_flow)
+        # self.file.modify_acoustic_element_type_in_file(lines, element_type, 
+        #                                                proportional_damping = proportional_damping, 
+        #                                                vol_flow = vol_flow)
 
     def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
@@ -853,9 +853,9 @@ class Project:
             self._set_stress_stiffening_to_selected_lines(lines, parameters)
             self.file.modify_stress_stiffnening_line_in_file(lines, parameters)
 
-    def load_material_by_line(self, line_id, material):
-        self.preprocessor.set_material_by_lines(line_id, material)
-        self._set_material_to_selected_lines(line_id, material)
+    # def load_material_by_line(self, line_id, material):
+    #     self.preprocessor.set_material_by_lines(line_id, material)
+    #     self._set_material_to_selected_lines(line_id, material)
     
     def load_stress_stiffening_by_elements(self, elements_id, parameters, section=None):
         self.preprocessor.set_stress_stiffening_by_elements(elements_id, parameters, section=section)
@@ -952,15 +952,15 @@ class Project:
     def load_structural_element_wall_formulation_by_elements(self, list_elements, wall_formulation):
         self.preprocessor.set_structural_element_wall_formulation_by_elements(list_elements, wall_formulation)
 
-    def load_acoustic_element_type_by_line(self, line_id, element_type, proportional_damping=None, vol_flow=None):
-        self.preprocessor.set_acoustic_element_type_by_lines(line_id, 
-                                                             element_type, 
-                                                             proportional_damping = proportional_damping, 
-                                                             vol_flow = vol_flow)
-        self._set_acoustic_element_type_to_selected_lines(line_id, 
-                                                          element_type,
-                                                          proportional_damping = proportional_damping, 
-                                                          vol_flow = vol_flow)
+    # def load_acoustic_element_type_by_line(self, line_id, element_type, proportional_damping=None, vol_flow=None):
+    #     self.preprocessor.set_acoustic_element_type_by_lines(line_id, 
+    #                                                          element_type, 
+    #                                                          proportional_damping = proportional_damping, 
+    #                                                          vol_flow = vol_flow)
+    #     self._set_acoustic_element_type_to_selected_lines(line_id, 
+    #                                                       element_type,
+    #                                                       proportional_damping = proportional_damping, 
+    #                                                       vol_flow = vol_flow)
 
     def load_structural_loads_by_node(self, node_id, data):
         self.preprocessor.set_structural_loads(node_id, data)
@@ -1005,22 +1005,22 @@ class Project:
     def get_acoustic_element(self, element_id):
         return self.preprocessor.acoustic_elements[element_id]
 
-    def _set_material_to_selected_lines(self, lines, material: Material):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            entity.material = material
+    # def _set_material_to_selected_lines(self, lines, material: Material):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+    #     for line_id in lines:
+    #         entity = self.model.mesh.lines_from_model[line_id]
+    #         entity.material = material
 
-    def _set_material_to_all_lines(self, material: Material):
-        for entity in self.model.mesh.lines_from_model.values():
-            entity.material = material
+    # def _set_material_to_all_lines(self, material: Material):
+    #     for entity in self.model.mesh.lines_from_model.values():
+    #         entity.material = material
 
     def _set_fluid_to_selected_lines(self, lines, fluid: Fluid):
         if isinstance(lines, int):
             lines = [lines]
 
-        self.model.properties._set_property("fluid", fluid.identifier, line_ids=lines, )
+        self.model.properties._set_nodal_property("fluid", fluid.identifier, line_ids=lines, )
         for line_id in lines:
             entity = self.model.mesh.lines_from_model[line_id]
             if entity.structural_element_type in ['beam_1']:
@@ -1081,20 +1081,6 @@ class Project:
         for entity in self.model.mesh.lines_from_model.values():
             entity.structural_element_type = element_type
 
-    def _set_acoustic_element_type_to_selected_lines(self, lines, element_type, proportional_damping=None, vol_flow=None):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            entity.acoustic_element_type = element_type
-            entity.proportional_damping = proportional_damping
-            entity.vol_flow = vol_flow
-
-    def _set_acoustic_element_type_to_all_lines(self, element_type, proportional_damping=None):
-        for entity in self.model.mesh.lines_from_model.values(): 
-            entity.acoustic_element_type = element_type
-            entity.proportional_damping = proportional_damping
-
     def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
         entity = self.model.mesh.lines_from_model[line_id]
         entity.xaxis_beam_rotation = angle
@@ -1128,20 +1114,20 @@ class Project:
     def get_nodes_with_prescribed_dofs_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs
 
-    def set_fluid_by_lines(self, lines, fluid):
-        self.preprocessor.set_fluid_by_lines(lines, fluid)
-        self._set_fluid_to_selected_lines(lines, fluid)
+    # def set_fluid_by_lines(self, lines, fluid):
+    #     self.preprocessor.set_fluid_by_lines(lines, fluid)
+    #     self._set_fluid_to_selected_lines(lines, fluid)
 
     def set_compressor_info_by_lines(self, lines, compressor_info=dict()):
         self._set_compressor_info_to_selected_lines(lines, compressor_info=compressor_info)
 
-    def set_fluid_to_all_lines(self, fluid):
-        self.preprocessor.set_fluid_by_element('all', fluid)
-        self._set_fluid_to_all_lines(fluid)
+    # def set_fluid_to_all_lines(self, fluid):
+    #     self.preprocessor.set_fluid_by_element('all', fluid)
+    #     self._set_fluid_to_all_lines(fluid)
 
-    def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
-        self.preprocessor.set_length_correction_by_element(elements, value, section)
-        self.file.add_length_correction_in_file(elements, value, section, psd_label=psd_label)
+    # def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
+    #     self.preprocessor.set_length_correction_by_element(elements, value, section)
+    #     self.file.add_length_correction_in_file(elements, value, section, psd_label=psd_label)
     
     def set_perforated_plate_by_elements(self, list_elements, perforated_plate, section):
         self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, section)
@@ -1257,7 +1243,7 @@ class Project:
         return self.solution_structural
 
     def get_acoustic_solve(self):
-        return AcousticSolver(self.model, self.model, self.frequencies)
+        return AcousticSolver(self.model)
 
     def set_acoustic_solution(self, value):
         self.solution_acoustic = value

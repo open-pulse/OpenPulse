@@ -32,25 +32,31 @@ class AcousticSolver:
             frequencies[0] = float(1e-4)
 
         self.all_dofs = len(model.preprocessor.nodes)
-        self.assembly = AssemblyAcoustic(model, frequencies)
+        self.assembly = AssemblyAcoustic(model)
         self.acoustic_elements = model.preprocessor.acoustic_elements
         self.frequencies = frequencies
-        self.max_iter = 100
-        self.target = 10/100
 
         self.group_elements_with_perforated_plate = model.preprocessor.group_elements_with_perforated_plate
         self.valve_elements = self.check_non_linear_valves()
-        self.solution_nm1 = None
-        self.convergence_dataLog = None
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
         # self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
-        
-        self.relative_error = []
-        self.deltaP_errors = []
-        self.iterations = []
+
+        self._initialize()
+
+    def _initialize(self):
+
+        self.solution_nm1 = None
+        self.convergence_dataLog = None
+
+        self.relative_error = list()
+        self.deltaP_errors = list()
+        self.iterations = list()
+
+        self.max_iter = 100
+        self.target = 10/100
 
     def check_non_linear_valves(self):
         self.non_linear = False

@@ -161,12 +161,12 @@ class Mesh:
                     line_connect_data = np.zeros((len(line_element_indexes[0]), 3))
                     line_connect_data[:,0] = line_element_indexes[0]
                     line_connect_data[:,1:] = line_connectivity[0].reshape(-1, 2)
-                    new_line.insertEdge(list(line_connect_data))
+                    new_line.insert_edge(list(line_connect_data))
 
                 # line_connectivity = split_sequence(line_connectivity[0], 2)
                 # for index, (start, end) in zip(line_element_indexes[0], line_connectivity):
                 #     edges = index, start, end
-                #     new_line.insertEdge(edges)
+                #     new_line.insert_edge(edges)
 
                 # Nodes
                 line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
@@ -174,12 +174,12 @@ class Mesh:
                 line_node_data = np.zeros((len(line_node_indexes), 4))
                 line_node_data[:, 0] = line_node_indexes
                 line_node_data[:,1:] = line_node_coordinates
-                new_line.insertNode(list(line_node_data))
+                new_line.insert_node(list(line_node_data))
 
                 # line_node_coordinates = split_sequence(line_node_coordinates, 3)
                 # for index, (x, y, z) in zip(line_node_indexes, line_node_coordinates):
                 #     node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
-                #     new_line.insertNode(node)
+                #     new_line.insert_node(node)
 
                 self.lines_from_model[line_tag] = new_line
 

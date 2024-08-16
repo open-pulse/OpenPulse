@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import allclose
 
 class Material:
     """A material class.
@@ -99,49 +99,8 @@ class Material:
             message = "At least two arguments among Young's modulus, Poisson's ratio"
             message += "\n and shear modulus have to be attributed to the material."
             raise TypeError(message)
-    
-    def getColorRGB(self):
-        """
-        This method returns the material color.
-
-        Returns
-        ----------
-        tuple
-            Material color.
-        """
-        # Ugly hack, will be corrected (I hope)
-        temp = str(self.color)[1:-1] #Remove "[ ]"
-        tokens = temp.split(',')
-        return list(map(int, tokens))
-
-    def getNormalizedColorRGB(self):
-        """
-        This method returns the material normalized color.
-
-        Returns
-        ----------
-        tuple
-            Material color.
-        """
-        #VTK works with type of color
-        color = self.getColorRGB()
-        for i in range(3):
-            if color[i] != 0:
-                color[i] = color[i]/255
-        return color
-
-    def getName(self):
-        """
-        This method returns the material name.
-
-        Returns
-        ----------
-        str
-            Mataerial name.
-        """
-        return self.name
 
     def __eq__(self, other):
         self_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
         other_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
-        return np.allclose(self_parameters, other_parameters)
+        return allclose(self_parameters, other_parameters)

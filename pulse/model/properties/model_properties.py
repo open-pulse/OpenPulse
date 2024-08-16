@@ -70,37 +70,17 @@ class ModelProperties:
         self.global_properties["material", "global"] = DEFAULT_MATERIAL
         self.global_properties["fluid", "global"] = DEFAULT_FLUID
 
-    def add_imported_tables(self, group_label: str, table_name: str, data: ndarray | list | tuple):
-        if group_label == "acoustic":
-            self.acoustic_imported_tables[table_name] = data
-        elif group_label == "structural":
-            self.structural_imported_tables[table_name] = data
-
-    def remove_imported_tables(self, group_label: str, table_name: str):
-        if group_label == "acoustic":
-            if table_name in self.acoustic_imported_tables.keys():
-                self.acoustic_imported_tables.pop(table_name)
-        elif group_label == "structural":
-            if table_name in self.structural_imported_tables.keys():
-                self.structural_imported_tables.pop(table_name)
-
     def get_material(self, **kwargs) -> Material:
         return self._get_property("material", **kwargs)
 
     def get_fluid(self, **kwargs) -> Fluid:
         return self._get_property("fluid", **kwargs)
 
-    def get_dissipation_model(self, **kwargs):
-        return self._get_property("dissipation_model", **kwargs)
-    
-    def get_lrf_model_inputs(self, element_id):
-        return self._get_property("lrf_eq_model", element=element_id)
+    def set_material(self, material: Material, line_ids):
+        self._set_line_property("material", material, line_ids=line_ids)
 
-    def set_material(self, material: Material, line=None, element=None):
-        self._set_property("material", material, line=line, element=element)
-
-    def set_fluid(self, fluid: Fluid, line=None, element=None):
-        self._set_property("fluid", fluid, line=line, element=element)
+    def set_fluid(self, fluid: Fluid, line_ids):
+        self._set_line_property("fluid", fluid, line_ids=line_ids)
 
     def remove_compressor_table_name(self, node_id: int, table_name: str):
         key = ("compressor_excitation", node_id)
@@ -123,68 +103,103 @@ class ModelProperties:
         else:
             return "structural"
 
-    def _set_property(self, property: str, data, node_ids=None, element_ids=None, line_ids=None, group=None):
+    def _set_nodal_property(self, property: str, data, node_ids: (int | list | tuple | None)):
         """
         Sets a data to a property by node, element, line, surface or volume
         if any of these exists. Otherwise sets the property as global.
 
         """
 
-        if node_ids is not None:
+        if node_ids is None:
+            return
 
-            group_label = self.get_data_group_label(property)
+        group_label = self.get_data_group_label(property)
 
-            values = list()
-            if "real values" in data.keys() and "imag values" in data.keys():
-                for i, a in enumerate(data["real values"]):
-                    if a is None:
-                        values.append(None)
-                    else:
-                        b = data["imag values"][i]
-                        values.append(a + 1j*b)
-
-            if "table names" in data.keys():
-
-                if group_label == "acoustic":
-                    imported_tables = self.acoustic_imported_tables
+        values = list()
+        if "real values" in data.keys() and "imag values" in data.keys():
+            for i, a in enumerate(data["real values"]):
+                if a is None:
+                    values.append(None)
                 else:
-                    imported_tables = self.structural_imported_tables
+                    b = data["imag values"][i]
+                    values.append(a + 1j*b)
 
-                for i, table_name in enumerate(data["table names"]):
+        if "table names" in data.keys():
 
-                    if table_name is None:
-                        values.append(None)
-                        continue
+            if group_label == "acoustic":
+                imported_tables = self.acoustic_imported_tables
+            else:
+                imported_tables = self.structural_imported_tables
 
-                    if table_name in imported_tables.keys():
+            for i, table_name in enumerate(data["table names"]):
 
-                        data_array = imported_tables[table_name]
-                        value = data_array[:, 1] + 1j*data_array[:, 2]
-                        values.append(value)
+                if table_name is None:
+                    values.append(None)
+                    continue
 
-            data["values"] = values
+                if table_name in imported_tables.keys():
 
-            if isinstance(node_ids, int):
-                self.nodal_properties[property, node_ids] = data
+                    data_array = imported_tables[table_name]
+                    value = data_array[:, 1] + 1j*data_array[:, 2]
+                    values.append(value)
 
-            elif isinstance(node_ids, list) and len(node_ids) == 2:
-                self.nodal_properties[property, node_ids[0], node_ids[1]] = data
+        data["values"] = values
 
-        elif element_ids is not None:
-            if isinstance(element_ids, int):
-                self.element_properties[property, element_ids] = data
+        if isinstance(node_ids, int):
+            self.nodal_properties[property, node_ids] = data
 
-        elif line_ids is not None:
-            if isinstance(line_ids, int):
-                self.line_properties[property, line_ids] = data
-
-        elif group is not None:
-            self.group_properties[property, group] = data
+        elif isinstance(node_ids, list) and len(node_ids) == 2:
+            self.nodal_properties[property, node_ids[0], node_ids[1]] = data
 
         # else:
         #     self.global_properties[property, "global"] = data
 
-    def _get_property(self, property: str, node_ids=None, element=None, line=None):
+    def _set_element_property(self, property: str, data, element_ids: (int | list | tuple | None)):
+        """
+        Sets a data to a property by element.
+
+        """
+        if element_ids is None:
+            return
+        
+        elif isinstance(element_ids, int):
+            element_ids = [element_ids]
+
+        for element_id in element_ids:
+            self.element_properties[property, element_id] = data
+
+    def _set_line_property(self, property: str, data, line_ids: (int | list | tuple | None)):
+        """
+        Sets a data to a property by line.
+
+        """
+        if line_ids is None:
+            return
+        
+        elif isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for line_id in line_ids:
+            if line_id in self.line_properties.keys():
+                self.line_properties[line_id][property] = data
+            else:
+                self.line_properties[line_id] = {property : data}
+
+    # def _set_group_property(self, property: str, data, group_ids: (int | list | tuple | None)):
+    #     """
+    #     Sets a data to a property by element.
+
+    #     """
+    #     if element_ids is None:
+    #         return
+        
+    #     elif isinstance(element_ids, int):
+    #         element_ids = [element_ids]
+
+    #     for element_id in element_ids:
+    #         self.element_properties[property, element_id] = data
+
+    def _get_property(self, property: str, node_ids=None, element=None, line_id=None):
         """
         Finds the value that corresponds to the property needed.
         Checks node, element, entity, volume and global data by
@@ -203,11 +218,12 @@ class ModelProperties:
         if (property, element) in self.element_properties:
             return self.element_properties[property, element]
 
-        if (property, line) in self.line_properties:
-            return self.line_properties[property, line]
+        if line_id in self.line_properties.keys():
+            if property in self.line_properties[line_id]:
+                return self.line_properties[line_id][property]
 
-        if (property, "global") in self.global_properties:
-            return self.global_properties[property, "global"]
+        # if (property, "global") in self.global_properties:
+        #     return self.global_properties[property, "global"]
 
         return None
 
@@ -219,8 +235,6 @@ class ModelProperties:
         data_dicts = [
                         self.nodal_properties,
                         self.element_properties,
-                        self.line_properties,
-                        self.global_properties,
                      ]
 
         for data_dict in data_dicts:
@@ -275,9 +289,9 @@ class ModelProperties:
 
     def _remove_line_property(self, property: str, line_id: int):
         """Remove a line property at specific line_id."""
-        key = (property, line_id)
-        if key in self.line_properties.keys():
-            self.line_properties.pop(key)
+        if line_id in self.line_properties.keys():
+            if property in self.line_properties[line_id].keys():
+                self.line_properties[line_id].pop(property)
 
     def _remove_group_property(self, property: str, group_id: int):
         """Remove a group property at specific group_id."""
@@ -286,7 +300,8 @@ class ModelProperties:
             self.group_properties.pop(key)
 
     def get_nodal_related_table_names(self, property : str, node_ids : list | tuple, equals = False) -> list:
-
+        """
+        """
         table_names = list()
         if isinstance(node_ids, int):
             test_key = (property, node_ids)
@@ -315,6 +330,9 @@ class ModelProperties:
         return table_names
 
     def get_element_related_table_names(self, property : str, element_ids : list | tuple, equals = False):
+        """
+        """
+        
         table_names = dict()
         for key, data in self.element_properties.items():
             for element_id in element_ids:
@@ -329,3 +347,23 @@ class ModelProperties:
                             if key[1] == element_id:
                                 table_names[key] = data["table names"]
         return table_names
+
+    def add_imported_tables(self, group_label: str, table_name: str, data: ndarray | list | tuple):
+        """
+        """
+        
+        if group_label == "acoustic":
+            self.acoustic_imported_tables[table_name] = data
+        elif group_label == "structural":
+            self.structural_imported_tables[table_name] = data
+
+    def remove_imported_tables(self, group_label: str, table_name: str):
+        """
+        """
+        
+        if group_label == "acoustic":
+            if table_name in self.acoustic_imported_tables.keys():
+                self.acoustic_imported_tables.pop(table_name)
+        elif group_label == "structural":
+            if table_name in self.structural_imported_tables.keys():
+                self.structural_imported_tables.pop(table_name)

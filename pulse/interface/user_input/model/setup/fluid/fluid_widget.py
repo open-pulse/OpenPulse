@@ -478,7 +478,7 @@ class FluidWidget(QWidget):
                 item = self.tableWidget_fluid_data.item(i, column)
                 if key == "color":
                     color = item.background().color().getRgb()
-                    fluid_data[key] = list(color)
+                    fluid_data[key] = list(color[:3])
                 else:
                     fluid_data[key] = item.text()
             
@@ -580,6 +580,8 @@ class FluidWidget(QWidget):
             return True
 
         picked_color = read.color
+        print(picked_color)
+
         item = QTableWidgetItem()
         item.setBackground(QColor(*picked_color))
         item.setForeground(QColor(*picked_color))

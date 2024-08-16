@@ -42,9 +42,12 @@ class BeforeRun:
     def check_selected_ids(self, selected_ids : str, selection_type : str, single_id = False):
         try:
 
+
             title = "Invalid entry to the Line ID"
             message = ""
+
             tokens = selected_ids.strip().split(',')
+            label = selection_type.replace("s", "")
 
             try:
                 tokens.remove('')
@@ -61,8 +64,6 @@ class BeforeRun:
                 _size = len(self.nodes)
     
             typed_ids = list(map(int, tokens))
-
-            label = selection_type.replace("s", "")
             
             if len(typed_ids) == 0:
                     message = f"An empty input field for the {label.capitalize()} ID has been detected." 

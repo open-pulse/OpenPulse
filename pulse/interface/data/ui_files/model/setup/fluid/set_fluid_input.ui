@@ -211,8 +211,7 @@
             <enum>Qt::ClickFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)}
-QLineEdit:disabled {background-color: rgb(230, 230, 230); color: rgb(120, 120, 120)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>
@@ -269,8 +268,7 @@ QLineEdit:disabled {background-color: rgb(230, 230, 230); color: rgb(120, 120, 1
             <enum>Qt::ClickFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{background-color: rgb(255, 255, 255); color: rgb(0, 0, 0)}
-QLineEdit:disabled {background-color: rgb(230, 230, 230); color: rgb(120, 120, 120)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>

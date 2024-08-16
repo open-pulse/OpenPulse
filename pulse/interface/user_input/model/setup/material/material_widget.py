@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
-from pulse.interface.formatters.icons import *
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -22,7 +21,7 @@ window_title_2 = "Warning"
 
 COLOR_ROW = 6
 
-def getColorRGB(color):
+def get_color_rgb(color):
     color = color.replace(" ", "")
     if ("[" or "(") in color:
         color = color[1:-1]
@@ -139,7 +138,7 @@ class MaterialInputs(QWidget):
                                 poisson_ratio = float(section['poisson ratio']),
                                 elasticity_modulus = float(section['elasticity modulus']) * 1e9,
                                 thermal_expansion_coefficient = float(section['thermal expansion coefficient']), 
-                                color = getColorRGB(section['color'])
+                                color = get_color_rgb(section['color'])
                                 )
 
             self.library_materials[int(tag)] = material
@@ -388,7 +387,7 @@ class MaterialInputs(QWidget):
                 item = self.tableWidget_material_data.item(i, column)
                 if key == "color":
                     color = item.background().color().getRgb()
-                    material_data[key] = list(color)
+                    material_data[key] = list(color[:3])
                 else:
                     material_data[key] = item.text()
 

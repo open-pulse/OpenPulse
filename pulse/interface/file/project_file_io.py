@@ -41,6 +41,7 @@ class ProjectFileIO:
         self.material_library_filename = "material_library.config"
         self.pipeline_filename = "pipeline.dat"
         self.model_properties_filename = "model_properties.json"
+        self.line_properties_filename = "line_properties.json"
         self.mesh_data_filename = "mesh_data.hdf5"
         self.imported_table_data_filename = "imported_tables_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
@@ -238,12 +239,8 @@ class ProjectFileIO:
 
             properties = app().project.model.properties
 
-            data = dict(
-                            # global_properties = normalize(properties.global_properties),
-                            line_properties = normalize(properties.line_properties),
-                            element_properties = normalize(properties.element_properties),
-                            nodal_properties = normalize(properties.nodal_properties),
-                        )
+            data = dict(    element_properties = normalize(properties.element_properties),
+                            nodal_properties = normalize(properties.nodal_properties)    )
 
             self.filebox.write(self.model_properties_filename, data)
             app().main_window.project_data_modified = True
@@ -281,14 +278,54 @@ class ProjectFileIO:
             return dict()
 
         model_properties = dict(
-                                    # global_properties = denormalize(data["global_properties"]),
-                                    nodal_properties = denormalize(data["nodal_properties"]),
-                                    element_properties = denormalize(data["element_properties"]),
-                                    line_properties = denormalize(data["line_properties"])
+                                nodal_properties = denormalize(data["nodal_properties"]),
+                                element_properties = denormalize(data["element_properties"]),
                                 )
 
         return model_properties
-    
+
+    def write_line_properties_in_file(self):
+
+        try:
+
+            def normalize(prop: dict):
+                """
+                Sadly json doesn't accepts tuple keys,
+                so we need to convert it to a string like:
+                "property id" = value
+                """
+                output = dict()
+                for tag, data in prop.items():
+
+                    aux = dict()
+                    for property in data.keys():
+                        value = data[property]
+                        if property in ["fluid", "material"]:
+                            if isinstance(value, (Fluid, Material)):
+                                aux[property] = value.identifier
+                        else:
+                            aux[property] = value
+
+                    if aux:
+                        output[tag] = aux
+
+                return output
+
+            properties = app().project.model.properties
+            data = normalize(properties.line_properties)
+
+            self.filebox.write(self.line_properties_filename, data)
+            app().main_window.project_data_modified = True
+
+        except Exception as error_log:
+
+            title = "Error while exporting line properties"
+            message = str(error_log)
+            PrintMessageInput([window_title_1, title, message])
+
+    def read_line_properties_from_file(self):
+        return self.filebox.read(self.line_properties_filename)
+
     def write_imported_table_data_in_file(self):
 
         self.filebox.remove(self.imported_table_data_filename)

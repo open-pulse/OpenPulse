@@ -33,7 +33,7 @@ from ._mesh_picker import MeshPicker
 from ._model_info_text import (
     analysis_info_text,
     elements_info_text,
-    entity_info_text,
+    lines_info_text,
     nodes_info_text,
 )
 
@@ -398,7 +398,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         info_text += analysis_info_text(self.current_frequency_index)
         info_text += nodes_info_text()
         info_text += elements_info_text()
-        info_text += entity_info_text()
+        info_text += lines_info_text()
         self.set_info_text(info_text)
 
     def remove_actors(self):

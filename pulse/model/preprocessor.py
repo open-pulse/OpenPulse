@@ -54,7 +54,7 @@ class Preprocessor:
         self.elements_with_valve = list()
         self.number_expansion_joints_by_lines = dict()
         self.number_valves_by_lines = dict()
-        self.group_elements_with_length_correction = dict()
+
         self.group_elements_with_capped_end = dict()
         self.group_elements_with_perforated_plate = dict()
         self.group_elements_with_stress_stiffening = dict()
@@ -76,14 +76,13 @@ class Preprocessor:
 
         self.nodes_with_acoustic_links = dict()
         self.nodes_with_structural_links = dict()
-        self.element_with_length_correction = list()
+
         self.elements_with_perforated_plate = list()
         self.element_with_capped_end = list()
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
   
-        self.dict_structural_element_type_to_lines = defaultdict(list)
-        self.dict_acoustic_element_type_to_lines = defaultdict(list)
+        self.structural_element_type_to_lines = defaultdict(list)
         self.dict_beam_xaxis_rotating_angle_to_lines = defaultdict(list)
 
         self.dict_coordinate_to_update_bc_after_remesh = dict()
@@ -364,7 +363,8 @@ class Preprocessor:
 
     def neighbor_elements_diameter(self):
         """
-        This method maps the elements outer diameters that each node belongs to. The maping is done according to the node external index.
+        This method maps the elements outer diameters that each node belongs to. The maping is done 
+        according to the node external index.
 
         Returns
         ----------
@@ -603,7 +603,6 @@ class Preprocessor:
 
         self.nodal_coordinates_matrix = nodal_coordinates
         self.nodal_coordinates_matrix_external = nodal_coordinates_external
-    
 
     def get_connectivity_matrix(self, reordering=True):
         """
@@ -629,7 +628,52 @@ class Preprocessor:
                 first = element.first_node.external_index
                 last  = element.last_node.external_index
                 connectivity[index,:] = index+1, first, last
+
         self.connectivity_matrix = connectivity.astype(int) 
+
+    def get_node_id_by_coordinates(self, coords, radius=None):
+        """
+            This method returns the external node ids inside a influence sphere centered in 'coords' point.
+
+        Parameters:
+        ------------
+
+            coordinates : list, np.ndarray or tuple
+                represents the nodal coordinates of interest
+
+            radius: float (default None)
+                the radius of interest considered. The sphere default radius is equal to element_size / 20.
+
+        Returns:
+        --------
+
+            external_index: int
+                this value correspond to the 
+        
+        """
+
+        coord_matrix = self.nodal_coordinates_matrix_external
+        list_coordinates = coord_matrix[:,1:].tolist()
+        external_indexes = coord_matrix[:,0]
+
+        if isinstance(coords, (np.ndarray, tuple)):
+            coords = list(coords)
+
+        if radius is None:
+            radius = self.mesh.element_size / 20
+
+        if coords in list_coordinates:
+            ind = list_coordinates.index(coords)
+            external_index = int(external_indexes[ind])
+        else:
+            diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
+            mask = diff < radius
+            try:
+                external_index = int(external_indexes[mask])
+            except:
+                return None
+        
+        return external_index
 
     def get_element_center_coordinates_matrix(self):
         """
@@ -644,7 +688,7 @@ class Preprocessor:
         for index, element in self.structural_elements.items():
             self.center_coordinates_matrix[index-1, 0] = index
             self.center_coordinates_matrix[index-1, 1:] = element.element_center_coordinates
-        
+
     def get_principal_diagonal_structure_parallelepiped(self):
         """
         This method updates the principal structure diagonal parallelepiped attribute. 
@@ -810,7 +854,7 @@ class Preprocessor:
         for element in slicer(self.structural_elements, elements):
             element.element_type = element_type
         if remove:
-            self.dict_structural_element_type_to_lines.pop(element_type)
+            self.structural_element_type_to_lines.pop(element_type)
     
     def set_structural_element_force_offset_by_elements(self, elements, force_offset, remove=False):
         """
@@ -882,9 +926,7 @@ class Preprocessor:
             element.element_type = element_type
             element.proportional_damping = proportional_damping
             element.vol_flow = vol_flow
-        if remove:
-            self.dict_acoustic_element_type_to_lines.pop(element_type)
-    
+
     def set_cross_section_by_element(self, 
                                      elements, 
                                      cross_section, 
@@ -1027,29 +1069,35 @@ class Preprocessor:
             self.set_structural_element_type_by_element(elements, element_type)
         for line in lines:
             if remove:
-                self.dict_structural_element_type_to_lines.pop(element_type)
+                self.structural_element_type_to_lines.pop(element_type)
             elif element_type != "":
-                temp_dict = self.dict_structural_element_type_to_lines.copy()
+                temp_dict = self.structural_element_type_to_lines.copy()
                 if element_type not in list(temp_dict.keys()):
-                    self.dict_structural_element_type_to_lines[element_type].append(line)
+                    self.structural_element_type_to_lines[element_type].append(line)
                     for key, list_lines in temp_dict.items():
                         if key != element_type:
                             if line in list_lines:
-                                self.dict_structural_element_type_to_lines[key].remove(line)
-                            if self.dict_structural_element_type_to_lines[key] == []:
-                                self.dict_structural_element_type_to_lines.pop(key)
+                                self.structural_element_type_to_lines[key].remove(line)
+                            if self.structural_element_type_to_lines[key] == []:
+                                self.structural_element_type_to_lines.pop(key)
                 else:
                     for key, list_lines in temp_dict.items():
                         if key != element_type:
                             if line in list_lines:
-                                self.dict_structural_element_type_to_lines[key].remove(line)
+                                self.structural_element_type_to_lines[key].remove(line)
                         else:
                             if line not in list_lines:
-                                self.dict_structural_element_type_to_lines[key].append(line)
-                        if self.dict_structural_element_type_to_lines[key] == []:
-                            self.dict_structural_element_type_to_lines.pop(key)
+                                self.structural_element_type_to_lines[key].append(line)
+                        if self.structural_element_type_to_lines[key] == []:
+                            self.structural_element_type_to_lines.pop(key)
 
-    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping=None, vol_flow=None, remove=False):
+    def set_acoustic_element_type_by_lines( 
+                                            self, 
+                                            line_ids: (int | list | tuple), 
+                                            element_type: str, 
+                                            proportional_damping = None, 
+                                            vol_flow = None, 
+                                           ):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
 
@@ -1064,42 +1112,17 @@ class Preprocessor:
         proportional_damping : float, optional
             Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
-            
-        remove : bool, optional
-            True if the element_type have to be removed from the acoustic element type dictionary. False otherwise.
-            Default is False.
-        """
-        if isinstance(lines, int):
-            lines = [lines]
 
-        for elements in slicer(self.mesh.line_to_elements, lines):
-            self.set_acoustic_element_type_by_element(  elements, element_type, 
+        """
+
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for elements in slicer(self.mesh.line_to_elements, line_ids):
+            self.set_acoustic_element_type_by_element(  elements, 
+                                                        element_type, 
                                                         proportional_damping = proportional_damping, 
                                                         vol_flow = vol_flow  )
-        
-        for line in lines:
-            if remove:
-                self.dict_acoustic_element_type_to_lines.pop(element_type)
-            elif element_type != "":
-                temp_dict = self.dict_acoustic_element_type_to_lines.copy()
-                if element_type not in list(temp_dict.keys()):
-                    self.dict_acoustic_element_type_to_lines[element_type].append(line)
-                    for key, list_lines in temp_dict.items():
-                        if key != element_type:
-                            if line in list_lines:
-                                self.dict_acoustic_element_type_to_lines[key].remove(line)
-                            if self.dict_acoustic_element_type_to_lines[key] == []:
-                                self.dict_acoustic_element_type_to_lines.pop(key)
-                else:
-                    for key, list_lines in temp_dict.items():
-                        if key != element_type:
-                            if line in list_lines:
-                                self.dict_acoustic_element_type_to_lines[key].remove(line)
-                        else:
-                            if line not in list_lines:
-                                self.dict_acoustic_element_type_to_lines[key].append(line)
-                        if self.dict_acoustic_element_type_to_lines[key] == []:
-                            self.dict_acoustic_element_type_to_lines.pop(key)
 
     # Structural physical quantities
     def set_material_by_element(self, elements, material):
@@ -1113,13 +1136,13 @@ class Preprocessor:
             
         material : Material object
             Material data.
-        """    
+        """
         for element in slicer(self.structural_elements, elements):
             element.material = material
         for element in slicer(self.acoustic_elements, elements):
             element.material = material
 
-    def set_material_by_lines(self, lines, material):
+    def set_material_by_lines(self, line_ids: (int | list | tuple), material):
         """
         This method attributes material object to all elements that belongs to a line/entity.
 
@@ -1131,54 +1154,16 @@ class Preprocessor:
         material : Material object
             Material data.
         """
-        for elements in slicer(self.mesh.line_to_elements, lines):
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for elements in slicer(self.mesh.line_to_elements, line_ids):
             self.set_material_by_element(elements, material)
 
     def set_force_by_element(self, elements, loads):
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
     
-    # def set_nodal_loads(self, nodes_id: list, data: list):
-    #     """
-    #     This method attributes structural force and moment loads to a list of nodes.
-
-    #     Parameters
-    #     ----------
-    #     nodes_id : list
-    #         Nodes external indexes.
-            
-    #     values : complex or array
-    #         Force and moment loads. Complex valued input corresponds to a constant load with respect to the frequency. Array valued input corresponds to a variable load with respect to the frequency.
-    #     """
-    #     [values, table_names] = data
-    #     for node in slicer(self.nodes, nodes_id):
-    #         node.nodal_loads = values
-    #         node.nodal_loads_table_names = table_names            
-    #         node.prescribed_dofs = [None, None, None, None, None, None]
-
-    #         # Checking imported tables 
-    #         check_array = [isinstance(bc, np.ndarray) for bc in values]
-    #         if True in check_array:
-    #             node.loaded_table_for_nodal_loads = True
-    #             node.there_are_nodal_loads = True
-    #             if not node in self.nodes_with_nodal_loads:
-    #                 self.nodes_with_nodal_loads.append(node)
-    #             continue
-    #             # return
-    #         else:
-    #             node.loaded_table_for_nodal_loads = False
-
-    #         # Checking complex single values    
-    #         check_values = [isinstance(bc, complex) for bc in values]
-    #         if True in check_values:
-    #             node.there_are_nodal_loads = True
-    #             if not node in self.nodes_with_nodal_loads:
-    #                 self.nodes_with_nodal_loads.append(node)
-    #         else:
-    #             node.there_are_nodal_loads = False
-    #             if node in self.nodes_with_nodal_loads:
-    #                 self.nodes_with_nodal_loads.remove(node)
-
     def add_mass_to_node(self, nodes, data):
         """
         This method attributes structural lumped mass to a list of nodes.
@@ -1292,53 +1277,6 @@ class Preprocessor:
                 node.there_are_lumped_dampings = False
                 if node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.remove(node)
-
-    # def set_prescribed_dofs(self, nodes, data):
-    #     """
-    #     This method attributes structural displacement and rotation boundary condition to a list of nodes.
-
-    #     Parameters
-    #     ----------
-    #     nodes_id : list
-    #         Nodes external indexes.
-            
-    #     values : complex or array
-    #         Displacement and rotation. Complex valued input corresponds to a constant boundary condition with respect to the frequency. Array valued input corresponds to a variable boundary condition with respect to the frequency.
-    #     """
-    #     [values, table_names] = data
-    #     for node in slicer(self.nodes, nodes):
-    #         node.prescribed_dofs = values
-    #         node.prescribed_dofs_table_names = table_names
-    #         node.nodal_loads = [None, None, None, None, None, None]
-
-    #         # Checking imported tables 
-    #         check_array = [isinstance(bc, np.ndarray) for bc in values]
-    #         if True in check_array:
-    #             node.loaded_table_for_prescribed_dofs = True
-    #             node.there_are_prescribed_dofs = True
-    #             if not node in self.nodes_with_constrained_dofs:
-    #                 self.nodes_with_constrained_dofs.append(node)
-
-    #             continue
-    #             # return
-    #         else:
-    #             node.loaded_table_for_prescribed_dofs = False
-
-    #         # Checking complex single values    
-    #         check_values = [isinstance(bc, complex) for bc in values]
-    #         if True in check_values:
-    #             node.there_are_prescribed_dofs = True
-    #             if complex(0) in values:
-    #                 node.there_are_constrained_dofs = True
-    #                 if not node in self.nodes_with_constrained_dofs:
-    #                     self.nodes_with_constrained_dofs.append(node)
-          
-    #         else:
-    #             node.there_are_prescribed_dofs = False
-    #             node.there_are_constrained_dofs = False
-    #             if node in self.nodes_with_constrained_dofs:
-    #                 self.nodes_with_constrained_dofs.remove(node)
-
 
     def set_B2PX_rotation_decoupling(   
                                         self, 
@@ -2030,7 +1968,7 @@ class Preprocessor:
             else:
                 element.fluid = None
     
-    def set_fluid_by_lines(self, lines, fluid):
+    def set_fluid_by_lines(self, line_ids: (int | list | tuple), fluid):
         """
         This method attributes fluid object to all acoustic elements that belongs to a line/entity.
 
@@ -2042,10 +1980,13 @@ class Preprocessor:
         fluid : Fluid object
             Fluid data.
         """
-        for elements in slicer(self.mesh.line_to_elements, lines):
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for elements in slicer(self.mesh.line_to_elements, line_ids):
             self.set_fluid_by_element(elements, fluid)
-            
-    def set_length_correction_by_element(self, elements, value, section, delete_from_dict=False):
+
+    def set_length_correction_by_element(self, elements, value):
         """
         This method enables or disables the acoustic length correction effect in a list of acoustic elements.
 
@@ -2070,85 +2011,6 @@ class Preprocessor:
         """
         for element in slicer(self.acoustic_elements, elements):
             element.acoustic_length_correction = value
-            if element not in self.element_with_length_correction:
-                self.element_with_length_correction.append(element)
-            if value is None:
-                if element in self.element_with_length_correction:
-                    self.element_with_length_correction.remove(element)
-        if delete_from_dict:
-            self.group_elements_with_length_correction.pop(section) 
-        else:
-            self.group_elements_with_length_correction[section] = [value, elements]
-
-    # def set_acoustic_pressure_bc_by_node(self, nodes, data):
-    #     """
-    #     This method attributes acoustic pressure boundary condition to a list of nodes.
-
-    #     Parameters
-    #     ----------
-    #     nodes : list
-    #         Nodes external indexes.
-            
-    #     values : complex or array
-    #         Acoustic pressure. Complex valued input corresponds to a constant pressure boundary condition with respect to the frequency. Array valued input corresponds to a variable pressure boundary condition with respect to the frequency.
-    #     """
-    #     try:
-    #         [value, table_name] = data
-    #         for node in slicer(self.nodes, nodes):
-
-    #             node.acoustic_pressure = value
-    #             node.acoustic_pressure_table_name = None
-
-    #             if isinstance(data, str):
-    #                 node.acoustic_pressure_table_name = table_name
-                
-    #             node.volume_velocity = None
-    #             node.volume_velocity_table = None
-
-    #             node.compressor_excitation_table_names = list()
-    #             node.dict_index_to_compressor_connection_info = dict()
-
-    #         return False
-                
-    #     except Exception as log_error:
-    #         title = "Error while setting acoustic pressure"
-    #         message = str(log_error)
-    #         PrintMessageInput([window_title_1, title, message])
-    #         return True  
-
-
-    def set_volume_velocity_bc_by_node(self, nodes, data):
-        """
-        This method attributes acoustic volume velocity load to a list of nodes.
-
-        Parameters
-        ----------
-        nodes : list
-            Nodes external indexes.
-            
-        values : complex or array
-            Volume velocity. Complex valued input corresponds to a constant volume velocity load with respect to the frequency. Array valued input corresponds to a variable volume velocity load with respect to the frequency.
-        """
-        try:
-            [values, table_name] = data
-            for node in slicer(self.nodes, nodes):
-                node.volume_velocity = values
-                node.volume_velocity_table_name = table_name
-
-                node.compressor_excitation_table_names = []
-                node.compressor_excitation_table_indexes = []
-                node.dict_index_to_compressor_connection_info = {}
-
-                node.acoustic_pressure = None
-                node.acoustic_pressure_table_name = None
-
-            return False
-
-        except Exception as error:
-            title = "Error while setting volume velocity"
-            message = str(error)
-            PrintMessageInput([window_title_1, title, message])
-            return True  
 
     def set_vol_flow_by_element(self, elements, vol_flow):
         for element in slicer(self.acoustic_elements, elements):
@@ -2683,87 +2545,6 @@ class Preprocessor:
         self.dict_beam_xaxis_rotating_angle_to_lines.clear()
         for line in self.mesh.lines_from_model.keys():
             self.dict_lines_to_rotation_angles[line] = 0
-
-    # def process_nodes_to_update_indexes_after_remesh(self, node):
-    #     """
-    #     This method ...
-    #     """
-    #     str_coord = str(node.coordinates)
-    #     self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
-
-    # def update_node_ids_after_remesh(self, dict_cache, tolerance=1e-6):
-    #     """
-    #     This method ...
-    #     """
-    #     coord_matrix = self.nodal_coordinates_matrix_external
-    #     list_coordinates = coord_matrix[:,1:].tolist()
-    #     new_external_indexes = coord_matrix[:,0]
-    #     self.dict_non_mapped_bcs = {}
-
-    #     for key, old_external_index in dict_cache.items():
-    #         list_key = key[1:-1].split(" ")
-    #         coord = [float(_key) for _key in list_key if _key != ""]
-    #         if coord in list_coordinates:
-    #             ind = list_coordinates.index(coord)
-    #             new_external_index = int(new_external_indexes[ind])
-    #             self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
-    #         else:
-    #             diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
-    #             mask = diff < tolerance
-    #             try:
-    #                 new_external_index = int(coord_matrix[:,0][mask])
-    #                 self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
-    #             except:
-    #                 self.dict_non_mapped_bcs[key] = old_external_index
-
-    #     self.get_nodal_coordinates_matrix()
-
-    #     return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
-    
-    def get_node_id_by_coordinates(self, coords, radius=None):
-        """
-            This method returns the external node ids inside a influence sphere centered in 'coords' point.
-
-        Parameters:
-        ------------
-
-            coordinates : list, np.ndarray or tuple
-                represents the nodal coordinates of interest
-
-            radius: float (default None)
-                the radius of interest considered. The sphere default radius is equal to element_size / 20.
-
-        Returns:
-        --------
-
-            external_index: int
-                this value correspond to the 
-        
-        """
-
-        coord_matrix = self.nodal_coordinates_matrix_external
-        list_coordinates = coord_matrix[:,1:].tolist()
-        external_indexes = coord_matrix[:,0]
-
-        if isinstance(coords, (np.ndarray, tuple)):
-            coords = list(coords)
-
-        if radius is None:
-            radius = self.mesh.element_size / 20
-
-        if coords in list_coordinates:
-            ind = list_coordinates.index(coords)
-            external_index = int(external_indexes[ind])
-        else:
-            diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
-            mask = diff < radius
-            try:
-                external_index = int(external_indexes[mask])
-            except:
-                return None
-        
-        return external_index
-
 
     def get_acoustic_link_data(self, nodes):
         """

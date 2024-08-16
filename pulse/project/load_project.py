@@ -1,5 +1,7 @@
 from pulse import app
 
+from pulse.model.properties.material import Material
+from pulse.model.properties.fluid import Fluid
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.file.project_files_loader import ProjectFilesLoader
 from pulse.tools.utils import *
@@ -32,36 +34,41 @@ class LoadProject:
         self.load_mesh_setup_from_file()
         self.load_pipeline_file()
         self.load_imported_table_data_from_file()
-        self.load_model_properties_file()
+        #
+        self.load_fluid_library()
+        self.load_material_library()
+        self.load_model_properties()
+        self.load_lines_properties()
+        #
         self.load_analysis_file()
         self.load_inertia_load_setup()
         self.load_psd_data_from_file()
 
-    def load_material_data(self):
-        try:
+    # def load_material_data(self):
+    #     try:
 
-            # Material to the entities
-            for key, mat in self.files_loader.material_data.items():
-                self.project.load_material_by_line(key, mat)
+    #         # Material to the entities
+    #         for key, mat in self.files_loader.material_data.items():
+    #             self.project.load_material_by_line(key, mat)
 
-        except Exception as log_error:
-            title = "Error while loading material data"
-            message = "Local: 'LoadProjectData' class\n\n"
-            message += str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+    #     except Exception as log_error:
+    #         title = "Error while loading material data"
+    #         message = "Local: 'LoadProjectData' class\n\n"
+    #         message += str(log_error)
+    #         PrintMessageInput([window_title_1, title, message])
 
-    def load_fluid_data(self):
-        try:
+    # def load_fluid_data(self):
+    #     try:
 
-            # Fluid to the entities
-            for key, fld in self.files_loader.fluid_data.items():
-                self.project.load_fluid_by_line(key, fld)
+    #         # Fluid to the entities
+    #         for key, fld in self.files_loader.fluid_data.items():
+    #             self.project.load_fluid_by_line(key, fld)
 
-        except Exception as log_error:
-            title = "Error while loading fluid data"
-            message = "Local: 'LoadProjectData' class\n\n"
-            message += str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+    #     except Exception as log_error:
+    #         title = "Error while loading fluid data"
+    #         message = "Local: 'LoadProjectData' class\n\n"
+    #         message += str(log_error)
+    #         PrintMessageInput([window_title_1, title, message])
 
     def load_constant_section_data(self):
         try:
@@ -168,27 +175,6 @@ class LoadProject:
    
         except Exception as log_error:
             title = "Error while loading structural element wall formulation data"
-            message = "Local: 'LoadProjectData' class\n\n"
-            message += str(log_error)
-            PrintMessageInput([window_title_1, title, message])
-
-    def load_acoustic_element_type_data(self):
-        try:
-
-            # Acoustic element type to the entities
-            for key, [el_type, proportional_damping, vol_flow] in self.files_loader.acoustic_element_type_data.items():
-                if self.files_loader.element_type_is_acoustic:
-                    if "-" in key:
-                        continue
-                    else:
-                        line_id = int(key)
-                        self.project.load_acoustic_element_type_by_line(line_id, 
-                                                                        el_type, 
-                                                                        proportional_damping = proportional_damping, 
-                                                                        vol_flow = vol_flow)
-
-        except Exception as log_error:
-            title = "Error while loading acoustic element type data"
             message = "Local: 'LoadProjectData' class\n\n"
             message += str(log_error)
             PrintMessageInput([window_title_1, title, message])
@@ -358,14 +344,14 @@ class LoadProject:
 
             self.files_loader.load_project_data_from_files()
 
-            self.load_material_data()
-            self.load_fluid_data()
+            # self.load_material_data()
+            # self.load_fluid_data()
             self.load_constant_section_data()
             self.load_variable_section_data()
             self.load_structural_element_type_data()
             self.load_structural_element_force_offset_data()
             self.load_structural_element_wall_formulation_data()
-            self.load_acoustic_element_type_data()
+            # self.load_acoustic_element_type_data()
             self.load_acoustic_element_length_correction_data()
             self.load_compressor_data()
             self.load_perforated_plate_by_elements_data()
@@ -381,7 +367,129 @@ class LoadProject:
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
 
-    def load_model_properties_file(self):
+    def load_fluid_library(self):
+
+        self.library_fluids = dict()
+        config = app().pulse_file.read_fluid_library_from_file()
+
+        if config is None:
+            return
+
+        for tag in config.sections():
+
+            section = config[tag]
+            keys = section.keys()
+
+            name = section['name']
+            density =  float(section['density'])
+            speed_of_sound =  float(section['speed of sound'])
+            identifier =  int(section['identifier'])
+            color =  get_color_rgb(section['color'])
+
+            if len(color) == 4:
+                color = color[:3]
+
+            if 'isentropic exponent' in keys:
+                isentropic_exponent = float(section['isentropic exponent'])
+            else:
+                isentropic_exponent = ""
+
+            if 'thermal conductivity' in keys:
+                thermal_conductivity = float(section['thermal conductivity'])
+            else:
+                thermal_conductivity = ""
+
+            if 'specific heat Cp' in keys:
+                specific_heat_Cp = float(section['specific heat Cp'])
+            else:
+                specific_heat_Cp = ""
+
+            if 'dynamic viscosity' in keys:
+                dynamic_viscosity = float(section['dynamic viscosity'])
+            else:
+                dynamic_viscosity = ""
+            
+            if 'temperature' in keys:
+                temperature = float(section['temperature'])
+            else:
+                temperature = None
+
+            if 'pressure' in keys:
+                pressure = float(section['pressure'])
+            else:
+                pressure = None
+
+            # if 'key mixture' in keys:
+            #     key_mixture = section['key mixture']
+            # else:
+            #     key_mixture = None
+
+            # if 'molar fractions' in keys:
+            #     str_molar_fractions = section['molar fractions']
+            #     molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
+            # else:
+            #     molar_fractions = None
+
+            if 'molar mass' in keys:
+                if section['molar mass'] == "None":
+                    molar_mass = None
+                else:
+                    molar_mass = float(section['molar mass'])
+            else:
+                molar_mass = None
+
+            fluid = Fluid(  name = name,
+                            density = density,
+                            speed_of_sound = speed_of_sound,
+                            color =  color,
+                            identifier = identifier,
+                            isentropic_exponent = isentropic_exponent,
+                            thermal_conductivity = thermal_conductivity,
+                            specific_heat_Cp = specific_heat_Cp,
+                            dynamic_viscosity = dynamic_viscosity,
+                            temperature = temperature,
+                            pressure = pressure,
+                            molar_mass = molar_mass  )
+            
+            self.library_fluids[identifier] = fluid
+
+    def load_material_library(self):
+
+        self.library_materials = dict()
+        config = app().pulse_file.read_material_library_from_file()
+
+        if config is None:
+            return
+
+        for tag in config.sections():
+
+            section = config[tag]
+            # keys = section.keys()
+
+            name = section['name']
+            identifier = int(section['identifier'])
+            density = float(section['density'])
+            poisson_ratio = float(section['poisson ratio'])
+            elasticity_modulus = float(section['elasticity modulus']) * 1e9
+            thermal_expansion_coefficient = float(section['thermal expansion coefficient'])
+            color =  get_color_rgb(section['color'])
+
+            if len(color) == 4:
+                color = color[:3]
+
+            material = Material(
+                                name = name,
+                                identifier = identifier, 
+                                density = density,
+                                poisson_ratio = poisson_ratio,
+                                elasticity_modulus = elasticity_modulus,
+                                thermal_expansion_coefficient = thermal_expansion_coefficient, 
+                                color = color
+                                )
+            
+            self.library_materials[identifier] = material
+
+    def load_model_properties(self):
 
         model_properties = self.files_loader.load_model_properties_from_file()
 
@@ -389,31 +497,48 @@ class LoadProject:
             if isinstance(data, dict):
                 for (property, id), prop_data in data.items():
 
-                    # if property == "fluid":
-                    #     fluid_id = prop_data
-                    #     if fluid_id not in self.library_fluids.keys():
-                    #         continue
-                    #     else:
-                    #         prop_data = self.library_fluids[fluid_id]
-
-                    # elif property == "material":
-                    #     material_id = prop_data
-                    #     if material_id not in self.library_materials.keys():
-                    #         continue
-                    #     else:
-                    #         prop_data = self.library_materials[material_id]
-
                     if key == "nodal_properties":
-                        self.properties._set_property(property, prop_data, node_ids=id)
+                        self.properties._set_nodal_property(property, prop_data, node_ids=id)
 
                     elif key == "element_properties":
-                        self.properties._set_property(property, prop_data, element=id)
+                        self.properties._set_element_property(property, prop_data, element=id)
 
-                    elif key == "line_properties":
-                        self.properties._set_property(property, prop_data, line=id)
+    def load_lines_properties(self):
 
-                    else:
-                        self.properties._set_property(property, prop_data)
+        line_properties = app().pulse_file.read_line_properties_from_file()
+
+        for line_id, data in line_properties.items():
+
+            if isinstance(data, dict):
+                for property, prop_data in data.items():
+
+                    if property == "fluid":
+                        fluid_id = prop_data
+                        if fluid_id not in self.library_fluids.keys():
+                            continue
+
+                        prop_data = self.library_fluids[fluid_id]
+
+                    elif property == "material":
+                        material_id = prop_data
+                        if material_id not in self.library_materials.keys():
+                            continue
+
+                        prop_data = self.library_materials[material_id]
+
+                    self.properties._set_line_property(property, prop_data, line_ids=int(line_id))
+        
+        print(line_properties)
+        if line_properties:
+            self.send_lines_properties_to_elements()
+
+    def send_lines_properties_to_elements(self):
+        for line_id, data in self.properties.line_properties.items():
+            # acoustic
+            self.load_fluid_from_lines(line_id, data)
+            self.load_acoustic_element_type_from_lines(line_id, data)
+            # structural
+            self.load_material_from_lines(line_id, data)
 
     def load_imported_table_data_from_file(self):
         imported_tables = self.files_loader.load_imported_table_data_from_file()
@@ -491,7 +616,7 @@ class LoadProject:
                     property = "psd_structural_link"
                     node_ids, data = self.preprocessor.get_structural_link_data(nodes)
 
-                self.model.properties._set_property(property, data, node_ids=node_ids)
+                self.model.properties._set_nodal_property(property, data, node_ids=node_ids)
 
     def get_device_related_lines(self):
 
@@ -504,3 +629,42 @@ class LoadProject:
                 psd_lines[psd_label].append(int(section))
 
         return psd_lines
+
+    ## line loaders
+
+    def load_fluid_from_lines(self, line_id: int, data: dict):
+
+        fluid = None
+        if "fluid" in data.keys():
+            fluid = data["fluid"]
+
+        self.preprocessor.set_fluid_by_lines(line_id, fluid)
+
+    def load_acoustic_element_type_from_lines(self, line_id: int, data: dict):
+
+        element_type = None
+        if "acoustic_element_type" in data.keys():
+            element_type = data["acoustic_element_type"]
+
+        proportional_damping = None
+        if "proportional_damping" in data.keys():
+            proportional_damping = data["proportional_damping"]
+
+        volume_flow = None
+        if "volume_flow" in data.keys():
+            volume_flow = data["volume_flow"]
+
+        self.preprocessor.set_acoustic_element_type_by_lines(   
+                                                                line_id, 
+                                                                element_type, 
+                                                                proportional_damping = proportional_damping,
+                                                                vol_flow = volume_flow    
+                                                             )
+        
+    def load_material_from_lines(self, line_id: int, data: dict):
+
+        material = None
+        if "material" in data.keys():
+            material = data["material"]
+
+        self.preprocessor.set_material_by_lines(line_id, material)

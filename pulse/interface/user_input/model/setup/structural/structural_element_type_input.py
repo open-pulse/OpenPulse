@@ -324,7 +324,7 @@ class StructuralElementTypeInput(QDialog):
 
     def load_element_type_info(self):
         self.treeWidget_element_type.clear()
-        for key, lines in self.preprocessor.dict_structural_element_type_to_lines.items():
+        for key, lines in self.preprocessor.structural_element_type_to_lines.items():
             item = QTreeWidgetItem([str(key), str(lines)])
             item.setTextAlignment(0, Qt.AlignCenter)
             item.setTextAlignment(1, Qt.AlignCenter)
@@ -332,7 +332,7 @@ class StructuralElementTypeInput(QDialog):
         self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
-        if len(self.preprocessor.dict_structural_element_type_to_lines) == 0:
+        if len(self.preprocessor.structural_element_type_to_lines) == 0:
             self.tabWidget_main.setCurrentIndex(0)
             self.tabWidget_main.setTabVisible(1, False)
         else:
@@ -349,7 +349,7 @@ class StructuralElementTypeInput(QDialog):
                 key = item.text(0)
 
                 data = dict()
-                for line_id in self.preprocessor.dict_structural_element_type_to_lines[key]:
+                for line_id in self.preprocessor.structural_element_type_to_lines[key]:
                     element_data = [key]
                     data[line_id] = element_data
 
@@ -382,7 +382,7 @@ class StructuralElementTypeInput(QDialog):
     #     key = self.lineEdit_selected_group.text()
     #     if key != "":
     #         try:
-    #             lines = self.preprocessor.dict_structural_element_type_to_lines[key]
+    #             lines = self.preprocessor.structural_element_type_to_lines[key]
     #             for line in lines:
     #                 element_type = ""
     #                 self.project.set_structural_element_type_by_lines(line, element_type, remove=True)

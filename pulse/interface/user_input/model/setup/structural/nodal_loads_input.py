@@ -284,7 +284,7 @@ class NodalLoadsInput(QDialog):
                             "imag values" : imag_values
                           }
 
-                self.properties._set_property("nodal_loads", bc_data, node_id)
+                self.properties._set_nodal_property("nodal_loads", bc_data, node_id)
 
             app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
@@ -499,7 +499,7 @@ class NodalLoadsInput(QDialog):
                         "data arrays" : array_data
                        }
 
-            self.properties._set_property("nodal_loads", bc_data, node_ids=node_id)
+            self.properties._set_nodal_property("nodal_loads", bc_data, node_ids=node_id)
 
         app().pulse_file.write_model_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()

@@ -23,7 +23,7 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
 )
 
 from ._mesh_picker import MeshPicker
-from ._model_info_text import elements_info_text, entity_info_text, nodes_info_text
+from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
 
 
 class MeshRenderWidget(CommonRenderWidget):
@@ -283,5 +283,5 @@ class MeshRenderWidget(CommonRenderWidget):
         info_text = ""
         info_text += nodes_info_text()
         info_text += elements_info_text()
-        info_text += entity_info_text()
+        info_text += lines_info_text()
         self.set_info_text(info_text)

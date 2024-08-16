@@ -815,7 +815,7 @@ class CompressorModelInput(QDialog):
 
                 self.remove_conflictant_excitations(self.suction_node_id)
 
-                self.properties._set_property("compressor_excitation", data, node_ids=self.suction_node_id)
+                self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.suction_node_id)
 
                 if self.save_table_values(table_name, self.suction_node_id, freq, in_flow_rate):
                     return
@@ -865,7 +865,7 @@ class CompressorModelInput(QDialog):
 
             self.remove_conflictant_excitations(self.discharge_node_id)
 
-            self.properties._set_property("compressor_excitation", data, node_ids=self.discharge_node_id)
+            self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.discharge_node_id)
 
             if self.save_table_values(table_name, self.discharge_node_id, freq, out_flow_rate):
                 return

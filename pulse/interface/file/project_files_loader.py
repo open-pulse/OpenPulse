@@ -35,8 +35,8 @@ class ProjectFilesLoader:
         self.pipeline_data = app().pulse_file.read_pipeline_data_from_file()
 
         self.initialize_dictionaries_for_load_data()
-        self.load_material_data_from_file()
-        self.load_fluid_data_from_file()
+        # self.load_material_data_from_file()
+        # self.load_fluid_data_from_file()
         self.load_cross_section_data_from_file()
         self.load_element_type_data_from_file()
         self.load_valve_data_from_file()
@@ -67,162 +67,162 @@ class ProjectFilesLoader:
         self.B2XP_rotation_decoupling_data = dict()
         self.element_length_correction_data = dict()
 
-    def load_material_library(self):
+    # def load_material_library(self):
 
-        materials_library = dict()
-        config = app().pulse_file.read_material_library_from_file()
+    #     materials_library = dict()
+    #     config = app().pulse_file.read_material_library_from_file()
 
-        if config is None:
-            return
+    #     if config is None:
+    #         return
 
-        for tag in config.sections():
+    #     for tag in config.sections():
 
-            section = config[tag]
+    #         section = config[tag]
 
-            name = section['name']
-            identifier = int(section['identifier'])
-            density = float(section['density'])
-            poisson_ratio = float(section['poisson ratio'])
-            elasticity_modulus = float(section['elasticity modulus']) * 1e9
-            _thermal_expansion_coefficient = section['thermal expansion coefficient']
-            color = get_color_rgb(section['color'])
+    #         name = section['name']
+    #         identifier = int(section['identifier'])
+    #         density = float(section['density'])
+    #         poisson_ratio = float(section['poisson ratio'])
+    #         elasticity_modulus = float(section['elasticity modulus']) * 1e9
+    #         _thermal_expansion_coefficient = section['thermal expansion coefficient']
+    #         color = get_color_rgb(section['color'])
 
-            if _thermal_expansion_coefficient == "":
-                thermal_expansion_coefficient = float(0)
-            else:
-                thermal_expansion_coefficient = float(_thermal_expansion_coefficient)
+    #         if _thermal_expansion_coefficient == "":
+    #             thermal_expansion_coefficient = float(0)
+    #         else:
+    #             thermal_expansion_coefficient = float(_thermal_expansion_coefficient)
 
-            material = Material(
-                                name = name,
-                                identifier = identifier, 
-                                density = density,
-                                poisson_ratio = poisson_ratio,
-                                elasticity_modulus = elasticity_modulus,
-                                thermal_expansion_coefficient = thermal_expansion_coefficient, 
-                                color = color
-                                )
+    #         material = Material(
+    #                             name = name,
+    #                             identifier = identifier, 
+    #                             density = density,
+    #                             poisson_ratio = poisson_ratio,
+    #                             elasticity_modulus = elasticity_modulus,
+    #                             thermal_expansion_coefficient = thermal_expansion_coefficient, 
+    #                             color = color
+    #                             )
 
-            materials_library[identifier] = material
+    #         materials_library[identifier] = material
 
-        return materials_library
+    #     return materials_library
 
-    def load_fluid_library(self):
+    # def load_fluid_library(self):
 
-        fluids_library = dict()
-        config = app().pulse_file.read_fluid_library_from_file()
+    #     fluids_library = dict()
+    #     config = app().pulse_file.read_fluid_library_from_file()
 
-        if config is None:
-            return
+    #     if config is None:
+    #         return
 
-        for tag in config.sections():
+    #     for tag in config.sections():
 
-            section = config[tag]
-            keys = section.keys()
+    #         section = config[tag]
+    #         keys = section.keys()
 
-            name = section['name']
-            identifier = int(section['identifier'])
-            fluid = float(section['fluid'])
-            speed_of_sound = float(section['speed of sound'])
-            color = get_color_rgb(section['color'])
+    #         name = section['name']
+    #         identifier = int(section['identifier'])
+    #         fluid = float(section['fluid'])
+    #         speed_of_sound = float(section['speed of sound'])
+    #         color = get_color_rgb(section['color'])
 
-            temperature = None
-            if 'temperature' in keys:
-                temperature = float(section['temperature'])
+    #         temperature = None
+    #         if 'temperature' in keys:
+    #             temperature = float(section['temperature'])
 
-            pressure = None
-            if 'pressure' in keys:
-                pressure = float(section['pressure'])
+    #         pressure = None
+    #         if 'pressure' in keys:
+    #             pressure = float(section['pressure'])
 
-            isentropic_exponent = None
-            if 'isentropic exponent' in keys:
-                isentropic_exponent =  float(section['isentropic exponent'])
+    #         isentropic_exponent = None
+    #         if 'isentropic exponent' in keys:
+    #             isentropic_exponent =  float(section['isentropic exponent'])
             
-            thermal_conductivity = None
-            if 'thermal conductivity' in keys:
-                thermal_conductivity =  float(section['thermal conductivity'])
+    #         thermal_conductivity = None
+    #         if 'thermal conductivity' in keys:
+    #             thermal_conductivity =  float(section['thermal conductivity'])
 
-            specific_heat_Cp = None
-            if 'specific heat cp' in keys:
-                specific_heat_Cp =  float(section['specific heat cp'])
+    #         specific_heat_Cp = None
+    #         if 'specific heat cp' in keys:
+    #             specific_heat_Cp =  float(section['specific heat cp'])
             
-            dynamic_viscosity = None
-            if 'dynamic viscosity' in keys:
-                dynamic_viscosity =  float(section['dynamic viscosity'])
+    #         dynamic_viscosity = None
+    #         if 'dynamic viscosity' in keys:
+    #             dynamic_viscosity =  float(section['dynamic viscosity'])
 
-            molar_mass = None
-            if 'molar mass' in keys:
-                molar_mass =  float(section['molar mass'])
+    #         molar_mass = None
+    #         if 'molar mass' in keys:
+    #             molar_mass =  float(section['molar mass'])
            
-            fluid = Fluid( 
-                            name,
-                            fluid,
-                            speed_of_sound,
-                            identifier = identifier,
-                            isentropic_exponent = isentropic_exponent,
-                            thermal_conductivity = thermal_conductivity,
-                            specific_heat_Cp = specific_heat_Cp,
-                            dynamic_viscosity = dynamic_viscosity,
-                            temperature = temperature,
-                            pressure = pressure,
-                            molar_mass = molar_mass,
-                            color=color
-                          )
+    #         fluid = Fluid( 
+    #                         name,
+    #                         fluid,
+    #                         speed_of_sound,
+    #                         identifier = identifier,
+    #                         isentropic_exponent = isentropic_exponent,
+    #                         thermal_conductivity = thermal_conductivity,
+    #                         specific_heat_Cp = specific_heat_Cp,
+    #                         dynamic_viscosity = dynamic_viscosity,
+    #                         temperature = temperature,
+    #                         pressure = pressure,
+    #                         molar_mass = molar_mass,
+    #                         color=color
+    #                       )
 
-            fluids_library[identifier] = fluid
+    #         fluids_library[identifier] = fluid
 
-        return fluids_library
+    #     return fluids_library
 
-    def load_material_data_from_file(self) -> dict:
+    # def load_material_data_from_file(self) -> dict:
 
-        library_materials = self.load_material_library()
+    #     library_materials = self.load_material_library()
         
-        try:
-            for tag in self.pipeline_data.sections():
+    #     try:
+    #         for tag in self.pipeline_data.sections():
 
-                section = self.pipeline_data[tag]
-                keys = section.keys()
+    #             section = self.pipeline_data[tag]
+    #             keys = section.keys()
 
-                if 'material id' in keys:
+    #             if 'material id' in keys:
 
-                    material_id = section['material id']
-                    if material_id.isnumeric():
+    #                 material_id = section['material id']
+    #                 if material_id.isnumeric():
 
-                        material_id = int(material_id)
-                        if material_id in library_materials.keys():
-                            self.material_data[int(tag)] = library_materials[material_id]
+    #                     material_id = int(material_id)
+    #                     if material_id in library_materials.keys():
+    #                         self.material_data[int(tag)] = library_materials[material_id]
 
-        except Exception as error_log:
+    #     except Exception as error_log:
 
-            title = "Error while loading material data from file"
-            message = f"Problem detected at line: {tag}\n\n"
-            message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+    #         title = "Error while loading material data from file"
+    #         message = f"Problem detected at line: {tag}\n\n"
+    #         message += str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
 
-    def load_fluid_data_from_file(self):
+    # def load_fluid_data_from_file(self):
 
-        fluids_library = self.load_material_library()
+    #     fluids_library = self.load_material_library()
 
-        try:
-            for tag in self.pipeline_data.sections():
+    #     try:
+    #         for tag in self.pipeline_data.sections():
 
-                section = self.pipeline_data[tag]
-                keys = section.keys()
+    #             section = self.pipeline_data[tag]
+    #             keys = section.keys()
 
-                if 'fluid id' in keys:
+    #             if 'fluid id' in keys:
 
-                    fluid_id = section['fluid id']
-                    if fluid_id.isnumeric():
+    #                 fluid_id = section['fluid id']
+    #                 if fluid_id.isnumeric():
 
-                        fluid_id = int(fluid_id)
-                        if fluid_id in fluids_library.keys():
-                            self.fluid_data[int(tag)] = fluids_library[fluid_id]
+    #                     fluid_id = int(fluid_id)
+    #                     if fluid_id in fluids_library.keys():
+    #                         self.fluid_data[int(tag)] = fluids_library[fluid_id]
 
-        except Exception as error_log:
+    #     except Exception as error_log:
             
-            title = "Error while loading fluid data from file"
-            message = f"Problem detected at line: {tag}\n\n"
-            message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+    #         title = "Error while loading fluid data from file"
+    #         message = f"Problem detected at line: {tag}\n\n"
+    #         message += str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
 
 
     def load_cross_section_data_from_file(self):
