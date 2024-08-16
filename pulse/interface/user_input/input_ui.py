@@ -98,18 +98,6 @@ class InputUi:
         #     PrintMessageInput([window_title_1, title, message])
         #     return None
 
-    def set_clipping_plane(self):
-        return
-
-        if not self.opv.opvAnalysisRenderer.getInUse():
-            return
-
-        clipping_plane = self.process_input(ClipPlaneWidget)        
-        clipping_plane.value_changed.connect(self.opv.configure_clipping_plane)
-        clipping_plane.slider_released.connect(self.opv.apply_clipping_plane)
-        clipping_plane.exec()
-        self.opv.dismiss_clipping_plane()
-
     def call_geometry_editor(self):
         main_window = self.main_window
         main_window.use_geometry_workspace()

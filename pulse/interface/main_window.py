@@ -15,7 +15,6 @@ from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysi
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
 from pulse.interface.user_input.project.get_started import GetStartedInput
@@ -24,11 +23,6 @@ from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
-
-from pulse.interface.user_input.project.loading_screen import LoadingScreen
-from pulse.interface.user_input.render.clip_plane_widget import ClipPlaneWidget
-from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter
-from pulse.interface.file.project_file_io import ProjectFileIO
 
 from molde.render_widgets import CommonRenderWidget
 
