@@ -29,7 +29,6 @@ class PipeOptionsWidget(QWidget):
         self.user_defined_bending_radius = 0
 
         self._define_qt_variables()
-        self._create_layout()
         self._create_connections()
         self._initialize()
 
@@ -38,9 +37,9 @@ class PipeOptionsWidget(QWidget):
         self.bending_radius_line_edit: QLineEdit
 
         self.set_section_button: QPushButton
-        self.cross_section_widget = CrossSectionWidget(self)
+        self.cross_section_widget: CrossSectionWidget = self.parent().cross_section_widget
 
-    def _create_layout(self):
+    def _config_layout(self):
         self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()     
         self.cross_section_widget.hide_all_tabs()     
@@ -79,6 +78,7 @@ class PipeOptionsWidget(QWidget):
         return kwargs
 
     def show_cross_section_widget_callback(self):
+        self._config_layout()
         self.cross_section_widget.show()
 
     def define_cross_section_callback(self):
