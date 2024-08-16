@@ -501,8 +501,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../icons/common/play.png</normaloff>
-             <normalon>../../../icons/common/pause.png</normalon>../../../icons/common/play.png</iconset>
+             <normaloff>../../../icons/common/play_pause.png</normaloff>../../../icons/common/play_pause.png</iconset>
            </property>
            <property name="iconSize">
             <size>
