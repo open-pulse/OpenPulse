@@ -147,7 +147,7 @@
         </row>
         <row>
          <property name="text">
-          <string>ID</string>
+          <string>Identifier</string>
          </property>
         </row>
         <row>

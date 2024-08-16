@@ -12,9 +12,8 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.libraries.default_libraries import default_material_library
 from pulse.model.properties.material import Material
 
-import configparser
 from itertools import count
-from pathlib import Path
+import os
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
