@@ -294,8 +294,6 @@ class CrossSectionWidget(QWidget):
 
     def get_constant_section_pipe_parameters(self):
 
-        print("entrei get_constant_pipe_parameters")
-
         self.section_label = None
         self.section_parameters = list()
         self.pipe_section_info = dict()
@@ -352,7 +350,7 @@ class CrossSectionWidget(QWidget):
         
         if len(self.section_parameters) == 6:
             
-            self.section_label = "Pipe section"
+            self.section_label = "Pipe"
             self.pipe_section_info = {  "section_type_label" : self.section_label ,
                                         "section_parameters" : self.section_parameters  }
 
@@ -460,7 +458,7 @@ class CrossSectionWidget(QWidget):
                                             insulation_thickness, 
                                             insulation_density  ]
 
-        self.section_label = "Pipe section"
+        self.section_label = "Reducer"
         self.pipe_section_info = {  "section_type_label" : self.section_label ,
                                     "section_parameters" : self.variable_parameters  }
 
@@ -775,7 +773,7 @@ class CrossSectionWidget(QWidget):
             if self.get_beam_section_parameters():
                 return
 
-        if self.section_label == "Pipe section":
+        if self.section_label in ["Pipe", "Reducer"]:
             Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
         else:
             Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
@@ -789,7 +787,7 @@ class CrossSectionWidget(QWidget):
         second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
         third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
         
-        if self.section_label == "Pipe section" and Yp_ins is not None:
+        if self.section_label in ["Pipe", "Reducer"] and Yp_ins is not None:
             fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
             _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
             second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))

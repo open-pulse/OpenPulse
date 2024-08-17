@@ -199,41 +199,45 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
             self.hide()
             title = "Invalid selection"
-            message = f"The '{self.correction_types[index]}' has not been detected in "
+            message = f"The '{self.correction_labels[index]}' has not been detected in "
             message += f"the selected group of elements. You should to change the elements "
             message += "selection and/or modify the correction type to proceed."
             PrintMessageInput([window_title_2, title, message])
             return list()
 
-    def load_elements_info(self):
-        
+    def maps_correction_type_to_elements(self):
+
         keys = [0, 1, 2]
         labels = ['Expansion', 'Side branch', 'Loop']
-        
-        self.correction_types = dict(zip(keys, labels))
-        self.treeWidget_length_correction_groups.clear()
-        
+        self.correction_labels = dict(zip(keys, labels))
+
         self.maps_correction_type = defaultdict(list)
         for (property, element_id), data in self.properties.element_properties.items():
             if property == "element_length_correction":
 
-                index = data["correction index"]
-                text = self.correction_types[index]
-                self.maps_correction_type[data["correction index"]].append(element_id)
+                index = data["correction type"]
+                elc_label = self.correction_labels[index]
+                self.maps_correction_type[elc_label].append(element_id)
 
-                new = QTreeWidgetItem(["::", text, str(element_id)])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                new.setTextAlignment(2, Qt.AlignCenter)
-                self.treeWidget_length_correction_groups.addTopLevelItem(new)
-        
+    def load_elements_info(self):
+
+        self.maps_correction_type_to_elements()
+        self.treeWidget_length_correction_groups.clear()
+
+        for elc_label, element_ids in self.maps_correction_type.items():
+            new = QTreeWidgetItem([elc_label, str(element_ids)])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            new.setTextAlignment(2, Qt.AlignCenter)
+            self.treeWidget_length_correction_groups.addTopLevelItem(new)
+
         self.update_tabs_visibility()         
 
     def on_click_item(self, item):
         self.lineEdit_element_id.setText(item.text(0))
         correction_type = item.text(0)
-        list_elements = self.maps_correction_type[correction_type]
-        app().main_window.set_selection(elements = list_elements)
+        element_ids = self.maps_correction_type[correction_type]
+        app().main_window.set_selection(elements = element_ids)
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)
@@ -293,15 +297,16 @@ class AcousticElementLengthCorrectionInput(QDialog):
         try:
 
             element_ids = app().main_window.list_selected_elements()
-
             if element_ids:
 
                 data = dict()
                 for element_id in element_ids:
-                    correction_type = self.properties._get_property("element_length_correction", element_ids=element_id)
-                    if correction_type is None:
+                    prop_data = self.properties._get_property("element_length_correction", element_id=element_id)
+                    if prop_data is None:
                         continue
-                    data[element_id] = [correction_type]
+
+                    index = prop_data["correction type"]
+                    data[element_id] = self.correction_labels[index]
 
                 if data:
 

@@ -43,15 +43,6 @@ class Node:
     def reset(self):
         
         # Structural boundary conditions and external lumped elements
-        self.nodal_loads = [None, None, None, None, None, None]
-        self.nodal_loads_table_names = [None, None, None, None, None, None]
-        self.there_are_nodal_loads = False
-        self.loaded_table_for_nodal_loads = False
-        
-        self.prescribed_dofs = [None, None, None, None, None, None]
-        self.prescribed_dofs_table_names = [None, None, None, None, None, None]
-        self.there_are_prescribed_dofs = False
-        self.loaded_table_for_prescribed_dofs = False
         
         self.lumped_masses = [None, None, None, None, None, None]
         self.lumped_masses_table_names = [None, None, None, None, None, None]

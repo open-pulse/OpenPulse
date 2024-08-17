@@ -1162,7 +1162,7 @@ class ExpansionJointInput(QDialog):
                     element_type = self.structural_elements[element_id].element_type
                     if element_type == 'pipe_1' and cross is not None:
                         self.project.set_cross_section_by_elements(input_elements, cross)
-                        self.project.add_cross_sections_expansion_joints_valves_in_file(input_elements)
+                        # self.project.add_cross_sections_expansion_joints_valves_in_file(input_elements)
                         return
 
     def remove_selected_expansion_joint_by_line(self):

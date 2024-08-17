@@ -254,7 +254,7 @@ class ProjectFile:
     #             if 'section type' in keys:
     #                 section_type_label = section['section type']
     #             else:
-    #                 section_type_label = "Pipe section"
+    #                 section_type_label = "Pipe"
 
     #             if structural_element_type in ["expansion_joint", "valve"]:
     #                 continue
@@ -389,59 +389,59 @@ class ProjectFile:
         
         self.write_data_in_file(self._pipeline_path, config)      
 
-    def add_cross_section_segment_in_file(self, section_info : dict):
+    # def add_cross_section_segment_in_file(self, section_info : dict):
         
-        try:
+    #     try:
 
-            config = app().pulse_file.read_pipeline_data_from_file()
+    #         config = app().pulse_file.read_pipeline_data_from_file()
 
-            for line_id, data in section_info.items():
+    #         for line_id, data in section_info.items():
 
-                line_id = str(line_id)
+    #             line_id = str(line_id)
 
-                str_keys = [    'section parameters',
-                                'section properties',
-                                'section type',
-                                'expansion joint parameters',
-                                'expansion joint stiffness',
-                                'valve parameters',
-                                'valve center coordinates',
-                                'valve section parameters',
-                                'flange section parameters'   ]
+    #             str_keys = [    'section parameters',
+    #                             'section properties',
+    #                             'section type',
+    #                             'expansion joint parameters',
+    #                             'expansion joint stiffness',
+    #                             'valve parameters',
+    #                             'valve center coordinates',
+    #                             'valve section parameters',
+    #                             'flange section parameters'   ]
 
-                for str_key in str_keys:
-                    if str_key in list(config[line_id].keys()):
-                        config.remove_option(section=line_id, option=str_key)
+    #             for str_key in str_keys:
+    #                 if str_key in list(config[line_id].keys()):
+    #                     config.remove_option(section=line_id, option=str_key)
 
-                if data is not None:
+    #             if data is not None:
 
-                    section_type_label = data["section_type_label"]
-                    config[line_id]['section type'] = section_type_label
+    #                 section_type_label = data["section_type_label"]
+    #                 config[line_id]['section type'] = section_type_label
 
-                    if section_type_label == "Pipe section":
-                        if line_id in list(config.sections()):
-                            section_parameters = data["section_parameters"]
-                            config[line_id]['section parameters'] = str(section_parameters)
+    #                 if section_type_label in ["Pipe" , "Reducer"]:
+    #                     if line_id in list(config.sections()):
+    #                         section_parameters = data["section_parameters"]
+    #                         config[line_id]['section parameters'] = str(section_parameters)
 
-                    else:
+    #                 else:
 
-                        if line_id in list(config.sections()):
+    #                     if line_id in list(config.sections()):
 
-                            if section_type_label == "Generic section":
-                                section_properties = data["section_properties"]
-                                config[line_id]['section properties'] = str(section_properties)
+    #                         if section_type_label == "Generic section":
+    #                             section_properties = data["section_properties"]
+    #                             config[line_id]['section properties'] = str(section_properties)
 
-                            else:
-                                section_parameters = data["section_parameters"]
-                                config[line_id]['section parameters'] = str(section_parameters)                    
+    #                         else:
+    #                             section_parameters = data["section_parameters"]
+    #                             config[line_id]['section parameters'] = str(section_parameters)                    
 
-        except Exception as error_log:
-            title = "Error while writing cross-section data in file"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
-            return
+    #     except Exception as error_log:
+    #         title = "Error while writing cross-section data in file"
+    #         message = str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
+    #         return
 
-        app().pulse_file.write_pipeline_data_in_file(config)
+    #     app().pulse_file.write_pipeline_data_in_file(config)
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
@@ -479,7 +479,7 @@ class ProjectFile:
                 key = str_line + "-" + str(subkey)
 
                 config[key] = { 'structural element type' : etype,
-                                'section type' : 'Pipe section',
+                                'section type' : 'Pipe',
                                 'section parameters' : str(section_parameters),
                                 'list of elements' : str(elements) }
 
@@ -664,7 +664,7 @@ class ProjectFile:
                     etype = 'pipe_1'
             
                 config[section_key] = { 'structural element type' : etype,
-                                        'section type' : 'Pipe section',
+                                        'section type' : 'Pipe',
                                         'section parameters': str(section_parameters),
                                         'list of elements': str(elements) }
 
@@ -961,90 +961,87 @@ class ProjectFile:
 
         self.write_data_in_file(self._pipeline_path, config)
 
-    def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, vol_flow=None):
+    # def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, vol_flow=None):
         
-        if isinstance(lines, int):
-            lines = [lines]
+    #     if isinstance(lines, int):
+    #         lines = [lines]
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
         
-        for line_id in lines:
-            _section = str(line_id)
+    #     for line_id in lines:
+    #         _section = str(line_id)
 
-            config[_section]['acoustic element type'] = element_type
-            if element_type == 'proportional':
-                config[_section]['proportional damping'] = str(proportional_damping)
+    #         config[_section]['acoustic element type'] = element_type
+    #         if element_type == 'proportional':
+    #             config[_section]['proportional damping'] = str(proportional_damping)
                 
-            if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
-                config.remove_option(section=_section, option='proportional damping')  
+    #         if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
+    #             config.remove_option(section=_section, option='proportional damping')  
 
-            if element_type in ["undamped mean flow", "peters", "howe"]:
-                config[_section]['volume flow rate'] = str(vol_flow)
+    #         if element_type in ["undamped mean flow", "peters", "howe"]:
+    #             config[_section]['volume flow rate'] = str(vol_flow)
 
-            if element_type not in ["undamped mean flow", "peters", "howe"] and 'volume flow rate' in config[_section].keys():
-                config.remove_option(section=_section, option='volume flow rate')  
+    #         if element_type not in ["undamped mean flow", "peters", "howe"] and 'volume flow rate' in config[_section].keys():
+    #             config.remove_option(section=_section, option='volume flow rate')  
     
-        self.write_data_in_file(self._pipeline_path, config)
+    #     self.write_data_in_file(self._pipeline_path, config)
 
-
-
-    def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
-        """ This method updates the lists of elements in entity file after remesh process. A mapping process checks the boundaries of the
-            attribution before and after meshing process. If the mapping process could not find boundaries of atribution after remesh, 
-            so the all attribuiton from line related to the group of elements will be removed.
+    # def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
+    #     """ This method updates the lists of elements in entity file after remesh process. A mapping process checks the boundaries of the
+    #         attribution before and after meshing process. If the mapping process could not find boundaries of atribution after remesh, 
+    #         so the all attribuiton from line related to the group of elements will be removed.
         
-        """
-        if os.path.exists(self._pipeline_path):
-            config = configparser.ConfigParser()
-            config.read(self._pipeline_path)
-            sections = config.sections()
+    #     """
+    #     if os.path.exists(self._pipeline_path):
+    #         config = configparser.ConfigParser()
+    #         config.read(self._pipeline_path)
+    #         sections = config.sections()
             
-            for section in sections:
-                if section in config.sections():
-                    if 'list of elements' in config[section].keys():
-                        str_list_elements = config[section]['list of elements']
-                        list_elements = get_list_of_values_from_string(str_list_elements)
-                        list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                        temp_list = list()
-                        lines_to_reset = list()
-                        try:
+    #         for section in sections:
+    #             if section in config.sections():
+    #                 if 'list of elements' in config[section].keys():
+    #                     str_list_elements = config[section]['list of elements']
+    #                     list_elements = get_list_of_values_from_string(str_list_elements)
+    #                     list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+    #                     temp_list = list()
+    #                     lines_to_reset = list()
+    #                     try:
 
-                            for subgroup_elements in list_subgroup_elements:
-                                str_subgroup_elements = str(subgroup_elements)
-                                if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
-                                    temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
-                                elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
-                                    lines_to_reset.append(section)    
+    #                         for subgroup_elements in list_subgroup_elements:
+    #                             str_subgroup_elements = str(subgroup_elements)
+    #                             if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
+    #                                 temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
+    #                             elif str_subgroup_elements in dict_non_mapped_subgroups_entity_file.keys():
+    #                                 lines_to_reset.append(section)    
 
-                            if lines_to_reset:
-                                for line_to_reset in lines_to_reset:
-                                    prefix = line_to_reset.split("-")[0] + "-"
-                                    for _section in sections:
-                                        if prefix in _section:
-                                            config.remove_section(section=_section)
-                            elif temp_list:
-                                new_list_elements = [value for group in temp_list for value in group]
-                                config[section]['list of elements'] =  str(new_list_elements)
-                            else:
-                                config.remove_section(section=section)
+    #                         if lines_to_reset:
+    #                             for line_to_reset in lines_to_reset:
+    #                                 prefix = line_to_reset.split("-")[0] + "-"
+    #                                 for _section in sections:
+    #                                     if prefix in _section:
+    #                                         config.remove_section(section=_section)
+    #                         elif temp_list:
+    #                             new_list_elements = [value for group in temp_list for value in group]
+    #                             config[section]['list of elements'] =  str(new_list_elements)
+    #                         else:
+    #                             config.remove_section(section=section)
 
-                        except Exception as log_error:
+    #                     except Exception as log_error:
 
-                            if "-" in section:
-                                line_id = section.split("-")[0]
-                                subkey = f"{line_id}-"
-                                config.remove_section(section)
-                                if line_id in sections:
-                                    for key in config[line_id].keys():                                                     
-                                        # for key in config[line_id].keys():
-                                        config.remove_option(section=line_id, option=key)
-                                for _section in sections:
-                                    if subkey in _section:
-                                        config.remove_section(_section)       
+    #                         if "-" in section:
+    #                             line_id = section.split("-")[0]
+    #                             subkey = f"{line_id}-"
+    #                             config.remove_section(section)
+    #                             if line_id in sections:
+    #                                 for key in config[line_id].keys():                                                     
+    #                                     # for key in config[line_id].keys():
+    #                                     config.remove_option(section=line_id, option=key)
+    #                             for _section in sections:
+    #                                 if subkey in _section:
+    #                                     config.remove_section(_section)       
 
-            self.write_data_in_file(self._pipeline_path, config)
-
+    #         self.write_data_in_file(self._pipeline_path, config)
 
     def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
         config = configparser.ConfigParser()
@@ -1093,38 +1090,23 @@ class ProjectFile:
         with open(path, 'w') as config_file:
             config.write(config_file)
 
-    def add_material_in_file(self, lines, material):
+    # def add_material_in_file(self, lines, material):
 
-        if isinstance(lines, int):
-            lines = [lines]
+    #     if isinstance(lines, int):
+    #         lines = [lines]
         
-        if material is None:
-            material_id = ""
-        else:
-            material_id = material.identifier
+    #     if material is None:
+    #         material_id = ""
+    #     else:
+    #         material_id = material.identifier
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
 
-        for line_id in lines:
-            config[str(line_id)]['material id'] = str(material_id)
+    #     for line_id in lines:
+    #         config[str(line_id)]['material id'] = str(material_id)
             
-        self.write_data_in_file(self._pipeline_path, config)
-
-    def add_material_segment_in_file(self, lines, material_id):
-
-        if isinstance(lines, int):
-            lines = [lines]
-
-        if material_id is None:
-            material_id = ""
-
-        config = app().pulse_file.read_pipeline_data_from_file()
-
-        for line_id in lines:
-            config[str(line_id)]['material id'] = str(material_id)
-
-        app().pulse_file.write_pipeline_data_in_file(config)
+    #     self.write_data_in_file(self._pipeline_path, config)
 
     def add_psd_label_in_file(self, lines, psd_label):
 

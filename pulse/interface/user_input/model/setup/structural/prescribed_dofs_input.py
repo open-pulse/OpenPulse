@@ -181,29 +181,30 @@ class PrescribedDofsInput(QDialog):
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if len(selected_nodes) == 1:
-
+        if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "prescribed_dofs" and selected_nodes[0] == node_id:
+            if len(selected_nodes) == 1:
 
-                    values = data["values"]
-    
-                    if "table paths" in data.keys():
-                        table_paths = data["table paths"]
-                        self.tabWidget_prescribed_dofs.setCurrentIndex(1)
-                        for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
-                            table_path = table_paths[index]
-                            if table_path is not None:                   
-                                lineEdit_table.setText(table_path)
+                for (property, node_id), data in self.properties.nodal_properties.items():
+                    if property == "prescribed_dofs" and selected_nodes[0] == node_id:
 
-                    else:
-                        for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
-                            if values[index] is not None:
-                                lineEdit_real.setText(str(np.real(values[index])))
-                                lineEdit_imag.setText(str(np.imag(values[index])))
+                        values = data["values"]
+        
+                        if "table paths" in data.keys():
+                            table_paths = data["table paths"]
+                            self.tabWidget_prescribed_dofs.setCurrentIndex(1)
+                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
+                                table_path = table_paths[index]
+                                if table_path is not None:                   
+                                    lineEdit_table.setText(table_path)
+
+                        else:
+                            for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
+                                if values[index] is not None:
+                                    lineEdit_real.setText(str(np.real(values[index])))
+                                    lineEdit_imag.setText(str(np.imag(values[index])))
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 

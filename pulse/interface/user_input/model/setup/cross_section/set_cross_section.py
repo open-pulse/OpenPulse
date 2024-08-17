@@ -210,7 +210,7 @@ class SetCrossSectionInput(QDialog):
             
             return
 
-        if 'Pipe section' in section_label:
+        if 'Pipe' in section_label:
 
             outside_diameter = self.section_parameters[0]
             thickness = self.section_parameters[1]

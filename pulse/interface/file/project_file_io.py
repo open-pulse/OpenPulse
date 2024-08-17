@@ -300,10 +300,9 @@ class ProjectFileIO:
                     aux = dict()
                     for property in data.keys():
                         value = data[property]
-                        if property in ["fluid", "material"]:
-                            if isinstance(value, (Fluid, Material)):
-                                aux[property] = value.identifier
-                        elif property == "cross_section":
+                        if property in ["fluid", "material",  "cross_section"]:
+                            # if isinstance(value, (Fluid, Material)):
+                            #     aux[property] = value.identifier
                             continue
                         else:
                             aux[property] = value
@@ -617,3 +616,18 @@ class ProjectFileIO:
 
             self.write_project_setup_in_file(data)
             # self.load(self._project_ini_file_path)
+
+    # def add_material_segment_in_file(self, lines, material_id):
+
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+
+    #     if material_id is None:
+    #         material_id = ""
+
+    #     config = self.read_pipeline_data_from_file()
+
+    #     for line_id in lines:
+    #         config[str(line_id)]['material id'] = str(material_id)
+
+    #     self.write_pipeline_data_in_file(config)

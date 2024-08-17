@@ -31,14 +31,16 @@ class LoadProject:
         self.bc_loader = None
 
     def load_project_data(self):
+        #
         self.load_mesh_setup_from_file()
         self.load_pipeline_file()
         self.load_imported_table_data_from_file()
         #
         self.load_fluid_library()
         self.load_material_library()
-        self.load_model_properties()
+        self.load_cross_sections()
         self.load_lines_properties()
+        self.load_model_properties()
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
@@ -70,76 +72,76 @@ class LoadProject:
     #         message += str(log_error)
     #         PrintMessageInput([window_title_1, title, message])
 
-    def load_constant_section_data(self):
-        try:
+    # def load_constant_section_data(self):
+    #     try:
 
-            # Constant cross-section to the entities
-            self.number_sections_by_line = dict()
-            for key, section_data in self.files_loader.cross_section_data.items():
+    #         # Constant cross-section to the entities
+    #         self.number_sections_by_line = dict()
+    #         for key, section_data in self.files_loader.cross_section_data.items():
 
-                # key[0] -> tag : str
-                # key[1] -> label ("pipe", "beam")
+    #             # key[0] -> tag : str
+    #             # key[1] -> label ("pipe", "beam")
 
-                if "-" in key[0]:
+    #             if "-" in key[0]:
 
-                    cross = CrossSection(pipe_section_info = section_data[1])
-                    self.project.load_cross_section_by_element(section_data[0], cross)
+    #                 cross = CrossSection(pipe_section_info = section_data[1])
+    #                 self.project.load_cross_section_by_element(section_data[0], cross)
  
-                    prefix_key = int(key[0].split("-")[0])
-                    if prefix_key in list(self.number_sections_by_line.keys()):
-                        self.number_sections_by_line[prefix_key] += 1
-                    else:
-                        self.number_sections_by_line[prefix_key] = 1
+    #                 prefix_key = int(key[0].split("-")[0])
+    #                 if prefix_key in list(self.number_sections_by_line.keys()):
+    #                     self.number_sections_by_line[prefix_key] += 1
+    #                 else:
+    #                     self.number_sections_by_line[prefix_key] = 1
 
-                else:
+    #             else:
 
-                    if key not in self.files_loader.variable_sections_data.keys():
+    #                 if key not in self.files_loader.variable_sections_data.keys():
 
-                        cross = None
-                        if key[1] == "pipe":
-                            cross = CrossSection(pipe_section_info = section_data)
+    #                     cross = None
+    #                     if key[1] == "pipe":
+    #                         cross = CrossSection(pipe_section_info = section_data)
                         
-                        elif key[1] == "beam":
-                            cross = CrossSection(beam_section_info = section_data)
+    #                     elif key[1] == "beam":
+    #                         cross = CrossSection(beam_section_info = section_data)
                         
-                        if cross is not None:
-                            self.project.load_cross_section_by_line(int(key[0]), cross)
+    #                     if cross is not None:
+    #                         self.project.load_cross_section_by_line(int(key[0]), cross)
 
-        except Exception as log_error:
-            title = "Error while loading constant section data"
-            message = "Local: 'LoadProjectData' class\n\n"
-            message += str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+    #     except Exception as log_error:
+    #         title = "Error while loading constant section data"
+    #         message = "Local: 'LoadProjectData' class\n\n"
+    #         message += str(log_error)
+    #         PrintMessageInput([window_title_1, title, message])
 
-    def load_variable_section_data(self):
-        try:
+    # def load_variable_section_data(self):
+    #     try:
 
-            # Variable Cross-section to the entities
-            for key, value in self.files_loader.variable_sections_data.items():
-                self.project.load_variable_cross_section_by_line(int(key[0]), value)
+    #         # Variable Cross-section to the entities
+    #         for key, value in self.files_loader.variable_sections_data.items():
+    #             self.project.load_variable_cross_section_by_line(int(key[0]), value)
 
-        except Exception as log_error:
-            title = "Error while loading variable section data"
-            message = "Local: 'LoadProjectData' class\n\n"
-            message += str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+    #     except Exception as log_error:
+    #         title = "Error while loading variable section data"
+    #         message = "Local: 'LoadProjectData' class\n\n"
+    #         message += str(log_error)
+    #         PrintMessageInput([window_title_1, title, message])
 
-    def load_structural_element_type_data(self):
-        try:
-            # self.lines_with_cross_section_by_elements = list()
-            # Load structural element type info
-            for key, etype_data in self.files_loader.structural_element_type_data.items():
-                if self.files_loader.element_type_is_structural:
-                    if "-" in key:
-                        self.project.load_structural_element_type_by_elements(etype_data[0], etype_data[1])
-                    else:
-                        self.project.load_structural_element_type_by_line(int(key), etype_data)
+    # def load_structural_element_type_data(self):
+    #     try:
+    #         # self.lines_with_cross_section_by_elements = list()
+    #         # Load structural element type info
+    #         for key, etype_data in self.files_loader.structural_element_type_data.items():
+    #             if self.files_loader.element_type_is_structural:
+    #                 if "-" in key:
+    #                     self.project.load_structural_element_type_by_elements(etype_data[0], etype_data[1])
+    #                 else:
+    #                     self.project.load_structural_element_type_by_line(int(key), etype_data)
 
-        except Exception as log_error:
-            title = "Error while loading structural element type data"
-            message = "Local: 'LoadProjectData' class\n\n"
-            message += str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+    #     except Exception as log_error:
+    #         title = "Error while loading structural element type data"
+    #         message = "Local: 'LoadProjectData' class\n\n"
+    #         message += str(log_error)
+    #         PrintMessageInput([window_title_1, title, message])
 
     def load_structural_element_force_offset_data(self):
         try:
@@ -346,9 +348,9 @@ class LoadProject:
 
             # self.load_material_data()
             # self.load_fluid_data()
-            self.load_constant_section_data()
-            self.load_variable_section_data()
-            self.load_structural_element_type_data()
+            # self.load_constant_section_data()
+            # self.load_variable_section_data()
+            # self.load_structural_element_type_data()
             self.load_structural_element_force_offset_data()
             self.load_structural_element_wall_formulation_data()
             # self.load_acoustic_element_type_data()
@@ -489,6 +491,31 @@ class LoadProject:
             
             self.library_materials[identifier] = material
 
+    def load_cross_sections(self):
+
+        self.cross_sections = dict()
+        line_properties = app().pulse_file.read_line_properties_from_file()
+        if line_properties is None:
+            return
+
+        for line_id, data in line_properties.items():
+
+            if "section_type_label" in data.keys() and "section_parameters" in data.keys():
+                if data["section_type_label"] in ["Pipe", "Bend"]:
+
+                    pipe_section_info = {   "section_type_label" : data["section_type_label"],
+                                            "section_parameters" : data["section_parameters"]   }
+
+                    self.cross_sections[line_id] = CrossSection(pipe_section_info=pipe_section_info) 
+       
+                elif "section_properties" in data.keys():
+
+                    beam_section_info = {   "section_type_label" : data["section_type_label"],
+                                            "section_parameters" : data["section_parameters"],
+                                            "section_properties" : data["section_properties"]   }
+
+                    self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
+
     def load_model_properties(self):
 
         model_properties = self.files_loader.load_model_properties_from_file()
@@ -501,7 +528,7 @@ class LoadProject:
                         self.properties._set_nodal_property(property, prop_data, node_ids=id)
 
                     elif key == "element_properties":
-                        self.properties._set_element_property(property, prop_data, element=id)
+                        self.properties._set_element_property(property, prop_data, element_ids=id)
 
     def load_lines_properties(self):
 
@@ -511,24 +538,36 @@ class LoadProject:
 
         for line_id, data in line_properties.items():
 
+            if line_id in self.cross_sections.keys():
+                cross_section = self.cross_sections[line_id]
+                self.properties._set_line_property("cross_section", cross_section, line_ids=int(line_id))
+
             if isinstance(data, dict):
                 for property, prop_data in data.items():
 
-                    if property == "fluid":
+                    if property == "fluid_id":
                         fluid_id = prop_data
+                        self.properties._set_line_property(property, fluid_id, line_ids=int(line_id))
+
                         if fluid_id not in self.library_fluids.keys():
                             continue
 
-                        prop_data = self.library_fluids[fluid_id]
+                        fluid = self.library_fluids[fluid_id]
+                        self.properties._set_line_property("fluid", fluid, line_ids=int(line_id))
 
-                    elif property == "material":
+                    elif property == "material_id":
                         material_id = prop_data
+                        self.properties._set_line_property(property, material_id, line_ids=int(line_id))
+    
                         if material_id not in self.library_materials.keys():
                             continue
 
-                        prop_data = self.library_materials[material_id]
+                        material = self.library_materials[material_id]
+                        self.properties._set_line_property("material", material, line_ids=int(line_id))
+                    
+                    else:
 
-                    self.properties._set_line_property(property, prop_data, line_ids=int(line_id))
+                        self.properties._set_line_property(property, prop_data, line_ids=int(line_id))
 
         print(line_properties)
         if line_properties:
@@ -536,11 +575,71 @@ class LoadProject:
 
     def send_lines_properties_to_elements(self):
         for line_id, data in self.properties.line_properties.items():
+            #
+            self.load_cross_section_from_lines(line_id, data)
             # acoustic
             self.load_fluid_from_lines(line_id, data)
             self.load_acoustic_element_type_from_lines(line_id, data)
             # structural
             self.load_material_from_lines(line_id, data)
+
+    ## line loaders
+
+    def load_fluid_from_lines(self, line_id: int, data: dict):
+
+        fluid = None
+        if "fluid" in data.keys():
+            fluid = data["fluid"]
+
+        self.preprocessor.set_fluid_by_lines(line_id, fluid)
+
+    def load_acoustic_element_type_from_lines(self, line_id: int, data: dict):
+
+        element_type = None
+        if "acoustic_element_type" in data.keys():
+            element_type = data["acoustic_element_type"]
+
+        proportional_damping = None
+        if "proportional_damping" in data.keys():
+            proportional_damping = data["proportional_damping"]
+
+        volume_flow = None
+        if "volume_flow" in data.keys():
+            volume_flow = data["volume_flow"]
+
+        self.preprocessor.set_acoustic_element_type_by_lines(   
+                                                                line_id, 
+                                                                element_type, 
+                                                                proportional_damping = proportional_damping,
+                                                                vol_flow = volume_flow    
+                                                             )
+        
+    def load_material_from_lines(self, line_id: int, data: dict):
+
+        material = None
+        if "material" in data.keys():
+            material = data["material"]
+
+        self.preprocessor.set_material_by_lines(line_id, material)
+
+    def load_cross_section_from_lines(self, line_id: list, data: dict):
+
+        cross_section = None
+        if "cross_section" in data.keys():
+            cross_section = data["cross_section"]
+
+        if cross_section is not None:
+            if data["section_type_label"] == "Reducer":
+                self.preprocessor.set_variable_cross_section_by_line(line_id, cross_section)
+                return
+
+        self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
+
+    # TODO: structural element type
+    # TODO: wall formulation
+    # TODO: capped_end
+    # TODO: expansion joints
+    # TODO: valves
 
     def load_imported_table_data_from_file(self):
         imported_tables = self.files_loader.load_imported_table_data_from_file()
@@ -631,42 +730,3 @@ class LoadProject:
                 psd_lines[psd_label].append(int(section))
 
         return psd_lines
-
-    ## line loaders
-
-    def load_fluid_from_lines(self, line_id: int, data: dict):
-
-        fluid = None
-        if "fluid" in data.keys():
-            fluid = data["fluid"]
-
-        self.preprocessor.set_fluid_by_lines(line_id, fluid)
-
-    def load_acoustic_element_type_from_lines(self, line_id: int, data: dict):
-
-        element_type = None
-        if "acoustic_element_type" in data.keys():
-            element_type = data["acoustic_element_type"]
-
-        proportional_damping = None
-        if "proportional_damping" in data.keys():
-            proportional_damping = data["proportional_damping"]
-
-        volume_flow = None
-        if "volume_flow" in data.keys():
-            volume_flow = data["volume_flow"]
-
-        self.preprocessor.set_acoustic_element_type_by_lines(   
-                                                                line_id, 
-                                                                element_type, 
-                                                                proportional_damping = proportional_damping,
-                                                                vol_flow = volume_flow    
-                                                             )
-        
-    def load_material_from_lines(self, line_id: int, data: dict):
-
-        material = None
-        if "material" in data.keys():
-            material = data["material"]
-
-        self.preprocessor.set_material_by_lines(line_id, material)

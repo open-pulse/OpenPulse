@@ -568,7 +568,7 @@ class ConnectingFlangesInput(QDialog):
 
         for element_id in list_elements:
 
-            pipe_section_info = {   "section_type_label" : "Pipe section" ,
+            pipe_section_info = {   "section_type_label" : "Pipe" ,
                                     "section_parameters" : section_parameters[element_id]  }
 
             self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
@@ -577,7 +577,7 @@ class ConnectingFlangesInput(QDialog):
         return False
 
     def actions_to_finalize(self, list_elements):
-        self.project.add_cross_sections_expansion_joints_valves_in_file(list_elements)
+        # self.project.add_cross_sections_expansion_joints_valves_in_file(list_elements)
         self.preprocessor.add_lids_to_variable_cross_sections()
         app().main_window.plot_lines_with_cross_sections()   
         self.close()

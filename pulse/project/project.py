@@ -150,71 +150,70 @@ class Project:
         """ 
         This method adds lids to cross-section variations and terminations.
         """
-        if self.elements_connected_to_node is not None:
-            for elements in self.elements_connected_to_node.values():
+        for elements in self.preprocessor.elements_connected_to_node.values():
 
-                element = None
-                if len(elements)==2:
-                    first_element, last_element = elements
-                    
-                    if 'beam_1' not in [first_element.element_type, last_element.element_type]:
-                        first_cross = first_element.cross_section
-                        last_cross = last_element.cross_section
-                        
-                        if not (first_cross and last_cross):
-                            continue
-
-                        first_outer_diameter = first_cross.outer_diameter
-                        first_inner_diameter = first_cross.inner_diameter
-                        last_outer_diameter = last_cross.outer_diameter
-                        last_inner_diameter = last_cross.inner_diameter
-
-                        if first_outer_diameter < last_inner_diameter:
-                            inner_diameter = first_inner_diameter 
-                            element = last_element
-
-                        if last_outer_diameter < first_inner_diameter:
-                            inner_diameter = last_inner_diameter 
-                            element = first_element
+            element = None
+            if len(elements)==2:
+                first_element, last_element = elements
                 
-                elif len(elements) == 1: 
-
-                    element = elements[0]   
-                    if element.element_type == 'beam_1':
-                        continue  
-
-                    first_node = element.first_node
-                    last_node = element.last_node  
-
-                    if element.cross_section is None:
+                if 'beam_1' not in [first_element.element_type, last_element.element_type]:
+                    first_cross = first_element.cross_section
+                    last_cross = last_element.cross_section
+                    
+                    if not (first_cross and last_cross):
                         continue
-                    inner_diameter = element.cross_section.inner_diameter 
 
-                    if len(self.neighbors[first_node]) == 1:
-                        first_node_id = first_node.external_index
-                        if self.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
-                            inner_diameter = 0
+                    first_outer_diameter = first_cross.outer_diameter
+                    first_inner_diameter = first_cross.inner_diameter
+                    last_outer_diameter = last_cross.outer_diameter
+                    last_inner_diameter = last_cross.inner_diameter
 
-                    elif len(self.neighbors[last_node]) == 1:
-                        last_node_id = last_node.external_index
-                        if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
-                            inner_diameter = 0
+                    if first_outer_diameter < last_inner_diameter:
+                        inner_diameter = first_inner_diameter 
+                        element = last_element
 
-                if element:
-
-                    cross = element.cross_section
-                    outer_diameter = cross.outer_diameter
-                    offset_y = cross.offset_y
-                    offset_z = cross.offset_z
-                    insulation_thickness = cross.insulation_thickness
-                    section_label = cross.section_label
+                    if last_outer_diameter < first_inner_diameter:
+                        inner_diameter = last_inner_diameter 
+                        element = first_element
             
-                    if element.element_type == 'expansion_joint':
-                        _key = element.cross_section.expansion_joint_plot_key
-                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
-                    else:
-                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
-                    element.cross_section_points = element.cross_section.get_circular_section_points(parameters, section_label)
+            elif len(elements) == 1: 
+
+                element = elements[0]   
+                if element.element_type == 'beam_1':
+                    continue  
+
+                first_node = element.first_node
+                last_node = element.last_node  
+
+                if element.cross_section is None:
+                    continue
+                inner_diameter = element.cross_section.inner_diameter 
+
+                if len(self.neighbors[first_node]) == 1:
+                    first_node_id = first_node.external_index
+                    if self.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
+                        inner_diameter = 0
+
+                elif len(self.neighbors[last_node]) == 1:
+                    last_node_id = last_node.external_index
+                    if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
+                        inner_diameter = 0
+
+            if element:
+
+                cross = element.cross_section
+                outer_diameter = cross.outer_diameter
+                offset_y = cross.offset_y
+                offset_z = cross.offset_z
+                insulation_thickness = cross.insulation_thickness
+                section_label = cross.section_label
+        
+                if element.element_type == 'expansion_joint':
+                    _key = element.cross_section.expansion_joint_plot_key
+                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
+                else:
+                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
+                element.cross_section_points = element.cross_section.get_circular_section_points(parameters, section_label)
 
     def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
         
@@ -230,28 +229,6 @@ class Project:
             if property in acoustic_properties and node_id == args[0]:
                     return True
         return False
-
-    # def add_frequency_in_file(self, f_min, f_max, f_step):
-
-    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-    #     if analysis_setup is None:
-    #         analysis_setup = dict()
-
-    #     analysis_setup["f_min"] = f_min
-    #     analysis_setup["f_max"] = f_max
-    #     analysis_setup["f_step"] = f_step
-
-    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
-
-    # def add_damping_in_file(self, global_damping):
-
-    #     analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-    #     if analysis_setup is None:
-    #         analysis_setup = dict()
-
-    #     analysis_setup["global damping"] = global_damping
-
-    #     app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
@@ -321,7 +298,7 @@ class Project:
             section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[6], vals[7]]
 
             if el_type == 'pipe_1':
-                pipe_section_info = {   "section_type_label" : "Pipe section",
+                pipe_section_info = {   "section_type_label" : "Pipe",
                                         "section_parameters" : section_parameters   }   
                 cross_section = CrossSection(pipe_section_info = pipe_section_info)                             
 
@@ -345,7 +322,7 @@ class Project:
             #                                                    update_cross_section = True, 
             #                                                    update_section_points = False)
 
-            self.preprocessor.set_cross_section_by_element(
+            self.preprocessor.set_cross_section_by_elements(
                                                             elements, 
                                                             cross_section, 
                                                             update_cross_section = True, 
@@ -412,95 +389,85 @@ class Project:
 
         return dict_multiple_cross_sections, single_cross
 
-    # def set_material_to_all_lines(self, material):
-    #     self.preprocessor.set_material_by_element('all', material)
-    #     self._set_material_to_all_lines(material)
-    #     self.file.add_material_in_file(list(self.model.mesh.lines_from_model.keys()), material)
+    # def set_variable_cross_section_by_line(self, line_id, section_data):
+    #     """
+    #     This method sets the variable section info by line selection.
+    #     """
+    #     if section_data:
 
-    # def set_material_by_lines(self, lines, material):
-    #     self.preprocessor.set_material_by_lines(lines, material)
-    #     self._set_material_to_selected_lines(lines, material)
-    #     self.file.add_material_in_file(lines, material)
+    #         [   outer_diameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
+    #             outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
+    #             insulation_thickness, insulation_density  ] = section_data["section_parameters"]
 
-    def set_variable_cross_section_by_line(self, line_id, section_data):
-        """
-        This method sets the variable section info by line selection.
-        """
-        if section_data:
+    #         elements_from_line = self.model.mesh.line_to_elements[line_id]
+    #         self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
 
-            [   outer_diameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
-                outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
-                insulation_thickness, insulation_density  ] = section_data["section_parameters"]
-
-            elements_from_line = self.model.mesh.line_to_elements[line_id]
-            self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
-
-            first_element = self.preprocessor.structural_elements[elements_from_line[0]]
-            last_element = self.preprocessor.structural_elements[elements_from_line[-1]]
+    #         first_element = self.preprocessor.structural_elements[elements_from_line[0]]
+    #         last_element = self.preprocessor.structural_elements[elements_from_line[-1]]
             
-            coord_first_1 = first_element.first_node.coordinates
-            coord_last_1 = last_element.last_node.coordinates
+    #         coord_first_1 = first_element.first_node.coordinates
+    #         coord_last_1 = last_element.last_node.coordinates
             
-            coord_first_2 = last_element.first_node.coordinates
-            coord_last_2 = first_element.last_node.coordinates
+    #         coord_first_2 = last_element.first_node.coordinates
+    #         coord_last_2 = first_element.last_node.coordinates
             
-            lines_vertex_coords = self.preprocessor.get_lines_vertex_coordinates(_array=False)
-            vertex_coords = lines_vertex_coords[line_id]
+    #         lines_vertex_coords = self.preprocessor.get_lines_vertex_coordinates(_array=False)
+    #         vertex_coords = lines_vertex_coords[line_id]
 
-            N = len(elements_from_line)
-            if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
-                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_initial, outer_diameter_final, N)
-                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
-                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
-                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
+    #         N = len(elements_from_line)
+    #         if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
+    #             outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_initial, outer_diameter_final, N)
+    #             thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
+    #             offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
+    #             offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
 
-            elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
-                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_final, outer_diameter_initial, N)
-                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
-                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
-                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
+    #         elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
+    #             outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_final, outer_diameter_initial, N)
+    #             thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
+    #             offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
+    #             offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
             
-            cross_sections_first = list()
-            cross_sections_last = list()
-            for index, element_id in enumerate(elements_from_line):
+    #         cross_sections_first = list()
+    #         cross_sections_last = list()
+    #         for index, element_id in enumerate(elements_from_line):
                 
-                element = self.preprocessor.structural_elements[element_id]
-                first_node = element.first_node
-                last_node = element.last_node
+    #             element = self.preprocessor.structural_elements[element_id]
+    #             first_node = element.first_node
+    #             last_node = element.last_node
                 
-                section_parameters_first = [outer_diameter_first[index],
-                                            thickness_first[index],
-                                            offset_y_first[index],
-                                            offset_z_first[index],
-                                            insulation_thickness,
-                                            insulation_density]
+    #             section_parameters_first = [outer_diameter_first[index],
+    #                                         thickness_first[index],
+    #                                         offset_y_first[index],
+    #                                         offset_z_first[index],
+    #                                         insulation_thickness,
+    #                                         insulation_density]
                 
-                pipe_section_info_first = { "section_type_label" : "Pipe section" ,
-                                            "section_parameters" : section_parameters_first }
+    #             pipe_section_info_first = { "section_type_label" : "Pipe" ,
+    #                                         "section_parameters" : section_parameters_first }
 
-                section_parameters_last = [outer_diameter_last[index],
-                                            thickness_last[index],
-                                            offset_y_last[index],
-                                            offset_z_last[index],
-                                            insulation_thickness,
-                                            insulation_density]
+    #             section_parameters_last = [outer_diameter_last[index],
+    #                                         thickness_last[index],
+    #                                         offset_y_last[index],
+    #                                         offset_z_last[index],
+    #                                         insulation_thickness,
+    #                                         insulation_density]
                 
-                pipe_section_info_last = { "section_type_label" : "Pipe section" ,
-                                            "section_parameters" : section_parameters_last }
+    #             pipe_section_info_last = { "section_type_label" : "Pipe" ,
+    #                                         "section_parameters" : section_parameters_last }
 
-                cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
-                cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
+    #             cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
+    #             cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
 
-                cross_sections_first.append(cross_section_first)
-                # cross_sections_last.append(cross_section_last)
+    #             cross_sections_first.append(cross_section_first)
+    #             # cross_sections_last.append(cross_section_last)
 
-                first_node.cross_section = cross_section_first
-                last_node.cross_section = cross_section_last
+    #             first_node.cross_section = cross_section_first
+    #             last_node.cross_section = cross_section_last
 
-            self.set_cross_section_by_elements( elements_from_line,
-                                                cross_sections_first,
-                                                remesh_mapping = False,
-                                                variable_section = True )
+    #         self.set_cross_section_by_elements( elements_from_line,
+    #                                             cross_sections_first,
+    #                                             remesh_mapping = False,
+    #                                             variable_section = True )
         
     def set_cross_section_by_lines(self, lines, cross_section):
         """
@@ -510,12 +477,12 @@ class Project:
         self._set_cross_section_to_selected_line(lines, cross_section)
         self.file.add_cross_section_in_file(lines, cross_section)
 
-    def set_cross_section_by_elements(self, list_elements, cross_section, remesh_mapping=True, variable_section=False):
-        """
-        """
-        if remesh_mapping:
-            self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
-        self.preprocessor.set_cross_section_by_element(list_elements, cross_section, variable_section=variable_section)       
+    # def set_cross_section_by_elements(self, list_elements, cross_section, remesh_mapping=True, variable_section=False):
+    #     """
+    #     """
+    #     if remesh_mapping:
+    #         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
+    #     self.preprocessor.set_cross_section_by_element(list_elements, cross_section, variable_section=variable_section)       
         # for element in list_elements:
         #     line = self.model.mesh.elements_to_line[element]
         #     if line not in self.lines_with_cross_section_by_elements:
@@ -525,52 +492,32 @@ class Project:
         if line_id in list(self.number_sections_by_line.keys()):
             self.number_sections_by_line.pop(line_id)
 
-    def add_cross_sections_expansion_joints_valves_in_file(self, list_elements):
-        list_lines = list()
-        for element_id in list_elements:
-            line_id = self.model.mesh.elements_to_line[element_id]
-            if line_id not in list_lines:
-                list_lines.append(line_id)
-        for _line_id in list_lines:
-            map_expansion_joints_to_elements = dict()
-            map_valves_to_elements = dict()
-            map_cross_sections_to_elements, single_cross = self.get_dict_multiple_cross_sections_from_line(_line_id)
-            if not single_cross:
+    # def add_cross_sections_expansion_joints_valves_in_file(self, list_elements):
+    #     list_lines = list()
+    #     for element_id in list_elements:
+    #         line_id = self.model.mesh.elements_to_line[element_id]
+    #         if line_id not in list_lines:
+    #             list_lines.append(line_id)
+    #     for _line_id in list_lines:
+    #         map_expansion_joints_to_elements = dict()
+    #         map_valves_to_elements = dict()
+    #         map_cross_sections_to_elements, single_cross = self.get_dict_multiple_cross_sections_from_line(_line_id)
+    #         if not single_cross:
                   
-                map_expansion_joints_to_elements = self.get_map_expansion_joints_to_elements(_line_id)
-                map_valves_to_elements = self.get_map_valves_to_elements(_line_id)
+    #             map_expansion_joints_to_elements = self.get_map_expansion_joints_to_elements(_line_id)
+    #             map_valves_to_elements = self.get_map_valves_to_elements(_line_id)
 
-                self.file.add_multiple_cross_sections_expansion_joints_valves_in_file(  _line_id, 
-                                                                                        map_cross_sections_to_elements, 
-                                                                                        map_expansion_joints_to_elements,
-                                                                                        map_valves_to_elements )  
+    #             self.file.add_multiple_cross_sections_expansion_joints_valves_in_file(  _line_id, 
+    #                                                                                     map_cross_sections_to_elements, 
+    #                                                                                     map_expansion_joints_to_elements,
+    #                                                                                     map_valves_to_elements )  
                 
-                for list_elements_mapped in map_cross_sections_to_elements.values():
-                    self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements_mapped)
+    #             for list_elements_mapped in map_cross_sections_to_elements.values():
+    #                 self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements_mapped)
     
-    # def set_structural_element_type_to_all(self, element_type):
-    #     self.preprocessor.set_structural_element_type_by_element('all', element_type)
-    #     self._set_structural_element_type_to_all_lines(element_type)
-    #     self.file.modify_structural_element_type_in_file(list(self.model.mesh.lines_from_model.keys()), element_type)
-
     def set_structural_element_type_by_lines(self, lines, element_type):
         self.preprocessor.set_structural_element_type_by_lines(lines, element_type)
-        self._set_structural_element_type_to_selected_lines(lines, element_type)
-        self.file.modify_structural_element_type_in_file(lines, element_type)
-        
-    # def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping = None, vol_flow = None):
-
-    #     self.preprocessor.set_acoustic_element_type_by_lines(lines, element_type, 
-                                                            #  proportional_damping = proportional_damping, 
-                                                            #  vol_flow = vol_flow)
-
-        # self._set_acoustic_element_type_to_selected_lines(lines, element_type, 
-        #                                                   proportional_damping = proportional_damping, 
-        #                                                   vol_flow = vol_flow)
-
-        # self.file.modify_acoustic_element_type_in_file(lines, element_type, 
-        #                                                proportional_damping = proportional_damping, 
-        #                                                vol_flow = vol_flow)
+        # self._set_structural_element_type_to_selected_lines(lines, element_type)
 
     def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
@@ -623,10 +570,6 @@ class Project:
         self.preprocessor.dict_elements_with_B2PX_rotation_decoupling = dict()
         self.file.modify_B2PX_rotation_decoupling_in_file(reset = True)
 
-    # def set_nodal_loads_by_node(self, node_id, data, imported_table):
-    #     [values, table_names] = data
-    #     self.preprocessor.set_structural_loads(node_id, data)
-
     def add_lumped_masses_by_node(self, node_id, data, imported_table):
         [values, table_names] = data
         self.preprocessor.add_mass_to_node(node_id, data)
@@ -638,12 +581,6 @@ class Project:
     def add_lumped_dampings_by_node(self, node_id, data, imported_table):
         [values, table_names] = data
         self.preprocessor.add_damper_to_node(node_id, data)
-
-    def add_elastic_nodal_link_stiffness(self, first_node, last_node, parameters):
-        self.preprocessor.add_elastic_nodal_link(first_node, last_node, parameters, _stiffness=True)
-
-    def add_elastic_nodal_link_damping(self, first_node, last_node, parameters):
-        self.preprocessor.add_elastic_nodal_link(first_node, last_node, parameters, _damping=True)
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:
@@ -723,7 +660,7 @@ class Project:
                                                                                                     dict_map_expansion_joint = dict_multiple_expansion_joints )
 
                 elements_from_line = self.model.mesh.line_to_elements[line_id]
-                self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )
+                # self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )
 
     def add_expansion_joint_by_line(self, lines_id, parameters):
 
@@ -799,7 +736,7 @@ class Project:
                                                                                                     dict_map_expansion_joint = dict_multiple_expansion_joints )
 
                 elements_from_line = self.model.mesh.line_to_elements[line_id]
-                self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )                                                
+                # self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )                                              
 
     def get_map_expansion_joints_to_elements(self, line_id):
         structural_elements = self.preprocessor.structural_elements
@@ -864,23 +801,23 @@ class Project:
         self.preprocessor.set_stress_stiffening_by_line(line_id, parameters)
         self._set_stress_stiffening_to_selected_lines(line_id, parameters)
 
-    def load_fluid_by_line(self, line_id, fluid):
-        self.preprocessor.set_fluid_by_lines(line_id, fluid)
-        self._set_fluid_to_selected_lines(line_id, fluid)
+    # def load_fluid_by_line(self, line_id, fluid):
+    #     self.preprocessor.set_fluid_by_lines(line_id, fluid)
+    #     self._set_fluid_to_selected_lines(line_id, fluid)
 
     def load_compressor_info_by_line(self, line_id, compressor_info):
         self._set_compressor_info_to_selected_lines(line_id, compressor_info=compressor_info)
 
-    def load_cross_section_by_element(self, list_elements, cross_section):
-        self.set_cross_section_by_elements(list_elements, cross_section)
+    # def load_cross_section_by_element(self, list_elements, cross_section):
+    #     self.set_cross_section_by_elements(list_elements, cross_section)
 
-    def load_cross_section_by_line(self, line_id, cross_section):
-        self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
-        self._set_cross_section_to_selected_line(line_id, cross_section)
+    # def load_cross_section_by_line(self, line_id, cross_section):
+    #     self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
+    #     self._set_cross_section_to_selected_line(line_id, cross_section)
 
-    def load_variable_cross_section_by_line(self, line_id, data):
-        self._set_variable_cross_section_to_selected_line(line_id, data)
-        self.set_variable_cross_section_by_line(line_id, data)
+    # def load_variable_cross_section_by_line(self, line_id, data):
+    #     self._set_variable_cross_section_to_selected_line(line_id, data)
+    #     self.set_variable_cross_section_by_line(line_id, data)
 
     def load_expansion_joint_by_lines(self, line_id, data):
         joint_elements = self.model.mesh.line_to_elements[line_id]
@@ -928,11 +865,11 @@ class Project:
 
     def load_beam_xaxis_rotation_by_line(self, line_id, angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, angle)
-        self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
+        # self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
 
     def load_structural_element_type_by_line(self, line_id, element_type):
         self.preprocessor.set_structural_element_type_by_lines(line_id, element_type)
-        self._set_structural_element_type_to_selected_lines(line_id, element_type)
+        # self._set_structural_element_type_to_selected_lines(line_id, element_type)
 
     def load_structural_element_type_by_elements(self, list_elements, element_type):
         self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
@@ -940,14 +877,14 @@ class Project:
 
     def load_structural_element_force_offset_by_line(self, line_id, force_offset):
         self.preprocessor.set_structural_element_force_offset_by_lines(line_id, force_offset)
-        self._set_structural_element_force_offset_to_lines(line_id, force_offset)
+        # self._set_structural_element_force_offset_to_lines(line_id, force_offset)
 
     def load_structural_element_force_offset_by_elements(self, list_elements, force_offset):
         self.preprocessor.set_structural_element_force_offset_by_elements(list_elements, force_offset)
 
     def load_structural_element_wall_formulation_by_line(self, line_id, formulation):
         self.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, formulation)
-        self._set_structural_element_wall_formulation_to_lines(line_id, formulation)
+        # self._set_structural_element_wall_formulation_to_lines(line_id, formulation)
 
     def load_structural_element_wall_formulation_by_elements(self, list_elements, wall_formulation):
         self.preprocessor.set_structural_element_wall_formulation_by_elements(list_elements, wall_formulation)
@@ -961,24 +898,6 @@ class Project:
     #                                                       element_type,
     #                                                       proportional_damping = proportional_damping, 
     #                                                       vol_flow = vol_flow)
-
-    def load_structural_loads_by_node(self, node_id, data):
-        self.preprocessor.set_structural_loads(node_id, data)
-
-    def load_mass_by_node(self, node_id, data):
-        self.preprocessor.add_mass_to_node(node_id, data)
-
-    def load_spring_by_node(self, node_id, data):
-        self.preprocessor.add_spring_to_node(node_id, data)
-
-    def load_damper_by_node(self, node_id, data):
-        self.preprocessor.add_damper_to_node(node_id, data)
-
-    def load_elastic_nodal_link_stiffness(self, nodes, data):
-        self.preprocessor.add_elastic_nodal_link(nodes[0], nodes[1], data, _stiffness=True)
-    
-    def load_elastic_nodal_link_damping(self, nodes, data):
-        self.preprocessor.add_elastic_nodal_link(nodes[0], nodes[1], data, _damping=True)
 
     def load_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple):
         self.preprocessor.set_B2PX_rotation_decoupling(element_ID, node_ID, rotations_to_decouple=rotations_to_decouple)
@@ -1016,24 +935,24 @@ class Project:
     #     for entity in self.model.mesh.lines_from_model.values():
     #         entity.material = material
 
-    def _set_fluid_to_selected_lines(self, lines, fluid: Fluid):
-        if isinstance(lines, int):
-            lines = [lines]
+    # def _set_fluid_to_selected_lines(self, lines, fluid: Fluid):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
 
-        self.model.properties._set_nodal_property("fluid", fluid.identifier, line_ids=lines, )
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            if entity.structural_element_type in ['beam_1']:
-                entity.fluid = None
-            else:
-                entity.fluid = fluid  
+    #     self.model.properties._set_nodal_property("fluid", fluid.identifier, line_ids=lines, )
+    #     for line_id in lines:
+    #         entity = self.model.mesh.lines_from_model[line_id]
+    #         if entity.structural_element_type in ['beam_1']:
+    #             entity.fluid = None
+    #         else:
+    #             entity.fluid = fluid  
 
-    def _set_fluid_to_all_lines(self, fluid: Fluid):
-        for entity in self.model.mesh.lines_from_model.values():
-            if entity.structural_element_type in ['beam_1']:
-                entity.fluid = None
-            else:
-                entity.fluid = fluid      
+    # def _set_fluid_to_all_lines(self, fluid: Fluid):
+    #     for entity in self.model.mesh.lines_from_model.values():
+    #         if entity.structural_element_type in ['beam_1']:
+    #             entity.fluid = None
+    #         else:
+    #             entity.fluid = fluid      
 
     def _set_compressor_info_to_selected_lines(self, line_ids: int | list | tuple, compressor_info=dict()):
 
@@ -1053,44 +972,44 @@ class Project:
                     self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
                     line.compressor_info = dict()          
 
-    def _set_cross_section_to_selected_line(self, lines, cross):
+    # def _set_cross_section_to_selected_line(self, lines, cross):
 
-        if isinstance(lines, int):
-            lines = [lines]
+    #     if isinstance(lines, int):
+    #         lines = [lines]
 
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            entity.cross_section = cross
-            entity.valve_parameters = None
-            entity.expansion_joint_parameters = None
-            entity.variable_cross_section_data = None
+    #     for line_id in lines:
+    #         entity = self.model.mesh.lines_from_model[line_id]
+    #         entity.cross_section = cross
+    #         entity.valve_parameters = None
+    #         entity.expansion_joint_parameters = None
+    #         entity.variable_cross_section_data = None
 
-    def _set_variable_cross_section_to_selected_line(self, line_id, section_info):
-        entity = self.model.mesh.lines_from_model[line_id]
-        entity.cross_section = None
-        entity.variable_cross_section_data = section_info
+    # def _set_variable_cross_section_to_selected_line(self, line_id, section_info):
+    #     entity = self.model.mesh.lines_from_model[line_id]
+    #     entity.cross_section = None
+    #     entity.variable_cross_section_data = section_info
 
-    def _set_structural_element_type_to_selected_lines(self, lines, element_type):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            entity.structural_element_type = element_type
+    # def _set_structural_element_type_to_selected_lines(self, lines, element_type):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+    #     for line_id in lines:
+    #         entity = self.model.mesh.lines_from_model[line_id]
+    #         entity.structural_element_type = element_type
 
-    def _set_structural_element_type_to_all_lines(self, element_type):
-        for entity in self.model.mesh.lines_from_model.values():
-            entity.structural_element_type = element_type
+    # def _set_structural_element_type_to_all_lines(self, element_type):
+    #     for entity in self.model.mesh.lines_from_model.values():
+    #         entity.structural_element_type = element_type
 
-    def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
-        entity = self.model.mesh.lines_from_model[line_id]
-        entity.xaxis_beam_rotation = angle
+    # def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
+    #     entity = self.model.mesh.lines_from_model[line_id]
+    #     entity.xaxis_beam_rotation = angle
 
-    def _set_stress_stiffening_to_selected_lines(self, lines, pressures):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
-            entity = self.model.mesh.lines_from_model[line_id]
-            entity.stress_stiffening_parameters = pressures
+    # def _set_stress_stiffening_to_selected_lines(self, lines, pressures):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
+    #     for line_id in lines:
+    #         entity = self.model.mesh.lines_from_model[line_id]
+    #         entity.stress_stiffening_parameters = pressures
             
     # def _set_stress_stiffening_to_all_entities(self, pressures):
     #     for entity in self.model.mesh.lines_from_model.values():
@@ -1129,10 +1048,10 @@ class Project:
     #     self.preprocessor.set_length_correction_by_element(elements, value, section)
     #     self.file.add_length_correction_in_file(elements, value, section, psd_label=psd_label)
     
-    def set_perforated_plate_by_elements(self, list_elements, perforated_plate, section):
-        self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, section)
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
-        self.file.add_perforated_plate_in_file(list_elements, perforated_plate, section)
+    # def set_perforated_plate_by_elements(self, list_elements, perforated_plate, section):
+    #     self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, section)
+    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
+    #     self.file.add_perforated_plate_in_file(list_elements, perforated_plate, section)
 
     def set_capped_end_by_elements(self, elements, value, selection):
         self.preprocessor.set_capped_end_by_elements(elements, value, selection)
@@ -1149,14 +1068,14 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         self.preprocessor.set_structural_element_wall_formulation_by_lines(lines, formulation)
-        self._set_structural_element_wall_formulation_to_lines(lines, formulation)
+        # self._set_structural_element_wall_formulation_to_lines(lines, formulation)
         self.file.modify_structural_element_wall_formulation_in_file(lines, formulation)  
 
     def set_structural_element_force_offset_by_lines(self, lines, force_offset):
         if isinstance(lines, int):
             lines = [lines]
         self.preprocessor.set_structural_element_force_offset_by_lines(lines, force_offset)
-        self._set_structural_element_force_offset_to_lines(lines, force_offset)
+        # self._set_structural_element_force_offset_to_lines(lines, force_offset)
         self.file.modify_structural_element_force_offset_in_file(lines, force_offset)
 
     def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
@@ -1227,12 +1146,7 @@ class Project:
             results = StructuralSolver(self.model, acoustic_solution=self.solution_acoustic)
 
         else:
-
             results = StructuralSolver(self.model)
-            # if self.analysis_id in [2, 4]:
-            #     results = StructuralSolver(self.model)
-            # else:
-            #     results = StructuralSolver(self.model)
 
         return results
 

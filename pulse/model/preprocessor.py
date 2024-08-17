@@ -46,9 +46,11 @@ class Preprocessor:
 
         self.transformation_matrices = None
         self.section_rotations_xyz = None
-        self.elements_connected_to_node = None
 
         self.line_to_nodes = dict()
+
+        self.neighbors = defaultdict(list)
+        self.elements_connected_to_node = defaultdict(list)
 
         self.elements_with_expansion_joint = list()
         self.elements_with_valve = list()
@@ -93,9 +95,7 @@ class Preprocessor:
 
         self.nodes_with_elastic_link_stiffness = dict()
         self.nodes_with_elastic_link_dampings = dict()
-        self.lines_with_structural_element_force_offset = dict()
-        self.lines_with_structural_element_wall_formulation = dict()
-        self.lines_with_capped_end = list()
+
         self.lines_with_stress_stiffening = list()
         self.elements_with_adding_mass_effect = list()
         self.radius = dict()
@@ -330,8 +330,8 @@ class Preprocessor:
         """
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
         """
-        self.neighbors = defaultdict(list)
-        self.elements_connected_to_node = defaultdict(list)
+        self.neighbors.clear()
+        self.elements_connected_to_node.clear()
         # self.nodes_with_multiples_neighbors = {}
         for element in self.structural_elements.values():
             self.neighbors[element.first_node].append(element.last_node)
@@ -927,12 +927,12 @@ class Preprocessor:
             element.proportional_damping = proportional_damping
             element.vol_flow = vol_flow
 
-    def set_cross_section_by_element(self, 
-                                     elements, 
-                                     cross_section, 
-                                     update_cross_section = False, 
-                                     update_section_points = True, 
-                                     variable_section = False):
+    def set_cross_section_by_elements(  self, 
+                                        elements, 
+                                        cross_section, 
+                                        update_cross_section = False, 
+                                        update_section_points = True, 
+                                        variable_section = False  ):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
 
@@ -998,8 +998,87 @@ class Preprocessor:
             Tube cross section data.
         """
         for elements in slicer(self.mesh.line_to_elements, lines):
-            self.set_cross_section_by_element(elements, cross_section)
+            self.set_cross_section_by_elements(elements, cross_section)
     
+    def set_variable_cross_section_by_line(self, line_id, section_data):
+        """
+        This method sets the variable section info by line selection.
+        """
+        if section_data:
+
+            [   outer_diameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
+                outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
+                insulation_thickness, insulation_density  ] = section_data["section_parameters"]
+
+            elements_from_line = self.mesh.line_to_elements[line_id]
+            self.add_expansion_joint_by_line(line_id, None, remove=True)
+
+            first_element = self.structural_elements[elements_from_line[0]]
+            last_element = self.structural_elements[elements_from_line[-1]]
+            
+            coord_first_1 = first_element.first_node.coordinates
+            coord_last_1 = last_element.last_node.coordinates
+            
+            coord_first_2 = last_element.first_node.coordinates
+            coord_last_2 = first_element.last_node.coordinates
+            
+            lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
+            vertex_coords = lines_vertex_coords[line_id]
+
+            N = len(elements_from_line)
+            if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
+                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_initial, outer_diameter_final, N)
+                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
+                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
+                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
+
+            elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
+                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_final, outer_diameter_initial, N)
+                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
+                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
+                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
+            
+            cross_sections_first = list()
+            cross_sections_last = list()
+            for index, element_id in enumerate(elements_from_line):
+                
+                element = self.structural_elements[element_id]
+                first_node = element.first_node
+                last_node = element.last_node
+                
+                section_parameters_first = [outer_diameter_first[index],
+                                            thickness_first[index],
+                                            offset_y_first[index],
+                                            offset_z_first[index],
+                                            insulation_thickness,
+                                            insulation_density]
+                
+                pipe_section_info_first = { "section_type_label" : "Reducer" ,
+                                            "section_parameters" : section_parameters_first }
+
+                section_parameters_last = [outer_diameter_last[index],
+                                            thickness_last[index],
+                                            offset_y_last[index],
+                                            offset_z_last[index],
+                                            insulation_thickness,
+                                            insulation_density]
+                
+                pipe_section_info_last = { "section_type_label" : "Reducer" ,
+                                            "section_parameters" : section_parameters_last }
+
+                cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
+                cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
+
+                cross_sections_first.append(cross_section_first)
+                # cross_sections_last.append(cross_section_last)
+
+                first_node.cross_section = cross_section_first
+                last_node.cross_section = cross_section_last
+
+            self.set_cross_section_by_elements( elements_from_line,
+                                                cross_sections_first,
+                                                variable_section = True )
+
     # def set_cross_section_plot_info_by_element(self, elements, cross_section):
     #     """
     #     This method attributes cross section object to a list of acoustic and structural elements.
@@ -1472,40 +1551,25 @@ class Preprocessor:
     #         for element in slicer(self.structural_elements, elements):
     #             element.capped_end = value
  
-    def set_capped_end_by_lines(self, lines, value):
+    def set_capped_end_by_lines(self, line_ids: (int | list | tuple), value: bool):
         """
         This method enables or disables the capped end effect to all acoustic elements that belongs to a line.
 
         Parameters
         ----------
-        lines : list
+        line_ids : list
             Lines/entities indexes.
             
         value : bool
             True if the capped end effect have to be activated. False otherwise.
         """
-        # self.set_capped_end_line_to_element(lines, value)
-        if isinstance(lines, int):
-            lines = [lines]
+        # self.set_capped_end_line_to_element(line_ids, value)
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
 
-        for elements in slicer(self.mesh.line_to_elements, lines):
+        for elements in slicer(self.mesh.line_to_elements, line_ids):
             for element in slicer(self.structural_elements, elements):
                 element.capped_end = value
-        if lines == "all":
-            self.group_elements_with_capped_end = {}
-            self.lines_with_capped_end = []
-            if value:
-                for line in self.mesh.lines_from_model.keys():
-                    self.lines_with_capped_end.append(line)
-        else:
-            for tag in lines:
-                if value:
-                    if tag not in self.lines_with_capped_end:
-                        self.lines_with_capped_end.append(tag)
-                else:
-                    if tag in self.lines_with_capped_end:
-                        self.lines_with_capped_end.remove(tag)
-
 
     def set_structural_element_wall_formulation_by_lines(self, lines, formulation):
         """
@@ -1526,24 +1590,9 @@ class Preprocessor:
             for elements in slicer(self.mesh.line_to_elements, lines):
                 for element in slicer(self.structural_elements, elements):
                     element.wall_formulation = formulation
-            
-            for line in lines:
-                if formulation is None:
-                    list_lines = list(self.lines_with_structural_element_wall_formulation.keys())
-                    if line in list_lines:
-                        self.lines_with_structural_element_wall_formulation.pop(line)
-                else:
-                    self.lines_with_structural_element_wall_formulation[line] = formulation
+
         except Exception as _error:
             print(str(_error))
-
-    # def set_capped_end_all_lines(self, value):
-    #     self.set_capped_end_line_to_element("all", value)
-    #     self.group_elements_with_capped_end = {}
-    #     self.lines_with_capped_end = []
-    #     if value:
-    #         for line in self.mesh.lines_from_model.keys():
-    #             self.lines_with_capped_end.append(line)
 
     def set_structural_element_force_offset_by_lines(self, lines, force_offset):
         """
@@ -1564,14 +1613,7 @@ class Preprocessor:
             for elements in slicer(self.mesh.line_to_elements, lines):
                 for element in slicer(self.structural_elements, elements):
                     element.force_offset = bool(force_offset)
-            
-            for line in lines:
-                if force_offset is None:
-                    list_lines = list(self.lines_with_structural_element_force_offset.keys())
-                    if line in list_lines:
-                        self.lines_with_structural_element_force_offset.pop(line)
-                else:
-                    self.lines_with_structural_element_force_offset[line] = force_offset
+
         except Exception as _error:
             print(str(_error))
 

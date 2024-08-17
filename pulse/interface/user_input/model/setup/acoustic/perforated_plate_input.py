@@ -716,9 +716,14 @@ class PerforatedPlateInput(QDialog):
             return
 
     def set_perforated_plate_to_elements(self, section, _print=False, remove_tables=False): 
+
         if remove_tables:
             self.remove_tables_from_selected_elements()
-        self.project.set_perforated_plate_by_elements(self.elements_typed, self.perforated_plate, section)
+
+        # self.project.set_perforated_plate_by_elements(self.elements_typed, self.perforated_plate, section)
+        self.preprocessor.set_perforated_plate_by_elements(self.elements_typed, self.perforated_plate, section)
+        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(self.elements_typed)
+
         if _print:
             if len(self.elements_typed)>20:
                 print(f"[Set Perforated Plate] - defined at {len(self.elements_typed)} selected elements")
@@ -1037,7 +1042,7 @@ class PerforatedPlateInput(QDialog):
                                 if element_type == 'pipe_1':
                                     if cross:
                                         self.project.set_cross_section_by_elements(valve_elements, cross)
-                                        self.project.add_cross_sections_expansion_joints_valves_in_file(valve_elements)
+                                        # self.project.add_cross_sections_expansion_joints_valves_in_file(valve_elements)
                                         _update_renderer = True
                                         
         if _update_renderer:

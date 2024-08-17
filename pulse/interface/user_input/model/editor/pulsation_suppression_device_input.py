@@ -736,7 +736,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                 aux = { 
                         "start coords" : list(np.round(start_coords, 6)),
                         "end coords" : list(np.round(end_coords, 6)),
-                        "section type" : "Pipe section",
+                        "section type" : "Pipe",
                         "section parameters" : section_data,
                         "structural element type" : "pipe_1",
                         "psd label" : device_label,
@@ -880,18 +880,18 @@ class PulsationSuppressionDeviceInput(QDialog):
             #TODO: reimplement this
             # keys = app().project.model.preprocessor.group_elements_with_length_correction.keys()
 
-            if section in keys:
-                index = 1
-                while section in keys:
-                    index += 1
-                    section = prefix.format(f"Selection-{index}")
+            # if section in keys:
+            #     index = 1
+            #     while section in keys:
+            #         index += 1
+            #         section = prefix.format(f"Selection-{index}")
 
-            app().project.set_element_length_correction_by_elements(
-                                                                    list_elements, 
-                                                                    _type, 
-                                                                    section,
-                                                                    psd_label = device_label
-                                                                    )
+            # app().project.set_element_length_correction_by_elements(
+            #                                                         list_elements, 
+            #                                                         _type, 
+            #                                                         section,
+            #                                                         psd_label = device_label
+            #                                                         )
 
     def remove_psd_related_element_length_correction(self, device_label):
 

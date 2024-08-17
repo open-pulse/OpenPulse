@@ -352,11 +352,11 @@ class MainWindow(QMainWindow):
         for structure in pipeline.structures:
             if isinstance(structure, Pipe | Bend):
                 if structure.start_diameter == structure.end_diameter:
-                    section_label = 'Pipe section'
+                    section_label = 'Pipe'
                     start_thickness = structure.start_diameter * 0.05
                     section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0]
                 else:
-                    section_label = 'Pipe section'  
+                    section_label = 'Reducer'  
                     start_thickness = structure.start_diameter * 0.05
                     end_thickness = structure.end_diameter * 0.05
                     section_parameters = [structure.start_diameter, start_thickness, 0, 0, 
@@ -614,7 +614,7 @@ class MainWindow(QMainWindow):
         self.open_project_dialog()
 
     def action_save_project_as_callback(self):
-        self.save_project_as()
+        self.save_project_as_dialog()
 
     def action_import_pcf_callback(self):
         self.open_pcf()

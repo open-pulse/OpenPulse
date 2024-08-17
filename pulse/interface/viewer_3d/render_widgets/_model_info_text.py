@@ -189,6 +189,9 @@ def lines_info_text() -> str:
 def material_info_text(material) -> str:
     tree = TreeInfo("Material")
     tree.add_item("Name", material.name)
+    tree.add_item("Density", material.density, "kg/m³")
+    tree.add_item("Elasticity modulus", round(material.elasticity_modulus/1e9, 2), "MPa")
+    tree.add_item("Poisson ratio", material.poisson_ratio, "")
     return str(tree)
 
 
@@ -199,6 +202,12 @@ def fluid_info_text(fluid) -> str:
         tree.add_item("Temperature", round(fluid.temperature, 4), "K")
     if fluid.pressure:
         tree.add_item("Pressure", round(fluid.pressure, 4), "Pa")
+    if fluid.density:
+        tree.add_item("Density", round(fluid.density, 4), "kg/m³")
+    if fluid.speed_of_sound:
+        tree.add_item("Speed of sound", round(fluid.speed_of_sound, 4), "m/s")
+    if fluid.molar_mass:
+        tree.add_item("Molar mass", round(fluid.molar_mass, 4), "kg/kmol")
     return str(tree)
 
 
@@ -212,6 +221,7 @@ def cross_section_info_text(cross_section, element_type) -> str:
 
     elif element_type == "beam_1":
         tree = TreeInfo("cross section")
+        tree.add_item("Section type", cross_section.section_label, "")
         tree.add_item("Area", round(cross_section.area, 2), "m²")
         tree.add_item("Iyy", round(cross_section.second_moment_area_y, 4), "m⁴")
         tree.add_item("Izz", round(cross_section.second_moment_area_z, 4), "m⁴")
@@ -223,24 +233,17 @@ def cross_section_info_text(cross_section, element_type) -> str:
 
     elif element_type in ["pipe_1", "valve"]:
         tree = TreeInfo("cross section")
-        tree.add_item("Outer Diameter", round(cross_section.outer_diameter, 4), "m")
+        tree.add_item("Section type", cross_section.section_label, "")
+        tree.add_item("Outer diameter", round(cross_section.outer_diameter, 4), "m")
         tree.add_item("Thickness", round(cross_section.thickness, 4), "m")
         tree.add_separator()
         if cross_section.offset_y or cross_section.offset_z:
-            tree.add_item("Offset Y", round(cross_section.offset_y, 4), "m")
-            tree.add_item("Offset Z", round(cross_section.offset_z, 4), "m")
+            tree.add_item("Offset y", round(cross_section.offset_y, 4), "m")
+            tree.add_item("Offset z", round(cross_section.offset_z, 4), "m")
             tree.add_separator()
         if cross_section.insulation_thickness or cross_section.insulation_density:
-            tree.add_item(
-                "Insulation Thickness",
-                round(cross_section.insulation_thickness, 4),
-                "m",
-            )
-            tree.add_item(
-                "Insulation Density",
-                round(cross_section.insulation_density, 4),
-                "kg/m³",
-            )
+            tree.add_item("Insulation thickness", round(cross_section.insulation_thickness, 4),"m")
+            tree.add_item("Insulation density", round(cross_section.insulation_density, 4), "kg/m³")
         info_text += str(tree)
 
     return info_text

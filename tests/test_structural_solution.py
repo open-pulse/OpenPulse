@@ -16,7 +16,7 @@ from pulse.postprocessing.read_data import ReadData
 def current_model():
 
     section_parameters = [0.08, 0.008, 0, 0, 0, 0]
-    pipe_section_info = {  "section_type_label" : "Pipe section" ,
+    pipe_section_info = {  "section_type_label" : "Pipe" ,
                             "section_parameters" : section_parameters  }
 
     cross_section = CrossSection(pipe_section_info=pipe_section_info)

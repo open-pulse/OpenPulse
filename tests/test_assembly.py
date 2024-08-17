@@ -16,7 +16,7 @@ from pulse.processing.assembly_structural import AssemblyStructural
 def model():
 
     section_parameters = [0.05, 0.008, 0, 0, 0, 0]
-    pipe_section_info = {  "section_type_label" : "Pipe section" ,
+    pipe_section_info = {  "section_type_label" : "Pipe" ,
                             "section_parameters" : section_parameters  }
 
     steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)

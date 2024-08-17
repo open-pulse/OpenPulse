@@ -528,11 +528,11 @@ class FluidWidget(QWidget):
 
         lines_to_remove_fluid = list()
 
-        for key, data in self.model.properties.line_properties.items():
-            property, line_id = key
-            if property == "fluid":
+        for line_id, data in self.model.properties.line_properties.items():
+
+            if "fluid_id" in data.keys():
                 if isinstance(data, Fluid):
-                    if data.identifier in fluid_identifiers:
+                    if data["fluid_id"] in fluid_identifiers:
                         lines_to_remove_fluid.append(line_id)
 
         for _line_id in lines_to_remove_fluid:

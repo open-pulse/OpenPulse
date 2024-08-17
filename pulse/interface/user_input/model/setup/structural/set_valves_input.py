@@ -769,7 +769,7 @@ class ValvesInput(QDialog):
                     if element_type == 'pipe_1':
                         if cross:
                             self.project.set_cross_section_by_elements(input_elements, cross)
-                            self.project.add_cross_sections_expansion_joints_valves_in_file(input_elements)
+                            # self.project.add_cross_sections_expansion_joints_valves_in_file(input_elements)
                             return self.load_valves_info()
 
     def remove_valve_by_selection(self):

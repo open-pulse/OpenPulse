@@ -324,13 +324,15 @@ class ProjectFilesLoader:
                         if "section parameters" in keys:                            
                             str_section_parameters = section['section parameters']
                             section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                    "section_parameters" : section_parameters  }
 
                         if len(section_parameters) == 6:
+                            pipe_section_info = {   "section_type_label" : "Pipe" ,
+                                                    "section_parameters" : section_parameters  }
                             self.cross_section_data[tag, "pipe"] = pipe_section_info
 
                         elif len(section_parameters) == 10:
+                            pipe_section_info = {   "section_type_label" : "Reducer" ,
+                                                    "section_parameters" : section_parameters  }
                             self.variable_sections_data[tag, "pipe"] = pipe_section_info
 
                         if str_joint_parameters != "" and str_joint_stiffness != "":
@@ -794,7 +796,7 @@ class ProjectFilesLoader:
                 if 'section type' in keys:
                     section_type_label = section['section type']
                 else:
-                    section_type_label = "Pipe section"
+                    section_type_label = "Pipe"
 
                 if structural_element_type in ["expansion_joint", "valve"]:
                     continue

@@ -148,7 +148,7 @@ class RunAnalysisInput(QDialog):
 
     def post_non_linear_convergence_plot(self):
         if isinstance(self.solve, AcousticSolver):
-            if self.analysis_id in [3,5,6]:
+            if self.analysis_id in [3, 5, 6]:
                 if self.solve.non_linear:
                     self.anime._stop()
 
@@ -237,7 +237,7 @@ class RunAnalysisInput(QDialog):
 
         elif self.analysis_id == 4: # Acoustic Modal Analysis
             self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
-    
+
         elif self.analysis_id == 7: # Static Analysis
             self.solution_structural = self.solve.static_analysis()
         else:

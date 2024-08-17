@@ -214,7 +214,7 @@ class GeometryHandler:
             return
 
         section_info = {
-                        "section_type_label" : "Pipe section",
+                        "section_type_label" : "Reducer",
                         "section_parameters" : section_parameters
                        }
 
@@ -667,7 +667,7 @@ class GeometryHandler:
 
             self.create_pipeline_file(structures_data)
 
-            self.file.add_cross_section_segment_in_file(section_info)
+            # self.file.add_cross_section_segment_in_file(section_info)
 
             for line_id, cross_data in section_info.items():
                 app().project.model.properties._set_line_cross_section_property(cross_data, line_ids=line_id)
@@ -677,8 +677,8 @@ class GeometryHandler:
                 app().project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)
 
             for material_id, line_ids in material_info.items():
-                self.file.add_material_segment_in_file(line_ids, material_id)
-                app().project.model.properties._set_line_property("material", material_id, line_ids=line_ids)
+                # app().pulse_file.add_material_segment_in_file(line_ids, material_id)
+                app().project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
 
             for tag, label in psd_info.items():
                 self.file.add_psd_label_in_file(tag, label)

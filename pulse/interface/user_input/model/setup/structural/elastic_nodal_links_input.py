@@ -518,18 +518,18 @@ class ElasticNodalLinksInput(QDialog):
         if self.parameters_K is not None:
             self.remove_elastic_link_stiffness_table_files()
             data = [self.parameters_K, table_names]
-            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, 
-                                                          self.nodeID_2, 
-                                                          data,
-                                                          False)
+            self.preprocessor.add_elastic_nodal_link(   self.nodeID_1, 
+                                                        self.nodeID_2, 
+                                                        data,
+                                                        _stiffness=True   )
 
         if self.parameters_C is not None:
             self.remove_elastic_link_damping_table_files()
             data = [self.parameters_C, table_names]
-            self.project.add_elastic_nodal_link_damping(self.nodeID_1, 
+            self.preprocessor.add_elastic_nodal_link(   self.nodeID_1, 
                                                         self.nodeID_2, 
-                                                        data, 
-                                                        False)
+                                                        data,
+                                                        _damping=True   )
 
     def load_table(self, lineEdit, _label, direct_load=False):
         title = "Error reached while loading table"
@@ -756,7 +756,7 @@ class ElasticNodalLinksInput(QDialog):
                                 list_table_names.remove(basename)
                         self.process_table_file_removal(list_table_names)
 
-            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, data, True)
+            self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, data, _stiffness=True)
             return False
         else:
             return True
@@ -829,7 +829,7 @@ class ElasticNodalLinksInput(QDialog):
                                 list_table_names.remove(basename)
                         self.process_table_file_removal(list_table_names)
 
-            self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, data, True)
+            self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, data, _damping=True)
             return False
         else:
             return True

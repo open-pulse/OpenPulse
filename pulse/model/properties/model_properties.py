@@ -217,7 +217,7 @@ class ModelProperties:
     #     for element_id in element_ids:
     #         self.element_properties[property, element_id] = data
 
-    def _get_property(self, property: str, node_ids=None, element=None, line_id=None):
+    def _get_property(self, property: str, node_ids=None, element_id=None, line_id=None):
         """
         Finds the value that corresponds to the property needed.
         Checks node, element, entity, volume and global data by
@@ -233,8 +233,8 @@ class ModelProperties:
             if (property, node_ids[0], node_ids[1]) in self.nodal_properties:
                 return self.nodal_properties[property, node_ids[0], node_ids[1]]
 
-        if (property, element) in self.element_properties:
-            return self.element_properties[property, element]
+        if (property, element_id) in self.element_properties:
+            return self.element_properties[property, element_id]
 
         if line_id in self.line_properties.keys():
             if property in self.line_properties[line_id]:

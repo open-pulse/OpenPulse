@@ -84,8 +84,8 @@ class LoadFluidCompositionInput(QDialog):
             return
 
         app().config.write_last_folder_path_in_file(
-                                                        "fluid composition folder",  
-                                                        self.file_path
+                                                    "fluid composition folder",  
+                                                    self.file_path
                                                     )
 
         self.lineEdit_file_path.setText(self.file_path)

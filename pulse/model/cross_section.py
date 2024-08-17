@@ -929,7 +929,7 @@ class CrossSection:
         self.poligon_side_number = number_divisions
         N = number_divisions
 
-        if "Pipe section" in self.section_label: # Pipe section - It's a pipe section, so ignore for beam plots
+        if self.section_label in ["Pipe", "Reducer"]: # Pipe section - It's a pipe section, so ignore for beam plots
  
             d_out = self.outer_diameter
             d_in = d_out - 2*self.thickness
@@ -1134,7 +1134,7 @@ class CrossSection:
 
 def get_points_to_plot_section(section_label, section_parameters):   
     
-    if "Pipe section" in section_label:
+    if section_label in ["Pipe", "Reducer"]:
 
         N = 60
         d_out = section_parameters[0]

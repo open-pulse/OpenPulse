@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -9,6 +9,8 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 
 import numpy as np
+from collections import defaultdict
+
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -25,6 +27,7 @@ class CappedEndInput(QDialog):
         self.main_window = app().main_window
         self.project = app().project
         self.model = app().project.model
+        self.properties = app().project.model.properties
 
         self._initialize()
         self._config_window()
@@ -218,22 +221,45 @@ class CappedEndInput(QDialog):
         else:
             app().main_window.plot_lines_with_cross_sections()
 
-    def load_elements_info(self):
-        self.treeWidget_capped_end_elements.clear()
-        self.tabWidget_groups.setTabVisible(0, False)
-        for section, elements in self.preprocessor.group_elements_with_capped_end.items():
-            key = section.split(" || ")[1]
-            new = QTreeWidgetItem([key, str(elements)])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_capped_end_elements.addTopLevelItem(new)  
-
-    def load_lines_info(self):        
+            self.process_lines_with_capped_end()
         self.treeWidget_capped_end_lines.clear()
         self.tabWidget_groups.setTabVisible(1, False)
-        lines = self.preprocessor.lines_with_capped_end
-        if len(lines) != 0:
-            new = QTreeWidgetItem(["Selection-1" , str(lines)])
+
+    def process_elements_with_capped_end(self):
+        self.capped_end_mapping_for_elements = defaultdict(list)
+        for (property, element_id), data in self.properties.element_properties.items():
+            if property == "capped_end":
+                if data["enable"]:
+                    self.capped_end_mapping_for_elements["Enabled"].append(element_id)
+
+    def load_elements_info(self):
+
+        self.process_elements_with_capped_end()
+        self.treeWidget_capped_end_elements.clear()
+        self.tabWidget_groups.setTabVisible(0, False)
+
+        if self.capped_end_mapping_for_elements:
+            element_ids = self.capped_end_mapping_for_elements["Enabled"]
+            new = QTreeWidgetItem(["Enabled", str(element_ids)])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            self.treeWidget_capped_end_elements.addTopLevelItem(new)
+
+    def process_lines_with_capped_end(self):
+        self.capped_end_mapping_for_lines = defaultdict(list)
+        for line_id, data in self.properties.line_properties.items():
+            if "capped_end" in data.keys():
+                self.capped_end_mapping_for_lines["Enabled"].append(line_id)
+
+    def load_lines_info(self):
+
+        self.process_lines_with_capped_end()
+        self.treeWidget_capped_end_lines.clear()
+        self.tabWidget_groups.setTabVisible(1, False)
+
+        if self.capped_end_mapping_for_lines:
+            line_ids = self.capped_end_mapping_for_lines["Enabled"]
+            new = QTreeWidgetItem(["Enabled" , str(line_ids)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_capped_end_lines.addTopLevelItem(new)
@@ -244,11 +270,11 @@ class CappedEndInput(QDialog):
         self.load_elements_info()
         self.tabWidget_main.setTabVisible(1, False)
 
-        if len(self.preprocessor.lines_with_capped_end):
+        if self.capped_end_mapping_for_lines:
             self.tabWidget_main.setTabVisible(1, True)
             self.tabWidget_groups.setTabVisible(1, True)
 
-        if len(self.preprocessor.group_elements_with_capped_end):
+        if self.capped_end_mapping_for_elements:
             self.tabWidget_main.setTabVisible(1, True)
             self.tabWidget_groups.setTabVisible(0, True)
 
@@ -361,8 +387,8 @@ class CappedEndInput(QDialog):
             self.remove_elements(self.dictkey_to_remove)
 
     def remove_line_group(self):
-        lines = self.preprocessor.lines_with_capped_end.copy()
-        self.project.set_capped_end_by_lines(lines, False)
+        line_ids = self.capped_end_mapping_for_lines["Enabled"]
+        self.preprocessor.set_capped_end_by_lines(line_ids, False)
         self.load_lines_info()
         self.lineEdit_selected_id.setText("")
 

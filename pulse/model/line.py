@@ -16,15 +16,14 @@ class Line:
         self.material = None
         self.fluid = None
         self.compressor_info = {}
-        self.cross_section = None
-        self.variable_cross_section_data = None
+
         self.xaxis_beam_rotation = 0
 
         self.structural_element_type = None
         self.force_offset = None
         self.structural_element_wall_formulation = None
         self.capped_end = True
-        self.length_correction = None
+
         self.stress_stiffening_parameters = None
         self.expansion_joint_parameters = None
         self.valve_parameters = None

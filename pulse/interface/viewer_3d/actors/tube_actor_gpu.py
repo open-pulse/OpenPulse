@@ -113,7 +113,7 @@ class TubeActorGPU(vtkActor):
             return vtkPolyData()
 
         # Simplify tube meshes when the model is too big
-        if "Pipe section" in cross_section.section_label:
+        if cross_section.section_label in ["Pipe", "Reducer"]:
             d_out, t, *_ = cross_section.section_parameters
             return cross_section_sources.pipe_data(element.length, d_out, t, sides=30)
 
