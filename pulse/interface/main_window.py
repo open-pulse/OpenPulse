@@ -363,7 +363,7 @@ class MainWindow(QMainWindow):
                                           structure.end_diameter, end_thickness, 0, 0, 0, 0]
 
             elif isinstance(structure, Flange):
-                section_label = 'Pipe section'
+                section_label = 'Pipe'
                 thickness = structure.diameter * 0.05
                 section_parameters = [structure.diameter, thickness, 0, 0, 0, 0]
 
