@@ -2,9 +2,10 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QProgressBar, QLabel, QApplication
 from PyQt5 import uic
 
+import re
 import logging
 from time import sleep
-import re
+from threading import Thread
 
 from pulse import app, UI_DIR
 
@@ -51,20 +52,14 @@ class LoadingWindow(QWidget):
     automated tests really hard.
     '''
 
-    def __new__(cls, function, *args, **kwargs):
-        '''
-        I am using __new__ instead of __init__ just because
-        we do not need to use the instance of this class from outside.
-        We want this working just like a function.
-        '''
+    def __init__(self, _function):
+        super().__init__()
 
         ui_path = UI_DIR / "messages/new_loading_window.ui"
-        instance: LoadingWindow = super().__new__(cls, )
+        uic.loadUi(ui_path, self)
 
-        instance.__init__()
-        uic.loadUi(ui_path, instance)
-        instance._config_window()
-        return instance._show_progress(function, *args, **kwargs)
+        self._function = _function
+        self._config_window()
 
     def _config_window(self):
         self.setWindowFlags(
@@ -81,7 +76,7 @@ class LoadingWindow(QWidget):
         self.progress_bar: QProgressBar
         self.progress_label: QLabel
     
-    def _show_progress(self, function, *args, **kwargs):
+    def run(self, *args, **kwargs):
         self.show()
 
         # Changes the cursor to wait
@@ -98,7 +93,7 @@ class LoadingWindow(QWidget):
 
         try:
             # Calls the actual function
-            return_value = function(*args, **kwargs)
+            return_value = self._function(*args, **kwargs)
 
         finally:
             """
@@ -118,6 +113,9 @@ class LoadingWindow(QWidget):
             self.hide()
 
         return return_value
+
+    def __call__(self, *args, **kwargs):
+        return self.run(self._function, *args, **kwargs)
 
 
 class ProgressBarLogUpdater(logging.Handler):

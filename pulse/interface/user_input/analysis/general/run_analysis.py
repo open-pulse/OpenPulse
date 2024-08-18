@@ -35,7 +35,7 @@ class RunAnalysisInput(QDialog):
         # self._create_connections()
         # self._config_widgets()
 
-        LoadingWindow(self.run_analysis)
+        LoadingWindow(self.run_analysis).run()
 
         # LoadingScreen(title = 'Solution in progress', 
         #               message = 'Processing the cross-sections',  

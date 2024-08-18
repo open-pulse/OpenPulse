@@ -1,5 +1,5 @@
 from enum import Enum, auto
-
+import logging
 import numpy as np
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import AnimatedRenderWidget
@@ -16,6 +16,7 @@ from pulse.interface.viewer_3d.actors import (
     PointsActor,
     TubeActorGPU,
 )
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.postprocessing.plot_acoustic_data import (
     get_acoustic_response,
@@ -70,6 +71,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._result_min = 0
         self._result_max = 0
 
+        self._animation_color_map = None
         self._animation_current_frequency = None
         self._animation_cached_data = dict()
 
@@ -168,10 +170,27 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.colormap = colormap
         self.update_plot()
 
+    def cache_animation_frames(self):
+        for frame in range(self._animation_total_frames):
+            logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
+            self.update_plot()
+            cached = vtkPolyData()
+            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+            self._animation_cached_data[frame] = cached
+
     def update_animation(self, frame: int):
-        if self._animation_current_frequency != self.current_frequency_index:
+        conditions_to_clear_cache = [
+            self._animation_current_frequency != self.current_frequency_index,
+            self._animation_color_map != self.colormap,
+        ]
+
+        if any(conditions_to_clear_cache):
             self._animation_cached_data.clear()
             self._animation_current_frequency = self.current_frequency_index
+            self._animation_color_map = self.colormap
+
+        if not self._animation_cached_data:
+            LoadingWindow(self.cache_animation_frames).run()
 
         d_theta = 2 * np.pi / self._animation_total_frames
         phase_step = frame * d_theta
@@ -182,6 +201,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.tubes_actor.GetMapper().SetInputData(cached)
             self.update()
         else:
+            # It will only enter here if something wrong happened in
+            # the function that caches the frames
+            logging.warn(f"Cache miss on update_animation function for frame {frame}")
+
             self.update_plot()
             cached = vtkPolyData()
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())

@@ -5,6 +5,7 @@ from PyQt5 import uic
 from pathlib import Path
 
 from pulse import app, UI_DIR
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
@@ -90,10 +91,9 @@ class AnimationWidget(QWidget):
         try:
             self.process_animation(True)
             if file_path.suffix.lower() in [".gif", ".webp"]:
-                self.main_window.results_widget.save_animation(file_path)
+                LoadingWindow(self.main_window.results_widget.save_animation).run(file_path)
             else:
-                self.main_window.results_widget.save_video(file_path)
-
+                LoadingWindow(self.main_window.results_widget.save_video).run(file_path)
             self.process_animation(self.pushButton_animate.isChecked())
             
         except Exception as error_log:
