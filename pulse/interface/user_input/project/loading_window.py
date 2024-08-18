@@ -5,7 +5,6 @@ from PyQt5 import uic
 import re
 import logging
 from time import sleep
-from threading import Thread
 
 from pulse import app, UI_DIR
 
