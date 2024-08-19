@@ -66,14 +66,23 @@ class LoadingWindow(QWidget):
             | Qt.CustomizeWindowHint
             | Qt.WindowTitleHint
             | Qt.WindowStaysOnTopHint
-            | Qt.WindowMinimizeButtonHint
         )
         self.setWindowModality(Qt.ApplicationModal)
+        self.update_position()
         self.progress_bar.setValue(0)
 
     def _define_qt_variables(self):
         self.progress_bar: QProgressBar
         self.progress_label: QLabel
+
+    def update_position(self):
+        '''
+        Place the window on the center of the screen.
+        '''
+        desktop_geometry = app().desktop().screenGeometry()
+        pos_x = int((desktop_geometry.width() - self.width())/2)
+        pos_y = int((desktop_geometry.height() - self.height())/2)
+        self.setGeometry(pos_x, pos_y, self.width(), self.height())
 
     def run(self, *args, **kwargs):
         self.show()
