@@ -4,14 +4,15 @@ from molde.utils import set_polydata_colors
 from vtkmodules.vtkCommonCore import vtkCharArray, vtkIntArray, vtkUnsignedIntArray
 from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
+from pulse import app
 
 class ElementLinesActor(GhostActor):
-    def __init__(self, project, show_deformed=False, **kwargs) -> None:
+    def __init__(self, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
-        self.project = project
-        self.preprocessor = project.preprocessor
-        self.elements = project.get_structural_elements()
+        self.project = app().project
+        self.preprocessor = self.project.preprocessor
+        self.elements = self.project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.show_deformed = show_deformed
         self.build()

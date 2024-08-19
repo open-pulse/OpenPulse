@@ -14,7 +14,7 @@ from pulse.interface.viewer_3d.actors import (
     ElementLinesActor,
     NodesActor,
     PointsActor,
-    TubeActorGPU,
+    TubeActorResults,
 )
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
@@ -136,11 +136,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         except Exception as e:
             return
+        acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
-        self.lines_actor = ElementLinesActor(project, show_deformed=deformed)
-        self.nodes_actor = NodesActor(project, show_deformed=deformed)
+        self.lines_actor = ElementLinesActor(show_deformed=deformed)
+        self.nodes_actor = NodesActor(show_deformed=deformed)
         self.points_actor = PointsActor(show_deformed=deformed)
-        self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
+        self.tubes_actor = TubeActorResults(show_deformed=deformed, acoustic_plot=acoustic_plot)
         self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()
 

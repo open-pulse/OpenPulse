@@ -4,14 +4,15 @@ from molde.utils import set_polydata_colors, set_polydata_property
 from vtkmodules.vtkCommonCore import vtkCharArray, vtkPoints, vtkUnsignedIntArray
 from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
 from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
+from pulse import app
 
 
 class NodesActor(GhostActor):
-    def __init__(self, project, show_deformed=False, **kwargs) -> None:
+    def __init__(self, show_deformed=False, **kwargs) -> None:
         super().__init__()
 
-        self.project = project
-        self.nodes = project.get_nodes()
+        self.project = app().project
+        self.nodes = self.project.get_nodes()
         self.hidden_nodes = kwargs.get("hidden_nodes", set())
         self.show_deformed = show_deformed
         self.build()

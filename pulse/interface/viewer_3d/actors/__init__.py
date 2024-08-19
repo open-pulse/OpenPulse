@@ -3,4 +3,5 @@ from .element_axes_actor import ElementAxesActor
 from .element_lines_actor import ElementLinesActor
 from .nodes_actor import NodesActor
 from .points_actor import PointsActor
-from .tube_actor_gpu import TubeActorGPU
+from .tube_actor import TubeActor
+from .tube_actor_results import TubeActorResults

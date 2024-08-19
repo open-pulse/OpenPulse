@@ -70,7 +70,7 @@ class PipeOptionsWidget(QWidget):
         kwargs = dict()
         kwargs["diameter"] = parameters[0]
         kwargs["thickness"] = parameters[1]
-        kwargs["curvature_radius"] = 0.3
+        kwargs["curvature_radius"] = self.get_bending_radius(parameters[0])
         kwargs["extra_info"] = dict(
             structural_element_type = "pipe_1",
             cross_section_info = deepcopy(self.cross_section_info),
@@ -82,8 +82,12 @@ class PipeOptionsWidget(QWidget):
         self.cross_section_widget.show()
 
     def define_cross_section_callback(self):
+        if not self.isVisible():
+            return
+
         if self.cross_section_widget.get_constant_pipe_parameters():
             return
+
         self.cross_section_info = self.cross_section_widget.pipe_section_info
         self.cross_section_widget.hide()
         self.set_section_button.setProperty("warning", False)
