@@ -139,7 +139,7 @@ class ProgressBarLogUpdater(logging.Handler):
     def emit(self, record):
         """
         This function is fired when something is logged.
-        If the log have a marker like [n/N] in its message it
+        If the log have a marker like [n/N] or "..." in its message it
         will update the LoadingWindow associated with this class.
         """
 
@@ -147,11 +147,13 @@ class ProgressBarLogUpdater(logging.Handler):
         QApplication.processEvents()
 
         percent = self.get_percentage(record.msg)
-        if percent is None:
-            return
 
-        self.loading_window.progress_label.setText(record.msg)
-        self.loading_window.progress_bar.setValue(percent)
+        if percent is not None:
+            self.loading_window.progress_label.setText(record.msg)
+            self.loading_window.progress_bar.setValue(percent)
+        
+        elif "..." in record.msg:
+            self.loading_window.progress_label.setText(record.msg)
 
         # Updates QT to show the window modifications
         QApplication.processEvents()
