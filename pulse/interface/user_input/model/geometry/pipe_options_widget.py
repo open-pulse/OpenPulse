@@ -82,8 +82,12 @@ class PipeOptionsWidget(QWidget):
         self.cross_section_widget.show()
 
     def define_cross_section_callback(self):
+        if not self.isVisible():
+            return
+
         if self.cross_section_widget.get_constant_pipe_parameters():
             return
+
         self.cross_section_info = self.cross_section_widget.pipe_section_info
         self.cross_section_widget.hide()
         self.set_section_button.setProperty("warning", False)
