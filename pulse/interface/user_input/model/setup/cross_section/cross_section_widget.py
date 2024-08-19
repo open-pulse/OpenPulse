@@ -356,8 +356,6 @@ class CrossSectionWidget(QWidget):
 
     def get_variable_section_pipe_parameters(self):
 
-        print("entrei get_variable_section_pipe_parameters")
-        
         message = ""
 
         outside_diameter_initial = check_inputs(self.lineEdit_outside_diameter_initial, "'outside diameter (initial)'")

@@ -25,10 +25,6 @@ class ShakingForcesCriteriaInput(QWidget):
 
         app().main_window.set_input_widget(self)
 
-        self.project = app().project
-        self.model = app().project.model
-        self.preprocessor = app().project.model.preprocessor
-
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -45,6 +41,8 @@ class ShakingForcesCriteriaInput(QWidget):
         self.keep_window_open = True
         self.complete = False
         self.unit_label = "N"
+
+        self.frequencies = app().project.model.frequencies
 
     def _define_qt_variables(self):
 
@@ -75,7 +73,7 @@ class ShakingForcesCriteriaInput(QWidget):
 
     def process_shaking_forces_for_selected_lines(self):
 
-        self.before_run = self.project.get_pre_solution_model_checks()
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         lineEdit = self.lineEdit_selection_id
         stop, self.lines_typed = self.before_run.check_selected_ids(lineEdit.text(), "lines")
@@ -85,25 +83,24 @@ class ShakingForcesCriteriaInput(QWidget):
         
         element_ids = list()
         for line_id in self.lines_typed:
-            elements_from_line = self.preprocessor.line_to_elements[line_id]
+            elements_from_line = app().project.model.preprocessor.mesh.line_to_elements[line_id]
             element_ids.extend(elements_from_line)
         
         pressure_external = 0
-        frequencies = self.model.frequencies
 
-        rows = self.preprocessor.DOFS_ELEMENT
-        cols = len(frequencies)
+        rows = app().project.model.preprocessor.DOFS_ELEMENT
+        cols = len(self.frequencies)
         pressure_loads = np.zeros((rows, cols), dtype=complex)
 
         for row, element_id in enumerate(element_ids):
 
-            element = self.preprocessor.structural_elements[element_id]
+            element = app().project.model.preprocessor.structural_elements[element_id]
 
-            pressure_first = self.project.solution_acoustic[element.first_node.global_index, :]
-            pressure_last = self.project.solution_acoustic[element.last_node.global_index, :]
+            pressure_first = app().project.solution_acoustic[element.first_node.global_index, :]
+            pressure_last = app().project.solution_acoustic[element.last_node.global_index, :]
             pressure = np.c_[pressure_first, pressure_last].T
 
-            pressure_loads += element.force_vector_acoustic_gcs(frequencies, pressure, pressure_external)
+            pressure_loads += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)
 
         F_x = pressure_loads[0] + pressure_loads[6]
         F_y = pressure_loads[1] + pressure_loads[7]
@@ -123,7 +120,7 @@ class ShakingForcesCriteriaInput(QWidget):
 
         shaking_forces = self.process_shaking_forces_for_selected_lines()
 
-        x_data = self.model.frequencies
+        x_data = self.frequencies
 
         self.results_to_plot = dict()
         if self.checkBox_force_Fx.isChecked():

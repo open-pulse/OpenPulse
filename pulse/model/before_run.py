@@ -267,8 +267,9 @@ class BeforeRun:
 
         self.is_there_loads = False
         self.is_there_prescribed_dofs = False
-        self.is_there_acoustic_pressure = False
-        self.is_there_volume_velocity = False
+        self.acoustic_pressure = False
+        self.volume_velocity = False
+        self.compressor_excitation = False
             
         if structural:               
             if self.preprocessor.stress_stiffening_enabled:
@@ -294,13 +295,18 @@ class BeforeRun:
         if acoustic or coupled:
             for (property, *args) in self.properties.nodal_properties.keys():
                 if property == "acoustic_pressure":
-                    self.is_there_acoustic_pressure = True
+                    self.acoustic_pressure = True
                     return
 
             for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "acoustic_pressure":
-                    self.is_there_volume_velocity = True
-                    return    
+                if property == "volume_velocity":
+                    self.volume_velocity = True
+                    return
+
+            for (property, *args) in self.properties.nodal_properties.keys():
+                if property == "compressor_excitation":
+                    self.compressor_excitation = True
+                    return
 
     def check_all_acoustic_criteria(self):
         window_title = "WARNING"
@@ -389,7 +395,9 @@ class BeforeRun:
         all_fluid_inputs_message += "Lines with incomplete fluid properties: \n{}"
         #
         structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis!"
-        acoustic_message = "Enter a nodal 'Volume velocity' or 'Acoustic pressure' to proceed with the Harmonic Analysis processing."
+        #
+        acoustic_message = "Enter a nodal acoustic excitation to proceed with the Harmonic Analysis processing. "
+        acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure; compressor excitation; volume velocity."
 
         if analysis_ID == 2:
 
@@ -537,10 +545,12 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-            elif not self.is_there_volume_velocity:
-                if not self.is_there_acoustic_pressure:
-                    PrintMessageInput([window_title_1, title, acoustic_message])
-                    return True
+            elif sum([  self.acoustic_pressure, 
+                        self.volume_velocity, 
+                        self.compressor_excitation  ]) == 0:
+
+                PrintMessageInput([window_title_1, title, acoustic_message])
+                return True
 
         elif analysis_ID == 5 or analysis_ID == 6:
 
@@ -586,10 +596,12 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-            elif not self.is_there_volume_velocity:
-                if not self.is_there_acoustic_pressure:
-                    PrintMessageInput([window_title_1, title, acoustic_message])
-                    return True
+            elif sum([  self.acoustic_pressure, 
+                        self.volume_velocity, 
+                        self.compressor_excitation  ]) == 0:
+
+                PrintMessageInput([window_title_1, title, acoustic_message])
+                return True
     
     def check_cross_section_in_lines_and_elements(self, data):
 

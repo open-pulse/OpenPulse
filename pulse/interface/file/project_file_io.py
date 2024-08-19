@@ -333,10 +333,11 @@ class ProjectFileIO:
         acoustic_imported_tables = app().project.model.properties.acoustic_imported_tables
         structural_imported_tables = app().project.model.properties.structural_imported_tables
 
-        exist_tables = acoustic_imported_tables or structural_imported_tables
-        print(exist_tables)
+        # print(acoustic_imported_tables)
+        # print(structural_imported_tables)
 
-        if exist_tables:
+        if acoustic_imported_tables or structural_imported_tables:
+            print("entrei aqui")
             with self.filebox.open(self.imported_table_data_filename, "w") as internal_file:
                 with h5py.File(internal_file, "w") as f:
 
@@ -348,11 +349,14 @@ class ProjectFileIO:
                             imported_tables = structural_imported_tables
 
                         for table_name, data_array in imported_tables.items():
+
                             if table_name is None:
                                 continue
 
                             data_name = f"{group_label}/{table_name}"
                             f.create_dataset(data_name, data=data_array, dtype=float)
+                            print(data_name, data_array.shape)
+                            print("arquivo foi atualizado")
 
                     app().main_window.project_data_modified = True
 
@@ -631,3 +635,17 @@ class ProjectFileIO:
     #         config[str(line_id)]['material id'] = str(material_id)
 
     #     self.write_pipeline_data_in_file(config)
+
+    def load_analysis_file(self):
+        return self.read_analysis_setup_from_file()
+    
+    def load_thumbnail(self):
+        thumbnail = self.read_thumbnail()
+        if thumbnail is not None:
+            app().project.thumbnail = thumbnail
+
+    def load_model_properties_from_file(self):
+        return self.read_model_properties_from_file()
+
+    def load_imported_table_data_from_file(self):
+        return self.read_imported_table_data_from_file()

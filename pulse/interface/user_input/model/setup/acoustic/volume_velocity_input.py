@@ -81,12 +81,12 @@ class VolumeVelocityInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_constant_values.clicked.connect(self.constant_values_attribution_callback)
-        self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_table_values.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_search.clicked.connect(self.load_volume_velocity_table)
         #
-        self.tabWidget_volume_velocity.currentChanged.connect(self.tabEvent_volume_velocity)
+        self.tabWidget_volume_velocity.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_volume_velocity.itemClicked.connect(self.on_click_item)
         self.treeWidget_volume_velocity.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -98,27 +98,28 @@ class VolumeVelocityInput(QDialog):
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if len(selected_nodes) == 1:
-
+        if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "volume_velocity" and selected_nodes[0] == node_id:
+            if len(selected_nodes) == 1:
+                for (property, node_id), data in self.properties.nodal_properties.items():
+                    if property == "volume_velocity" and selected_nodes[0] == node_id:
 
-                    values = data["values"]
-    
-                    if "table paths" in data.keys():
-                        table_paths = data["table paths"]
-                        self.tabWidget_volume_velocity.setCurrentIndex(1)
-                        self.lineEdit_table_path.setText(table_paths[0])
+                        values = data["values"]
+        
+                        if "table paths" in data.keys():
+                            table_paths = data["table paths"]
+                            self.tabWidget_volume_velocity.setCurrentIndex(1)
+                            self.lineEdit_table_path.setText(table_paths[0])
 
-                    else:
-                        self.tabWidget_volume_velocity.setCurrentIndex(0)
-                        self.lineEdit_real_value.setText(str(np.real(values)))
-                        self.lineEdit_imag_value.setText(str(np.imag(values)))
+                        else:
+                            self.tabWidget_volume_velocity.setCurrentIndex(0)
+                            self.lineEdit_real_value.setText(str(np.real(values)))
+                            self.lineEdit_imag_value.setText(str(np.imag(values)))
 
-    def tabEvent_volume_velocity(self):
+    def tab_event_callback(self):
+        self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_volume_velocity.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
@@ -133,6 +134,7 @@ class VolumeVelocityInput(QDialog):
             if property == "volume_velocity":
                 self.tabWidget_volume_velocity.setCurrentIndex(0)
                 self.tabWidget_volume_velocity.setTabVisible(2, True)
+                return
 
     def load_nodes_info(self):
 
@@ -202,7 +204,6 @@ class VolumeVelocityInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        self.remove_table_files_from_nodes(node_ids)
         self.remove_conflictant_excitations(node_ids)
 
         real_values = [np.real(volume_velocity)]
@@ -325,7 +326,6 @@ class VolumeVelocityInput(QDialog):
             return
 
         self.remove_conflictant_excitations(node_ids)
-        # table_names = self.properties.get_nodal_related_table_names("volume_velocity", node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -342,14 +342,11 @@ class VolumeVelocityInput(QDialog):
 
                 self.table_name, self.array = self.save_table_file( 
                                                                     node_id, 
-                                                                    self.table_values, 
-                                                                    self.table_path
+                                                                    self.table_values
                                                                    )
 
                 basenames = [self.table_name]
                 table_paths = [self.table_path]
-                values = [self.table_values]                
-                array_data = [self.array]
 
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
@@ -357,9 +354,7 @@ class VolumeVelocityInput(QDialog):
                 bc_data = {
                             "coords" : list(coords),
                             "table names" : basenames,
-                            "table paths" : table_paths,
-                            "values" : values,
-                            "data arrays" : array_data
+                            "table paths" : table_paths
                         }
 
                 self.properties._set_nodal_property("volume_velocity", bc_data, node_ids=node_id)
@@ -394,7 +389,6 @@ class VolumeVelocityInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        # self.remove_bc_from_node()
 
     def remove_conflictant_excitations(self, node_ids: int | list | tuple):
 
@@ -402,15 +396,15 @@ class VolumeVelocityInput(QDialog):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["acoustic_pressure", "compressor_excitation"]:
+            for label in ["acoustic_pressure", "compressor_excitation", "volume_velocity"]:
                 table_names = self.properties.get_nodal_related_table_names(label, node_id)
-                self.properties._remove_nodal_property(label, node_id)
 
+                self.properties._remove_nodal_property(label, node_id)
                 self.process_table_file_removal(table_names)
 
         app().pulse_file.write_model_properties_in_file()
 
-    def remove_bc_from_node(self):
+    def remove_callback(self):
 
         if  self.lineEdit_selection_id.text() != "":
 
@@ -419,49 +413,44 @@ class VolumeVelocityInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids)
-
-            for node_id in node_ids:
-                self.properties._remove_nodal_property("volume_velocity", node_id)
+            self.remove_table_files_from_nodes(node_ids[0])
+            self.properties._remove_nodal_property("volume_velocity", node_ids[0])
 
             app().pulse_file.write_model_properties_in_file()
-
-            self.lineEdit_selection_id.setText("")
-            self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
-
             app().main_window.update_plots()
             # self.close()
 
     def reset_callback(self):
 
-            self.hide()
+        self.hide()
 
-            title = f"Resetting of volume velocities"
-            message = "Would you like to remove all volume velocities from the acoustic model?"
+        title = f"Resetting of volume velocities"
+        message = "Would you like to remove all volume velocities from the acoustic model?"
 
-            buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if read._continue:
+        if read._continue:
 
-                node_ids = list()
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "volume_velocity":
-                        node_ids.append(node_id)
+            node_ids = list()
+            for (property, node_id), data in self.properties.nodal_properties.items():
+                if property == "volume_velocity":
+                    node_ids.append(node_id)
+            
+            for node_id in node_ids:
+                self.remove_table_files_from_nodes(node_id)
 
-                self.remove_table_files_from_nodes(node_ids)
-
-                self.properties._reset_property("volume_velocity")
-                app().pulse_file.write_model_properties_in_file()
-                app().main_window.update_plots()
-                self.close()
+            self.properties._reset_nodal_property("volume_velocity")
+            app().pulse_file.write_model_properties_in_file()
+            app().main_window.update_plots()
+            self.close()
 
     def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("volume_velocity", node_ids, equals=True)
+        table_names = self.properties.get_nodal_related_table_names("volume_velocity", node_ids)
         self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):
@@ -483,7 +472,7 @@ class VolumeVelocityInput(QDialog):
                 self.check_table_values()
         elif event.key() == Qt.Key_Delete:
             if self.tabWidget_volume_velocity.currentIndex()==2:
-                self.remove_bc_from_node()
+                self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

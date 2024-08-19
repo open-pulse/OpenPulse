@@ -1,12 +1,14 @@
 from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -21,6 +23,7 @@ class StructuralElementTypeInput(QDialog):
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
+        self.properties = app().project.model.properties
 
         self._config_window()
         self._initialize()
@@ -40,15 +43,13 @@ class StructuralElementTypeInput(QDialog):
 
     def _initialize(self):
 
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-
         self.element_type = 'pipe_1'
+
         self.complete = False
-        self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
-        self.list_lines_to_update_cross_section = []
+
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
 
@@ -70,6 +71,7 @@ class StructuralElementTypeInput(QDialog):
 
         # QPushButton
         self.pushButton_confirm : QPushButton
+        self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
 
         # QTabWidget
@@ -83,8 +85,9 @@ class StructuralElementTypeInput(QDialog):
         self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
         #
-        self.pushButton_confirm.clicked.connect(self.confirm_button_clicked)
-        self.pushButton_reset.clicked.connect(self.reset_element_type)
+        self.pushButton_confirm.clicked.connect(self.element_type_attribution_callback)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_selection_callback)
         #
@@ -94,56 +97,43 @@ class StructuralElementTypeInput(QDialog):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-        selected_lines = app().main_window.list_selected_lines()
-        if selected_lines:
-            self.lineEdit_selected_id.setText(str(selected_lines))
-            self.process_selection(selected_lines)
-
-    def process_selection(self, selected_lines : list):
 
         self.comboBox_selection.blockSignals(True)
+        selected_lines = app().main_window.list_selected_lines()
 
         if selected_lines:
+
+            text = ", ".join([str(i) for i in selected_lines])
+            self.lineEdit_selected_id.setText(text)
 
             self.comboBox_selection.setCurrentIndex(1)
             self.lineEdit_selected_id.setDisabled(False)
 
             if len(selected_lines) == 1:
 
-                line = self.model.mesh.lines_from_model[selected_lines[0]]
+                line_id = selected_lines[0]
+                element_type = self.properties._get_property("structural_element_type", line_id=line_id)
 
-                element_type = line.structural_element_type
                 if element_type == 'pipe_1':
                     self.comboBox_element_type.setCurrentIndex(0)
                 else:
                     self.comboBox_element_type.setCurrentIndex(1)
 
-                wall_formulation = line.structural_element_wall_formulation
+                capped_end = self.properties._get_property("capped_end", line_id=line_id)
+                self.comboBox_capped_end.setCurrentIndex(bool(capped_end))
+
+                force_offset = self.properties._get_property("force_offset", line_id=line_id)
+                self.comboBox_force_offset.setCurrentIndex(bool(force_offset))
+
+                wall_formulation = self.properties._get_property("wall_formulation", line_id=line_id)
 
                 if wall_formulation == 'thin_wall': 
                     self.comboBox_wall_formulation.setCurrentIndex(0)
-
                 elif wall_formulation == 'thick_wall':
                     self.comboBox_wall_formulation.setCurrentIndex(1)
-
-                elif wall_formulation is None:
+                else:
                     if element_type == "pipe_1":
-                        self.comboBox_wall_formulation.setCurrentIndex(1)
-
-                if line.capped_end:
-                    self.comboBox_capped_end.setCurrentIndex(0)
-                else:
-                    self.comboBox_capped_end.setCurrentIndex(1)
-
-                if line.force_offset == 1:
-                    self.comboBox_force_offset.setCurrentIndex(0)
-                else:
-                    self.comboBox_force_offset.setCurrentIndex(1)
-
-        else:
-            self.comboBox_selection.setCurrentIndex(0)
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setDisabled(True)
+                        self.comboBox_wall_formulation.setCurrentIndex(2)
 
         self.comboBox_selection.blockSignals(False)
 
@@ -154,25 +144,19 @@ class StructuralElementTypeInput(QDialog):
         self.treeWidget_element_type.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
     def tab_selection_callback(self):
-        
-        if self.comboBox_selection.currentIndex() == 1:
-            self.lineEdit_selected_id.setDisabled(False)
-        
-        tab_index = self.tabWidget_main.currentIndex()
-        if tab_index == 0:
-            self.label_selected_id.setText("Selection ID:")
-            self.lineEdit_selected_id.setText("")
-
+        if self.tabWidget_main.currentIndex() == 0:
+            self.label_selected_id.setText("Selected ID:")
+            self.attribution_type_callback()
         else:
-            self.label_selected_id.setText("Selection ID:")
+            self.label_selected_id.setText("Selection:")
             self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.setDisabled(True)
 
     def attribution_type_callback(self):
-        index = self.comboBox_selection.currentIndex()
-        if index == 0:
+        if self.comboBox_selection.currentIndex() == 0:
             self.lineEdit_selected_id.setDisabled(True)
             self.lineEdit_selected_id.setText("All lines")
-        elif index == 1:
+        else:
             self.lineEdit_selected_id.setDisabled(False)
             if app().main_window.list_selected_lines():
                 self.selection_callback()
@@ -199,12 +183,13 @@ class StructuralElementTypeInput(QDialog):
             self.comboBox_force_offset.setDisabled(True)
             self.comboBox_wall_formulation.setDisabled(True)
 
-
     def check_element_type_changes(self):
 
         self.pipe_to_beam = False
         self.beam_to_pipe = False
-        self.update_cross_section = False
+        update_cross_section = False
+
+        lines_to_update_cross_section = list()
 
         final_etype = self.element_type
         line_ids = app().main_window.list_selected_lines()
@@ -212,91 +197,44 @@ class StructuralElementTypeInput(QDialog):
         if len(line_ids) == 0:
             line_ids = list(self.model.mesh.lines_from_model.keys())
 
-        for tag in line_ids:
+        for line_id in line_ids:
 
-            line = self.model.mesh.lines_from_model[tag]
-            initial_etype = line.structural_element_type
+            initial_etype = self.properties._get_property("structural_element_type", line_id=line_id)
 
             if initial_etype in ['pipe_1', None] and final_etype in ['beam_1']:
 
-                self.update_cross_section = True
+                update_cross_section = True
                 self.pipe_to_beam = True
-                self.list_lines_to_update_cross_section.append(tag)
+                lines_to_update_cross_section.append(line_id)
 
             elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1']:
 
-                self.update_cross_section = True
+                update_cross_section = True
                 self.beam_to_pipe = True
-                self.list_lines_to_update_cross_section.append(tag)
+                lines_to_update_cross_section.append(line_id)
 
-        if self.update_cross_section:
-            self.update_modified_cross_sections()
+        if update_cross_section:
+
+            self.update_modified_cross_sections(lines_to_update_cross_section)
+
             if initial_etype is not None:
+
                 title = "Change in element type detected"
-                if len(self.list_lines_to_update_cross_section) <= 20:
-                    message = f"The element type previously defined at the {self.list_lines_to_update_cross_section} line(s) \n"
+
+                if len(lines_to_update_cross_section) <= 20:
+                    message = f"The element type previously defined at the {lines_to_update_cross_section} line(s) \n"
                 else:
-                    size = len(self.list_lines_to_update_cross_section)
+                    size = len(lines_to_update_cross_section)
                     message = f"The element type previously defined in {size} lines \n"
+
                 message += "has been modified, therefore, it is necessary to update \n"
                 message += "the cross-section(s) of this(ese) line(s) to continue."
                 PrintMessageInput([window_title_2, title, message])
-            
-    def update_modified_cross_sections(self):
-        lines_to_reset = self.list_lines_to_update_cross_section
-        self.project.set_cross_section_by_lines(lines_to_reset, None)
-        
-        # final_etype = self.element_type
-        # for tag in tags:
-        #     initial_etype = self.model.mesh.lines_from_model[tag].structural_element_type
-        #     if initial_etype in ['pipe_1'] and final_etype in ['beam_1']:
-        #         self.project.set_cross_section_by_lines(tag, None)
-        #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1']:
-        #         self.project.set_cross_section_by_lines(tag, None)
 
-    def confirm_button_clicked(self):
-
-        index = self.comboBox_element_type.currentIndex()
-
-        if index == 0:
-            self.check_element_type_changes()
-            lines = list(self.model.mesh.lines_from_model.keys())
-            print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
-
-        elif index == 1:
-
-            str_lines = self.lineEdit_selected_id.text()
-            self.stop, self.typed_lines = self.before_run.check_selected_ids(str_lines, "lines")
-
-            if self.stop:
-                return
-
-            self.check_element_type_changes()
-            lines = self.typed_lines
-
-            if len(self.typed_lines) <= 20:
-                print(f"[Set Structural Element Type] - {self.element_type} assigned to {self.typed_lines} lines")
-            else:
-                print(f"[Set Structural Element Type] - {self.element_type} assigned in {len(self.typed_lines)} lines")
-
-        self.project.set_structural_element_type_by_lines(lines, self.element_type)
-        
-        capped_end = False
-        if self.element_type == 'pipe_1':
-            if self.comboBox_capped_end.currentIndex() == 0:
-                capped_end = True
-            wall_formulation = self.get_wall_formulation()
-            self.project.set_capped_end_by_lines(lines, capped_end)
-            self.project.set_structural_element_wall_formulation_by_lines(lines, wall_formulation)
-
-        else:
-            self.project.set_structural_element_wall_formulation_by_lines(lines, None)
-            self.project.set_capped_end_by_lines(lines, False)
-
-        self.project.set_structural_element_force_offset_by_lines(lines, self.force_offset)
-
-        self.complete = True
-        self.close()
+    def update_modified_cross_sections(self, lines_to_reset: list):
+        app().project.model.preprocessor.set_cross_section_by_lines(lines_to_reset, None)
+        app().project.model.preprocessor.add_expansion_joint_by_lines(lines_to_reset, None)
+        app().project.model.preprocessor.add_valve_by_line(lines_to_reset, None)
 
     def get_wall_formulation(self):
         index = self.comboBox_wall_formulation.currentIndex()
@@ -305,38 +243,134 @@ class StructuralElementTypeInput(QDialog):
         else:
             return "thick_wall"
 
-    def on_click_item_line(self, item):
-        self.lineEdit_selected_id.setText(item.text(0))
+    def element_type_attribution_callback(self):
 
-    def on_double_click_item(self, item):
-        self.lineEdit_selected_id.setText(item.text(0))
-        self.get_information(item)
+        self.check_element_type_changes()
 
-    def reset_element_type(self):
-        self.element_type = "pipe_1"
-        lines = list(self.model.mesh.lines_from_model.keys())
-        self.project.set_structural_element_type_by_lines(lines, self.element_type)
+        if self.comboBox_element_type.currentIndex() == 0:
+
+            line_ids = list(self.model.mesh.lines_from_model.keys())
+            print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
+
+        else:
+
+            str_lines = self.lineEdit_selected_id.text()
+            stop, line_ids = self.before_run.check_selected_ids(str_lines, "lines")
+
+            if stop:
+                return
+
+            if len(line_ids) <= 20:
+                print(f"[Set Structural Element Type] - {self.element_type} assigned to {line_ids} lines")
+            else:
+                print(f"[Set Structural Element Type] - {self.element_type} assigned in {len(line_ids)} lines")
+
+        if self.element_type == 'pipe_1':
+            capped_end = True
+            wall_formulation = self.get_wall_formulation()
+        else:
+            capped_end = False
+            wall_formulation = None
+
+        capped_end = bool(self.comboBox_capped_end.currentIndex())
+        force_offset = bool(self.comboBox_force_offset.currentIndex())
+
+        app().project.model.preprocessor.set_structural_element_type_by_lines(line_ids, self.element_type)
+        app().project.model.preprocessor.set_capped_end_by_lines(line_ids, capped_end)
+        app().project.model.preprocessor.set_structural_element_force_offset_by_lines(line_ids, force_offset)
+        app().project.model.preprocessor.set_structural_element_wall_formulation_by_lines(line_ids, wall_formulation)
+
+        self.properties._set_line_property("structural_element_type", self.element_type, line_ids)
+        self.properties._set_line_property("capped_end", capped_end, line_ids)
+        self.properties._set_line_property("force_offset", force_offset, line_ids)
+        self.properties._set_line_property("wall_formulation", wall_formulation, line_ids)
+
+        app().pulse_file.write_line_properties_in_file()
+
         self.complete = True
         self.close()
-        title = "Resetting process complete"
-        message = "The structural element type has been reset to the default option 'pipe_1'."
-        PrintMessageInput([window_title_2, title, message], auto_close=True)
+
+    def remove_callback(self):
+        pass
+
+    def reset_callback(self):
+
+        self.hide()
+
+        title = f"Resetting of structural element types"
+        message = "Would you like to reset the structural element types from the model?"
+
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
+            return
+
+        if read._continue:
+
+            for (line_id, data) in self.properties.line_properties.items():
+                if "structural_element_type" in data.keys():
+
+                    app().project.model.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
+                    app().project.model.preprocessor.set_capped_end_by_lines(line_id, True)
+                    app().project.model.preprocessor.set_structural_element_force_offset_by_lines(line_id, "pipe_1")
+                    app().project.model.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, "pipe_1")
+
+                    app().project.model.properties._remove_line_property("structural_element_type", line_id)
+                    app().project.model.properties._remove_line_property("capped_end", line_id)
+                    app().project.model.properties._remove_line_property("volume_flow", line_id)
+
+            app().pulse_file.write_line_properties_in_file()
+
+            self.complete = True
+            self.close()
+
+    def on_click_item(self, item):
+        self.comboBox_selection.setCurrentIndex(1)
+        self.lineEdit_selected_id.setText(item.text(2))
+        self.lineEdit_selected_id.setDisabled(True)
+
+    def on_double_click_item(self, item):
+        self.comboBox_selection.setCurrentIndex(1)
+        self.lineEdit_selected_id.setText(item.text(2))
+        self.lineEdit_selected_id.setDisabled(True)
+        self.get_information(item)
 
     def load_element_type_info(self):
+
         self.treeWidget_element_type.clear()
-        for key, lines in self.preprocessor.structural_element_type_to_lines.items():
-            item = QTreeWidgetItem([str(key), str(lines)])
-            item.setTextAlignment(0, Qt.AlignCenter)
-            item.setTextAlignment(1, Qt.AlignCenter)
+        header = self.treeWidget_element_type.headerItem()
+
+        header_labels = ["Element type", "Lines"]
+        for col, label in enumerate(header_labels):
+            header.setText(col, label)
+            header.setTextAlignment(col, Qt.AlignCenter)
+
+        aux = defaultdict(list)
+        for line_id in self.properties.line_properties.keys():
+
+            element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+            if element_type is None:
+                continue
+
+            aux[element_type].append(line_id)
+
+        for key, line_ids in aux.items():
+            item = QTreeWidgetItem([str(key), str(line_ids)])
+            for col in range(len(header_labels)):
+                item.setTextAlignment(col, Qt.AlignCenter)
+
             self.treeWidget_element_type.addTopLevelItem(item)
+
         self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
-        if len(self.preprocessor.structural_element_type_to_lines) == 0:
-            self.tabWidget_main.setCurrentIndex(0)
-            self.tabWidget_main.setTabVisible(1, False)
-        else:
-            self.tabWidget_main.setTabVisible(1, True)
+        self.tabWidget_main.setTabVisible(1, False)
+        for data in self.properties.line_properties.values():
+            if "structural_element_type" in data.keys():
+                self.tabWidget_main.setCurrentIndex(0)
+                self.tabWidget_main.setTabVisible(1, True)
+                return
 
     def get_information(self, item):
         try:
@@ -349,8 +383,15 @@ class StructuralElementTypeInput(QDialog):
                 key = item.text(0)
 
                 data = dict()
-                for line_id in self.preprocessor.structural_element_type_to_lines[key]:
-                    element_data = [key]
+                for line_id in self.properties.line_properties.keys():
+
+                    element_type = self.properties._get_property("acoustic_element_type", line_id=line_id)
+                    if element_type is None:
+                        continue
+
+                    if key == element_type:
+                        element_data = [key]
+
                     data[line_id] = element_data
 
                 header_labels = ["Line ID", "Element type"]
@@ -374,20 +415,10 @@ class StructuralElementTypeInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.element_type_attribution_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    # def group_remove(self):
-    #     key = self.lineEdit_selected_group.text()
-    #     if key != "":
-    #         try:
-    #             lines = self.preprocessor.structural_element_type_to_lines[key]
-    #             for line in lines:
-    #                 element_type = ""
-    #                 self.project.set_structural_element_type_by_lines(line, element_type, remove=True)
-    #         except Exception as error:
-    #             title = "ERROR WHILE DELETING GROUP OF LINES"
-    #             message = str(error)
-    #             PrintMessageInput([title, message, window_title1])
-    #         self.load_element_type_info()
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

@@ -622,11 +622,11 @@ class ExpansionJointInput(QDialog):
 
                 self.process_table_file_removal(self.list_table_names_from_selection)
                 self.project.add_valve_by_line(tag, None)
-                self.project.set_cross_section_by_lines(tag, None)
+                app().project.model.preprocessor.set_cross_section_by_lines(tag, None)
 
                 cross_sections = get_list_cross_sections_to_plot_expansion_joint(self.joint_elements, joint_parameters[1])
-                self.preprocessor.set_cross_section_by_element(self.joint_elements, cross_sections)
-                self.project.add_expansion_joint_by_line(tag, expansion_joint_data)
+                self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
+                self.project.add_expansion_joint_by_lines(tag, expansion_joint_data)
 
             else:
 
@@ -745,7 +745,7 @@ class ExpansionJointInput(QDialog):
                 self.preprocessor.set_structural_element_type_by_element(joint_elements, etype)
 
                 self.project.set_structural_element_type_by_lines(line_id, cross)
-                self.project.set_cross_section_by_lines(line_id, cross)
+                app().project.model.preprocessor.set_cross_section_by_lines(line_id, cross)
 
                 # self.project.add_expansion_joint_by_elements(   joint_elements, 
                 #                                                 None, 
@@ -1198,7 +1198,7 @@ class ExpansionJointInput(QDialog):
 
     def remove_expansion_joint_by_line(self, line_id):
         self.remove_table_files_from_imported_data_folder_by_line(line_id)
-        self.project.add_expansion_joint_by_line(line_id, None)
+        self.project.add_expansion_joint_by_lines(line_id, None)
         joint_elements = self.preprocessor.line_to_elements[line_id]
         self.restore_the_cross_section(joint_elements)
 

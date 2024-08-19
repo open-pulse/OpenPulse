@@ -720,7 +720,7 @@ class SetCrossSectionInput(QDialog):
             self.preprocessor.set_cross_section_by_lines(line_ids, cross_section)
             # TODO: remove and reset the expansion joints and the valves also expansion joint tables
             # self.preprocessor.add_valve_by_line(line_ids, cross_section)
-            # self.preprocessor.add_expansion_joint_by_line(line_ids, element_type)
+            # self.preprocessor.add_expansion_joint_by_lines(line_ids, element_type)
 
         if len(line_ids) < 20:
             print("[Set Cross-section] - defined at the {} lines".format(line_ids))

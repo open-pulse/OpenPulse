@@ -4,8 +4,6 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 
 from pulse import app, UI_DIR, version
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
-from pulse.interface.formatters.icons import * 
 
 
 class GetUserConfirmationInput(QDialog):
@@ -24,8 +22,6 @@ class GetUserConfirmationInput(QDialog):
         self._reset_variables()
         self._define_qt_variables()
         self._create_connections()
-
-        ConfigWidgetAppearance(self)
 
         self._configure_labels()
         self._configure_buttons()

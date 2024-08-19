@@ -882,20 +882,6 @@ class ProjectFilesLoader:
 
         return section_info_lines, section_info_elements
 
-    def load_analysis_file(self):
-        return app().pulse_file.read_analysis_setup_from_file()
-    
-    def load_thumbnail(self):
-        thumbnail = app().pulse_file.read_thumbnail()
-        if thumbnail is not None:
-            app().project.thumbnail = thumbnail
-
-    def load_model_properties_from_file(self):
-        return app().pulse_file.read_model_properties_from_file()
-
-    def load_imported_table_data_from_file(self):
-        return app().pulse_file.read_imported_table_data_from_file()
-
 def get_color_rgb(color : str):
     color = color.replace(" ", "")
     if ("[" or "(") in color:

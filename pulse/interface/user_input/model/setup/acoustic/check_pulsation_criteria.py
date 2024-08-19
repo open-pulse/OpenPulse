@@ -1,17 +1,16 @@
 from PyQt5.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_new_path
 
 import numpy as np
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -37,24 +36,16 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.selection_callback()
 
     def _initialize(self):
-        self.table_name = ""
+
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
-        self.node_ID_remove = None
-        self.remove_message = True
+
         self.table_name = None
-        self.not_update_event = False
 
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.model.frequencies
-        self.nodes = self.preprocessor.nodes
 
-        self.project_folder_path = self.project.file._project_path
-        self.node_acoustic_path = self.project.file._node_acoustic_path   
-        self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
-        self.node_id = app().main_window.list_selected_nodes()
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -92,32 +83,37 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.reset_unfiltered_fields()
         self.reset_filtered_fields()
 
-        self.node_id = app().main_window.list_selected_nodes()
-        self.line_ids = self.preprocessor.get_line_from_node_id(self.node_id)
+        selected_nodes = app().main_window.list_selected_nodes()
+        self.line_ids = app().project.model.preprocessor.get_line_from_node_id(self.node_id)
+
         self.pushButton_plot_unfiltered_criteria.setDisabled(True)
         self.pushButton_plot_filtered_criteria.setDisabled(True)
 
-        if len(self.node_id) == 1:
-            node = self.nodes[self.node_id[0]]
-            if node.compressor_excitation_table_names != []:
-                self.pushButton_plot_unfiltered_criteria.setDisabled(False)
-                self.lineEdit_compressor_node_id.setText(str(self.node_id[0]))
-                self.get_existing_compressor_info()
-                return
+        if selected_nodes:
 
-        if len(self.node_id) == 1:
-            self.pushButton_plot_filtered_criteria.setDisabled(False)
-            self.lineEdit_nozzle_id.setText(str(self.node_id[0]))        
-        
-        if len(self.line_ids) > 0:
-            self.comboBox_line_ids.clear()
-            for line_id in self.line_ids:
-                self.comboBox_line_ids.addItem(f"     {line_id}")
+            if len(selected_nodes) == 1:
 
-            speed_of_sound, line_pressure, inner_diameter = self.get_line_properties()
-            self.lineEdit_speed_of_sound.setText(str(round(speed_of_sound, 2)))
-            self.lineEdit_line_pressure.setText(str(round(line_pressure, 2)))
-            self.lineEdit_internal_diameter.setText(str(round(inner_diameter, 2)))
+                self.node_id = selected_nodes[0]
+                node = app().project.model.preprocessor.nodes[self.node_id]
+
+                if node.compressor_excitation_table_names != []:
+                    self.pushButton_plot_unfiltered_criteria.setDisabled(False)
+                    self.lineEdit_compressor_node_id.setText(str(self.node_id))
+                    self.get_existing_compressor_info()
+                    return
+
+                self.pushButton_plot_filtered_criteria.setDisabled(False)
+                self.lineEdit_nozzle_id.setText(str(self.node_id))
+            
+            if len(self.line_ids) > 0:
+                self.comboBox_line_ids.clear()
+                for line_id in self.line_ids:
+                    self.comboBox_line_ids.addItem(f"     {line_id}")
+
+                speed_of_sound, line_pressure, inner_diameter = self.get_line_properties()
+                self.lineEdit_speed_of_sound.setText(str(round(speed_of_sound, 2)))
+                self.lineEdit_line_pressure.setText(str(round(line_pressure, 2)))
+                self.lineEdit_internal_diameter.setText(str(round(inner_diameter, 2)))
 
     def reset_unfiltered_fields(self):
         self.lineEdit_compressor_node_id.setText("")
@@ -132,7 +128,8 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_speed_of_sound.setText("")
 
     def get_existing_compressor_info(self):
-        node = self.preprocessor.nodes[self.node_id[0]]
+        node = app().project.model.preprocessor.nodes[self.node_id[0]]
+        #TODO: reimplement this
         if len(node.compressor_excitation_table_names) > 0:
             try:
                 self.table_name = node.compressor_excitation_table_names[0]
@@ -169,10 +166,16 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_unfiltered_criteria.setText(str(round(self.unfiltered_criteria, 4)))
 
     def get_acoustic_pressure(self):
-        self.solution = self.project.get_acoustic_solution()
-        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_id[0])
+
+        response = get_acoustic_frf(
+                                    app().project.model.preprocessor, 
+                                    app().project.get_acoustic_solution(), 
+                                    self.node_id
+                                    )
+
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-12)
+
         return response
 
     def plot_unfiltered_criteria(self):

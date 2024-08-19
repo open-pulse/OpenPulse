@@ -47,7 +47,6 @@ class PrescribedDofsInput(QDialog):
     def _initialize(self):
 
         self.keep_window_open = True
-        self.list_frequencies = list()
 
         self.list_Nones = [None, None, None, None, None, None]
         self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
@@ -160,14 +159,14 @@ class PrescribedDofsInput(QDialog):
         #
         self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
-        self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_load_ux_table.clicked.connect(self.load_ux_table)
         self.pushButton_load_uy_table.clicked.connect(self.load_uy_table)
         self.pushButton_load_uz_table.clicked.connect(self.load_uz_table)
         self.pushButton_load_rx_table.clicked.connect(self.load_rx_table)
         self.pushButton_load_ry_table.clicked.connect(self.load_ry_table)
         self.pushButton_load_rz_table.clicked.connect(self.load_rz_table)
-        self.pushButton_reset.clicked.connect(self.reset_all)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_prescribed_dofs.currentChanged.connect(self.tabWidget_selection_event)
         #
@@ -186,7 +185,6 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-
                 for (property, node_id), data in self.properties.nodal_properties.items():
                     if property == "prescribed_dofs" and selected_nodes[0] == node_id:
 
@@ -298,7 +296,6 @@ class PrescribedDofsInput(QDialog):
 
         if prescribed_dofs.count(None) != 6:
 
-            self.remove_table_files_from_nodes(node_ids)
             self.remove_conflictant_excitations(node_ids)
 
             real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
@@ -490,7 +487,6 @@ class PrescribedDofsInput(QDialog):
             return
 
         self.remove_conflictant_excitations(node_ids)
-        # table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_ids)
 
         if self.ux_table_path is None:
             self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux", direct_load = True)
@@ -539,10 +535,8 @@ class PrescribedDofsInput(QDialog):
             prescribed_dofs = [ self.ux_table_values, self.uy_table_values, self.uz_table_values, 
                                 self.rx_table_values, self.ry_table_values, self.rz_table_values ]
             
-            array_data = [  self.ux_array, self.uy_array, self.uz_array, 
-                            self.rx_array, self.ry_array, self.rz_array  ]
-
-            data = [prescribed_dofs, basenames]
+            # array_data = [  self.ux_array, self.uy_array, self.uz_array, 
+            #                 self.rx_array, self.ry_array, self.rz_array  ]
 
             if basenames == self.list_Nones:
                 title = "Additional inputs required"
@@ -558,15 +552,13 @@ class PrescribedDofsInput(QDialog):
                         "coords" : list(coords),
                         "table names" : basenames,
                         "table paths" : table_paths,
-                        "values" : prescribed_dofs,
-                        "data arrays" : array_data
+                        "values" : prescribed_dofs
                        }
 
             self.properties._set_nodal_property("prescribed_dofs", bc_data, node_ids=node_id)
 
         app().pulse_file.write_model_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
-        # self.process_table_file_removal(table_names)
         app().main_window.update_plots()
         self.close()
 
@@ -616,6 +608,7 @@ class PrescribedDofsInput(QDialog):
                 return
 
     def tabWidget_selection_event(self):
+        self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_prescribed_dofs.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
@@ -680,7 +673,7 @@ class PrescribedDofsInput(QDialog):
 
         app().pulse_file.write_model_properties_in_file()
 
-    def remove_bc_from_node(self):
+    def remove_callback(self):
 
         if  self.lineEdit_selection_id.text() != "":
 
@@ -689,25 +682,19 @@ class PrescribedDofsInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids)
-
-            for node_id in node_ids:
-                self.properties._remove_nodal_property("prescribed_dofs", node_id)
+            self.remove_table_files_from_nodes(node_ids[0])
+            self.properties._remove_nodal_property("prescribed_dofs", node_ids[0])
 
             app().pulse_file.write_model_properties_in_file()
-
-            self.lineEdit_selection_id.setText("")
-            self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
-
             app().main_window.update_plots()
             # self.close()
 
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_ids, equals=True)
+    def remove_table_files_from_nodes(self, node_id: int):
+        table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_id)
         self.process_table_file_removal(table_names)
 
-    def reset_all(self):
+    def reset_callback(self):
 
         self.hide()
 
@@ -727,9 +714,10 @@ class PrescribedDofsInput(QDialog):
                 if property == "prescribed_dofs":
                     node_ids.append(node_id)
 
-            self.remove_table_files_from_nodes(node_ids)
+            for node_id in node_ids:
+                self.remove_table_files_from_nodes(node_id)
 
-            self.properties._reset_property("prescribed_dofs")
+            self.properties._reset_nodal_property("prescribed_dofs")
             app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
             self.close()

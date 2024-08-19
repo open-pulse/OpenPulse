@@ -14,7 +14,8 @@ from pulse.model.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
 
 from itertools import count
-import os
+from os.path import exists
+
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -123,7 +124,7 @@ class FluidWidget(QWidget):
     
     def load_data_from_fluids_library(self):
 
-        if not os.path.exists(TEMP_PROJECT_FILE):
+        if not exists(TEMP_PROJECT_FILE):
             self.reset_library_to_default()
             return
 
@@ -700,12 +701,19 @@ class FluidWidget(QWidget):
             if isinstance(self.parent_widget, QDialog):
 
                 line_id = self.compressor_thermodynamic_state['line_id']
+                self.parent_widget.lineEdit_selected_id.setText(str(line_id))
+                # app().main_window.set_selection(lines=[line_id])
+
                 self.parent_widget.comboBox_attribution_type.setCurrentIndex(1)
-                self.parent_widget.write_ids(line_id)
+                # self.parent_widget.selection_callback()
                 self.parent_widget.lineEdit_selected_id.setDisabled(True)
+
+                column = self.tableWidget_fluid_data.columnCount()
+                self.tableWidget_fluid_data.selectColumn(column-1)
+
                 if self.fluid_data_refprop:
                     fluid_name = self.fluid_data_refprop["name"]
-                    self.parent_widget.lineEdit_fluid_name.setText(fluid_name)
+                    self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
 
                 connection_type_comp = self.compressor_thermodynamic_state['connection type']
                 connection_label = "discharge" if connection_type_comp else "suction"

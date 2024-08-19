@@ -52,13 +52,9 @@ class Project:
         self.global_damping = [0, 0, 0, 0]
         self.preferences = dict()
         self.modes = 0
-        self.frequencies = None
-        self.f_min = 0
-        self.f_max = 0
-        self.f_step = 0
-        self.list_frequencies = list()
+ 
         self.natural_frequencies_structural = list()
-        self.imported_table_frequency_setup = False
+
         self.solution_structural = None
         self.solution_acoustic = None
         self.natural_frequencies_structural = None
@@ -400,7 +396,7 @@ class Project:
     #             insulation_thickness, insulation_density  ] = section_data["section_parameters"]
 
     #         elements_from_line = self.model.mesh.line_to_elements[line_id]
-    #         self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
+    #         self.preprocessor.add_expansion_joint_by_lines(line_id, None, remove=True)
 
     #         first_element = self.preprocessor.structural_elements[elements_from_line[0]]
     #         last_element = self.preprocessor.structural_elements[elements_from_line[-1]]
@@ -472,7 +468,7 @@ class Project:
     def set_cross_section_by_lines(self, lines, cross_section):
         """
         """
-        self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
+        self.preprocessor.add_expansion_joint_by_lines(lines, None, remove=True)
         self.preprocessor.set_cross_section_by_lines(lines, cross_section)
         self._set_cross_section_to_selected_line(lines, cross_section)
         self.file.add_cross_section_in_file(lines, cross_section)
@@ -518,12 +514,6 @@ class Project:
     def set_structural_element_type_by_lines(self, lines, element_type):
         self.preprocessor.set_structural_element_type_by_lines(lines, element_type)
         # self._set_structural_element_type_to_selected_lines(lines, element_type)
-
-    def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
-        self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
-        angle = self.preprocessor.dict_lines_to_rotation_angles[line_id]
-        self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
-        self.file.modify_beam_xaxis_rotation_by_lines_in_file(line_id, angle)
 
     def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove = False):
 
@@ -592,7 +582,7 @@ class Project:
             capped = True
             etype = "valve"
 
-        self.preprocessor.add_expansion_joint_by_line(line_ids, None, remove=True)
+        self.preprocessor.add_expansion_joint_by_lines(line_ids, None, remove=True)
         self.preprocessor.add_valve_by_line(line_ids, parameters, remove=remove, reset_cross=reset_cross)
         self.set_capped_end_by_lines(line_ids, capped)
         self.set_structural_element_type_by_lines(line_ids, etype)
@@ -662,7 +652,7 @@ class Project:
                 elements_from_line = self.model.mesh.line_to_elements[line_id]
                 # self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )
 
-    def add_expansion_joint_by_line(self, lines_id, parameters):
+    def add_expansion_joint_by_lines(self, lines_id, parameters):
 
         if isinstance(lines_id, int):
             lines_id = [lines_id]
@@ -676,7 +666,7 @@ class Project:
             capped = True
             etype = "expansion_joint"
 
-        self.preprocessor.add_expansion_joint_by_line(lines_id, parameters, remove=remove)
+        self.preprocessor.add_expansion_joint_by_lines(lines_id, parameters, remove=remove)
         self.set_capped_end_by_lines(lines_id, capped)
         self.set_structural_element_type_by_lines(lines_id, etype)
         if etype == "pipe_1":
@@ -805,8 +795,8 @@ class Project:
     #     self.preprocessor.set_fluid_by_lines(line_id, fluid)
     #     self._set_fluid_to_selected_lines(line_id, fluid)
 
-    def load_compressor_info_by_line(self, line_id, compressor_info):
-        self._set_compressor_info_to_selected_lines(line_id, compressor_info=compressor_info)
+    # def load_compressor_info_by_line(self, line_id, compressor_info):
+    #     self._set_compressor_info_to_selected_lines(line_id, compressor_info=compressor_info)
 
     # def load_cross_section_by_element(self, list_elements, cross_section):
     #     self.set_cross_section_by_elements(list_elements, cross_section)
@@ -823,7 +813,7 @@ class Project:
         joint_elements = self.model.mesh.line_to_elements[line_id]
         cross_sections = get_list_cross_sections_to_plot_expansion_joint(joint_elements, data[0][1])
         self._set_cross_section_to_selected_line(line_id, cross_sections[0])
-        self.preprocessor.add_expansion_joint_by_line(line_id, data)
+        self.preprocessor.add_expansion_joint_by_lines(line_id, data)
         self._set_expansion_joint_to_selected_lines(line_id, data)
         self.preprocessor.set_cross_section_by_element(joint_elements, cross_sections)
 
@@ -863,10 +853,6 @@ class Project:
             self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
         self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
 
-    def load_beam_xaxis_rotation_by_line(self, line_id, angle):
-        self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, angle)
-        # self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
-
     def load_structural_element_type_by_line(self, line_id, element_type):
         self.preprocessor.set_structural_element_type_by_lines(line_id, element_type)
         # self._set_structural_element_type_to_selected_lines(line_id, element_type)
@@ -888,16 +874,6 @@ class Project:
 
     def load_structural_element_wall_formulation_by_elements(self, list_elements, wall_formulation):
         self.preprocessor.set_structural_element_wall_formulation_by_elements(list_elements, wall_formulation)
-
-    # def load_acoustic_element_type_by_line(self, line_id, element_type, proportional_damping=None, vol_flow=None):
-    #     self.preprocessor.set_acoustic_element_type_by_lines(line_id, 
-    #                                                          element_type, 
-    #                                                          proportional_damping = proportional_damping, 
-    #                                                          vol_flow = vol_flow)
-    #     self._set_acoustic_element_type_to_selected_lines(line_id, 
-    #                                                       element_type,
-    #                                                       proportional_damping = proportional_damping, 
-    #                                                       vol_flow = vol_flow)
 
     def load_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple):
         self.preprocessor.set_B2PX_rotation_decoupling(element_ID, node_ID, rotations_to_decouple=rotations_to_decouple)
@@ -924,53 +900,23 @@ class Project:
     def get_acoustic_element(self, element_id):
         return self.preprocessor.acoustic_elements[element_id]
 
-    # def _set_material_to_selected_lines(self, lines, material: Material):
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-    #     for line_id in lines:
-    #         entity = self.model.mesh.lines_from_model[line_id]
-    #         entity.material = material
+    # def _set_compressor_info_to_selected_lines(self, line_ids: int | list | tuple, compressor_info=dict()):
 
-    # def _set_material_to_all_lines(self, material: Material):
-    #     for entity in self.model.mesh.lines_from_model.values():
-    #         entity.material = material
+    #     if isinstance(line_ids, int):
+    #         line_ids = [line_ids]
 
-    # def _set_fluid_to_selected_lines(self, lines, fluid: Fluid):
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     self.model.properties._set_nodal_property("fluid", fluid.identifier, line_ids=lines, )
-    #     for line_id in lines:
-    #         entity = self.model.mesh.lines_from_model[line_id]
-    #         if entity.structural_element_type in ['beam_1']:
-    #             entity.fluid = None
+    #     for line_id in line_ids:
+    #         line = self.model.mesh.lines_from_model[line_id]
+    #         if compressor_info:
+    #             if line.structural_element_type in ['beam_1']:
+    #                 line.compressor_info =  dict()
+    #             else:  
+    #                 line.compressor_info = compressor_info 
     #         else:
-    #             entity.fluid = fluid  
-
-    # def _set_fluid_to_all_lines(self, fluid: Fluid):
-    #     for entity in self.model.mesh.lines_from_model.values():
-    #         if entity.structural_element_type in ['beam_1']:
-    #             entity.fluid = None
-    #         else:
-    #             entity.fluid = fluid      
-
-    def _set_compressor_info_to_selected_lines(self, line_ids: int | list | tuple, compressor_info=dict()):
-
-        if isinstance(line_ids, int):
-            line_ids = [line_ids]
-
-        for line_id in line_ids:
-            line = self.model.mesh.lines_from_model[line_id]
-            if compressor_info:
-                if line.structural_element_type in ['beam_1']:
-                    line.compressor_info =  dict()
-                else:  
-                    line.compressor_info = compressor_info 
-            else:
-                if line.compressor_info:
-                    node_id = line.compressor_info['node_id']
-                    self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
-                    line.compressor_info = dict()          
+    #             if line.compressor_info:
+    #                 node_id = line.compressor_info['node_id']
+    #                 self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
+    #                 line.compressor_info = dict()          
 
     # def _set_cross_section_to_selected_line(self, lines, cross):
 
@@ -1029,76 +975,7 @@ class Project:
     #     for line_id in lines:
     #         entity = self.model.mesh.lines_from_model[line_id]
     #         entity.valve_parameters = parameters
-
-    def get_nodes_with_prescribed_dofs_bc(self):
-        return self.preprocessor.nodes_with_prescribed_dofs
-
-    # def set_fluid_by_lines(self, lines, fluid):
-    #     self.preprocessor.set_fluid_by_lines(lines, fluid)
-    #     self._set_fluid_to_selected_lines(lines, fluid)
-
-    def set_compressor_info_by_lines(self, lines, compressor_info=dict()):
-        self._set_compressor_info_to_selected_lines(lines, compressor_info=compressor_info)
-
-    # def set_fluid_to_all_lines(self, fluid):
-    #     self.preprocessor.set_fluid_by_element('all', fluid)
-    #     self._set_fluid_to_all_lines(fluid)
-
-    # def set_element_length_correction_by_elements(self, elements, value, section, psd_label=""):
-    #     self.preprocessor.set_length_correction_by_element(elements, value, section)
-    #     self.file.add_length_correction_in_file(elements, value, section, psd_label=psd_label)
     
-    # def set_perforated_plate_by_elements(self, list_elements, perforated_plate, section):
-    #     self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, section)
-    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
-    #     self.file.add_perforated_plate_in_file(list_elements, perforated_plate, section)
-
-    def set_capped_end_by_elements(self, elements, value, selection):
-        self.preprocessor.set_capped_end_by_elements(elements, value, selection)
-        self.file.modify_capped_end_elements_in_file(elements, value, selection)
-
-    # def set_capped_end_by_lines(self, lines, value):
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-    #     self.preprocessor.set_capped_end_by_lines(lines, value)
-    #     self._set_capped_end_to_lines(lines, value)
-    #     self.file.modify_capped_end_lines_in_file(lines, value)      
-
-    def set_structural_element_wall_formulation_by_lines(self, lines, formulation):
-        if isinstance(lines, int):
-            lines = [lines]
-        self.preprocessor.set_structural_element_wall_formulation_by_lines(lines, formulation)
-        # self._set_structural_element_wall_formulation_to_lines(lines, formulation)
-        self.file.modify_structural_element_wall_formulation_in_file(lines, formulation)  
-
-    def set_structural_element_force_offset_by_lines(self, lines, force_offset):
-        if isinstance(lines, int):
-            lines = [lines]
-        self.preprocessor.set_structural_element_force_offset_by_lines(lines, force_offset)
-        # self._set_structural_element_force_offset_to_lines(lines, force_offset)
-        self.file.modify_structural_element_force_offset_in_file(lines, force_offset)
-
-    def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line in lines:
-            entity = self.model.mesh.lines_from_model[line] 
-            entity.structural_element_wall_formulation = formulation
-
-    def _set_structural_element_force_offset_to_lines(self, lines, force_offset):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line in lines:
-            entity = self.model.mesh.lines_from_model[line] 
-            entity.force_offset = force_offset
-
-    def _set_capped_end_to_lines(self, lines, value):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line in lines:
-            entity = self.model.mesh.lines_from_model[line] 
-            entity.capped_end = value
-
     def load_length_correction_by_elements(self, list_elements, value, key):
         self.preprocessor.set_length_correction_by_element(list_elements, value, key)
         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)

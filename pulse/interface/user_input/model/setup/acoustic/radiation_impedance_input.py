@@ -72,7 +72,7 @@ class RadiationImpedanceInput(QDialog):
         self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
-        self.tabWidget_radiation_impedance.currentChanged.connect(self.tabEvent_radiation_impedance)
+        self.tabWidget_radiation_impedance.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_radiation_impedance.itemClicked.connect(self.on_click_item)
         self.treeWidget_radiation_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -83,18 +83,19 @@ class RadiationImpedanceInput(QDialog):
 
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if len(selected_nodes) == 1:
-
+        if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "radiation_impedance" and selected_nodes[0] == node_id:
+            if len(selected_nodes) == 1:
+                for (property, node_id), data in self.properties.nodal_properties.items():
+                    if property == "radiation_impedance" and selected_nodes[0] == node_id:
 
-                    impedance_type = data["impedance type"]
-                    self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
+                        impedance_type = data["impedance type"]
+                        self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
 
-    def tabEvent_radiation_impedance(self):
+    def tab_event_callback(self):
+        self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_radiation_impedance.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
@@ -109,6 +110,7 @@ class RadiationImpedanceInput(QDialog):
             if property == "radiation_impedance":
                 self.tabWidget_radiation_impedance.setCurrentIndex(0)
                 self.tabWidget_radiation_impedance.setTabVisible(1, True)
+                return
 
     def load_nodes_info(self):
 
@@ -199,11 +201,7 @@ class RadiationImpedanceInput(QDialog):
                 self.properties._remove_nodal_property("radiation_impedance", node_id)
 
             app().pulse_file.write_model_properties_in_file()
-
-            self.lineEdit_selection_id.setText("")
-            self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
-
             app().main_window.update_plots()
             # self.close()
 
@@ -227,7 +225,7 @@ class RadiationImpedanceInput(QDialog):
                     if property == "radiation_impedance":
                         node_ids.append(node_id)
 
-                self.properties._reset_property("radiation_impedance")
+                self.properties._reset_nodal_property("radiation_impedance")
                 app().pulse_file.write_model_properties_in_file()
                 app().main_window.update_plots()
                 self.close()

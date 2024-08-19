@@ -17,8 +17,6 @@ class Line:
         self.fluid = None
         self.compressor_info = {}
 
-        self.xaxis_beam_rotation = 0
-
         self.structural_element_type = None
         self.force_offset = None
         self.structural_element_wall_formulation = None

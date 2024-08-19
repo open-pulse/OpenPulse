@@ -81,12 +81,12 @@ class SpecificImpedanceInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_constant_values.clicked.connect(self.constant_values_attribution_callback)
-        self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_table_values.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_search.clicked.connect(self.load_specific_impedance_table)
         #
-        self.tabWidget_specific_impedance.currentChanged.connect(self.tabEvent_specific_impedance)
+        self.tabWidget_specific_impedance.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_specific_impedance.itemClicked.connect(self.on_click_item)
         self.treeWidget_specific_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -98,27 +98,28 @@ class SpecificImpedanceInput(QDialog):
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if len(selected_nodes) == 1:
-
+        if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "specific_impedance" and selected_nodes[0] == node_id:
+            if len(selected_nodes) == 1:
+                for (property, node_id), data in self.properties.nodal_properties.items():
+                    if property == "specific_impedance" and selected_nodes[0] == node_id:
 
-                    values = data["values"]
-    
-                    if "table paths" in data.keys():
-                        table_paths = data["table paths"]
-                        self.tabWidget_specific_impedance.setCurrentIndex(1)
-                        self.lineEdit_table_path.setText(table_paths[0])
+                        values = data["values"]
+        
+                        if "table paths" in data.keys():
+                            table_paths = data["table paths"]
+                            self.tabWidget_specific_impedance.setCurrentIndex(1)
+                            self.lineEdit_table_path.setText(table_paths[0])
 
-                    else:
-                        self.tabWidget_specific_impedance.setCurrentIndex(0)
-                        self.lineEdit_real_value.setText(str(np.real(values)))
-                        self.lineEdit_imag_value.setText(str(np.imag(values)))
+                        else:
+                            self.tabWidget_specific_impedance.setCurrentIndex(0)
+                            self.lineEdit_real_value.setText(str(np.real(values)))
+                            self.lineEdit_imag_value.setText(str(np.imag(values)))
 
-    def tabEvent_specific_impedance(self):
+    def tab_event_callback(self):
+        self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_specific_impedance.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
@@ -202,8 +203,8 @@ class SpecificImpedanceInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        self.remove_table_files_from_nodes(node_ids)
-        self.remove_conflictant_excitations(node_ids)
+        for node_id in node_ids:
+            self.remove_table_files_from_nodes(node_id)
 
         real_values = [np.real(specific_impedance)]
         imag_values = [np.imag(specific_impedance)]
@@ -341,14 +342,11 @@ class SpecificImpedanceInput(QDialog):
 
                 self.table_name, self.array = self.save_table_file( 
                                                                     node_id, 
-                                                                    self.table_values, 
-                                                                    self.table_path
+                                                                    self.table_values
                                                                    )
 
                 basenames = [self.table_name]
                 table_paths = [self.table_path]
-                values = [self.table_values]                
-                array_data = [self.array]
 
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
@@ -356,9 +354,7 @@ class SpecificImpedanceInput(QDialog):
                 bc_data = {
                             "coords" : list(coords),
                             "table names" : basenames,
-                            "table paths" : table_paths,
-                            "values" : values,
-                            "data arrays" : array_data
+                            "table paths" : table_paths
                            }
 
                 self.properties._set_nodal_property("specific_impedance", bc_data, node_ids=node_id)
@@ -395,15 +391,15 @@ class SpecificImpedanceInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        # self.remove_bc_from_node()
+        # self.remove_callback()
 
-    def remove_conflictant_excitations(self, node_ids: int | list | tuple):
+    def remove_conflictant_excitations(self, node_ids: int | list):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["acoustic_pressure", "compressor_excitation"]:
+            for label in ["specific_impedance"]:
                 table_names = self.properties.get_nodal_related_table_names(label, node_id)
                 self.properties._remove_nodal_property(label, node_id)
 
@@ -411,7 +407,7 @@ class SpecificImpedanceInput(QDialog):
 
         app().pulse_file.write_model_properties_in_file()
 
-    def remove_bc_from_node(self):
+    def remove_callback(self):
 
         if  self.lineEdit_selection_id.text() != "":
 
@@ -420,17 +416,11 @@ class SpecificImpedanceInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids)
-
-            for node_id in node_ids:
-                self.properties._remove_nodal_property("specific_impedance", node_id)
+            self.remove_table_files_from_nodes(node_ids[0])
+            self.properties._remove_nodal_property("specific_impedance", node_ids[0])
 
             app().pulse_file.write_model_properties_in_file()
-
-            self.lineEdit_selection_id.setText("")
-            self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
-
             app().main_window.update_plots()
             # self.close()
 
@@ -454,15 +444,16 @@ class SpecificImpedanceInput(QDialog):
                     if property == "specific_impedance":
                         node_ids.append(node_id)
 
-                self.remove_table_files_from_nodes(node_ids)
+                for node_id in node_ids:
+                    self.remove_table_files_from_nodes(node_id)
 
-                self.properties._reset_property("specific_impedance")
+                self.properties._reset_nodal_property("specific_impedance")
                 app().pulse_file.write_model_properties_in_file()
                 app().main_window.update_plots()
                 self.close()
 
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_ids, equals=True)
+    def remove_table_files_from_nodes(self, node_id : list):
+        table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_id)
         self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):
@@ -484,7 +475,7 @@ class SpecificImpedanceInput(QDialog):
                 self.check_table_values()
         elif event.key() == Qt.Key_Delete:
             if self.tabWidget_specific_impedance.currentIndex()==2:
-                self.remove_bc_from_node()
+                self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

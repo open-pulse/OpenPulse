@@ -1,24 +1,22 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
-from pulse.tools.utils import get_new_path, remove_bc_from_file
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-# from pulse.model.compressor_model import CompressorModel
-from compressors.reciprocating.model import CompressorModel
+from pulse.model.compressor_model import CompressorModel
+# from compressors.reciprocating.model import CompressorModel
 
 import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-psi_to_Pa = 0.45359237*9.80665/((0.0254)**2)
+psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
@@ -30,9 +28,6 @@ class CompressorModelInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
- 
-        self.project = app().project
-        self.preprocessor = app().project.preprocessor
         self.properties = app().project.model.properties
 
         self._config_window()
@@ -60,94 +55,84 @@ class CompressorModelInput(QDialog):
         self.aquisition_parameters_processed = False
         self.not_update_event = False
 
-        self.table_name = None
-
         self.before_run = app().project.get_pre_solution_model_checks()    
 
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_connection_setup : QComboBox
-        self.comboBox_cylinder_acting : QComboBox
-        self.comboBox_frequency_resolution : QComboBox
-        self.comboBox_compressors_tables : QComboBox
-        self.comboBox_stage : QComboBox
-        self.comboBox_suction_pressure_units : QComboBox
-        self.comboBox_suction_temperature_units : QComboBox
+        self.comboBox_connection_setup: QComboBox
+        self.comboBox_cylinder_acting: QComboBox
+        self.comboBox_frequency_resolution: QComboBox
+        self.comboBox_stage: QComboBox
+        self.comboBox_suction_pressure_units: QComboBox
+        self.comboBox_suction_temperature_units: QComboBox
 
         # QLabel
-        self.label_molar_mass : QLabel
-        self.label_molar_mass_unit : QLabel
-        self.label_isentropic_exp : QLabel
-        self.label_isentropic_exp_unit : QLabel
+        self.label_molar_mass: QLabel
+        self.label_molar_mass_unit: QLabel
+        self.label_isentropic_exp: QLabel
+        self.label_isentropic_exp_unit: QLabel
 
         # QLineEdit
-        self.lineEdit_suction_node_ID : QLineEdit
-        self.lineEdit_discharge_node_ID : QLineEdit
-        self.lineEdit_frequency_resolution : QLineEdit
-        self.lineEdit_number_of_revolutions : QLineEdit
-        self.lineEdit_bore_diameter : QLineEdit
-        self.lineEdit_stroke : QLineEdit
-        self.lineEdit_connecting_rod_length : QLineEdit
-        self.lineEdit_rod_diameter : QLineEdit
-        self.lineEdit_pressure_ratio : QLineEdit
-        self.lineEdit_clearance_head_end : QLineEdit
-        self.lineEdit_clearance_crank_end : QLineEdit
-        self.lineEdit_rotational_speed : QLineEdit
-        self.lineEdit_isentropic_exponent : QLineEdit
-        self.lineEdit_molar_mass : QLineEdit
-        self.lineEdit_pressure_at_suction : QLineEdit
-        self.lineEdit_temperature_at_suction : QLineEdit
-        self.lineEdit_selection_info : QLineEdit
-        self.lineEdit_node_ID_info : QLineEdit
-        self.lineEdit_table_name_info : QLineEdit
-        self.current_lineEdit = self.lineEdit_suction_node_ID
+        self.lineEdit_suction_node_id: QLineEdit
+        self.lineEdit_discharge_node_id: QLineEdit
+        self.lineEdit_frequency_resolution: QLineEdit
+        self.lineEdit_number_of_revolutions: QLineEdit
+        self.lineEdit_bore_diameter: QLineEdit
+        self.lineEdit_stroke: QLineEdit
+        self.lineEdit_connecting_rod_length: QLineEdit
+        self.lineEdit_rod_diameter: QLineEdit
+        self.lineEdit_pressure_ratio: QLineEdit
+        self.lineEdit_clearance_head_end: QLineEdit
+        self.lineEdit_clearance_crank_end: QLineEdit
+        self.lineEdit_rotational_speed: QLineEdit
+        self.lineEdit_isentropic_exponent: QLineEdit
+        self.lineEdit_molar_mass: QLineEdit
+        self.lineEdit_pressure_at_suction: QLineEdit
+        self.lineEdit_temperature_at_suction: QLineEdit
+        self.lineEdit_selected_id: QLineEdit
+        self.lineEdit_connection_type: QLineEdit
+        self.current_lineEdit = self.lineEdit_suction_node_id
 
         # QPushButton
-        self.pushButton_flipNodes : QPushButton
-        self.pushButton_reset_entries : QPushButton
-        self.pushButton_plot_PV_diagram_head_end : QPushButton
-        self.pushButton_plot_PV_diagram_crank_end : QPushButton
-        self.pushButton_plot_PV_diagram_both_ends : QPushButton
-        self.pushButton_plot_piston_position_and_velocity_time : QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time : QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time : QPushButton
-        self.pushButton_plot_rod_pressure_load_frequency : QPushButton
-        self.pushButton_plot_rod_pressure_load_time : QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency : QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency : QPushButton
-        self.pushButton_plot_pressure_head_end_angle : QPushButton
-        self.pushButton_plot_volume_head_end_angle : QPushButton
-        self.pushButton_plot_pressure_crank_end_angle : QPushButton
-        self.pushButton_plot_volume_crank_end_angle : QPushButton
-        self.pushButton_process_aquisition_parameters : QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_remove_table : QPushButton
-        self.pushButton_reset_node : QPushButton
-        self.pushButton_reset_all : QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_invert_selection: QPushButton
+        self.pushButton_plot_PV_diagram_head_end: QPushButton
+        self.pushButton_plot_PV_diagram_crank_end: QPushButton
+        self.pushButton_plot_PV_diagram_both_ends: QPushButton
+        self.pushButton_plot_piston_position_and_velocity_time: QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time: QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time: QPushButton
+        self.pushButton_plot_rod_pressure_load_frequency: QPushButton
+        self.pushButton_plot_rod_pressure_load_time: QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency: QPushButton
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency: QPushButton
+        self.pushButton_plot_pressure_head_end_angle: QPushButton
+        self.pushButton_plot_volume_head_end_angle: QPushButton
+        self.pushButton_plot_pressure_crank_end_angle: QPushButton
+        self.pushButton_plot_volume_crank_end_angle: QPushButton
+        self.pushButton_process_aquisition_parameters: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_confirm: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_reset_entries: QPushButton
 
         # QSpinBox
-        self.spinBox_number_of_points : QSpinBox
-        self.spinBox_max_frequency : QSpinBox
-        self.spinBox_number_of_cylinders : QSpinBox
-        self.spinBox_tdc1_crank_angle : QSpinBox
-        self.spinBox_tdc2_crank_angle : QSpinBox
-        self.spinBox_capacity : QSpinBox
+        self.spinBox_number_of_points: QSpinBox
+        self.spinBox_max_frequency: QSpinBox
+        self.spinBox_number_of_cylinders: QSpinBox
+        self.spinBox_tdc1_crank_angle: QSpinBox
+        self.spinBox_tdc2_crank_angle: QSpinBox
+        self.spinBox_capacity: QSpinBox
 
         # QTabWidget
-        self.tabWidget_compressor : QTabWidget
+        self.tabWidget_compressor: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_compressor_excitation : QTreeWidget
+        self.treeWidget_compressor_excitation: QTreeWidget
 
     def _config_widget(self):
-
-        ConfigWidgetAppearance(self, tool_tip=True)
-
-        self.comboBox_compressors_tables.setVisible(False)
-        #
-        self.treeWidget_compressor_excitation.setColumnWidth(0, 70)
+        self.treeWidget_compressor_excitation.setColumnWidth(0, 100)
         # self.treeWidget_compressor_excitation.setColumnWidth(1, 140)
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_compressor_excitation.headerItem().setTextAlignment(1, Qt.AlignCenter)
@@ -157,14 +142,9 @@ class CompressorModelInput(QDialog):
         self.comboBox_connection_setup.currentIndexChanged.connect(self.update_compressor_to_pipeline_connections)
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
-        self.comboBox_compressors_tables.currentIndexChanged.connect(self.comboBox_event_update)
         self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
-        self.comboBox_event_stage()
-        self.update_compressing_cylinders_setup()
-        self.update_compressor_to_pipeline_connections()
         #
-        # self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
-        self.pushButton_reset_entries.clicked.connect(self.reset_entries)
+        self.pushButton_invert_selection.clicked.connect(self.invert_nodes_selection_callback)
         self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
         self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
         self.pushButton_plot_PV_diagram_both_ends.clicked.connect(self.plot_PV_diagram_both_ends)
@@ -180,24 +160,36 @@ class CompressorModelInput(QDialog):
         self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
         self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
         self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
-        self.pushButton_confirm.clicked.connect(self.process_all_inputs)
-        self.pushButton_remove_table.clicked.connect(self.remove_table)
-        self.pushButton_reset_node.clicked.connect(self.reset_node)
-        self.pushButton_reset_all.clicked.connect(self.reset_all)
-        self.pushButton_cancel.clicked.connect(self.force_to_close)
+        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_confirm.clicked.connect(self.compressor_excitation_attribution_callback)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_reset_entries.clicked.connect(self.reset_entries)
         #
         self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)        
         self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)
         self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
-        self.spinBox_event_number_of_cylinders()
         #
-        self.tabWidget_compressor.currentChanged.connect(self.tabEvent)
+        self.tabWidget_compressor.currentChanged.connect(self.tab_event_callback)
         self.treeWidget_compressor_excitation.itemClicked.connect(self.on_click_item)
         #
-        self.clickable(self.lineEdit_suction_node_ID).connect(self.lineEdit_1_clicked)
-        self.clickable(self.lineEdit_discharge_node_ID).connect(self.lineEdit_2_clicked)
+        self.clickable(self.lineEdit_suction_node_id).connect(self.lineEdit_1_clicked)
+        self.clickable(self.lineEdit_discharge_node_id).connect(self.lineEdit_2_clicked)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        #
+        self.comboBox_event_stage()
+        self.update_compressing_cylinders_setup()
+        self.update_compressor_to_pipeline_connections()
+        self.spinBox_event_number_of_cylinders()
+
+    def invert_nodes_selection_callback(self):
+        if self.comboBox_connection_setup.currentIndex() == 2:
+            suction_id = self.lineEdit_suction_node_id.text()
+            discharge_id = self.lineEdit_discharge_node_id.text()
+            if suction_id != "" and discharge_id != "":
+                self.lineEdit_suction_node_id.setText(discharge_id)        
+                self.lineEdit_discharge_node_id.setText(suction_id)        
 
     def selection_callback(self):
 
@@ -208,19 +200,26 @@ class CompressorModelInput(QDialog):
             index = self.comboBox_connection_setup.currentIndex()
 
             if index == 1:
-                self.lineEdit_discharge_node_ID.setText("")
-                self.lineEdit_discharge_node_ID.setDisabled(True)
+                self.lineEdit_discharge_node_id.setText("")
+                self.lineEdit_discharge_node_id.setDisabled(True)
 
             elif index == 2:
-                self.lineEdit_suction_node_ID.setText("")
-                self.lineEdit_suction_node_ID.setDisabled(True)
+                self.lineEdit_suction_node_id.setText("")
+                self.lineEdit_suction_node_id.setDisabled(True)
 
             self.current_lineEdit.setText(str(selected_nodes[0]))
-            self.table_name = None
-            self.comboBox_compressors_tables.clear()
-            self.comboBox_compressors_tables.setVisible(False)
+            stop, node_id = self.check_node_id(self.current_lineEdit)
 
-            self.get_existing_compressor_info(selected_nodes, update_tables=True)
+            if stop:
+                self.lineEdit_suction_node_id.setFocus()
+                return True
+
+            data = self.properties._get_property("compressor_excitation", node_ids=node_id)
+
+            if data is not None:
+                compressor_info = data["parameters"]
+                compressor_info["frequencies"] = app().project.model.frequencies
+                self.update_compressor_inputs(compressor_info)
 
         else:
 
@@ -242,24 +241,23 @@ class CompressorModelInput(QDialog):
         return filter.clicked
 
     def lineEdit_1_clicked(self):
-        self.current_lineEdit = self.lineEdit_suction_node_ID
+        self.current_lineEdit = self.lineEdit_suction_node_id
 
     def lineEdit_2_clicked(self):
-        self.current_lineEdit = self.lineEdit_discharge_node_ID
+        self.current_lineEdit = self.lineEdit_discharge_node_id
 
-    def tabEvent(self):
-        self.current_tab_index = self.tabWidget_compressor.currentIndex()
-        if self.current_tab_index == 3:
+    def tab_event_callback(self):
+
+        self.lineEdit_selected_id.setText("")
+        self.lineEdit_connection_type.setText("")
+        self.pushButton_remove.setDisabled(True)
+
+        if self.tabWidget_compressor.currentIndex() == 3:
+            self.pushButton_cancel.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)
         else:
+            self.pushButton_cancel.setDisabled(False)
             self.pushButton_confirm.setDisabled(False)
-    
-    # def flip_nodes(self):
-    #     if self.connection_at_suction_and_discharge:
-    #         temp_text_suction = self.lineEdit_suction_node_ID.text()
-    #         temp_text_discharge = self.lineEdit_discharge_node_ID.text()
-    #         self.lineEdit_suction_node_ID.setText(temp_text_discharge)
-    #         self.lineEdit_discharge_node_ID.setText(temp_text_suction)   
 
     def update_compressing_cylinders_setup(self):
 
@@ -282,84 +280,34 @@ class CompressorModelInput(QDialog):
 
     def update_compressor_to_pipeline_connections(self):
 
-        self.lineEdit_suction_node_ID.setDisabled(False)
-        self.lineEdit_discharge_node_ID.setDisabled(False)     
+        self.lineEdit_suction_node_id.setDisabled(False)
+        self.lineEdit_discharge_node_id.setDisabled(False)     
         index = self.comboBox_connection_setup.currentIndex()
-        list_node_ids = app().main_window.list_selected_nodes()
+        node_ids = app().main_window.list_selected_nodes()
 
         if index == 1:
-            self.current_lineEdit = self.lineEdit_suction_node_ID
-            self.lineEdit_discharge_node_ID.setDisabled(True)
-            self.lineEdit_discharge_node_ID.setText("")
-            if len(list_node_ids) == 1:
-                self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
+            self.current_lineEdit = self.lineEdit_suction_node_id
+            self.lineEdit_discharge_node_id.setDisabled(True)
+            self.lineEdit_discharge_node_id.setText("")
+            if len(node_ids) == 1:
+                self.lineEdit_suction_node_id.setText(str(node_ids[0]))
 
         elif index == 2:
-            self.current_lineEdit = self.lineEdit_discharge_node_ID
-            self.lineEdit_suction_node_ID.setDisabled(True)
-            self.lineEdit_suction_node_ID.setText("")
-            if len(list_node_ids) == 1:
-                self.lineEdit_discharge_node_ID.setText(str(list_node_ids[-1]))
+            self.current_lineEdit = self.lineEdit_discharge_node_id
+            self.lineEdit_suction_node_id.setDisabled(True)
+            self.lineEdit_suction_node_id.setText("")
+            if len(node_ids) == 1:
+                self.lineEdit_discharge_node_id.setText(str(node_ids[0]))
+
         else:
-            self.current_lineEdit = self.lineEdit_suction_node_ID
+            self.current_lineEdit = self.lineEdit_suction_node_id
             self.selection_callback()
-            
-    def comboBox_event_update(self):
-        if self.not_update_event:
-            return
-        self.currentIndex_table = self.comboBox_compressors_tables.currentIndex()
-        self.table_name = self.comboBox_compressors_tables.currentText()
-        list_node_ids = app().main_window.list_selected_nodes()
-        self.get_existing_compressor_info(list_node_ids)
         
     def change_aquisition_parameters_controls(self, _bool):
         self.pushButton_process_aquisition_parameters.setDisabled(_bool)
         self.spinBox_max_frequency.setDisabled(_bool)
         self.spinBox_number_of_points.setDisabled(_bool)
         self.comboBox_frequency_resolution.setDisabled(_bool)
-    
-    def get_existing_compressor_info(self, list_node_ids, update_tables=False):
-        
-        self.not_update_event = True
-        node = self.preprocessor.nodes[list_node_ids[0]]
-        self.change_aquisition_parameters_controls(False)
-        if len(node.compressor_excitation_table_names) > 0:
-            self.comboBox_compressors_tables.setVisible(True)
-            if len(node.compressor_excitation_table_names) > 1:
-                self.change_aquisition_parameters_controls(True)
-            if update_tables:
-                self.table_name = node.compressor_excitation_table_names[0]
-                for table in node.compressor_excitation_table_names:
-                    self.comboBox_compressors_tables.addItem(table)
-                if len(node.compressor_excitation_table_names) > 1:
-                    self.comboBox_compressors_tables.setCurrentIndex(0)
-            try:
-                folder_table_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")
-                load_path_table = get_new_path(folder_table_path, self.table_name)
-                
-                if self.table_name != "":
-                    table_file = open(load_path_table, "r")
-                    lines = table_file.readlines()                
-                    compressor_info = {}
-                    for str_line in lines[2:23]:
-                        if str_line[2:-1] != "":
-                            key_value = str_line[2:-1].split(" = ")
-                            try:
-                                compressor_info[key_value[0]] = float(key_value[1])
-                            except:
-                                compressor_info[key_value[0]] = key_value[1]
-
-                    data = np.loadtxt(load_path_table, delimiter=",")
-                    compressor_info["frequencies"] = data[:,0]
-                    table_file.close()                   
-                    self.update_compressor_inputs(compressor_info)
-
-            except Exception as log_error:
-                title = f"Error while loading compressor parameters"
-                message = str(log_error) 
-                PrintMessageInput([window_title_1, title, message]) 
-
-        self.not_update_event = False
 
     def get_aquisition_parameters(self, compressor_info):
         frequencies = compressor_info["frequencies"]
@@ -367,25 +315,29 @@ class CompressorModelInput(QDialog):
         f_min = frequencies[0]
         f_max = frequencies[-1]
         df = frequencies[1]-frequencies[0]
-        N_rev = int((1/df)/(60/rotational_speed))
+        N_rev = int((1 / df) / (60 / rotational_speed))
         self.N_rev = N_rev
         return f_min, f_max, df, N_rev
 
-    def update_compressor_inputs(self, compressor_info):
+    def update_compressor_inputs(self, compressor_info: dict):
 
-        node_ID = self.current_lineEdit.text()
-        
-        if 'discharge' in self.table_name:
-            self.comboBox_connection_setup.setCurrentIndex(2)
-            self.lineEdit_suction_node_ID.setText("")
-            self.lineEdit_suction_node_ID.setDisabled(True)
-            self.lineEdit_discharge_node_ID.setText(node_ID)
+        node_id = self.current_lineEdit.text()
+
+        if "connection type" in compressor_info.keys():
+
+            connection_type = compressor_info["connection type"]
             
-        if 'suction' in self.table_name:
-            self.comboBox_connection_setup.setCurrentIndex(1)
-            self.lineEdit_discharge_node_ID.setText("")
-            self.lineEdit_discharge_node_ID.setDisabled(True)
-            self.lineEdit_suction_node_ID.setText(node_ID)
+            if connection_type == 'discharge':
+                self.comboBox_connection_setup.setCurrentIndex(2)
+                self.lineEdit_suction_node_id.setText("")
+                self.lineEdit_suction_node_id.setDisabled(True)
+                self.lineEdit_discharge_node_id.setText(node_id)
+                
+            if connection_type == 'suction':
+                self.comboBox_connection_setup.setCurrentIndex(1)
+                self.lineEdit_discharge_node_id.setText("")
+                self.lineEdit_discharge_node_id.setDisabled(True)
+                self.lineEdit_suction_node_id.setText(node_id)
             
         if "bore diameter" in compressor_info.keys():
             self.lineEdit_bore_diameter.setText(str(compressor_info["bore diameter"]))
@@ -460,8 +412,6 @@ class CompressorModelInput(QDialog):
         self.spinBox_max_frequency.setValue(int(f_max))
 
     def reset_entries(self):
-        self.comboBox_compressors_tables.clear()
-        self.comboBox_compressors_tables.setVisible(False)
         self.comboBox_cylinder_acting.setCurrentIndex(0)
         self.comboBox_stage.setCurrentIndex(0)
         self.comboBox_suction_pressure_units.setCurrentIndex(0)
@@ -482,82 +432,118 @@ class CompressorModelInput(QDialog):
         self.spinBox_tdc1_crank_angle.setValue(0)
         self.spinBox_tdc2_crank_angle.setValue(0)
         self.spinBox_capacity.setValue(100)
-        self.table_name = None
 
-    def check_node_id(self, lineEdit):
+    def check_node_id(self, lineEdit: QLineEdit):
         
-        lineEdit_nodeID = lineEdit.text()
-        stop, self.node_ID = self.before_run.check_selected_ids(lineEdit_nodeID, "nodes", single_id=True)
-        
+        stop, node_id = self.before_run.check_selected_ids(
+                                                            lineEdit.text(), 
+                                                            "nodes", 
+                                                            single_id=True
+                                                           )
+
         if stop:
-            return True
-              
-    def check_all_nodes(self, check_nodes=True):
+            return True, None
+
+        neigh_elements = app().project.preprocessor.neighboor_elements_of_node(node_id)
+        if len(neigh_elements) == 1:
+            return stop, node_id
+        
+        else:
+            self.hide()
+            title = "Invalid node selected"
+            message = "The selected node does not correspond to the piping endings. "
+            message += "It is necessary to change the selection to proceed with the "
+            message += "compressor excitation attribution."
+            PrintMessageInput([window_title_1, title, message])
+            self.current_lineEdit.setText("")
+            return True, None
+
+    def check_all_nodes(self):
+
         index = self.comboBox_connection_setup.currentIndex()
-        if check_nodes:
-            if index == 0:
 
-                if self.check_node_id(self.lineEdit_suction_node_ID):
-                    self.lineEdit_suction_node_ID.setFocus()
-                    return True
+        if index == 0:
 
-                self.suction_node_id = self.node_ID
-                
-                if self.check_node_id(self.lineEdit_discharge_node_ID):
-                    self.lineEdit_discharge_node_ID.setFocus()
-                    return True
+            stop, node_id = self.check_node_id(self.lineEdit_suction_node_id)
 
-                self.discharge_node_id = self.node_ID
+            if stop:
+                self.lineEdit_suction_node_id.setFocus()
+                return True
 
-                if self.suction_node_id == self.discharge_node_id:
-                    title = "ERROR IN NODES SELECTION"
-                    message = "The nodes selected to the suction and discharge must differ. Try to choose another pair of nodes."
-                    PrintMessageInput([window_title_1, title, message])
-                    return True
+            self.suction_node_id = node_id
 
-            if index == 1:
-                if self.check_node_id(self.lineEdit_suction_node_ID):
-                    self.lineEdit_suction_node_ID.setFocus()
-                    return True
-              
-                self.suction_node_id = self.node_ID
+            stop, node_id = self.check_node_id(self.lineEdit_discharge_node_id)
 
-            if index == 2:
-                if self.check_node_id(self.lineEdit_discharge_node_ID):
-                    self.lineEdit_discharge_node_ID.setFocus()
-                    return True
+            if stop:
+                self.lineEdit_discharge_node_id.setFocus()
+                return True
 
-                self.discharge_node_id = self.node_ID
+            self.discharge_node_id = node_id
+
+            if self.suction_node_id == self.discharge_node_id:
+                title = "ERROR IN NODES SELECTION"
+                message = "The nodes selected to the suction and discharge must differ. Try to choose another pair of nodes."
+                PrintMessageInput([window_title_1, title, message])
+                return True
+
+        elif index == 1:
+
+            stop, node_id = self.check_node_id(self.lineEdit_suction_node_id)
+
+            if stop:
+                self.lineEdit_suction_node_id.setFocus()
+                return True
+
+            self.suction_node_id = node_id
+
+        elif index == 2:
+
+            stop, node_id = self.check_node_id(self.lineEdit_discharge_node_id)
+
+            if stop:
+                self.lineEdit_discharge_node_id.setFocus()
+                return True
+
+            self.discharge_node_id = node_id
 
         return False
-        
-    def check_input_parameters(self, lineEdit, label, _float=True):
-        title = "INPUT ERROR"
+
+    def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
+
+        title = "Input error"
         value_string = lineEdit.text()
+
         if value_string != "":
+
+            value_string = value_string.replace(",", ".")
+
             try:
+
                 if _float:
                     value = float(value_string)
                 else:
-                    value = int(value_string) 
+                    value = int(value_string)
+
                 if value < 0:
-                    message = "You cannot input a negative value to the {}.".format(label)
+                    message = f"You cannot input a negative value to the {label}."
                     PrintMessageInput([window_title_1, title, message])
                     return True
                 else:
                     self.value = value
+
             except Exception:
-                message = "You have typed an invalid value to the {}.".format(label)
+                message = f"You have typed an invalid value to the {label}."
                 PrintMessageInput([window_title_1, title, message])
                 return True
         else:
-            message = "None value has been typed to the {}.".format(label)
+            message = f"None value has been typed to the {label}."
             PrintMessageInput([window_title_1, title, message])
             return True
         return False
 
     def check_all_parameters(self):
-        self.parameters = {}
+
+        self.parameters = dict()
 
         if self.check_input_parameters(self.lineEdit_bore_diameter, "BORE DIAMETER"):
             self.lineEdit_bore_diameter.setFocus()
@@ -673,16 +659,14 @@ class CompressorModelInput(QDialog):
         return False
     
     def process_aquisition_parameters(self):
+
         self.currentIndex = self.comboBox_frequency_resolution.currentIndex()
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
-        self.compressor.number_points = N
-        self.compressor.max_frequency = self.update_max_frequency()
 
-        if self.table_name is not None:
-            self.aquisition_parameters_processed = True
-            return
+        N = self.spinBox_number_of_points.value()
+        self.compressor.number_points = N
+        self.compressor.max_frequency = self.spinBox_max_frequency.value()
 
         T_rev = 60/self.parameters['rotational speed']
         list_T = [10, 5, 2, 1, 0.5]
@@ -723,40 +707,25 @@ class CompressorModelInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             return True
 
-        frequency_setup = {"f_min" : f_min,
-                        "f_max" : f_max,
-                        "f_step" : f_step}
-
-        app().project.model.set_frequency_setup(frequency_setup)
+        self.update_analysis_setup_in_file(f_min, f_max, f_step)
 
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
 
         data = np.array([frequencies, real_values, imag_values], dtype=float).T
 
-        self.properties.add_imported_tables("structural", table_name, data)
+        self.properties.add_imported_tables("acoustic", table_name, data)
 
         return False
 
-    def get_table_name(self, node_id, label):
-        _run = True
-        table_index = 1
-        node = self.preprocessor.nodes[node_id]
-        while _run:
-            if table_index not in node.compressor_excitation_table_indexes:
-                node.compressor_excitation_table_indexes.append(table_index)
-                _run = False
-            else:
-                table_index += 1 
-        self.table_index = table_index        
-        table_name = f"table{self.table_index}_node{node_id}_compressor_excitation_{label}.dat"
-        return table_name
+    def update_analysis_setup_in_file(self, f_min, f_max, f_step):
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup["f_min"] = f_min
+        analysis_setup["f_max"] = f_max
+        analysis_setup["f_step"] = f_step
+        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
-    def check_existing_compressor_parameters_and_edit(self):
-        if self.table_name == self.comboBox_compressors_tables.currentText():
-            self.remove_table()
-
-    def process_all_inputs(self):
+    def compressor_excitation_attribution_callback(self):
 
         if self.check_all_nodes():
             return
@@ -765,15 +734,14 @@ class CompressorModelInput(QDialog):
             return
 
         self.process_aquisition_parameters()
-        self.check_existing_compressor_parameters_and_edit()
 
         index = self.comboBox_connection_setup.currentIndex()
         if index in [0, 1]:
 
-            line_suction_node_ID = self.preprocessor.get_line_from_node_id(self.suction_node_id)
+            line_suction_node_id = app().project.model.preprocessor.get_line_from_node_id(self.suction_node_id)
             compressor_info = { "temperature (suction)" : self.T_suction,
                                 "pressure (suction)" : self.P_suction,
-                                "line_id" : line_suction_node_ID[0],
+                                "line_id" : line_suction_node_id[0],
                                 "node_id" : self.suction_node_id,
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : "suction" }
@@ -800,32 +768,31 @@ class CompressorModelInput(QDialog):
 
                 freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
 
-                table_name = f"compresor_excitation_suction_node_{self.suction_node_id}"
+                table_name = f"compressor_excitation_suction_node_{self.suction_node_id}"
                 
-                node = self.preprocessor.nodes[self.suction_node_id]
+                node = app().project.model.preprocessor.nodes[self.suction_node_id]
                 coords = list(np.round(node.coordinates, 5))
 
-                data = {    
+                data = {
                         "coords" : coords,
-                        "values" : in_flow_rate,
-                        "connection" : "suction",
+                        "connection type" : "suction",
                         "table names" : [table_name],
                         "parameters" : self.parameters
                         }
 
                 self.remove_conflictant_excitations(self.suction_node_id)
 
-                self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.suction_node_id)
-
-                if self.save_table_values(table_name, self.suction_node_id, freq, in_flow_rate):
+                if self.save_table_values(table_name, freq, in_flow_rate):
                     return
+
+                self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.suction_node_id)
 
         if index in [0, 2]:
 
-            line_discharge_node_ID = self.preprocessor.get_line_from_node_id(self.discharge_node_id)
+            line_discharge_node_id = app().project.model.preprocessor.get_line_from_node_id(self.discharge_node_id)
             compressor_info = { "temperature (suction)" : self.T_suction,
                                 "pressure (suction)" : self.P_suction,
-                                "line_id" : line_discharge_node_ID[0],
+                                "line_id" : line_discharge_node_id[0],
                                 "node_id" : self.discharge_node_id,
                                 "pressure ratio" : self.parameters['pressure ratio'],
                                 "connection type" : "discharge" }
@@ -852,27 +819,131 @@ class CompressorModelInput(QDialog):
             
             table_name = f"compressor_excitation_discharge_node_{self.discharge_node_id}"
 
-            node = self.preprocessor.nodes[self.discharge_node_id]
+            node = app().project.model.preprocessor.nodes[self.discharge_node_id]
             coords = list(np.round(node.coordinates, 5))
 
-            data = {    
+            data = {
                     "coords" : coords,
-                    "values" : out_flow_rate,
-                    "connection" : "discharge",
+                    "connection type" : "discharge",
                     "table names" : [table_name],
                     "parameters" : self.parameters
                     }
 
             self.remove_conflictant_excitations(self.discharge_node_id)
 
-            self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.discharge_node_id)
-
-            if self.save_table_values(table_name, self.discharge_node_id, freq, out_flow_rate):
+            if self.save_table_values(table_name, freq, out_flow_rate):
                 return
 
+            self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.discharge_node_id)
+
         app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_imported_table_data_in_file()
         app().main_window.update_plots()
         self.close()
+
+    def process_table_file_removal(self, table_names: list):
+        for table_name in table_names:
+            self.properties.remove_imported_tables("acoustic", table_name)
+        if table_names:
+            app().pulse_file.write_imported_table_data_in_file()
+
+    def remove_conflictant_excitations(self, node_id: int):
+        for label in ["acoustic_pressure", "volume_velocity", "compressor_excitation"]:
+            table_names = self.properties.get_nodal_related_table_names(label, node_id)
+            self.properties._remove_nodal_property(label, node_id)
+            self.process_table_file_removal(table_names)
+
+    def remove_table_files_from_nodes(self, node_ids : list):
+        table_names = self.properties.get_nodal_related_table_names("compressor_excitation", node_ids)
+        self.process_table_file_removal(table_names)
+
+    def remove_callback(self):
+
+        if self.lineEdit_selected_id.text() == "":   
+            title = "Empty node selection"
+            message = "You should to select a node from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([window_title_2, title, message])
+            return
+            
+        node_id = int(self.lineEdit_selected_id.text())
+
+        self.remove_table_files_from_nodes(node_id)
+
+        self.properties._remove_nodal_property("compressor_excitation", node_id)
+        app().pulse_file.write_model_properties_in_file()
+
+        self.load_compressor_excitation_info()
+        app().main_window.update_plots()
+
+    def reset_callback(self):
+
+        self.hide()
+
+        title = "Resetting of compressor excitations"
+        message = "Would you like to remove all compressor excitations from the acoustic model?"
+
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
+            return
+
+        if read._continue:
+
+            node_ids = list()
+
+            for (property, *args) in self.properties.nodal_properties.keys():
+                if property == "compressor_excitation":
+
+                    node_id = args[0]
+                    node_ids.append(node_id)
+
+            for node_id in node_ids:
+                self.remove_table_files_from_nodes(node_id)
+
+            self.properties._reset_nodal_property("compressor_excitation")
+            app().pulse_file.write_model_properties_in_file()
+
+            app().main_window.update_plots()
+            self.close()
+
+    def load_compressor_excitation_info(self):
+
+        self.treeWidget_compressor_excitation.clear()
+
+        for (property, *args), data in self.properties.nodal_properties.items():
+            if property == "compressor_excitation":
+                
+                node_id = args[0]
+                connection_type = data["connection type"]
+
+                new = QTreeWidgetItem([str(node_id), connection_type])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_compressor_excitation.addTopLevelItem(new)
+
+        self.update_tabs_visibility()
+
+    def on_click_item(self, item):
+        self.lineEdit_selected_id.setText(item.text(0))
+        self.lineEdit_connection_type.setText(item.text(1))
+        self.pushButton_remove.setDisabled(False)
+
+    def update_tabs_visibility(self):
+
+        self.lineEdit_selected_id.setText("")
+        self.lineEdit_connection_type.setText("")
+        self.pushButton_remove.setDisabled(True)
+        self.tabWidget_compressor.setTabVisible(3, False)
+
+        for (property, _) in self.properties.nodal_properties.keys():
+            if property == "compressor_excitation":
+                self.tabWidget_compressor.setCurrentIndex(0)
+                self.tabWidget_compressor.setTabVisible(3, True)
+                return
+
+        self.tabWidget_compressor.setCurrentIndex(0)
 
     def spinBox_event_number_of_points(self):
         if self.aquisition_parameters_processed:
@@ -899,37 +970,31 @@ class CompressorModelInput(QDialog):
         self.compression_stage_label = list_stage_labels[self.currentIndex_stage]
         self.compression_stage_index = self.currentIndex_stage + 1
 
-    def update_number_points(self):
-        return self.spinBox_number_of_points.value()
-
-    def update_max_frequency(self):
-        return self.spinBox_max_frequency.value()
-
     def plot_PV_diagram_head_end(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_PV_diagram_head_end()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_PV_diagram_crank_end()
 
     def plot_PV_diagram_both_ends(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_PV_diagram_both_ends()
 
     def plot_pressure_time(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_pressure_vs_time()
         return
@@ -937,7 +1002,7 @@ class CompressorModelInput(QDialog):
     def plot_volume_time(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_volume_vs_time()
         return
@@ -945,7 +1010,7 @@ class CompressorModelInput(QDialog):
     def plot_volumetric_flow_rate_at_suction_time(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_volumetric_flow_rate_at_suction_time()
         return
@@ -953,7 +1018,7 @@ class CompressorModelInput(QDialog):
     def plot_volumetric_flow_rate_at_discharge_time(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_volumetric_flow_rate_at_discharge_time()
         return
@@ -989,7 +1054,7 @@ class CompressorModelInput(QDialog):
     def plot_pressure_head_end_angle(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_head_end_pressure_vs_angle()
         return
@@ -997,7 +1062,7 @@ class CompressorModelInput(QDialog):
     def plot_volume_head_end_angle(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_head_end_volume_vs_angle()
         return
@@ -1005,7 +1070,7 @@ class CompressorModelInput(QDialog):
     def plot_pressure_crank_end_angle(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_crank_end_pressure_vs_angle()
         return
@@ -1013,223 +1078,17 @@ class CompressorModelInput(QDialog):
     def plot_volume_crank_end_angle(self):
         if self.check_all_parameters():
             return
-        N = self.update_number_points()
+        N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_crank_end_volume_vs_angle()
         return
-    
-    def get_compressor_table_names(self, node_id: int):
-        key = ("compressor_excitation", node_id)
-        if key in self.properties.nodal_properties.keys():
-            try:
-                table_names = self.properties.nodal_properties[key]["table names"]
-                return table_names
-            except:
-                return list()
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
-
-    def remove_conflictant_excitations(self, node_id: int):
-        for label in ["acoustic_pressure", "volume_velocity"]:
-            table_names = self.properties.get_nodal_related_table_names(label, node_id)
-            self.properties._remove_nodal_property(label, node_id)
-            self.process_table_file_removal(table_names)
-        app().pulse_file.write_model_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names(
-                                                                        "compressor_excitation", 
-                                                                        node_ids, 
-                                                                        equals=True
-                                                                    )
-        self.process_table_file_removal(table_names)
-
-    def reset_node(self):
-
-        if self.lineEdit_node_ID_info.text() == "":   
-            title = "Empty node selection"
-            message = "You should to select a node from the list before continue."
-            PrintMessageInput([window_title_2, title, message])
-            return
-            
-        node_id = int(self.lineEdit_node_ID_info.text())
-
-        self.remove_table_files_from_nodes(node_id)
-
-        self.properties._remove_nodal_property("compressor_excitation", node_id)
-        app().pulse_file.write_model_properties_in_file()
-
-        try:
-
-            line_id = self.preprocessor.get_line_from_node_id(node_id)
-            self.project.set_compressor_info_by_lines(line_id)
-            # self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
-
-            self.load_compressor_excitation_info()
-            app().main_window.update_plots()
-
-        except Exception as log_error:
-            title = "Error while removing compressor excitation from node "
-            message = "An error has been detected during the compressor "
-            message += "excitation removal from selected node. \n\n"
-            message += f"Details: {str(log_error)}"
-            PrintMessageInput([window_title_1, title, message])
-
-    def reset_all(self):
-
-        self.hide()
-
-        title = "Resetting of compressor excitations"
-        message = "Would you like to remove all compressor " 
-        message += "excitations from the acoustic model?"
-
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
-
-        if read._cancel:
-            return
-
-        if read._continue:
-
-            node_ids = list()
-
-            for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "compressor_excitation":
-
-                    node_id = args
-                    node_ids.append(node_id)
-
-            self.remove_table_files_from_nodes(node_ids)
-
-            self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
-
-            self.properties._reset_property("compressor_excitation")
-            app().pulse_file.write_model_properties_in_file()
-            app().main_window.update_plots()
-            self.close()
-
-    # def get_compressor_excitation_data(self):
-    #     node_to_compressor_excitation = dict()
-    #     compressor_excitation_data = self.properties.nodal_properties
-    #     for (property, *args), data in compressor_excitation_data.items():
-    #         if property == "compressor_excitation":
-    #             node_id = args
-    #             node_to_compressor_excitation[node_id] = data["table names"]
-    #     return node_to_compressor_excitation
-
-    def load_compressor_excitation_info(self):
-
-        self.treeWidget_compressor_excitation.clear()
-        # node_to_compressor_excitation = self.get_compressor_excitation_data()
-
-        for (property, *args), data in self.properties.nodal_properties.items():
-            if property == "compressor_excitation":
-                
-                node_id = args[0]
-
-                for table_name in data["table names"]:
-                    new = QTreeWidgetItem([str(node_id), table_name])
-                    new.setTextAlignment(0, Qt.AlignCenter)
-                    new.setTextAlignment(1, Qt.AlignCenter)
-                    self.treeWidget_compressor_excitation.addTopLevelItem(new)
-
-        self.lineEdit_node_ID_info.setText("")
-        self.lineEdit_table_name_info.setText("")
-        self.update_tabs_visibility()
-
-    def on_click_item(self, item):
-        self.lineEdit_node_ID_info.setText(item.text(0))
-        self.lineEdit_table_name_info.setText(item.text(1))
-        
-    def force_to_close(self):
-        self.close()
-
-    def update_tabs_visibility(self):
-        self.tabWidget_compressor.setTabVisible(3, False)
-        for (property, _) in self.properties.nodal_properties.keys():
-            if property == "compressor_excitation":
-                self.tabWidget_compressor.setCurrentIndex(0)
-                self.tabWidget_compressor.setTabVisible(3, True)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter:
-            self.process_all_inputs()
+            self.compressor_excitation_attribution_callback()
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_Return:
             self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         return super().closeEvent(a0)
-
-    def remove_table(self):
-        return
-
-        # self.get_compressor_excitation_data()
-        # if self.table_name == self.comboBox_compressors_tables.currentText():
-        #     self.selected_node = self.current_lineEdit.text()
-        #     self.selected_table = self.table_name
-        # else:
-        #     self.selected_node = self.lineEdit_node_ID_info.text()
-        #     self.selected_table = self.lineEdit_table_name_info.text()
-        
-        # if self.selected_node == "":
-        #     title = "EMPTY TABLE SELECTION"
-        #     message = "You should to select a table from list before continue."
-        #     PrintMessageInput([window_title_2, title, message])
-        #     return
-
-        # else:
-
-        #     node_id = int(self.selected_node)
-        #     node = self.preprocessor.nodes[node_id]
-        #     prefix = self.selected_table.split("_node")[0]
-        #     str_table_index = prefix.split("table")[1]
-        #     table_index = int(str_table_index)
-
-        #     if table_index in node.compressor_excitation_table_indexes:
-        #         node.compressor_excitation_table_indexes.remove(table_index)
-        #     if table_index in node.dict_index_to_compressor_connection_info.keys():
-        #         node.dict_index_to_compressor_connection_info.pop(table_index)
-
-        #     #TODO: reimplement this
-        #     for table_names in self.node_to_compressor_excitation[node_id]:
-        #         self.properties._remove_nodal_property
-        #         [str_key, table_name_file] = list_data
-        #         if self.selected_table in table_names:
-        #             self.project.file.filter_bc_data_from_dat_file([node_id], [str_key], self.node_acoustic_path)
-        #             # remove_bc_from_file([node_id], self.node_acoustic_path, [str_key], None)
-
-        #     title = "Compressor excitation table removal finished"
-        #     message = f"The following compressor excitation table attributed to \n"
-        #     message += f"the {node_id} node has been removed from the model:\n\n"
-        #     message += f"{self.selected_table}"
-        #     PrintMessageInput([window_title_2, title, message])
-
-        #     self.load_compressor_excitation_info()
-        #     self.reset_node_and_reload(node_id)
-    
-    # def reset_node_and_reload(self, node_id):
-    #     self.preprocessor.set_compressor_excitation_bc_by_node(node_id, [None, None])
-    #     if node_id in self.node_to_compressor_excitation.keys():
-    #         for str_key, table_name in self.node_to_compressor_excitation[node_id]:
-    #             compressor_excitation, table_name, _ = self.project.file._get_acoustic_bc_from_string(  table_name, str_key, 
-    #                                                                                                     "compressor_excitation_files"  )
-    #             if 'discharge' in table_name:
-    #                 connection_info = "discharge"
-    #             else:
-    #                 connection_info = "suction"
-    #             self.preprocessor.set_compressor_excitation_bc_by_node( node_id, 
-    #                                                                     [compressor_excitation, table_name], 
-    #                                                                     connection_info=connection_info )
-    #     else:
-    #         self.project.reset_compressor_info_by_node(node_id)
-
-    #     if self.project.file.check_if_table_can_be_removed_in_acoustic_model( node_id, "compressor excitation",
-    #                                                                           self.selected_table, "compressor_excitation_files" ):
-    #         self.project.remove_acoustic_table_files_from_folder( self.selected_table, "compressor_excitation_files" )
-    #         self.load_compressor_excitation_info()
-    #     app().main_window.update_plots()

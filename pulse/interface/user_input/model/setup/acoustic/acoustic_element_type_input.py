@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from collections import defaultdict
@@ -45,13 +46,14 @@ class AcousticElementTypeInput(QDialog):
 
     def _initialize(self):
 
-        self.before_run = app().project.get_pre_solution_model_checks()
-
         self.element_type = 'undamped'
+
         self.complete = False
         self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
+
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
 
@@ -75,6 +77,7 @@ class AcousticElementTypeInput(QDialog):
 
         # QPushButton
         self.pushButton_confirm : QPushButton
+        self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
 
         # QTabWidget
@@ -91,7 +94,8 @@ class AcousticElementTypeInput(QDialog):
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
         #
         self.pushButton_confirm.clicked.connect(self.element_type_attribution_callback)
-        self.pushButton_reset.clicked.connect(self.reset_element_type)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_selection_callback)
         #
@@ -146,25 +150,19 @@ class AcousticElementTypeInput(QDialog):
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def tab_selection_callback(self):
-        
-        if self.comboBox_selection.currentIndex() == 1:
-            self.lineEdit_selected_id.setDisabled(False)
-        
-        tab_index = self.tabWidget_main.currentIndex()
-        if tab_index == 0:
-            self.label_selected_id.setText("Selection ID:")
-            self.lineEdit_selected_id.setText("")
-
+        if self.tabWidget_main.currentIndex() == 0:
+            self.label_selected_id.setText("Selected ID:")
+            self.attribution_type_callback()
         else:
-            self.label_selected_id.setText("Selection ID:")
+            self.label_selected_id.setText("Selection:")
             self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.setDisabled(True)
 
     def attribution_type_callback(self):
-        index = self.comboBox_selection.currentIndex()
-        if index == 0:
+        if self.comboBox_selection.currentIndex() == 0:
             self.lineEdit_selected_id.setDisabled(True)
             self.lineEdit_selected_id.setText("All lines")
-        elif index == 1:
+        else:
             self.lineEdit_selected_id.setDisabled(False)
             if app().main_window.list_selected_lines():
                 self.selection_callback()
@@ -311,20 +309,36 @@ class AcousticElementTypeInput(QDialog):
         self.complete = True
         self.close()
 
-    def reset_element_type(self):
+    def remove_callback(self):
+        pass
 
-        for (line_id, data) in self.properties.line_properties.items():
-            if "acoustic_element_type" in data.keys():
+    def reset_callback(self):
 
-                app().project.model.preprocessor.set_acoustic_element_type_by_lines(line_id, "undamped")
-                app().project.model.properties._remove_line_property("acoustic_element_type", line_id)
-                app().project.model.properties._remove_line_property("proportional_damping", line_id)
-                app().project.model.properties._remove_line_property("volume_flow", line_id)
+        self.hide()
 
-        app().pulse_file.write_line_properties_in_file()
+        title = f"Resetting of acoustic element types"
+        message = "Would you like to reset the acoustic element types from the model?"
 
-        self.complete = True
-        self.close()
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
+            return
+
+        if read._continue:
+
+            for (line_id, data) in self.properties.line_properties.items():
+                if "acoustic_element_type" in data.keys():
+
+                    app().project.model.preprocessor.set_acoustic_element_type_by_lines(line_id, "undamped")
+                    app().project.model.properties._remove_line_property("acoustic_element_type", line_id)
+                    app().project.model.properties._remove_line_property("proportional_damping", line_id)
+                    app().project.model.properties._remove_line_property("volume_flow", line_id)
+
+            app().pulse_file.write_line_properties_in_file()
+
+            self.complete = True
+            self.close()
 
     def on_click_item(self, item):
         self.comboBox_selection.setCurrentIndex(1)
@@ -397,14 +411,13 @@ class AcousticElementTypeInput(QDialog):
                     header_labels.append("Volume mean flow")
 
                 data = dict()
-                for line_id, line_data in self.properties.line_properties.items():
+                for line_id in self.properties.line_properties.keys():
 
                     element_type = self.properties._get_property("acoustic_element_type", line_id=line_id)
                     if element_type is None:
                         continue
 
                     if key == element_type:
-
                         element_data = [key]
 
                         if key == "proportional":
@@ -445,3 +458,7 @@ class AcousticElementTypeInput(QDialog):
             self.element_type_attribution_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

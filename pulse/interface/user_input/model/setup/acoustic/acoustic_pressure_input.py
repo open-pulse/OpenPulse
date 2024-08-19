@@ -82,12 +82,12 @@ class AcousticPressureInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_constant_values.clicked.connect(self.constant_values_attribution_callback)
-        self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_table_values.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_search.clicked.connect(self.load_acoustic_pressure_table)
         #
-        self.tabWidget_acoustic_pressure.currentChanged.connect(self.tabEvent_acoustic_pressure)
+        self.tabWidget_acoustic_pressure.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_acoustic_pressure.itemClicked.connect(self.on_click_item)
         self.treeWidget_acoustic_pressure.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -99,27 +99,28 @@ class AcousticPressureInput(QDialog):
         self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
-        if len(selected_nodes) == 1:
-
+        if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_selection_id.setText(text)
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "acoustic_pressure" and selected_nodes[0] == node_id:
+            if len(selected_nodes) == 1:
+                for (property, node_id), data in self.properties.nodal_properties.items():
+                    if property == "acoustic_pressure" and selected_nodes[0] == node_id:
 
-                    values = data["values"]
-    
-                    if "table paths" in data.keys():
-                        table_paths = data["table paths"]
-                        self.tabWidget_acoustic_pressure.setCurrentIndex(1)
-                        self.lineEdit_table_path.setText(table_paths[0])
+                        values = data["values"]
+        
+                        if "table paths" in data.keys():
+                            table_paths = data["table paths"]
+                            self.tabWidget_acoustic_pressure.setCurrentIndex(1)
+                            self.lineEdit_table_path.setText(table_paths[0])
 
-                    else:
-                        self.tabWidget_acoustic_pressure.setCurrentIndex(0)
-                        self.lineEdit_real_value.setText(str(np.real(values)))
-                        self.lineEdit_imag_value.setText(str(np.imag(values)))
+                        else:
+                            self.tabWidget_acoustic_pressure.setCurrentIndex(0)
+                            self.lineEdit_real_value.setText(str(np.real(values)))
+                            self.lineEdit_imag_value.setText(str(np.imag(values)))
 
-    def tabEvent_acoustic_pressure(self):
+    def tab_event_callback(self):
+        self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_acoustic_pressure.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
@@ -134,6 +135,7 @@ class AcousticPressureInput(QDialog):
             if property == "acoustic_pressure":
                 self.tabWidget_acoustic_pressure.setCurrentIndex(0)
                 self.tabWidget_acoustic_pressure.setTabVisible(2, True)
+                return
 
     def load_nodes_info(self):
 
@@ -203,7 +205,6 @@ class AcousticPressureInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        self.remove_table_files_from_nodes(node_ids)
         self.remove_conflictant_excitations(node_ids)
 
         real_values = [np.real(acoustic_pressure)]
@@ -299,11 +300,7 @@ class AcousticPressureInput(QDialog):
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
-
-                app().project.model.set_frequency_setup(frequency_setup)
+                self.update_analysis_setup_in_file(f_min, f_max, f_step)
 
             return imported_values, imported_filename
 
@@ -313,6 +310,13 @@ class AcousticPressureInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             lineEdit.setFocus()
             return None, None
+
+    def update_analysis_setup_in_file(self, f_min, f_max, f_step):
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup["f_min"] = f_min
+        analysis_setup["f_max"] = f_max
+        analysis_setup["f_step"] = f_step
+        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
     def load_acoustic_pressure_table(self):
         self.table_values, self.table_path = self.load_table(self.lineEdit_table_path)
@@ -326,7 +330,6 @@ class AcousticPressureInput(QDialog):
             return
 
         self.remove_conflictant_excitations(node_ids)
-        # table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -343,14 +346,11 @@ class AcousticPressureInput(QDialog):
 
                 self.table_name, self.array = self.save_table_file( 
                                                                     node_id, 
-                                                                    self.table_values, 
-                                                                    self.table_path
+                                                                    self.table_values
                                                                    )
 
                 basenames = [self.table_name]
-                table_paths = [self.table_path]
-                values = [self.table_values]                
-                array_data = [self.array]
+                table_paths = [self.table_path]              
 
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
@@ -358,16 +358,13 @@ class AcousticPressureInput(QDialog):
                 bc_data = {
                             "coords" : list(coords),
                             "table names" : basenames,
-                            "table paths" : table_paths,
-                            "values" : values,
-                            "data arrays" : array_data
+                            "table paths" : table_paths
                         }
 
                 self.properties._set_nodal_property("acoustic_pressure", bc_data, node_ids=node_id)
 
             app().pulse_file.write_model_properties_in_file()
             app().pulse_file.write_imported_table_data_in_file()
-            # self.process_table_file_removal(table_names)
             app().main_window.update_plots()
 
             print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")   
@@ -395,23 +392,32 @@ class AcousticPressureInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        # self.remove_bc_from_node()
 
-    def remove_conflictant_excitations(self, node_ids: int | list | tuple):
+    def remove_conflictant_excitations(self, node_ids: int | list):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["volume_velocity", "compressor_excitation"]:
+            for label in ["acoustic_pressure", "volume_velocity", "compressor_excitation"]:
                 table_names = self.properties.get_nodal_related_table_names(label, node_id)
-                self.properties._remove_nodal_property(label, node_id)
 
+                self.properties._remove_nodal_property(label, node_id)
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_model_properties_in_file()
+        # app().pulse_file.write_model_properties_in_file()
 
-    def remove_bc_from_node(self):
+    def remove_table_files_from_nodes(self, node_ids: list):
+        table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids)
+        self.process_table_file_removal(table_names)
+
+    def process_table_file_removal(self, table_names: list):
+        if table_names:
+            for table_name in table_names:
+                self.properties.remove_imported_tables("acoustic", table_name)
+            app().pulse_file.write_imported_table_data_in_file()
+
+    def remove_callback(self):
 
         if  self.lineEdit_selection_id.text() != "":
 
@@ -420,56 +426,42 @@ class AcousticPressureInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids)
-
-            for node_id in node_ids:
-                self.properties._remove_nodal_property("acoustic_pressure", node_id)
+            self.remove_table_files_from_nodes(node_ids[0])
+            self.properties._remove_nodal_property("acoustic_pressure", node_ids[0])
 
             app().pulse_file.write_model_properties_in_file()
-
-            self.lineEdit_selection_id.setText("")
-            self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
-
             app().main_window.update_plots()
             # self.close()
 
     def reset_callback(self):
 
-            self.hide()
+        self.hide()
 
-            title = f"Resetting of acoustic pressures"
-            message = "Would you like to remove all acoustic pressures from the acoustic model?"
+        title = f"Resetting of acoustic pressures"
+        message = "Would you like to remove all acoustic pressures from the acoustic model?"
 
-            buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if read._continue:
+        if read._continue:
 
-                node_ids = list()
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "acoustic_pressure":
-                        node_ids.append(node_id)
+            node_ids = list()
+            for (property, *args) in self.properties.nodal_properties.keys():
+                if property == "acoustic_pressure":
+                    node_id = args[0]
+                    node_ids.append(node_id)
 
-                self.remove_table_files_from_nodes(node_ids)
+            for node_id in node_ids:
+                self.remove_table_files_from_nodes(node_id)
 
-                self.properties._reset_property("acoustic_pressure")
-                app().pulse_file.write_model_properties_in_file()
-                app().main_window.update_plots()
-                self.close()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids, equals=True)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            self.properties._reset_nodal_property("acoustic_pressure")
+            app().pulse_file.write_model_properties_in_file()
+            app().main_window.update_plots()
+            self.close()
 
     def reset_input_fields(self):
         self.lineEdit_real_value.setText("")
@@ -479,12 +471,12 @@ class AcousticPressureInput(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_acoustic_pressure.currentIndex()==0:
-                self.check_constant_values()
+                self.constant_values_attribution_callback()
             if self.tabWidget_acoustic_pressure.currentIndex()==1:
-                self.check_table_values()
+                self.table_values_attribution_callback()
         elif event.key() == Qt.Key_Delete:
             if self.tabWidget_acoustic_pressure.currentIndex()==2:
-                self.remove_bc_from_node()
+                self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

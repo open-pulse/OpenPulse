@@ -47,7 +47,6 @@ class NodalLoadsInput(QDialog):
     def _initialize(self):
 
         self.keep_window_open = True
-        self.list_frequencies = list()
 
         self.list_Nones = [None, None, None, None, None, None]
         self.load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
@@ -154,8 +153,8 @@ class NodalLoadsInput(QDialog):
         self.pushButton_load_mz_table.clicked.connect(self.load_mz_table)
         self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
-        self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
-        self.pushButton_reset.clicked.connect(self.reset_all)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_nodal_loads.currentChanged.connect(self.tabWidget_selection_event)
         #
@@ -174,7 +173,6 @@ class NodalLoadsInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-
                 for (property, node_id), data in self.properties.nodal_properties.items():
                     if property == "nodal_loads" and selected_nodes[0] == node_id:
 
@@ -267,7 +265,6 @@ class NodalLoadsInput(QDialog):
         
         if nodal_loads.count(None) != 6:
 
-            self.remove_table_files_from_nodes(node_ids)
             self.remove_conflictant_excitations(node_ids)
 
             real_values = [value if value is None else np.real(value) for value in nodal_loads]
@@ -430,7 +427,6 @@ class NodalLoadsInput(QDialog):
             return
 
         self.remove_conflictant_excitations(node_ids)
-        # table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids)
 
         if self.fx_table_path is None:
             self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx", direct_load=True)
@@ -479,9 +475,9 @@ class NodalLoadsInput(QDialog):
             nodal_loads = [ self.fx_table_values, self.fy_table_values, self.fz_table_values, 
                             self.mx_table_values, self.my_table_values, self.mz_table_values ]
             
-            array_data = [  self.fx_array, self.fy_array, self.fz_array, 
-                            self.mx_array, self.my_array, self.mz_array  ]
-                        
+            # array_data = [  self.fx_array, self.fy_array, self.fz_array, 
+            #                 self.mx_array, self.my_array, self.mz_array  ]
+
             if basenames == self.list_Nones:
                 title = "Additional inputs required"
                 message = "You must inform at least one nodal load "
@@ -496,15 +492,13 @@ class NodalLoadsInput(QDialog):
                         "coords" : list(coords),
                         "table names" : basenames,
                         "table paths" : table_paths,
-                        "values" : nodal_loads,
-                        "data arrays" : array_data
+                        "values" : nodal_loads
                        }
 
             self.properties._set_nodal_property("nodal_loads", bc_data, node_ids=node_id)
 
         app().pulse_file.write_model_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
-        # self.process_table_file_removal(table_names)
         app().main_window.update_plots()
         self.close()
 
@@ -554,6 +548,7 @@ class NodalLoadsInput(QDialog):
                 return
 
     def tabWidget_selection_event(self):
+        self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_nodal_loads.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
@@ -620,7 +615,7 @@ class NodalLoadsInput(QDialog):
 
         app().pulse_file.write_model_properties_in_file()
 
-    def remove_bc_from_node(self):
+    def remove_callback(self):
 
         if  self.lineEdit_selection_id.text() != "":
 
@@ -629,21 +624,15 @@ class NodalLoadsInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids)
-
-            for node_id in node_ids:
-                self.properties._remove_nodal_property("nodal_loads", node_id)
+            self.remove_table_files_from_nodes(node_ids[0])
+            self.properties._remove_nodal_property("nodal_loads", node_ids[0])
 
             app().pulse_file.write_model_properties_in_file()
-
-            self.lineEdit_selection_id.setText("")
-            self.pushButton_remove.setDisabled(True)
             self.load_nodes_info()
-
             app().main_window.update_plots()
             # self.close()
 
-    def reset_all(self):
+    def reset_callback(self):
 
         self.hide()
 
@@ -663,15 +652,18 @@ class NodalLoadsInput(QDialog):
                 if property == "nodal_loads":
                     node_ids.append(node_id)
 
-            self.remove_table_files_from_nodes(node_ids)
+            for node_id in node_ids:
+                self.remove_table_files_from_nodes(node_id)
 
-            self.properties._reset_property("nodal_loads")
+            self.properties._reset_nodal_property("nodal_loads")
             app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
             self.close()
 
     def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids, equals=True)
+        table_names = self.properties.get_nodal_related_table_names("nodal_loads", 
+                                                                    node_ids, 
+                                                                    only_equals = True)
         self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):

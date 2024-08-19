@@ -119,9 +119,6 @@ class SetFluidCompositionInput(QDialog):
         self.pushButton_remove_gas : QPushButton
         self.pushButton_reset_fluid : QPushButton
 
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-
         # QTableWidget
         self.tableWidget_new_fluid : QTableWidget
 
@@ -165,8 +162,7 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_temperature_disch.setDisabled(True)
         self.lineEdit_pressure.setDisabled(True)
         self.lineEdit_pressure_disch.setDisabled(True)
-        self.tabWidget_main.setTabVisible(1, False)
-    
+
         self.connection_type_comp = self.compressor_info['connection type']
         self.connection_label = "discharge" if self.connection_type_comp else "suction"
         

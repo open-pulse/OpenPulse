@@ -384,10 +384,11 @@ class AssemblyAcoustic:
 
                     impedance_type = data["impedance type"]
 
-                    elements = self.preprocessor.neighboor_elements_of_node[node_id]
-                    
+                    elements = self.preprocessor.neighboor_elements_of_node(node_id)
+
                     if len(elements) == 1:
                         element = elements[0]
+                        area_fluid = element.cross_section.area_fluid
                         impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
 
                 ind_Klump.append(position)
@@ -522,7 +523,7 @@ class AssemblyAcoustic:
         volume_velocity = np.zeros([len(self.frequencies), total_dof], dtype=complex)
 
         for (property, *args), data in self.model.properties.nodal_properties.items():
-            if property == "volume_velocity":
+            if property in ["volume_velocity", "compressor_excitation"]:
 
                 node_id = args[0]
                 node = self.preprocessor.nodes[node_id]

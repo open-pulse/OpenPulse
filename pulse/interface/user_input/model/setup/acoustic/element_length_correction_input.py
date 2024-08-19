@@ -288,7 +288,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
                 self.preprocessor.set_length_correction_by_element(element_ids, None)
 
-                self.properties._reset_property("element_length_correction")
+                self.properties._reset_element_property("element_length_correction")
                 app().pulse_file.write_model_properties_in_file()
                 app().main_window.update_plots()
                 self.close()

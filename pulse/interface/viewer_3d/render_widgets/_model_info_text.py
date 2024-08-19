@@ -101,8 +101,8 @@ def nodes_info_text() -> str:
 
         key = ("compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():
-
-            info_text += compressor_excitation_info_text(node)
+            data = properties.nodal_properties[key]
+            info_text += compressor_excitation_info_text(data)
 
     return info_text
 
@@ -283,27 +283,11 @@ def analysis_info_text(frequency_index):
     return str(tree)
 
 def compressor_excitation_info_text(compressor_data: dict) -> str:
-    tree = TreeInfo("Volume velocity - compressor excitation")
+    tree = TreeInfo("Volume velocity due compressor excitation")
     tree.add_item("Q", "Table of values")
 
-    connection_type = compressor_data["connection_type"]
+    connection_type = compressor_data["connection type"]
     tree.add_item("Connection type", connection_type)
-    
-    #TODO: check physical consistency for multiple compressor connections
-    
-    # values_connection_info = list(node.dict_index_to_compressor_connection_info.values())
-    # if len(values_connection_info) == 1:
-    #     tree.add_item("Connection type", values_connection_info[0])
-    # elif "discharge" in values_connection_info and "suction" in values_connection_info:
-    #     tree.add_item(
-    #         "Connection types", 
-    #         f"discharge ({values_connection_info[0]}x)"
-    #         + "& suction ({values_connection_info.count('suction')}x)"
-    #     )
-    # elif "discharge" in values_connection_info:
-    #     tree.add_item("Connection types", f"discharge ({values_connection_info.count('discharge')}x)")
-    # elif "suction" in values_connection_info:
-    #     tree.add_item("Connection types", f"suction ({values_connection_info.count('suction')}x)")
 
     return str(tree)
 

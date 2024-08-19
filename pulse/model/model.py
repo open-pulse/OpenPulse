@@ -30,7 +30,14 @@ class Model:
         self.properties = None
         self.psd_data = dict()
 
+        self.f_min = 1
+        self.f_max = 200
+        self.f_step = 1
         self.frequencies = None
+        self.list_frequencies = list()
+
+        self.global_damping = [0., 0., 0., 0.]
+
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
         self.set_static_analysis_setup(dict())
@@ -66,25 +73,23 @@ class Model:
         if isinstance(frequencies, np.ndarray):
             frequencies = list(frequencies)
 
-        updated = False
         condition_1 = self.list_frequencies == list() 
         condition_2 = not self.properties.check_if_there_are_tables_at_the_model()
 
         if condition_1 or condition_2:
-            updated = True
-            self.list_frequencies = frequencies
 
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0]
-            frequency_setup = {
-                                "f_min" : f_min,
+            f_min = frequencies[0]
+            f_max = frequencies[-1]
+            f_step = frequencies[1] - frequencies[0]
+
+            frequency_setup = { "f_min" : f_min,
                                 "f_max" : f_max,
-                                "f_step" : f_step
-                               }
+                                "f_step" : f_step }
+
             self.set_frequency_setup(frequency_setup)
 
-            self.imported_table_frequency_setup = True
+            self.list_frequencies = frequencies
+
             return False
 
         if self.list_frequencies != frequencies:

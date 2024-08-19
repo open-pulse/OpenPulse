@@ -79,13 +79,9 @@ class Preprocessor:
         self.nodes_with_acoustic_links = dict()
         self.nodes_with_structural_links = dict()
 
-        self.elements_with_perforated_plate = list()
         self.element_with_capped_end = list()
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
-  
-        self.structural_element_type_to_lines = defaultdict(list)
-        self.dict_beam_xaxis_rotating_angle_to_lines = defaultdict(list)
 
         self.dict_coordinate_to_update_bc_after_remesh = dict()
         self.dict_element_info_to_update_indexes_in_entity_file = dict()
@@ -835,7 +831,7 @@ class Preprocessor:
         for node in self.nodes.values():
             node.global_index = None
 
-    def set_structural_element_type_by_element(self, elements, element_type, remove=False):
+    def set_structural_element_type_by_element(self, elements, element_type):
         """
         This method attributes structural element type to a list of elements.
 
@@ -853,8 +849,6 @@ class Preprocessor:
         """
         for element in slicer(self.structural_elements, elements):
             element.element_type = element_type
-        if remove:
-            self.structural_element_type_to_lines.pop(element_type)
     
     def set_structural_element_force_offset_by_elements(self, elements, force_offset, remove=False):
         """
@@ -1011,7 +1005,7 @@ class Preprocessor:
                 insulation_thickness, insulation_density  ] = section_data["section_parameters"]
 
             elements_from_line = self.mesh.line_to_elements[line_id]
-            self.add_expansion_joint_by_line(line_id, None, remove=True)
+            self.add_expansion_joint_by_lines(line_id, None, remove=True)
 
             first_element = self.structural_elements[elements_from_line[0]]
             last_element = self.structural_elements[elements_from_line[-1]]
@@ -1125,7 +1119,7 @@ class Preprocessor:
     #     for elements in slicer(self.mesh.line_to_elements, lines):
     #         self.set_cross_section_plot_info_by_element(elements, cross_section)
 
-    def set_structural_element_type_by_lines(self, lines, element_type, remove=False):
+    def set_structural_element_type_by_lines(self, lines, element_type):
         """
         This method attributes structural element type to all elements that belongs to a line/entity.
 
@@ -1146,29 +1140,6 @@ class Preprocessor:
         
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_structural_element_type_by_element(elements, element_type)
-        for line in lines:
-            if remove:
-                self.structural_element_type_to_lines.pop(element_type)
-            elif element_type != "":
-                temp_dict = self.structural_element_type_to_lines.copy()
-                if element_type not in list(temp_dict.keys()):
-                    self.structural_element_type_to_lines[element_type].append(line)
-                    for key, list_lines in temp_dict.items():
-                        if key != element_type:
-                            if line in list_lines:
-                                self.structural_element_type_to_lines[key].remove(line)
-                            if self.structural_element_type_to_lines[key] == []:
-                                self.structural_element_type_to_lines.pop(key)
-                else:
-                    for key, list_lines in temp_dict.items():
-                        if key != element_type:
-                            if line in list_lines:
-                                self.structural_element_type_to_lines[key].remove(line)
-                        else:
-                            if line not in list_lines:
-                                self.structural_element_type_to_lines[key].append(line)
-                        if self.structural_element_type_to_lines[key] == []:
-                            self.structural_element_type_to_lines.pop(key)
 
     def set_acoustic_element_type_by_lines( 
                                             self, 
@@ -1802,7 +1773,7 @@ class Preprocessor:
                 key = f"group-{size+1}"
                 self.group_elements_with_expansion_joints[key] = [list_elements, parameters]
 
-    def add_expansion_joint_by_line(self, lines, parameters, remove=False):
+    def add_expansion_joint_by_lines(self, lines, parameters, remove=False):
         """
         This method .
 
@@ -2065,92 +2036,32 @@ class Preprocessor:
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_vol_flow_by_element(elements, vol_flow)
 
-    def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
+    def set_perforated_plate_by_elements(self, elements, perforated_plate):
+
         for element in slicer(self.structural_elements, elements):
             element.perforated_plate = perforated_plate
-            if element not in self.elements_with_perforated_plate:
-                self.elements_with_perforated_plate.append(element)
-            if perforated_plate is None:
-                if element in self.elements_with_perforated_plate:
-                    self.elements_with_perforated_plate.remove(element)
-                    
+
         for element in slicer(self.acoustic_elements, elements):
             element.perforated_plate = perforated_plate
             element.delta_pressure = 0
             element.pp_impedance = None
 
-        if delete_from_dict:
-            self.group_elements_with_perforated_plate.pop(section) 
-        else:
-            self.group_elements_with_perforated_plate[section] = [perforated_plate, elements]
-
-    def set_compressor_excitation_bc_by_node(self, nodes, data, connection_info=""):
+    def set_beam_xaxis_rotation_by_line(self, line, angle, gimball_shift=1e-5):
         """
-        This method attributes compressor excitation in the form of volume velocity source to a list of nodes.
-
-        Parameters
-        ----------
-        nodes : list
-            Nodes external indexes.
-            
-        values : complex or array
-            Volume velocity. Array valued input corresponds to a variable volume velocity load with respect to the frequency.
         """
-        try:
-            [values, table_name] = data
+        # promotes a small angle shift to avoid the gimbal lock rotation problems
+        if angle in [90, 270]:
+            angle -= gimball_shift
+        elif angle in [-90, -270]:
+            angle += gimball_shift
+        angle *= np.pi/180
 
-            if table_name is not None:
-                prefix = table_name.split("_node")[0]
-                str_table_index = prefix.split("table")[1]
-                table_index = int(str_table_index)
+        for elements in slicer(self.mesh.line_to_elements, line):
+            self.set_beam_xaxis_rotation_by_elements(elements, angle)
 
-            for node in slicer(self.nodes, nodes):
-
-                if values is None:
-                    node.volume_velocity = None
-                    node.volume_velocity_table_name = None
-                    node.compressor_excitation_table_names = []
-                    node.dict_index_to_compressor_connection_info = {}
-                    node.compressor_excitation_table_indexes = []
-                
-                elif node.volume_velocity is None or isinstance(node.volume_velocity, complex):
-                    node.volume_velocity = values
-                    node.compressor_excitation_table_names = [table_name]  
-                    node.dict_index_to_compressor_connection_info[table_index] = connection_info                   
-
-                elif isinstance(node.volume_velocity, np.ndarray):                        
-                    if node.volume_velocity_table_name is not None:
-                        node.volume_velocity_table_name = None 
-                        node.volume_velocity = values
-                        node.compressor_excitation_table_names = [table_name] 
-                    else:
-                        if node.volume_velocity.shape == values.shape:
-                            node.volume_velocity += values 
-                        else:
-                            title = "Error while setting compressor excitation"
-                            message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
-                            message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
-                            message += "New array length: {}".format(str(values.shape).replace(",", ""))
-                            PrintMessageInput([window_title_1, title, message])
-                            return True
-
-                if values is not None: 
-                    node.dict_index_to_compressor_connection_info[table_index] = connection_info
-                    if table_index not in node.compressor_excitation_table_indexes:
-                        node.compressor_excitation_table_indexes.append(table_index)
-                    if table_name not in node.compressor_excitation_table_names:
-                        node.compressor_excitation_table_names.append(table_name)
-                
-                node.acoustic_pressure = None
-                node.acoustic_pressure_table_name = None
-
-            return False
-
-        except Exception as error:
-            title = "Error while setting compressor excitation"
-            message = str(error)
-            PrintMessageInput([window_title_1, title, message])
-            return True  
+    def set_beam_xaxis_rotation_by_elements(self, elements, angle):
+        for element in slicer(self.structural_elements, elements):
+            element.xaxis_beam_rotation = angle
 
     # def get_radius(self):
     #     """
@@ -2536,57 +2447,6 @@ class Preprocessor:
             element.sub_transformation_matrix = self.transformation_matrices[index, :, :]
             element.section_directional_vectors = self.transformation_matrices[index, :, :]
             element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index,:]
-
-    def set_beam_xaxis_rotation_by_line(self, line, delta_angle, gimball_deviation=1e-5):
-
-        self.dict_lines_to_rotation_angles[line] += delta_angle
-        angle = self.dict_lines_to_rotation_angles[line]
-        str_angle = str(angle)
-
-        if angle in [90, 270]:
-            angle -= gimball_deviation
-        elif angle in [-90, -270]:
-            angle += gimball_deviation
-        angle *= np.pi/180
-
-        for elements in slicer(self.mesh.line_to_elements, line):
-            self.set_beam_xaxis_rotation_by_elements(elements, angle)
-    
-        if str_angle != "":
-            temp_dict = self.dict_beam_xaxis_rotating_angle_to_lines.copy()
-            if str_angle not in list(temp_dict.keys()):
-                self.dict_beam_xaxis_rotating_angle_to_lines[str_angle].append(line)
-                for key, lines in temp_dict.items():
-                    if key != str_angle:
-                        if line in lines:
-                            self.dict_beam_xaxis_rotating_angle_to_lines[key].remove(line)
-                    if self.dict_beam_xaxis_rotating_angle_to_lines[key] == []:
-                        self.dict_beam_xaxis_rotating_angle_to_lines.pop(key)                            
-            else:
-                for key, lines in temp_dict.items():
-                    if key != str_angle:
-                        if line in lines:
-                            self.dict_beam_xaxis_rotating_angle_to_lines[key].remove(line)
-                    else:
-                        if line not in lines:
-                            self.dict_beam_xaxis_rotating_angle_to_lines[key].append(line)
-                    if self.dict_beam_xaxis_rotating_angle_to_lines[key] == []:
-                        self.dict_beam_xaxis_rotating_angle_to_lines.pop(key)
-
-        temp_dict = self.dict_beam_xaxis_rotating_angle_to_lines.copy()              
-        for key in ["0", "0.0"]:
-            if key in list(temp_dict.keys()):
-                self.dict_beam_xaxis_rotating_angle_to_lines.pop(key)
-        
-    def set_beam_xaxis_rotation_by_elements(self, elements, angle):
-        for element in slicer(self.structural_elements, elements):
-            element.xaxis_beam_rotation = angle
-
-    def create_dict_lines_to_rotation_angles(self):
-        self.dict_lines_to_rotation_angles = dict()
-        self.dict_beam_xaxis_rotating_angle_to_lines.clear()
-        for line in self.mesh.lines_from_model.keys():
-            self.dict_lines_to_rotation_angles[line] = 0
 
     def get_acoustic_link_data(self, nodes):
         """
