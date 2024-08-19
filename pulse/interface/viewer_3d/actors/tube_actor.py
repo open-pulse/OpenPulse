@@ -17,7 +17,7 @@ from pulse.interface.utils import ColorMode
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
 
-class TubeActorGPU(vtkActor):
+class TubeActor(vtkActor):
     """
     This actor show the tubes as a set of element sections that compose it.
 
@@ -32,15 +32,13 @@ class TubeActorGPU(vtkActor):
     send them to the GPU, and the hard work is handled there (very fastly btw).
     """
 
-    def __init__(self, project, show_deformed=False, **kwargs) -> None:
+    def __init__(self, **kwargs) -> None:
         super().__init__()
 
         self.project = app().project
-        self.preprocessor = project.preprocessor
-        self.elements = project.get_structural_elements()
+        self.preprocessor = self.project.preprocessor
+        self.elements = self.project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())
-        self.show_deformed = show_deformed
-
         self.build()
 
     def build(self):
@@ -68,12 +66,8 @@ class TubeActorGPU(vtkActor):
 
         section_index = dict()
         for element in visible_elements.values():
-            if self.show_deformed:
-                points.InsertNextPoint(*element.first_node.deformed_coordinates)
-                rotations.InsertNextTuple(element.deformed_rotation_xyz)
-            else:
-                points.InsertNextPoint(*element.first_node.coordinates)
-                rotations.InsertNextTuple(element.section_rotation_xyz_undeformed)
+            points.InsertNextPoint(self.get_element_coordinates(element))
+            rotations.InsertNextTuple(self.get_element_rotations(element))
 
             key = self._hash_element_section(element)
             if key not in section_index:
@@ -105,6 +99,12 @@ class TubeActorGPU(vtkActor):
         self.GetProperty().SetSpecular(1.5)
         self.GetProperty().SetSpecularPower(80)
         self.GetProperty().SetSpecularColor(1, 1, 1)
+
+    def get_element_coordinates(self, element) -> tuple[float, float, float]:
+        return element.first_node.coordinates
+
+    def get_element_rotations(self, element) -> tuple[float, float, float]:
+        return element.section_rotation_xyz_undeformed
 
     def create_element_data(self, element):
         cross_section = element.cross_section

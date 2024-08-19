@@ -15,7 +15,7 @@ from pulse.interface.viewer_3d.actors import (
     ElementLinesActor,
     NodesActor,
     PointsActor,
-    TubeActorGPU,
+    TubeActor,
 )
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
@@ -81,9 +81,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mesh_picker.update_bounds()
         project = app().project
 
-        self.nodes_actor = NodesActor(project)
-        self.lines_actor = ElementLinesActor(project)
-        self.tubes_actor = TubeActorGPU(project)
+        self.nodes_actor = NodesActor()
+        self.lines_actor = ElementLinesActor()
+        self.tubes_actor = TubeActor()
         self.points_actor = PointsActor()
         self.element_axes_actor = ElementAxesActor()
         self.element_axes_actor.VisibilityOff()
