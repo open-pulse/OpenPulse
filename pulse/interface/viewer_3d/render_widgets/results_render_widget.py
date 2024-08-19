@@ -174,8 +174,15 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update_plot()
 
     def cache_animation_frames(self):
+        self._animation_current_frequency = self.current_frequency_index
+        self._animation_color_map = self.colormap
+
         for frame in range(self._animation_total_frames):
             logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
+            d_theta = 2 * np.pi / self._animation_total_frames
+            phase_step = frame * d_theta
+            self.current_phase_step = phase_step
+
             self.update_plot()
             cached = vtkPolyData()
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
@@ -189,24 +196,22 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if any(conditions_to_clear_cache):
             self._animation_cached_data.clear()
-            self._animation_current_frequency = self.current_frequency_index
-            self._animation_color_map = self.colormap
 
         if not self._animation_cached_data:
             LoadingWindow(self.cache_animation_frames).run()
 
-        d_theta = 2 * np.pi / self._animation_total_frames
-        phase_step = frame * d_theta
-        self.current_phase_step = phase_step
-
         if frame in self._animation_cached_data:
+            logging.info(f"Rendering animation frame [{frame}/{self._animation_total_frames}]")
             cached = self._animation_cached_data[frame]
             self.tubes_actor.GetMapper().SetInputData(cached)
             self.update()
         else:
-            # It will only enter here if something wrong happened in
-            # the function that caches the frames
+            # It will only enter here if something wrong happened
+            # in the function that caches the frames
             logging.warn(f"Cache miss on update_animation function for frame {frame}")
+            d_theta = 2 * np.pi / self._animation_total_frames
+            phase_step = frame * d_theta
+            self.current_phase_step = phase_step
 
             self.update_plot()
             cached = vtkPolyData()

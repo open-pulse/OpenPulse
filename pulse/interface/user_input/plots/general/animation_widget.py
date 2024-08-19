@@ -89,12 +89,10 @@ class AnimationWidget(QWidget):
             file_path = file_path.parent / (file_path.name + suffix)
 
         try:
-            self.process_animation(True)
             if file_path.suffix.lower() in [".gif", ".webp"]:
                 LoadingWindow(self.main_window.results_widget.save_animation).run(file_path)
             else:
                 LoadingWindow(self.main_window.results_widget.save_video).run(file_path)
-            self.process_animation(self.pushButton_animate.isChecked())
             
         except Exception as error_log:
             title = "Error while exporting animation"
