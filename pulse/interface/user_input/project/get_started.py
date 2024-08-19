@@ -130,7 +130,7 @@ class GetStartedInput(QDialog):
 
     def load_project(self):
         self.close()
-        if not self.input_ui.load_project():
+        if not app().main_window.open_project():
             self.show()
         else:
             self.complete = True
@@ -138,16 +138,16 @@ class GetStartedInput(QDialog):
     def about_project(self):
         self.input_ui.about_OpenPulse()
 
-    def load_recent_project(self, dir):
+    def load_recent_project(self, path):
 
-        if os.path.exists(dir):
-            if self.input_ui.load_project(path=dir):
+        if os.path.exists(path):
+            if app().main_window.open_project(path):
                 self.complete = True
                 self.close()
 
         else:
             for key, value in self.config.recent_projects.items():
-                if value == dir:
+                if value == path:
                     self.config.remove_path_from_config_file(key)
                     self.update_buttons_visibility()
                     break
@@ -155,7 +155,7 @@ class GetStartedInput(QDialog):
             window_title = "Warning"
             title = "Project folder not found"
             message = "The following project folder path cannot be found, check if the project " 
-            message += f"folder have not been deleted or moved to another directory. \n\n{dir}"
+            message += f"folder have not been deleted or moved to another directory. \n\n{path}"
             PrintMessageInput([window_title, title, message])
 
     def reset_list_projects(self):

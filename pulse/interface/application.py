@@ -31,4 +31,3 @@ class Application(QApplication):
         # gui
         self.main_window = MainWindow()
         self.main_window.configure_window()
-        self.main_window.update_plots()
