@@ -159,12 +159,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if self.section_plane_active:
             self.configure_section_plane(*self.config_tube_args)
             self.apply_section_plane()
-        self.set_tube_actors_transparency(self.transparency)
 
         if reset_camera:
             self.renderer.ResetCamera()
         self.update_info_text()
         self.update()
+
+        # It needs to appear after the update to work propperly
+        self.set_tube_actors_transparency(self.transparency)
 
     def set_colormap(self, colormap):
         self.colormap = colormap
