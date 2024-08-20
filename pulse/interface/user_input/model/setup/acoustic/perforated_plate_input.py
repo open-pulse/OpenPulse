@@ -701,7 +701,7 @@ class PerforatedPlateInput(QDialog):
             app().pulse_file.write_model_properties_in_file()
             app().main_window.update_plots()
             self.close()
-    
+
     def process_table_file_removal(self, table_names : list):
         if table_names:
             for table_name in table_names:

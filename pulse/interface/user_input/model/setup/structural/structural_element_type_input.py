@@ -318,7 +318,6 @@ class StructuralElementTypeInput(QDialog):
 
                     app().project.model.properties._remove_line_property("structural_element_type", line_id)
                     app().project.model.properties._remove_line_property("capped_end", line_id)
-                    app().project.model.properties._remove_line_property("volume_flow", line_id)
 
             app().pulse_file.write_line_properties_in_file()
 

@@ -173,26 +173,12 @@ class SetMaterialInput(QDialog):
             geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
             geometry_handler.process_pipeline()
             self.close()
-            # self.actions_to_finalize()
 
         except Exception as error_log:
             self.title = "Error detected on material list data"
             self.message = str(error_log)
             PrintMessageInput([window_title_1, self.title, self.message])
             return
-
-    def actions_to_finalize(self):
-        geometry_handler = GeometryHandler()
-        geometry_handler.set_length_unit(app().project.model.preprocessor.length_unit)
-        geometry_handler.process_pipeline()
-        self.close()
-
-    def load_project(self):
-        app().project.initial_load_project_actions()
-        # app().project.load_project_files()
-        app().loader.load_project_data()
-        app().main_window.input_ui.initial_project_action(True)
-        self.complete = True
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

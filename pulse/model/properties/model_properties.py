@@ -322,7 +322,7 @@ class ModelProperties:
     def _remove_line_property(self, property: str, line_ids: int | list):
         """Remove a line property at specific line_id."""
         if isinstance(line_ids, int):
-            line_ids = [line_id]
+            line_ids = [line_ids]
         for line_id in line_ids:
             if line_id in self.line_properties.keys():
                 if property in self.line_properties[line_id].keys():
