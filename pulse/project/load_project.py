@@ -493,11 +493,8 @@ class LoadProject:
                 if section_type in ["Valve", "Expansion joint", "Generic beam section"]:
                     continue
 
-                elif section_type == "beam_1":
-                    element_type = f"{element_type} - {section_type}"
-
                 if str(section_parameters) not in parameters_to_line_id.keys():
-                    section_info[count_A] = [element_type, section_parameters]
+                    section_info[count_A] = [element_type, section_parameters, section_type]
                     count_A += 1
 
                 parameters_to_line_id[str(section_parameters)].append(line_id)
@@ -512,9 +509,10 @@ class LoadProject:
 
                 if str(_section_parameters) in parameters_to_line_id.keys():
                     count_B += 1
-                    data_lines = _data.copy()
-                    data_lines.append(parameters_to_line_id[str(_section_parameters)])
-                    section_info_lines[count_B] = data_lines
+                    aux = _data.copy()
+                    line_ids = parameters_to_line_id[str(_section_parameters)]
+                    aux.append(line_ids)
+                    section_info_lines[count_B] = aux
 
         except Exception as error_log:
 

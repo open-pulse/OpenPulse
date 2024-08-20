@@ -725,7 +725,7 @@ class ExpansionJointInput(QDialog):
     def process_table_file_removal(self, table_names: list):
         if table_names:
             for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
+                self.properties.remove_imported_tables("structural", table_name)
             app().pulse_file.write_imported_table_data_in_file()
 
     def remove_callback(self):

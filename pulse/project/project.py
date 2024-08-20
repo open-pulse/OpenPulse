@@ -140,6 +140,7 @@ class Project:
         self.preprocessor.generate()
         app().main_window.update_status_bar_info()
         self.file.update_node_ids_after_mesh_changed()
+        # self.add_lids_to_variable_cross_sections()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
@@ -186,12 +187,12 @@ class Project:
                     continue
                 inner_diameter = element.cross_section.inner_diameter 
 
-                if len(self.neighbors[first_node]) == 1:
+                if len(self.preprocessor.neighbors[first_node]) == 1:
                     first_node_id = first_node.external_index
                     if self.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
                         inner_diameter = 0
 
-                elif len(self.neighbors[last_node]) == 1:
+                elif len(self.preprocessor.neighbors[last_node]) == 1:
                     last_node_id = last_node.external_index
                     if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
                         inner_diameter = 0
@@ -204,7 +205,7 @@ class Project:
                 offset_z = cross.offset_z
                 insulation_thickness = cross.insulation_thickness
                 section_label = cross.section_label
-        
+
                 if element.element_type == 'expansion_joint':
                     _key = element.cross_section.expansion_joint_plot_key
                     parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
@@ -230,11 +231,6 @@ class Project:
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
-    def update_element_ids_in_entity_file_after_remesh(self, dict_group_elements_to_update_entity_file, 
-                                                             dict_non_mapped_subgroups_entity_file):
-        self.file.modify_list_of_element_ids_in_entity_file(dict_group_elements_to_update_entity_file, 
-                                                            dict_non_mapped_subgroups_entity_file)
-    
     def update_element_ids_in_element_info_file_after_remesh(self, dict_group_elements_to_update,
                                                                    dict_non_mapped_subgroups,
                                                                    dict_list_elements_to_subgroups ):

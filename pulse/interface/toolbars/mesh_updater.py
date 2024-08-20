@@ -11,12 +11,7 @@ class MeshUpdater:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.main_window = app().main_window
-        self.input_widget = app().main_window.input_ui
-        self.project = app().main_window.project
-
-        self.file = self.project.file
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
         self._initialize()
 
@@ -25,7 +20,6 @@ class MeshUpdater:
         self.geometry_tolerance = 1e-6
         self.dict_old_to_new_node_external_indexes = {}
         self.non_mapped_bcs = list()
-        self.dict_group_elements_to_update_entity_file = {}
         self.dict_group_elements_to_update_element_info_file = {}
         self.dict_non_mapped_subgroups_entity_file = {}
         self.dict_non_mapped_subgroups_info_file = {}
@@ -41,10 +35,10 @@ class MeshUpdater:
         self.geometry_tolerance = geometry_tolerance
 
         app().pulse_file.modify_project_attributes(
-                                                                element_size = element_size, 
-                                                                geometry_tolerance = geometry_tolerance
-                                                               )
-            
+                                                    element_size = element_size, 
+                                                    geometry_tolerance = geometry_tolerance
+                                                    )
+
     def process_mesh_and_load_project(self):
 
         self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
@@ -92,7 +86,7 @@ class MeshUpdater:
             else:
                 self.process_final_actions()
 
-        self.project.time_to_load_or_create_project = time() - self.t0
+        app().project.time_to_load_or_create_project = time() - self.t0
 
     def process_intermediate_actions(self):
 
@@ -101,15 +95,15 @@ class MeshUpdater:
         self.t0 = time()
         # app().pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
 
-        self.project.load_mesh_setup_from_file()
-        self.project.initial_load_project_actions()
+        app().loader.load_mesh_setup_from_file()
+        app().project.initial_load_project_actions()
 
         if self.preprocessor.structural_elements:
+            #TODO: reimplmente elements mapping
             #
             data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
             data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
             #
-            [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
             [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
 
     def undo_mesh_actions(self):
@@ -119,50 +113,24 @@ class MeshUpdater:
         element_size = self.current_element_size
         geometry_tolerance = self.current_geometry_tolerance
 
-        self.set_project_attributes(
-                                        element_size,
-                                        geometry_tolerance
-                                    )
+        self.set_project_attributes(element_size, geometry_tolerance)
 
-        # app().pulse_file.modify_project_attributes( 
-        #                                                         element_size = element_size, 
-        #                                                         geometry_tolerance = geometry_tolerance
-        #                                                        )
+        app().main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
+        app().main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
 
-        self.main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
-        self.main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
-
-        self.project.load_mesh_setup_from_file()
-        self.project.initial_load_project_actions()
-        # self.project.load_project_files()
+        app().loader.load_mesh_setup_from_file()
+        app().project.initial_load_project_actions()
         app().loader.load_project_data()
 
         app().main_window.update_plots()
 
     def process_final_actions(self):
 
-        if (len(self.dict_group_elements_to_update_entity_file) + len(self.dict_non_mapped_subgroups_entity_file)) > 0:
-            self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
-                                                                        self.dict_non_mapped_subgroups_entity_file)
-
-        if len(self.dict_non_mapped_subgroups_entity_file) > 0:
-
-            title = "Non mapped elements"
-            message = "There are elements that have not been mapped after the meshing process. Therefore, the line "
-            message += "attributes will be reset to prevent errors decurrent of element lack attribution.\n\n"
-
-            for list_elements in self.dict_non_mapped_subgroups_entity_file.values():
-                if len(list_elements) > 10:
-                    message += f"{str(list_elements[0:3])[:-1]}...{str(list_elements[-3:])[1:]}\n"
-
-            PrintMessageInput([window_title_2, title, message])
-
-        if len(self.dict_group_elements_to_update_element_info_file) > 0:
-            self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
+        if self.dict_group_elements_to_update_element_info_file:
+            app().project.update_element_ids_in_element_info_file_after_remesh( self.dict_group_elements_to_update_element_info_file,
                                                                                 self.dict_non_mapped_subgroups_info_file,
-                                                                                self.dict_list_elements_to_subgroups  )
+                                                                                self.dict_list_elements_to_subgroups )
 
-        # self.project.load_project_files()
         app().loader.load_project_data()
         app().main_window.update_plots()  
         self.complete = True

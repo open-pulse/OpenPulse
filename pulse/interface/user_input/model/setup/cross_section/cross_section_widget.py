@@ -460,9 +460,9 @@ class CrossSectionWidget(QWidget):
 
     def get_beam_section_parameters(self):
 
-        self.currentTab_beam = self.tabWidget_beam_section.currentIndex()
+        tab_index = self.tabWidget_beam_section.currentIndex()
 
-        if self.currentTab_beam == 0: # Rectangular section
+        if tab_index == 0: # Rectangular section
 
             self.section_label = "Rectangular section"
 
@@ -507,7 +507,7 @@ class CrossSectionWidget(QWidget):
             
             self.section_parameters = [base, height, base_in, height_in, offset_y, offset_z]
 
-        elif self.currentTab_beam == 1: # Circular section
+        elif tab_index == 1: # Circular section
 
             self.section_label = "Circular section"
 
@@ -541,7 +541,7 @@ class CrossSectionWidget(QWidget):
 
             self.section_parameters = [outside_diameter_beam, thickness, offset_y, offset_z]
 
-        elif self.currentTab_beam == 2: # Beam: C-section
+        elif tab_index == 2: # Beam: C-section
 
             self.section_label = "C-section"
 
@@ -593,7 +593,7 @@ class CrossSectionWidget(QWidget):
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
 
-        elif self.currentTab_beam == 3: # Beam: I-section
+        elif tab_index == 3: # Beam: I-section
 
             self.section_label = "I-section"
 
@@ -645,7 +645,7 @@ class CrossSectionWidget(QWidget):
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
             
-        elif self.currentTab_beam == 4: # Beam: T-section
+        elif tab_index == 4: # Beam: T-section
 
             self.section_label = "T-section"
 
@@ -687,7 +687,7 @@ class CrossSectionWidget(QWidget):
 
             self.section_parameters = [h, w1, t1, tw, offset_y, offset_z]
 
-        elif self.currentTab_beam == 5: # Beam: Generic
+        elif tab_index == 5: # Beam: Generic
 
             area = float(0)
             Iyy = float(0)
@@ -724,8 +724,8 @@ class CrossSectionWidget(QWidget):
                 self.section_label = "Generic section"
                 self.section_parameters = None
                 _section_properties = [area, Iyy, Izz, Iyz, shear_coefficient, 0, 0]
-        
-        if self.currentTab_beam == 5:
+
+        if tab_index == 5:
             self.section_properties = get_beam_section_properties(self.section_label, _section_properties)
             
         else:

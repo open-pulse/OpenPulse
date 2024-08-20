@@ -234,7 +234,7 @@ class StructuralElementTypeInput(QDialog):
     def update_modified_cross_sections(self, lines_to_reset: list):
         app().project.model.preprocessor.set_cross_section_by_lines(lines_to_reset, None)
         app().project.model.preprocessor.add_expansion_joint_by_lines(lines_to_reset, None)
-        app().project.model.preprocessor.add_valve_by_line(lines_to_reset, None)
+        app().project.model.preprocessor.add_valve_by_lines(lines_to_reset, None)
 
     def get_wall_formulation(self):
         index = self.comboBox_wall_formulation.currentIndex()

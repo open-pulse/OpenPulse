@@ -5138,7 +5138,7 @@
                  <enum>Qt::StrongFocus</enum>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">color: rgb(255, 0, 0);</string>
+                 <string notr="true"/>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
@@ -5956,6 +5956,9 @@
                <height>250</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
@@ -6212,7 +6215,7 @@
               <item row="2" column="1">
                <widget class="QLabel" name="label_3">
                 <property name="text">
-                 <string>Iyy:</string>
+                 <string>Izz:</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -6544,6 +6547,14 @@
                 <column>
                  <property name="text">
                   <string>Element type</string>
+                 </property>
+                 <property name="textAlignment">
+                  <set>AlignCenter</set>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Section type</string>
                  </property>
                  <property name="textAlignment">
                   <set>AlignCenter</set>

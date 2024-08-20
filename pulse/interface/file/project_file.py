@@ -443,141 +443,141 @@ class ProjectFile:
 
             app().project.model.properties._set_nodal_property(property, data, node_ids=node_ids)
 
-    def add_multiple_cross_sections_expansion_joints_valves_in_file(self, 
-                                                                    lines, 
-                                                                    map_cross_sections_to_elements, 
-                                                                    map_expansion_joint_to_elements, 
-                                                                    map_valve_to_elements,
-                                                                    update_by_cross=False):
+    # def add_multiple_cross_sections_expansion_joints_valves_in_file(self, 
+    #                                                                 lines, 
+    #                                                                 map_cross_sections_to_elements, 
+    #                                                                 map_expansion_joint_to_elements, 
+    #                                                                 map_valve_to_elements,
+    #                                                                 update_by_cross=False):
 
-        if isinstance(lines, int):
-            lines = [lines]
+    #     if isinstance(lines, int):
+    #         lines = [lines]
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-        config_base = configparser.ConfigParser()
-        config_base.read(self._pipeline_path)
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
+    #     config_base = configparser.ConfigParser()
+    #     config_base.read(self._pipeline_path)
 
-        sections = config_base.sections()
+    #     sections = config_base.sections()
         
-        str_keys = [    'structural element type',
-                        'section type',
-                        'section parameters',
-                        'section properties',
-                        'expansion joint parameters',
-                        'expansion joint stiffness',
-                        'valve parameters',
-                        'valve center coordinates',
-                        'valve section parameters',
-                        'flange section parameters',
-                        'list of elements',
-                        'number of flange elements'    ]
+    #     str_keys = [    'structural element type',
+    #                     'section type',
+    #                     'section parameters',
+    #                     'section properties',
+    #                     'expansion joint parameters',
+    #                     'expansion joint stiffness',
+    #                     'valve parameters',
+    #                     'valve center coordinates',
+    #                     'valve section parameters',
+    #                     'flange section parameters',
+    #                     'list of elements',
+    #                     'number of flange elements'    ]
         
-        for line_id in lines:
+    #     for line_id in lines:
             
-            str_line = str(line_id) 
+    #         str_line = str(line_id) 
 
-            for str_key in str_keys:
-                if str_key in config[str_line].keys():
-                    config.remove_option(section=str_line, option=str_key)
+    #         for str_key in str_keys:
+    #             if str_key in config[str_line].keys():
+    #                 config.remove_option(section=str_line, option=str_key)
             
-            for section in sections:
-                if f'{line_id}-' in section:
-                    config.remove_section(section)        
+    #         for section in sections:
+    #             if f'{line_id}-' in section:
+    #                 config.remove_section(section)        
             
-            counter_1 = 0
-            for (cross_key, elements) in map_cross_sections_to_elements.items():
+    #         counter_1 = 0
+    #         for (cross_key, elements) in map_cross_sections_to_elements.items():
                 
-                counter_1 += 1
-                section_key = f"{line_id}-{counter_1}"             
-                cross_strings = cross_key[1:-1].split(',')
+    #             counter_1 += 1
+    #             section_key = f"{line_id}-{counter_1}"             
+    #             cross_strings = cross_key[1:-1].split(',')
 
-                vals = [float(value) for value in cross_strings] 
-                section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]]
+    #             vals = [float(value) for value in cross_strings] 
+    #             section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[4], vals[5]]
                 
-                index_etype = int(vals[6])
-                if index_etype == 0:
-                    etype = 'pipe_1'
+    #             index_etype = int(vals[6])
+    #             if index_etype == 0:
+    #                 etype = 'pipe_1'
             
-                config[section_key] = { 'structural element type' : etype,
-                                        'section type' : 'Pipe',
-                                        'section parameters': str(section_parameters),
-                                        'list of elements': str(elements) }
+    #             config[section_key] = { 'structural element type' : etype,
+    #                                     'section type' : 'Pipe',
+    #                                     'section parameters': str(section_parameters),
+    #                                     'list of elements': str(elements) }
 
-            counter_2 = 0
-            if update_by_cross:    
-                for section in sections:
-                    if f'{line_id}-' in section:
-                        if 'valve parameters' in config_base[section].keys():
-                            counter_2 += 1
-                            section_key = f"{line_id}-{counter_1 + counter_2}"
-                            config[section_key] = config_base[section]
+    #         counter_2 = 0
+    #         if update_by_cross:    
+    #             for section in sections:
+    #                 if f'{line_id}-' in section:
+    #                     if 'valve parameters' in config_base[section].keys():
+    #                         counter_2 += 1
+    #                         section_key = f"{line_id}-{counter_1 + counter_2}"
+    #                         config[section_key] = config_base[section]
             
-            else:
+    #         else:
 
-                for [valve_data, _] in map_valve_to_elements.values():
-                    counter_2 += 1
-                    section_key = f"{line_id}-{counter_1 + counter_2}"
+    #             for [valve_data, _] in map_valve_to_elements.values():
+    #                 counter_2 += 1
+    #                 section_key = f"{line_id}-{counter_1 + counter_2}"
                 
-                    valve_elements = valve_data["valve_elements"]
-                    valve_parameters = [valve_data["valve_length"], valve_data["stiffening_factor"], valve_data["valve_mass"]]
-                    valve_center_coordinates = valve_data["valve_center_coordinates"]
-                    valve_section_parameters = list(valve_data["valve_section_parameters"])
+    #                 valve_elements = valve_data["valve_elements"]
+    #                 valve_parameters = [valve_data["valve_length"], valve_data["stiffening_factor"], valve_data["valve_mass"]]
+    #                 valve_center_coordinates = valve_data["valve_center_coordinates"]
+    #                 valve_section_parameters = list(valve_data["valve_section_parameters"])
 
-                    if "flange_elements" in valve_data.keys():
+    #                 if "flange_elements" in valve_data.keys():
 
-                        number_flange_elements = valve_data["number_flange_elements"]
-                        flange_section_parameters = list(valve_data["flange_section_parameters"])
+    #                     number_flange_elements = valve_data["number_flange_elements"]
+    #                     flange_section_parameters = list(valve_data["flange_section_parameters"])
 
-                        config[section_key] = { 'structural element type' : 'valve',
-                                                'valve parameters' : f'{valve_parameters}',
-                                                'valve center coordinates' : f'{valve_center_coordinates}',
-                                                'valve section parameters' : f'{valve_section_parameters}',
-                                                'flange section parameters' : f'{flange_section_parameters}',
-                                                'list of elements' : f'{valve_elements}',
-                                                'number of flange elements' : f'{number_flange_elements}' }
+    #                     config[section_key] = { 'structural element type' : 'valve',
+    #                                             'valve parameters' : f'{valve_parameters}',
+    #                                             'valve center coordinates' : f'{valve_center_coordinates}',
+    #                                             'valve section parameters' : f'{valve_section_parameters}',
+    #                                             'flange section parameters' : f'{flange_section_parameters}',
+    #                                             'list of elements' : f'{valve_elements}',
+    #                                             'number of flange elements' : f'{number_flange_elements}' }
 
-                    else:
+    #                 else:
 
-                        config[section_key] = { 'structural element type' : 'valve',
-                                                'valve parameters' : f'{valve_parameters}',
-                                                'valve center coordinates' : f'{valve_center_coordinates}',
-                                                'valve section parameters' : f'{valve_section_parameters}',
-                                                'list of elements' : f'{valve_elements}' }
+    #                     config[section_key] = { 'structural element type' : 'valve',
+    #                                             'valve parameters' : f'{valve_parameters}',
+    #                                             'valve center coordinates' : f'{valve_center_coordinates}',
+    #                                             'valve section parameters' : f'{valve_section_parameters}',
+    #                                             'list of elements' : f'{valve_elements}' }
 
-            counter_3 = 0
-            if update_by_cross:    
-                for section in sections:
-                    if f'{line_id}-' in section:
-                        if 'expansion joint parameters' in config_base[section].keys():
-                            counter_3 += 1
-                            section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
-                            config[section_key] = config_base[section]
+    #         counter_3 = 0
+    #         if update_by_cross:    
+    #             for section in sections:
+    #                 if f'{line_id}-' in section:
+    #                     if 'expansion joint parameters' in config_base[section].keys():
+    #                         counter_3 += 1
+    #                         section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
+    #                         config[section_key] = config_base[section]
 
-            else:
+    #         else:
 
-                for [exp_joint_parameters, list_elements, list_table_names] in map_expansion_joint_to_elements.values():
+    #             for [exp_joint_parameters, list_elements, list_table_names] in map_expansion_joint_to_elements.values():
 
-                    counter_2 += 1
-                    section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
+    #                 counter_2 += 1
+    #                 section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
                 
-                    if list_table_names.count(None) == 4:
+    #                 if list_table_names.count(None) == 4:
 
-                        config[section_key] = { 'structural element type' : 'expansion_joint',
-                                                'expansion joint parameters' : f'{exp_joint_parameters[0]}',
-                                                'expansion joint stiffness' : f'{exp_joint_parameters[1]}',
-                                                'list of elements' : f'{list_elements}' }
+    #                     config[section_key] = { 'structural element type' : 'expansion_joint',
+    #                                             'expansion joint parameters' : f'{exp_joint_parameters[0]}',
+    #                                             'expansion joint stiffness' : f'{exp_joint_parameters[1]}',
+    #                                             'list of elements' : f'{list_elements}' }
                             
-                    else:
+    #                 else:
 
-                        str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+    #                     str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
 
-                        config[section_key] = { 'structural element type' : 'expansion_joint',
-                                                'expansion joint parameters' : f'{exp_joint_parameters[0]}',
-                                                'expansion joint stiffness' : str_table_names,
-                                                'list of elements' : f'{list_elements}' }
+    #                     config[section_key] = { 'structural element type' : 'expansion_joint',
+    #                                             'expansion joint parameters' : f'{exp_joint_parameters[0]}',
+    #                                             'expansion joint stiffness' : str_table_names,
+    #                                             'list of elements' : f'{list_elements}' }
 
-        self.write_data_in_file(self._pipeline_path, config)
+    #     self.write_data_in_file(self._pipeline_path, config)
 
     def add_perforated_plate_in_file(self, elements, perforated_plate, section): 
         

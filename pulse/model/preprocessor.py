@@ -981,11 +981,11 @@ class Preprocessor:
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_cross_section_by_elements(elements, cross_section)
     
-    def set_variable_cross_section_by_line(self, line_id, section_data):
+    def set_variable_cross_section_by_line(self, line_id, section_data: dict):
         """
         This method sets the variable section info by line selection.
         """
-        if section_data:
+        if isinstance(section_data, dict):
 
             [   outer_diameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
                 outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
