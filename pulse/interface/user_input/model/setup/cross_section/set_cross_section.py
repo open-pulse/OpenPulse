@@ -537,12 +537,12 @@ class SetCrossSectionInput(QDialog):
         self.complete = True
         app().pulse_file.write_line_properties_in_file()
         # self.preprocessor.add_lids_to_variable_cross_sections()
-        app().main_window.update_plots()
 
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
 
+        app().main_window.update_plots()
         self.close()
 
     def remove_acoustic_related_data_from_lines(self, line_ids: list):

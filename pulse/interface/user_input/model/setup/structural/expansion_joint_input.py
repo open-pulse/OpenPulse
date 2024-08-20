@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.cross_section import CrossSection
@@ -619,12 +620,12 @@ class ExpansionJointInput(QDialog):
             
             self.properties._remove_line_property("valve", line_id)
             self.properties._remove_line_property("section_parameters", line_id)
+            self.properties._remove_line_property("section_properties", line_id)
             self.properties._set_line_property("section_type_label", "Expansion joint", line_id)
             self.properties._set_line_property("structural_element_type", "expansion_joint", line_id)
             self.properties._set_line_property("expansion_joint", self.joint_parameters, line_id)
-        
-        app().pulse_file.write_line_properties_in_file()
-        app().main_window.update_plots()
+
+        self.actions_to_finalize()
         self.close()
 
     def get_list_tables_names_from_selected_elements(self, list_element_ids):
@@ -746,9 +747,8 @@ class ExpansionJointInput(QDialog):
         self.restore_the_cross_section([line_id])
         self.preprocessor.add_expansion_joint_by_lines(line_id, None)
 
-        app().pulse_file.write_line_properties_in_file()
         self.load_treeWidgets_info()
-        app().main_window.update_plots()
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -774,9 +774,15 @@ class ExpansionJointInput(QDialog):
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None)
         self.restore_the_cross_section(line_ids)
 
+        self.actions_to_finalize()
+        self.close()
+
+    def actions_to_finalize(self):
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
+        geometry_handler.process_pipeline()
         app().pulse_file.write_line_properties_in_file()
         app().main_window.update_plots()
-        self.close()
 
     def update_plots(self):
         app().main_window.update_plots()
