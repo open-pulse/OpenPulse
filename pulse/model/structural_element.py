@@ -1622,19 +1622,19 @@ class StructuralElement:
         self.joint_transversal_stiffness = 0
         self.joint_torsional_stiffness = 0
         self.joint_angular_stiffness = 0
-        self.joint_stiffness_table_names = []
+        self.joint_stiffness_table_names = list()
 
     def reset_valve_parameters(self):
         self.valve_parameters = None
-        self.valve_elements = []
-        self.flange_elements = []
-        self.valve_section_parameters = {}
+        self.valve_elements = list()
+        self.flange_elements = list()
+        self.valve_section_parameters = dict()
         self.valve_length = 0
         self.valve_stiffening_factor = 10
         self.valve_mass = 0
         self.valve_center_coordinates = None
-        self.flange_parameters = {}  
-        self.valve_diameters = {}        
+        self.flange_parameters = dict()  
+        self.valve_diameters = dict()        
 
     def get_array_values(self, value, number_frequencies):
         if isinstance(value, np.ndarray):

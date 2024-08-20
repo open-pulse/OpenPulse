@@ -52,22 +52,9 @@ class Preprocessor:
         self.neighbors = defaultdict(list)
         self.elements_connected_to_node = defaultdict(list)
 
-        self.elements_with_expansion_joint = list()
-        self.elements_with_valve = list()
-        self.number_expansion_joints_by_lines = dict()
-        self.number_valves_by_lines = dict()
-
-        self.group_elements_with_capped_end = dict()
-        self.group_elements_with_perforated_plate = dict()
         self.group_elements_with_stress_stiffening = dict()
-        self.group_elements_with_expansion_joints = dict()
-        self.group_elements_with_valves = dict()
-        self.group_lines_with_capped_end = dict()        
+     
         self.dict_lines_with_stress_stiffening = dict()
-        self.dict_lines_with_expansion_joints = dict()
-        self.dict_lines_with_valves = dict()
-        self.expansion_joint_table_indexes = defaultdict(list)
-        self.dict_B2PX_rotation_decoupling = dict()
 
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
@@ -80,8 +67,6 @@ class Preprocessor:
         self.nodes_with_structural_links = dict()
 
         self.element_with_capped_end = list()
-        self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
-        self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
 
         self.dict_coordinate_to_update_bc_after_remesh = dict()
         self.dict_element_info_to_update_indexes_in_entity_file = dict()
@@ -165,7 +150,6 @@ class Preprocessor:
 
         # t0 = time()
         self.process_all_rotation_matrices()
-        self.create_dict_lines_to_rotation_angles()
         # dt = time() - t0
         # print("Time to process all rotations matrices: ", dt)
 
@@ -277,17 +261,17 @@ class Preprocessor:
         # print(len(self.dict_gdofs_to_external_indexes))
         # print("Time to process: ", dt)
 
-    def get_line_length(self, line_ID):
+    def get_line_length(self, line_id: int):
         """
         This method returns the length of a given line ID.
 
         Parameters
         ----------
-        line_ID : int
+        line_id : int
         
         """
-        first_element_ID = self.mesh.line_to_elements[line_ID][0]
-        last_element_ID = self.mesh.line_to_elements[line_ID][-1]
+        first_element_ID = self.mesh.line_to_elements[line_id][0]
+        last_element_ID = self.mesh.line_to_elements[line_id][-1]
 
         node1_first_element = self.structural_elements[first_element_ID].first_node
         node2_first_element = self.structural_elements[first_element_ID].last_node
@@ -942,9 +926,9 @@ class Preprocessor:
             True if the cross section data have to be evaluated or updated. False otherwise.
             Default is False.
         """
-        if update_cross_section:
+        if isinstance(cross_section, CrossSection) and update_cross_section:
             cross_section.update_properties()
-        
+
         if isinstance(cross_section, list):
             for i, element in enumerate(elements):
                 _cross_section = cross_section[i]
@@ -960,24 +944,27 @@ class Preprocessor:
                 element.variable_section = variable_section
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
-       
+
+        if cross_section is None:
+            return
+    
         if update_section_points:
-            if cross_section:
-                if isinstance(cross_section, list):
-                    for i, element in enumerate(elements):
-                        _element = [element]
-                        _cross_section = cross_section[i]
-                        _cross_section_points = _cross_section.get_cross_section_points(self.section_number_of_divisions)
-                        for element in slicer(self.structural_elements, _element):
-                            element.cross_section_points = _cross_section_points
-                        for element in slicer(self.acoustic_elements, _element):
-                            element.cross_section_points = _cross_section_points
-                else:    
-                    cross_section_points = cross_section.get_cross_section_points(self.section_number_of_divisions)
-                    for element in slicer(self.structural_elements, elements):
-                        element.cross_section_points = cross_section_points
-                    for element in slicer(self.acoustic_elements, elements):
-                        element.cross_section_points = cross_section_points
+            if isinstance(cross_section, list):
+                for i, element in enumerate(elements):
+                    _element = [element]
+                    _cross_section = cross_section[i]
+                    _cross_section_points = _cross_section.get_cross_section_points(self.section_number_of_divisions)
+                    for element in slicer(self.structural_elements, _element):
+                        element.cross_section_points = _cross_section_points
+                        print(element.index, element.cross_section.outer_diameter)
+                    for element in slicer(self.acoustic_elements, _element):
+                        element.cross_section_points = _cross_section_points
+            else:    
+                cross_section_points = cross_section.get_cross_section_points(self.section_number_of_divisions)
+                for element in slicer(self.structural_elements, elements):
+                    element.cross_section_points = cross_section_points
+                for element in slicer(self.acoustic_elements, elements):
+                    element.cross_section_points = cross_section_points
 
     def set_cross_section_by_lines(self, lines, cross_section):
         """
@@ -1330,17 +1317,16 @@ class Preprocessor:
 
     def set_B2PX_rotation_decoupling(   
                                         self, 
-                                        element_ID, 
-                                        node_ID, 
+                                        element_id: int, 
+                                        node_id: int, 
                                         rotations_to_decouple = [False, False, False], 
-                                        remove = False
                                     ):
         """
         This method .
 
         Parameters
         ----------
-        element_ID : list
+        element_id : list
             Element indexes.
 
         nodes_id : list
@@ -1349,16 +1335,13 @@ class Preprocessor:
         rotations_to_decouple : list of boolean, optional
             ?????
             Default is [False, False, False]
-            
-        remove : bool, optional
-            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
-            Default is False.
+
         """
         DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
         N = DOF_PER_NODE_STRUCTURAL
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
-        neighboor_elements = self.neighboor_elements_of_node(node_ID)
+        neighboor_elements = self.neighboor_elements_of_node(node_id)
         if len(neighboor_elements) < 3:
             return mat_ones
         
@@ -1375,10 +1358,10 @@ class Preprocessor:
                              [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
                              [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]]  )
         
-        node = self.nodes[node_ID]
-        element = self.structural_elements[element_ID]
+        node = self.nodes[node_id]
+        element = self.structural_elements[element_id]
         
-        if rotations_to_decouple.count(False) == 3 or remove:
+        if rotations_to_decouple.count(False) == 3:
             mat_out = mat_ones
 
         elif rotations_to_decouple.count(True) == 3:  
@@ -1410,60 +1393,8 @@ class Preprocessor:
                     mat_base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
             mat_out = mat_base
 
-        section = str(rotations_to_decouple)
         element.decoupling_matrix = mat_out
-        element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
-
-        if remove:
-
-            if element_ID in self.dict_elements_with_B2PX_rotation_decoupling[section]:
-                self.dict_elements_with_B2PX_rotation_decoupling[section].remove(element_ID)  
-            if node_ID in self.dict_nodes_with_B2PX_rotation_decoupling[section]:
-                self.dict_nodes_with_B2PX_rotation_decoupling[section].remove(node_ID)
-            
-            element.decoupling_info = None
-
-        else: 
-                     
-            if section not in list(self.dict_elements_with_B2PX_rotation_decoupling.keys()):
-                self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
-                self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID)  
-
-            count = 0
-            temp_dict = self.dict_elements_with_B2PX_rotation_decoupling.copy()
-            for key, elements in temp_dict.items(): 
-                count += 1
-                temp_list_nodes = self.dict_nodes_with_B2PX_rotation_decoupling[key].copy()
-                temp_list_elements = self.dict_elements_with_B2PX_rotation_decoupling[key].copy()  
-                
-                if key == str([False, False, False]):
-                    if element_ID in elements:
-                        for index, element in enumerate(elements):
-                            if element == element_ID:
-                                temp_list_nodes.remove(node_ID)
-                                temp_list_elements.remove(element_ID)
-                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
-                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
-
-                elif key == section:
-                    if element_ID in elements:
-                        for index, element in enumerate(elements):
-                            if element == element_ID:
-                                temp_list_nodes[index] = node_ID
-                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
-                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
-                    else:
-                        self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
-                        self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID) 
-
-                elif key != section:
-                    if element_ID in elements:
-                        for index, element in enumerate(elements):
-                            if element == element_ID:
-                                temp_list_nodes.remove(node_ID)
-                                temp_list_elements.remove(element_ID)
-                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
-                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
+        element.decoupling_info = [element_id, node_id, rotations_to_decouple]
                 
         return mat_out  
 
@@ -1488,7 +1419,7 @@ class Preprocessor:
             for element in self.structural_elements.values():
                 element.adding_mass_effect = True
 
-    def set_capped_end_by_elements(self, elements, value, selection):
+    def set_capped_end_by_elements(self, elements, value):
         """
         This method enables or disables the capped end effect in a list of acoustic elements.
 
@@ -1505,17 +1436,6 @@ class Preprocessor:
         """      
         for element in slicer(self.structural_elements, elements):
             element.capped_end = value
-            if value:
-                if element not in self.element_with_capped_end:
-                    self.element_with_capped_end.append(element)
-            else:
-                if element in self.element_with_capped_end:
-                    self.element_with_capped_end.remove(element)
-        if value:
-            self.group_elements_with_capped_end[selection] = elements
-        else:
-            if selection in self.group_elements_with_capped_end.keys():
-                self.group_elements_with_capped_end.pop(selection) 
 
     # def set_capped_end_line_to_element(self, lines, value):
     #     for elements in slicer(self.mesh.line_to_elements, lines):
@@ -1664,116 +1584,7 @@ class Preprocessor:
                     self.group_elements_with_stress_stiffening[section] = [pressures, elements]
 
 
-    def add_expansion_joint_by_elements(self, 
-                                        list_elements, 
-                                        parameters, 
-                                        remove=False, 
-                                        aux_line_id=None, 
-                                        reset_cross=True):
-        """
-        This method .
-
-        Parameters
-        ----------
-        lines : list
-            Elements indexes.
-
-        parameters : list
-            ????????.
-
-        section : ?????
-            ??????
-            Default is None
-            
-        remove : bool, optional
-            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
-            Default is False.
-        """
-        if aux_line_id is not None:
-            
-            elements_from_line = self.mesh.line_to_elements[aux_line_id]
-            temp_dict = self.group_elements_with_expansion_joints.copy()
-            for key, [_list_elements_ids, _] in temp_dict.items():
-                for element_id in _list_elements_ids:
-                    if element_id in elements_from_line:
-                        self.group_elements_with_expansion_joints.pop(key)
-                        break
-
-        list_lines = []
-        for element_id in list_elements:
-            line_id = self.mesh.elements_to_line[element_id]
-            if line_id not in list_lines:
-                list_lines.append(line_id)
-
-        if remove:
-            for element in slicer(self.structural_elements, list_elements):
-                for line_id in list_lines:
-                    if line_id in self.expansion_joint_table_indexes.keys(): 
-                        self.expansion_joint_table_indexes.pop(line_id)
-                # if element.joint_stiffness_table_names != []:
-                #     first_table_name = element.joint_stiffness_table_names[0]
-                #     for ext in [".csv", ".dat", ".txt"]:
-                #         if ext in first_table_name:
-                #             first_table_name = first_table_name.split(ext)[0]
-                #             break
-                #     table_index = int(first_table_name.split("_table#")[1])
-                #     if table_index in self.expansion_joint_table_indexes.keys(): 
-                #         self.expansion_joint_table_indexes.pop(table_index)
-                element.reset_expansion_joint_parameters()
-                if reset_cross:
-                    element.cross_section = None
-                if element in self.elements_with_expansion_joint:
-                    self.elements_with_expansion_joint.remove(element)
-            
-            for line_id in list_lines:
-                if line_id in self.number_expansion_joints_by_lines.keys():
-                    self.number_expansion_joints_by_lines.pop(line_id)
-
-        else:
-
-            for line_id in list_lines:
-                if line_id in self.number_expansion_joints_by_lines.keys():
-                    self.number_expansion_joints_by_lines[line_id] += 1
-                else:
-                    self.number_expansion_joints_by_lines[line_id] = 1
-
-            [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
-            [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
-            list_stiffness_table_names = parameters[2]
-           
-            for element in slicer(self.structural_elements, list_elements):
-                element.joint_length = joint_length
-                element.joint_effective_diameter = effective_diameter
-                element.joint_mass = joint_mass
-                element.joint_axial_locking_criteria = axial_locking_criteria
-                element.joint_rods_included = rods_included
-                element.joint_axial_stiffness = axial_stiffness
-                element.joint_transversal_stiffness = transversal_stiffness
-                element.joint_torsional_stiffness = torsional_stiffness
-                element.joint_angular_stiffness = angular_stiffness
-                element.joint_stiffness_table_names = list_stiffness_table_names
-                element.expansion_joint_parameters = parameters
-                if element not in self.elements_with_expansion_joint:
-                    self.elements_with_expansion_joint.append(element)
-
-            if list_stiffness_table_names.count(None) != 4:
-                first_table_name = list_stiffness_table_names[0]
-                for ext in [".csv", ".dat", ".txt"]:
-                    if ext in first_table_name:
-                        first_table_name = first_table_name.split(ext)[0]
-                        break
-                table_index = int(first_table_name.split("_table#")[1])
-                stiffness_labels = ["axial stiffness", "transversal_stiffness",
-                                    "torsional stiffness", "angular stiffness"]
-                if table_index not in self.expansion_joint_table_indexes.keys():
-                    self.expansion_joint_table_indexes[table_index] = stiffness_labels
-        
-            if aux_line_id is None:
-                size = len(self.group_elements_with_expansion_joints)
-                key = f"group-{size+1}"
-                self.group_elements_with_expansion_joints[key] = [list_elements, parameters]
-
-    def add_expansion_joint_by_lines(self, lines, parameters, remove=False):
+    def add_expansion_joint_by_lines(self, lines, parameters: (None | dict)):
         """
         This method .
 
@@ -1794,109 +1605,13 @@ class Preprocessor:
 
         for line_id in lines:
             for elements in slicer(self.mesh.line_to_elements, line_id):
-                self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
-            if remove:
-                if line_id in list(self.dict_lines_with_expansion_joints.keys()):
-                    self.dict_lines_with_expansion_joints.pop(line_id)
-                if line_id in self.number_expansion_joints_by_lines.keys():
-                    self.number_expansion_joints_by_lines.pop(line_id)
-            else:
-                self.dict_lines_with_expansion_joints[line_id] = parameters
-                self.number_expansion_joints_by_lines[line_id] = 1
+                for element in slicer(self.structural_elements, elements):
+                    element.expansion_joint_parameters = parameters
+                    # [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
+                    # [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
+                    # list_stiffness_table_names = parameters[2]
 
-    def add_valve_by_elements( self, list_elements, parameters, remove=False, aux_line_id=None, reset_cross=True ):
-        """
-        This method .
-
-        Parameters
-        ----------
-        lines : list
-            Elements indexes.
-
-        parameters : list
-            ????????.
-
-        section : ?????
-            ??????
-            Default is None
-            
-        remove : bool, optional
-            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
-            Default is False.
-        """
-        # if aux_line_id is not None:
-        #     elements_from_line = self.mesh.line_to_elements[aux_line_id]
-        #     temp_dict = self.group_elements_with_valves.copy()
-        #     for key, [_list_elements_ids, _] in temp_dict.items():
-        #         for element_id in _list_elements_ids:
-        #             if element_id in elements_from_line:
-        #                 self.group_elements_with_valves.pop(key)
-        #                 break
-
-        if not isinstance(list_elements, list):
-            list_elements = list(list_elements)
-
-        list_lines = []
-        for element_id in list_elements:
-            line_id = self.mesh.elements_to_line[element_id]
-            if line_id not in list_lines:
-                list_lines.append(line_id)
-
-        if remove:
-            for element in slicer(self.structural_elements, list_elements):
-                element.reset_valve_parameters()
-                if reset_cross:
-                    element.cross_section = None
-                if element in self.elements_with_valve:
-                    self.elements_with_valve.remove(element)
-            
-            for line_id in list_lines:
-                if line_id in self.number_valves_by_lines.keys():
-                    self.number_valves_by_lines.pop(line_id)
-            
-            temp_dict = self.group_elements_with_valves.copy()
-            for key, [_list_elements_ids, _] in temp_dict.items():
-                for element_id in _list_elements_ids:
-                    if element_id in list_elements:
-                        self.group_elements_with_valves.pop(key)
-                        break
-
-        else:
-
-            for line_id in list_lines:
-                if line_id in self.number_valves_by_lines.keys():
-                    self.number_valves_by_lines[line_id] += 1
-                else:
-                    self.number_valves_by_lines[line_id] = 1
-
-            for element in slicer(self.structural_elements, list_elements):
-                element.valve_parameters = parameters
-                element.valve_elements = parameters["valve_elements"]
-                element.valve_section_parameters = parameters["valve_section_parameters"]
-                element.valve_length = parameters["valve_length"]
-                element.valve_stiffening_factor = parameters["stiffening_factor"]
-                element.valve_mass = parameters["valve_mass"]
-                element.valve_center_coordinates = parameters["valve_center_coordinates"]
-                element.valve_diameters = parameters["valve_diameters"]
-
-                if "flange_section_parameters" in parameters.keys():
-                    element.flange_parameters = parameters["flange_section_parameters"]
-                    element.number_flange_elements = parameters["number_flange_elements"]
-                    element.flange_elements = parameters["flange_elements"]
-
-                if element not in self.elements_with_valve:
-                    self.elements_with_valve.append(element)
-
-            # if aux_line_id is None:
-            size = 1
-            key = f"group-1"
-            while key in list(self.group_elements_with_valves.keys()):
-                size += 1
-                key = f"group-{size}"
-
-            self.group_elements_with_valves[key] = [list_elements, parameters]
-
-    def add_valve_by_line(self, lines, parameters, remove=False, reset_cross=True):
+    def add_valve_by_lines(self, lines, parameters):
         """
         This method .
 
@@ -1914,17 +1629,12 @@ class Preprocessor:
         """
         if isinstance(lines, int):
             lines = [lines]
+
         for line_id in lines:
             for elements in slicer(self.mesh.line_to_elements, line_id):
-                self.add_valve_by_elements(elements, parameters, remove=remove, aux_line_id=line_id, reset_cross=reset_cross)
-            if remove:
-                if line_id in list(self.dict_lines_with_valves.keys()):
-                    self.dict_lines_with_valves.pop(line_id)
-                if line_id in self.number_valves_by_lines.keys():
-                    self.number_valves_by_lines.pop(line_id)
-            else:
-                self.dict_lines_with_valves[line_id] = parameters
-                self.number_valves_by_lines[line_id] = 1      
+                for element in slicer(self.structural_elements, elements):
+                    element.valve_parameters = parameters
+
 
     def set_stress_intensification_by_element(self, elements, value):
         """
@@ -2046,7 +1756,7 @@ class Preprocessor:
             element.delta_pressure = 0
             element.pp_impedance = None
 
-    def set_beam_xaxis_rotation_by_line(self, line, angle, gimball_shift=1e-5):
+    def set_beam_xaxis_rotation_by_line(self, line_ids: (int | list), angle: float, gimball_shift=1e-5):
         """
         """
         # promotes a small angle shift to avoid the gimbal lock rotation problems
@@ -2056,7 +1766,7 @@ class Preprocessor:
             angle += gimball_shift
         angle *= np.pi/180
 
-        for elements in slicer(self.mesh.line_to_elements, line):
+        for elements in slicer(self.mesh.line_to_elements, line_ids):
             self.set_beam_xaxis_rotation_by_elements(elements, angle)
 
     def set_beam_xaxis_rotation_by_elements(self, elements, angle):

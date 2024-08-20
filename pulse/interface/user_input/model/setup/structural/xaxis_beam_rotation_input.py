@@ -1,5 +1,7 @@
+# fmt: off
+
 from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -36,7 +38,9 @@ class BeamXaxisRotationInput(QDialog):
         self._create_connections()
         self.selection_callback()
         self.load_lines_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -46,7 +50,7 @@ class BeamXaxisRotationInput(QDialog):
 
     def _initialize(self):
 
-        self.before_run = self.project.get_pre_solution_model_checks()
+        self.keep_window_open = True
 
         self.index = 0
         self.element_type = 'pipe_1'
@@ -57,30 +61,33 @@ class BeamXaxisRotationInput(QDialog):
         self.list_lines_to_update_cross_section = list()
         self.beam_lines = list()
 
+        self.before_run = self.project.get_pre_solution_model_checks()
+
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_selection : QComboBox
+        self.comboBox_selection: QComboBox
 
         # QLabel
-        self.label_attribute_to : QLabel
-        self.label_selected_id : QLabel
+        self.label_attribute_to: QLabel
+        self.label_selected_id: QLabel
 
         # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_xaxis_rotation_increment_angle : QLineEdit
-        self.lineEdit_xaxis_rotation_actual_angle : QLineEdit
+        self.lineEdit_selected_id: QLineEdit
+        self.lineEdit_xaxis_rotation_increment_angle: QLineEdit
+        self.lineEdit_xaxis_rotation_actual_angle: QLineEdit
 
         # QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset_callback : QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_confirm: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
 
         # QTreeWidget
-        self.treeWidget_xaxis_rotation_angle : QTreeWidget
+        self.treeWidget_xaxis_rotation_angle: QTreeWidget
 
         # QTabWidget
-        self.tabWidget_xaxis_rotation_angle : QTabWidget
+        self.tabWidget_xaxis_rotation_angle: QTabWidget
 
     def _config_widgets(self):
         self.pushButton_remove.setDisabled(True)
@@ -95,9 +102,10 @@ class BeamXaxisRotationInput(QDialog):
     def _create_connections(self):
         self.comboBox_selection.currentIndexChanged.connect(self.change_selection_callback)
         #
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.xaxis_beam_rotation_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
-        self.pushButton_reset_callback.clicked.connect(self.reset_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_xaxis_rotation_angle.currentChanged.connect(self.tab_event_update)
         self.treeWidget_xaxis_rotation_angle.itemClicked.connect(self.on_click_item)
@@ -181,7 +189,6 @@ class BeamXaxisRotationInput(QDialog):
         self.selected_key = item.text(0)
         self.lineEdit_selected_id.setText(item.text(1))
         self.lineEdit_selected_id.setDisabled(True)
-        self.get_information(item)
 
     def check_xaxis_rotation_angle(self):
         rotation_angle = 0
@@ -256,9 +263,9 @@ class BeamXaxisRotationInput(QDialog):
     def load_lines_info(self):
 
         rotation_data = defaultdict(list)
-        for (property, line_id), data in self.properties.line_properties.items():
-            if property == "xaxis_beam_rotation":
-                rot_angle = data["ratotion angle"]
+        for line_id, data in self.properties.line_properties.items():
+            if "xaxis_beam_rotation" in data.keys():
+                rot_angle = data["ratation angle"]
                 rotation_data[rot_angle].append(line_id)
 
         self.treeWidget_xaxis_rotation_angle.clear()
@@ -274,14 +281,14 @@ class BeamXaxisRotationInput(QDialog):
         self.lineEdit_selected_id.setText("")
         self.pushButton_remove.setDisabled(True)
         self.tabWidget_xaxis_rotation_angle.setTabVisible(1, False)
-        for (property, _) in self.properties.line_properties.keys():
-            if property == "xaxis_beam_rotation":
+        for data in self.properties.line_properties.values():
+            if "xaxis_beam_rotation" in data.keys():
                 self.tabWidget_xaxis_rotation_angle.setCurrentIndex(0)
                 self.tabWidget_xaxis_rotation_angle.setTabVisible(1, True)
                 return
 
     def remove_callback(self):
-        
+
         if  self.lineEdit_selected_id.text() != "":
 
             str_lines = self.lineEdit_selected_id.text()
@@ -290,8 +297,9 @@ class BeamXaxisRotationInput(QDialog):
                 return
 
             app().project.model.preprocessor.set_beam_xaxis_rotation_by_line(line_ids[0], 0)
-            self.properties._remove_line_property("prescribed_dofs", line_ids[0])
+            app().project.model.preprocessor.process_all_rotation_matrices()
 
+            self.properties._remove_line_property("prescribed_dofs", line_ids[0])
             app().pulse_file.write_line_properties_in_file()
             self.load_lines_info()
             app().main_window.update_plots()
@@ -310,54 +318,28 @@ class BeamXaxisRotationInput(QDialog):
             return
 
         if read._continue:
-            
+
             line_ids = list()
             for (property, line_id) in self.properties.line_properties.keys():
                 if property == "xaxis_beam_rotation":
                     line_ids.append(line_id)
+
+            app().project.model.preprocessor.set_beam_xaxis_rotation_by_line(line_ids, 0)
+            app().project.model.preprocessor.process_all_rotation_matrices()
 
             self.properties._reset_line_property("xaxis_beam_rotation")
             app().pulse_file.write_line_properties_in_file()
             app().main_window.update_plots()
             self.close()
 
-    def get_list_typed_entries(self, str_list):
-        try:
-            tokens = str_list[1:-1].strip().split(',')
-            tokens.remove('')
-        except:
-            pass
-        return list(map(int, tokens))
-
-    def get_information(self, item):
-        try:
-            if self.lineEdit_selected_id.text() != "":
-
-                data = dict()
-                for line in self.get_list_typed_entries(item.text(1)):
-                    data[line] = ["Enabled"]
-
-                if len(data):
-                    self.close()
-                    header_labels = ["Lines", "Capped end effect"]
-                    GetInformationOfGroup(  group_label = "Capped end effect",
-                                            selection_label = "Line ID:",
-                                            header_labels = header_labels,
-                                            column_widths = [100, 140],
-                                            data = data  )        
-
-            else:
-                title = "Invalid selection"
-                message = "Please, select a group in the list to get the information."
-                PrintMessageInput([window_title_2, title, message])
-        except Exception as e:
-            title = "Error while getting information of selected group"
-            message = str(e)
-            PrintMessageInput([window_title_1, title, message])
-        self.show()
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.xaxis_beam_rotation_attribution_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)
+    
+# fmt: on

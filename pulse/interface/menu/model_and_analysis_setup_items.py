@@ -44,14 +44,12 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_nodal_loads = self.add_item('Set Nodal Loads')
         self.item_child_add_mass_spring_damper = self.add_item('Add: Mass / Spring / Damper')
         self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links')
-        self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
-        self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
-        self.item_child_set_capped_end = self.add_item('Set Capped End')
-        self.item_child_add_valves = self.add_item('Add Valves')
-        self.item_child_addFlanges = self.add_item('Add Flanges')
-        self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
-        self.item_child_setBeamXaxisRotation = self.add_item('Set Beam X-axis Rotation')
+        self.item_child_set_beam_xaxis_rotation = self.add_item('Set Beam X-axis Rotation')
         self.item_child_set_rotation_decoupling_dofs = self.add_item('Set Rotation Decoupling')
+        self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
+        self.item_child_add_valves = self.add_item('Add Valves')
+        self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
+        self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
         self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type')
@@ -87,11 +85,9 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_elastic_nodal_links.clicked.connect(self.item_child_add_elastic_nodal_links_callback)
         self.item_child_set_inertial_loads.clicked.connect(self.item_child_set_inertial_loads_callback)
         self.item_child_set_stress_stiffening.clicked.connect(self.item_child_set_stress_stiffening_callback)
-        self.item_child_set_capped_end.clicked.connect(self.item_child_set_capped_end_callback)
         self.item_child_add_valves.clicked.connect(self.item_child_add_valves_callback)
-        self.item_child_addFlanges.clicked.connect(self.item_child_add_flanges_callback)
         self.item_child_add_expansion_joint.clicked.connect(self.item_child_add_expansion_joint_callback)
-        self.item_child_setBeamXaxisRotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
+        self.item_child_set_beam_xaxis_rotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
         self.item_child_set_rotation_decoupling_dofs.clicked.connect(self.item_child_set_rotation_decoupling_callback)
         # Acoustic Model Setup
         self.item_child_set_acoustic_element_type.clicked.connect(self.item_child_set_acoustic_element_type_callback)
@@ -174,18 +170,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.main_window.input_ui.set_stress_stress_stiffening()
         app().main_window.set_input_widget(None)
 
-    def item_child_set_capped_end_callback(self):
-        self.main_window.input_ui.set_capped_end()
-        app().main_window.set_input_widget(None)
-
     def item_child_add_valves_callback(self):
         obj = self.main_window.input_ui.add_valve()
         if obj.complete:
             self.main_window.plot_mesh()
-        app().main_window.set_input_widget(None)
-
-    def item_child_add_flanges_callback(self):
-        self.main_window.input_ui.add_flanges()
         app().main_window.set_input_widget(None)
 
     def item_child_add_expansion_joint_callback(self):
@@ -283,11 +271,9 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_inertial_loads.setDisabled(bool_key)
         self.item_child_add_elastic_nodal_links.setDisabled(bool_key)
         self.item_child_set_stress_stiffening.setDisabled(bool_key)
-        self.item_child_set_capped_end.setDisabled(bool_key)
-        self.item_child_add_valves.setDisabled(bool_key) 
-        self.item_child_addFlanges.setDisabled(bool_key) 
+        self.item_child_add_valves.setDisabled(bool_key)
         self.item_child_add_expansion_joint.setDisabled(bool_key)  
-        self.item_child_setBeamXaxisRotation.setDisabled(bool_key)
+        self.item_child_set_beam_xaxis_rotation.setDisabled(bool_key)
         self.item_child_set_rotation_decoupling_dofs.setDisabled(bool_key)
         #   
         self.item_child_set_acoustic_element_type.setDisabled(bool_key)

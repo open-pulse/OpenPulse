@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>654</width>
     <height>500</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>576</width>
+       <width>620</width>
        <height>475</height>
       </size>
      </property>
@@ -354,7 +354,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>330</width>
+               <width>360</width>
                <height>280</height>
               </size>
              </property>
@@ -464,13 +464,13 @@
                <widget class="QLineEdit" name="lineEdit_offset_y">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -532,13 +532,13 @@
                <widget class="QLineEdit" name="lineEdit_insulation_thickness">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -600,13 +600,13 @@
                <widget class="QLineEdit" name="lineEdit_offset_z">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -668,13 +668,13 @@
                <widget class="QLineEdit" name="lineEdit_insulation_density">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -795,13 +795,13 @@
                <widget class="QLineEdit" name="lineEdit_outside_diameter">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -894,13 +894,13 @@
                <widget class="QLineEdit" name="lineEdit_wall_thickness">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -1459,7 +1459,17 @@
                  <string notr="true"/>
                 </property>
                 <property name="text">
-                 <string>Flip</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../../../../icons/common/invert_icon.png</normaloff>../../../../icons/common/invert_icon.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
                 </property>
                </widget>
               </item>
@@ -1490,7 +1500,17 @@
                  <string notr="true"/>
                 </property>
                 <property name="text">
-                 <string>Flip</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../../../../icons/common/invert_icon.png</normaloff>../../../../icons/common/invert_icon.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
                 </property>
                </widget>
               </item>
@@ -2557,106 +2577,6 @@
        <string>Beam</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_33">
-       <item row="2" column="0" colspan="2">
-        <widget class="QFrame" name="frame_16">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>52</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>52</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_34">
-          <property name="leftMargin">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
-          </property>
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="pushButton_plot_beam_cross_section">
-            <property name="minimumSize">
-             <size>
-              <width>140</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>140</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
-              <weight>50</weight>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string>Plot cross-section</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton_confirm_beam">
-            <property name="minimumSize">
-             <size>
-              <width>140</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>140</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string>Confirm</string>
-            </property>
-            <property name="shortcut">
-             <string>Ctrl+Return</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QTabWidget" name="tabWidget_beam_section">
          <property name="minimumSize">
@@ -2667,7 +2587,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>554</width>
+           <width>620</width>
            <height>350</height>
           </size>
          </property>
@@ -2726,30 +2646,17 @@
               <property name="spacing">
                <number>4</number>
               </property>
-              <item row="0" column="0">
-               <spacer name="horizontalSpacer_5">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
               <item row="2" column="3">
                <widget class="QLabel" name="label_109">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2765,7 +2672,7 @@
                <widget class="QLabel" name="label_112">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2787,7 +2694,7 @@
                <widget class="QLabel" name="label_113">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2809,13 +2716,13 @@
                <widget class="QLineEdit" name="lineEdit_base_rectangular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2842,7 +2749,7 @@
                <widget class="QLabel" name="label_94">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2864,13 +2771,13 @@
                <widget class="QLabel" name="label_110">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2886,13 +2793,13 @@
                <widget class="QLabel" name="label_100">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2908,7 +2815,7 @@
                <widget class="QLabel" name="label_114">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2930,13 +2837,13 @@
                <widget class="QLineEdit" name="lineEdit_offsety_rectangular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2963,13 +2870,13 @@
                <widget class="QLineEdit" name="lineEdit_height_rectangular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -2996,13 +2903,13 @@
                <widget class="QLabel" name="label_107">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3018,7 +2925,7 @@
                <widget class="QLabel" name="label_72">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3040,13 +2947,13 @@
                <widget class="QLabel" name="label_111">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3062,13 +2969,13 @@
                <widget class="QLineEdit" name="lineEdit_offsetz_rectangular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3095,13 +3002,13 @@
                <widget class="QLineEdit" name="lineEdit_wall_thickness_rectangular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3127,7 +3034,20 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="4">
+              <item row="2" column="0">
+               <spacer name="horizontalSpacer_5">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="2" column="4">
                <spacer name="horizontalSpacer_16">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -3308,13 +3228,13 @@
                <widget class="QLineEdit" name="lineEdit_outside_diameter_circular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3344,13 +3264,13 @@
                <widget class="QLineEdit" name="lineEdit_wall_thickness_circular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3534,13 +3454,13 @@
                <widget class="QLineEdit" name="lineEdit_offsety_circular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3570,13 +3490,13 @@
                <widget class="QLineEdit" name="lineEdit_offsetz_circular_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3772,13 +3692,13 @@
                <widget class="QLineEdit" name="lineEdit_height_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3811,13 +3731,13 @@
                <widget class="QLabel" name="label_121">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3838,13 +3758,13 @@
                <widget class="QLabel" name="label_122">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3892,13 +3812,13 @@
                <widget class="QLineEdit" name="lineEdit_w1_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3931,13 +3851,13 @@
                <widget class="QLineEdit" name="lineEdit_w2_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -3970,13 +3890,13 @@
                <widget class="QLabel" name="label_123">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4024,13 +3944,13 @@
                <widget class="QLineEdit" name="lineEdit_t1_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4063,13 +3983,13 @@
                <widget class="QLineEdit" name="lineEdit_t2_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4129,13 +4049,13 @@
                <widget class="QLabel" name="label_124">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4156,13 +4076,13 @@
                <widget class="QLineEdit" name="lineEdit_tw_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4195,13 +4115,13 @@
                <widget class="QLabel" name="label_125">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4276,13 +4196,13 @@
                <widget class="QLineEdit" name="lineEdit_offsety_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4315,13 +4235,13 @@
                <widget class="QLabel" name="label_126">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4342,13 +4262,13 @@
                <widget class="QLineEdit" name="lineEdit_offsetz_C_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4381,13 +4301,13 @@
                <widget class="QLabel" name="label_128">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4435,13 +4355,13 @@
                <widget class="QLabel" name="label_129">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4616,13 +4536,13 @@
                <widget class="QLineEdit" name="lineEdit_height_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4655,13 +4575,13 @@
                <widget class="QLineEdit" name="lineEdit_w1_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4721,13 +4641,13 @@
                <widget class="QLabel" name="label_142">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4743,13 +4663,13 @@
                <widget class="QLineEdit" name="lineEdit_w2_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4782,13 +4702,13 @@
                <widget class="QLabel" name="label_133">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4831,13 +4751,13 @@
                <widget class="QLineEdit" name="lineEdit_t1_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4870,13 +4790,13 @@
                <widget class="QLabel" name="label_138">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4919,13 +4839,13 @@
                <widget class="QLabel" name="label_141">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -4968,13 +4888,13 @@
                <widget class="QLineEdit" name="lineEdit_t2_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5007,13 +4927,13 @@
                <widget class="QLabel" name="label_136">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5029,13 +4949,13 @@
                <widget class="QLineEdit" name="lineEdit_tw_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5068,13 +4988,13 @@
                <widget class="QLabel" name="label_134">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5117,13 +5037,13 @@
                <widget class="QLabel" name="label_140">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5139,13 +5059,13 @@
                <widget class="QLineEdit" name="lineEdit_offsety_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5199,13 +5119,13 @@
                <widget class="QLineEdit" name="lineEdit_offsetz_I_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5259,13 +5179,13 @@
                <widget class="QLabel" name="label_139">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5408,13 +5328,13 @@
                <widget class="QLineEdit" name="lineEdit_tw_T_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5474,13 +5394,13 @@
                <widget class="QLabel" name="label_145">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5523,13 +5443,13 @@
                <widget class="QLabel" name="label_153">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5545,13 +5465,13 @@
                <widget class="QLineEdit" name="lineEdit_offsety_T_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5584,13 +5504,13 @@
                <widget class="QLineEdit" name="lineEdit_offsetz_T_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5623,13 +5543,13 @@
                <widget class="QLabel" name="label_143">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5645,13 +5565,13 @@
                <widget class="QLabel" name="label_144">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5721,13 +5641,13 @@
                <widget class="QLabel" name="label_152">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5743,13 +5663,13 @@
                <widget class="QLineEdit" name="lineEdit_height_T_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5782,13 +5702,13 @@
                <widget class="QLabel" name="label_151">
                 <property name="minimumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>35</width>
+                  <width>30</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5804,13 +5724,13 @@
                <widget class="QLineEdit" name="lineEdit_w1_T_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -5870,13 +5790,13 @@
                <widget class="QLineEdit" name="lineEdit_t1_T_section">
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>24</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -6115,13 +6035,13 @@
                <widget class="QLineEdit" name="lineEdit_Izz">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -6148,13 +6068,13 @@
                <widget class="QLineEdit" name="lineEdit_area">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -6181,13 +6101,13 @@
                <widget class="QLineEdit" name="lineEdit_Iyy">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -6214,13 +6134,13 @@
                <widget class="QLineEdit" name="lineEdit_Iyz">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -6247,13 +6167,13 @@
                <widget class="QLineEdit" name="lineEdit_shear_coefficient">
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>120</width>
                   <height>26</height>
                  </size>
                 </property>
@@ -6409,6 +6329,106 @@
          </widget>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QFrame" name="frame_16">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>52</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>52</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_34">
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="pushButton_plot_beam_cross_section">
+            <property name="minimumSize">
+             <size>
+              <width>140</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>140</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
+              <weight>50</weight>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string>Plot cross-section</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="pushButton_confirm_beam">
+            <property name="minimumSize">
+             <size>
+              <width>140</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>140</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string>Confirm</string>
+            </property>
+            <property name="shortcut">
+             <string>Ctrl+Return</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_sections">
@@ -6541,75 +6561,6 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="tab_section_elements">
-             <attribute name="title">
-              <string>Attributed by elements</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_22">
-              <item row="0" column="0">
-               <widget class="QTreeWidget" name="treeWidget_sections_parameters_by_elements">
-                <property name="minimumSize">
-                 <size>
-                  <width>500</width>
-                  <height>250</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>550</width>
-                  <height>350</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>MS Shell Dlg 2</family>
-                  <pointsize>9</pointsize>
-                  <italic>false</italic>
-                 </font>
-                </property>
-                <property name="indentation">
-                 <number>1</number>
-                </property>
-                <property name="headerHidden">
-                 <bool>false</bool>
-                </property>
-                <attribute name="headerHighlightSections">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerShowSortIndicator" stdset="0">
-                 <bool>false</bool>
-                </attribute>
-                <attribute name="headerStretchLastSection">
-                 <bool>true</bool>
-                </attribute>
-                <column>
-                 <property name="text">
-                  <string>ID</string>
-                 </property>
-                 <property name="textAlignment">
-                  <set>AlignCenter</set>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string>Element type</string>
-                 </property>
-                 <property name="textAlignment">
-                  <set>AlignCenter</set>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string>Section parameters</string>
-                 </property>
-                 <property name="textAlignment">
-                  <set>AlignCenter</set>
-                 </property>
-                </column>
-               </widget>
-              </item>
-             </layout>
-            </widget>
            </widget>
           </item>
          </layout>
@@ -6678,7 +6629,7 @@
              <string notr="true"/>
             </property>
             <property name="text">
-             <string>Load</string>
+             <string>Load section</string>
             </property>
            </widget>
           </item>
@@ -6774,7 +6725,6 @@
   <tabstop>pushButton_confirm_pipe</tabstop>
   <tabstop>tabWidget_sections_data</tabstop>
   <tabstop>treeWidget_sections_parameters_by_lines</tabstop>
-  <tabstop>treeWidget_sections_parameters_by_elements</tabstop>
   <tabstop>pushButton_load_section_info</tabstop>
  </tabstops>
  <resources/>

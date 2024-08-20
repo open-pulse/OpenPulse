@@ -10,14 +10,12 @@ from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input imp
 from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
 from pulse.interface.user_input.model.setup.structural.mass_spring_damper_input import MassSpringDamperInput
 from pulse.interface.user_input.model.setup.structural.elastic_nodal_links_input import ElasticNodalLinksInput
-from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
 from pulse.interface.user_input.model.setup.structural.stress_stiffening_input import StressStiffeningInput
-from pulse.interface.user_input.model.setup.structural.capped_end_input import CappedEndInput
-from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
-from pulse.interface.user_input.model.setup.structural.connecting_flanges_input import ConnectingFlangesInput
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
 from pulse.interface.user_input.model.setup.structural.xaxis_beam_rotation_input import BeamXaxisRotationInput 
 from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
+from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
+from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
 #
 from pulse.interface.user_input.model.setup.acoustic.acoustic_element_type_input import AcousticElementTypeInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
@@ -141,9 +139,6 @@ class InputUi:
     def add_mass_spring_damper(self):
         self.process_input(MassSpringDamperInput)
 
-    def set_capped_end(self):
-        self.process_input(CappedEndInput)
-
     def set_stress_stress_stiffening(self):
         self.process_input(StressStiffeningInput)
 
@@ -158,9 +153,6 @@ class InputUi:
 
     def add_valve(self):
         return self.process_input(ValvesInput)
-
-    def add_flanges(self):
-        self.process_input(ConnectingFlangesInput)
 
     def set_acoustic_element_type(self):
         self.process_input(AcousticElementTypeInput)

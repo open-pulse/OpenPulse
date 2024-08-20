@@ -263,18 +263,24 @@ class TubeActorGPU(vtkActor):
         self.GetMapper().RemoveAllClippingPlanes()
 
     def _hash_element_section(self, element):
-        if element.cross_section is not None:
-            section_label = element.cross_section.section_label
-            section_parameters = tuple(element.cross_section.section_parameters)
-        else:
+
+        if element.cross_section is None:
             section_label = None
             section_parameters = None
 
+        elif element.cross_section.section_parameters is None:
+            section_label = None
+            section_parameters = None
+
+        else:
+            section_label = element.cross_section.section_label
+            section_parameters = tuple(element.cross_section.section_parameters)
+
         return hash((
-            round(element.length, 5),
-            section_label,
-            section_parameters,
-        ))
+                        round(element.length, 5),
+                        section_label,
+                        section_parameters,
+                    ))
 
     def _fixed_section(self, source):
         transform = vtkTransform()

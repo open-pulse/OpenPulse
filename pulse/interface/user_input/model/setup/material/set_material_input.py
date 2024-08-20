@@ -42,10 +42,9 @@ class SetMaterialInput(QDialog):
 
     def _initialize(self):
 
-        self.keep_window_open = True
-
-        self.selected_row = None
         self.material = None
+        self.selected_row = None
+        self.keep_window_open = True
 
         self.before_run = app().project.get_pre_solution_model_checks()
 

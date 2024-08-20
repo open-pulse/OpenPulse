@@ -37,13 +37,13 @@ class ProjectFilesLoader:
         self.initialize_dictionaries_for_load_data()
         # self.load_material_data_from_file()
         # self.load_fluid_data_from_file()
-        self.load_cross_section_data_from_file()
-        self.load_element_type_data_from_file()
+        # self.load_cross_section_data_from_file()
+        # self.load_element_type_data_from_file()
         self.load_valve_data_from_file()
-        self.load_capped_end_data_from_file()
-        self.load_stress_stiffening_data_from_file()
-        self.load_compressor_info_from_file()
-        self.load_elements_data_from_file()
+        # self.load_capped_end_data_from_file()
+        # self.load_stress_stiffening_data_from_file()
+        # self.load_compressor_info_from_file()
+        # self.load_elements_data_from_file()
         # dt = time() - t0
         # print(f"Elapsed time to load project data: {dt} [s]")
 
@@ -766,121 +766,6 @@ class ProjectFilesLoader:
 
         return output, list_table_names, list_frequencies
 
-    def get_cross_sections_from_file(self):
-        """ This method returns a dictionary of already applied cross-sections.
-        """
-        try:
-
-            config = app().pulse_file.read_pipeline_data_from_file()
-            sections = config.sections()
-
-            _id = 1
-            section_info = dict()
-            variable_section_line_ids = list()
-            parameters_to_line_id = defaultdict(list)
-            parameters_to_elements_id = defaultdict(list)
-
-            for line in sections:
-
-                line_prefix = ""
-                list_elements = list()
-
-                section = config[line]
-                keys = section.keys()
-
-                if 'structural element type' in keys:
-                    structural_element_type = section['structural element type']
-                else:
-                    structural_element_type = "pipe_1"
-
-                if 'section type' in keys:
-                    section_type_label = section['section type']
-                else:
-                    section_type_label = "Pipe"
-
-                if structural_element_type in ["expansion_joint", "valve"]:
-                    continue
-                
-                section_parameters = list()
-                if structural_element_type == "pipe_1":
-
-                    if 'section parameters' in keys:
-                        str_section_parameters = section['section parameters']
-                        section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-  
-                    if len(section_parameters) == 10:
-                        if line_prefix not in variable_section_line_ids:
-                            variable_section_line_ids.append(line)
-
-                    if "-" in line:
-                        line_prefix = line.split("-")[0]
-                        if line_prefix in variable_section_line_ids:
-                            continue
-                        elif 'list of elements' in keys:
-                            str_list_elements = section['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)                 
-
-                else:
-
-                        structural_element_type = f"beam_1 - {section_type_label}"
-                        if section_type_label == "Generic section":   
-                            continue              
-
-                        else:
-                            if 'section parameters' in keys:
-                                str_section_parameters = section['section parameters']
-                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-                str_section_parameters = str(section_parameters)
-                if str_section_parameters not in parameters_to_line_id.keys():
-                    section_info[_id] = [structural_element_type, section_parameters]
-                    _id += 1
-
-                if line_prefix == "":
-                    parameters_to_line_id[str_section_parameters].append(int(line))
-
-                else:
-                    if list_elements:
-                        for element_id in list_elements:
-                            parameters_to_elements_id[str_section_parameters].append(element_id)
-                    else:    
-                        parameters_to_line_id[str_section_parameters].append(int(line))
-
-            id_1 = 0
-            id_2 = 0
-            section_info_elements = dict()
-            section_info_lines = dict()
-
-            for _id, _data in section_info.items():
-
-                _section_parameters = _data[1]
-                str_section_parameters = str(_section_parameters)
-
-                if str_section_parameters in parameters_to_line_id.keys():
-                    id_1 += 1
-                    data_lines = _data.copy()
-                    data_lines.append("line ids")
-                    data_lines.append(parameters_to_line_id[str_section_parameters])
-                    section_info_lines[id_1] = data_lines
-
-                if str_section_parameters in parameters_to_elements_id.keys():
-                    id_2 += 1
-                    data_elements = _data.copy()
-                    data_elements.append("element ids")
-                    data_elements.append(parameters_to_elements_id[str_section_parameters])
-                    section_info_elements[id_2] = data_elements
-
-        except Exception as error_log:
-
-            title = "Error while processing cross-sections"
-            message = "Error detected while processing the 'get_cross_sections_from_file' method.\n\n"
-            message += f"Last line id: {line}\n\n"
-            message += f"Details: \n\n {str(error_log)}"
-            PrintMessageInput([window_title_1, title, message])
-
-            return dict(), dict()
-
-        return section_info_lines, section_info_elements
 
 def get_color_rgb(color : str):
     color = color.replace(" ", "")

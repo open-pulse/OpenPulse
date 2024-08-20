@@ -242,13 +242,13 @@
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>30</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="sizeIncrement">
                 <size>
                  <width>196</width>
-                 <height>30</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -278,13 +278,13 @@
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>30</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="sizeIncrement">
                 <size>
                  <width>196</width>
-                 <height>30</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -314,7 +314,13 @@
                <property name="maximumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="sizeIncrement">
+                <size>
+                 <width>0</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -348,7 +354,13 @@
                <property name="maximumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="sizeIncrement">
+                <size>
+                 <width>0</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -384,7 +396,13 @@
                <property name="maximumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="sizeIncrement">
+                <size>
+                 <width>0</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -444,7 +462,13 @@
                <property name="maximumSize">
                 <size>
                  <width>80</width>
-                 <height>30</height>
+                 <height>26</height>
+                </size>
+               </property>
+               <property name="sizeIncrement">
+                <size>
+                 <width>0</width>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -502,7 +526,7 @@
              <property name="spacing">
               <number>0</number>
              </property>
-             <item row="0" column="0">
+             <item row="0" column="1">
               <widget class="QPushButton" name="pushButton_confirm">
                <property name="minimumSize">
                 <size>
@@ -526,6 +550,33 @@
                </property>
                <property name="text">
                 <string>Confirm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="pushButton_cancel">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string>Cancel</string>
                </property>
               </widget>
              </item>
@@ -564,7 +615,7 @@
             </property>
             <property name="maximumSize">
              <size>
-              <width>1000</width>
+              <width>320</width>
               <height>400</height>
              </size>
             </property>
@@ -587,7 +638,7 @@
              <property name="font">
               <font>
                <family>MS Shell Dlg 2</family>
-               <pointsize>10</pointsize>
+               <pointsize>9</pointsize>
                <weight>50</weight>
                <italic>false</italic>
                <bold>false</bold>
@@ -604,7 +655,7 @@
              <property name="font">
               <font>
                <family>MS Shell Dlg 2</family>
-               <pointsize>10</pointsize>
+               <pointsize>9</pointsize>
                <weight>50</weight>
                <italic>false</italic>
                <bold>false</bold>
@@ -680,7 +731,7 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_reset_all">
+              <widget class="QPushButton" name="pushButton_reset">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -702,7 +753,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Reset All</string>
+                <string>Reset</string>
                </property>
               </widget>
              </item>

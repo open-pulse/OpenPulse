@@ -1,12 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtCore import Qt, QSize, QPoint
-from PyQt5.QtGui import QCloseEvent, QFont
+# fmt: off
+
+from PyQt5.QtWidgets import QDialog, QCheckBox, QFrame, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.model.cross_section import CrossSection
-from pulse.tools.utils import get_V_linear_distribution, remove_bc_from_file
+from pulse.tools.utils import get_V_linear_distribution
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
@@ -24,8 +26,8 @@ class ValvesInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
+        self.properties = app().project.model.properties
 
-        self.main_window = app().main_window
         self.project = app().project
         self.model = app().project.model
 
@@ -38,7 +40,8 @@ class ValvesInput(QDialog):
         self.selection_callback()
         self.update_flange_length()
 
-        self.start_execution()
+        while self.keep_window_open:
+            self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -56,17 +59,12 @@ class ValvesInput(QDialog):
         self.structural_elements = self.preprocessor.structural_elements
 
         self.element_size = self.preprocessor.mesh.element_size
-        self.elements_info_path = self.project.file._element_info_path
         
         self.stop = False
         self.complete = False
         self.keep_window_open = True
 
         self.flange_outer_diameter = None
-
-    def start_execution(self):
-        while self.keep_window_open:
-            self.exec()
 
     def _define_qt_variables(self):
 
@@ -113,9 +111,9 @@ class ValvesInput(QDialog):
         #
         self.checkBox_add_flanges_to_the_valve.stateChanged.connect(self.checkBox_event_update)
         #
-        self.pushButton_confirm.clicked.connect(self.add_valve_to_selection)
-        self.pushButton_remove.clicked.connect(self.remove_valve_by_selection)
-        self.pushButton_reset.clicked.connect(self.reset_valves)
+        self.pushButton_confirm.clicked.connect(self.add_valve_callback)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.spinBox_number_elements_flange.valueChanged.connect(self.update_flange_length)
         #
@@ -160,6 +158,7 @@ class ValvesInput(QDialog):
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def tab_event_callback(self):
+        self.lineEdit_selected_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 2:
             self.selection_frame.setDisabled(True)
@@ -249,7 +248,7 @@ class ValvesInput(QDialog):
         if len(line_id) == 1:
 
             entity = self.model.mesh.lines_from_model[line_id[0]]
-            list_of_elements = self.model.mesh.line_to_elements[line_id[0]]
+            elements_from_line = self.model.mesh.line_to_elements[line_id[0]]
 
             if entity.valve_parameters is not None:
                 valve_parameters = entity.valve_parameters
@@ -257,7 +256,7 @@ class ValvesInput(QDialog):
         elif len(element_id) == 1:
 
             element = self.structural_elements[element_id[0]]
-            list_of_elements = element_id
+            elements_from_line = element_id
 
             if element.valve_parameters:
                 valve_parameters = element.valve_parameters
@@ -288,11 +287,10 @@ class ValvesInput(QDialog):
                 self.checkBox_add_flanges_to_the_valve.setChecked(False)
 
             aux = self.preprocessor.group_elements_with_perforated_plate
-            for [_, elements_from_pp] in aux.values():
-                for element_id in elements_from_pp:
-                    if element_id in list_of_elements:
-                        self.checkBox_enable_acoustic_effects.setChecked(True)
-                        return
+            for (property, element_id) in self.properties.element_properties.keys():
+                if element_id in elements_from_line:
+                    self.checkBox_enable_acoustic_effects.setChecked(True)
+                    return
 
             self.checkBox_enable_acoustic_effects.setChecked(False)
 
@@ -432,7 +430,7 @@ class ValvesInput(QDialog):
 
         return diameters_data
 
-    def add_valve_to_selection(self):
+    def add_valve_callback(self):
 
         if self.check_selection_type():
             return
@@ -538,7 +536,7 @@ class ValvesInput(QDialog):
         #     PrintMessageInput([window_title_2, title, message])
 
         self.complete = True
-        self.main_window.update_plots()
+        app().main_window.update_plots()
 
         if self.isVisible():
             self.close()
@@ -772,7 +770,7 @@ class ValvesInput(QDialog):
                             # self.project.add_cross_sections_expansion_joints_valves_in_file(input_elements)
                             return self.load_valves_info()
 
-    def remove_valve_by_selection(self):
+    def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":
 
             key = self.lineEdit_selected_id.text()
@@ -782,7 +780,7 @@ class ValvesInput(QDialog):
             self.lineEdit_selected_id.setText("")
             app().main_window.plot_lines_with_cross_sections()
 
-    def reset_valves(self):
+    def reset_callback(self):
 
         self.hide()
 
@@ -817,6 +815,8 @@ class ValvesInput(QDialog):
 
     def remove_valve_acoustic_effects_function(self, key, message_print=False):
 
+        # TODO: reimplement this
+
         if message_print:
             group_label = key.split(" || ")[1]
             message = f"The perforated plate attributed to the {group_label}\n"
@@ -824,20 +824,19 @@ class ValvesInput(QDialog):
         else:
             message = None
 
-        [_, list_elements] = self.preprocessor.group_elements_with_perforated_plate[key]
-        key_strings = ['perforated plate data', 'dimensionless impedance', 'list of elements']
-
-        remove_bc_from_file([key], self.elements_info_path, key_strings, message)
+        # remove_bc_from_file([key], self.elements_info_path, key_strings, message)
         # self.project.file.filter_bc_data_from_dat_file([key], key_strings, self.elements_info_path)
 
-        self.preprocessor.set_perforated_plate_by_elements(list_elements, None, key, delete_from_dict=True)
+        # self.preprocessor.set_perforated_plate_by_elements(list_elements, None, key, delete_from_dict=True)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.add_valve_to_selection()
+            self.add_valve_callback()
         if event.key() == Qt.Key_Escape:
             self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         return super().closeEvent(a0)
+    
+# fmt: on

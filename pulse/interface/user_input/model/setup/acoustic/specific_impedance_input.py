@@ -134,6 +134,7 @@ class SpecificImpedanceInput(QDialog):
             if property == "specific_impedance":
                 self.tabWidget_specific_impedance.setCurrentIndex(0)
                 self.tabWidget_specific_impedance.setTabVisible(2, True)
+                return
 
     def load_nodes_info(self):
 

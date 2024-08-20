@@ -931,18 +931,15 @@ class CompressorModelInput(QDialog):
         self.pushButton_remove.setDisabled(False)
 
     def update_tabs_visibility(self):
-
         self.lineEdit_selected_id.setText("")
         self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
         self.tabWidget_compressor.setTabVisible(3, False)
-
         for (property, _) in self.properties.nodal_properties.keys():
             if property == "compressor_excitation":
                 self.tabWidget_compressor.setCurrentIndex(0)
                 self.tabWidget_compressor.setTabVisible(3, True)
                 return
-
         self.tabWidget_compressor.setCurrentIndex(0)
 
     def spinBox_event_number_of_points(self):

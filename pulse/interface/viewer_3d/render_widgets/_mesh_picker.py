@@ -58,6 +58,9 @@ class MeshPicker:
             if element.cross_section is None:
                 return
 
+            if element.cross_section.section_parameters is None:
+                return
+
             # not sure if it works every time, but is a good approximation
             radius = max(element.cross_section.section_parameters)
             center = element.element_center_coordinates

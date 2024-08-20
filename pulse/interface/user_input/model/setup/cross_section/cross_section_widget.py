@@ -148,7 +148,6 @@ class CrossSectionWidget(QWidget):
         
         # QTreeWidget
         self.treeWidget_sections_parameters_by_lines : QTreeWidget
-        self.treeWidget_sections_parameters_by_elements : QTreeWidget
             
     def _create_connections(self):
         #
@@ -158,6 +157,7 @@ class CrossSectionWidget(QWidget):
         self.pushButton_check_if_section_is_normalized.clicked.connect(self.check_if_section_is_normalized)
         self.pushButton_plot_pipe_cross_section.clicked.connect(self.plot_section)
         self.pushButton_plot_beam_cross_section.clicked.connect(self.plot_section)
+        #
         self.config_treeWidget()
 
     def create_lists_of_entries(self):
@@ -242,10 +242,8 @@ class CrossSectionWidget(QWidget):
             lineEdit.setText("")
 
     def config_treeWidget(self):
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(0,40)
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(1,120)
-        self.treeWidget_sections_parameters_by_elements.setColumnWidth(0,40)
-        self.treeWidget_sections_parameters_by_elements.setColumnWidth(1,120)
+        self.treeWidget_sections_parameters_by_lines.setColumnWidth(0, 40)
+        self.treeWidget_sections_parameters_by_lines.setColumnWidth(1, 120)
 
     def select_standard_section(self):
         read = GetStandardCrossSection()

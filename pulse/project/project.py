@@ -125,9 +125,10 @@ class Project:
         self.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
+        # TODO: reimplement the project resetting
         self.reset()
         # self.file.remove_all_unnecessary_files(**kwargs)
-        self.file.reset_project_setup(**kwargs)
+        # self.file.reset_project_setup(**kwargs)
         self.file.reset_entity_file(**kwargs)
         if app().pulse_file.check_pipeline_data():
             self.process_geometry_and_mesh()
@@ -325,65 +326,65 @@ class Project:
                                                             update_section_points = False
                                                             )  
 
-    def get_dict_multiple_cross_sections_from_line(self, line_id):
-        '''This methods returns a dictionary of multiples cross-sections associated to 
-            the line of interest.        
-        '''
-        label_etypes = ['pipe_1']
-        indexes = [0]
-        dict_etype_index = dict(zip(label_etypes,indexes))
+    # def get_dict_multiple_cross_sections_from_line(self, line_id):
+    #     '''This methods returns a dictionary of multiples cross-sections associated to 
+    #         the line of interest.        
+    #     '''
+    #     label_etypes = ['pipe_1']
+    #     indexes = [0]
+    #     dict_etype_index = dict(zip(label_etypes,indexes))
 
-        dict_multiple_cross_sections = defaultdict(list)
-        list_elements_from_line = list(self.model.mesh.line_to_elements[line_id])
+    #     dict_multiple_cross_sections = defaultdict(list)
+    #     list_elements_from_line = list(self.model.mesh.line_to_elements[line_id])
         
-        elements = self.preprocessor.structural_elements
-        count_sections = 0
-        single_cross = False
+    #     elements = self.preprocessor.structural_elements
+    #     count_sections = 0
+    #     single_cross = False
 
-        for element_id in list_elements_from_line:
+    #     for element_id in list_elements_from_line:
 
-            element = elements[element_id]
-            e_type  = element.element_type
-            if e_type in ['beam_1', 'expansion_joint', 'valve', None]:
-                continue
+    #         element = elements[element_id]
+    #         e_type  = element.element_type
+    #         if e_type in ['beam_1', 'expansion_joint', 'valve', None]:
+    #             continue
             
-            index_etype = dict_etype_index[e_type]
-            cross_section = elements[element_id].cross_section
-            if cross_section:
-                outer_diameter = cross_section.outer_diameter
-                thickness = cross_section.thickness
-                offset_y = cross_section.offset_y
-                offset_z = cross_section.offset_z
-                insultation_thickness = cross_section.insulation_thickness
-                insultation_density = cross_section.insulation_density
-                key_string = str([  outer_diameter, 
-                                    thickness, 
-                                    offset_y, 
-                                    offset_z, 
-                                    insultation_thickness, 
-                                    insultation_density,
-                                    index_etype ])
+    #         index_etype = dict_etype_index[e_type]
+    #         cross_section = elements[element_id].cross_section
+    #         if cross_section:
+    #             outer_diameter = cross_section.outer_diameter
+    #             thickness = cross_section.thickness
+    #             offset_y = cross_section.offset_y
+    #             offset_z = cross_section.offset_z
+    #             insultation_thickness = cross_section.insulation_thickness
+    #             insultation_density = cross_section.insulation_density
+    #             key_string = str([  outer_diameter, 
+    #                                 thickness, 
+    #                                 offset_y, 
+    #                                 offset_z, 
+    #                                 insultation_thickness, 
+    #                                 insultation_density,
+    #                                 index_etype ])
 
-                if key_string not in list(dict_multiple_cross_sections.keys()):
-                    count_sections += 1
+    #             if key_string not in list(dict_multiple_cross_sections.keys()):
+    #                 count_sections += 1
 
-                dict_multiple_cross_sections[key_string].append(element_id)
+    #             dict_multiple_cross_sections[key_string].append(element_id)
 
-        self.number_sections_by_line[line_id] = count_sections
+    #     self.number_sections_by_line[line_id] = count_sections
 
-        if len(dict_multiple_cross_sections) == 1:
-            if count_sections == 1:
-                list_elements_from_cross_section = dict_multiple_cross_sections[key_string]
-                if list_elements_from_cross_section == list_elements_from_line:
-                    _element_type = elements[element_id].element_type
-                    self.set_structural_element_type_by_lines(line_id, _element_type)
-                    _cross_section = elements[element_id].cross_section
-                    self.set_cross_section_by_lines(line_id, _cross_section)
-                    if line_id in self.number_sections_by_line.keys():
-                        self.number_sections_by_line.pop(line_id)
-                    single_cross = True 
+    #     if len(dict_multiple_cross_sections) == 1:
+    #         if count_sections == 1:
+    #             list_elements_from_cross_section = dict_multiple_cross_sections[key_string]
+    #             if list_elements_from_cross_section == list_elements_from_line:
+    #                 _element_type = elements[element_id].element_type
+    #                 self.set_structural_element_type_by_lines(line_id, _element_type)
+    #                 _cross_section = elements[element_id].cross_section
+    #                 self.set_cross_section_by_lines(line_id, _cross_section)
+    #                 if line_id in self.number_sections_by_line.keys():
+    #                     self.number_sections_by_line.pop(line_id)
+    #                 single_cross = True 
 
-        return dict_multiple_cross_sections, single_cross
+    #     return dict_multiple_cross_sections, single_cross
 
     # def set_variable_cross_section_by_line(self, line_id, section_data):
     #     """
@@ -465,13 +466,13 @@ class Project:
     #                                             remesh_mapping = False,
     #                                             variable_section = True )
         
-    def set_cross_section_by_lines(self, lines, cross_section):
-        """
-        """
-        self.preprocessor.add_expansion_joint_by_lines(lines, None, remove=True)
-        self.preprocessor.set_cross_section_by_lines(lines, cross_section)
-        self._set_cross_section_to_selected_line(lines, cross_section)
-        self.file.add_cross_section_in_file(lines, cross_section)
+    # def set_cross_section_by_lines(self, lines, cross_section):
+    #     """
+    #     """
+    #     self.preprocessor.add_expansion_joint_by_lines(lines, None, remove=True)
+    #     self.preprocessor.set_cross_section_by_lines(lines, cross_section)
+    #     self._set_cross_section_to_selected_line(lines, cross_section)
+    #     self.file.add_cross_section_in_file(lines, cross_section)
 
     # def set_cross_section_by_elements(self, list_elements, cross_section, remesh_mapping=True, variable_section=False):
     #     """
@@ -484,9 +485,9 @@ class Project:
         #     if line not in self.lines_with_cross_section_by_elements:
         #         self.lines_with_cross_section_by_elements.append(line)
 
-    def reset_number_sections_by_line(self, line_id):
-        if line_id in list(self.number_sections_by_line.keys()):
-            self.number_sections_by_line.pop(line_id)
+    # def reset_number_sections_by_line(self, line_id):
+    #     if line_id in list(self.number_sections_by_line.keys()):
+    #         self.number_sections_by_line.pop(line_id)
 
     # def add_cross_sections_expansion_joints_valves_in_file(self, list_elements):
     #     list_lines = list()
@@ -510,66 +511,14 @@ class Project:
                 
     #             for list_elements_mapped in map_cross_sections_to_elements.values():
     #                 self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements_mapped)
-    
-    def set_structural_element_type_by_lines(self, lines, element_type):
-        self.preprocessor.set_structural_element_type_by_lines(lines, element_type)
-        # self._set_structural_element_type_to_selected_lines(lines, element_type)
-
-    def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove = False):
-
-        self.preprocessor.set_B2PX_rotation_decoupling( element_id,
-                                                        node_id,
-                                                        rotations_to_decouple = rotations_mask,
-                                                        remove = remove )
-
-        count_add, count_remove = 0, 0
-        temp_dict = self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.copy()
-
-        for key, elements in temp_dict.items():
-            count_add += 1
-            section_key = "B2PX ROTATION DECOUPLING || Selection-{}".format(count_add - count_remove)              
-            nodes = self.preprocessor.dict_nodes_with_B2PX_rotation_decoupling[key] 
-
-            if elements != list():   
-                self.file.modify_B2PX_rotation_decoupling_in_file(elements = elements, 
-                                                                  nodes = nodes, 
-                                                                  rotations_maks = key, 
-                                                                  section = section_key)
-                self.preprocessor.dict_B2PX_rotation_decoupling[key] = [elements, nodes, section_key]
-
-            elif elements == list() or rotations_mask==str([False, False, False]):
-                count_remove += 1
-                self.file.modify_B2PX_rotation_decoupling_in_file(elements = elements, 
-                                                                  nodes = nodes, 
-                                                                  rotations_maks = key, 
-                                                                  section = section_key, 
-                                                                  remove = True)
-                self.preprocessor.dict_nodes_with_B2PX_rotation_decoupling.pop(key)
-                self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.pop(key)
-                self.preprocessor.dict_B2PX_rotation_decoupling.pop(key)
-
-    def reset_B2PX_rotation_decoupling(self):
-        N = self.preprocessor.DOFS_ELEMENT
-        mat_reset = np.ones((N,N), dtype=int)
-        for list_elements in self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.values():
-            for element_ID in list_elements:
-                element = self.preprocessor.structural_elements[element_ID]
-                element.decoupling_matrix = mat_reset
-                element.decoupling_info = None
-        self.preprocessor.dict_nodes_with_B2PX_rotation_decoupling = dict()
-        self.preprocessor.dict_elements_with_B2PX_rotation_decoupling = dict()
-        self.file.modify_B2PX_rotation_decoupling_in_file(reset = True)
 
     def add_lumped_masses_by_node(self, node_id, data, imported_table):
-        [values, table_names] = data
         self.preprocessor.add_mass_to_node(node_id, data)
 
     def add_lumped_stiffness_by_node(self, node_id, data, imported_table):
-        [values, table_names] = data
         self.preprocessor.add_spring_to_node(node_id, data)
 
     def add_lumped_dampings_by_node(self, node_id, data, imported_table):
-        [values, table_names] = data
         self.preprocessor.add_damper_to_node(node_id, data)
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
@@ -584,149 +533,34 @@ class Project:
 
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None, remove=True)
         self.preprocessor.add_valve_by_line(line_ids, parameters, remove=remove, reset_cross=reset_cross)
-        self.set_capped_end_by_lines(line_ids, capped)
         self.set_structural_element_type_by_lines(line_ids, etype)
-        self._set_valve_to_selected_lines(line_ids, parameters)
-        
-        # if reset_cross:
 
-        #     if etype == "pipe_1":
-        #         self.set_cross_section_by_lines(line_ids, None)  
-            
-        #     if isinstance(line_ids, int):
-        #         line_ids = [line_ids]
-        #     for line_id in line_ids:
-        #         if line_id in self.number_sections_by_line.keys():
-        #             self.number_sections_by_line.pop(line_ids)
+    # def add_expansion_joint_by_lines(self, lines_id, parameters):
 
-        #     self.file.modify_valve_in_file(line_ids, parameters) 
+    #     if isinstance(lines_id, int):
+    #         lines_id = [lines_id]
 
-    def add_valve_by_elements(  self, 
-                                list_elements, 
-                                parameters,
-                                update_element_type = True, 
-                                reset_cross = True  ):
-                                        
-        if parameters is None:
-            remove = True
-            element_type = "pipe_1"
-        else:
-            remove = False
-            element_type = "valve"
+    #     if parameters is None:
+    #         remove = True
+    #         capped = False
+    #         etype = "pipe_1"
+    #     else:
+    #         remove = False
+    #         capped = True
+    #         etype = "expansion_joint"
 
-        self.preprocessor.add_valve_by_elements(list_elements, 
-                                                parameters, 
-                                                remove = remove, 
-                                                reset_cross = reset_cross)
-        
-        if update_element_type:
-            self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
+    #     self.preprocessor.add_expansion_joint_by_lines(lines_id, parameters, remove=remove)
+    #     self.set_capped_end_by_lines(lines_id, capped)
+    #     self.set_structural_element_type_by_lines(lines_id, etype)
+    #     # if etype == "pipe_1":
+    #     #     self.set_cross_section_by_lines(lines_id, None)  
+    #     self._set_expansion_joint_to_selected_lines(lines_id, parameters)
 
-        list_lines = list()
-        for element in list_elements:
-            line_id = self.model.mesh.elements_to_line[element]
-            if line_id not in list_lines:
-                list_lines.append(line_id)
-                            
-        for line_id in list_lines:
+    #     for line_id in lines_id:
+    #         if line_id in self.number_sections_by_line.keys():
+    #             self.number_sections_by_line.pop(line_id)
 
-            dict_multiple_cross_sections, single_cross = self.get_dict_multiple_cross_sections_from_line(line_id)          
-
-            if not single_cross:
-
-                dict_multiple_expansion_joints = self.get_map_expansion_joints_to_elements(line_id)
-
-                for [parameters_exp_joint, _group_elements_2, _] in dict_multiple_expansion_joints.values():    
-                    list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(_group_elements_2)
-
-                    for subgroup_elements in list_subgroup_elements:
-                        cross_sections = get_list_cross_sections_to_plot_expansion_joint(subgroup_elements, parameters_exp_joint[0][1])
-                        self.preprocessor.set_cross_section_by_element(subgroup_elements, cross_sections)
-
-                self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(   list_elements, 
-                                                                                                    reset_line = True, 
-                                                                                                    line_id = line_id, 
-                                                                                                    dict_map_cross = dict_multiple_cross_sections,
-                                                                                                    dict_map_expansion_joint = dict_multiple_expansion_joints )
-
-                elements_from_line = self.model.mesh.line_to_elements[line_id]
-                # self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )
-
-    def add_expansion_joint_by_lines(self, lines_id, parameters):
-
-        if isinstance(lines_id, int):
-            lines_id = [lines_id]
-
-        if parameters is None:
-            remove = True
-            capped = False
-            etype = "pipe_1"
-        else:
-            remove = False
-            capped = True
-            etype = "expansion_joint"
-
-        self.preprocessor.add_expansion_joint_by_lines(lines_id, parameters, remove=remove)
-        self.set_capped_end_by_lines(lines_id, capped)
-        self.set_structural_element_type_by_lines(lines_id, etype)
-        if etype == "pipe_1":
-            self.set_cross_section_by_lines(lines_id, None)  
-        self._set_expansion_joint_to_selected_lines(lines_id, parameters)
-
-        for line_id in lines_id:
-            if line_id in self.number_sections_by_line.keys():
-                self.number_sections_by_line.pop(line_id)
-
-        self.file.modify_expansion_joint_in_file(line_id, parameters)   
-
-    def add_expansion_joint_by_elements(self, 
-                                        list_elements, 
-                                        parameters,
-                                        update_element_type=True, 
-                                        reset_cross=True):
-                                       
-        if parameters is None:
-            remove = True
-            element_type = "pipe_1"
-        else:
-            remove = False
-            element_type = "expansion_joint"
-
-        self.preprocessor.add_expansion_joint_by_elements(  list_elements, 
-                                                            parameters, 
-                                                            remove=remove, 
-                                                            reset_cross=reset_cross  )
-        
-        if update_element_type:
-            self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
-
-        list_lines = list()
-        for element in list_elements:
-            line_id = self.model.mesh.elements_to_line[element]
-            if line_id not in list_lines:
-                list_lines.append(line_id)
-                            
-        for line_id in list_lines:
-
-            dict_multiple_cross_sections, single_cross = self.get_dict_multiple_cross_sections_from_line(line_id)
-            
-            if not single_cross:
-
-                dict_multiple_expansion_joints = self.get_map_expansion_joints_to_elements(line_id)
-                for [parameters_exp_joint, _group_elements_2, _] in dict_multiple_expansion_joints.values():    
-                    list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(_group_elements_2)
-                    for subgroup_elements in list_subgroup_elements:
-                        cross_sections = get_list_cross_sections_to_plot_expansion_joint(subgroup_elements, parameters_exp_joint[0][1])
-                        self.preprocessor.set_cross_section_by_element(subgroup_elements, cross_sections)
-                
-                self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(   list_elements, 
-                                                                                                    reset_line = True, 
-                                                                                                    line_id = line_id, 
-                                                                                                    dict_map_cross = dict_multiple_cross_sections,
-                                                                                                    dict_map_expansion_joint = dict_multiple_expansion_joints )
-
-                elements_from_line = self.model.mesh.line_to_elements[line_id]
-                # self.add_cross_sections_expansion_joints_valves_in_file( elements_from_line )                                              
+    #     self.file.modify_expansion_joint_in_file(line_id, parameters)   
 
     def get_map_expansion_joints_to_elements(self, line_id):
         structural_elements = self.preprocessor.structural_elements
@@ -877,13 +711,6 @@ class Project:
 
     def load_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple):
         self.preprocessor.set_B2PX_rotation_decoupling(element_ID, node_ID, rotations_to_decouple=rotations_to_decouple)
-    
-    def load_capped_end_by_elements(self, elements, value, selection):
-        self.preprocessor.set_capped_end_by_elements(elements, value, selection)
-
-    def load_capped_end_by_line(self, lines, value):
-        self.preprocessor.set_capped_end_by_lines(lines, value)
-        self._set_capped_end_to_lines(lines, value)
 
     def get_nodes_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs
@@ -976,13 +803,13 @@ class Project:
     #         entity = self.model.mesh.lines_from_model[line_id]
     #         entity.valve_parameters = parameters
     
-    def load_length_correction_by_elements(self, list_elements, value, key):
-        self.preprocessor.set_length_correction_by_element(list_elements, value, key)
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
+    # def load_length_correction_by_elements(self, list_elements, value, key):
+    #     self.preprocessor.set_length_correction_by_element(list_elements, value, key)
+    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
     
-    def load_perforated_plate_by_elements(self, list_elements, perforated_plate, key):
-        self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, key)
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
+    # def load_perforated_plate_by_elements(self, list_elements, perforated_plate, key):
+    #     self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, key)
+    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
     
     def set_perforated_plate_convergence_dataLog(self, data):
         self.perforated_plate_data_log = data
