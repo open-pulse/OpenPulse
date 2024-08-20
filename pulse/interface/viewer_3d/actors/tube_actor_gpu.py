@@ -111,11 +111,13 @@ class TubeActorGPU(vtkActor):
         cross_section = element.cross_section
         if cross_section is None:
             return vtkPolyData()
+        
+        # TODO: change the number of sides according to mesh size
+        tube_sides = 30
 
-        # Simplify tube meshes when the model is too big
         if cross_section.section_label in ["Pipe", "Reducer"]:
             d_out, t, *_ = cross_section.section_parameters
-            return cross_section_sources.pipe_data(element.length, d_out, t, sides=30)
+            return cross_section_sources.pipe_data(element.length, d_out, t, sides=tube_sides)
 
         elif cross_section.section_label == "Rectangular section":
             b, h, t, *_ = cross_section.section_parameters
@@ -141,6 +143,23 @@ class TubeActorGPU(vtkActor):
         elif cross_section.section_label == "T-section":
             h, w1, t1, tw, *_ = cross_section.section_parameters
             return cross_section_sources.t_beam_data(element.length, h, w1, t1, tw)
+        
+        elif cross_section.section_label == "Expansion joint section":
+            if self.expansion_joint_plot_key == "major":
+                r_out = self.outer_radius * 1.25 
+            elif self.expansion_joint_plot_key == "minor":
+                r_out = self.outer_radius * 1.1            
+            else:
+                r_out = self.outer_radius * 1.4
+            d_out = r_out * 2
+            d_in = r_out * 1.6
+            t = d_out - d_in
+            return cross_section_sources.pipe_data(element.length, d_out, t, sides=tube_sides)
+
+        elif cross_section.section_label == "Valve section":
+            d_out = self.outer_diameter_to_plot
+            t = d_out - self.inner_diameter_to_plot
+            return cross_section_sources.pipe_data(element.length, d_out, t, sides=tube_sides)
 
         return None
 
@@ -283,6 +302,9 @@ class TubeActorGPU(vtkActor):
                     ))
 
     def _fixed_section(self, source):
+        if source is None:
+            return vtkPolyData()
+
         transform = vtkTransform()
         transform.RotateZ(-90)
         transform.RotateY(180)
